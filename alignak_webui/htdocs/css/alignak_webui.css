@@ -49,8 +49,9 @@ html, body {
  * be shifted to the bottom.
  */
 #page-wrapper > div.row {
-    margin-top: 60px;
+    margin-top: 55px;
     padding: 3px;
+    margin-bottom: 30px;
 }
 
 /*
