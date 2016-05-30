@@ -12,4 +12,4 @@ python-dateutil
 pytz
 uwsgi
 # alignak_backend_client
--e git+https://github.com/Alignak-monitoring-contrib/alignak-backend-client/archive/status_post_files.zip#egg=alignak_backend_client
+-e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@status_post_files.zip#egg=alignak_backend_client
