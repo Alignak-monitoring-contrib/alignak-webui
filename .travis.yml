@@ -1,0 +1,41 @@
+language: python
+sudo: true
+python:
+  - "2.7"
+  # - "3.4"
+
+services:
+  - mongodb
+
+# command to install dependencies
+# some are only used for travis/coveralls so we are installing them here only
+install:
+  - bash test/setup_test.sh
+# command to run tests
+# notice: the nose-cov is used because it is compatible with --processes, but produce a .coverage by process
+# so we must combine them in the end
+script:
+  # so to help eventual debug: knowing what exact versions are in use can be rather useful.
+  - pip freeze
+  # Code static analysis
+  - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_webui/*
+  - pylint --rcfile=.pylintrc alignak_webui/
+  # No pep257 currently (Code doc compliance)
+  # - pep257 --select=D300 alignak_webui
+  # Code dynamic analysis
+  - cd test
+  - coverage erase
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_helper.py test_settings.py test_run.py test_dashkiosk.py
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_datamanager.py test_datatable.py test_backend_glpi.py
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_web*.py
+  - coverage combine
+  - coverage report -m
+  - cd ..
+# specific call to launch coverage data into coveralls.io
+after_success:
+  # to get coverage data with relative paths and not absolute we have to
+  # execute coveralls from the base directory of the project,
+  # so we need to move the .coverage file here :
+  # mv test/.coverage . && coveralls --rcfile=test/.coveragerc -v
+  mv test/.coverage . && coveralls -v
+
