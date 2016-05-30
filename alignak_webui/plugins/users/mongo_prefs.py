@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position, too-many-return-statements
 
 # Copyright (C) 2015-2016 F. Mohier pour IPM France
 
