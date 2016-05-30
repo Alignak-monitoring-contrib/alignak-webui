@@ -268,7 +268,7 @@ def user_authentication(username, password):
     Stores the authenticated User object in the session to make it available
     '''
 
-    logger.info("user_auth, authenticating: %s", username)
+    logger.info("user_authentication, authenticating: %s", username)
 
     # Session...
     session = request.environ['beaker.session']
@@ -310,7 +310,7 @@ def user_authentication(username, password):
 
     session['message'] = session['datamanager'].connection_message
     session['current_user'] = session['datamanager'].get_logged_user()
-    logger.debug("user_auth, current user authenticated")
+    logger.debug("user_authentication, current user authenticated")
     return True
 
 

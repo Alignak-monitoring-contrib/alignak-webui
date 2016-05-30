@@ -154,11 +154,13 @@ class test_2_creation(unittest2.TestCase):
         print 'Data manager', datamanager
 
         # Initialize and load fail ...
+        print 'DM load failed'
         result = datamanager.load()
         # Refused because no backend logged-in user
         assert not result
 
         # Login error
+        print 'DM logging bad password'
         assert not datamanager.user_login('admin', 'fake')
         print datamanager.connection_message
         assert datamanager.connection_message == 'Backend is not available'
@@ -166,6 +168,7 @@ class test_2_creation(unittest2.TestCase):
         assert not datamanager.logged_in_user
 
         # Create new datamanager - do not use default backend address
+        print 'DM initialization'
         datamanager = DataManager(backend_endpoint=backend_address)
         assert datamanager.backend
         assert datamanager.loaded == False
@@ -173,11 +176,13 @@ class test_2_creation(unittest2.TestCase):
         print 'Data manager', datamanager
 
         # Initialize and load fail ...
+        print 'DM load fail'
         result = datamanager.load()
         # Refused because no backend logged-in user
         assert not result
 
         # Login error
+        print 'DM logging bad password'
         assert not datamanager.user_login('admin', 'fake')
         print datamanager.connection_message
         assert datamanager.connection_message == 'Backend connection refused...'
@@ -185,6 +190,7 @@ class test_2_creation(unittest2.TestCase):
         assert not datamanager.logged_in_user
 
         # User login but do not load yet
+        print 'DM login ok'
         assert datamanager.user_login('admin', 'admin', load=False)
         assert datamanager.connection_message == 'Connection successful'
         print datamanager.logged_in_user
@@ -194,21 +200,25 @@ class test_2_creation(unittest2.TestCase):
         assert datamanager.get_logged_user().authenticated
         user_token = datamanager.get_logged_user().get_token()
 
+        print 'DM reset'
         datamanager.reset()
         # Still logged-in...
         assert datamanager.logged_in_user
         assert datamanager.get_logged_user() != None
 
+        print 'DM reset - logout'
         datamanager.reset(logout=True)
         # Logged-out...
         assert not datamanager.logged_in_user
         assert datamanager.get_logged_user() == None
 
         # User login with an authentication token
+        print 'DM login - token'
         assert datamanager.user_login(user_token)
         # assert datamanager.connection_message == 'Backend connected'
         # When user authentication is made thanks to a token, DM is not loaded ... it is assumed that load already occured!
 
+        print 'DM login'
         assert datamanager.user_login('admin', 'admin', load=False)
         user_token = datamanager.get_logged_user().get_token()
         assert datamanager.user_login(user_token)

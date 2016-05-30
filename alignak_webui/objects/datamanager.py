@@ -58,7 +58,7 @@ class DataManager(object):
         Application data manager object
     """
 
-    def __init__(self, backend_endpoint='http://127.0.0.1:5000', glpi=None):
+    def __init__(self, backend_endpoint='http://127.0.0.1:5002', glpi=None):
         """
         Create an instance
         """
@@ -160,7 +160,7 @@ class DataManager(object):
             else:
                 self.connection_message = _('Backend connection refused...')
         except BackendException as e:  # pragma: no cover, should not happen
-            logger.warning("configured applications backend is not available!")
+            logger.warning("configured backend is not available!")
             self.connection_message = e.message
             self.connected = False
         except Exception as e:  # pragma: no cover, should not happen
