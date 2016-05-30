@@ -11,4 +11,5 @@ termcolor
 python-dateutil
 pytz
 uwsgi
-alignak_backend_client
+# alignak_backend_client
+-e https://github.com/Alignak-monitoring-contrib/alignak-backend-client/archive/status_post_files.zip
