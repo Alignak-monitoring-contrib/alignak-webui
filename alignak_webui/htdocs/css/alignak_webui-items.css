@@ -1,0 +1,77 @@
+/*  Flat color palette downloaded from
+ *  http://htmlcolorcodes.com/color-charts/
+ *
+ * Items states classes used to colour icons ...
+ */
+
+/* Commands execution status */
+.item_evt_command.ok {
+    color: #2ecc71;
+ }
+.item_evt_command.warning {
+    color: #f39c12;
+}
+.item_evt_command.critical {
+    color: #c0392b;
+}
+.item_evt_command.unknown {
+    color: #3498db;
+}
+.item_evt_command.not_executed {
+    color: #95a5a6;
+}
+
+/* Teals */
+.turquoise { color: #1abc9c; }
+.green-sea { color: #16a085; }
+
+/* Greens */
+.item_active,
+.emerald { color: #2ecc71; }
+.item_open,
+.item_hostUp,
+.nephritis { color: #27ae60; }
+
+/* Blues */
+.item_unknown,
+.peter-river { color: #3498db; }
+.item_hostUnknown,
+.belize-hole { color: #2980b9; }
+
+/* Purples */
+.amethyst { color: #9b59b6; }
+.wisteria { color: #8e44ad; }
+
+/* Blacks */
+.item_command,
+.wet-asphalt { color: #34495e; }
+.item_user,
+.midnight-blue { color: #2c3e50; }
+
+/* Yellows */
+.sunflower { color: #f1c40f; }
+.orange { color: #f39c12; }
+
+/* Oranges */
+.item_close,
+.item_inactive,
+.carrot { color: #e67e22; }
+.item_hostUnreachable,
+.pumpkin { color: #d35400; }
+
+/* Reds */
+.item_hostDown,
+.alizarin { color: #e74c3c; }
+.pomegranate { color: #c0392b; }
+
+/* Whites */
+.clouds { color: #ecf0f1; }
+.silver { color: #bdc3c7; }
+
+/* Grays */
+.concrete { color: #95a5a6; }
+.asbestos { color: #7f8c8d; }
+
+/*  Want more? Get the full flat color palette at
+ *  http://htmlcolorcodes.com/color-charts/
+ */

@@ -1,0 +1,110 @@
+/**
+* Copyright (C) 2015-2016 F. Mohier pour IPM France:
+*
+**/
+
+/*
+ * Background layout
+body, section.content {
+   background: #232426 !important;
+}
+*/
+
+/*
+ * Date and time
+#clock {
+   text-align: center;
+   font-family: Century Gothic, sans-serif;
+
+   font-size: 4em;
+
+   color: #FFFFFF;
+}
+
+#date {
+   text-align: center;
+   font-family: Century Gothic, sans-serif;
+
+   font-size: 3em;
+
+   color: #535456;
+   padding-bottom: 0.25em;
+}
+ */
+
+/*
+@media (max-width: 768px) {
+   #clock {
+      font-size: 4em;
+   }
+   #date {
+      font-size: 1.5em;
+   }
+}
+@media (min-width: 768px) {
+   #clock {
+      font-size: 6em;
+   }
+   #date {
+      font-size: 2em;
+   }
+}
+@media (min-width: 900px) {
+   #clock {
+      font-size: 8em;
+   }
+   #date {
+      font-size: 3em;
+   }
+}
+*/
+
+/*
+ * Overall state
+#one-eye-overall div.panel-darkgrey {
+   background-color: #444;
+   border: 0;
+}
+ */
+
+
+/*
+ * Icons bar
+#one-eye-icons {
+   text-align: center;
+}
+
+#one-eye-icons div.panel-darkgrey {
+   background-color: #444;
+   border: 0;
+}
+
+#one-eye-problems {
+   text-align: center;
+}
+
+#one-eye-problems div.panel-darkgrey {
+   background-color: #444;
+   border: 0;
+}
+ */
+
+/*
+ * Badger styles
+.badger-big {
+  border-radius: 3px;
+  color: #FFFFFF;
+  font-size: 2em;
+  font-weight: bold;
+  padding: 1px 3px 2px;
+  text-transform: uppercase;
+}
+
+.badger-title {
+   bottom: 3.3em;
+   letter-spacing: 2px;
+   right: 2.6em !important;
+   color: white;
+}
+
+ */

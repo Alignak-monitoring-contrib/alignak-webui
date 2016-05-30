@@ -1,0 +1,14 @@
+configparser
+docopt
+Bottle>=0.12.8,<0.13
+Beaker==1.8.0
+CherryPy
+pymongo>=3.2
+requests>=2.9.1
+setproctitle>=1.1.8
+python-gettext
+termcolor
+python-dateutil
+pytz
+uwsgi
+alignak_backend_client

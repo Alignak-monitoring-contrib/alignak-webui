@@ -1,0 +1,4 @@
+include README.rst LICENSE AUTHORS requirements.txt
+include etc/settings.cfg
+recursive-include alignak_webui *.*
+global-exclude *.pyc
