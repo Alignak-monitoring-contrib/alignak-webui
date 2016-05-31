@@ -1,5 +1,5 @@
-%setdefault("common_bookmarks", webui.prefs_module.get_common_bookmarks())
-%setdefault("user_bookmarks", webui.prefs_module.get_user_bookmarks(current_user.get_username()))
+%setdefault("common_bookmarks", datamgr.get_user_preferences('common', 'bookmarks', []))
+%setdefault("user_bookmarks", datamgr.get_user_preferences(current_user.get_username(), 'bookmarks', []))
 
 %from bottle import request
 %if 'search_engine' in request.route.config and request.route.config['search_engine']:
@@ -42,7 +42,7 @@
          <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}">
       </div>
    </div>
-   <!--
+   %if user_bookmarks or common_bookmarks:
    <div class="dropdown form-group text-left">
       <button class="btn btn-default dropdown-toggle" type="button" id="bookmarks_menu" data-toggle="dropdown" aria-expanded="true">
          <i class="fa fa-bookmark"></i>
@@ -60,5 +60,5 @@
          </script>
       </ul>
    </div>
-   -->
+   %end
 </form>

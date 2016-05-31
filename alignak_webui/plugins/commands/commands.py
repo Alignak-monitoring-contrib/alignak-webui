@@ -36,6 +36,7 @@ from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import sort_items_most_recent_first
 
 from alignak_webui.utils.datatable import Datatable
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -143,15 +144,15 @@ def get_commands():
         username = target_user.get_username()
 
     # Fetch elements per page preference for user, default is 25
-    elts_per_page = webui.prefs_module.get_ui_user_preference(username, 'elts_per_page', 25)
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
 
     # Fetch sound preference for user, default is 'no'
-    sound_pref = webui.prefs_module.get_ui_user_preference(
+    sound_pref = datamgr.get_user_preferences(
         username, 'sound', request.app.config.get('play_sound', 'no')
     )
     sound = request.query.get('sound', '')
     if sound != sound_pref and sound in ['yes', 'no']:  # pragma: no cover - RFU sound
-        webui.prefs_module.set_ui_user_preference(user.get_username(), 'sound', sound)
+        datamgr.set_user_preferences(user.get_username(), 'sound', sound)
         sound_pref = sound
 
     # Pagination and search
@@ -177,11 +178,8 @@ def get_commands():
 
     return {
         'commands': commands,
-        'start': start, 'count': count, 'total': total,
-        'pagination': webui.helper.get_pagination_control(total, start, count),
+        'pagination': Helper.get_pagination_control('command', total, start, count),
         'title': request.query.get('title', _('All commands')),
-        'bookmarks': webui.prefs_module.get_user_bookmarks(user.get_username()),
-        'bookmarksro': webui.prefs_module.get_common_bookmarks(),
         'sound': sound_pref,
         'elts_per_page': elts_per_page
     }
@@ -194,22 +192,6 @@ def get_commands_table():
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = webui.prefs_module.get_ui_user_preference(username, 'elts_per_page', 25)
-
-    # Fetch sound preference for user, default is 'no'
-    sound_pref = webui.prefs_module.get_ui_user_preference(
-        username, 'sound', request.app.config.get('play_sound', 'no')
-    )
-    sound = request.query.get('sound', '')
-    if sound != sound_pref and sound in ['yes', 'no']:  # pragma: no cover - RFU sound
-        webui.prefs_module.set_ui_user_preference(username, 'sound', sound)
-        sound_pref = sound
 
     # Pagination and search
     where = webui.helper.decode_search(request.query.get('search', ''))
@@ -225,12 +207,9 @@ def get_commands_table():
         title = title % total
 
     return {
+        'object_type': 'command',
         'dt': dt,
-        'title': request.query.get('title', title),
-        'bookmarks': webui.prefs_module.get_user_bookmarks(user.get_username()),
-        'bookmarksro': webui.prefs_module.get_common_bookmarks(),
-        'sound': sound_pref,
-        'elts_per_page': elts_per_page
+        'title': request.query.get('title', title)
     }
 
 
@@ -259,7 +238,7 @@ pages = {
     get_commands_table: {
         'name': 'Commands table',
         'route': '/commands_table',
-        'view': 'commands_table'
+        'view': '_table'
     },
 
     get_commands_table_data: {

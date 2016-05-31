@@ -1,6 +1,12 @@
-% debug=False
+%debug=False
+%# Fetch elements per page preference for user, default is 25
+%elts_per_page = datamgr.get_user_preferences(current_user.get_username(), 'elts_per_page', 25)
 
-%from alignak_webui.objects.item import UserService,Session
+%# Fetch sound preference for user, default is 'no'
+%sound_pref = datamgr.get_user_preferences(current_user.get_username(), 'sound', None)
+%if not sound_pref:
+%datamgr.set_user_preferences(current_user.get_username(), 'sound', {'sound': request.app.config.get('play_sound', 'no')})
+%end
 
 
 <script type="text/javascript">
@@ -12,20 +18,20 @@
          dataType: "html"
       })
       .done(function(html, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Update header sessions state");
-         $('#overall-sessions-states').html(html);
+         if (refresh_logs) console.debug("Update header - hosts state");
+         $('#overall-hosts-states').html(html);
          // Activate the popover ...
-         $('#sessions-states-popover').popover({
+         $('#hosts-states-popover').popover({
             placement: 'bottom',
             animation: true,
             template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
             content: function() {
-               return $('#sessions-states-popover-content').html();
+               return $('#hosts-states-popover-content').html();
             }
          });
       })
       .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error('header_refresh, sessions failed: ', jqXHR, textStatus, errorThrown);
+         console.error('header_refresh, hosts failed: ', jqXHR, textStatus, errorThrown);
       });
 
       /*
@@ -38,12 +44,12 @@
          if (refresh_logs) console.debug("Update header services state");
          $('#overall-services-states').html(html);
          // Activate the popover ...
-         $('#sessions-services-popover').popover({
+         $('#hosts-services-popover').popover({
             placement: 'bottom',
             animation: true,
             template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
             content: function() {
-               return $('#sessions-services-popover-content').html();
+               return $('#hosts-services-popover-content').html();
             }
          });
       })
@@ -84,7 +90,7 @@
             </div>
 
             <ul class="nav navbar-nav navbar-right">
-               <li id="overall-sessions-states">
+               <li id="overall-hosts-states">
                   %include("_header_hosts_state.tpl")
                </li>
 
@@ -196,20 +202,20 @@
 
    <script type="text/javascript">
       // Set alerting sound icon ...
-      if (! sessionStorage.getItem("sound_play")) {
+      if (! hostStorage.getItem("sound_play")) {
          // Default is to play ...
-         sessionStorage.setItem("sound_play", '1');
+         hostStorage.setItem("sound_play", '1');
       }
 
       // Toggle sound ...
-      if (sessionStorage.getItem("sound_play") == '1') {
+      if (hostStorage.getItem("sound_play") == '1') {
          $('#sound_alerting i.fa-ban').addClass('hidden');
       } else {
          $('#sound_alerting i.fa-ban').removeClass('hidden');
       }
       $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
-         if (sessionStorage.getItem("sound_play") == '1') {
-            sessionStorage.setItem("sound_play", "0");
+         if (hostStorage.getItem("sound_play") == '1') {
+            hostStorage.setItem("sound_play", "0");
             $('#sound_alerting i.fa-ban').removeClass('hidden');
          } else {
             playAlertSound();

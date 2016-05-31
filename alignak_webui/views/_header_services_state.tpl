@@ -1,14 +1,14 @@
-%from alignak_webui.objects.item import UserService
+%from alignak_webui.objects.item import Service
 
-%uss = datamgr.get_userservices_synthesis()
+%services_states = datamgr.get_services_synthesis()
 <div id="services-states-popover-content" class="hidden">
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
-            %for state in "active", "inactive", "unknown":
+            %for state in "ok", "warning", "critical", "unknown":
             <td>
-              %label = "%s <i>(%s%%)</i>" % (uss["nb_" + state], uss["pct_" + state])
-              {{! UserService({'status':state}).get_html_state(label=label, disabled=(not uss["nb_" + state]))}}
+              %label = "%s <i>(%s%%)</i>" % (services_states["nb_" + state], services_states["pct_" + state])
+              {{! Service({'status':state}).get_html_state(label=label, disabled=(not services_states["nb_" + state]))}}
             </td>
             %end
          </tr>
@@ -18,9 +18,9 @@
 
 %label = 'primary'
 <a id="services-states-popover"
-   class="services-all" data-count="{{ uss['nb_elts'] }}" data-problems="{{ uss['nb_problem'] }}"
-   href="{{webui.get_url('User services')}}"
-   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services') % (uss['nb_elts'])}}" data-html="true" data-trigger="hover">
+   class="services-all" data-count="{{ services_states['nb_elts'] }}" data-problems="{{ services_states['nb_problem'] }}"
+   href="{{webui.get_url('Services')}}"
+   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services') % (services_states['nb_elts'])}}" data-html="true" data-trigger="hover">
    <i class="fa fa-desktop"></i>
-   <span class="label label-as-badge label-{{label}}">{{uss["nb_active"]}}</span>
+   <span class="label label-as-badge label-{{label}}">{{services_states["nb_ok"]}}</span>
 </a>

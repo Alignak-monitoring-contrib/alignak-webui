@@ -1,6 +1,8 @@
 %setdefault('action_bar', False)
 %setdefault('in_sidebar', False)
 
+%action_bar = (len(webui.get_widgets_for('dashboard')) != 0)
+
 %if target_user.is_anonymous() or target_user.get_username() == current_user.get_username():
 %target_user = None
 %end
@@ -14,17 +16,29 @@
             <span class="hidden-sm hidden-xs">{{_('Dashboard')}}</span>
          </a>
       </li>
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Livestate table')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Livestate table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <span class="fa fa-fw fa-table"></span>
+            <span class="hidden-sm hidden-xs">{{_('Livestate')}}</span>
+         </a>
+      </li>
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Hosts table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-table"></span>
-            <span class="hidden-sm hidden-xs">{{_('Hosts table')}}</span>
+            <span class="hidden-sm hidden-xs">{{_('Hosts')}}</span>
+         </a>
+      </li>
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services table')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Services table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <span class="fa fa-fw fa-table"></span>
+            <span class="hidden-sm hidden-xs">{{_('Services')}}</span>
          </a>
       </li>
       %if current_user.is_administrator():
-      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Users') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Contacts')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Contacts') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-users"></span>
-            <span class="hidden-sm hidden-xs">{{_('Users')}}</span>
+            <span class="hidden-sm hidden-xs">{{_('Contacts')}}</span>
          </a>
       </li>
       %end

@@ -1,16 +1,16 @@
 %import json
 
 %setdefault('commands', True)
-%setdefault('object_type', 'host')
+%setdefault('object_type', 'livestate')
 
 %from bottle import request
 %search_string = request.query.get('search', '')
 
 %# Datatables js and css are included in the page layout
-%rebase("layout", title=title, page="/hosts_table")
+%rebase("layout", title=title, page="/livestate_table")
 
-<!-- hosts filtering and display -->
-<div id="hosts_table">
+<!-- livestate filtering and display -->
+<div id="livestate_table">
    <table id="tbl_{{object_type}}" class="table table-striped" cellspacing="0" width="100%">
       <thead>
          <tr>
@@ -189,7 +189,7 @@
          "columns": columns,
          "serverSide": true,
          "ajax": {
-            "url": "/hosts_table_data",
+            "url": "/livestate_table_data",
             "type": "POST",
             "dataSrc": "data",
             "data": function ( d ) {

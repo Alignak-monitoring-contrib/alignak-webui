@@ -177,6 +177,74 @@ class Helper(object):
             )
 
     @staticmethod
+    def get_html_business_impact(business_impact, icon=True, text=False):
+        '''
+            Give a business impact as text and stars if needed.
+            If text=True, returns text+stars, else returns stars only ...
+        '''
+        if not 0 <= business_impact <= 5:
+            return 'n/a - value'
+
+        if not icon and not text:
+            return 'n/a - parameters'
+
+        bi_texts = {
+            0: _('None'),
+            1: _('Low'),
+            2: _('Normal'),
+            3: _('Important'),
+            4: _('Very important'),
+            5: _('Business critical')
+        }
+
+        nb_stars = max(0, business_impact - 2)
+        stars = '<i class="fa fa-star text-primary"></i>' * nb_stars
+
+        if not text:
+            return stars
+
+        if not icon:
+            return bi_texts.get(business_impact, _('Unknown'))
+
+        return "%s %s" % (bi_texts.get(business_impact, _('Unknown')), stars)
+
+    @staticmethod
+    def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
+        '''
+        Return list of element action urls
+        '''
+
+        if obj is not None:
+            return self.get_urls(obj, obj.action_url, default_title=default_title, default_icon=default_icon, popover=popover)
+
+        return None
+
+    @staticmethod
+    def get_element_notes_url(obj, default_title="Url", default_icon="globe", popover=False):
+        '''
+        Return list of element notes urls
+        '''
+
+        if obj is not None and obj.notes:
+            notes = []
+            i=0
+            for item in obj.notes.split('|'):
+                if not obj.notes_url:
+                    notes.append("%s,," % (item))
+                else:
+                    notes_url = obj.notes_url.split('|')
+                    if len(notes_url) > i:
+                        notes.append("%s,,%s" % (item, notes_url[i]))
+                    else:
+                        notes.append("%s,," % (item))
+                i=i+1
+                logger.debug("[WebUI] get_element_notes_url, note: %s", notes)
+
+            return self.get_urls(obj, '|'.join(notes), default_title=default_title, default_icon=default_icon, popover=popover)
+
+        return []
+
+    @staticmethod
     def decode_search(search):
         """
             Convert string from:
@@ -234,7 +302,8 @@ class Helper(object):
 
         return parameters
 
-    def get_pagination_control(self, total, start, count=25, nb_max_items=5):
+    @staticmethod
+    def get_pagination_control(object_type, total, start=0, count=25, nb_max_items=5):
         '''
         Build page navigation buttons as a list of elements containing:
         - button label
@@ -265,6 +334,10 @@ class Helper(object):
         )
 
         res = []
+        # First element contains pagination global data
+        res.append(
+            (object_type, start, count, total, False)
+        )
         if current_page > (nb_max_items / 2) + 1:
             # First page
             start = 0
@@ -309,3 +382,141 @@ class Helper(object):
             )
 
         return res
+
+    @staticmethod
+    def get_html_livesynthesis(self):
+        """
+        Get HTML formatted live synthesis
+
+        Update system live synthesis and build header elements
+
+        :return: hosts_states and services_states HTML strings in a dictionary
+        :rtype: dict
+        """
+        ls = self.get_livesynthesis()
+
+        if not ls:  # pragma: no cover - unit testing problem ... should have no livestate!
+            return {
+                'hosts_states_popover': "",
+                'services_states_popover': "",
+                'hosts_state': """
+                    <a tabindex="0" role="button" title="Overall hosts states unknown">
+                        <i class="fa fa-server"></i>
+                        <span class="label label-as-badge label-unknown">?</span>
+                    </a>
+                """,
+                'services_state': """
+                    <a tabindex="0" role="button" title="Overall services states unknown">
+                        <i class="fa fa-bars"></i>
+                        <span class="label label-as-badge label-unknown">?</span>
+                    </a>
+                """
+            }
+
+        hosts_states_popover = ''
+        lsh = ls['hosts_synthesis']
+        for state in Helper._host_states:
+            nb = int(lsh["nb_%s" % state.lower()])
+            pct = float(lsh["pct_%s" % state.lower()])
+            label = "<small>%d (%s %%)</small>" % (nb, pct)
+            hosts_states_popover +=\
+                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
+                    state.lower(),
+                    nb,
+                    helper.get_html_state("host", state.lower(), label=label, disabled=False)
+                )
+
+        for state in Helper._extra__host_states:
+            nb = int(lsh["nb_%s" % state.lower()])
+            pct = float(lsh["pct_%s" % state.lower()])
+            label = "<small>%d (%s %%)</small>" % (nb, pct)
+            hosts_states_popover +=\
+                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
+                    state.lower(),
+                    nb,
+                    helper.get_html_state("host", "", extra=state, label=label, disabled=False)
+                )
+
+        hosts_states_popover = """<table class="table table-invisible table-condensed"><tbody>
+        <tr data-count="%d" data-problems="%d">%s</tr>
+        </tbody></table>""" % (
+            int(lsh["nb_elts"]),
+            int(lsh["nb_problems"]),
+            hosts_states_popover
+        )
+
+        overall_state = "up"
+        if float(lsh["pct_problems"]) >= 100.0 - float(settings.get("ui.hosts_warning", 5)):
+            overall_state = "unreachable"
+        if float(lsh["pct_problems"]) >= 100.0 - float(settings.get("ui.hosts_critical", 5)):
+            overall_state = "down"
+
+        hosts_state = """
+        <a tabindex="0" role="button" title="Overall hosts states, %d hosts, %d problems">
+            <i class="fa fa-server"></i>
+            <span class="label label-as-badge label-%s">%d</span>
+        </a>
+        """ % (
+            int(lsh["nb_elts"]),
+            int(lsh["nb_problems"]),
+            overall_state,
+            int(lsh["nb_problems"])
+        )
+
+        services_states_popover = ''
+        lss = ls['services_synthesis']
+        for state in Helper._service_states:
+            nb = int(lss["nb_%s" % state.lower()])
+            pct = float(lss["pct_%s" % state.lower()])
+            label = "<small>%s (%s %%)</small>" % (nb, pct)
+            services_states_popover +=\
+                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
+                    state.lower(),
+                    nb,
+                    helper.get_html_state("service", state.lower(), label=label, disabled=False)
+                )
+
+        for state in Helper._extra__service_states:
+            nb = int(lss["nb_%s" % state.lower()])
+            pct = float(lss["pct_%s" % state.lower()])
+            label = "<small>%s (%s %%)</small>" % (nb, pct)
+            services_states_popover +=\
+                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
+                    state.lower(),
+                    nb,
+                    helper.get_html_state("service", "", state, label=label, disabled=False)
+                )
+
+        services_states_popover = """
+        <table class="table table-invisible table-condensed"><tbody>
+        <tr data-count="%d" data-problems="%d">%s</tr>
+        </tbody></table>
+        """ % (
+            int(lss["nb_elts"]), int(lss["nb_problems"]), services_states_popover
+        )
+
+        overall_state = "ok"
+        if float(lss["pct_problems"]) >= 100.0 - float(settings.get("ui.services_warning", 5)):
+            overall_state = "warning"
+        if float(lss["pct_problems"]) >= 100.0 - float(settings.get("ui.services_critical", 5)):
+            overall_state = "critical"
+
+        services_state = """
+        <a tabindex="0" role="button" title="Overall services states, %d services, %d problems">
+            <i class="fa fa-bars"></i>
+            <span class="label label-as-badge label-%s">%d</span>
+        </a>
+        """ % (
+            int(lss["nb_elts"]),
+            int(lss["nb_problems"]),
+            overall_state,
+            int(lss["nb_problems"])
+        )
+
+        return {
+            'hosts_states_popover': hosts_states_popover,
+            'services_states_popover': services_states_popover,
+            'hosts_state': hosts_state,
+            'services_state': services_state
+        }
+

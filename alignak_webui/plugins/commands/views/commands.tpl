@@ -33,6 +33,8 @@
          %include("_nothing_found.tpl", search_string=search_string)
       %else:
 
+         %# First element for global data
+         %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
 
          <table class="table table-condensed">

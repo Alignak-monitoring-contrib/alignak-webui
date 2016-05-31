@@ -1,7 +1,7 @@
 %setdefault('action_bar', False)
 
 %from bottle import request
-%rebase("layout", js=['dashboard/htdocs/js/widgets.js', 'dashboard/htdocs/js/jquery.easywidgets.js'], css=['dashboard/htdocs/css/dashboard.css'], title=_('Dashboard'))
+%rebase("layout", js=['dashboard/htdocs/js/widgets.js', 'dashboard/htdocs/js/jquery.easywidgets.js'], css=['dashboard/htdocs/css/dashboard.css'], title=title)
 
 <div id="dashboard">
    <script type="text/javascript">
@@ -22,12 +22,12 @@
             </td>
 
             <td>
-               %hs = datamgr.get_hosts_synthesis()
-               <center><a href="{{ webui.get_url('Hosts') }}" class="btn btn-sm">
+               %ss = datamgr.get_services_synthesis()
+               <center><a href="{{ webui.get_url('Services') }}" class="btn btn-sm">
                   <i class="fa fa-4x fa-server font-greyed"></i>
                   <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Services')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{hs["nb_up"]}}</span>
-                  <span class="badger-big badger-right badger-info" title="{{_('Number of hosts down')}}">{{hs["nb_down"]}}</span>
+                  <span class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{ss["nb_ok"]}}</span>
+                  <span class="badger-big badger-right badger-info" title="{{_('Number of hosts down')}}">{{ss["nb_critical"]}}</span>
                </a></center>
             </td>
 
@@ -55,7 +55,6 @@
    </table>
 
    %if current_user.can_change_dashboard() and not len(dashboard_widgets):
-   %if webui and webui.prefs_module:
    <div class="panel panel-default alert-warning" id="propose-widgets" style="margin:10px; display:none">
       <div class="panel-body" style="padding-bottom: -10">
          <center>
@@ -77,16 +76,6 @@
          </p>
       </div>
    </div>
-   %else:
-   <div class="panel panel-default">
-      <div class="panel-heading" style="padding-bottom: -10">
-         <center>
-            <h3>{{_('There is no users preferences storage module installed.')}}</h3>
-            <h4 class="alert alert-danger">{{_('The Web UI dashboard and user preferences will not be saved.')}}</h4>
-         </center>
-      </div>
-   </div>
-   %end
    %end
 
    <div class="container-fluid">

@@ -10,8 +10,15 @@
 %setdefault('current_user', None)
 %setdefault('target_user', None)
 %setdefault('sidebar', True)
+%setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
+
+%username = current_user.get_username()
+%if not target_user.is_anonymous():
+%username = target_user.get_username()
+%end
+%elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -48,8 +55,8 @@
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
 
-      <!-- Datatables jQuery plugin CDN -->
-      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/t/bs/jszip-2.5.0,pdfmake-0.1.18,dt-1.10.11,b-1.1.2,b-colvis-1.1.2,b-html5-1.1.2,b-print-1.1.2,cr-1.3.1,fh-3.1.1/datatables.min.css"/>
+      <!-- Datatables jQuery plugin -->
+      <link rel="stylesheet" href="/static/css/datatables.min.css" >
       <!-- Datatables custom filtering jQuery plugin -->
       <link rel="stylesheet" href="/static/css/jquery.dataTables.yadcf.css" >
 
@@ -76,8 +83,8 @@
       <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
 
-      <!-- Datatables jQuery plugin CDN -->
-      <script type="text/javascript" src="https://cdn.datatables.net/t/bs/jszip-2.5.0,pdfmake-0.1.18,dt-1.10.11,b-1.1.2,b-colvis-1.1.2,b-html5-1.1.2,b-print-1.1.2,cr-1.3.1,fh-3.1.1/datatables.min.js"></script>
+      <!-- Datatables jQuery plugin -->
+      <script type="text/javascript" src="/static/js/datatables.min.js"></script>
       <!-- Datatables custom filtering jQuery plugin -->
       <script type="text/javascript" src="/static/js/jquery.dataTables.yadcf.js"></script>
 
@@ -161,6 +168,21 @@
                               <ul class="list-group">
                                  %for k in webui.__dict__:
                                     <li class="list-group-item"><small>{{k}} - {{webui.__dict__[k]}}</small></li>
+                                 %end
+                              </ul>
+                           </div>
+                        </div>
+                     </small></div>
+                     <div><small>
+                        <strong>Beaker session</strong>:
+                        <div class="panel panel-default">
+                           <div class="panel-heading">
+                              <a data-toggle="collapse" href="#panel5">Beaker session:</a>
+                           </div>
+                           <div id="panel5" class="panel-collapse collapse">
+                              <ul class="list-group">
+                                 %for k in request.environ['beaker.session'].__dict__:
+                                    <li class="list-group-item"><small>{{k}} - {{request.environ['beaker.session'].__dict__[k]}}</small></li>
                                  %end
                               </ul>
                            </div>

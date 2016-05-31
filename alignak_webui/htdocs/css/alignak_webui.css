@@ -74,13 +74,13 @@ html, body {
 /*
  * Sidebar fixed width management
  */
-.col-sidebar{
+.col-sidebar {
     width:200px;
     height: 100%;
     float:left;
 }
 
-.col-offset-sidebar{
+.col-offset-sidebar {
     width:calc(100% - 200px);
     float:left;
 }

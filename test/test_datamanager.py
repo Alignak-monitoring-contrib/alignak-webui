@@ -35,7 +35,7 @@ loggerItems.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
-backend_address = "http://94.76.229.155:80"
+# backend_address = "http://94.76.229.155:80"
 
 
 def setup_module(module):
@@ -58,15 +58,9 @@ def setup_module(module):
 
         # No console output for the applications backend ...
         FNULL = open(os.devnull, 'w')
-        # pid = subprocess.Popen(
-            # shlex.split('alignak_backend --hostname 127.0.0.1 --port 5000'), stdout=FNULL, stderr=FNULL
-        # )
         pid = subprocess.Popen(
-            shlex.split('alignak_backend --hostname 127.0.0.1 --port 5000')
+            shlex.split('alignak_backend')
         )
-        # pid = subprocess.Popen(
-            # shlex.split('uwsgi -w alignakbackend:app --logto=/tmp/uwsgi-test.log --socket localhost:5000 --protocol=http --enable-threads')
-        # )
         print ("PID: %s" % pid)
         time.sleep(1)
 

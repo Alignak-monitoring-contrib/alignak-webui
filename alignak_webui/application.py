@@ -48,7 +48,8 @@ from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
 # Local import
-from alignak_webui.objects.datamanager import DataManager, User
+from alignak_webui.objects.item import Contact
+from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
 
 
@@ -83,7 +84,6 @@ def before_request():
 
     if 'current_user' in session:
         # Make session current user available in the templates
-        # BaseTemplate.defaults['user'] = session['current_user']
         BaseTemplate.defaults['current_user'] = session['current_user']
 
     if 'target_user' in session:
@@ -130,7 +130,7 @@ def before_request():
     if target_user_username == "":
         if 'target_user' in session and not session['target_user'].is_anonymous():
             logger.warning("no more target user in the session")
-            session['target_user'] = User()
+            session['target_user'] = Contact()
 
             # Reload data ...
             session['datamanager'].load(reset=True)
@@ -151,7 +151,7 @@ def before_request():
                 session['datamanager'].load(reset=True)
             else:
                 logger.warning("before_request, no more target_user in the session")
-                session['target_user'] = User()
+                session['target_user'] = Contact()
 
     # Make session target user available in the templates
     BaseTemplate.defaults['target_user'] = session['target_user']
@@ -265,7 +265,7 @@ def user_authentication(username, password):
     The authentication is requested near the data manager. This functions uses the data manager
     of the current session, else it creates a new one.
 
-    Stores the authenticated User object in the session to make it available
+    Stores the authenticated Contact object in the session to make it available
     '''
 
     logger.info("user_authentication, authenticating: %s", username)
@@ -306,7 +306,7 @@ def user_authentication(username, password):
 
     # Create a new target user in the session
     if 'target_user' not in session:
-        session['target_user'] = User()
+        session['target_user'] = Contact()
 
     session['message'] = session['datamanager'].connection_message
     session['current_user'] = session['datamanager'].get_logged_user()

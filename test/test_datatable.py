@@ -74,7 +74,7 @@ def setup_module(module):
         # No console output for the applications backend ...
         FNULL = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('alignak_backend --hostname 127.0.0.1 --port 5000'), stdout=FNULL, stderr=FNULL
+            shlex.split('alignak_backend')
         )
         print ("PID: %s" % pid)
         time.sleep(1)

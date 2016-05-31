@@ -52,7 +52,7 @@ class Datatable(object):
         """
         Create a new datatable:
         - object_type: object type in the backend
-        - backend: backend endpoint (http://127.0.0.1:5000)
+        - backend: backend endpoint (http://127.0.0.1:5002)
         - schema: model dictionary (see hosts.py as an example)
         """
         self.object_type = object_type
@@ -63,6 +63,7 @@ class Datatable(object):
         self.visible = True
         self.orderable = True
         self.searchable = True
+        self.responsive = True
 
         self.paginable = True
         self.exportable = True
@@ -115,7 +116,6 @@ class Datatable(object):
             :rtype: list
         """
         self.table_columns = []
-        self.table_links = {}
 
         if not schema:
             logger.error(
@@ -159,8 +159,8 @@ class Datatable(object):
             if 'ui' not in model:
                 continue
 
+            # Copy all model 'ui' dictionary fields and mange specific values for the field format
             ui_dm['model']['fields'][field].update(model['ui'])
-            # ui_dm['model']['fields'][field].pop('ui', None)
             ui_dm['model']['fields'][field].update({'format': model.get('type', '')})
             if 'allowed' in model:
                 ui_dm['model']['fields'][field].update(
@@ -170,12 +170,6 @@ class Datatable(object):
                 ui_dm['model']['fields'][field].update(
                     {'format': model['data_relation']['resource']}
                 )
-
-            # Table links
-            if 'data_relation' in model:
-                self.table_links.update({
-                    field: model['data_relation']['resource']
-                })
 
             # Convert data model format to datatables' one ...
             self.table_columns.append({
@@ -187,9 +181,11 @@ class Datatable(object):
                 'format': model.get('format', 'string'),
                 'allowed': ','.join(model.get('allowed', [])),
                 'defaultContent': model.get('default', ''),
+                'size': model.get('size', 10),
                 'visible': not model.get('hidden', False),
                 'orderable': model.get('orderable', True),
                 'searchable': model.get('searchable', True),
+                # 'responsivePriority': model.get('priority', 10000),
             })
 
         if not ui_dm['model']['fields']:  # pragma: no cover, should never happen
@@ -212,12 +208,12 @@ class Datatable(object):
         """
         return {
             'decimal': _('.'),
+            'thousands': _(','),
             'emptyTable': _('No data available in table'),
             'info': _('Showing _START_ to _END_ of _TOTAL_ entries'),
             'infoEmpty': _('Showing 0 to 0 of 0 entries'),
             'infoFiltered': _(' out of _MAX_ entries.'),
             'infoPostFix': _(' '),
-            'thousands': _(','),
             'lengthMenu': _('Show _MENU_ entries'),
             'loadingRecords': _('Loading...'),
             'processing': _('Processing...'),
@@ -232,7 +228,13 @@ class Datatable(object):
             },
             'aria': {
                 'sortAscending': _(': activate to sort column ascending'),
-                'sortDescending': _(': activate to sort column descending')
+                'sortDescending': _(': activate to sort column descending'),
+                'paginate': {
+                    'first': _('First page'),
+                    'last': _('Last page'),
+                    'next': _('Next page'),
+                    'previous': _('Previous page')
+                },
             },
             'buttons': {
                 'pageLength': {
@@ -329,14 +331,13 @@ class Datatable(object):
             Not included if there is no error.
         """
         # Manage request parameters ...
+        logger.info("request data for table: %s", request.forms.get('object_type'))
+
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
-        logger.debug("table request parameters: %s", request.forms)
         for key in request.forms.keys():
-            if key == 'columns' or key == 'order':
-                params[key] = json.loads(request.forms.get(key))
-            elif key == 'search':
+            if key == 'columns' or key == 'order' or key =='search':
                 params[key] = json.loads(request.forms.get(key))
             else:
                 params[key] = request.forms.get(key)
@@ -378,8 +379,7 @@ class Datatable(object):
 
             logger.info("backend order request parameters: %s", parameters)
 
-        # Columns searching
-        # Individual search parameter
+        # Individual column search parameter
         searched_columns = []
         if 'columns' in params and params['columns']:
             for column in params['columns']:
@@ -397,6 +397,8 @@ class Datatable(object):
                         column_type = field['type']
                         break
 
+                # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...
+                # Only take care of 'regex'
                 if 'regex' in column['search']:
                     if column['search']['regex']:
                         if column_type == 'integer':
@@ -427,7 +429,6 @@ class Datatable(object):
 
             logger.info("backend search columns parameters: %s", searched_columns)
 
-        # Columns searching
         # Global search parameter
         # search:{"value":"test","regex":false}
         searched_global = []
@@ -505,6 +506,14 @@ class Datatable(object):
                     logger.debug("created: %s", bo_object)
                     break
 
+            name_property = 'name'
+            if hasattr(bo_object.__class__, 'name_property'):
+                name_property = bo_object.__class__.name_property
+
+            status_property = 'status'
+            if hasattr(bo_object.__class__, 'status_property'):
+                status_property = bo_object.__class__.status_property
+
             # Change item content ...
             for item in resp['_items']:
                 logger.debug("Object: %s", bo_object)
@@ -513,30 +522,39 @@ class Datatable(object):
                     for field in self.table_columns:
                         if field['name'] != key:
                             continue
-                        # logger.debug("Setting field: %s", field)
-                        if field['name'] == 'name':
-                            item[key] = "%s %s" % (bo_object.get_html_state(), item[key])
+
+                        # Specific fields name
+                        if field['name'] == name_property:
+                            item[key] = bo_object.get_html_state(label=item[key])
                             break
-                        if field['name'] == 'status':
+                        if field['name'] == status_property:
                             item[key] = bo_object.get_html_state()
                             break
+
+                        # Specific fields type
                         if field['type'] == 'datetime':
-                            item[key] = bo_object.get_date()
+                            item[key] = bo_object.get_date(item[key])
                             break
                         if field['type'] == 'boolean':
                             item[key] = Helper.get_on_off(item[key])
                             break
-                        if field['type'] == 'objectid' and key in embedded:
+                        if field['type'] == 'objectid' and key in embedded and item[key]:
                             for k in globals().keys():
                                 if isinstance(globals()[k], type) and \
                                    '_type' in globals()[k].__dict__ and \
                                    globals()[k]._type == field['format']:
                                     linked_object = globals()[k](item[key])
                                     logger.debug("created: %s", linked_object)
-                                    item[key] = linked_object.get_html_state(
-                                        label=linked_object.get_name()
+                                    item[key] = '''<a href="%s/%s">%s</a>''' % (
+                                        field['format'],
+                                        item[key]['_id'] if '_id' in item[key] else '',
+                                        linked_object.get_html_state(
+                                            label=linked_object.get_name()
+                                        )
                                     )
                                     break
+                            break
+                        item[key] = "<small>%s</small>" % item[key]
 
         # Prepare response
         rsp = {

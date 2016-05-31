@@ -40,9 +40,9 @@ glpi_ws_password = test
 
 ; # Web server configuration
 ; ------------------------------------------------------------------------------------------
-; Default is listening on 5000 port on local loop interface
+; Default is listening on TCP port 8868 on local loop interface
 ; host=127.0.0.1
-; port=5000
+; port=8868
 
 
 ; # WebUI information (about application modal)

@@ -52,7 +52,7 @@ from bottle import BaseTemplate, TEMPLATE_PATH
 from webtest import TestApp
 
 pid = None
-backend_address = "http://127.0.0.1:5000/"
+backend_address = "http://127.0.0.1:5002/"
 
 def setup_module(module):
     print ("")
@@ -61,7 +61,7 @@ def setup_module(module):
     global pid
     global backend_address
 
-    if backend_address == "http://127.0.0.1:5000/":
+    if backend_address == "http://127.0.0.1:5002/":
         # Set test mode for applications backend
         os.environ['TEST_ALIGNAK_BACKEND'] = '1'
         os.environ['TEST_ALIGNAK_BACKEND_DB'] = 'test_alignak_webui-datatable'
@@ -75,7 +75,7 @@ def setup_module(module):
         # No console output for the applications backend ...
         FNULL = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('alignak_backend --hostname 127.0.0.1 --port 5000'), stdout=FNULL, stderr=FNULL
+            shlex.split('alignak_backend'), stdout=FNULL, stderr=FNULL
         )
         print ("PID: %s" % pid)
         time.sleep(1)
@@ -85,7 +85,7 @@ def teardown_module(module):
     print ("")
     print ("stop applications backend")
 
-    if backend_address == "http://127.0.0.1:5000/":
+    if backend_address == "http://127.0.0.1:5002/":
         global pid
         pid.kill()
 

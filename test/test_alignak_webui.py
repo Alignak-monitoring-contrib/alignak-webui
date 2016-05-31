@@ -41,7 +41,7 @@ from alignak_webui import set_app_config, set_app_webui, get_app_config, get_app
 from alignak_webui.utils.settings import Settings
 
 pid = None
-backend_address = "http://127.0.0.1:5000/"
+backend_address = "http://127.0.0.1:5002/"
 backend_address = "http://94.76.229.155:80"
 
 appli = None

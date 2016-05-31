@@ -1,10 +1,13 @@
 %setdefault('debug', True)
 
 %setdefault('display_steps_form', False)
-%setdefault('div_class', "")
-%setdefault('ul_class', "")
-%setdefault('div_style', "")
-%setdefault('size', 'btn-lg')
+
+%setdefault('start', 0)
+%setdefault('count', 25)
+%setdefault('total', 0)
+
+%from alignak_webui.utils.helper import Helper
+%setdefault('pagination', Helper.get_pagination_control('unknown', total, start, count))
 
 %from bottle import request
 
@@ -28,7 +31,8 @@
       </div>
    </div>
    %end
-   %name, start, end, total, active = pagination[0]
+   %# First element for global data
+   %name, start, count, total, active = pagination[0]
 %end
 <div class="btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
    %if pagination and len(pagination) > 1:
@@ -105,7 +109,13 @@
 
       <div class="btn-group" role="group" aria-label="{{_('Pages sequence')}}">
       %from urllib import urlencode
+      %first_element=False
       %for label, start, count, total, active in pagination:
+         %# Skip first element
+         %if not first_element:
+         %first_element=True
+         %continue
+         %end
          %request.query['start'] = start
          %request.query['count'] = count
          <a class="btn btn-default {{'active' if active else ''}}"

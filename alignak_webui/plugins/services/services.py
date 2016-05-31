@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 '''
-    Plugin Hosts
+    Plugin Services
 '''
 
 import time
@@ -68,7 +68,7 @@ schema['#'] = {
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Host name'),
+        'title': _('Service name'),
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -93,21 +93,32 @@ schema['definition_order'] = {
 schema['alias'] = {
     'type': 'string',
     'ui': {
-        'title': _('Host alias'),
+        'title': _('Service alias'),
         'visible': True
     },
 }
 schema['display_name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Host display name'),
+        'title': _('Service display name'),
         'visible': True
     },
 }
-schema['address'] = {
+schema['host_name'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Host name'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'host',
+        'embeddable': True
+    }
+}
+schema['hostgroup_name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Address'),
+        'title': _('Hosts group name'),
         'visible': True
     },
 }
@@ -175,27 +186,26 @@ schema['passive_checks_enabled'] = {
         'visible': True
     },
 }
-schema['parents'] = {
+schema['servicegroups'] = {
     'type': 'list',
     'ui': {
-        'title': _('Parents'),
+        'title': _('Services groups'),
         'visible': True
     },
-    'data_relation': {
-        'resource': 'host',
-        'embeddable': True
-    }
+    'schema': {
+        'type': 'objectid',
+        'data_relation': {
+            'resource': 'servicegroup',
+            'embeddable': True,
+        }
+    },
 }
-schema['hostgroups'] = {
-    'type': 'list',
+schema['business_impact'] = {
+    'type': 'integer',
     'ui': {
-        'title': _('Hosts groups'),
+        'title': _('Business impact'),
         'visible': True
     },
-    'data_relation': {
-        'resource': 'hostgroup',
-        'embeddable': True
-    }
 }
 schema['business_impact'] = {
     'type': 'integer',
@@ -385,7 +395,6 @@ schema['process_perf_data'] = {
     },
 }
 
-
 # This to define the global information for the table
 schema['ui'] = {
     'type': 'boolean',
@@ -393,7 +402,7 @@ schema['ui'] = {
 
     # UI parameters for the objects
     'ui': {
-        'page_title': _('Hosts table (%d items)'),
+        'page_title': _('Services table (%d items)'),
         'uid': '_id',
         'visible': True,
         'orderable': True,
@@ -402,9 +411,9 @@ schema['ui'] = {
 }
 
 
-def get_hosts():
+def get_services():
     '''
-    Get the hosts list
+    Get the services list
     '''
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -427,28 +436,29 @@ def get_hosts():
         'sort': '-opening_date',
         'where': where,
         'embedded': {
+            'host_name': 1,
             'check_command': 1, 'event_handler': 1,
             'check_period': 1, 'notification_period': 1,
-            'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+            'servicegroups': 1, 'contacts': 1, 'contact_groups': 1
         }
     }
 
     # Get elements from the data manager
-    hosts = datamgr.get_hosts(search)
+    services = datamgr.get_services(search)
     # Get last total elements count
-    total = datamgr.get_objects_count('host', search=where, refresh=True)
+    total = datamgr.get_objects_count('service', search=where, refresh=True)
     count = min(count, total)
 
     return {
-        'hosts': hosts,
-        'pagination': Helper.get_pagination_control('host', total, start, count),
-        'title': request.query.get('title', _('All hosts'))
+        'services': services,
+        'pagination': Helper.get_pagination_control('service', total, start, count),
+        'title': request.query.get('title', _('All services'))
     }
 
 
-def get_hosts_table():
+def get_services_table():
     '''
-    Get the hosts list and transform it as a table
+    Get the services list and transform it as a table
     '''
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -462,78 +472,56 @@ def get_hosts_table():
     where = webui.helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
-    total = datamgr.get_objects_count('host', search=where)
+    total = datamgr.get_objects_count('service', search=where)
 
     # Build table structure
-    dt = Datatable('host', datamgr.backend, schema)
+    dt = Datatable('service', datamgr.backend, schema)
 
     title = dt.title
     if '%d' in title:
         title = title % total
 
     return {
-        'object_type': 'host',
+        'object_type': 'service',
         'dt': dt,
         'title': request.query.get('title', title)
     }
 
 
-def get_hosts_table_data():
+def get_services_table_data():
     '''
-    Get the hosts list and provide table data
+    Get the services list and provide table data
     '''
     datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('host', datamgr.backend, schema)
+    dt = Datatable('service', datamgr.backend, schema)
 
     response.status = 200
     response.content_type = 'application/json'
     return dt.table_data()
 
 
-def get_host(host_id):
-    '''
-    Display an host
-    '''
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    host = datamgr.get_host(host_id)
-    if not host:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Host does not exist'))
-
-    return {
-        'host_id': host_id,
-        'host': host,
-        'title': request.query.get('title', _('Host view'))
-    }
-
-
 pages = {
-    get_host: {
-        'name': 'Host',
-        'route': '/host/<host_id>',
-        'view': 'host'
-    },
-    get_hosts: {
-        'name': 'Hosts',
-        'route': '/hosts',
-        'view': 'hosts',
+    get_services: {
+        'name': 'Services',
+        'route': '/services',
+        'view': 'services',
         'search_engine': True,
         'search_prefix': '',
         'search_filters': {
-            _('Hosts up'): 'state:up',
-            _('Hosts down'): 'state:down',
-            _('Hosts unreachable'): 'state:unreachable',
+            _('Services ok'): 'state:ok',
+            _('Services warning'): 'state:warning',
+            _('Services critical'): 'state:critical',
         }
     },
-    get_hosts_table: {
-        'name': 'Hosts table',
-        'route': '/hosts_table',
+    get_services_table: {
+        'name': 'Services table',
+        'route': '/services_table',
         'view': '_table'
     },
 
-    get_hosts_table_data: {
-        'name': 'Hosts table data',
-        'route': '/host_table_data',
+    get_services_table_data: {
+        'name': 'Services table data',
+        'route': '/service_table_data',
         'method': 'POST'
     },
 }

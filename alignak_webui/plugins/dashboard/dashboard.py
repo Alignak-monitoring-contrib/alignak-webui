@@ -40,21 +40,21 @@ def get_page():
     '''
     user = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
-    # datamgr = request.environ['beaker.session']['datamanager']
+    datamgr = request.environ['beaker.session']['datamanager']
 
     username = user.get_username()
     if not target_user.is_anonymous():
         username = target_user.get_username()
 
     # Look for the widgets as the json entry
-    widget_ids = webui.prefs_module.get_ui_user_preference(username, 'widgets')
+    saved_widgets = datamgr.get_user_preferences(username, 'widgets', {'widgets': []})
     # If void, create an empty one
-    if not widget_ids:  # pragma: no cover - widgets may exist or not ...
-        webui.prefs_module.set_ui_user_preference(username, 'widgets', '[]')
-        widget_ids = []
+    if not saved_widgets:  # pragma: no cover - widgets may exist or not ...
+        datamgr.set_user_preferences(username, 'widgets', {'widgets': []})
+        saved_widgets = {'widgets': []}
 
     widgets = []
-    for w in widget_ids:  # pragma: no cover - TOTEST widgets are not tested
+    for w in saved_widgets['widgets']:
         if 'id' not in w or 'position' not in w:
             continue
 
@@ -77,8 +77,9 @@ def get_page():
         widgets.append(w)
 
     return {
-        'action_bar': True,
-        'dashboard_widgets': widgets
+        'action_bar': len(widgets) != 0,
+        'dashboard_widgets': widgets,
+        'title': request.query.get('title', _('Dashboard'))
     }
 
 
