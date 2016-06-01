@@ -279,79 +279,80 @@ class test_helper(unittest2.TestCase):
         print "---"
 
         # total, start, count, nb_max_items
-        s = helper.get_pagination_control(0, 0, 0, 0)
+        s = helper.get_pagination_control('test', 0, 0, 0, 0)
         assert s == []
-        s = helper.get_pagination_control(0, 0)
+        s = helper.get_pagination_control('test', 0, 0)
         assert s == []
 
 
         # first page, default pagination: 25 elements/page, 5 pages/sequence
-        s = helper.get_pagination_control(1, 0)
+        s = helper.get_pagination_control('test', 1, 0)
         print "Result:", s
-        assert len(s) == 1
+        # At least a global element and a local element ...
+        assert len(s) == 2
         # Still the same page
-        s = helper.get_pagination_control(25, 0)
-        print "Result:", s
-        assert len(s) == 1
-        s = helper.get_pagination_control(26, 0)
+        s = helper.get_pagination_control('test', 25, 0)
         print "Result:", s
         assert len(s) == 2
-        s = helper.get_pagination_control(51, 0)
+        s = helper.get_pagination_control('test', 26, 0)
         print "Result:", s
         assert len(s) == 3
-        s = helper.get_pagination_control(76, 0)
+        s = helper.get_pagination_control('test', 51, 0)
         print "Result:", s
         assert len(s) == 4
-        # More than 5 pages ... must have forward controls.
-        s = helper.get_pagination_control(101, 0)
+        s = helper.get_pagination_control('test', 76, 0)
         print "Result:", s
-        assert len(s) == 7
+        assert len(s) == 5
+        # More than 5 pages ... must have forward controls.
+        s = helper.get_pagination_control('test', 101, 0)
+        print "Result:", s
+        assert len(s) == 8
 
 
         # first page, default pagination: 5 elements/page, 5 pages/sequence
-        s = helper.get_pagination_control(1, 0, 5)
+        s = helper.get_pagination_control('test', 1, 0, 5)
         print "Result:", s
-        assert len(s) == 1
-        s = helper.get_pagination_control(11, 0, 5)
+        assert len(s) == 2
+        s = helper.get_pagination_control('test', 11, 0, 5)
         print "Result:", s
-        assert len(s) == 3
+        assert len(s) == 4
         # More than 5 pages ... must have forward controls.
-        s = helper.get_pagination_control(26, 0, 5)
+        s = helper.get_pagination_control('test', 26, 0, 5)
         print "Result:", s
-        assert len(s) == 7
+        assert len(s) == 8
 
 
         # List pages, default pagination: 5 elements/page, 5 pages/sequence
         # More than 5 pages ... must have forward controls.
-        s = helper.get_pagination_control(40, 0, 5)
+        s = helper.get_pagination_control('test', 40, 0, 5)
         print "Result:", s
-        assert len(s) == 7
-        s = helper.get_pagination_control(40, 5, 5)
+        assert len(s) == 8
+        s = helper.get_pagination_control('test', 40, 5, 5)
         print "Result:", s
-        assert len(s) == 7
-        s = helper.get_pagination_control(40, 10, 5)
+        assert len(s) == 8
+        s = helper.get_pagination_control('test', 40, 10, 5)
         print "Result:", s
-        assert len(s) == 7
+        assert len(s) == 8
         # Current page no more in the page sequence ... must have also backward controls.
-        s = helper.get_pagination_control(40, 15, 5)
+        s = helper.get_pagination_control('test', 40, 15, 5)
         print "Result:", s
-        assert len(s) == 9
-        s = helper.get_pagination_control(40, 20, 5)
+        assert len(s) == 10
+        s = helper.get_pagination_control('test', 40, 20, 5)
         print "Result:", s
-        assert len(s) == 9
+        assert len(s) == 10
         # Last page is now in the page sequence ... no more forward controls.
-        s = helper.get_pagination_control(40, 25, 5)
+        s = helper.get_pagination_control('test', 40, 25, 5)
         print "Result:", s
-        assert len(s) == 7
-        s = helper.get_pagination_control(40, 30, 5)
+        assert len(s) == 8
+        s = helper.get_pagination_control('test', 40, 30, 5)
         print "Result:", s
-        assert len(s) == 7
-        s = helper.get_pagination_control(40, 35, 5)
+        assert len(s) == 8
+        s = helper.get_pagination_control('test', 40, 35, 5)
         print "Result:", s
-        assert len(s) == 7
-        s = helper.get_pagination_control(40, 40, 5)
+        assert len(s) == 8
+        s = helper.get_pagination_control('test', 40, 40, 5)
         print "Result:", s
-        assert len(s) == 7
+        assert len(s) == 8
 
     def test_05_search(self):
         print "---"
