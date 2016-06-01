@@ -525,19 +525,22 @@ class Datatable(object):
 
                         # Specific fields name
                         if field['name'] == name_property:
-                            item[key] = bo_object.get_html_state(label=item[key])
-                            break
+                            item[key] = '''<a href="%s/%s">%s</a>''' % (
+                                        bo_object.getType(),
+                                        bo_object.get_id(),
+                                        bo_object.get_html_state(label=item[key])
+                                    )
+
                         if field['name'] == status_property:
                             item[key] = bo_object.get_html_state()
-                            break
 
                         # Specific fields type
                         if field['type'] == 'datetime':
                             item[key] = bo_object.get_date(item[key])
-                            break
+
                         if field['type'] == 'boolean':
                             item[key] = Helper.get_on_off(item[key])
-                            break
+
                         if field['type'] == 'objectid' and key in embedded and item[key]:
                             for k in globals().keys():
                                 if isinstance(globals()[k], type) and \
@@ -553,7 +556,8 @@ class Datatable(object):
                                         )
                                     )
                                     break
-                            break
+
+                        # All table elements are small...
                         item[key] = "<small>%s</small>" % item[key]
 
         # Prepare response

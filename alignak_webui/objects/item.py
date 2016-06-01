@@ -1094,7 +1094,36 @@ class Host(Item):
             self.problem_has_been_acknowledged = False
         if not hasattr(self, 'last_state_change'):
             self.last_state_change = self._default_date
+        if not hasattr(self, 'last_check'):
+            self.last_check = self._default_date
+        if not hasattr(self, 'output'):
+            self.output = self._default_date
+        if not hasattr(self, 'long_output'):
+            self.long_output = self._default_date
+        if not hasattr(self, 'perf_data'):
+            self.perf_data = self._default_date
+        if not hasattr(self, 'latency'):
+            self.latency = self._default_date
+        if not hasattr(self, 'execution_time'):
+            self.execution_time = self._default_date
+        if not hasattr(self, 'attempt'):
+            self.attempt = self._default_date
+        if not hasattr(self, 'max_check_attempts'):
+            self.max_check_attempts = self._default_date
+        if not hasattr(self, 'state_type'):
+            self.state_type = self._default_date
+        if not hasattr(self, 'next_check'):
+            self.next_check = self._default_date
 
+        if not hasattr(self, 'comments'):
+            self.comments = []
+
+        if not hasattr(self, 'services'):
+            self.services = []
+        if not hasattr(self, 'downtimes'):
+            self.downtimes = []
+        if not hasattr(self, 'perfdatas'):
+            self.perfdatas = []
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         '''
