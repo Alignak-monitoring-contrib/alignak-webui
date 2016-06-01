@@ -1,6 +1,22 @@
 /*
-* Copyright (C) 2015-2016 F. Mohier pour IPM France:
-*/
+ * Copyright (c) 2015-2016:
+ *   Frederic Mohier, frederic.mohier@gmail.com
+ *
+ * This file is part of (WebUI).
+ *
+ * (WebUI) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * (WebUI) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 
 var refresh_logs=true;
@@ -9,15 +25,18 @@ var refresh_logs=true;
 var refresh_timeout = app_refresh_period;
 // Check refresh period (seconds)
 var check_period = 1;
+// Check header refresh period (seconds)
+var header_refresh_period = 10;
 // Ping period (seconds) - Set this value to 0 to disable periodical server ping.
 var ping_period = 0;
 // Refresh required
 var refresh_required=false;
 
 
-if (refresh_logs) console.debug("Refresh period is ", refresh_timeout);
-if (refresh_logs) console.debug("Check period is ", check_period);
-if (refresh_logs) console.debug("Ping period is ", ping_period);
+if (refresh_logs) console.debug("Refresh period is :", refresh_timeout);
+if (refresh_logs) console.debug("Header refresh period is :", header_refresh_period);
+if (refresh_logs) console.debug("Check period is :", check_period);
+if (refresh_logs) console.debug("Ping period is :", ping_period);
 
 var nb_refresh_try = 0;
 if (! sessionStorage.getItem("refresh_active")) {
@@ -271,7 +290,7 @@ function postpone_refresh(){
 
 
 $(document).ready(function(){
-   // Start refresh periodical check ... every second!
+   // Start refresh periodical check ... every check_period second!
    setInterval("check_refresh();", check_period*1000);
 
    if (sessionStorage.getItem("refresh_active") == '1') {

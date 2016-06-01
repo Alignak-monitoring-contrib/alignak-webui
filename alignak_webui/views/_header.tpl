@@ -12,57 +12,29 @@
 <script type="text/javascript">
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
+      if (refresh_logs) console.debug("Page header refresh");
       $.ajax({
-         url: "/ping?action=header",
-         method: "get",
-         dataType: "html"
+         url: "/ping?action=refresh&template=_header_hosts_state"
       })
-      .done(function(html, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Update header - hosts state");
-         $('#overall-hosts-states').html(html);
-         // Activate the popover ...
-         $('#hosts-states-popover').popover({
-            placement: 'bottom',
-            animation: true,
-            template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
-            content: function() {
-               return $('#hosts-states-popover-content').html();
-            }
-         });
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error('header_refresh, hosts failed: ', jqXHR, textStatus, errorThrown);
+      .done(function(content, textStatus, jqXHR) {
+         if (refresh_logs) console.debug("Refresh header - hosts state");
+         $('#overall-hosts-states').html(content);
       });
 
-      /*
       $.ajax({
-         url: "/header_services",
-         method: "get",
-         dataType: "html"
+         url: "/ping?action=refresh&template=_header_services_state"
       })
-      .done(function(html, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Update header services state");
-         $('#overall-services-states').html(html);
-         // Activate the popover ...
-         $('#hosts-services-popover').popover({
-            placement: 'bottom',
-            animation: true,
-            template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
-            content: function() {
-               return $('#hosts-services-popover-content').html();
-            }
-         });
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error('header_refresh, services failed: ', jqXHR, textStatus, errorThrown);
+      .done(function(content, textStatus, jqXHR) {
+         if (refresh_logs) console.debug("Refresh header - services state");
+         $('#overall-services-states').html(content);
       });
-      */
    }
 
    $(document).ready(function(){
-      header_refresh();
+      // Start refresh periodical check ... every header_refresh_period second
+      // header_refresh_period is defined in alignak_webui_refresh.js
+      setInterval("header_refresh();", header_refresh_period*1000);
    });
-
 </script>
 
 
@@ -92,6 +64,10 @@
             <ul class="nav navbar-nav navbar-right">
                <li id="overall-hosts-states">
                   %include("_header_hosts_state.tpl")
+               </li>
+
+               <li id="overall-services-states">
+                  %include("_header_services_state.tpl")
                </li>
 
                %if request.app.config.get('play_sound', 'no') == 'yes':

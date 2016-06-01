@@ -220,9 +220,20 @@ def ping():
                 }
             )
         logger.info("ping, refresh: %s", session['refresh_required'])
-    elif action == 'header':
-        # Send UI header
-        return template('_header_hosts_state')
+    elif action == 'refresh':
+        page_template = request.query.get('template', None)
+        if page_template:
+            # Send rendered template
+            return template(page_template)
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(
+            {
+                'status': 'ok',
+                'message': 'missing template name. Use /ping?action=refresh&template=name.'
+            }
+        )
     elif action:
         response.status = 204
         response.content_type = 'application/json'

@@ -39,7 +39,7 @@ from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGI
 
 # Import all objects we will need
 from alignak_webui.objects.item import Contact, Command, Host, Service
-from alignak_webui.objects.item import LiveState
+from alignak_webui.objects.item import LiveState, LiveSynthesis
 
 from alignak_webui.backend.glpi_ws_client import Glpi, GlpiException
 from alignak_webui.backend.glpi_ws_client import GLPI_PAGINATION_LIMIT, GLPI_PAGINATION_DEFAULT
@@ -418,7 +418,8 @@ class DataManager(object):
                         objects_count, object_type
                     )
                     if refresh:
-                        if hasattr(known_class, '_total_count'):
+                        if hasattr(known_class, '_total_count') and \
+                           known_class.getTotalCount() != -1:
                             objects_count = known_class.getTotalCount()
                             log_function(
                                 "get_objects_count, got _total_count attribute: %d",
@@ -426,6 +427,7 @@ class DataManager(object):
                             )
                         else:
                             objects_count = self.count_objects(object_type, search=search)
+                            known_class._total_count = objects_count
 
                         log_function(
                             "get_objects_count, currently %d total %ss for %s",
@@ -895,11 +897,18 @@ class DataManager(object):
             :return: hosts and services live state synthesis in a dictionary
             :rtype: dict
         """
-        ls = self.get_objects('livesynthesis', search, all_elements=all_elements)
-        if not ls:
+        if not search:
+            search = {}
+
+        try:
+            logger.info("get_livesynthesis, search: %s", search)
+            items = self.find_object('livesynthesis', search)
+            logger.info("get_livesynthesis, got: %d elements, %s", len(items), items)
+        except ValueError:
+            logger.debug("get_livesynthesis, none found")
             return None
 
-        ls = ls[0]
+        ls = items[0]
 
         # Services synthesis
         hosts_synthesis = {

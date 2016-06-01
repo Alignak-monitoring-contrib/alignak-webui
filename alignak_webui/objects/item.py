@@ -403,6 +403,7 @@ class Item(object):
     Base class for all objects
     '''
     _count = 0
+    _total_count = -1
 
     # Next value used for auto generated id
     _next_id = 1
@@ -478,7 +479,7 @@ class Item(object):
         _id = '0'
         if params:
             if not isinstance(params, dict):
-                raise ValueError('Object parameters must be a dictionary!')
+                raise ValueError('Item.__new__: object parameters must be a dictionary!')
 
             if id_property in params:
                 if not isinstance(params[id_property], basestring):
@@ -1017,6 +1018,46 @@ class Contact(Item):
             return True
 
         return False
+
+
+class LiveSynthesis(Item):
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'livesynthesis'
+    # _cache is a list of created objects
+    _cache = {}
+
+    # Status property
+    status_property = 'state'
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        '''
+        Create a new livesynthesis
+        '''
+        return super(LiveSynthesis, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        '''
+        Create a livesynthesis (called only once when an object is newly created)
+        '''
+        self.linked_host_name = 'host'
+        self.linked_service_description = 'service'
+
+        super(LiveSynthesis, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        '''
+        Update a livesynthesis (called every time an object is updated)
+        '''
+        super(LiveSynthesis, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        '''
+        Initialize a livesynthesis (called every time an object is invoked)
+        '''
+        super(LiveSynthesis, self).__init__(params)
 
 
 class LiveState(Item):
