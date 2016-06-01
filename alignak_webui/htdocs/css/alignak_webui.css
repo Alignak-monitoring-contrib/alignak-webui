@@ -60,7 +60,8 @@ html, body {
 #page-content > section {
 }
 
-#page-content > section.header {
+#page-content > section.content-header {
+    padding: 5px;
 }
 
 #page-content > section.content {
@@ -68,7 +69,19 @@ html, body {
     margin-right: 5px;
 }
 
-#page-content > section.header div.pagination {
+#page-content > section.content-footer {
+}
+
+/*
+ * Pagination control elements
+ */
+#page-content > section.content-header div.btn-toolbar {
+    margin-left: 5px;
+}
+#page-content > section.content-header .input-group input {
+    max-width: 70px;
+}
+#page-content > section.content-header ul {
 }
 
 /*
