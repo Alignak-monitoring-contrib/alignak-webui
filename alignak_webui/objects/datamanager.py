@@ -1204,8 +1204,8 @@ class DataManager(object):
 
         Cannot delete the currently logged in contact ...
 
-        If contact is a string it is assumed to be the Contact object id to be searched in the objects
-        cache.
+        If contact is a string it is assumed to be the Contact object id to be searched in
+        the objects cache.
 
         :param contact: Contact object instance
         :type contact: Contact (or string)
@@ -1221,7 +1221,10 @@ class DataManager(object):
 
         contact_id = contact.get_id()
         if contact_id == self.get_logged_user().get_id():
-            logger.warning("delete_contact, request to delete the current logged-in user: %s", contact_id)
+            logger.warning(
+                "unauthorized request to delete the current logged-in user: %s",
+                contact_id
+            )
             return False
 
         return self.delete_object('contact', contact)

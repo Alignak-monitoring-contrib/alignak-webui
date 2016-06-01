@@ -337,7 +337,7 @@ class Datatable(object):
         # ... some parameters have been json.stringify on client side !
         params = {}
         for key in request.forms.keys():
-            if key == 'columns' or key == 'order' or key =='search':
+            if key == 'columns' or key == 'order' or key == 'search':
                 params[key] = json.loads(request.forms.get(key))
             else:
                 params[key] = request.forms.get(key)
@@ -526,10 +526,10 @@ class Datatable(object):
                         # Specific fields name
                         if field['name'] == name_property:
                             item[key] = '''<a href="%s/%s">%s</a>''' % (
-                                        bo_object.getType(),
-                                        bo_object.get_id(),
-                                        bo_object.get_html_state(label=item[key])
-                                    )
+                                bo_object.getType(),
+                                bo_object.get_id(),
+                                bo_object.get_html_state(label=item[key])
+                            )
 
                         if field['name'] == status_property:
                             item[key] = bo_object.get_html_state()

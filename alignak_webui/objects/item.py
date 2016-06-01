@@ -1121,7 +1121,6 @@ class Host(Item):
         '''
         super(Host, self)._create(params, date_format)
 
-
         # Missing in the backend ...
         if not hasattr(self, 'customs'):
             self.customs = []

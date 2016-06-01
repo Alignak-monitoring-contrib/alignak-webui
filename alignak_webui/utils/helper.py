@@ -215,7 +215,10 @@ class Helper(object):
         '''
 
         if obj is not None:
-            return self.get_urls(obj, obj.action_url, default_title=default_title, default_icon=default_icon, popover=popover)
+            return self.get_urls(
+                obj, obj.action_url,
+                default_title=default_title, default_icon=default_icon, popover=popover
+            )
 
         return None
 
@@ -227,7 +230,7 @@ class Helper(object):
 
         if obj is not None and obj.notes:
             notes = []
-            i=0
+            i = 0
             for item in obj.notes.split('|'):
                 if not obj.notes_url:
                     notes.append("%s,," % (item))
@@ -237,10 +240,13 @@ class Helper(object):
                         notes.append("%s,,%s" % (item, notes_url[i]))
                     else:
                         notes.append("%s,," % (item))
-                i=i+1
+                i += 1
                 logger.debug("[WebUI] get_element_notes_url, note: %s", notes)
 
-            return self.get_urls(obj, '|'.join(notes), default_title=default_title, default_icon=default_icon, popover=popover)
+            return self.get_urls(
+                obj, '|'.join(notes),
+                default_title=default_title, default_icon=default_icon, popover=popover
+            )
 
         return []
 
@@ -519,4 +525,3 @@ class Helper(object):
             'hosts_state': hosts_state,
             'services_state': services_state
         }
-
