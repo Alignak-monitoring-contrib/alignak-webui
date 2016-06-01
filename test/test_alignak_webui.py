@@ -65,7 +65,7 @@ class test_0_initialization(unittest2.TestCase):
         self.alignak_webui = get_app_webui()
         print self.alignak_webui.__dict__
         assert self.alignak_webui
-        assert self.alignak_webui.widgets
+        assert self.alignak_webui.widgets is not None
 
     def test_1(self):
         print 'Settings fixed'
