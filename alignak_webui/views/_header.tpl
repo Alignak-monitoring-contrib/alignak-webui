@@ -134,7 +134,7 @@
                               <p class="usercategory">
                                  <small>{{current_user.get_role(display=True)}}</small>
                               </p>
-                              <img src="{{current_user.get_picture()}}" photo="{{current_user.get_picture()}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
+                              <img src="{{current_user.picture}}" photo="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
                            </div>
                            <div class="panel-footer">
                               %if current_user.is_administrator():

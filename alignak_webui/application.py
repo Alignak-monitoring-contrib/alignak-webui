@@ -113,7 +113,7 @@ def before_request():
         redirect('/login')
 
     current_user = session['current_user']
-    if not user_authentication(current_user.get_token(), None):
+    if not user_authentication(current_user.token, None):
         # Redirect to application login page
         logger.warning(
             "before_request, current_user in the session is not authenticated."

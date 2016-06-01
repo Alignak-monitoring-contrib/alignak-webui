@@ -11,7 +11,7 @@
          <div class="panel-body">
             <!-- User image -->
             <div class="user-header bg-light-blue">
-               <img src="{{current_user.get_picture()}}" photo="{{current_user.get_picture()}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
+               <img src="{{current_user.picture}}" photo="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
                <p class="username">
                  {{current_user.get_username()}}
                </p>
