@@ -23,6 +23,7 @@
 
 /* Teals */
 .turquoise { color: #1abc9c; }
+.item_contact,
 .green-sea { color: #16a085; }
 
 /* Greens */
@@ -53,7 +54,6 @@
 /* Blacks */
 .item_command,
 .wet-asphalt { color: #34495e; }
-.item_user,
 .midnight-blue { color: #2c3e50; }
 
 /* Yellows */
