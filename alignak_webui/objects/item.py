@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring, fixme,too-many-arguments, too-many-public-methods
-# pylint: disable=too-many-nested-blocks, too-many-locals, too-many-return-statements
-# pylint: disable=attribute-defined-outside-init, protected-access
+# Many functions need to use protected members of a base class
+# pylint: disable=protected-access
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -54,9 +53,6 @@ class ItemState(object):
         '''
 
         def __init__(self):
-            '''
-            Create
-            '''
             self.states = None
 
             # Get global configuration
@@ -177,6 +173,10 @@ class ItemState(object):
 
         def get_html_state(self, object_type, object_item, extra='', icon=True, text=False,
                            label='', disabled=False):
+            # Yes, but it is needed ;)
+            # pylint: disable=too-many-arguments
+            # Yes, but else it will be quite difficult :/
+            # pylint: disable=too-many-locals, too-many-return-statements
             """
             Returns an item status as HTML text and icon if needed
 
@@ -288,6 +288,8 @@ class ItemState(object):
             return res_icon
 
         def get_html_badge(self, object_type, object_item, label='', disabled=False):
+            # Yes, but else it will be quite difficult :/
+            # pylint: disable=too-many-locals, too-many-return-statements
             """
             Returns an item status as HTML text and icon if needed
 
@@ -388,19 +390,37 @@ class ItemState(object):
     def get_html_state(self, extra='', icon=True, text=False,
                        label='', disabled=False,
                        object_type='', object_item=None):  # pragma: no cover
+        # pylint: disable=too-many-arguments
+        '''
+        Base function used by Item objects
+        '''
         return self.instance.get_html_state(object_type, object_item,
                                             extra, icon, text, label, disabled)
 
     def get_html_badge(self,
                        label='', disabled=False,
                        object_type='', object_item=None):  # pragma: no cover
+        '''
+        Base function used by Item objects
+        '''
         return self.instance.get_html_badge(object_type, object_item,
                                             label, disabled)
 
 
 class Item(object):
     '''
-    Base class for all objects
+    Base class for all the data manager objects
+
+    An Item is created from a dictionary with some specific features:
+    - an item has an identifier, a name, a comment
+    - some specific treatments are applied on some specific fields (see _create method doc)
+    - all objects are cached internally to avoid creating several instances for the same element
+
+    If no identifier attribute exists in the provided data an automatic identifier is assigned.
+
+    Manages links between Item objects base upon some specific fields.
+
+    !!!!! TO BE COMPLETED !!!!!
     '''
     _count = 0
     _total_count = -1
@@ -432,24 +452,32 @@ class Item(object):
     """ Manage cached objects """
     @classmethod
     def getType(cls):
+        ''' Get protected member '''
         return cls._type
 
     @classmethod
     def getCount(cls):
+        ''' Get protected member '''
         return cls._count
 
     @classmethod
     def getTotalCount(cls):
+        ''' Get protected member '''
         return cls._total_count
 
     @classmethod
     def getCache(cls):
+        ''' Get protected member '''
         return cls._cache
 
     @classmethod
     def cleanCache(cls):
+        '''
+        Clean internal objects cache and reset the internal counters
+        '''
         cls._next_id = 1
         cls._count = 0
+        cls._total_count = -1
         cls._cache = {}
 
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
@@ -486,7 +514,6 @@ class Item(object):
                     params[id_property] = str(params[id_property])
                 _id = params[id_property]
             else:
-                # TODO: change this ... always create type_0 object!
                 _id = '%s_%d' % (cls.getType(), cls._next_id)
                 params[id_property] = _id
                 cls._next_id += 1
@@ -519,7 +546,6 @@ class Item(object):
         Delete an object (called only when no more reference exists for an object)
         '''
         logger.debug(" --- deleting a %s (%s)", self.__class__, self._id)
-        # print "Delete a %s (%s)" % (self.getType(), self._id)
 
     def _delete(self):
         '''
@@ -743,28 +769,50 @@ class Item(object):
         return getattr(self, key, None)
 
     def get_id(self):
+        '''
+        Get Item object identifier
+        A class inheriting from an Item can define its own `id_property`
+        '''
         if hasattr(self.__class__, 'id_property'):
             return getattr(self, self.__class__.id_property, None)
         return getattr(self, '_id', None)
 
     def get_name(self):
+        '''
+        Get Item object name
+        A class inheriting from an Item can define its own `name_property`
+        '''
         if hasattr(self.__class__, 'name_property'):
             return getattr(self, self.__class__.name_property, None)
         return getattr(self, 'name', None)
 
-    def get_description(self):
-        if hasattr(self.__class__, 'description_property'):
-            return getattr(self, self.__class__.description_property, None)
-        if hasattr(self, 'description'):
-            return self.description
+    def get_comment(self):
+        '''
+        Get Item object comment
+        A class inheriting from an Item can define its own `comment_property`
+        '''
+        if hasattr(self.__class__, 'comment_property'):
+            return getattr(self, self.__class__.comment_property, None)
+        if hasattr(self, 'comment'):
+            return self.comment
         return self.get_name()
 
     def get_status(self):
+        '''
+        Get Item object status
+        A class inheriting from an Item can define its own `status_property`
+        '''
         if hasattr(self.__class__, 'status_property'):
             return getattr(self, self.__class__.status_property, None)
         return getattr(self, 'status', 'unknown')
 
     def get_state(self):
+        '''
+        Get Item object state
+        A class inheriting from an Item can define its own `state_property`
+
+        !!!!! TO BE COMPLETED !!!!
+        '''
         state = getattr(self, 'state', 99)
         if isinstance(state, int):
             try:
@@ -782,6 +830,7 @@ class Item(object):
 
     def get_html_state(self, extra='', icon=True, text=False,
                        label='', disabled=False, object_type=None, object_item=None):
+        # pylint: disable=too-many-arguments
         """
         Uses the ItemState singleton to display HTML state for an item
         """
@@ -807,13 +856,20 @@ class Item(object):
         return ItemState().get_html_badge(object_type, object_item,
                                           label, disabled)
 
-    def get_date(self, _date=None, fmt=None):
+    def get_date(self, _date, fmt=None):
+        '''
+        Format the provided `_date` according to the specified format.
+
+        If no date format is specified, it uses the one defined in the ItemState object that is
+        the date format defined in the application configuration.
+        '''
         if _date == self.__class__._default_date:
             return _('Never dated!')
 
-        item_state = ItemState()
-        if not fmt and item_state.date_format:
-            fmt = item_state.date_format
+        if not fmt:
+            item_state = ItemState()
+            if item_state.date_format:
+                fmt = item_state.date_format
 
         # Make timestamp to datetime
         _date = datetime.utcfromtimestamp(_date)
@@ -829,6 +885,9 @@ class Item(object):
 
 
 class Contact(Item):
+    '''
+    Object representing a contact
+    '''
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -837,6 +896,7 @@ class Contact(Item):
     # _cache is a list of created objects
     _cache = {}
 
+    # Displayable strings for the contact role
     roles = {
         "user": _("User"),
         "power": _("Power user"),
@@ -850,6 +910,8 @@ class Contact(Item):
         return super(Contact, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
+        # Not that bad ... because od _create is called from __new__
+        # pylint: disable=attribute-defined-outside-init
         '''
         Create a contact (called only once when an object is newly created)
         '''
@@ -909,6 +971,7 @@ class Contact(Item):
         '''
         Initialize a contact (called every time an object is invoked)
         '''
+        self.role = None
         super(Contact, self).__init__(params)
 
     def __repr__(self):
@@ -921,15 +984,17 @@ class Contact(Item):
         )
 
     def get_friendly_name(self):
+        '''
+        Get the contact friendly name if defined, else returns the name
+        '''
         return getattr(self, 'friendly_name', self.get_name())
 
-    def get_token(self):
-        return self.token
-
-    def get_picture(self):
-        return self.picture
-
     def get_username(self):
+        '''
+        Get the contact username (for login).
+        Returns the 'username' field if it exisrs, else returns  the 'contact_name' field,
+        else returns  the 'name' field
+        '''
         if getattr(self, 'username', None):
             return self.username
         if getattr(self, 'contact_name', None):
@@ -937,28 +1002,33 @@ class Contact(Item):
         return self.name
 
     def get_name(self):
+        '''
+        Get the contact name (for display).
+        Returns the 'alias' field if it exisrs, else returns  the contact username,
+        '''
         name = self.get_username()
-        if getattr(self, 'friendly_name', None):
-            return self.friendly_name
-        elif getattr(self, 'realname', None):
-            return "%s %s" % (getattr(self, 'firstname'), getattr(self, 'realname'))
-        elif getattr(self, 'alias', None) and getattr(self, 'alias', None) != 'none':
+        if getattr(self, 'alias', None) and getattr(self, 'alias', None) != 'none':
             return getattr(self, 'alias', name)
         return name
 
-    def get_email(self):
-        return self.email
-
-    def get_lync(self):
-        return self.lync
-
     def get_role(self, display=False):
-        if self.is_administrator():
-            self.role = 'administrator'
-        elif self.can_submit_commands():
-            self.role = 'power'
-        else:
-            self.role = 'user'
+        '''
+        Get the contact role.
+        If contact role is not defined, set the property according to the contact attributes:
+        - role='administrator' if the contact is an administrator
+        - role='power' if the contact can submit commands
+        - role='user' else
+
+        If the display parameter is set, the function returns a displayable string else it
+        returns the defined role property
+        '''
+        if not getattr(self, 'role', None):
+            if self.is_administrator():
+                self.role = 'administrator'
+            elif self.can_submit_commands():
+                self.role = 'power'
+            else:
+                self.role = 'user'
 
         if display and self.role in self.__class__.roles:
             return self.__class__.roles[self.role]
@@ -967,7 +1037,8 @@ class Contact(Item):
 
     def is_anonymous(self):
         """
-        Is user anonymous?
+        An anonymous user is created when no 'name' attribute exists for the contact ... 'anonymous'
+        is the default value of the Item name property.
         """
         return self.name == 'anonymous'
 
@@ -1006,21 +1077,11 @@ class Contact(Item):
 
         return False
 
-    def is_related_to(self, item):  # pragma: no cover, RFU!
-        """ Is the item (host, service, group,...) related to the user?
-
-            In other words, can the user see this item in the WebUI?
-
-            :returns: True or False
-        """
-        # TODO : to be managed ...
-        if item:
-            return True
-
-        return False
-
 
 class LiveSynthesis(Item):
+    '''
+    Object representing the live synthesis of the system
+    '''
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -1042,9 +1103,6 @@ class LiveSynthesis(Item):
         '''
         Create a livesynthesis (called only once when an object is newly created)
         '''
-        self.linked_host_name = 'host'
-        self.linked_service_description = 'service'
-
         super(LiveSynthesis, self)._create(params, date_format)
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
@@ -1061,6 +1119,9 @@ class LiveSynthesis(Item):
 
 
 class LiveState(Item):
+    '''
+    Object representing a livestate item (host or service)
+    '''
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -1079,6 +1140,8 @@ class LiveState(Item):
         return super(LiveState, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
+        # Not that bad ... because od _create is called from __new__
+        # pylint: disable=attribute-defined-outside-init
         '''
         Create a livestate (called only once when an object is newly created)
         '''
@@ -1101,6 +1164,9 @@ class LiveState(Item):
 
 
 class Host(Item):
+    '''
+    Object representing an host
+    '''
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -1116,6 +1182,8 @@ class Host(Item):
         return super(Host, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
+        # Not that bad ... because od _create is called from __new__
+        # pylint: disable=attribute-defined-outside-init
         '''
         Create a host (called only once when an object is newly created)
         '''
@@ -1179,6 +1247,9 @@ class Host(Item):
 
 
 class Service(Item):
+    '''
+    Object representing a service
+    '''
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -1213,6 +1284,9 @@ class Service(Item):
 
 
 class Command(Item):
+    '''
+    Object representing a command
+    '''
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -1231,9 +1305,6 @@ class Command(Item):
         '''
         Create a command (called only once when an object is newly created)
         '''
-        self.linked_userservice_session = 'userservice_session'
-        self.linked_event = 'event'
-
         super(Command, self)._create(params, date_format)
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
@@ -1251,8 +1322,10 @@ class Command(Item):
 
 # Sort methods
 # -----------------------------------------------------
-# Sort elements by descending date
-def sort_items_most_recent_first(s1, s2):  # pragma: no cover, hard to test ...
+def sort_items_most_recent_first(s1, s2):
+    '''
+    Sort elemnts by descending date
+    '''
     if s1.get_date() > s2.get_date():
         return -1
     if s1.get_date() < s2.get_date():
@@ -1260,8 +1333,10 @@ def sort_items_most_recent_first(s1, s2):  # pragma: no cover, hard to test ...
     return 0
 
 
-# Sort elements by ascending date
-def sort_items_least_recent_first(s1, s2):  # pragma: no cover, hard to test ...
+def sort_items_least_recent_first(s1, s2):
+    '''
+    Sort elements by ascending date
+    '''
     if s1.get_date() < s2.get_date():
         return -1
     if s1.get_date() > s2.get_date():

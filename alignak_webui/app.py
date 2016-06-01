@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=redefined-variable-type, global-statement
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -127,6 +126,7 @@ if __name__ != "__main__":
 # --------------------------------------------------------------------------------------------------
 # Main function
 def main():  # pragma: no cover, not mesured by coverage!
+    # pylint: disable=redefined-variable-type, global-statement
     """
         Called when this module is started from shell
     """

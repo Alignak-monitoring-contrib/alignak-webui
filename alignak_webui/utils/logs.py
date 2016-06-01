@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-arguments
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -68,6 +67,8 @@ def set_console_logger(logger):
         logger.addHandler(ch)
 
 
+# Yes, but we need it
+# pylint: disable=too-many-arguments
 def set_file_logger(logger, path='/var/log', filename='application.log',
                     when="D", interval=1, backupCount=6):
     """

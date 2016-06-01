@@ -210,13 +210,7 @@ def get_contacts_table():
     '''
     Get the contacts list and transform it as a table
     '''
-    contact = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    contactname = contact.get_username()
-    if not target_user.is_anonymous():
-        contactname = target_user.get_username()
 
     # Pagination and search
     where = webui.helper.decode_search(request.query.get('search', ''))

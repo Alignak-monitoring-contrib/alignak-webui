@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-nested-blocks
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -92,19 +91,15 @@ class Settings(dict):
             if found_cfg_file:
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
-                    if app_name in section:
-                        for option in config.options(section):
-                            try:
-                                self[option] = config.get(section, option)
-                            except Exception:  # pragma: no cover - should never happen ...
-                                self[option] = None
-                        continue
                     for option in config.options(section):
                         try:
-                            self[section + '.' + option] = config.get(section, option)
+                            if app_name in section:
+                                self[option] = config.get(section, option)
+                            else:
+                                self[section + '.' + option] = config.get(section, option)
                         except Exception:  # pragma: no cover - should never happen ...
                             self[section + '.' + option] = None
-            else:  # pragma: no cover - should never occur!
+            else:  # pragma: no cover - should never happen ...
                 print "No configuration file found in %s." % settings_filenames
 
             return found_cfg_file

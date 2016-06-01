@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=fixme, global-statement, global-variable-not-assigned
-# pylint: disable=wrong-import-position
+# pylint: disable=global-statement, global-variable-not-assigned
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -202,7 +201,6 @@ bottle.TEMPLATE_PATH.append(
     )
 )
 
-# TODO: #3 ...
 # Extend default WSGI application with a session middleware
 session_opts = {
     'session.type': 'file',

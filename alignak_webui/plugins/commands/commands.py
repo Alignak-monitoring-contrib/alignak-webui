@@ -189,9 +189,7 @@ def get_commands_table():
     '''
     Get the commands list and transform it as a table
     '''
-    user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
 
     # Pagination and search
     where = webui.helper.decode_search(request.query.get('search', ''))

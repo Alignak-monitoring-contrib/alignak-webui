@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-locals,too-many-arguments,too-many-public-methods
-# pylint: disable=fixme, unused-variable, pointless-string-statement
-# pylint: disable=too-many-nested-blocks, useless-else-on-loop, protected-access
+# Yes, but that's how it is made, and it suits ;)
+# pylint: disable=too-many-public-methods
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -84,7 +83,7 @@ class DataManager(object):
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
         self.known_classes = []
-        for k, v in globals().items():
+        for k, dummy in globals().items():
             if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
                 self.known_classes.append(globals()[k])
                 logger.debug(
@@ -154,7 +153,7 @@ class DataManager(object):
                 self.logged_in_user = users[0]
 
                 # Get total objects count from the backend
-                objects_count = self.get_objects_count(refresh=True, log=True)
+                self.get_objects_count(refresh=True, log=True)
 
                 # Load data if load required...
                 if load:
@@ -212,10 +211,8 @@ class DataManager(object):
         logger.debug("find_object, self: %s, updated:%s", self, self.updated)
         logger.debug("find_object, %s, params: %s", object_type, params)
 
-        unique_element = False
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
-            unique_element = True
             logger.debug("find_object, %s, params: %s", object_type, params)
 
         items = []
@@ -281,7 +278,7 @@ class DataManager(object):
         logger.debug("find_object, found in the backend: %s: %s", object_type, result['_items'])
         for item in result['_items']:
             # Find "Backend object type" classes in file imported modules ...
-            for k, v in globals().items():
+            for k, dummy in globals().items():
                 if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
                     if globals()[k].getType() == object_type:
                         # Create a new object
@@ -345,12 +342,12 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get all commands
         # -----------------------------------------------------------------------------------------
-        commands = self.get_commands()
+        self.get_commands()
 
         # -----------------------------------------------------------------------------------------
         # Get all hosts (livestate which embeds host definition)
         # -----------------------------------------------------------------------------------------
-        hosts = self.get_livestate_hosts()
+        self.get_livestate_hosts()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -427,6 +424,8 @@ class DataManager(object):
                             )
                         else:
                             objects_count = self.count_objects(object_type, search=search)
+                            # _total_count is a property ... should make it a method?
+                            # pylint: disable=protected-access
                             known_class._total_count = objects_count
 
                         log_function(
@@ -435,6 +434,7 @@ class DataManager(object):
                         )
                     return objects_count
             else:  # pragma: no cover, should not happen
+                # pylint: disable=useless-else-on-loop
                 logger.warning("count_objects, unknown object type: %s", object_type)
                 return 0
 
@@ -574,6 +574,8 @@ class DataManager(object):
         except ValueError:
             logger.info("delete_object, object deleted: %s, _id=%s", object_type, object_id)
             # Object deletion
+            # _delete is the deletion method name... yes, it sounds like a protected member :/
+            # pylint: disable=protected-access
             element._delete()
 
         return True
@@ -807,7 +809,7 @@ class DataManager(object):
         except ValueError:
             logger.debug("get_livestate_hosts, none found")
 
-    def get_livestate_services(self, search=None, all_elements=True):
+    def get_livestate_services(self, search=None):
         """ Get livestate for services
 
             Elements in the livestat which service_description is not null (eg. services)
@@ -835,7 +837,7 @@ class DataManager(object):
         except ValueError:
             logger.debug("get_livestate_hosts, none found")
 
-    def get_livesynthesis(self, search=None, all_elements=True):
+    def get_livesynthesis(self, search=None):
         """ Get livestate synthesis for hosts and services
 
             Example backend response::
@@ -1019,7 +1021,7 @@ class DataManager(object):
             hosts = [item for item in elts if item.getType() == 'host']
         else:
             # Use internal object list ...
-            hosts = [item for _id, item in Host.getCache().items()]
+            hosts = [item for dummy, item in Host.getCache().items()]
         logger.debug("get_hosts_synthesis, %d hosts", len(hosts))
 
         synthesis = dict()
@@ -1086,7 +1088,7 @@ class DataManager(object):
             services = [item for item in elts if item.getType() == 'service']
         else:
             # Use internal object list ...
-            services = [item for _id, item in Service.getCache().items()]
+            services = [item for dummy, item in Service.getCache().items()]
         logger.debug("get_services_synthesis, %d services", len(services))
 
         synthesis = dict()
@@ -1144,7 +1146,7 @@ class DataManager(object):
             commands = [item for item in elts if item.getType() == 'command']
         else:
             # Use internal object list ...
-            commands = [item for _id, item in Command.getCache().items()]
+            commands = [item for dummy, item in Command.getCache().items()]
         logger.debug("get_commands_synthesis, %d commands", len(commands))
 
         synthesis = dict()

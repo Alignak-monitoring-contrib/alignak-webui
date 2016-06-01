@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=fixme, too-many-locals, too-many-nested-blocks, too-many-public-methods
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -188,6 +187,7 @@ def heartbeat():
 
 @route('/ping')
 def ping():
+    # pylint: disable=too-many-return-statements
     '''
     Request on /ping is a simple check alive that returns an information if UI refresh is needed
 
@@ -502,6 +502,7 @@ class WebUI(object):
         )
 
     def load_plugins(self, app, plugins_dir):
+        # pylint: disable=too-many-locals, too-many-nested-blocks
         '''
         Load plugins from the provided directory
 

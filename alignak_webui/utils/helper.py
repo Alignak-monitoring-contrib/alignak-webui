@@ -215,7 +215,7 @@ class Helper(object):
         '''
 
         if obj is not None:
-            return self.get_urls(
+            return Helper.get_urls(
                 obj, obj.action_url,
                 default_title=default_title, default_icon=default_icon, popover=popover
             )
@@ -243,7 +243,7 @@ class Helper(object):
                 i += 1
                 logger.debug("[WebUI] get_element_notes_url, note: %s", notes)
 
-            return self.get_urls(
+            return Helper.get_urls(
                 obj, '|'.join(notes),
                 default_title=default_title, default_icon=default_icon, popover=popover
             )
@@ -388,140 +388,3 @@ class Helper(object):
             )
 
         return res
-
-    @staticmethod
-    def get_html_livesynthesis(self):
-        """
-        Get HTML formatted live synthesis
-
-        Update system live synthesis and build header elements
-
-        :return: hosts_states and services_states HTML strings in a dictionary
-        :rtype: dict
-        """
-        ls = self.get_livesynthesis()
-
-        if not ls:  # pragma: no cover - unit testing problem ... should have no livestate!
-            return {
-                'hosts_states_popover': "",
-                'services_states_popover': "",
-                'hosts_state': """
-                    <a tabindex="0" role="button" title="Overall hosts states unknown">
-                        <i class="fa fa-server"></i>
-                        <span class="label label-as-badge label-unknown">?</span>
-                    </a>
-                """,
-                'services_state': """
-                    <a tabindex="0" role="button" title="Overall services states unknown">
-                        <i class="fa fa-bars"></i>
-                        <span class="label label-as-badge label-unknown">?</span>
-                    </a>
-                """
-            }
-
-        hosts_states_popover = ''
-        lsh = ls['hosts_synthesis']
-        for state in Helper._host_states:
-            nb = int(lsh["nb_%s" % state.lower()])
-            pct = float(lsh["pct_%s" % state.lower()])
-            label = "<small>%d (%s %%)</small>" % (nb, pct)
-            hosts_states_popover +=\
-                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
-                    state.lower(),
-                    nb,
-                    helper.get_html_state("host", state.lower(), label=label, disabled=False)
-                )
-
-        for state in Helper._extra__host_states:
-            nb = int(lsh["nb_%s" % state.lower()])
-            pct = float(lsh["pct_%s" % state.lower()])
-            label = "<small>%d (%s %%)</small>" % (nb, pct)
-            hosts_states_popover +=\
-                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
-                    state.lower(),
-                    nb,
-                    helper.get_html_state("host", "", extra=state, label=label, disabled=False)
-                )
-
-        hosts_states_popover = """<table class="table table-invisible table-condensed"><tbody>
-        <tr data-count="%d" data-problems="%d">%s</tr>
-        </tbody></table>""" % (
-            int(lsh["nb_elts"]),
-            int(lsh["nb_problems"]),
-            hosts_states_popover
-        )
-
-        overall_state = "up"
-        if float(lsh["pct_problems"]) >= 100.0 - float(settings.get("ui.hosts_warning", 5)):
-            overall_state = "unreachable"
-        if float(lsh["pct_problems"]) >= 100.0 - float(settings.get("ui.hosts_critical", 5)):
-            overall_state = "down"
-
-        hosts_state = """
-        <a tabindex="0" role="button" title="Overall hosts states, %d hosts, %d problems">
-            <i class="fa fa-server"></i>
-            <span class="label label-as-badge label-%s">%d</span>
-        </a>
-        """ % (
-            int(lsh["nb_elts"]),
-            int(lsh["nb_problems"]),
-            overall_state,
-            int(lsh["nb_problems"])
-        )
-
-        services_states_popover = ''
-        lss = ls['services_synthesis']
-        for state in Helper._service_states:
-            nb = int(lss["nb_%s" % state.lower()])
-            pct = float(lss["pct_%s" % state.lower()])
-            label = "<small>%s (%s %%)</small>" % (nb, pct)
-            services_states_popover +=\
-                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
-                    state.lower(),
-                    nb,
-                    helper.get_html_state("service", state.lower(), label=label, disabled=False)
-                )
-
-        for state in Helper._extra__service_states:
-            nb = int(lss["nb_%s" % state.lower()])
-            pct = float(lss["pct_%s" % state.lower()])
-            label = "<small>%s (%s %%)</small>" % (nb, pct)
-            services_states_popover +=\
-                '<td data-state="%s" data-count="%d"><center>%s</center></td>' % (
-                    state.lower(),
-                    nb,
-                    helper.get_html_state("service", "", state, label=label, disabled=False)
-                )
-
-        services_states_popover = """
-        <table class="table table-invisible table-condensed"><tbody>
-        <tr data-count="%d" data-problems="%d">%s</tr>
-        </tbody></table>
-        """ % (
-            int(lss["nb_elts"]), int(lss["nb_problems"]), services_states_popover
-        )
-
-        overall_state = "ok"
-        if float(lss["pct_problems"]) >= 100.0 - float(settings.get("ui.services_warning", 5)):
-            overall_state = "warning"
-        if float(lss["pct_problems"]) >= 100.0 - float(settings.get("ui.services_critical", 5)):
-            overall_state = "critical"
-
-        services_state = """
-        <a tabindex="0" role="button" title="Overall services states, %d services, %d problems">
-            <i class="fa fa-bars"></i>
-            <span class="label label-as-badge label-%s">%d</span>
-        </a>
-        """ % (
-            int(lss["nb_elts"]),
-            int(lss["nb_problems"]),
-            overall_state,
-            int(lss["nb_problems"])
-        )
-
-        return {
-            'hosts_states_popover': hosts_states_popover,
-            'services_states_popover': services_states_popover,
-            'hosts_state': hosts_state,
-            'services_state': services_state
-        }

@@ -1,8 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-nested-blocks, too-many-locals
-# pylint: disable=wildcard-import,unused-wildcard-import
-# pylint: disable=protected-access
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -38,6 +35,8 @@ from logging import getLogger
 from bottle import request, response, view
 
 # Import all objects we will need
+# pylint: disable=wildcard-import,unused-wildcard-import
+# We need all the classes defined whatever their number to use the globals() object.
 from alignak_webui.objects.item import *
 
 from alignak_webui.utils.helper import Helper
@@ -266,6 +265,8 @@ class Datatable(object):
         }
 
     def table_data(self):
+        # Because there are many locals needed :)
+        # pylint: disable=too-many-locals
         """
         Return elements data in json format as of Datatables SSP protocol
         More info: https://datatables.net/manual/server-side
@@ -432,6 +433,8 @@ class Datatable(object):
         # Global search parameter
         # search:{"value":"test","regex":false}
         searched_global = []
+        # pylint: disable=too-many-nested-blocks
+        # Will be too complex else ...
         if 'search' in params and 'columns' in params and params['search']:
             if 'value' in params['search'] and params['search']['value']:
                 logger.debug(
@@ -517,6 +520,8 @@ class Datatable(object):
             # Change item content ...
             for item in resp['_items']:
                 logger.debug("Object: %s", bo_object)
+                # _update is the method name... yes, it sounds like a protected member :/
+                # pylint: disable=protected-access
                 bo_object._update(item)
                 for key in item.keys():
                     for field in self.table_columns:

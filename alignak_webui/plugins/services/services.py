@@ -460,13 +460,7 @@ def get_services_table():
     '''
     Get the services list and transform it as a table
     '''
-    user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
 
     # Pagination and search
     where = webui.helper.decode_search(request.query.get('search', ''))
