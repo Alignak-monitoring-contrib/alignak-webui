@@ -70,7 +70,7 @@ class test_00_class(unittest2.TestCase):
             item = Item(1)
         ex = cm.exception
         print ex
-        assert str(ex) == "Object parameters must be a dictionary!"
+        assert str(ex) == "Item.__new__: object parameters must be a dictionary!"
 
         # Declaration without any parameter is allowed
         item = Item()
@@ -548,12 +548,12 @@ class test_02_items(unittest2.TestCase):
         assert item.foo_date == 1459508293
         assert item.now_date == timegm(now.timetuple())
         assert item.fake_date == 0
-        assert item.get_description() == item.get_name()
+        assert item.get_comment() == item.get_name()
 
         # Base item methods
         now = datetime.now()
         parameters = {
-            'description': 'Description',
+            'comment': 'Item comment',
             'foo': 'bar', 'foo_int': 1,
             'foo_date': '2016-04-01 10:58:13',
             'now_date': now,
@@ -575,7 +575,7 @@ class test_02_items(unittest2.TestCase):
         assert item.dict_param['param2'] == '2'
 
         assert item.get_name() == 'anonymous'
-        assert item.get_description() == 'Description'
+        assert item.get_comment() == 'Item comment'
         assert item.get_status() == 'unknown'
         print item.get_icon_states()
         assert item.get_icon_states()
@@ -587,34 +587,34 @@ class test_02_items(unittest2.TestCase):
         assert item.get_html_badge() == '''<span class="item-badge item_user " data-item-id="%s" data-item-type="item">\n<span class="fa-stack" title="">\n<i class="fa fa-stack-2x fa-circle"></i>\n<i class="fa fa-stack-1x fa-user fa-inverse"></i>\n</span>\n</span>''' % item._id
 
     def test_02_users(self):
-        print "--- test User"
+        print "--- test Contact"
 
         # Global (Item) objects count
         global_objects_count = Item().getCount()
         print global_objects_count, "objects"
         print "--- cache:"
-        print User.getCache()
-        assert len(User.getCache()) == 0
+        print Contact.getCache()
+        assert len(Contact.getCache()) == 0
 
         # Base item
-        item = User()
+        item = Contact()
         assert item
         print "--- cache:"
-        print User.getCache()
-        assert len(User.getCache()) == 1
+        print Contact.getCache()
+        assert len(Contact.getCache()) == 1
 
 
-        # Specific (User) objects count and cache
+        # Specific (Contact) objects count and cache
         user_objects_count = item._count
-        print user_objects_count, " User objects"
+        print user_objects_count, " Contact objects"
         print item._cache
 
         # Global objects count and cache did not changed
         assert global_objects_count == Item().getCount()
         assert len(Item().getCache()) == global_objects_count
-        # Only 1 User object
+        # Only 1 Contact object
         assert item._count == 1
-        assert len(User.getCache()) == 1
+        assert len(Contact.getCache()) == 1
 
         print item
         assert "%s" % item == "<contact, id: contact_0, name: anonymous, role: user>"
@@ -639,8 +639,8 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == True
         assert item.can_submit_commands() == False
         assert item.can_change_dashboard() == False
-        assert item.get_picture() == '/static/photos/user_guest'
-        assert item.get_token() == None
+        assert item.picture == '/static/photos/user_guest'
+        assert item.token == None
 
         print item.get_html_state()
         assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item._id
@@ -648,7 +648,7 @@ class test_02_items(unittest2.TestCase):
         assert item.get_html_badge() == '''<span class="item-badge item_user " data-item-id="%s" data-item-type="contact">\n<span class="fa-stack" title="">\n<i class="fa fa-stack-2x fa-circle"></i>\n<i class="fa fa-stack-1x fa-user fa-inverse"></i>\n</span>\n</span>''' % item._id
 
 
-        item = User({
+        item = Contact({
             'name': 'test',
             'password': 'test',
             'is_admin': False,
@@ -666,10 +666,8 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == False
         assert item.can_submit_commands() == True
         assert item.can_change_dashboard() == True
-        assert item.get_picture() == '/static/photos/user_default'
-        assert item.get_email() == 'test@gmail.com'
-        assert item.get_lync() == 'test@lync.com'
-        assert item.get_token() == 'token'
+        assert item.picture == '/static/photos/user_default'
+        assert item.token == 'token'
 
         print item.get_html_state()
         assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item._id
@@ -677,7 +675,7 @@ class test_02_items(unittest2.TestCase):
         assert item.get_html_badge() == '''<span class="item-badge item_user " data-item-id="%s" data-item-type="contact">\n<span class="fa-stack" title="">\n<i class="fa fa-stack-2x fa-circle"></i>\n<i class="fa fa-stack-1x fa-user fa-inverse"></i>\n</span>\n</span>''' % item._id
 
 
-        item = User({
+        item = Contact({
             'name': 'test',
             'contact_name': 'test',
             'friendly_name': 'Friendly name',
@@ -686,32 +684,32 @@ class test_02_items(unittest2.TestCase):
         })
         assert item._id == 'contact_2' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
-        assert item.get_name() == 'Friendly name'
+        assert item.get_name() == 'test'
         assert item.get_role() == 'administrator'
         assert item.get_role(display=True) == 'Administrator'
         assert item.is_administrator() == True
         assert item.is_anonymous() == False
         assert item.can_submit_commands() == True
         assert item.can_change_dashboard() == True
-        assert item.get_picture() == '/static/photos/user_admin'
+        assert item.picture == '/static/photos/user_admin'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="Friendly name" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
+        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
         print item.get_html_badge()
         assert item.get_html_badge() == '''<span class="item-badge item_user " data-item-id="%s" data-item-type="contact">\n<span class="fa-stack" title="">\n<i class="fa fa-stack-2x fa-circle"></i>\n<i class="fa fa-stack-1x fa-user fa-inverse"></i>\n</span>\n</span>''' % item.get_id()
 
 
-        item = User({
+        item = Contact({
             'username': 'test_priority',
             'name': 'test',
-            'firstname': 'First',
-            'realname': 'Second name',
+            'alias': 'Real name',
             'password': 'test',
             'is_admin': False,
             'widgets_allowed': '0',
             'read_only': True
         })
-        assert item.get_name() == 'First Second name'
+        print item.get_name()
+        assert item.get_name() == 'Real name'
         assert item.get_username() == 'test_priority'
         assert item.get_role() == 'user'
         assert item.get_role(display=True) == 'User'
@@ -719,14 +717,14 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == False
         assert item.can_submit_commands() == False
         assert item.can_change_dashboard() == False
-        assert item.get_picture() == '/static/photos/user_default'
+        assert item.picture == '/static/photos/user_default'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="First Second name" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
+        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="Real name" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
         print item.get_html_badge()
         assert item.get_html_badge() == '''<span class="item-badge item_user " data-item-id="%s" data-item-type="contact">\n<span class="fa-stack" title="">\n<i class="fa fa-stack-2x fa-circle"></i>\n<i class="fa fa-stack-1x fa-user fa-inverse"></i>\n</span>\n</span>''' % item.get_id()
 
-        item = User({
+        item = Contact({
             'username': 'test_priority',
             'name': 'test',
             'alias': 'Aliased name',
@@ -739,7 +737,7 @@ class test_02_items(unittest2.TestCase):
         assert item.can_submit_commands() == False
         assert item.can_change_dashboard() == False
         # Update with a new obect declaration
-        item = User({
+        item = Contact({
             '_id': item._id,
             'alias': 'Aliased name (bis)',
             'is_admin': True
@@ -783,7 +781,7 @@ class test_02_items(unittest2.TestCase):
         # Global objects count and cache did not changed
         assert global_objects_count == Item().getCount()
         assert len(Item().getCache()) == global_objects_count
-        # Only 1 User object
+        # Only 1 Contact object
         assert item._count == 1
         assert len(item._cache) == 1
         assert len(Command.getCache()) == 1
@@ -845,28 +843,28 @@ class test_02_items(unittest2.TestCase):
         now = datetime.now()
         item = Host({
             'name': 'test',
-            'date': now
+            'last_check': now
         })
         print item.__dict__
         assert item._id == 'host_1'
-        assert item.get_date(timestamp=True) == timegm(now.timetuple())
+        assert item.get_last_check(timestamp=True) == timegm(now.timetuple())
 
         # Host item update
         time.sleep(1)
         now2 = datetime.now()
         parameters = {
-            'date': now2
+            'last_check': now2
         }
         item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
         print item.__dict__
         assert item._id == 'host_1'
-        assert item.get_date(timestamp=True) == timegm(now2.timetuple())
+        assert item.get_last_check(timestamp=True) == timegm(now2.timetuple())
 
         # Base item methods
         # No backend id (_id)
         assert item.get_id() == 'host_1'
         assert item.get_name() == 'test'
-        assert item.get_description() == item.get_name()
+        assert item.get_comment() == item.get_name()
         assert item.get_status() == 'unknown'
         print item.get_html_state()
         assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host">\n<span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()

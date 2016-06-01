@@ -435,6 +435,9 @@ class Item(object):
     # Default date used for bad formatted string dates
     _default_date = 0
 
+    # Dates fields: list of the attributes to be considered as dates
+    _dates = ['_created', '_updated']
+
     # Items states
     items_states = [
         # Ok
@@ -620,8 +623,8 @@ class Item(object):
                         break
                 continue
 
-            # If the property is a date, make it a timestamp...
-            if key.endswith('date') or key in ['_created', '_updated']:
+            # If the property is a known date, make it a timestamp...
+            if key.endswith('date') or key in self.__class__._dates:
                 if params[key]:
                     if isinstance(params[key], (int, long, float)):
                         # Date is received as a float or integer, store as a timestamp ...
@@ -708,7 +711,7 @@ class Item(object):
                 continue
 
             # If the property is a date, make it a timestamp...
-            if key.endswith('date') or key in ['_created', '_updated']:
+            if key.endswith('date') or key in self.__class__._dates:
                 if params[key]:
                     if isinstance(params[key], (int, long, float)):
                         # Date is received as a float or integer, store as a timestamp ...
@@ -1175,6 +1178,9 @@ class Host(Item):
     # _cache is a list of created objects
     _cache = {}
 
+    # Dates fields: list of the attributes to be considered as dates
+    _dates = Item._dates + ['last_state_change', 'last_check', 'next_check']
+
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         '''
         Create a new host
@@ -1245,6 +1251,15 @@ class Host(Item):
         '''
         super(Host, self).__init__(params)
 
+    def get_last_check(self, timestamp=False, fmt=None):
+        if self.last_check == self.__class__._default_date and not timestamp:
+            return _('Never checked!')
+
+        if timestamp:
+            print "timestamp"
+            return self.last_check
+
+        return super(Host, self).get_date(self.last_check, fmt)
 
 class Service(Item):
     '''
