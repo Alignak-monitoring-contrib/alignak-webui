@@ -206,7 +206,7 @@ bottle.TEMPLATE_PATH.append(
 # Extend default WSGI application with a session middleware
 session_opts = {
     'session.type': 'file',
-    'session.data_dir': './sessions/',
+    'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
     'session.auto': True,
     'session.cookie_expires': 21600  # 6 hours
 }
