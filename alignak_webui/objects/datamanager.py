@@ -47,7 +47,7 @@ from alignak_webui.backend.glpi_ws_client import GLPI_PAGINATION_LIMIT, GLPI_PAG
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
-# logger.setLevel(INFO)
+logger.setLevel(INFO)
 
 
 class DataManager(object):
