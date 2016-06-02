@@ -910,6 +910,8 @@ class DataManager(object):
             logger.debug("get_livesynthesis, none found")
             return None
 
+        if not items:
+            return None
         ls = items[0]
 
         # Services synthesis
