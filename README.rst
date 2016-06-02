@@ -1,9 +1,13 @@
 Alignak Web UI
 ==============
 
+*Web User Interface for Alignak backend ...*
+
+Build status (stable release)
+----------------------------------------
+
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=master
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
-
 
 .. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=master&service=github
   :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
@@ -12,8 +16,20 @@ Alignak Web UI
   :target: http://alignak-web-ui.readthedocs.org/en/latest/?badge=latest
   :alt: Documentation Status
 
+Build status (development release)
+----------------------------------------
 
-*Web User Interface for Alignak backend ...*
+.. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
+    :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
+
+.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop&service=github
+  :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
+
+.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=latest
+  :target: http://alignak-web-ui.readthedocs.org/en/latest/?badge=latest
+  :alt: Documentation Status
+
+
 
 Documentation
 ----------------------------------------
