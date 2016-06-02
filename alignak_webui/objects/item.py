@@ -1252,6 +1252,9 @@ class Host(Item):
         super(Host, self).__init__(params)
 
     def get_last_check(self, timestamp=False, fmt=None):
+        '''
+        Get last check date
+        '''
         if self.last_check == self.__class__._default_date and not timestamp:
             return _('Never checked!')
 
