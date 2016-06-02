@@ -301,8 +301,13 @@ def set_contact_preference():
     if key is None or value is None:
         return webui.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    if datamgr.set_user_preferences(contactname, key, json.loads(value)):
+    rsp = datamgr.set_user_preferences(contactname, key, json.loads(value))
+    if rsp['_status'] == 'OK':
         return webui.response_ok(message=_('Contact preferences saved'))
+    else:
+        return webui.response_ko(
+            message=_('Problem encountered while saving common preferences')
+        )
 
     return webui.response_invalid_parameters(_('Error when saving contact preferences'))
 
@@ -314,17 +319,19 @@ def set_common_preference():
     datamgr = request.environ['beaker.session']['datamanager']
     contact = request.environ['beaker.session']['current_user']
 
-    if not webui.prefs_module:
-        return webui.response_ko(message=_('No preferences module installed'))
-
     key = request.forms.get('key', None)
     value = request.forms.get('value', None)
     if key is None or value is None:
         return webui.response_invalid_parameters(_('Missing mandatory parameters'))
 
     if contact.is_administrator():
-        if datamgr.set_user_preferences('common', key, value):
+        rsp = datamgr.set_user_preferences('common', key, json.loads(value))
+        if rsp['_status'] == 'OK':
             return webui.response_ok(message=_('Common preferences saved'))
+        else:
+            return webui.response_ko(
+                message=_('Problem encountered while saving common preferences')
+            )
     else:
         return webui.response_ko(message=_('Only adaministrator user can save common preferences'))
 
