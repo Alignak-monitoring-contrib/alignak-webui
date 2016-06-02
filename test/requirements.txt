@@ -10,6 +10,6 @@ pylint
 pep8
 pep257
 uwsgi
-alignak
+# alignak
 # alignak_backend
 -e git+git://github.com/Alignak-monitoring-contrib/alignak-backend.git@Improve_cfg_to_backend#egg=alignak_backend
