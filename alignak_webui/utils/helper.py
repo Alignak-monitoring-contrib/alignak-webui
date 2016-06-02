@@ -206,7 +206,8 @@ class Helper(object):
         if not icon:
             return bi_texts.get(business_impact, _('Unknown'))
 
-        return "%s %s" % (bi_texts.get(business_impact, _('Unknown')), stars)
+        text = "%s %s" % (bi_texts.get(business_impact, _('Unknown')), stars)
+        return text.strip()
 
     @staticmethod
     def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
