@@ -241,7 +241,7 @@ pages = {
 
     get_commands_table_data: {
         'name': 'Commands table data',
-        'route': '/commands_table_data',
+        'route': '/command_table_data',
         'method': 'POST'
     },
 }
