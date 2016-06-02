@@ -1264,6 +1264,7 @@ class Host(Item):
 
         return super(Host, self).get_date(self.last_check, fmt)
 
+
 class Service(Item):
     '''
     Object representing a service
