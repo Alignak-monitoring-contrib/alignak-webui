@@ -16,6 +16,7 @@ Build status (stable release)
   :target: http://alignak-web-ui.readthedocs.org/en/latest/?badge=latest
   :alt: Documentation Status
 
+
 Build status (development release)
 ----------------------------------------
 
@@ -25,8 +26,8 @@ Build status (development release)
 .. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop&service=github
   :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
 
-.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=latest
-  :target: http://alignak-web-ui.readthedocs.org/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
+  :target: http://alignak-web-ui.readthedocs.org/en/develop/?badge=develop
   :alt: Documentation Status
 
 
@@ -36,10 +37,12 @@ Documentation
 
 You can find online documentation on `Read The Docs <http://alignak-web-ui.readthedocs.org/en/latest/index.html>`_ and in the */docs* directory.
 
+
 Bugs, issues and contributing
 ----------------------------------------
 
 Contributions to this project are welcome and encouraged, but please have a look to the `contributing guidelines <./CONTRIBUTING.md/>`_  before raising an issue, or writing code for the project.
+
 
 License
 ----------------------------------------
