@@ -1,3 +1,6 @@
+%setdefault('datamgr', None)
+
+%if datamgr:
 %from alignak_webui.objects.item import Service
 
 %services_states = datamgr.get_livesynthesis()['services_synthesis']
@@ -36,3 +39,4 @@
       }
    });
 </script>
+%end

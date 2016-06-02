@@ -1,3 +1,6 @@
+%setdefault('datamgr', None)
+
+%if datamgr:
 %from alignak_webui.objects.item import Host
 
 %hosts_states = datamgr.get_livesynthesis()['hosts_synthesis']
@@ -36,3 +39,4 @@
       }
    });
 </script>
+%end
