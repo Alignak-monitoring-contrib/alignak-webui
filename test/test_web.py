@@ -747,17 +747,28 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/commands')
         response.mustcontain(
             '<div id="commands">',
-            '0 elements',
+            '5 elements out of 5',
         )
 
     def test_3_4_hosts(self):
         print ''
-        print 'test host'
+        print 'test hosts'
 
         print 'get page /hosts'
         response = self.app.get('/hosts')
         response.mustcontain(
             '<div id="hosts">',
+            '25 elements out of',
+        )
+
+    def test_3_5_services(self):
+        print ''
+        print 'test services'
+
+        print 'get page /services'
+        response = self.app.get('/services')
+        response.mustcontain(
+            '<div id="services">',
             '25 elements out of',
         )
 
