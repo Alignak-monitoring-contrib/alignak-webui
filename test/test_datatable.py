@@ -55,7 +55,7 @@ backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
     print ("")
-    print ("start applications backend")
+    print ("start alignak backend")
 
     global pid
     global backend_address
@@ -63,7 +63,7 @@ def setup_module(module):
     if backend_address == "http://127.0.0.1:5000/":
         # Set test mode for applications backend
         os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['TEST_ALIGNAK_BACKEND_DB'] = 'test_alignak_webui-datatable'
+        os.environ['TEST_ALIGNAK_BACKEND_DB'] = 'alignak-backend'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -78,6 +78,14 @@ def setup_module(module):
         )
         print ("PID: %s" % pid)
         time.sleep(1)
+
+        print ("")
+        print ("populate backend content")
+        fh = open("NUL","w")
+        exit_code = subprocess.call(
+            shlex.split('cfg_to_backend --delete cfg/default/_main.cfg')
+        )
+        assert exit_code == 0
 
 
 def teardown_module(module):
@@ -114,7 +122,7 @@ class test_datatable(unittest2.TestCase):
         assert self.dmg.get_logged_user() == None
         assert self.dmg.loaded == False
 
-    def test_01_ccomands(self):
+    def test_01_commands(self):
         print ''
         print 'test commands table'
 
@@ -128,9 +136,9 @@ class test_datatable(unittest2.TestCase):
         print 'get page /commands_table'
         response = self.app.get('/commands_table')
         response.mustcontain(
-            '<div id="commands_table">',
+            '<div id="command_table">',
             "$('#tbl_command').DataTable( {",
-            '<table id="tbl_command" class="table table-striped" cellspacing="0" width="100%">',
+            '<table id="tbl_command" class="table ',
             '<th data-name="name" data-type="string">Command name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
@@ -141,8 +149,8 @@ class test_datatable(unittest2.TestCase):
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
         )
 
-        print 'change content with /commands_table_data'
-        response = self.app.post('/commands_table_data')
+        print 'change content with /command_table_data'
+        response = self.app.post('/command_table_data')
         response_value = response.json
         print response_value
         # Temporary ...
@@ -166,7 +174,7 @@ class test_datatable(unittest2.TestCase):
 
         # Rows 5 by 5 ...
         for x in range(0, items_count, 5):
-            response = self.app.post('/commands_table_data', {
+            response = self.app.post('/command_table_data', {
                 'draw': x / 5,
                 'start': x,
                 'length': 5
@@ -180,7 +188,7 @@ class test_datatable(unittest2.TestCase):
             assert len(response.json['data']) == 5
 
         # Out of scope rows ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': items_count+1,
             'length': 5
         })
@@ -191,7 +199,7 @@ class test_datatable(unittest2.TestCase):
         assert not response.json['data']
 
         # Sorting ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -213,7 +221,7 @@ class test_datatable(unittest2.TestCase):
         assert response.json['data']
         assert len(response.json['data']) == 5
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -237,7 +245,7 @@ class test_datatable(unittest2.TestCase):
 
         # Searching ...
         # Global search ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -262,7 +270,7 @@ class test_datatable(unittest2.TestCase):
         assert response.json['data']
         assert len(response.json['data']) == 1
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -286,7 +294,7 @@ class test_datatable(unittest2.TestCase):
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -313,7 +321,7 @@ class test_datatable(unittest2.TestCase):
 
         # Searching ...
         # Individual search ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -336,7 +344,7 @@ class test_datatable(unittest2.TestCase):
         assert response.json['data']
         assert len(response.json['data']) == 1
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -358,7 +366,7 @@ class test_datatable(unittest2.TestCase):
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/command_table_data', {
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -396,8 +404,9 @@ class test_datatable(unittest2.TestCase):
         print 'get page /sessions_table'
         response = self.app.get('/hosts_table')
         response.mustcontain(
-            '<div id="hosts_table">',
+            '<div id="host_table">',
             "$('#tbl_host').DataTable( {",
+            '<table id="tbl_host" class="table ',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
@@ -412,7 +421,7 @@ class test_datatable(unittest2.TestCase):
             '<th data-name="business_impact" data-type="integer">Business impact</th>'
         )
 
-        response = self.app.post('/hosts_table_data')
+        response = self.app.post('/host_table_data')
         response_value = response.json
         print response_value
         # Temporary

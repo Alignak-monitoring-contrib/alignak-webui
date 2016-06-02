@@ -20,9 +20,7 @@ print "Configuration file", os.environ['TEST_WEBUI_CFG']
 from alignak_backend_client.client import Backend, BackendException
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
-from alignak_webui.objects.item import User, UserService, UserServiceUser, Host, Command
-from alignak_webui.objects.item import Session, SessionUser, SessionEvent, UserServiceCdr
-from alignak_webui.objects.item import Kiosk
+from alignak_webui.objects.item import Contact, Host, Service, Command
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui import get_app_config, _
 import alignak_webui.app
@@ -40,7 +38,7 @@ backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
     print ("")
-    print ("start applications backend")
+    print ("start alignak backend")
 
     global pid
     global backend_address
@@ -66,13 +64,11 @@ def setup_module(module):
 
         print ("")
         print ("populate backend content")
-
         fh = open("NUL","w")
-        pid2 = subprocess.Popen(
+        exit_code = subprocess.call(
             shlex.split('cfg_to_backend --delete cfg/default/_main.cfg')
         )
-        pid2.communicate()
-        fh.close()
+        assert exit_code == 0
 
 def teardown_module(module):
     print ("")
@@ -192,7 +188,7 @@ class test_2_creation(unittest2.TestCase):
         assert datamanager.get_logged_user() != None
         assert datamanager.get_logged_user().get_username() == 'admin'
         assert datamanager.get_logged_user().authenticated
-        user_token = datamanager.get_logged_user().get_token()
+        user_token = datamanager.get_logged_user().token
 
         print 'DM reset'
         datamanager.reset()
@@ -214,7 +210,7 @@ class test_2_creation(unittest2.TestCase):
 
         print 'DM login'
         assert datamanager.user_login('admin', 'admin', load=False)
-        user_token = datamanager.get_logged_user().get_token()
+        user_token = datamanager.get_logged_user().token
         assert datamanager.user_login(user_token)
         assert datamanager.connection_message == 'Backend connected'
 
@@ -263,7 +259,7 @@ class test_3_load_create(unittest2.TestCase):
         assert result == 0  # No new objects created ...
 
         # Get users error
-        item = self.dmg.get_user('unknown')
+        item = self.dmg.get_contact('unknown')
         assert not item
 
 
@@ -277,6 +273,7 @@ class test_4_not_admin(unittest2.TestCase):
     def tearDown(self):
         print ""
 
+    @unittest2.skip("To be completed test ...")
     def test_4_1_load(self):
         print ''
         print 'test load not admin user'
@@ -327,25 +324,28 @@ class test_4_not_admin(unittest2.TestCase):
 
 
         # Get users
-        items = self.dmg.get_users()
+        items = self.dmg.get_contacts()
+        print "Contacts:", items
         assert len(items) == 1
         # 1 user only ...
 
+        # Get hosts
+        items = self.dmg.get_commands()
+        print "Commands:", items
+        assert len(items) == 1
+
         # Get services
-        items = self.dmg.get_userservices()
+        items = self.dmg.get_hosts()
+        print "Hosts:", items
         assert len(items) == 1
 
-        # Get users / services relations
-        items = self.dmg.get_userservice_users()
+        # Get services
+        items = self.dmg.get_services()
+        print "Services:", items
         assert len(items) == 1
 
-        # Get service cdrs
-        items = self.dmg.get_userservice_cdrs()
-        assert len(items) == 0
+        assert False
 
-        # Get sessions
-        items = self.dmg.get_sessions()
-        assert len(items) == 0
 
 
 class test_5_basic_tests(unittest2.TestCase):
@@ -372,7 +372,7 @@ class test_5_basic_tests(unittest2.TestCase):
         print 'test objects status'
 
         # Get users
-        items = self.dmg.get_users()
+        items = self.dmg.get_contacts()
         for item in items:
             print "Got", item
             assert item.get_id()
