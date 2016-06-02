@@ -4,6 +4,7 @@
 %from alignak_webui.objects.item import Host
 
 %hosts_states = datamgr.get_livesynthesis()['hosts_synthesis']
+%if hosts_states:
 <div id="hosts-states-popover-content" class="hidden">
    <table class="table table-invisible table-condensed">
       <tbody>
@@ -39,4 +40,5 @@
       }
    });
 </script>
+%end
 %end

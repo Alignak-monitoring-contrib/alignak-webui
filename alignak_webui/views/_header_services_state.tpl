@@ -4,6 +4,7 @@
 %from alignak_webui.objects.item import Service
 
 %services_states = datamgr.get_livesynthesis()['services_synthesis']
+%if services_states:
 <div id="services-states-popover-content" class="hidden">
    <table class="table table-invisible table-condensed">
       <tbody>
@@ -39,4 +40,5 @@
       }
    });
 </script>
+%end
 %end
