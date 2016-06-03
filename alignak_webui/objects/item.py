@@ -604,10 +604,17 @@ class Item(object):
         for key in params:
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a linked_ attribute ...
-            if isinstance(params[key], dict) and hasattr(self, 'linked_' + key):
+            if hasattr(self, 'linked_' + key):
+                if not isinstance(params[key], dict):
+                    logger.warning(
+                        "Parameter: %s for %s is not a dict and it should be, instead of being: %s",
+                        key, self.getType(), params[key]
+                    )
+                    continue
+
                 # Linked resource type
                 object_type = getattr(self, 'linked_' + key, None)
-                logger.debug(" parameter: %s is a linked object: %s", key, object_type)
+                logger.debug(" parameter: %s is a linked object: %s, %s", key, object_type, params[key])
                 if object_type is None:  # pragma: no cover, should never happen
                     setattr(self, key, params[key])
                     continue
@@ -616,10 +623,10 @@ class Item(object):
                     if isinstance(globals()[k], type) and \
                        '_type' in globals()[k].__dict__ and \
                        globals()[k]._type == object_type:
+                        logger.warning("Found a link with %s (%s)", object_type, key)
                         linked_object = globals()[k](params[key])
                         setattr(self, 'linked_' + key, linked_object)
-                        setattr(self, key, linked_object['_id'])
-                        logger.debug("Linked with %s (%s)", key, linked_object['_id'])
+                        logger.warning("Linked with %s (%s)", key, linked_object['_id'])
                         break
                 continue
 
@@ -661,7 +668,7 @@ class Item(object):
 
             try:
                 setattr(self, key, params[key])
-            except TypeError:  # pragma: no cover, should not happen
+            except TypeError, AttributeError:
                 logger.warning(" parameter TypeError: %s = %s", key, params[key])
 
         # Object name
@@ -683,7 +690,14 @@ class Item(object):
             params = params.__dict__
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
-            if isinstance(params[key], dict) and hasattr(self, 'linked_' + key):
+            if hasattr(self, 'linked_' + key):
+                if not isinstance(params[key], dict):
+                    logger.warning(
+                        "Parameter: %s for %s is not a dict and it should be, instead of being: %s",
+                        key, self.getType(), params[key]
+                    )
+                    continue
+
                 if not isinstance(getattr(self, 'linked_' + key, None), basestring):
                     # Does not contain a string, so update object ...
                     logger.debug(" Update object: %s = %s", key, params[key])
@@ -701,7 +715,6 @@ class Item(object):
                            globals()[k]._type == object_type:
                             linked_object = globals()[k](params[key])
                             setattr(self, 'linked_' + key, linked_object)
-                            setattr(self, key, linked_object['_id'])
                             logger.debug(
                                 "Linked: %s (%s) with %s (%s)",
                                 self._type, self[id_property], key, linked_object.get_id()
@@ -1202,6 +1215,14 @@ class LiveState(Item):
         '''
         super(LiveState, self).__init__(params)
 
+    @property
+    def host_name(self):
+        return self.linked_host_name
+
+    @property
+    def service_description(self):
+        return self.linked_service_description
+
 
 class Host(Item):
     '''
@@ -1324,6 +1345,16 @@ class Service(Item):
         '''
         Create a service (called only once when an object is newly created)
         '''
+        self.linked_host_name = 'host'
+        self.linked_check_command = 'command'
+        self.linked_event_handler = 'command'
+        self.linked_check_period = 'timeperiod'
+        self.linked_notification_period = 'timeperiod'
+        self.linked_servicegroups = 'servicegroup'
+        self.linked_contacts = 'contact'
+        self.linked_servicegroups = 'servicegroup'
+        self.linked_contact_groups = 'contactgroup'
+
         super(Service, self)._create(params, date_format)
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
@@ -1337,6 +1368,26 @@ class Service(Item):
         Initialize a service (called every time an object is invoked)
         '''
         super(Service, self).__init__(params)
+
+    @property
+    def check_command(self):
+        return self.linked_check_command
+
+    @property
+    def event_handler(self):
+        return self.linked_event_handler
+
+    @property
+    def host_name(self):
+        return self.linked_host_name
+
+    @property
+    def check_period(self):
+        return self.linked_check_period
+
+    @property
+    def notification_period(self):
+        return self.linked_notification_period
 
 
 class Command(Item):
