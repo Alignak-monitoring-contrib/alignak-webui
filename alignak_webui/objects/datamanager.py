@@ -355,9 +355,9 @@ class DataManager(object):
         self.get_commands()
 
         # -----------------------------------------------------------------------------------------
-        # Get all hosts (livestate which embeds host definition)
+        # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
-        self.get_livestate_hosts()
+        self.get_livestate()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -793,6 +793,31 @@ class DataManager(object):
     ##
     # Livestate
     ##
+    def get_livestate(self, search=None):
+        """ Get livestate for all elements
+
+            Elements in the livestate which type is 'host' or 'service'
+
+            :param search: backend request search
+            :type search: dic
+            :return: list of hosts/services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host_name': 1, 'service_description': 1}})
+
+        try:
+            logger.info("get_livestate, search: %s", search)
+            items = self.find_object('livestate', search)
+            logger.info("get_livestate, got: %d elements, %s", len(items), items)
+            return items
+        except ValueError:
+            logger.debug("get_livestate, none found")
+
     def get_livestate_hosts(self, search=None):
         """ Get livestate for hosts
 
@@ -821,6 +846,17 @@ class DataManager(object):
         except ValueError:
             logger.debug("get_livestate_hosts, none found")
 
+    def get_livestate_host(self, search):
+        """ Get a host livestate """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_livestate_hosts(search=search)
+        return items[0] if items else None
+
     def get_livestate_services(self, search=None):
         """ Get livestate for services
 
@@ -848,6 +884,17 @@ class DataManager(object):
             return items
         except ValueError:
             logger.debug("get_livestate_hosts, none found")
+
+    def get_livestate_service(self, search):
+        """ Get a service livestate """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_livestate_services(search=search)
+        return items[0] if items else None
 
     def get_livesynthesis(self, search=None):
         """ Get livestate synthesis for hosts and services
