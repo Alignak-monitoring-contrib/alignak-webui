@@ -59,6 +59,7 @@ _ = gettext.gettext
 # Application manifest
 VERSION = (0, 50, 1)
 __application__ = u"Alignak-WebUI"
+__short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
 __author__ = u"Frédéric MOHIER"
 __copyright__ = u"2015-2016 - %s" % __author__

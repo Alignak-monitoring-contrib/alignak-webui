@@ -93,7 +93,7 @@ setup(
     # metadata for upload to PyPI
     author="Frédéric MOHIER",
     author_email="frederic.mohier@gmail.com",
-    keywords="alignak REST backend web ui",
+    keywords="alignak web ui",
     url="https://github.com/Alignak-monitoring-contrib/alignak-webui",
     description=package.__doc__.strip(),
     long_description=open('README.rst').read(),
@@ -105,7 +105,9 @@ setup(
     # package_data={
         # 'sample': ['package_data.dat'],
     # },
-    data_files = [(paths['etc'], ['etc/settings.cfg'])],
+    data_files = [
+        (paths['etc'], ['etc/settings.cfg'])
+    ],
 
     install_requires=install_requires,
 
