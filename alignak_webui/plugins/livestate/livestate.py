@@ -83,6 +83,15 @@ schema['type'] = {
     },
     'allowed': ["host", "service"]
 }
+schema['name'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Element name'),
+        'width': '10',
+        'visible': True,
+        # 'priority': 0,
+    }
+}
 schema['host_name'] = {
     'type': 'objectid',
     'ui': {
