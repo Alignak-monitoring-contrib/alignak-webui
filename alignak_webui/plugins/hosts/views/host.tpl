@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
@@ -7,22 +7,53 @@
 
 <!-- Host view -->
 <div id="host">
+   %host_id = host.get_id()
+   %host_name = host.get_name()
+   %services = datamgr.get_services(search={'where': {'host_name':host_id}})
+   %livestate = datamgr.get_livestate(search={'where': {'name':'%s' % host_name}})
+   %livestate = livestate[0]
+
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse1"><i class="fa fa-bug"></i> Host as dictionary</a>
+               <a data-toggle="collapse" href="#collapse_{{host_id}}"><i class="fa fa-bug"></i> Host as dictionary</a>
             </h4>
          </div>
-         <div id="collapse1" class="panel-collapse collapse">
-            <dl class="dl-horizontal">
+         <div id="collapse_{{host_id}}" class="panel-collapse collapse">
+            <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                %for k,v in sorted(host.__dict__.items()):
                   <dt>{{k}}</dt>
                   <dd>{{v}}</dd>
                %end
             </dl>
-            </ul>
+         </div>
+      </div>
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4 class="panel-title">
+               <a data-toggle="collapse" href="#collapse_{{host_id}}_services"><i class="fa fa-bug"></i> Host services as dictionary</a>
+            </h4>
+         </div>
+         <div id="collapse_{{host_id}}_services" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
+            %for service in services:
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h4 class="panel-title">
+                     <a data-toggle="collapse" href="#collapse{{service.get_id()}}"><i class="fa fa-bug"></i> Service: {{service.get_name()}}</a>
+                  </h4>
+               </div>
+               <div id="collapse{{service.get_id()}}" class="panel-collapse collapse" style="height: 200px;">
+                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                     %for k,v in sorted(service.__dict__.items()):
+                        <dt>{{k}}</dt>
+                        <dd>{{v}}</dd>
+                     %end
+                  </dl>
+               </div>
+            </div>
+            %end
          </div>
       </div>
    </div>
@@ -198,7 +229,6 @@
       %end
    %end
 
-   %services = datamgr.get_services(search={'where': '{"host_name":host.get_name()}'})
    %synthesis = datamgr.get_services_synthesis(services)
    <!-- Fourth row : services synthesis ... -->
    <div class="panel panel-default">
@@ -233,7 +263,6 @@
 
    <!-- Fifth row : host information -->
    <div>
-      <!-- Detail info box start -->
       <ul class="nav nav-tabs">
          %_go_active = 'active'
          %for cvname in host.custom_views:
@@ -329,7 +358,7 @@
                            <tr>
                               <td><strong>{{_('Status:')}}</strong></td>
                               <td>
-                                 {{! host.get_html_state()}}
+                                 {{! livestate.get_html_state()}}
                               </td>
                            </tr>
                            <tr>
@@ -337,9 +366,9 @@
                               <td class="popover-dismiss"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
                                     data-title="{{host.get_name()}}{{_('}} last state change date')}}"
-                                    data-content="{{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}"
+                                    data-content="{{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}"
                                     >
-                                 {{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}
+                                 {{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}
                               </td>
                            </tr>
                         </tbody>
@@ -359,32 +388,32 @@
                            <tr>
                               <td><strong>{{_('Last Check:')}}</strong></td>
                               <td>
-                                 <span class="popover-dismiss" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="{{_('Last check was at %s') % Helper.print_duration(host.last_check)}}">was {{Helper.print_duration(host.last_check)}}</span></td>
+                                 <span class="popover-dismiss" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="{{_('Last check was at %s') % Helper.print_duration(livestate.last_check)}}">was {{Helper.print_duration(livestate.last_check)}}</span></td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Output:')}}</strong></td>
                               <td class="popover-dismiss popover-large"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                    data-title="{{_('%s check output') % host.output}}"
-                                    data-content="{{_('%s<br/>%s') % (host.output, host.long_output.replace('\n', '<br/>') if host.long_output else '')}}"
+                                    data-title="{{_('%s check output') % livestate.output}}"
+                                    data-content="{{_('%s<br/>%s') % (livestate.output, livestate.long_output.replace('\n', '<br/>') if livestate.long_output else '')}}"
                                     >
-                                 {{! host.output}}
+                                 {{! livestate.output}}
                               </td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Performance data:')}}</strong></td>
                               <td class="popover-dismiss popover-large ellipsis"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                    data-title="{{_('%s performance data') % host.output}}"
-                                    data-content=" {{host.perf_data if host.perf_data else '(none)'}}"
+                                    data-title="{{_('%s performance data') % livestate.output}}"
+                                    data-content=" {{livestate.perf_data if livestate.perf_data else '(none)'}}"
                                     >
-                               {{host.perf_data if host.perf_data else '(none)'}}
+                               {{livestate.perf_data if livestate.perf_data else '(none)'}}
                               </td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Check latency / duration:')}}</strong></td>
                               <td>
-                                 {{_('%.2f / %.2f seconds') % (host.latency, host.execution_time) }}
+                                 {{_('%.2f / %.2f seconds') % (9999, 9999999) }}
                               </td>
                            </tr>
 
@@ -401,7 +430,7 @@
                            <tr>
                               <td><strong>{{_('Current Attempt:')}}</strong></td>
                               <td>
-                                 {{_('%s / %s %s state') % (host.attempt, host.max_check_attempts, host.state_type) }}
+                                 {{_('%s / %s %s state') % (host.attempt, livestate.max_attempts, livestate.state_type) }}
                               </td>
                            </tr>
                            <tr>
@@ -411,7 +440,7 @@
                                     data-title="{{host.get_name()}}{{_('}} last state change date')}}"
                                     data-content="{{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}"
                                     >
-                                 {{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}
+                                 {{! Helper.print_duration(livestate.next_check, duration_only=True, x_elts=0)}}
                               </td>
                            </tr>
                         </tbody>
@@ -428,16 +457,7 @@
          <div class="tab-pane fade" id="services">
             <div class="panel panel-default">
                <div class="panel-body">
-                  <div class="col-lg-6">
-                     <h4>My services:</h4>
-                     <div class="services-tree">
-                     </div>
-                  </div>
-                  <div class="col-lg-6">
-                     <h4>My services:</h4>
-                     <div>
-                     </div>
-                  </div>
+                  %include("services.tpl", services=services, layout=False, pagination=Helper.get_pagination_control('service', len(services), 0, len(services)))
                </div>
             </div>
          </div>
@@ -478,7 +498,7 @@
                               <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                     data-type="action" action="change-variable"
                                     data-toggle="tooltip" data-placement="bottom" title="{{_('Change a custom variable for this host')}}"
-                                    data-element="{{host.get_id()}}" data-variable="{{var}}" data-value="{{host.customs[var]}}"
+                                    data-element="{{host_id}}" data-variable="{{var}}" data-value="{{host.customs[var]}}"
                                     >
                                  <i class="fa fa-gears"></i>{{_('Change variable')}}
                               </button>
@@ -518,7 +538,7 @@
                               <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                     data-type="action" action="delete-comment"
                                     data-toggle="tooltip" data-placement="bottom" title="{{_('Delete this comment')}}"
-                                    data-element="{{host.get_id()}}" data-comment="{{c.id}}"
+                                    data-element="{{host_id}}" data-comment="{{c.id}}"
                                     >
                                  <i class="fa fa-trash-o"></i>
                               </button>
@@ -536,7 +556,7 @@
                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                         data-type="action" action="add-comment"
                         data-toggle="tooltip" data-placement="bottom" title="{{_('Add a comment for this host')}}"
-                        data-element="host.get_id()"
+                        data-element="host_id"
                         >
                      <i class="fa fa-plus"></i>{{_('Add a comment')}}
                   </button>
@@ -544,7 +564,7 @@
                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                         data-type="action" action="delete-comments"
                         data-toggle="tooltip" data-placement="bottom" title="{{_('Delete all the comments for this host')}}"
-                        data-element="{{host.get_id()}}"
+                        data-element="{{host_id}}"
                         >
                      <i class="fa fa-minus"></i>{{_('Delete all comments')}}
                   </button>
@@ -574,7 +594,7 @@
                                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                         data-type="action" action="delete-comment"
                                         data-toggle="tooltip" data-placement="bottom" title="Delete this comment"
-                                        data-element="{{host.get_id()}}" data-comment="{{c.id}}"
+                                        data-element="{{host_id}}" data-comment="{{c.id}}"
                                         >
                                      <i class="fa fa-trash-o"></i>
                                   </button>
@@ -615,7 +635,7 @@
                               <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                     data-type="action" action="delete-downtime"
                                     data-toggle="tooltip" data-placement="bottom" title="{{_('Delete the downtime [%s] for this host') % dt.id}}"
-                                    data-element="{{host.get_id()}}" data-downtime="{{dt.id}}"
+                                    data-element="{{host_id}}" data-downtime="{{dt.id}}"
                                     >
                                  <i class="fa fa-trash-o"></i>
                               </button>
@@ -633,7 +653,7 @@
                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                         data-type="action" action="schedule-downtime"
                         data-toggle="tooltip" data-placement="bottom" title="{{_('Schedule a downtime for this host')}}"
-                        data-element="{{host.get_id()}}"
+                        data-element="{{host_id}}"
                         >
                      <i class="fa fa-plus"></i> {{_('Schedule a downtime')}}
                   </button>
@@ -641,7 +661,7 @@
                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                         data-type="action" action="delete-downtimes"
                         data-toggle="tooltip" data-placement="bottom" title="{{_('Delete all the downtimes of this host')}}"
-                        data-element="{{host.get_id()}}"
+                        data-element="{{host_id}}"
                         >
                      <i class="fa fa-minus"></i> {{_('Delete all downtimes')}}
                   </button>
@@ -870,7 +890,7 @@
                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                         data-type="action" action="create-ticket"
                         data-toggle="tooltip" data-placement="bottom" title="{{_('Create a ticket for this host')}}"
-                        data-element="{{host.get_id()}}"
+                        data-element="{{host_id}}"
                         >
                      <i class="fa fa-medkit"></i> {{_('Create a ticket')}}
                   </button>
@@ -879,6 +899,5 @@
          </div>
          <!-- Tab Helpdesk end -->
       </div>
-      <!-- Detail info box end -->
    </div>
  </div>
