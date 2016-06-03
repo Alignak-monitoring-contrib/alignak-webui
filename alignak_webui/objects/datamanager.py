@@ -1114,6 +1114,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    'host_name': 1,
                     'check_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
                     'servicegroups': 1, 'contacts': 1, 'contact_groups': 1
