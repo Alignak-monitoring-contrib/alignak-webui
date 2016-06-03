@@ -1,9 +1,12 @@
 %setdefault('debug', False)
+%setdefault('layout', True)
 
 %from bottle import request
 %search_string = request.query.get('search', '')
 
+%if layout:
 %rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/services")
+%end
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Command, Host
@@ -15,10 +18,10 @@
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse1"><i class="fa fa-bug"></i> Services as dictionaries</a>
+               <a data-toggle="collapse" href="#collapse_services"><i class="fa fa-bug"></i> Services as dictionaries</a>
             </h4>
          </div>
-         <div id="collapse1" class="panel-collapse collapse">
+         <div id="collapse_services" class="panel-collapse collapse">
             <ul class="list-group">
                %for service in services:
                   <li class="list-group-item"><small>Service: {{service}} - {{service.__dict__}}</small></li>
@@ -73,13 +76,13 @@
                      </td>
 
                      <td>
-                        %host=Host(service.host_name)
-                        <small>{{! host.get_html_state(label=host.get_name())}}</small>
+                        %host = service.host_name
+                        <small>{{! '<a href="host/%s">%s</a>' % (host.get_id(), host.get_html_state(label=host.get_name()))}}</small>
                      </td>
 
                      <td>
-                        %command=Command(service.check_command)
-                        <small>{{! command.get_html_state(label=command.get_name())}}</small>
+                        %command = service.check_command
+                        <small>{{! '<a href="command/%s">%s</a>' % (command.get_id(), command.get_html_state(label=command.get_name()))}}</small>
                      </td>
 
                      <td>
@@ -102,8 +105,10 @@
    </div>
  </div>
 
+%if layout:
  <script>
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
    });
  </script>
+%end
