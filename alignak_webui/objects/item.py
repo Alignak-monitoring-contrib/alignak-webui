@@ -887,6 +887,43 @@ class Item(object):
         return _date.isoformat(' ')
 
 
+class Realm(Item):
+    '''
+    Object representing a realm
+    '''
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'realm'
+    # _cache is a list of created objects
+    _cache = {}
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        '''
+        Create a new user
+        '''
+        return super(Realm, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        '''
+        Create a realm (called only once when an object is newly created)
+        '''
+        super(Realm, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        '''
+        Update a realm (called every time an object is updated)
+        '''
+        super(Realm, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        '''
+        Initialize a realm (called every time an object is invoked)
+        '''
+        super(Realm, self).__init__(params)
+
+
 class Contact(Item):
     '''
     Object representing a contact
@@ -1337,6 +1374,43 @@ class Command(Item):
         Initialize a command (called every time an object is invoked)
         '''
         super(Command, self).__init__(params)
+
+
+class TimePeriod(Item):
+    '''
+    Object representing a timeperiod
+    '''
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'timeperiod'
+    # _cache is a list of created objects
+    _cache = {}
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        '''
+        Create a new user
+        '''
+        return super(TimePeriod, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        '''
+        Create a timeperiod (called only once when an object is newly created)
+        '''
+        super(TimePeriod, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        '''
+        Update a timeperiod (called every time an object is updated)
+        '''
+        super(TimePeriod, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        '''
+        Initialize a timeperiod (called every time an object is invoked)
+        '''
+        super(TimePeriod, self).__init__(params)
 
 
 # Sort methods

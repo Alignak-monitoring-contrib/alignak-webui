@@ -84,7 +84,7 @@ def setup_module(module):
         print ("populate backend content")
         fh = open("NUL","w")
         exit_code = subprocess.call(
-            shlex.split('cfg_to_backend --delete cfg/default/_main.cfg')
+            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
         )
         assert exit_code == 0
 

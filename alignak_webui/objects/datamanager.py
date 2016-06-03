@@ -37,7 +37,7 @@ from alignak_backend_client.client import Backend, BackendException
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
 # Import all objects we will need
-from alignak_webui.objects.item import Contact, Command, Host, Service
+from alignak_webui.objects.item import Contact, Command, Host, Service, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis
 
 from alignak_webui.backend.glpi_ws_client import Glpi, GlpiException
@@ -340,6 +340,16 @@ class DataManager(object):
         self.get_contacts()
 
         # -----------------------------------------------------------------------------------------
+        # Get all realms
+        # -----------------------------------------------------------------------------------------
+        self.get_realms()
+
+        # -----------------------------------------------------------------------------------------
+        # Get all timeperiods
+        # -----------------------------------------------------------------------------------------
+        self.get_timeperiods()
+
+        # -----------------------------------------------------------------------------------------
         # Get all commands
         # -----------------------------------------------------------------------------------------
         self.get_commands()
@@ -516,6 +526,8 @@ class DataManager(object):
             self.find_object(object_type, result['_id'])
         except BackendException as e:
             logger.error("add_object, backend exception: %s", str(e))
+            if "response" in e and "_issues" in e.response:
+                logger.error("- issues: %s", e.response['_issues'])
             return None
         except ValueError as e:  # pragma: no cover, should never happen
             logger.warning("add_object, error: %s", str(e))
@@ -1232,3 +1244,59 @@ class DataManager(object):
             return False
 
         return self.delete_object('contact', contact)
+
+    ##
+    # realms
+    ##
+    def get_realms(self, search=None):
+        """ Get a list of all realms. """
+        if search is None:
+            search = {}
+
+        try:
+            logger.info("get_realms, search: %s", search)
+            items = self.find_object('realm', search)
+            return items
+        except ValueError:
+            logger.debug("get_realms, none found")
+
+        return []
+
+    def get_realm(self, search):
+        """ Get a realm by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_realms(search=search)
+        return items[0] if items else None
+
+    ##
+    # timeperiods
+    ##
+    def get_timeperiods(self, search=None):
+        """ Get a list of all timeperiods. """
+        if search is None:
+            search = {}
+
+        try:
+            logger.info("get_timeperiods, search: %s", search)
+            items = self.find_object('timeperiod', search)
+            return items
+        except ValueError:
+            logger.debug("get_timeperiods, none found")
+
+        return []
+
+    def get_timeperiod(self, search):
+        """ Get a timeperiod by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_timeperiods(search=search)
+        return items[0] if items else None
