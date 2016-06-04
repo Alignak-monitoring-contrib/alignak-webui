@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # Many functions need to use protected members of a base class
 # pylint: disable=protected-access
+# Attributes need to be defined in constructor before initialization
+# pylint: disable=attribute-defined-outside-init
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -614,7 +616,9 @@ class Item(object):
 
                 # Linked resource type
                 object_type = getattr(self, 'linked_' + key, None)
-                logger.debug(" parameter: %s is a linked object: %s, %s", key, object_type, params[key])
+                logger.debug(
+                    " parameter: %s is a linked object: %s, %s", key, object_type, params[key]
+                )
                 if object_type is None:  # pragma: no cover, should never happen
                     setattr(self, key, params[key])
                     continue
@@ -668,7 +672,7 @@ class Item(object):
 
             try:
                 setattr(self, key, params[key])
-            except TypeError, AttributeError:
+            except Exception:
                 logger.warning(" parameter TypeError: %s = %s", key, params[key])
 
         # Object name
