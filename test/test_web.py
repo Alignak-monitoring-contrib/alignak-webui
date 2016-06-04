@@ -376,7 +376,7 @@ class tests_1_prefs(unittest2.TestCase):
         # response.mustcontain('pong')
 
         # Get user's preferences page
-        response = self.app.get('/contact/preferences')
+        response = self.app.get('/preferences/user')
         response.mustcontain(
             '<div id="user-preferences">',
             'admin', 'Administrator',
@@ -392,7 +392,7 @@ class tests_1_prefs(unittest2.TestCase):
         # Set a common preference named prefs
         common_value = { 'foo': 'bar', 'foo_int': 1 }
         # Value must be a string, so json dumps ...
-        response = self.app.post('/common/preference', {'key': 'prefs', 'value': json.dumps(common_value)})
+        response = self.app.post('/preference/common', {'key': 'prefs', 'value': json.dumps(common_value)})
         response_value = response.json
         response.mustcontain('Common preferences saved')
         assert 'status' in response_value
@@ -401,7 +401,7 @@ class tests_1_prefs(unittest2.TestCase):
         assert response.json['message'] == 'Common preferences saved'
 
         # Get common preferences
-        response = self.app.get('/common/preference', {'key': 'prefs'})
+        response = self.app.get('/preference/common', {'key': 'prefs'})
         response_value = response.json
         assert 'foo' in response_value
         assert response.json['foo'] == 'bar'
@@ -411,11 +411,11 @@ class tests_1_prefs(unittest2.TestCase):
         # Update common preference named prefs
         common_value = { 'foo': 'bar2', 'foo_int': 2 }
         # Value must be a string, so json dumps ...
-        response = self.app.post('/common/preference', {'key': 'prefs', 'value': json.dumps(common_value)})
+        response = self.app.post('/preference/common', {'key': 'prefs', 'value': json.dumps(common_value)})
         response.mustcontain('Common preferences saved')
 
         # Get common preferences
-        response = self.app.get('/common/preference', {'key': 'prefs'})
+        response = self.app.get('/preference/common', {'key': 'prefs'})
         response_value = response.json
         print response_value
         assert 'foo' in response_value
@@ -434,7 +434,7 @@ class tests_1_prefs(unittest2.TestCase):
 
         # Set a user's preference
         common_value = { 'foo': 'bar', 'foo_int': 1 }
-        response = self.app.post('/contact/preference', {'key': 'prefs', 'value': json.dumps(common_value)})
+        response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
         response_value = response.json
         response.mustcontain('Contact preferences saved')
         assert 'status' in response_value
@@ -442,7 +442,7 @@ class tests_1_prefs(unittest2.TestCase):
         assert 'message' in response_value
         assert response.json['message'] == 'Contact preferences saved'
 
-        response = self.app.get('/contact/preference', {'key': 'prefs'})
+        response = self.app.get('/preference/user', {'key': 'prefs'})
         response_value = response.json
         print response_value
         assert 'foo' in response_value
@@ -452,11 +452,11 @@ class tests_1_prefs(unittest2.TestCase):
 
         # Update a user's preference
         common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.post('/contact/preference', {'key': 'prefs', 'value': json.dumps(common_value)})
+        response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
         print response
         response.mustcontain("Contact preferences saved")
 
-        response = self.app.get('/contact/preference', {'key': 'prefs'})
+        response = self.app.get('/preference/user', {'key': 'prefs'})
         response_value = response.json
         print response_value
         assert 'foo' in response_value
@@ -467,11 +467,11 @@ class tests_1_prefs(unittest2.TestCase):
 
         # Set another user's preference
         common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.post('/contact/preference', {'key': 'prefs2', 'value': json.dumps(common_value)})
+        response = self.app.post('/preference/user', {'key': 'prefs2', 'value': json.dumps(common_value)})
         print response
         response.mustcontain("Contact preferences saved")
 
-        response = self.app.get('/contact/preference', {'key': 'prefs'})
+        response = self.app.get('/preference/user', {'key': 'prefs'})
         response_value = response.json
         print response_value
         assert 'foo' in response_value
@@ -479,7 +479,7 @@ class tests_1_prefs(unittest2.TestCase):
         assert 'foo_int' in response_value
         assert response.json['foo_int'] == 2
 
-        response = self.app.get('/contact/preference', {'key': 'prefs2'})
+        response = self.app.get('/preference/user', {'key': 'prefs2'})
         response_value = response.json
         print response_value
         assert 'foo' in response_value

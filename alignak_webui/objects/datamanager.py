@@ -711,6 +711,10 @@ class DataManager(object):
                 prefs_type, user, parameters
             )
 
+            # Saved parameter must be a dictionary. Create a fake dictionary
+            if not isinstance(parameters, dict):
+                parameters = {'value': parameters}
+
             # Still existing ...
             result = self.backend.get_all(
                 'uipref',
@@ -718,16 +722,12 @@ class DataManager(object):
             )
             if result['_status'] == 'OK' and result['_items']:
                 items = result['_items'][0]
+
+                # Update existing record ...
                 logger.debug(
                     "set_user_preferences, update existing record: %s / %s (%s)",
                     prefs_type, user, items['_id']
                 )
-
-                # Saved parameter must be a dictionary. Create a fake dictionary
-                if not isinstance(parameters, dict):
-                    parameters = {'value': parameters}
-
-                # Update existing record ...
                 headers = {'If-Match': items['_etag']}
                 data = {
                     "user": user,
