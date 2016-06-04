@@ -37,7 +37,7 @@ logger = getLogger(__name__)
 # --------------------------------------------------------------------------------------------------
 # Localization
 def init_localization(language):
-    '''prepare l10n'''
+    """prepare l10n"""
 
     try:
         # Language message file

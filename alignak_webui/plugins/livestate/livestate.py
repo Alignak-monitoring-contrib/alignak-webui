@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Livestate
-'''
+"""
 
 import time
 import json
@@ -289,9 +289,9 @@ schema['ui'] = {
 
 
 def get_livestate_table():
-    '''
+    """
     Get the livestate list and transform it as a table
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
@@ -315,9 +315,9 @@ def get_livestate_table():
 
 
 def get_livestate_table_data():
-    '''
+    """
     Get the livestate list and provide table data
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
     dt = Datatable('livestate', datamgr.backend, schema)
 

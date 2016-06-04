@@ -261,7 +261,7 @@
             // Get table stored state from the server ...
             var o;
             $.ajax( {
-               "url": "/contact/preference",
+               "url": "/preference/user",
                "dataType": "json",
                "type": "GET",
                "data": {
@@ -282,7 +282,7 @@
 
             // Post table data to the server ...
             $.ajax({
-               "url": "/contact/preference",
+               "url": "/preference/user",
                "dataType": "json",
                "type": "POST",
                "data": {

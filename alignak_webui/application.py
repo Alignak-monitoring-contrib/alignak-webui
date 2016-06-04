@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     WebUI application
-'''
+"""
 
 import traceback
 import sys
@@ -60,7 +60,7 @@ logger = getLogger(__name__)
 # --------------------------------------------------------------------------------------------------
 @hook('before_request')
 def before_request():
-    '''
+    """
     Function called since an HTTP request is received, and before any other function.
 
     Checks if a user session exists
@@ -69,7 +69,7 @@ def before_request():
         - ping, heartbeat mechanism used for page or page elements refresh
         - login / logout
         - static files (js, css, ...)
-    '''
+    """
     # logger.debug("before_request, url: %s", request.urlparts.path)
 
     # Static application and plugins files
@@ -163,9 +163,9 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 @route('/heartbeat')
 def heartbeat():
-    '''
+    """
     Application heartbeat
-    '''
+    """
     # Session authentication ...
     session = request.environ['beaker.session']
     if session and 'current_user' in session and session['current_user']:
@@ -188,7 +188,7 @@ def heartbeat():
 @route('/ping')
 def ping():
     # pylint: disable=too-many-return-statements
-    '''
+    """
     Request on /ping is a simple check alive that returns an information if UI refresh is needed
 
     If no session exists, it will always return 'pong' to inform that server is alive.
@@ -197,7 +197,7 @@ def ping():
         - if UI refresh is needed, requires the UI client to refresh
         - if action parameter is 'header', returns the updated header
         - if action parameter is 'done', the UI client did refresh the interface.
-    '''
+    """
     session = request.environ['beaker.session']
     if not session:  # pragma: no cover - simple security!
         response.status = 200
@@ -269,15 +269,156 @@ def ping():
     return json.dumps({'status': 'ok', 'message': 'pong'})
 
 
+@route('/', 'GET')
+def home_page():
+    """
+    Display home page -> redirect to /sessions
+    """
+    redirect(bottle.default_app().get_url('Dashboard'))
+
+
+@route('/login', 'GET')
+def user_login():
+    """
+    Display user login page
+    """
+    session = request.environ['beaker.session']
+    message = None
+    if 'message' in session and session['message']:
+        message = session['message']
+        logger.warning("login page with error message: %s", message)
+
+    # Send login form
+    return template(
+        'login', {
+            'login_text': request.app.config.get(
+                'login_text', _('Welcome!<br> Log-in to use the application')
+            ),
+            'company_logo': request.app.config.get(
+                'company_logo', 'default_company'
+            ),
+            'message': message
+        }
+    )
+
+
+@route('/logout', 'GET')
+def user_logout():
+    """
+    Log-out the current logged-in user
+
+    Clear and delete the user session
+    """
+    # Store user information in the server session
+    session = request.environ['beaker.session']
+    session.delete()
+
+    # Log-out from application
+    logger.info("Logout for current user")
+
+    redirect('/login')
+
+
+@route('/login', 'POST')
+def user_auth():
+    """
+    Receive user login parameters (username / password) to authenticate a user
+
+    Allowed authentication:
+    - username/password from a login form
+    - token and empty password
+    """
+    username = request.forms.get('username', None)
+    password = request.forms.get('password', None)
+    logger.info("login, user '%s' is signing in ...", username)
+
+    session = request.environ['beaker.session']
+    session['message'] = None
+    if not user_authentication(username, password):
+        # Redirect to application login page with an error message
+        if 'message' not in session:
+            session['message'] = _("Invalid username or password")
+        logger.warning("user '%s' access denied, message: %s", username, session['message'])
+        redirect('/login')
+
+    logger.warning("user '%s' (%s) signed in", username, session['current_user'].get_name())
+    redirect('/')
+
+
+@route('/static/photos/<name>')
+def give_photo(name):
+    """
+    User picture URL
+    """
+    # logger.debug("Get photo for: %s", name)
+    # Find WebUI root directory
+    images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'htdocs', 'images'))
+    if os.path.exists(os.path.join(images_dir, name + '.png')):
+        return static_file(name + '.png', root=images_dir)
+    else:
+        return static_file('images/default_user.png', root=images_dir)
+
+
+@route('/static/logo/<name>')
+def give_logo(name):
+    """
+    Company logo URL
+    """
+    # logger.debug("Get logo named: %s", name)
+    app_dir = os.path.abspath(os.path.dirname(__file__))
+    htdocs_dir = os.path.join(app_dir, 'htdocs')
+    return static_file('images/%s.png' % name, root=htdocs_dir)
+
+
+@route('/static/<path:path>')
+def server_static(path):
+    """
+    Main application static files
+    Plugins declare their own static routes under /plugins
+    """
+    # logger.debug("Application static file: %s", path)
+    if not path.startswith('plugins'):
+        return static_file(
+            path, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'htdocs')
+        )
+    else:
+        return static_file(
+            path, root=os.path.abspath(os.path.dirname(__file__))
+        )
+
+
+@route('/favicon.ico')
+def give_favicon():
+    """
+    Web site favicon
+    """
+    # Find WebUI root directory
+    app_dir = os.path.abspath(os.path.dirname(__file__))
+    htdocs_dir = os.path.join(app_dir, 'htdocs')
+    return static_file('favicon.ico', root=os.path.join(htdocs_dir, 'images'))
+
+
+@route('/modal/<modal_name>')
+def give_modal(modal_name):
+    """
+    User picture URL
+    """
+    logger.debug("get modal window named: %s", modal_name)
+    return template('modal_' + modal_name)
+
+
+# --------------------------------------------------------------------------------------------------
+# User authentication
+# --------------------------------------------------------------------------------------------------
 def user_authentication(username, password):
-    '''
+    """
     Authenticate a user thanks to his username / password
 
     The authentication is requested near the data manager. This functions uses the data manager
     of the current session, else it creates a new one.
 
     Stores the authenticated Contact object in the session to make it available
-    '''
+    """
 
     logger.info("user_authentication, authenticating: %s", username)
 
@@ -325,150 +466,126 @@ def user_authentication(username, password):
     return True
 
 
-@route('/', 'GET')
-def home_page():
-    '''
-    Display home page -> redirect to /sessions
-    '''
-    redirect(bottle.default_app().get_url('Dashboard'))
+# --------------------------------------------------------------------------------------------------
+# WebUI user's preferences
+# --------------------------------------------------------------------------------------------------
+@route('/preferences/user')
+# User preferences page ...
+def show_user_preferences():
+    """
+        Show the user preferences view
+    """
+    return template('_preferences')
 
 
-@route('/login', 'GET')
-def user_login():
-    '''
-    Display user login page
-    '''
-    session = request.environ['beaker.session']
-    message = None
-    if 'message' in session and session['message']:
-        message = session['message']
-        logger.warning("login page with error message: %s", message)
+@route('/preference/user', 'GET')
+def get_user_preference():
+    """
+        Request parameters:
 
-    # Send login form
-    return template(
-        'login', {
-            'login_text': request.app.config.get(
-                'login_text', _('Welcome!<br> Log-in to use the application')
-            ),
-            'company_logo': request.app.config.get(
-                'company_logo', 'default_company'
-            ),
-            'message': message
-        }
-    )
+        - key, string identifying the parameter
+        - default, default value if parameter does not exist
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+    user = request.environ['beaker.session']['current_user']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    key = request.query.get('key', None)
+    if not key:
+        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
+
+    return datamgr.get_user_preferences(username, key, request.query.get('default', None))
 
 
-@route('/logout', 'GET')
-def user_logout():
-    '''
-    Log-out the current logged-in user
+@route('/preference/common', 'GET')
+def get_common_preference():
+    """
+        Request parameters:
 
-    Clear and delete the user session
-    '''
-    # Store user information in the server session
-    session = request.environ['beaker.session']
-    session.delete()
+        - key, string identifying the parameter
+        - default, default value if parameter does not exist
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
 
-    # Log-out from application
-    logger.info("Logout for current user")
+    key = request.query.get('key', None)
+    if not key:
+        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    redirect('/login')
-
-
-@route('/login', 'POST')
-def user_auth():
-    '''
-    Receive user login parameters (username / password) to authenticate a user
-
-    Allowed authentication:
-    - username/password from a login form
-    - token and empty password
-    '''
-    username = request.forms.get('username', None)
-    password = request.forms.get('password', None)
-    logger.info("login, user '%s' is signing in ...", username)
-
-    session = request.environ['beaker.session']
-    session['message'] = None
-    if not user_authentication(username, password):
-        # Redirect to application login page with an error message
-        if 'message' not in session:
-            session['message'] = _("Invalid username or password")
-        logger.warning("user '%s' access denied, message: %s", username, session['message'])
-        redirect('/login')
-
-    logger.warning("user '%s' (%s) signed in", username, session['current_user'].get_name())
-    redirect('/')
+    return datamgr.get_user_preferences('common', key, request.query.get('default', None))
 
 
-@route('/static/photos/<name>')
-def give_photo(name):
-    '''
-    User picture URL
-    '''
-    # logger.debug("Get photo for: %s", name)
-    # Find WebUI root directory
-    images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'htdocs', 'images'))
-    if os.path.exists(os.path.join(images_dir, name + '.png')):
-        return static_file(name + '.png', root=images_dir)
+@route('/preference/user', 'POST')
+def set_user_preference():
+    """
+        Request parameters:
+
+        - key, string identifying the parameter
+        - value, as a JSON formatted string
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+    user = request.environ['beaker.session']['current_user']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    key = request.forms.get('key', None)
+    value = request.forms.get('value', None)
+    if key is None or value is None:
+        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
+
+    rsp = datamgr.set_user_preferences(username, key, json.loads(value))
+    if rsp['_status'] == 'OK':
+        return WebUI.response_ok(message=_('User preferences saved'))
     else:
-        return static_file('images/default_user.png', root=images_dir)
-
-
-@route('/static/logo/<name>')
-def give_logo(name):
-    '''
-    Company logo URL
-    '''
-    # logger.debug("Get logo named: %s", name)
-    app_dir = os.path.abspath(os.path.dirname(__file__))
-    htdocs_dir = os.path.join(app_dir, 'htdocs')
-    return static_file('images/%s.png' % name, root=htdocs_dir)
-
-
-@route('/static/<path:path>')
-def server_static(path):
-    '''
-    Main application static files
-    Plugins declare their own static routes under /plugins
-    '''
-    # logger.debug("Application static file: %s", path)
-    if not path.startswith('plugins'):
-        return static_file(
-            path, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'htdocs')
-        )
-    else:
-        return static_file(
-            path, root=os.path.abspath(os.path.dirname(__file__))
+        return WebUI.response_ko(
+            message=_('Problem encountered while saving common preferences')
         )
 
-
-@route('/favicon.ico')
-def give_favicon():
-    '''
-    Web site favicon
-    '''
-    # Find WebUI root directory
-    app_dir = os.path.abspath(os.path.dirname(__file__))
-    htdocs_dir = os.path.join(app_dir, 'htdocs')
-    return static_file('favicon.ico', root=os.path.join(htdocs_dir, 'images'))
+    return WebUI.response_invalid_parameters(_('Error when saving user preferences'))
 
 
-@route('/modal/<modal_name>')
-def give_modal(modal_name):
-    '''
-    User picture URL
-    '''
-    logger.debug("get modal window named: %s", modal_name)
-    return template('modal_' + modal_name)
+@route('/preference/common', 'POST')
+def set_common_preference():
+    """
+        Request parameters:
+
+        - key, string identifying the parameter
+        - value, as a JSON formatted string
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+    user = request.environ['beaker.session']['current_user']
+
+    key = request.forms.get('key', None)
+    value = request.forms.get('value', None)
+    if key is None or value is None:
+        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
+
+    if user.is_administrator():
+        rsp = datamgr.set_user_preferences('common', key, json.loads(value))
+        if rsp['_status'] == 'OK':
+            return WebUI.response_ok(message=_('Common preferences saved'))
+        else:
+            return WebUI.response_ko(
+                message=_('Problem encountered while saving common preferences')
+            )
+    else:
+        return WebUI.response_ko(message=_('Only adaministrator user can save common preferences'))
+
+    return WebUI.response_ok(message=_('Error when saving common preferences'))
 
 
 class WebUI(object):
-    '''
+    """
     WebUI application
-    '''
+    """
     def __init__(self):
-        '''
+        """
         Application configuration
 
         :param id: app_conf
@@ -479,7 +596,7 @@ class WebUI(object):
 
         :param id: logger
         :type id: Python logger instance
-        '''
+        """
 
         logger.info("Initializing...")
 
@@ -503,7 +620,7 @@ class WebUI(object):
 
     def load_plugins(self, app, plugins_dir):
         # pylint: disable=too-many-locals, too-many-nested-blocks
-        '''
+        """
         Load plugins from the provided directory
 
         If the plugin has
@@ -515,7 +632,7 @@ class WebUI(object):
         If the plugin has a 'load_config' function, call it
 
         If the plugin has a 'get_user_preferences' function, it is a user preferences module
-        '''
+        """
         logger.info("load plugins from: %s", plugins_dir)
 
         # Get list of sub directories
@@ -642,58 +759,63 @@ class WebUI(object):
         return i
 
     def get_url(self, name):
-        '''
+        """
         Get the URL for a named route
-        '''
+        """
         return bottle.default_app().get_url(name)
 
     def get_widgets_for(self, place):
-        '''
+        """
         For a specific place like 'dashboard', return the application widgets list
-        '''
+        """
         return self.widgets.get(place, [])
 
     ##
     # Make responses for browser client requests
     # ------------------------------------------------------------------------------------------
-    def response_ok(self, message="Ok"):
-        '''
+    @staticmethod
+    def response_ok(message="Ok"):
+        """
         Request is ok
-        '''
+        """
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(
             {'status': 'ok', 'message': message}
         )
 
-    def response_data(self, data):
-        '''
+    @staticmethod
+    def response_data(data):
+        """
         Request is ok and contains data
-        '''
+        """
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(data)
 
-    def response_invalid_parameters(self, message="Missing parameter"):
-        '''
+    @staticmethod
+    def response_invalid_parameters(message="Missing parameter"):
+        """
         Request parameters are invalid
-        '''
+        """
         response.status = 204
         response.content_type = 'application/json'
         return json.dumps(
             {'status': 'ko', 'message': message}
         )
 
-    def response_missing_file(self, message="No file selected for upload"):
-        '''
+    @staticmethod
+    def response_missing_file(message="No file selected for upload"):
+        """
         File to upload missing parameter
-        '''
-        return self.response_ko(message=message, code=412)
+        """
+        return WebUI.response_ko(message=message, code=412)
 
-    def response_ko(self, message="Error!", code=409):
-        '''
+    @staticmethod
+    def response_ko(message="Error!", code=409):
+        """
         Request failed
-        '''
+        """
         response.status = code
         response.content_type = 'application/json'
 

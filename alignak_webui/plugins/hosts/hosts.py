@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Hosts
-'''
+"""
 
 import time
 import json
@@ -403,9 +403,9 @@ schema['ui'] = {
 
 
 def get_hosts():
-    '''
+    """
     Get the hosts list
-    '''
+    """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -447,9 +447,9 @@ def get_hosts():
 
 
 def get_hosts_table():
-    '''
+    """
     Get the hosts list and transform it as a table
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
@@ -473,9 +473,9 @@ def get_hosts_table():
 
 
 def get_hosts_table_data():
-    '''
+    """
     Get the hosts list and provide table data
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
     dt = Datatable('host', datamgr.backend, schema)
 
@@ -485,9 +485,9 @@ def get_hosts_table_data():
 
 
 def get_host(host_id):
-    '''
+    """
     Display an host
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     host = datamgr.get_host(host_id)

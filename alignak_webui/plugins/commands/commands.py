@@ -20,9 +20,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Commands
-'''
+"""
 
 import time
 import json
@@ -132,9 +132,9 @@ schema['ui'] = {
 
 
 def get_commands():
-    '''
+    """
     Get the commands list
-    '''
+    """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -186,9 +186,9 @@ def get_commands():
 
 
 def get_commands_table():
-    '''
+    """
     Get the commands list and transform it as a table
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
@@ -212,9 +212,9 @@ def get_commands_table():
 
 
 def get_commands_table_data():
-    '''
+    """
     Get the commands list and provide table data
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
     dt = Datatable('command', datamgr.backend, schema)
 

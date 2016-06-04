@@ -37,9 +37,9 @@ from alignak_webui.utils.termcolor import cprint
 
 # Declare a coloured stream handler for console mode ...
 class ColorStreamHandler(StreamHandler):  # pragma: no cover
-    '''
+    """
     Color logs ...
-    '''
+    """
     def emit(self, record):
         try:
             msg = self.format(record)

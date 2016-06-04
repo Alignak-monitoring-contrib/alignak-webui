@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     The common plugin is not a real plugin ... it simply allows to declare the views used by several
     other plugins.
-'''
+"""

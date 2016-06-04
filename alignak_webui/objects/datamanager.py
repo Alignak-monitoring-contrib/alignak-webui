@@ -50,9 +50,9 @@ logger.setLevel(INFO)
 
 
 class DataManager(object):
-    '''
+    """
     Base class for all data manager objects
-    '''
+    """
     id = 1
 
     """
@@ -395,14 +395,14 @@ class DataManager(object):
         self.refresh_required = True
 
     def require_refresh(self):
-        '''
+        """
         Require an immediate refresh
-        '''
+        """
         self.refresh_required = True
         self.refresh_done = False
 
     def get_objects_count(self, object_type=None, refresh=False, log=False, search=None):
-        '''
+        """
         Get the count of the objects stored in the data manager cache
 
         If an object_type is specified, only returns the count for this object type
@@ -411,7 +411,7 @@ class DataManager(object):
         count is required...
 
         If log is set, an information log is made
-        '''
+        """
         log_function = logger.debug
         if log:
             log_function = logger.info
@@ -698,15 +698,15 @@ class DataManager(object):
         :type user: string
         :param prefs_type: preference type
         :type prefs_type: string
-        :param parameters: list of parameters for the backend API
-        :type parameters: list
+        :param parameters: value of the parameter to store
+        :type parameters: dict
         :return: server's response
         :rtype: dict
         """
         try:
             response = None
 
-            logger.debug(
+            logger.warning(
                 "set_user_preferences, type: %s, for: %s, parameters: %s",
                 prefs_type, user, parameters
             )
@@ -722,6 +722,11 @@ class DataManager(object):
                     "set_user_preferences, update existing record: %s / %s (%s)",
                     prefs_type, user, items['_id']
                 )
+
+                # Saved parameter must be a dictionary. Create a fake dictionary
+                if not isinstance(parameters, dict):
+                    parameters = {'value': parameters}
+
                 # Update existing record ...
                 headers = {'If-Match': items['_etag']}
                 data = {
@@ -763,6 +768,8 @@ class DataManager(object):
 
         If the data are not found, returns None else return found data.
 
+        TODO: store default if none found!
+
         :param user: username
         :type user: string
         :param prefs_type: preference type
@@ -781,7 +788,11 @@ class DataManager(object):
             if result['_status'] == 'OK':
                 if result['_items']:
                     logger.debug("get_user_preferences, found: %s", result['_items'][0])
-                    return result['_items'][0]['data']
+                    # If simple value self-stored in a fake dictionary ...
+                    value = result['_items'][0]['data']
+                    if 'value' in value:
+                        return value['value']
+                    return value
 
         except Exception as e:  # pragma: no cover - should never happen
             logger.error("get_user_preferences, exception: %s", str(e))

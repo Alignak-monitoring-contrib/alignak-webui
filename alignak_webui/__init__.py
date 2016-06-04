@@ -87,17 +87,17 @@ app_config = None
 
 
 def get_app_config():
-    '''
+    """
     Return global application configuration
-    '''
+    """
     global app_config
     return app_config
 
 
 def set_app_config(config):
-    '''
+    """
     Update global application configuration
-    '''
+    """
     global bottle_app, app_config, _
 
     # Localization
@@ -173,9 +173,9 @@ app_webui = None
 
 
 def set_app_webui(webui):
-    '''
+    """
     Store global application object
-    '''
+    """
     global app_webui
 
     # Make main application object available in all Bottle templates
@@ -185,9 +185,9 @@ def set_app_webui(webui):
 
 
 def get_app_webui():
-    '''
+    """
     Return global application object
-    '''
+    """
     global app_webui
     return app_webui
 

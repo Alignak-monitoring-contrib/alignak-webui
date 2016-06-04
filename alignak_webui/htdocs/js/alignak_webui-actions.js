@@ -32,7 +32,7 @@ function get_user_preference(key, callback) {
    if (actions_logs) console.debug('Get user preference: ', key);
 
    $.ajax({
-      url: '/user/preference',
+      url: '/preference/user',
       dataType: "json",
       method: "GET",
       data: { 'key' : key }
@@ -60,7 +60,7 @@ function save_user_preference(key, value, callback) {
    if (actions_logs) console.debug('Save user preference: ', key, value);
 
    $.ajax({
-      url: '/user/preference',
+      url: '/preference/user',
       dataType: "json",
       method: "POST",
       data: { 'key' : key, 'value' : value }

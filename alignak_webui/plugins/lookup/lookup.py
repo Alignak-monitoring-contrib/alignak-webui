@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Lookup
-'''
+"""
 
 import json
 from logging import getLogger
@@ -34,10 +34,10 @@ webui = None
 
 
 def lookup():  # pragma: no cover - not yet implemented!
-    '''
+    """
     TODO:
     Empty ... not yet implemented!
-    '''
+    """
     response.content_type = 'application/json'
 
     query = request.GET.get('q', '')

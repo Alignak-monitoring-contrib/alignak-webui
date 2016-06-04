@@ -34,11 +34,11 @@ logger = getLogger(__name__)
 
 
 class Helper(object):
-    '''
+    """
     Helper functions
-    '''
+    """
     def __init__(self):
-        ''' Empty ... '''
+        """ Empty ... """
         pass
 
     @staticmethod
@@ -155,9 +155,9 @@ class Helper(object):
 
     @staticmethod
     def get_on_off(status=False, title=None, message=''):
-        '''
+        """
         Give an enabled/disabled state based on glyphicons with optional title and message
-        '''
+        """
         if not title:
             title = _('Enabled') if status else _('Disabled')
 
@@ -178,10 +178,10 @@ class Helper(object):
 
     @staticmethod
     def get_html_business_impact(business_impact, icon=True, text=False):
-        '''
+        """
             Give a business impact as text and stars if needed.
             If text=True, returns text+stars, else returns stars only ...
-        '''
+        """
         if not 0 <= business_impact <= 5:
             return 'n/a - value'
 
@@ -211,9 +211,9 @@ class Helper(object):
 
     @staticmethod
     def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
-        '''
+        """
         Return list of element action urls
-        '''
+        """
 
         if obj is not None:
             return Helper.get_urls(
@@ -225,9 +225,9 @@ class Helper(object):
 
     @staticmethod
     def get_element_notes_url(obj, default_title="Url", default_icon="globe", popover=False):
-        '''
+        """
         Return list of element notes urls
-        '''
+        """
 
         if obj is not None and obj.notes:
             notes = []
@@ -271,7 +271,7 @@ class Helper(object):
 
         # Search patterns like: isnot:0 isnot:ack isnot:"downtime test" name "vm test"
         regex = re.compile(
-            r'''
+            r"""
                                     # 1/ Search a key:value pattern.
                 (?P<key>\w+):       # Key consists of only a word followed by a colon
                 (?P<quote2>["']?)   # Optional quote character.
@@ -284,7 +284,7 @@ class Helper(object):
                 (?P<name>.*?)       # Name is a non greedy match
                 (?P=quote)          # Closing quote equals the opening one.
                 ($|\s)              # Entry ends with whitespace or end of string
-            ''',
+            """,
             re.VERBOSE
         )
 
@@ -311,7 +311,7 @@ class Helper(object):
 
     @staticmethod
     def get_pagination_control(object_type, total, start=0, count=25, nb_max_items=5):
-        '''
+        """
         Build page navigation buttons as a list of elements containing:
         - button label
         - start element (None to create a disabled element)
@@ -325,7 +325,7 @@ class Helper(object):
         - fast forward and forward buttons if more than nb_max_items are left-hidden
         - fast backward and backward buttons if more than nb_max_items are right-hidden
         - nb_max_items page buttons to build a direct link to the corresponding pages
-        '''
+        """
         if count <= 0 or total <= 0:
             return []
 

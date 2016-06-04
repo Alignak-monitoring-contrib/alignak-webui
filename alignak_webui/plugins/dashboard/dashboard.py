@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Dashboard
-'''
+"""
 
 import json
 from logging import getLogger
@@ -35,9 +35,9 @@ webui = None
 
 # Our page
 def get_page():
-    '''
+    """
     Display dashboard page
-    '''
+    """
     user = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
     datamgr = request.environ['beaker.session']['datamanager']

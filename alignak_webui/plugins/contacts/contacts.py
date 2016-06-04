@@ -3,9 +3,9 @@
 
 # Copyright (C) 2015-2016 F. Mohier pour IPM France
 
-'''
+"""
     Plugin Contacts
-'''
+"""
 
 import json
 
@@ -78,9 +78,9 @@ schema['ui'] = {
 
 
 def show_contact_add():
-    '''
+    """
         Show form to add a contact
-    '''
+    """
     return {
         'contact_name': request.query.get('contact_name', ''),
         'password': request.query.get('password', 'no_password'),
@@ -94,9 +94,9 @@ def show_contact_add():
 
 
 def add_contact():
-    '''
+    """
         Add a contact
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     contact_name = request.forms.get('contact_name', '')
@@ -125,9 +125,9 @@ def add_contact():
 
 
 def show_contact_delete():
-    '''
+    """
     Contact deletion form
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     contact_id = request.query.get('contact_id', -1)
@@ -148,9 +148,9 @@ def show_contact_delete():
 
 
 def delete_contact():
-    '''
+    """
         Delete a contact
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     contact_id = request.forms.get('contact_id', -1)
@@ -169,9 +169,9 @@ def delete_contact():
 
 
 def get_contacts():
-    '''
+    """
         Show list of contacts
-    '''
+    """
     contact = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -207,9 +207,9 @@ def get_contacts():
 
 
 def get_contacts_table():
-    '''
+    """
     Get the contacts list and transform it as a table
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
@@ -233,109 +233,15 @@ def get_contacts_table():
 
 
 def get_contacts_table_data():
-    '''
+    """
     Get the contacts list and provide table data
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
     dt = Datatable('contact', datamgr.backend, schema)
 
     response.status = 200
     response.content_type = 'application/json'
     return dt.table_data()
-
-
-# Contact preferences page ...
-def show_contact_preferences():
-    '''
-        Show the contact preferences view
-    '''
-    return {}
-
-
-def get_contact_preference():
-    '''
-        tbc
-    '''
-    datamgr = request.environ['beaker.session']['datamanager']
-    contact = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    contactname = contact.get_username()
-    if not target_user.is_anonymous():
-        contactname = target_user.get_username()
-
-    key = request.query.get('key', None)
-    if not key:
-        return webui.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    return datamgr.get_user_preferences(contactname, key, request.query.get('default', None))
-
-
-def get_common_preference():
-    '''
-        tbc
-    '''
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    key = request.query.get('key', None)
-    if not key:
-        return webui.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    return datamgr.get_user_preferences('common', key, request.query.get('default', None))
-
-
-def set_contact_preference():
-    '''
-        tbc
-    '''
-    datamgr = request.environ['beaker.session']['datamanager']
-    contact = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    contactname = contact.get_username()
-    if not target_user.is_anonymous():
-        contactname = target_user.get_username()
-
-    key = request.forms.get('key', None)
-    value = request.forms.get('value', None)
-    if key is None or value is None:
-        return webui.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    rsp = datamgr.set_user_preferences(contactname, key, json.loads(value))
-    if rsp['_status'] == 'OK':
-        return webui.response_ok(message=_('Contact preferences saved'))
-    else:
-        return webui.response_ko(
-            message=_('Problem encountered while saving common preferences')
-        )
-
-    return webui.response_invalid_parameters(_('Error when saving contact preferences'))
-
-
-def set_common_preference():
-    '''
-        tbc
-    '''
-    datamgr = request.environ['beaker.session']['datamanager']
-    contact = request.environ['beaker.session']['current_user']
-
-    key = request.forms.get('key', None)
-    value = request.forms.get('value', None)
-    if key is None or value is None:
-        return webui.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    if contact.is_administrator():
-        rsp = datamgr.set_user_preferences('common', key, json.loads(value))
-        if rsp['_status'] == 'OK':
-            return webui.response_ok(message=_('Common preferences saved'))
-        else:
-            return webui.response_ko(
-                message=_('Problem encountered while saving common preferences')
-            )
-    else:
-        return webui.response_ko(message=_('Only adaministrator user can save common preferences'))
-
-    return webui.response_ok(message=_('Error when saving common preferences'))
 
 
 pages = {
@@ -383,32 +289,6 @@ pages = {
     get_contacts_table_data: {
         'name': 'Contacts table data',
         'route': '/contact_table_data',
-        'method': 'POST'
-    },
-
-    show_contact_preferences: {
-        'name': 'ShowPref',
-        'route': '/contact/preferences',
-        'view': 'contact_pref'
-    },
-    get_contact_preference: {
-        'name': 'GetPref',
-        'route': '/contact/preference',
-        'method': 'GET'
-    },
-    set_contact_preference: {
-        'name': 'SetPref',
-        'route': '/contact/preference',
-        'method': 'POST'
-    },
-    get_common_preference: {
-        'name': 'GetCommonPref',
-        'route': '/common/preference',
-        'method': 'GET'
-    },
-    set_common_preference: {
-        'name': 'SetCommonPref',
-        'route': '/common/preference',
         'method': 'POST'
     }
 }

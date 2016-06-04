@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Services
-'''
+"""
 
 import time
 import json
@@ -412,9 +412,9 @@ schema['ui'] = {
 
 
 def get_services():
-    '''
+    """
     Get the services list
-    '''
+    """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -457,9 +457,9 @@ def get_services():
 
 
 def get_services_table():
-    '''
+    """
     Get the services list and transform it as a table
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
@@ -483,9 +483,9 @@ def get_services_table():
 
 
 def get_services_table_data():
-    '''
+    """
     Get the services list and provide table data
-    '''
+    """
     datamgr = request.environ['beaker.session']['datamanager']
     dt = Datatable('service', datamgr.backend, schema)
 
