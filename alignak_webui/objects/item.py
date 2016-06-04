@@ -1221,10 +1221,12 @@ class LiveState(Item):
 
     @property
     def host_name(self):
+        ''' Return linked object '''
         return self.linked_host_name
 
     @property
     def service_description(self):
+        ''' Return linked object '''
         return self.linked_service_description
 
 
@@ -1375,22 +1377,27 @@ class Service(Item):
 
     @property
     def check_command(self):
+        ''' Return linked object '''
         return self.linked_check_command
 
     @property
     def event_handler(self):
+        ''' Return linked object '''
         return self.linked_event_handler
 
     @property
     def host_name(self):
+        ''' Return linked object '''
         return self.linked_host_name
 
     @property
     def check_period(self):
+        ''' Return linked object '''
         return self.linked_check_period
 
     @property
     def notification_period(self):
+        ''' Return linked object '''
         return self.linked_notification_period
 
 
