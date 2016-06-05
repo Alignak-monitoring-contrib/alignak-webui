@@ -155,7 +155,7 @@ def before_request():
     # Make session target user available in the templates
     BaseTemplate.defaults['target_user'] = session['target_user']
 
-    logger.debug("before_request, Url: %s", request.urlparts.path)
+    logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -539,8 +539,7 @@ def set_user_preference():
     if key is None or value is None:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    rsp = datamgr.set_user_preferences(username, key, json.loads(value))
-    if rsp['_status'] == 'OK':
+    if datamgr.set_user_preferences(username, key, json.loads(value)):
         return WebUI.response_ok(message=_('User preferences saved'))
     else:
         return WebUI.response_ko(
@@ -567,8 +566,7 @@ def set_common_preference():
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
     if user.is_administrator():
-        rsp = datamgr.set_user_preferences('common', key, json.loads(value))
-        if rsp['_status'] == 'OK':
+        if datamgr.set_user_preferences('common', key, json.loads(value)):
             return WebUI.response_ok(message=_('Common preferences saved'))
         else:
             return WebUI.response_ko(

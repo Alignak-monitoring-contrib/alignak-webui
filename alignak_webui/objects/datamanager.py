@@ -688,32 +688,37 @@ class DataManager(object):
 
         return False
 
-    def set_user_preferences(self, user, prefs_type, parameters):
+    def set_user_preferences(self, user, prefs_type, value):
         """
         Set user's preferences
 
-        An exception is raised if an error occurs, else returns the backend response
+        If an exception occurs, it is raised to the caller.
+
+        This function returns True if the data were stored, else False if a problem was encountered.
+
+        **Note**: When a simple value is stored (value parameter is not a dictionary), it is
+        it is stored in a dictionary containing a 'value' property.
 
         :param user: username
         :type user: string
         :param prefs_type: preference type
         :type prefs_type: string
-        :param parameters: value of the parameter to store
-        :type parameters: dict
-        :return: server's response
-        :rtype: dict
+        :param value: value of the parameter to store
+        :type value: dict
+        :return: True / False
+        :rtype: boolean
         """
         try:
             response = None
 
-            logger.warning(
-                "set_user_preferences, type: %s, for: %s, parameters: %s",
-                prefs_type, user, parameters
+            logger.debug(
+                "set_user_preferences, type: %s, for: %s, value: %s",
+                prefs_type, user, value
             )
 
             # Saved parameter must be a dictionary. Create a fake dictionary
-            if not isinstance(parameters, dict):
-                parameters = {'value': parameters}
+            if not isinstance(value, dict):
+                value = {'value': value}
 
             # Still existing ...
             result = self.backend.get_all(
@@ -732,7 +737,7 @@ class DataManager(object):
                 data = {
                     "user": user,
                     "type": prefs_type,
-                    "data": parameters
+                    "data": value
                 }
                 response = self.backend.patch(
                     '/'.join(['uipref', items['_id']]),
@@ -742,33 +747,36 @@ class DataManager(object):
                 # Create new record ...
                 logger.debug(
                     "set_user_preferences, create new record: %s / %s: %s",
-                    prefs_type, user, parameters
+                    prefs_type, user, value
                 )
                 data = {
                     "user": user,
                     "type": prefs_type,
-                    "data": parameters
+                    "data": value
                 }
                 response = self.backend.post('uipref', data=data)
             logger.debug("set_user_preferences, response: %s", response)
 
-        except Exception as e:  # pragma: no cover - need specific backend tests
+        except Exception as e:
             logger.error("set_user_preferences, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
             if "_issues" in e.response:
                 for issue in e.response["_issues"]:
                     logger.error(" - issue: %s: %s", issue, e.response['_issues'][issue])
-            return e.response
+            return False
 
-        return response
+        return True
 
-    def get_user_preferences(self, user, prefs_type, default):
+    def get_user_preferences(self, user, prefs_type, default=None):
         """
         Get user's preferences
 
         If the data are not found, returns None else return found data.
 
         TODO: store default if none found!
+
+        **Note**: When a simple value is stored with set_user_preferences, it is never returned as
+        a simple value but in a dictionary containing a 'value' property.
 
         :param user: username
         :type user: string
@@ -785,21 +793,21 @@ class DataManager(object):
                 'uipref',
                 params={'where': '{"type":"%s", "user": "%s"}' % (prefs_type, user)}
             )
+            logger.debug("get_user_preferences, result: %s", result)
             if result['_status'] == 'OK':
                 if result['_items']:
                     logger.debug("get_user_preferences, found: %s", result['_items'][0])
-                    # If simple value self-stored in a fake dictionary ...
-                    value = result['_items'][0]['data']
-                    if 'value' in value:
-                        return value['value']
-                    return value
+                    return result['_items'][0]['data']
 
         except Exception as e:  # pragma: no cover - should never happen
             logger.error("get_user_preferences, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
-            raise e
+            return None
 
-        return default
+        if default and self.set_user_preferences(user, prefs_type, default):
+            return default
+
+        return None
 
     ##
     # Livestate

@@ -417,13 +417,30 @@ class tests_1_prefs(unittest2.TestCase):
         # Get common preferences
         response = self.app.get('/preference/common', {'key': 'prefs'})
         response_value = response.json
-        print response_value
         assert 'foo' in response_value
         assert response.json['foo'] == 'bar2'
         assert 'foo_int' in response_value
         assert response.json['foo_int'] == 2
 
 
+        # Set a common preference ; simple value
+        common_value = 10
+        # Value must be a string, so json dumps ...
+        response = self.app.post('/preference/common', {'key': 'simple', 'value': json.dumps(common_value)})
+        response_value = response.json
+        response.mustcontain('Common preferences saved')
+        assert 'status' in response_value
+        assert response.json['status'] == 'ok'
+        assert 'message' in response_value
+        assert response.json['message'] == 'Common preferences saved'
+
+        # Get common preferences ; simple value
+        response = self.app.get('/preference/common', {'key': 'simple'})
+        response_value = response.json
+        response.mustcontain('value')
+        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
+        assert 'value' in response_value
+        assert response.json['value'] == 10
 
     def test_1_3_user(self):
         print ''
@@ -436,11 +453,11 @@ class tests_1_prefs(unittest2.TestCase):
         common_value = { 'foo': 'bar', 'foo_int': 1 }
         response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
         response_value = response.json
-        response.mustcontain('Contact preferences saved')
+        response.mustcontain('User preferences saved')
         assert 'status' in response_value
         assert response.json['status'] == 'ok'
         assert 'message' in response_value
-        assert response.json['message'] == 'Contact preferences saved'
+        assert response.json['message'] == 'User preferences saved'
 
         response = self.app.get('/preference/user', {'key': 'prefs'})
         response_value = response.json
@@ -454,7 +471,7 @@ class tests_1_prefs(unittest2.TestCase):
         common_value = { 'foo': 'bar2', 'foo_int': 2 }
         response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
         print response
-        response.mustcontain("Contact preferences saved")
+        response.mustcontain("User preferences saved")
 
         response = self.app.get('/preference/user', {'key': 'prefs'})
         response_value = response.json
@@ -469,7 +486,7 @@ class tests_1_prefs(unittest2.TestCase):
         common_value = { 'foo': 'bar2', 'foo_int': 2 }
         response = self.app.post('/preference/user', {'key': 'prefs2', 'value': json.dumps(common_value)})
         print response
-        response.mustcontain("Contact preferences saved")
+        response.mustcontain("User preferences saved")
 
         response = self.app.get('/preference/user', {'key': 'prefs'})
         response_value = response.json
@@ -486,6 +503,36 @@ class tests_1_prefs(unittest2.TestCase):
         assert response.json['foo'] == 'bar2'
         assert 'foo_int' in response_value
         assert response.json['foo_int'] == 2
+
+
+        # Set a user preference ; simple value
+        common_value = 10
+        # Value must be a string, so json dumps ...
+        response = self.app.post('/preference/user', {'key': 'simple', 'value': json.dumps(common_value)})
+        response_value = response.json
+        response.mustcontain('User preferences saved')
+        assert 'status' in response_value
+        assert response.json['status'] == 'ok'
+        assert 'message' in response_value
+        assert response.json['message'] == 'User preferences saved'
+
+        # Get user preferences ; simple value
+        response = self.app.get('/preference/user', {'key': 'simple'})
+        response_value = response.json
+        response.mustcontain('value')
+        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
+        assert 'value' in response_value
+        assert response.json['value'] == 'test string'
+
+
+        # Get a user preference ; default value
+        default_value = { 'foo': 'bar2', 'foo_int': 2 }
+        response = self.app.get('/preference/user', {'key': 'simple'})
+        response_value = response.json
+        response.mustcontain('value')
+        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
+        assert 'value' in response_value
+        assert response.json['value'] == 'test string'
 
 
 class tests_2(unittest2.TestCase):
@@ -641,8 +688,51 @@ class tests_3(unittest2.TestCase):
 
 
 
-        # Create a non admin user
-        print 'create user'
+        # Create a new contact
+        print 'create a contact'
+        data = {
+            "name": "not_admin",
+            "alias": "Not an administrator ... test user.",
+            "min_business_impact": 0,
+            "email": "frederic.mohier@gmail.com",
+
+            "is_admin": False,
+            "expert": False,
+            "can_submit_commands": False,
+
+            "host_notifications_enabled": True,
+            "host_notification_period": tp_all.get_id(),
+            "host_notification_commands": [
+            ],
+            "host_notification_options": [
+                "d",
+                "u",
+                "r"
+            ],
+
+            "service_notifications_enabled": True,
+            "service_notification_period": tp_all.get_id(),
+            "service_notification_commands": [ ],
+            "service_notification_options": [
+                "w",
+                "u",
+                "c",
+                "r"
+            ],
+            "retain_status_information": False,
+            "note": "Monitoring template : default",
+            "retain_nonstatus_information": False,
+            "definition_order": 100,
+            "address1": "",
+            "address2": "",
+            "address3": "",
+            "address4": "",
+            "address5": "",
+            "address6": "",
+            "pager": "",
+            "notificationways": [],
+            "_realm": realm_all.get_id()
+        }
         response = self.app.post('/user/add', {
             'user_name': 'not_admin', 'comment': 'Not an administrator ... test user.'
         })
