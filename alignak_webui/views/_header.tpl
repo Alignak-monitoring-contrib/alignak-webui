@@ -1,13 +1,7 @@
 %debug=False
-%# Fetch elements per page preference for user, default is 25
-%elts_per_page = datamgr.get_user_preferences(current_user.get_username(), 'elts_per_page', 25)
 
-%# Fetch sound preference for user, default is 'no'
-%sound_pref = datamgr.get_user_preferences(current_user.get_username(), 'sound', None)
-%if not sound_pref:
-%datamgr.set_user_preferences(current_user.get_username(), 'sound', {'sound': request.app.config.get('play_sound', 'no')})
-%end
-
+%# Fetch page count preference for user, default is 25
+%elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
 
 <script type="text/javascript">
    // Periodical header refresh ... this function is called by the global refresh handler.
@@ -70,10 +64,16 @@
                   %include("_header_services_state.tpl")
                </li>
 
+               <li>
+                  <a data-action="display-currently" data-toggle="tooltip" data-placement="bottom" title="{{_('Display fullscreen one-eye view.')}}" href="/currently">
+                     <span class="fa fa-eye"></span>
+                  </a>
+               </li>
+
                %if request.app.config.get('play_sound', 'no') == 'yes':
-               <li class="hidden-sm hidden-xs hidden-md">
-                  <a data-action="toggle-sound-alert" data-original-title="{{_('Sound alerting')}}" href="#">
-                     <span id="sound_alerting" class="fa-stack">
+               <li class="hidden-xs">
+                  <a data-action="toggle-sound-alert" data-toggle="tooltip" data-placement="bottom" title="{{_('Sound alert on/off')}}" href="#">
+                     <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
                        <i class="fa fa-music fa-stack-1x"></i>
                        <i class="fa fa-ban fa-stack-2x text-danger"></i>
                      </span>
@@ -84,7 +84,7 @@
                %if refresh:
                <li>
                   <a data-action="toggle-page-refresh" data-toggle="tooltip" data-placement="bottom" title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}" href="#">
-                     <i id="header_loading" class="fa fa-refresh"></i>
+                     <span id="header_loading" class="fa fa-refresh"></span>
                   </a>
                </li>
                %end
@@ -92,8 +92,8 @@
                %if debug:
                <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-original-title="Debug" data-toggle="dropdown">
-                     <i class="fa fa-bug"></i>
-                     <i class="caret"></i>
+                     <span class="fa fa-bug"></span>
+                     <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
                      <li>
@@ -177,26 +177,31 @@
    </audio>
 
    <script type="text/javascript">
-      // Set alerting sound icon ...
-      if (! hostStorage.getItem("sound_play")) {
-         // Default is to play ...
-         hostStorage.setItem("sound_play", '1');
-      }
-
-      // Toggle sound ...
-      if (hostStorage.getItem("sound_play") == '1') {
-         $('#sound_alerting i.fa-ban').addClass('hidden');
-      } else {
-         $('#sound_alerting i.fa-ban').removeClass('hidden');
-      }
-      $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
-         if (hostStorage.getItem("sound_play") == '1') {
-            hostStorage.setItem("sound_play", "0");
-            $('#sound_alerting i.fa-ban').removeClass('hidden');
-         } else {
-            playAlertSound();
+      get_user_preference('sound', function(data) {
+         // Toggle sound icon...
+         if (data.value == 'no') {
+            sound_activated = false;
             $('#sound_alerting i.fa-ban').addClass('hidden');
+         } else {
+            sound_activated = true;
+            $('#sound_alerting i.fa-ban').removeClass('hidden');
          }
-      });
+         $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
+            get_user_preference('sound', function(data) {
+               if (data.value == 'no') {
+                  save_user_preference('sound', JSON.stringify('yes'), function(){
+                     sound_activated = false;
+                     $('#sound_alerting i.fa-ban').removeClass('hidden');
+                  });
+               } else {
+                  save_user_preference('sound', JSON.stringify('no'), function() {
+                     sound_activated = true;
+                     playAlertSound();
+                     $('#sound_alerting i.fa-ban').addClass('hidden');
+                  });
+               }
+            });
+         });
+      }, 'yes');
    </script>
 %end
