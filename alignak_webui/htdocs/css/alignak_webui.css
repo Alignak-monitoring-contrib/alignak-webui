@@ -46,9 +46,9 @@ html, body {
 
 /*
  * Page content - the header navigation bar is fixed, page content must
- * be shifted to the bottom.
+ * be shifted to the bottom if the header bar is present (not present on fullscreen pages).
  */
-#page-wrapper > div.row {
+#page-wrapper.header-page > div.row {
     margin-top: 55px;
     padding: 3px;
     margin-bottom: 30px;
@@ -104,7 +104,7 @@ html, body {
  * - hide the sidebar column
  */
 @media (max-width: 992px) {
-    #page-wrapper > div.row {
+    #page-wrapper.header-page > div.row {
         margin-top: 130px;
     }
 
@@ -119,7 +119,7 @@ html, body {
     }
 }
 @media (max-width: 768px) {
-    #page-wrapper > div.row {
+    #page-wrapper.header-page > div.row {
         margin-top: 65px;
     }
 }
@@ -188,7 +188,7 @@ html, body {
  * Navigation bar, input field
  */
 input#search {
-    width: 260px;
+    width: 200px;
 }
 
 /*
