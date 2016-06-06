@@ -40,9 +40,6 @@ from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGI
 from alignak_webui.objects.item import Contact, Command, Host, Service, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis
 
-from alignak_webui.backend.glpi_ws_client import Glpi, GlpiException
-from alignak_webui.backend.glpi_ws_client import GLPI_PAGINATION_LIMIT, GLPI_PAGINATION_DEFAULT
-
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -59,7 +56,7 @@ class DataManager(object):
         Application data manager object
     """
 
-    def __init__(self, backend_endpoint='http://127.0.0.1:5002', glpi=None):
+    def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
         """
         Create an instance
         """
@@ -69,16 +66,6 @@ class DataManager(object):
         # Associated backend object
         self.backend_endpoint = backend_endpoint
         self.backend = Backend(backend_endpoint)
-
-        # Associated Glpi backend object
-        self.glpi = None
-        if glpi:
-            self.glpi = Glpi(glpi.get('glpi_ws_backend', None))
-            self.glpi_ws_login = glpi.get('glpi_ws_login', None)
-            self.glpi_ws_password = glpi.get('glpi_ws_password', None)
-
-        # Backend available objects (filled with objects received from backend)
-        # self.backend_available_objets = []
 
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
@@ -168,7 +155,7 @@ class DataManager(object):
             logger.warning("User login exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
 
-        logger.info("contact_login, connection message: %s", self.connection_message)
+        logger.info("user_login, connection message: %s", self.connection_message)
         return self.connected
 
     def user_logout(self):

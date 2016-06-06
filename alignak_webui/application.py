@@ -436,17 +436,6 @@ def user_authentication(username, password):
             request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
-            ),
-            {
-                'glpi_ws_backend': request.app.config.get(
-                    'glpi_ws_backend', None
-                ),
-                'glpi_ws_login': request.app.config.get(
-                    'glpi_ws_login', None
-                ),
-                'glpi_ws_password': request.app.config.get(
-                    'glpi_ws_password', None
-                )
             }
         )
 
