@@ -72,12 +72,13 @@ schema['ui'] = {
         'uid': '_id',
         'visible': True,
         'orderable': True,
-        'searchable': True
+        'searchable': True,
+        'responsive': True
     }
 }
 
 
-def show_contact_add():
+def show_contact_add():  # pragma: no cover - not yet implemented
     """
         Show form to add a contact
     """
@@ -93,7 +94,7 @@ def show_contact_add():
     }
 
 
-def add_contact():
+def add_contact():  # pragma: no cover - not yet implemented
     """
         Add a contact
     """
@@ -124,7 +125,7 @@ def add_contact():
     return webui.response_ok(message=_('Contact created'))
 
 
-def show_contact_delete():
+def show_contact_delete():  # pragma: no cover - not yet implemented
     """
     Contact deletion form
     """
@@ -147,7 +148,7 @@ def show_contact_delete():
     }
 
 
-def delete_contact():
+def delete_contact():  # pragma: no cover - not yet implemented
     """
         Delete a contact
     """

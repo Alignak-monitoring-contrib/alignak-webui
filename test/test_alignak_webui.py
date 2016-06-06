@@ -41,9 +41,6 @@ from alignak_webui import set_app_config, set_app_webui, get_app_config, get_app
 from alignak_webui.utils.settings import Settings
 
 pid = None
-backend_address = "http://127.0.0.1:5002/"
-backend_address = "http://94.76.229.155:80"
-
 appli = None
 
 class test_0_initialization(unittest2.TestCase):
@@ -56,7 +53,7 @@ class test_0_initialization(unittest2.TestCase):
         self.config = alignak_webui.get_app_config()
         print self.config
         assert self.config
-        assert self.config.get('alignak_backend', 'default_value') != 'default_value'
+        assert self.config.get('host', 'default_value') == 'default_value'
         assert self.config.get('locale', 'en_US') == 'en_US'
         # Variable defined in the settings.cfg test file ...
         assert self.config.get('test_mode') == '1'
@@ -83,7 +80,7 @@ class test_0_initialization(unittest2.TestCase):
         # Application configuration is loaded
         self.config = alignak_webui.get_app_config()
         assert self.config
-        assert self.config.get('alignak_backend', 'default_value') != 'default_value'
+        assert self.config.get('host', 'default_value') == 'default_value'
         assert self.config.get('locale', 'en_US') == 'en_US'
         # Variable defined in the settings.cfg test file ...
         assert self.config.get('test_mode') == '1'

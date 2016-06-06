@@ -282,7 +282,6 @@ class test_4_not_admin(unittest2.TestCase):
     def tearDown(self):
         print ""
 
-    # @unittest2.skip("To be completed test ...")
     def test_4_1_load(self):
         print ''
         print 'test load not admin user'

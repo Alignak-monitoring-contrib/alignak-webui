@@ -114,24 +114,19 @@ class test_datatable(unittest2.TestCase):
             webapp
         )
 
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
     def tearDown(self):
         print ""
-        # Logout
-        self.dmg.reset(logout=True)
-        assert not self.dmg.backend.connected
-        assert self.dmg.get_logged_user() == None
-        assert self.dmg.loaded == False
 
     def test_01_commands(self):
         print ''
         print 'test commands table'
 
         global items_count
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
 
         print 'get page /commands_table'
         response = self.app.get('/commands_table')
@@ -173,8 +168,11 @@ class test_datatable(unittest2.TestCase):
 
 
         # Rows 5 by 5 ...
+        print "Get rows 5 per 5"
+        count = 0
         for x in range(0, items_count, 5):
             response = self.app.post('/command_table_data', {
+                'object_type': 'command',
                 'draw': x / 5,
                 'start': x,
                 'length': 5
@@ -183,23 +181,26 @@ class test_datatable(unittest2.TestCase):
             print response_value
             assert response.json['draw'] == x / 5
             assert response.json['recordsTotal'] == items_count
-            assert response.json['recordsFiltered'] == 5
+            assert response.json['recordsFiltered'] == 5 or items_count % 5
+            count += response.json['recordsFiltered']
             assert response.json['data']
-            assert len(response.json['data']) == 5
+            assert len(response.json['data']) == 5 or items_count % 5
+        assert count == items_count
 
         # Out of scope rows ...
         response = self.app.post('/command_table_data', {
-            'start': items_count+1,
+            'start': items_count*2,
             'length': 5
         })
         response_value = response.json
         print response_value
         assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == items_count
+        assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
         # Sorting ...
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -222,6 +223,7 @@ class test_datatable(unittest2.TestCase):
         assert len(response.json['data']) == 5
 
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -246,6 +248,7 @@ class test_datatable(unittest2.TestCase):
         # Searching ...
         # Global search ...
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -271,6 +274,7 @@ class test_datatable(unittest2.TestCase):
         assert len(response.json['data']) == 1
 
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -295,6 +299,7 @@ class test_datatable(unittest2.TestCase):
         assert not response.json['data']
 
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -308,13 +313,13 @@ class test_datatable(unittest2.TestCase):
                 {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
             ]),
             'order': json.dumps([{"column":0,"dir":"asc"}]),
-            # Search 'open' in all columns with regex
+            # Search 'check' in all columns with regex
             'search': json.dumps({"value":"check","regex":True})
         })
         response_value = response.json
         print response_value
         assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == items_count
+        assert response.json['recordsFiltered'] == 90
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -322,6 +327,7 @@ class test_datatable(unittest2.TestCase):
         # Searching ...
         # Individual search ...
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -345,6 +351,7 @@ class test_datatable(unittest2.TestCase):
         assert len(response.json['data']) == 1
 
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -367,6 +374,7 @@ class test_datatable(unittest2.TestCase):
         assert not response.json['data']
 
         response = self.app.post('/command_table_data', {
+            'object_type': 'command',
             'start': 0,
             'length': 5,
             'columns': json.dumps([
@@ -385,7 +393,7 @@ class test_datatable(unittest2.TestCase):
         response_value = response.json
         print response_value
         assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == items_count
+        assert response.json['recordsFiltered'] == 88
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -396,12 +404,7 @@ class test_datatable(unittest2.TestCase):
 
         global items_count
 
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-        print 'get page /sessions_table'
+        print 'get page /hosts_table'
         response = self.app.get('/hosts_table')
         response.mustcontain(
             '<div id="host_table">',
@@ -434,4 +437,88 @@ class test_datatable(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
-                assert response.json['data'][x]['ui'] == True
+
+
+    def test_03_contacts(self):
+        print ''
+        print 'test contacts table'
+
+        global items_count
+
+        print 'get page /contacts_table'
+        response = self.app.get('/contacts_table')
+        response.mustcontain(
+            '<div id="contact_table">',
+            "$('#tbl_contact').DataTable( {",
+            '<table id="tbl_contact" class="table ',
+            '<th data-name="name" data-type="string">Contact name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Contact alias</th>',
+        )
+
+        response = self.app.post('/contact_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name']
+
+
+    def test_04_livestate(self):
+        print ''
+        print 'test livestate table'
+
+        global items_count
+
+        print 'get page /livestate_table'
+        response = self.app.get('/livestate_table')
+        response.mustcontain(
+            '<div id="livestate_table">',
+            "$('#tbl_livestate').DataTable( {",
+            '<table id="tbl_livestate" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="type" data-type="string">Type</th>',
+            '<th data-name="name" data-type="string">Element name</th>',
+            '<th data-name="host_name" data-type="objectid">Host name</th>',
+            '<th data-name="display_name_host" data-type="string">Host display name</th>',
+            '<th data-name="service_description" data-type="objectid">Service description</th>',
+            '<th data-name="display_name_service" data-type="string">Host display service</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="business_impact" data-type="integer">Business impact</th>',
+            '<th data-name="state" data-type="string">State</th>',
+            '<th data-name="state_type" data-type="string">State type</th>',
+            '<th data-name="state_id" data-type="integer">State identifier</th>',
+            '<th data-name="acknowledged" data-type="boolean">Acknowledged</th>',
+            '<th data-name="downtime" data-type="boolean">In scheduled downtime</th>',
+            '<th data-name="last_check" data-type="integer">Last check</th>',
+            '<th data-name="output" data-type="string">Check output</th>',
+            '<th data-name="long_output" data-type="string">Check long output</th>',
+            '<th data-name="perf_data" data-type="string">Performance data</th>',
+            '<th data-name="current_attempt" data-type="integer">Current attempt</th>',
+            '<th data-name="max_attempts" data-type="integer">Max attempts</th>',
+            '<th data-name="next_check" data-type="integer">Next check</th>',
+            '<th data-name="last_state_changed" data-type="integer">Last check</th>',
+            '<th data-name="last_state" data-type="string">Last state</th>',
+            '<th data-name="last_state_type" data-type="string">Last state type</th>',
+        )
+
+        response = self.app.post('/livestate_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name']

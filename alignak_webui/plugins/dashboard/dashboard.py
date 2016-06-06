@@ -95,19 +95,11 @@ def get_currently():
     if not target_user.is_anonymous():
         username = target_user.get_username()
 
-    # Look for the stored panels
+    # Get the stored panels
     panels = datamgr.get_user_preferences(username, 'panels', {'panels': {}})
-    # If void, create an empty one
-    if not panels:
-        datamgr.set_user_preferences(username, 'panels', {'panels': {}})
-        panels = {'panels': {}}
 
-    # Look for the stored graphs
+    # Get the stored graphs
     graphs = datamgr.get_user_preferences(username, 'graphs', {'graphs': {}})
-    # If void, create an empty one
-    if not graphs:
-        datamgr.set_user_preferences(username, 'graphs', {'graphs': {}})
-        graphs = {'graphs': {}}
 
     return {
         'panels': panels,

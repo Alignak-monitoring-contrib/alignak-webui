@@ -27,17 +27,6 @@ glpi_ws_login = test
 glpi_ws_password = test
 
 
-; Mongodb parameters for internal Web UI modules
-; ------------------------------------------------------------------------------------------
-; Database URI
-; uri = mongodb://localhost
-; Database name where to store the user's preferences
-; database = WebUI
-; User authentication for database access
-; username=
-; password=
-
-
 ; # Web server configuration
 ; ------------------------------------------------------------------------------------------
 ; Default is listening on TCP port 8868 on local loop interface

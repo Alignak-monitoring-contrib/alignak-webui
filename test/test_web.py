@@ -52,7 +52,7 @@ from bottle import BaseTemplate, TEMPLATE_PATH
 from webtest import TestApp
 
 pid = None
-backend_address = "http://127.0.0.1:5002/"
+backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
     print ("")
@@ -71,6 +71,7 @@ def setup_module(module):
             shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['TEST_ALIGNAK_BACKEND_DB'])
         )
         assert exit_code == 0
+        time.sleep(1)
 
         # No console output for the applications backend ...
         FNULL = open(os.devnull, 'w')
@@ -98,7 +99,7 @@ def teardown_module(module):
         pid.kill()
 
 
-class tests_1(unittest2.TestCase):
+class tests_1_login(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -333,7 +334,7 @@ class tests_1(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class tests_1_prefs(unittest2.TestCase):
+class tests_1_preferences(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -354,6 +355,7 @@ class tests_1_prefs(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
         redirected_response.mustcontain('<div id="dashboard">')
+        self.stored_response = redirected_response
 
     def tearDown(self):
         print ""
@@ -388,6 +390,13 @@ class tests_1_prefs(unittest2.TestCase):
         print 'test common preferences'
 
         ### Common preferences
+        # Get all the preferences in the database
+        session = self.stored_response.request.environ['beaker.session']
+        datamgr = session['datamanager']
+        user_prefs = datamgr.get_user_preferences('common', None)
+        for pref in user_prefs:
+            print "Item: %s: %s" % (pref['type'], pref['data'])
+        assert len(user_prefs) == 0
 
         # Set a common preference named prefs
         common_value = { 'foo': 'bar', 'foo_int': 1 }
@@ -442,11 +451,26 @@ class tests_1_prefs(unittest2.TestCase):
         assert 'value' in response_value
         assert response.json['value'] == 10
 
+        # Get all the preferences in the database
+        session = self.stored_response.request.environ['beaker.session']
+        datamgr = session['datamanager']
+        user_prefs = datamgr.get_user_preferences('common', None)
+        for pref in user_prefs:
+            print "Item: %s: %s" % (pref['type'], pref['data'])
+        assert len(user_prefs) == 2
+
     def test_1_3_user(self):
         print ''
         print 'test common preferences'
 
         ### User's preferences
+        # Get all the preferences in the database
+        session = self.stored_response.request.environ['beaker.session']
+        datamgr = session['datamanager']
+        user_prefs = datamgr.get_user_preferences('admin', None)
+        for pref in user_prefs:
+            print "Item: %s: %s" % (pref['type'], pref['data'])
+        assert len(user_prefs) == 2
 
 
         # Set a user's preference
@@ -522,20 +546,49 @@ class tests_1_prefs(unittest2.TestCase):
         response.mustcontain('value')
         # When a simple value is stored, it is always returned in a json object containing a 'value' field !
         assert 'value' in response_value
-        assert response.json['value'] == 'test string'
+        assert response.json['value'] == 10
+
+
+        # Get a user preference ; default value, missing default
+        default_value = { 'foo': 'bar2', 'foo_int': 2 }
+        response = self.app.get('/preference/user', {'key': 'def'})
+        print "Body: '%s'" % response.body
+        # Response do not contain anything ...
+        assert response.body == ''
 
 
         # Get a user preference ; default value
         default_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.get('/preference/user', {'key': 'simple'})
+        response = self.app.get('/preference/user', {'key': 'def', 'default': json.dumps(default_value)})
+        print response
         response_value = response.json
-        response.mustcontain('value')
-        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
-        assert 'value' in response_value
-        assert response.json['value'] == 'test string'
+        print response_value
+        # response.mustcontain('value')
+        assert response_value == default_value
+
+        # Get all the preferences in the database
+        session = self.stored_response.request.environ['beaker.session']
+        datamgr = session['datamanager']
+        user_prefs = datamgr.get_user_preferences('admin', None)
+        for pref in user_prefs:
+            print "Item: %s: %s" % (pref['type'], pref['data'])
+        assert len(user_prefs) == 6
+
+    def test_1_4_all(self):
+        print ''
+        print 'test all preferences'
+
+        ### User's preferences
+        # Get all the preferences in the database
+        session = self.stored_response.request.environ['beaker.session']
+        datamgr = session['datamanager']
+        user_prefs = datamgr.get_user_preferences(None, None)
+        for pref in user_prefs:
+            print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
+        assert len(user_prefs) == 8
 
 
-class tests_2(unittest2.TestCase):
+class tests_2_static_files(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -628,7 +681,107 @@ class tests_3(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
-    @unittest2.skip("To be completed  test ...")
+    def test_3_1_dashboard(self):
+        print ''
+        print 'test dashboard'
+
+        print 'get page /dashboard'
+        redirected_response = self.app.get('/dashboard')
+        redirected_response.mustcontain(
+            '<div id="dashboard">',
+            '<nav id="sidebar-menu" class="navbar navbar-default">',
+            '<div id="dashboard">',
+            '<div class="panel panel-default alert-warning" id="propose-widgets" style="margin:10px; display:none">',
+            '<div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>',
+        )
+
+        print 'get page /currently'
+        redirected_response = self.app.get('/currently')
+        redirected_response.mustcontain(
+            '<div id="currently">',
+            '<div id="one-eye-toolbar"',
+            '<div id="one-eye-overall" ',
+            '<div id="one-eye-icons" ',
+            '<div id="livestate-graphs" '
+        )
+
+    def test_3_2_users(self):
+        print ''
+        print 'test users'
+
+        print 'get page /contacts'
+        response = self.app.get('/contacts')
+        response.mustcontain(
+            '<div id="contacts">',
+            '0 elements',
+        )
+
+    def test_3_3_commands(self):
+        print ''
+        print 'test commands'
+
+        print 'get page /commands'
+        response = self.app.get('/commands')
+        response.mustcontain(
+            '<div id="commands">',
+            '25 elements out of 103',
+        )
+
+    def test_3_4_hosts(self):
+        print ''
+        print 'test hosts'
+
+        print 'get page /hosts'
+        response = self.app.get('/hosts')
+        response.mustcontain(
+            '<div id="hosts">',
+            '13 elements out of 13',
+        )
+
+    def test_3_5_services(self):
+        print ''
+        print 'test services'
+
+        print 'get page /services'
+        response = self.app.get('/services')
+        response.mustcontain(
+            '<div id="services">',
+            '25 elements out of 89',
+        )
+
+
+class tests_4_target_user(unittest2.TestCase):
+
+    def setUp(self):
+        print ""
+        print "setting up ..."
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.get('/login')
+        response.mustcontain('<form role="form" method="post" action="/login">')
+
+        print 'login accepted - go to home page'
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+        redirected_response.mustcontain('<div id="dashboard">')
+        # A host cookie now exists
+        assert self.app.cookies['beaker.session.id']
+
+    def tearDown(self):
+        print ""
+        print "tearing down ..."
+
+        response = self.app.get('/logout')
+        redirected_response = response.follow()
+        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
+
+    # @unittest2.skip("To be completed  test ...")
     def test_3_1_dashboard(self):
         print ''
         print 'test dashboard'
@@ -685,6 +838,7 @@ class tests_3(unittest2.TestCase):
 
 
         #TODO: to be tested later ...
+        return
 
 
 
@@ -787,7 +941,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/dashboard', {'target_user': ''})
         response.mustcontain('<div id="dashboard">')
 
-    @unittest2.skip("To be completed  test ...")
+    # @unittest2.skip("To be completed  test ...")
     def test_3_2_users(self):
         print ''
         print 'test users'
@@ -804,12 +958,7 @@ class tests_3(unittest2.TestCase):
 
 
         # TODO : to be completed ...
-
-
-
-
-
-
+        return
         # Create user
         print 'create user'
         response = self.app.post('/user/add', {
@@ -837,7 +986,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/commands')
         response.mustcontain(
             '<div id="commands">',
-            '5 elements out of 5',
+            '25 elements out of 103',
         )
 
     def test_3_4_hosts(self):
@@ -848,7 +997,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/hosts')
         response.mustcontain(
             '<div id="hosts">',
-            '25 elements out of',
+            '13 elements out of 13',
         )
 
     def test_3_5_services(self):
@@ -859,7 +1008,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/services')
         response.mustcontain(
             '<div id="services">',
-            '25 elements out of',
+            '25 elements out of 89',
         )
 
 if __name__ == '__main__':
