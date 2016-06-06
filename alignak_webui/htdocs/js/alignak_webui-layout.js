@@ -32,6 +32,20 @@ var log_layout=false;
     }
 }());
 
+
+/*
+ * Play alerting sound ...
+ */
+function playAlertSound() {
+   var audio = document.getElementById('alert-sound');
+   var canPlay = audio && !!audio.canPlayType && audio.canPlayType('audio/wav') != "";
+   if (canPlay) {
+      audio.play();
+      sessionStorage.setItem("sound_play", "1");
+      $('#sound_alerting i.fa-ban').addClass('hidden');
+   }
+}
+
 /*
  * To load on run some additional js or css files.
  * (Widgets template uses this function)

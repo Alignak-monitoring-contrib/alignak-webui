@@ -41,8 +41,8 @@ function get_user_preference(key, callback) {
       if (actions_logs) console.debug('Get user preference: ', key, data);
 
       if (typeof callback !== 'undefined' && $.isFunction(callback)) {
-         if (actions_logs) console.debug('Calling callback function ...', callback);
-         callback(JSON.parse(value));
+         if (actions_logs) console.debug('Calling callback function ...', data);
+         callback(data);
       }
    })
    .fail(function( jqXHR, textStatus, errorThrown ) {
@@ -70,7 +70,7 @@ function save_user_preference(key, value, callback) {
 
       if (typeof callback !== 'undefined' && $.isFunction(callback)) {
          if (actions_logs) console.debug('Calling callback function ...', callback);
-         callback(JSON.parse(value));
+         callback(value);
       }
    })
    .fail(function( jqXHR, textStatus, errorThrown ) {

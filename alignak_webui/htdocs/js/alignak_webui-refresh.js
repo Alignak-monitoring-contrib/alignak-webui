@@ -19,7 +19,7 @@
  */
 
 
-var refresh_logs=true;
+var refresh_logs=false;
 
 // By default, we set the page to reload each period defined in configuration
 var refresh_timeout = app_refresh_period;
@@ -49,17 +49,6 @@ if (sessionStorage.getItem("refresh_active") == '1') {
    $('#header_loading').removeClass('font-greyed');
 } else {
    $('#header_loading').addClass('font-greyed');
-}
-
-// Play alerting sound ...
-function playAlertSound() {
-   var audio = document.getElementById('alert-sound');
-   var canPlay = audio && !!audio.canPlayType && audio.canPlayType('audio/wav') != "";
-   if (canPlay) {
-      audio.play();
-      sessionStorage.setItem("sound_play", "1");
-      $('#sound_alerting i.fa-ban').addClass('hidden');
-   }
 }
 
 /*
@@ -114,7 +103,7 @@ function do_refresh(forced){
        */
       // Each plugin may indicate if the default page content is to be refreshed or not ...
       if (typeof no_default_page_refresh !== 'undefined' && no_default_page_refresh) {
-         if (refresh_logs) console.debug('D not include default page refresh content...');
+         if (refresh_logs) console.debug('Do not include default page refresh content...');
       } else {
          // Refresh all the id="page-content"
          var $response = $('<div id="refresh_temp"/>').html(html);
@@ -308,5 +297,4 @@ $(document).ready(function(){
       }
       if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
    });
-
 });
