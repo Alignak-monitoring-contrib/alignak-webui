@@ -11,7 +11,7 @@
    %host_name = host.get_name()
    %services = datamgr.get_services(search={'where': {'host_name':host_id}})
    %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host_name}})
-   %livestate = livestate[0]
+   %livestate = livestate[0] if livestate else None
 
    %if debug:
    <div class="panel-group">
@@ -488,7 +488,7 @@
                                     >
                                  %tp = host.check_period
                                  %if not isinstance(tp, basestring):
-                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=command.get_name()))}}
+                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.get_name()))}}
                                  %end
                               </td>
                            </tr>
