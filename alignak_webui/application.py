@@ -498,7 +498,34 @@ def get_user_preference():
     if not key:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    return datamgr.get_user_preferences(username, key, request.query.get('default', None))
+    default = request.query.get('default', None)
+    if default:
+        default = json.loads(default)
+
+    return datamgr.get_user_preferences(username, key, default)
+
+
+@route('/preference/user', 'DELETE')
+def delete_user_preference():
+    """
+        Request parameters:
+
+        - key, string identifying the parameter
+        - default, default value if parameter does not exist
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+    user = request.environ['beaker.session']['current_user']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    key = request.query.get('key', None)
+    if not key:
+        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
+
+    return datamgr.delete_user_preferences(username, key)
 
 
 @route('/preference/common', 'GET')
