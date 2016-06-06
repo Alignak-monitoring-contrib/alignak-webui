@@ -126,7 +126,8 @@ schema['ui'] = {
         'uid': '_id',
         'visible': True,
         'orderable': True,
-        'searchable': True
+        'searchable': True,
+        'responsive': True
     }
 }
 
@@ -145,15 +146,7 @@ def get_commands():
 
     # Fetch elements per page preference for user, default is 25
     elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-
-    # Fetch sound preference for user, default is 'no'
-    sound_pref = datamgr.get_user_preferences(
-        username, 'sound', request.app.config.get('play_sound', 'no')
-    )
-    sound = request.query.get('sound', '')
-    if sound != sound_pref and sound in ['yes', 'no']:  # pragma: no cover - RFU sound
-        datamgr.set_user_preferences(user.get_username(), 'sound', sound)
-        sound_pref = sound
+    elts_per_page = elts_per_page['value']
 
     # Pagination and search
     start = int(request.query.get('start', '0'))
@@ -180,7 +173,6 @@ def get_commands():
         'commands': commands,
         'pagination': Helper.get_pagination_control('command', total, start, count),
         'title': request.query.get('title', _('All commands')),
-        'sound': sound_pref,
         'elts_per_page': elts_per_page
     }
 

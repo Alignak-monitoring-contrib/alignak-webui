@@ -68,7 +68,7 @@ schema['type'] = {
     'type': 'string',
     'ui': {
         'title': _('Type'),
-        'width': '10',
+        'width': '10px',
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -87,7 +87,7 @@ schema['name'] = {
     'type': 'string',
     'ui': {
         'title': _('Element name'),
-        'width': '10',
+        'width': '50px',
         'visible': True,
         # 'priority': 0,
     }
@@ -98,7 +98,7 @@ schema['host_name'] = {
         'title': _('Host name'),
         'width': '10',
         'visible': True,
-        # 'priority': 0,
+        'hidden': True,
     },
     'data_relation': {
         'resource': 'host',
@@ -111,6 +111,7 @@ schema['display_name_host'] = {
         'title': _('Host display name'),
         'width': '10',
         'visible': True,
+        'hidden': True,
     },
 }
 schema['service_description'] = {
@@ -119,7 +120,7 @@ schema['service_description'] = {
         'title': _('Service description'),
         'width': '10px',
         'visible': True,
-        # 'priority': 0,
+        'hidden': True,
     },
     'data_relation': {
         'resource': 'service',
@@ -131,6 +132,7 @@ schema['display_name_service'] = {
     'ui': {
         'title': _('Host display service'),
         'visible': True,
+        'hidden': True,
     },
 }
 schema['definition_order'] = {
@@ -183,14 +185,16 @@ schema['acknowledged'] = {
     'type': 'boolean',
     'ui': {
         'title': _('Acknowledged'),
-        'visible': True
+        'visible': True,
+        'size': 2,
     },
 }
 schema['downtime'] = {
     'type': 'boolean',
     'ui': {
         'title': _('In scheduled downtime'),
-        'visible': True
+        'visible': True,
+        'width': '20px',
     },
 }
 schema['last_check'] = {
@@ -256,7 +260,7 @@ schema['last_state_changed'] = {
 schema['last_state'] = {
     'type': 'string',
     'ui': {
-        'title': _('State'),
+        'title': _('Last state'),
         'visible': True,
         'hidden': True
     },
@@ -283,7 +287,8 @@ schema['ui'] = {
         'uid': '_id',
         'visible': True,
         'orderable': True,
-        'searchable': True
+        'searchable': True,
+        'responsive': False
     }
 }
 

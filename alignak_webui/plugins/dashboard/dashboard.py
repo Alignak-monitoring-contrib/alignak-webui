@@ -83,10 +83,48 @@ def get_page():
     }
 
 
+def get_currently():
+    """
+    Display currently page
+    """
+    user = request.environ['beaker.session']['current_user']
+    target_user = request.environ['beaker.session']['target_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Look for the stored panels
+    panels = datamgr.get_user_preferences(username, 'panels', {'panels': {}})
+    # If void, create an empty one
+    if not panels:
+        datamgr.set_user_preferences(username, 'panels', {'panels': {}})
+        panels = {'panels': {}}
+
+    # Look for the stored graphs
+    graphs = datamgr.get_user_preferences(username, 'graphs', {'graphs': {}})
+    # If void, create an empty one
+    if not graphs:
+        datamgr.set_user_preferences(username, 'graphs', {'graphs': {}})
+        graphs = {'graphs': {}}
+
+    return {
+        'panels': panels,
+        'graphs': graphs,
+        'title': request.query.get('title', _('Dashboard'))
+    }
+
+
 pages = {
     get_page: {
         'name': 'Dashboard',
         'route': '/dashboard',
         'view': 'dashboard'
+    },
+    get_currently: {
+        'name': 'Currently',
+        'route': '/currently',
+        'view': 'currently'
     }
 }

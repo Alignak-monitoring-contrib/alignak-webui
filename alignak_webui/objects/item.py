@@ -512,6 +512,7 @@ class Item(object):
         _id = '0'
         if params:
             if not isinstance(params, dict):
+                print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
                 raise ValueError('Item.__new__: object parameters must be a dictionary!')
 
             if id_property in params:
@@ -543,7 +544,6 @@ class Item(object):
                 # print "Update existing instance for: ", _id, params
                 cls._cache[_id]._update(params, date_format)
 
-        # print "Return existing instance for: ", _id, params
         return cls._cache[_id]
 
     def __del__(self):
@@ -586,9 +586,9 @@ class Item(object):
             If date can not be converted, parameter is set to a default date defined in the class
 
         2/ dicts
-            If the object has declared some 'linked_XXX' prefixed attributes and the paramaters
-            contain an 'XXX' field, this function creates a new object in the 'linked_XXX'
-            attribute. The initial 'linked_XXX' attribute must contain the new object type!
+            If the object has declared some '_linked_XXX' prefixed attributes and the paramaters
+            contain an 'XXX' field, this function creates a new object in the '_linked_XXX'
+            attribute. The initial '_linked_XXX' attribute must contain the new object type!
 
             If the attribute is a simple dictionary, the new attribute contains the dictionary.
 
@@ -603,35 +603,59 @@ class Item(object):
             self.getType(), params[id_property], params['name'] if 'name' in params else ''
         )
 
-        for key in params:
+        for key in params:  # pylint: disable=too-many-nested-blocks
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
-            # Object must have declared a linked_ attribute ...
-            if hasattr(self, 'linked_' + key):
-                if not isinstance(params[key], dict):
-                    logger.warning(
-                        "Parameter: %s for %s is not a dict and it should be, instead of being: %s",
-                        key, self.getType(), params[key]
+            # Object must have declared a _linked_ attribute ...
+            if hasattr(self, '_linked_' + key):
+                if isinstance(params[key], dict):
+                    # Linked resource type
+                    object_type = getattr(self, '_linked_' + key, None)
+                    logger.debug(
+                        " parameter: %s is a dict for a linked object: %s, %s",
+                        key, object_type, params[key]
                     )
+                    if object_type is None:  # pragma: no cover, should never happen
+                        setattr(self, key, params[key])
+                        continue
+
+                    for k in globals().keys():
+                        if isinstance(globals()[k], type) and \
+                           '_type' in globals()[k].__dict__ and \
+                           globals()[k]._type == object_type:
+                            linked_object = globals()[k](params[key])
+                            setattr(self, '_linked_' + key, linked_object)
+                            logger.warning("Linked with %s (%s)", key, linked_object['_id'])
+                            break
                     continue
 
-                # Linked resource type
-                object_type = getattr(self, 'linked_' + key, None)
-                logger.debug(
-                    " parameter: %s is a linked object: %s, %s", key, object_type, params[key]
+                if isinstance(params[key], list):
+                    # Linked resource type
+                    object_type = getattr(self, '_linked_' + key, None)
+                    logger.debug(
+                        " parameter: %s is a dict for a linked object: %s, %s",
+                        key, object_type, params[key]
+                    )
+                    if object_type is None:  # pragma: no cover, should never happen
+                        setattr(self, key, params[key])
+                        continue
+
+                    for k in globals().keys():
+                        if isinstance(globals()[k], type) and \
+                           '_type' in globals()[k].__dict__ and \
+                           globals()[k]._type == object_type:
+                            objects_list = []
+                            for element in params[key]:
+                                objects_list.append(globals()[k](element))
+                                logger.warning("Linked with %s (%s)", key, linked_object['_id'])
+                            setattr(self, '_linked_' + key, objects_list)
+                            break
+                    continue
+
+                logger.warning(
+                    "Parameter: %s for %s is not a dict or a list "
+                    "and it should be, instead of being: %s",
+                    key, self.getType(), params[key]
                 )
-                if object_type is None:  # pragma: no cover, should never happen
-                    setattr(self, key, params[key])
-                    continue
-
-                for k in globals().keys():
-                    if isinstance(globals()[k], type) and \
-                       '_type' in globals()[k].__dict__ and \
-                       globals()[k]._type == object_type:
-                        logger.warning("Found a link with %s (%s)", object_type, key)
-                        linked_object = globals()[k](params[key])
-                        setattr(self, 'linked_' + key, linked_object)
-                        logger.warning("Linked with %s (%s)", key, linked_object['_id'])
-                        break
                 continue
 
             # If the property is a known date, make it a timestamp...
@@ -694,7 +718,7 @@ class Item(object):
             params = params.__dict__
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
-            if hasattr(self, 'linked_' + key):
+            if hasattr(self, '_linked_' + key):
                 if not isinstance(params[key], dict):
                     logger.warning(
                         "Parameter: %s for %s is not a dict and it should be, instead of being: %s",
@@ -702,13 +726,13 @@ class Item(object):
                     )
                     continue
 
-                if not isinstance(getattr(self, 'linked_' + key, None), basestring):
+                if not isinstance(getattr(self, '_linked_' + key, None), basestring):
                     # Does not contain a string, so update object ...
                     logger.debug(" Update object: %s = %s", key, params[key])
-                    getattr(self, 'linked_' + key)._update(params[key])
+                    getattr(self, '_linked_' + key)._update(params[key])
                 else:
                     # Else, create new linked object
-                    object_type = getattr(self, 'linked_' + key, None)
+                    object_type = getattr(self, '_linked_' + key, None)
                     if object_type is None:  # pragma: no cover, should never happen
                         setattr(self, key, params[key])
                         continue
@@ -718,7 +742,7 @@ class Item(object):
                            '_type' in globals()[k].__dict__ and \
                            globals()[k]._type == object_type:
                             linked_object = globals()[k](params[key])
-                            setattr(self, 'linked_' + key, linked_object)
+                            setattr(self, '_linked_' + key, linked_object)
                             logger.debug(
                                 "Linked: %s (%s) with %s (%s)",
                                 self._type, self[id_property], key, linked_object.get_id()
@@ -1202,8 +1226,8 @@ class LiveState(Item):
         """
         Create a livestate (called only once when an object is newly created)
         """
-        self.linked_host_name = 'host'
-        self.linked_service_description = 'service'
+        self._linked_host_name = 'host'
+        self._linked_service_description = 'service'
 
         super(LiveState, self)._create(params, date_format)
 
@@ -1222,12 +1246,12 @@ class LiveState(Item):
     @property
     def host_name(self):
         """ Return linked object """
-        return self.linked_host_name
+        return self._linked_host_name
 
     @property
     def service_description(self):
         """ Return linked object """
-        return self.linked_service_description
+        return self._linked_service_description
 
 
 class Host(Item):
@@ -1257,6 +1281,14 @@ class Host(Item):
         """
         Create a host (called only once when an object is newly created)
         """
+        self._linked_check_command = 'command'
+        self._linked_event_handler = 'command'
+        self._linked_check_period = 'timeperiod'
+        self._linked_notification_period = 'timeperiod'
+        self._linked_hostgroups = 'servicegroup'
+        self._linked_contacts = 'contact'
+        self._linked_contact_groups = 'contactgroup'
+
         super(Host, self)._create(params, date_format)
 
         # Missing in the backend ...
@@ -1315,6 +1347,26 @@ class Host(Item):
         """
         super(Host, self).__init__(params)
 
+    @property
+    def check_command(self):
+        """ Return linked object """
+        return self._linked_check_command
+
+    @property
+    def event_handler(self):
+        """ Return linked object """
+        return self._linked_event_handler
+
+    @property
+    def check_period(self):
+        """ Return linked object """
+        return self._linked_check_period
+
+    @property
+    def notification_period(self):
+        """ Return linked object """
+        return self._linked_notification_period
+
     def get_last_check(self, timestamp=False, fmt=None):
         """
         Get last check date
@@ -1351,15 +1403,14 @@ class Service(Item):
         """
         Create a service (called only once when an object is newly created)
         """
-        self.linked_host_name = 'host'
-        self.linked_check_command = 'command'
-        self.linked_event_handler = 'command'
-        self.linked_check_period = 'timeperiod'
-        self.linked_notification_period = 'timeperiod'
-        self.linked_servicegroups = 'servicegroup'
-        self.linked_contacts = 'contact'
-        self.linked_servicegroups = 'servicegroup'
-        self.linked_contact_groups = 'contactgroup'
+        self._linked_host_name = 'host'
+        self._linked_check_command = 'command'
+        self._linked_event_handler = 'command'
+        self._linked_check_period = 'timeperiod'
+        self._linked_notification_period = 'timeperiod'
+        self._linked_servicegroups = 'servicegroup'
+        self._linked_contacts = 'contact'
+        self._linked_contact_groups = 'contactgroup'
 
         super(Service, self)._create(params, date_format)
 
@@ -1378,27 +1429,27 @@ class Service(Item):
     @property
     def check_command(self):
         """ Return linked object """
-        return self.linked_check_command
+        return self._linked_check_command
 
     @property
     def event_handler(self):
         """ Return linked object """
-        return self.linked_event_handler
+        return self._linked_event_handler
 
     @property
     def host_name(self):
         """ Return linked object """
-        return self.linked_host_name
+        return self._linked_host_name
 
     @property
     def check_period(self):
         """ Return linked object """
-        return self.linked_check_period
+        return self._linked_check_period
 
     @property
     def notification_period(self):
         """ Return linked object """
-        return self.linked_notification_period
+        return self._linked_notification_period
 
 
 class Command(Item):

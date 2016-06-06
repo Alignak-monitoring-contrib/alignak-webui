@@ -210,6 +210,94 @@ class Helper(object):
         return text.strip()
 
     @staticmethod
+    def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
+        """
+        Returns formatted HTML for an element URL
+
+        url string may contain a list of urls separated by | (pipe symbol)
+
+        Each url may be formatted as:
+            - url,,description
+            - title::description,,url
+            - title,,icon::description,,url
+
+        description is optional
+
+        If title is not specified, default_title is used as title
+        If icon is not specified, default_icon is used as icon
+
+        If popover is true, a bootstrap popover is built, else a standard link ...
+        """
+        logger.debug(
+            "get_urls: %s / %s / %s / %d", url, default_title, default_icon, popover
+        )
+
+        result = []
+        for item in url.split('|'):
+            try:
+                (title, url) = item.split('::')
+            except Exception:
+                title = "%s,,%s" % (default_title, default_icon)
+                url = item
+
+            try:
+                (title, icon) = title.split(',,')
+            except Exception:
+                icon = default_icon
+
+            try:
+                (description, real_url) = url.split(',,')
+            except Exception:
+                description = 'No description provided'
+                real_url = url
+
+            # Replace MACROS in url and description
+            if hasattr(obj, 'get_data_for_checks'):
+                # url = MacroResolver().resolve_simple_macros_in_string(
+                # real_url, obj.get_data_for_checks()
+                # )
+                url = real_url
+                # description = MacroResolver().resolve_simple_macros_in_string(
+                # description, obj.get_data_for_checks()
+                # )
+
+            logger.debug("get_urls, found: %s / %s / %s / %s", title, icon, url, description)
+
+            if popover:
+                if url != '':
+                    result.append(
+                        '<a href="%s" target="_blank" role="button" data-toggle="popover medium" '
+                        'data-html="true" data-content="%s" data-trigger="hover focus" '
+                        'data-placement="bottom"><i class="fa fa-%s"></i>&nbsp;%s</a>' % (
+                            url, description, icon, title
+                        )
+                    )
+                else:
+                    result.append(
+                        '<span data-toggle="popover medium" data-html="true" data-content="%s" '
+                        'data-trigger="hover focus" data-placement="bottom">'
+                        '<i class="fa fa-%s"></i>&nbsp;%s</span>''' % (
+                            description, icon, title
+                        )
+                    )
+            else:
+                if url != '':
+                    result.append(
+                        '<a href="%s" target="_blank" title="%s">'
+                        '<i class="fa fa-%s"></i>&nbsp;%s</a>' % (
+                            url, description, icon, title
+                        )
+                    )
+                else:
+                    result.append(
+                        '<span title="%s"><i class="fa fa-%s"></i>&nbsp;%s</span>' % (
+                            description, icon, title
+                        )
+                    )
+
+        return result
+
+    @staticmethod
     def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
         """
         Return list of element action urls
@@ -242,7 +330,7 @@ class Helper(object):
                     else:
                         notes.append("%s,," % (item))
                 i += 1
-                logger.debug("[WebUI] get_element_notes_url, note: %s", notes)
+                logger.debug("get_element_notes_url, note: %s", notes)
 
             return Helper.get_urls(
                 obj, '|'.join(notes),
