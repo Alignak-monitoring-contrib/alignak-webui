@@ -10,7 +10,7 @@
    %host_id = host.get_id()
    %host_name = host.get_name()
    %services = datamgr.get_services(search={'where': {'host_name':host_id}})
-   %livestate = datamgr.get_livestate(search={'where': {'name':'%s' % host_name}})
+   %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host_name}})
    %livestate = livestate[0]
 
    %if debug:
@@ -354,6 +354,7 @@
                               <th colspan="2">{{_('Status:')}}</th>
                            </tr>
                         </thead>
+                        %if livestate:
                         <tbody style="font-size:x-small;">
                            <tr>
                               <td><strong>{{_('Status:')}}</strong></td>
@@ -372,6 +373,16 @@
                               </td>
                            </tr>
                         </tbody>
+                        %else:
+                        <tbody style="font-size:x-small;">
+                           <tr>
+                              <td><strong>{{_('Status:')}}</strong></td>
+                              <td class="alert alert-danger">
+                                 {{_('Livestate not found for this host!')}}
+                              </td>
+                           </tr>
+                        </tbody>
+                        %end
                      </table>
 
                      <table class="table table-condensed table-nowrap">
@@ -384,6 +395,7 @@
                               <th colspan="2">{{_('Last check:')}}</th>
                            </tr>
                         </thead>
+                        %if livestate:
                         <tbody style="font-size:x-small;">
                            <tr>
                               <td><strong>{{_('Last Check:')}}</strong></td>
@@ -444,6 +456,16 @@
                               </td>
                            </tr>
                         </tbody>
+                        %else:
+                        <tbody style="font-size:x-small;">
+                           <tr>
+                              <td><strong>{{_('Status:')}}</strong></td>
+                              <td class="alert alert-danger">
+                                 {{_('Livestate not found for this host!')}}
+                              </td>
+                           </tr>
+                        </tbody>
+                        %end
                      </table>
 
                      <table class="table table-condensed">
