@@ -436,7 +436,7 @@ def user_authentication(username, password):
             request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
-            }
+            )
         )
 
     # Set user for the data manager and try to log-in.
