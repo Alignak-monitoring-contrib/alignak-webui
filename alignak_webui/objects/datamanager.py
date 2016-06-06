@@ -771,9 +771,12 @@ class DataManager(object):
         """
         Get user's preferences
 
-        If the data are not found, returns None else return found data.
+        If the data are not found, and no default value is provided, this function returns None. If
+        a default value is provided then this function returns the defaut value after having stored
+        it in the user's preferendes.
 
-        TODO: store default if none found!
+        If prefs_type is None then this function returns all the user stored preferences.
+        If user is None then all the preferences are returned.
 
         **Note**: When a simple value is stored with set_user_preferences, it is never returned as
         a simple value but in a dictionary containing a 'value' property.
@@ -787,6 +790,22 @@ class DataManager(object):
         """
         try:
             logger.debug("get_user_preferences, type: %s, for: %s", prefs_type, user)
+
+            # All the preferences
+            if user is None:
+                result = self.backend.get_all(
+                    'uipref',
+                    params={}
+                )
+                return result['_items']
+
+            # All the user preferences
+            if prefs_type is None:
+                result = self.backend.get_all(
+                    'uipref',
+                    params={'where': '{"user": "%s"}' % (user)}
+                )
+                return result['_items']
 
             # Still existing ...
             result = self.backend.get_all(
@@ -804,8 +823,9 @@ class DataManager(object):
             logger.error("traceback: %s", traceback.format_exc())
             return None
 
+        logger.debug("get_user_preferences, not found, default value: %s", default)
         if default and self.set_user_preferences(user, prefs_type, default):
-            return default
+            return self.get_user_preferences(user, prefs_type)
 
         return None
 
