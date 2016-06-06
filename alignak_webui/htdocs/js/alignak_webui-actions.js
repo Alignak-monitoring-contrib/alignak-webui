@@ -28,14 +28,17 @@ var alert_error_delay=5000;
  * - key
  * - callback function called after data are posted
 **/
-function get_user_preference(key, callback) {
+function get_user_preference(key, callback, default_value) {
    if (actions_logs) console.debug('Get user preference: ', key);
 
    $.ajax({
       url: '/preference/user',
       dataType: "json",
       method: "GET",
-      data: { 'key' : key }
+      data: {
+         'key' : key,
+         'default': JSON.stringify(default_value)
+      }
    })
    .done(function( data, textStatus, jqXHR ) {
       if (actions_logs) console.debug('Get user preference: ', key, data);
