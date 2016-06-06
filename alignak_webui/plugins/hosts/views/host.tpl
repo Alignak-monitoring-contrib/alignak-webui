@@ -1,4 +1,4 @@
-%setdefault('debug', False)
+%setdefault('debug', True)
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
@@ -84,7 +84,7 @@
          <button class="btn btn-info btn-xs"><i class="fa fa-external-link"></i> {{'Action' if len(action_urls) == 1 else 'Actions'}}</button>
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
          <ul class="dropdown-menu pull-right">
-            %for action_url in helper.get_element_actions_url(elt, default_title="Url", default_icon="globe", popover=True):
+            %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
             <li>{{!action_url}}</li>
             %end
          </ul>
@@ -351,14 +351,14 @@
                         </colgroup>
                         <thead>
                            <tr>
-                              <th colspan="2">Status:</th>
+                              <th colspan="2">{{_('Status:')}}</th>
                            </tr>
                         </thead>
                         <tbody style="font-size:x-small;">
                            <tr>
                               <td><strong>{{_('Status:')}}</strong></td>
                               <td>
-                                 {{! livestate.get_html_state()}}
+                                 {{! livestate.get_html_state(text=True)}}
                               </td>
                            </tr>
                            <tr>
@@ -443,6 +443,137 @@
                                  {{! Helper.print_duration(livestate.next_check, duration_only=True, x_elts=0)}}
                               </td>
                            </tr>
+                        </tbody>
+                     </table>
+
+                     <table class="table table-condensed">
+                        <colgroup>
+                           <col style="width: 40%" />
+                           <col style="width: 60%" />
+                        </colgroup>
+                        <thead>
+                           <tr>
+                              <th colspan="2">{{_('Checks configuration:')}}</th>
+                           </tr>
+                        </thead>
+                        <tbody style="font-size:x-small;">
+                           <tr>
+                              <td><strong>{{_('Check period:')}}</strong></td>
+                              <td name="check_period" class="popover-dismiss"
+                                    data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
+                                    data-title='{{host.check_period}}'
+                                    data-content='{{host.check_period}}'
+                                    >
+                                 %tp = host.check_period
+                                 %if not isinstance(tp, basestring):
+                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=command.get_name()))}}
+                                 %end
+                              </td>
+                           </tr>
+
+                           %if host.maintenance_period is not None:
+                           <tr>
+                              <td><strong>{{_('Maintenance period:')}}</strong></td>
+                              <td name="maintenance_period" class="popover-dismiss"
+                                    data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
+                                    data-title='{{host.maintenance_period}}'
+                                    data-content='{{host.maintenance_period}}'
+                                    >
+                                 %tp = host.maintenance_period
+                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=command.get_name()))}}
+                              </td>
+                           </tr>
+                           %end
+
+                           <tr>
+                              <td><strong>{{_('Check command:')}}</strong></td>
+                              <td>
+                                 %command = host.check_command
+                                 {{! '<a href="command/%s">%s</a>' % (command.get_id(), command.get_html_state(label=command.get_name()))}}
+                              </td>
+                              <td>
+                              </td>
+                           </tr>
+                           <tr>
+                              <td><strong>{{_('Active checks:')}}</strong></td>
+                              <td>
+                                 {{! Helper.get_on_off(host.active_checks_enabled)}}
+                              </td>
+                           </tr>
+                           %if (host.active_checks_enabled):
+                           <tr>
+                              <td><strong>{{_('Check interval:')}}</strong></td>
+                              <td>{{host.check_interval}} seconds</td>
+                           </tr>
+                           <tr>
+                              <td><strong>{{_('Retry interval:')}}</strong></td>
+                              <td>{{host.retry_interval}} seconds</td>
+                           </tr>
+                           <tr>
+                              <td><strong>{{_('Max check attempts:')}}</strong></td>
+                              <td>{{host.max_check_attempts}}</td>
+                           </tr>
+                           %end
+                           <tr>
+                              <td><strong>{{_('Passive checks:')}}</strong></td>
+                              <td>
+                                 {{! Helper.get_on_off(host.passive_checks_enabled)}}
+                              </td>
+                           </tr>
+                           %if (host.passive_checks_enabled):
+                           <tr>
+                              <td><strong>{{_('Freshness check:')}}</strong></td>
+                              <td>
+                                 {{! Helper.get_on_off(host.check_freshness)}}
+                              </td>
+                           </tr>
+                           %if (host.check_freshness):
+                           <tr>
+                              <td><strong>{{_('Freshness threshold:')}}</strong></td>
+                              <td>{{host.freshness_threshold}} seconds</td>
+                           </tr>
+                           %end
+                           %end
+                           <tr>
+                              <td><strong>{{_('Process performance data:')}}</strong></td>
+                              <td>
+                                 {{! Helper.get_on_off(host.process_perf_data)}}
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+
+                     <table class="table table-condensed">
+                        <colgroup>
+                           <col style="width: 40%" />
+                           <col style="width: 60%" />
+                        </colgroup>
+                        <thead>
+                           <tr>
+                              <th colspan="2">{{_('Event handler:')}}</th>
+                           </tr>
+                        </thead>
+                        <tbody style="font-size:x-small;">
+                           <tr>
+                              <td><strong>{{_('Event handler enabled:')}}</strong></td>
+                              <td>
+                                 {{! Helper.get_on_off(host.event_handler_enabled)}}
+                              </td>
+                           </tr>
+                           %if host.event_handler_enabled and host.event_handler:
+                           <tr>
+                              <td><strong>{{_('Event handler:')}}</strong></td>
+                              <td>
+                                 <a href="/commands#{{host.event_handler.get_name()}}">{{ host.event_handler.name() }}</a>
+                              </td>
+                           </tr>
+                           %end
+                           %if host.event_handler_enabled and not host.event_handler:
+                           <tr>
+                              <td></td>
+                              <td><strong>{{_('No event handler defined.')}}</strong></td>
+                           </tr>
+                           %end
                         </tbody>
                      </table>
                   </div>
@@ -533,7 +664,7 @@
                         <tr>
                            <td>{{c.author}}</td>
                            <td>{{c.comment}}</td>
-                           <td>{{helper.print_date(c.entry_time)}}</td>
+                           <td>{{Helper.print_date(c.entry_time)}}</td>
                            <td>
                               <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                     data-type="action" action="delete-comment"
@@ -589,7 +720,7 @@
                                <td>{{s.get_name()}}</td>
                                <td>{{c.author}}</td>
                                <td>{{c.comment}}</td>
-                               <td>{{helper.print_date(c.entry_time)}}</td>
+                               <td>{{Helper.print_date(c.entry_time)}}</td>
                                <td>
                                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                         data-type="action" action="delete-comment"
@@ -630,7 +761,7 @@
                         <tr>
                            <td>{{dt.author}}</td>
                            <td>{{dt.comment}}</td>
-                           <td>{{helper.print_date(dt.start_time)}} - {{helper.print_date(dt.end_time)}}</td>
+                           <td>{{Helper.print_date(dt.start_time)}} - {{Helper.print_date(dt.end_time)}}</td>
                            <td>
                               <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                     data-type="action" action="delete-downtime"
@@ -687,12 +818,12 @@
                                <td>{{s.get_name()}}</td>
                                <td>{{dt.author}}</td>
                                <td>{{dt.comment}}</td>
-                               <td>{{helper.print_date(dt.start_time)}} - {{helper.print_date(dt.end_time)}}</td>
+                               <td>{{Helper.print_date(dt.start_time)}} - {{Helper.print_date(dt.end_time)}}</td>
                                <td>
                                   <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
                                         data-type="action" action="delete-downtime"
                                         data-toggle="tooltip" data-placement="bottom" title="{{_('Delete the downtime [%s] for this service') % dt.id}}"
-                                        data-element="{{helper.get_uri_name(s)}}" data-downtime="{{dt.id}}"
+                                        data-element="{{Helper.get_uri_name(s)}}" data-downtime="{{dt.id}}"
                                         >
                                      <i class="fa fa-trash-o"></i>
                                   </button>
@@ -707,26 +838,6 @@
             </div>
          </div>
          <!-- Tab Downtimes end -->
-
-         <!-- Tab Timeline start -->
-         <div class="tab-pane fade" id="timeline">
-            <div class="panel panel-default">
-               <div class="panel-body">
-                  %if host.comments:
-                  <div id="inner_timeline" data-element='{{host.get_name()}}'>
-                     <div class="alert alert-info">
-                        <p class="font-blue">{{_('Sorry, I cannot load the timeline graph!')}}</p>
-                     </div>
-                  </div>
-                  %else:
-                  <div class="alert alert-info">
-                     <p class="font-blue">{{_('No timeline available.')}}</p>
-                  </div>
-                  %end
-               </div>
-            </div>
-         </div>
-         <!-- Tab Timeline end -->
 
          <!-- Tab Metrics start -->
          <div class="tab-pane fade" id="metrics">
@@ -879,25 +990,6 @@
             </div>
          </div>
          <!-- Tab Availability end -->
-
-         <!-- Tab Helpdesk start -->
-         <div class="tab-pane fade" id="helpdesk">
-            <div class="panel panel-default">
-               <div class="panel-body">
-                  <div id="inner_helpdesk" data-element='{{host.get_name()}}'>
-                  </div>
-
-                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                        data-type="action" action="create-ticket"
-                        data-toggle="tooltip" data-placement="bottom" title="{{_('Create a ticket for this host')}}"
-                        data-element="{{host_id}}"
-                        >
-                     <i class="fa fa-medkit"></i> {{_('Create a ticket')}}
-                  </button>
-               </div>
-            </div>
-         </div>
-         <!-- Tab Helpdesk end -->
       </div>
    </div>
  </div>

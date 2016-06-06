@@ -77,7 +77,7 @@
                      </td>
 
                      <td>
-                        %command=Command(host.check_command)
+                        %command=host.check_command
                         <small>{{! command.get_html_state(label=command.get_name())}}</small>
                      </td>
 

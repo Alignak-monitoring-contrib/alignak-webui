@@ -526,8 +526,8 @@
 
 				// Provide some basic currying to the user
                 if (! fn) {
-                    console.log(data);
-                    console.log(fn);
+                    // console.log(data);
+                    // console.log(fn);
                     return null;
                 }
 				return data ? fn( data ) : fn;

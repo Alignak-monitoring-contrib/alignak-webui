@@ -1,5 +1,6 @@
 %from bottle import request
 %from alignak_webui import _
+
 %#Set default values
 %setdefault('debug', False)
 %setdefault('js', [])
@@ -18,7 +19,7 @@
 %if not target_user.is_anonymous():
 %username = target_user.get_username()
 %end
-%elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -93,6 +94,7 @@
       -->
       <script>
       var dashboard_currently = false;
+      var sound_activated = false;
       </script>
 
       <!--
@@ -113,7 +115,7 @@
    <body>
       %include("_header")
 
-      <div id="page-wrapper" class="container-fluid">
+      <div id="page-wrapper" class="container-fluid header-page">
          %#debug=True
          %if debug:
          <div class="debug">
