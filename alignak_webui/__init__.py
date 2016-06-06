@@ -57,7 +57,7 @@ logger = getLogger(__name__)
 _ = gettext.gettext
 
 # Application manifest
-VERSION = (0, 50, 1)
+VERSION = (0, 50, 2, 'beta')
 __application__ = u"Alignak-WebUI"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
