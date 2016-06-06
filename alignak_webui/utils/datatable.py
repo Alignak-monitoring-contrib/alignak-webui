@@ -68,6 +68,10 @@ class Datatable(object):
         self.exportable = True
         self.printable = True
 
+        self.id_property = None
+        self.name_property = None
+        self.status_property = None
+
         self.get_data_model(schema)
 
     ##
@@ -149,6 +153,8 @@ class Datatable(object):
                 ui_dm['model']['orderable'] = model['ui']['orderable']
                 # Useful? Table is searchable ?
                 ui_dm['model']['searchable'] = model['ui']['searchable']
+                # Useful? Table is searchable ?
+                ui_dm['model']['responsive'] = model['ui']['responsive']
                 continue
 
             if 'ui' in model and ('visible' not in model['ui'] or not model['ui']['visible']):
@@ -172,7 +178,7 @@ class Datatable(object):
 
             # Convert data model format to datatables' one ...
             self.table_columns.append({
-                'name': field,
+                # 'name': field,
                 'data': field,
                 'regex': model.get('regex', False),
                 'title': model.get('title', field),
@@ -180,6 +186,7 @@ class Datatable(object):
                 'format': model.get('format', 'string'),
                 'allowed': ','.join(model.get('allowed', [])),
                 'defaultContent': model.get('default', ''),
+                'width': model.get('width', '500px'),
                 'size': model.get('size', 10),
                 'visible': not model.get('hidden', False),
                 'orderable': model.get('orderable', True),
@@ -197,6 +204,7 @@ class Datatable(object):
         self.visible = ui_dm['model']['visible']
         self.orderable = ui_dm['model']['orderable']
         self.searchable = ui_dm['model']['searchable']
+        self.responsive = ui_dm['model']['responsive']
 
     ##
     # Localization
@@ -264,6 +272,9 @@ class Datatable(object):
             }
         }
 
+    #
+    # Data source
+    #
     def table_data(self):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
@@ -394,7 +405,7 @@ class Datatable(object):
                 )
                 column_type = 'string'
                 for field in self.table_columns:
-                    if field['name'] == column['data']:
+                    if field['data'] == column['data']:
                         column_type = field['type']
                         break
 
@@ -477,7 +488,7 @@ class Datatable(object):
         embedded = {}
         for field in self.table_columns:
             if field['type'] == 'objectid' and field['format'] != 'objectid':
-                embedded.update({field['name']: 1})
+                embedded.update({field['data']: 1})
         if embedded:
             parameters['embedded'] = json.dumps(embedded)
             logger.info("backend embedded parameters: %s", parameters['embedded'])
@@ -486,7 +497,7 @@ class Datatable(object):
         recordsTotal = self.get_total_records()
 
         # Request objects from the backend ...
-        logger.info("backend get parameters: %s", parameters)
+        logger.debug("table data get parameters: %s", parameters)
         resp = self.backend.get(self.object_type, params=parameters)
         logger.debug("response _meta: %s", resp['_meta'])
         logger.debug("response _links: %s", resp['_links'])
@@ -496,7 +507,7 @@ class Datatable(object):
         recordsFiltered = len(resp['_items'])
         if '_meta' in resp and (searched_columns or searched_global):
             recordsFiltered = int(resp['_meta']['total'])
-        recordsFiltered = int(resp['_meta']['total'])
+        # recordsFiltered = int(resp['_meta']['total'])
 
         # Create an object ...
         if resp['_items']:
@@ -509,35 +520,40 @@ class Datatable(object):
                     logger.debug("created: %s", bo_object)
                     break
 
-            name_property = 'name'
+            self.id_property = '_id'
+            if hasattr(bo_object.__class__, 'id_property'):
+                self.id_property = bo_object.__class__.id_property
+            self.name_property = 'name'
             if hasattr(bo_object.__class__, 'name_property'):
-                name_property = bo_object.__class__.name_property
-
-            status_property = 'status'
+                self.name_property = bo_object.__class__.name_property
+            self.status_property = 'status'
             if hasattr(bo_object.__class__, 'status_property'):
-                status_property = bo_object.__class__.status_property
+                self.status_property = bo_object.__class__.status_property
 
             # Change item content ...
             for item in resp['_items']:
-                logger.debug("Object: %s", bo_object)
                 # _update is the method name... yes, it sounds like a protected member :/
                 # pylint: disable=protected-access
                 bo_object._update(item)
+                logger.debug("Object: %s", bo_object)
                 for key in item.keys():
                     for field in self.table_columns:
-                        if field['name'] != key:
+                        if field['data'] != key:
                             continue
 
                         # Specific fields name
-                        if field['name'] == name_property:
+                        if field['data'] == self.name_property:
                             item[key] = '''<a href="%s/%s">%s</a>''' % (
                                 bo_object.getType(),
                                 bo_object.get_id(),
-                                bo_object.get_html_state(label=item[key])
+                                bo_object.get_name()
                             )
 
-                        if field['name'] == status_property:
+                        if field['data'] == self.status_property:
                             item[key] = bo_object.get_html_state()
+
+                        if field['data'] == "business_impact":
+                            item[key] = Helper.get_html_business_impact(bo_object.business_impact)
 
                         # Specific fields type
                         if field['type'] == 'datetime':
@@ -561,9 +577,6 @@ class Datatable(object):
                                         )
                                     )
                                     break
-
-                        # All table elements are small...
-                        item[key] = "<small>%s</small>" % item[key]
 
         # Prepare response
         rsp = {

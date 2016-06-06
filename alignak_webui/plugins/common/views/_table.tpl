@@ -9,22 +9,32 @@
 %# Datatables js and css are included in the page layout
 %rebase("layout", title=title, page="/{{object_type}}_table")
 
+<style>
+/* Set smaller font for table content */
+tbody > tr {
+   font-size:11px;
+}
+</style>
+
 <!-- Table display -->
 <div id="{{object_type}}_table">
    <!-- Bootstrap responsive table
    <div class="table-responsive"> -->
       <table id="tbl_{{object_type}}" class="table table-striped table-condensed dt-responsive nowrap" cellspacing="0" width="100%">
+         %for column in dt.table_columns:
+         <col style="width: {{ column['width'] }}">
+         %end
          <thead>
             <tr>
                %for column in dt.table_columns:
-               <th data-name="{{ column['name'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
+               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
                %end
             </tr>
             %if dt.searchable:
             <tr id="filterrow">
                %idx=0
                %for column in dt.table_columns:
-                  <th data-index="{{idx}}" data-name="{{ column['name'] }}"
+                  <th data-index="{{idx}}" data-name="{{ column['data'] }}"
                       data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
                       data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
                       data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
@@ -43,7 +53,7 @@
 </div>
 
 <script>
-   var debugTable = false;
+   var debugTable = true;
    var columns = {{ ! json.dumps(dt.table_columns) }};
    var selectedRows = [];
 
@@ -58,7 +68,7 @@
          var title = $('#tbl_{{object_type}} thead th').eq( $(this).index() ).text();
 
          if ($(this).data('searchable') != 'True') {
-            if (debugTable) console.log('Do not search for field: ' + $(this).data('name'));
+            if (debugTable) console.log('Do not search for field: ' + $(this).data('data'));
             return;
          }
 
@@ -91,7 +101,7 @@
                .draw();
 
          // Enable the clear filter button
-         table.buttons('clearFilter:name').enable();
+         table.buttons('clearFilter:data').enable();
       });
 
       // Apply the search filter for selectable fields
@@ -104,7 +114,7 @@
               .draw();
 
          // Enable the clear filter button
-         table.buttons('clearFilter:name').enable();
+         table.buttons('clearFilter:data').enable();
       });
       %end
 
@@ -116,6 +126,7 @@
          if (debugTable) console.debug('Datatable event, xhr, json: ' + table.ajax.json());
          if (debugTable) console.debug('Datatable event, xhr, data: ' + json.data);
          */
+         if (debugTable) console.debug('Datatable event, xhr, ' + json);
          if (debugTable) console.debug('Datatable event, xhr, ' + json.data.length +' row(s) loaded');
       });
 
@@ -147,7 +158,7 @@
          if (debugTable) console.debug('Datatable event, state loaded ...');
 
          // Enable the clear filter button
-         table.buttons('clearFilter:name').disable();
+         table.buttons('clearFilter:data').disable();
 
          // Update each search field with the received value
          $.each(data.columns, function(index, value) {
@@ -157,14 +168,16 @@
                $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
 
                // Enable the clear filter button
-               table.buttons('clearFilter:name').enable();
+               table.buttons('clearFilter:data').enable();
             }
          });
       });
 
       // Table declaration
       var table = $('#tbl_{{object_type}}').DataTable( {
-         // Table features
+         // Disable automatic width calculation
+         "autoWidth": false,
+
          // Language
          "language": {{! json.dumps(dt.get_language_strings())}},
          // Pagination
@@ -206,13 +219,14 @@
                , display: $.fn.dataTable.Responsive.display.childRowImmediate
                , type: ''
                %elif modalDisplay:
-               , display: $.fn.dataTable.Responsive.display.modal( {
+               , display: $.fn.dataTable.Responsive.display.modal({
                   header: function ( row ) {
                      var data = row.data();
+                     console.log(data.data)
                      return ('{{_('Details for %s') % object_type}}');
                   }
                 })
-               , renderer: $.fn.dataTable.Responsive.renderer.tableAll( {
+               , renderer: $.fn.dataTable.Responsive.renderer.tableAll({
                     tableClass: 'table'
                })
                %end
@@ -228,13 +242,22 @@
          // Selection mode
          select: true,
 
-         // Server side processing: request new data
+         // Table columns definition
          "columns": columns,
+         "columnDefs": [{
+            "targets": [0,1],
+            "width": "200px"
+         }, {
+            "targets": 2,
+            "width": "500px"
+         }],
+
+         // Server side processing: request new data
          "serverSide": true,
          "ajax": {
             "url": "/{{object_type}}_table_data",
             "type": "POST",
-            "dataSrc": "data",
+            //"dataSrc": "data",
             "data": function ( d ) {
                // Add an extra field
                d = $.extend({}, d, { "object_type": '{{object_type}}' });
@@ -294,6 +317,55 @@
                   if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings, data);
                }
             });
+         },
+
+         // Each created row ...
+         createdRow: function (row, data, index) {
+            //var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+            //if (debugTable) console.debug('Datatable createdRow, table: ', table);
+            //if (debugTable) console.debug('Datatable createdRow, row: ', row);
+            if (debugTable) console.debug('Datatable createdRow, data: ', data);
+
+            if ('{{dt.id_property}}' in data) {
+               var name_node = table.cell(index, 'data:name').node();
+               if (debugTable) console.debug('Datatable createdRow, name: ', data.data);
+            }
+
+            if ('{{dt.name_property}}' in data) {
+               var name_node = table.cell(index, 'data:name').node();
+               if (debugTable) console.debug('Datatable createdRow, name: ', data.data, name_node);
+               // The node descendants should contain some information about the element
+               /*
+               <a href="host/575422f64c988c217b0b1c50">
+               <div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="575422f64c988c217b0b1c50" data-item-name="webui" data-item-type="host">
+               <span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span>
+               <span>webui</span>
+               </div></a>
+                */
+               var id = $(name_node).find('[data-item-id]').data('item-id');
+               var type = $(name_node).find('[data-item-type]').data('item-type');
+               var name = $(name_node).find('[data-item-name]').data('item-name');
+               var state = $(name_node).find('[data-item-state]').data('item-state');
+               console.log(type, id, name)
+            }
+
+            if ('{{dt.status_property}}' in data) {
+               var status_node = table.cell(index, 'data:name').node();
+               if (debugTable) console.debug('Datatable createdRow, name: ', data.data, status_node);
+               // The node descendants should contain some information about the element
+               /*
+               <a href="host/575422f64c988c217b0b1c50">
+               <div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="575422f64c988c217b0b1c50" data-item-name="webui" data-item-type="host">
+               <span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span>
+               <span>webui</span>
+               </div></a>
+                */
+               var id = $(status_node).find('[data-item-id]').data('item-id');
+               var type = $(status_node).find('[data-item-type]').data('item-type');
+               var name = $(status_node).find('[data-item-name]').data('item-name');
+               var state = $(status_node).find('[data-item-state]').data('item-state');
+               console.log(type, id, name)
+            }
          },
 
          /*
@@ -411,7 +483,6 @@
 
          $.each(columns, function(index, visibility){
             if (debugTable) console.debug('Column: '+index+', visibility: '+visibility);
-            console.log( index, visibility );
             if (visibility == false) {
                // Update search filter input field value
                $('#filterrow th[data-index="'+index+'"]').css({
