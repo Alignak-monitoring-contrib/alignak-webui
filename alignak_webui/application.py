@@ -430,12 +430,12 @@ def user_authentication(username, password):
         logger.info("user authentication, creating a new data manager in the session...")
         logger.info(
             "Backend: %s",
-            request.app.config.get('alignak_backend', 'http://127.0.0.1:5002')
+            request.app.config.get('alignak_backend', 'http://127.0.0.1:5000')
         )
         session['datamanager'] = DataManager(
             request.app.config.get(
                 'alignak_backend',
-                'http://127.0.0.1:5002'
+                'http://127.0.0.1:5000'
             ),
             {
                 'glpi_ws_backend': request.app.config.get(
