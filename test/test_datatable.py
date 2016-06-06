@@ -522,5 +522,4 @@ class test_datatable(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x]
                 assert response.json['data'][x]['host_name']
-                assert response.json['data'][x]['service_description']
                 assert response.json['data'][x]['state']
