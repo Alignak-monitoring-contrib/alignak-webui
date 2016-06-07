@@ -204,9 +204,13 @@ bottle.TEMPLATE_PATH.append(
 
 # Extend default WSGI application with a session middleware
 session_opts = {
-    'session.type': 'file',
+    # Important: somedata stored in the session cannot be pickled. Using file is not allowed!
+    'session.type': 'memory',
     'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
     'session.auto': True,
-    'session.cookie_expires': 21600  # 6 hours
+    'session.cookie_expires': 21600,    # 6 hours
+    'session.key': __application__,
+    'sesssion.webtest_varname': __application__,    # For unit tests ...
+    'session.data_serializer': 'json'   # Default is pickle ... not appropriate for our data!
 }
 webapp = SessionMiddleware(bottle_app, session_opts)
