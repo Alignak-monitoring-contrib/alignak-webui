@@ -173,16 +173,16 @@ def get_contacts():
     """
         Show list of contacts
     """
-    contact = request.environ['beaker.session']['current_user']
+    user = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
     datamgr = request.environ['beaker.session']['datamanager']
 
-    contactname = contact.get_username()
+    username = user.get_username()
     if not target_user.is_anonymous():
-        contactname = target_user.get_username()
+        username = target_user.get_username()
 
     # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(contactname, 'elts_per_page', 25)
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
     elts_per_page = elts_per_page['value']
 
     # Pagination and search
