@@ -40,6 +40,9 @@ from dateutil import tz
 
 from alignak_webui import get_app_config, _
 
+from alignak_webui.objects.backend import BackendConnection
+from alignak_backend_client.client import BackendException
+
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
 logger.setLevel(INFO)
@@ -427,6 +430,8 @@ class Item(object):
     _count = 0
     _total_count = -1
 
+    _backend = None
+
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
@@ -454,7 +459,11 @@ class Item(object):
         "not_executed"
     ]
 
-    """ Manage cached objects """
+    @classmethod
+    def getBackend(cls):
+        """ Get protected member """
+        return cls._backend
+
     @classmethod
     def getType(cls):
         """ Get protected member """
@@ -651,6 +660,26 @@ class Item(object):
                             break
                     continue
 
+                if isinstance(params[key], basestring) and self.getBackend():
+                    # Object link is a string, so we need to load the object from the backend
+                    # Linked resource type
+                    object_type = getattr(self, '_linked_' + key, None)
+                    logger.debug(
+                        " parameter: %s is a dict for a linked object: %s, %s",
+                        key, object_type, params[key]
+                    )
+                    if object_type is None:  # pragma: no cover, should never happen
+                        setattr(self, key, params[key])
+                        continue
+
+                    try:
+                        result = self.backend.get(object_type + '/' + params[key])
+                    except BackendException as e:  # pragma: no cover, simple protection
+                        logger.warning("_create, backend exception: %s", str(e))
+                    else:
+                        logger.warning("Found %s (%s)", object_type, result)
+                    continue
+
                 logger.warning(
                     "Parameter: %s for %s is not a dict or a list "
                     "and it should be, instead of being: %s",
@@ -719,9 +748,30 @@ class Item(object):
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
             if hasattr(self, '_linked_' + key):
+                if isinstance(params[key], basestring) and self.getBackend():
+                    # Object link is a string, so we need to load the object from the backend
+                    # Linked resource type
+                    object_type = getattr(self, '_linked_' + key, None)
+                    logger.debug(
+                        " parameter: %s is a dict for a linked object: %s, %s",
+                        key, object_type, params[key]
+                    )
+                    if object_type is None:  # pragma: no cover, should never happen
+                        setattr(self, key, params[key])
+                        continue
+
+                    try:
+                        result = self.backend.get(object_type + '/' + params[key])
+                    except BackendException as e:  # pragma: no cover, simple protection
+                        logger.warning("_create, backend exception: %s", str(e))
+                    else:
+                        logger.warning("Found %s (%s)", object_type, result)
+                    continue
+
                 if not isinstance(params[key], dict):
                     logger.warning(
-                        "Parameter: %s for %s is not a dict and it should be, instead of being: %s",
+                        "_update, parameter: %s for %s is not a dict "
+                        "and it should be, instead of being: %s",
                         key, self.getType(), params[key]
                     )
                     continue
