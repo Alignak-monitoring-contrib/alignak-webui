@@ -102,8 +102,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             """
             logger.debug("count, %s, params: %s", object_type, params)
 
-            items = []
-
             # Update backend search parameters
             if params is None:
                 params = {'page': 0, 'max_results': 1}
