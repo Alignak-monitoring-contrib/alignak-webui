@@ -292,6 +292,11 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         self.get_livestate()
 
+        # -----------------------------------------------------------------------------------------
+        # Get livesynthesis (not necessary but load it once ...)
+        # -----------------------------------------------------------------------------------------
+        self.get_livesynthesis()
+
         # Get internal objects count
         new_objects_count = self.get_objects_count()
         logger.debug("Load, end, objects in cache: %d", new_objects_count)
