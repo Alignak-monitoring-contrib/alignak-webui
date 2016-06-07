@@ -46,9 +46,15 @@ from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.datatable import Datatable
 
 
-from logging import getLogger, DEBUG, INFO, WARNING
+from logging import getLogger, DEBUG, INFO, WARNING, ERROR
 loggerDm = getLogger('alignak_webui.utils.datatable')
 loggerDm.setLevel(DEBUG)
+loggerDm = getLogger('alignak_webui.objects.datamanager')
+loggerDm.setLevel(WARNING)
+loggerDm = getLogger('alignak_webui.objects.item')
+loggerDm.setLevel(ERROR)
+loggerDm = getLogger('alignak_webui.objects.backend')
+loggerDm.setLevel(INFO)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -262,16 +268,14 @@ class test_datatable(unittest2.TestCase):
                 {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
             ]),
             'order': json.dumps([{"column":0,"dir":"asc"}]),
-            # Search 'open' in all columns without regex
+            # Search 'check_ping' in all columns without regex
             'search': json.dumps({"value":"check_ping","regex":False})
         })
         response_value = response.json
-        print response_value
         # Found items_count records and sent 1
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 1
-        assert response.json['data']
-        assert len(response.json['data']) == 1
+        self.assertEqual(response.json['recordsTotal'], items_count)
+        self.assertEqual(response.json['recordsFiltered'], 1)
+        self.assertEqual(len(response.json['data']), 1)
 
         response = self.app.post('/command_table_data', {
             'object_type': 'command',
@@ -319,7 +323,7 @@ class test_datatable(unittest2.TestCase):
         response_value = response.json
         print response_value
         assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 90
+        assert response.json['recordsFiltered'] == 5
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -393,7 +397,7 @@ class test_datatable(unittest2.TestCase):
         response_value = response.json
         print response_value
         assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 88
+        assert response.json['recordsFiltered'] == 5
         assert response.json['data']
         assert len(response.json['data']) == 5
 

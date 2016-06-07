@@ -30,6 +30,8 @@ loggerDm = getLogger('alignak_webui.objects.datamanager')
 loggerDm.setLevel(DEBUG)
 loggerItems = getLogger('alignak_webui.objects.item')
 loggerItems.setLevel(WARNING)
+loggerItems = getLogger('alignak_webui.objects.backend')
+loggerItems.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -63,7 +65,6 @@ def setup_module(module):
 
         print ("")
         print ("populate backend content")
-        fh = open("NUL","w")
         exit_code = subprocess.call(
             shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
         )
@@ -101,20 +102,19 @@ class test_1_find_and_search(unittest2.TestCase):
         # Login ...
         assert datamanager.backend.login('admin', 'admin')
         assert datamanager.loaded == False
-        assert datamanager.backend.authenticated
+        assert datamanager.backend.connected
         print 'logged in as admin in the backend'
         # Datamanager is not yet aware of the user login !!!
         assert datamanager.get_logged_user() is None
 
         # Get current user
         # 'name' is not existing!
-        parameters = {'where': '{"name":"admin"}'}
+        parameters = {'where': {"name":"admin"}}
         items = datamanager.backend.get('contact', params=parameters)
         print items
-        assert '_items' in items
-        assert len(items['_items']) == 1
-        assert items['_items'][0]["_id"]
-        admin_id = items['_items'][0]["_id"]
+        assert len(items) == 1
+        assert items[0]["_id"]
+        admin_id = items[0]["_id"]
 
         users = datamanager.find_object('contact', admin_id)
         print users
@@ -127,7 +127,7 @@ class test_1_find_and_search(unittest2.TestCase):
             user = datamanager.find_object('contact', 'fake_id')
         ex = cm.exception
         print ex
-        assert str(ex) == """contact, {"_id": "%s"} was not found in the cache nor in the backend""" % 'fake_id'
+        assert str(ex) == """contact, search: {'max_results': 50, 'where': '{"_id": "%s"}', 'page': 0} was not found in the backend""" % 'fake_id'
 
 
 class test_2_creation(unittest2.TestCase):
@@ -152,7 +152,7 @@ class test_2_creation(unittest2.TestCase):
         print 'DM logging bad password'
         assert not datamanager.user_login('admin', 'fake')
         print datamanager.connection_message
-        assert datamanager.connection_message == 'Backend is not available'
+        assert datamanager.connection_message == 'Backend connection refused...'
         print datamanager.logged_in_user
         assert not datamanager.logged_in_user
 
@@ -204,15 +204,15 @@ class test_2_creation(unittest2.TestCase):
         # User login with an authentication token
         print 'DM login - token'
         assert datamanager.user_login(user_token)
-        # assert datamanager.connection_message == 'Backend connected'
         # When user authentication is made thanks to a token, DM is not loaded ... it is assumed that load already occured!
 
         print 'DM login'
         assert datamanager.user_login('admin', 'admin', load=False)
+        print datamanager.get_logged_user()
+        print datamanager.get_logged_user().token
         user_token = datamanager.get_logged_user().token
         assert datamanager.user_login(user_token)
-        assert datamanager.connection_message == 'Backend connected'
-
+        assert datamanager.connection_message == 'Connection successful'
 
         assert datamanager.logged_in_user
         assert datamanager.get_logged_user() != None
@@ -354,7 +354,7 @@ class test_4_not_admin(unittest2.TestCase):
 
         # Login as not_admin created user
         assert self.dmg.user_login('not_admin', 'NOPASSWORDSET', load=False)
-        assert self.dmg.backend.authenticated
+        assert self.dmg.backend.connected
         assert self.dmg.get_logged_user().get_username() == 'not_admin'
         print 'logged in as not_admin'
 
@@ -378,7 +378,6 @@ class test_4_not_admin(unittest2.TestCase):
 
         # Do not check the length because the backend contains more elements than needed ...
         # dump_backend(not_admin_user=True, test_service=True)
-
 
         # Get users
         items = self.dmg.get_contacts()
@@ -431,9 +430,9 @@ class test_5_basic_tests(unittest2.TestCase):
         assert self.dmg.get_logged_user() == None
         assert self.dmg.loaded == False
 
-    def test_5_1_status(self):
+    def test_5_1_get(self):
         print ''
-        print 'test objects status'
+        print 'test objects get'
 
         # Get users
         items = self.dmg.get_contacts()
@@ -441,6 +440,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got", item
             assert item.get_id()
             icon_status = item.get_html_state()
+        self.assertEqual(len(items), 5)
 
         # Get realms
         items = self.dmg.get_realms()
@@ -448,6 +448,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.get_id()
             icon_status = item.get_html_state()
+        self.assertEqual(len(items), 1)
 
         # Get commands
         items = self.dmg.get_commands()
@@ -455,6 +456,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.get_id()
             icon_status = item.get_html_state()
+        self.assertEqual(len(items), 50)    # Backend pagination limit ...
 
         # Get hosts
         items = self.dmg.get_hosts()
@@ -462,6 +464,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.get_id()
             icon_status = item.get_html_state()
+        self.assertEqual(len(items), 13)
 
         # Get services
         items = self.dmg.get_services()
@@ -469,6 +472,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.get_id()
             icon_status = item.get_html_state()
+        self.assertEqual(len(items), 50)    # Backend pagination limit ...
 
         # Get timeperiods
         items = self.dmg.get_timeperiods()
@@ -476,4 +480,41 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.get_id()
             icon_status = item.get_html_state()
+        self.assertEqual(len(items), 5)
 
+    def test_5_2_total_count(self):
+        print ''
+        print 'test objects count'
+
+        # Get each object type count
+        self.assertEqual(self.dmg.count_objects('realm'), 1)
+        self.assertEqual(self.dmg.count_objects('command'), 103)
+        self.assertEqual(self.dmg.count_objects('timeperiod'), 5)
+        self.assertEqual(self.dmg.count_objects('contact'), 4+1)    #Because a new user is created during the tests
+        self.assertEqual(self.dmg.count_objects('host'), 13)
+        self.assertEqual(self.dmg.count_objects('service'), 89)
+        self.assertEqual(self.dmg.count_objects('livestate'), 13+89)
+        self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
+
+        # Use global method
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 318+1)
+
+        # No refresh so get current cached objects count
+        self.assertEqual(self.dmg.get_objects_count('realm'), 1)
+        self.assertEqual(self.dmg.get_objects_count('command'), 50)
+        self.assertEqual(self.dmg.get_objects_count('timeperiod'), 5)
+        self.assertEqual(self.dmg.get_objects_count('contact'), 4+1)
+        self.assertEqual(self.dmg.get_objects_count('host'), 13)
+        self.assertEqual(self.dmg.get_objects_count('service'), 37)     # Because the livestate is not complete ...
+        self.assertEqual(self.dmg.get_objects_count('livestate'), 50)
+        self.assertEqual(self.dmg.get_objects_count('livesynthesis'), 1)
+
+        # With refresh to get total backend objects count
+        self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 1)
+        self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
+        self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 5)
+        self.assertEqual(self.dmg.get_objects_count('contact', refresh=True), 4+1)
+        self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
+        self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 89)
+        self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13+89)
+        self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)

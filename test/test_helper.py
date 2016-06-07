@@ -280,9 +280,10 @@ class test_helper(unittest2.TestCase):
 
         # total, start, count, nb_max_items
         s = helper.get_pagination_control('test', 0, 0, 0, 0)
-        assert s == []
+        assert s == [('test', 0, 0, 0, False)]
         s = helper.get_pagination_control('test', 0, 0)
-        assert s == []
+        # Default is 25 elements per page
+        assert s == [('test', 0, 25, 0, False)]
 
 
         # first page, default pagination: 25 elements/page, 5 pages/sequence
