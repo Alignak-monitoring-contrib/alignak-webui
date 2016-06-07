@@ -489,6 +489,8 @@
                                  %tp = host.check_period
                                  %if not isinstance(tp, basestring):
                                  {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.get_name()))}}
+                                 %else:
+                                 {{tp}}
                                  %end
                               </td>
                            </tr>
@@ -502,7 +504,11 @@
                                     data-content='{{host.maintenance_period}}'
                                     >
                                  %tp = host.maintenance_period
+                                 %if not isinstance(tp, basestring):
                                  {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=command.get_name()))}}
+                                 %else:
+                                 {{tp}}
+                                 %end
                               </td>
                            </tr>
                            %end
