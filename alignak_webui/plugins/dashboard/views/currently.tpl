@@ -514,7 +514,7 @@
                         </div>
                         %end
                         %known_problems=hosts_states['nb_acknowledged']+hosts_states['nb_in_downtime']+hosts_states['nb_problems']
-                        %pct_known_problems=round(100.0 * known_problems / hosts_states['nb_elts'], 2)
+                        %pct_known_problems=round(100.0 * known_problems / hosts_states['nb_elts'], 2) if hosts_states['nb_elts'] else -1
                         <div class="col-xs-4 col-sm-4 text-center">
                             <a role="button" href="/all?search=type:host is:ack" class="font-unknown">
                                 <span class="hosts-count" data-count="{{ hosts_states['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ pct_known_problems }}%</span>
@@ -563,7 +563,7 @@
                         </div>
                         %end
                         %known_problems=s['nb_acknowledged']+s['nb_in_downtime']+s['nb_problems']
-                        %pct_known_problems=round(100.0 * known_problems / s['nb_elts'], 2)
+                        %pct_known_problems=round(100.0 * known_problems / s['nb_elts'], 2) if s['nb_elts'] else -1
                         <div class="col-xs-4 col-sm-4 text-center">
                             <a role="button" href="/all?search=type:service is:ack" class="font-unknown">
                                 <span class="services-count" data-count="{{ s['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ pct_known_problems }}%</span>
