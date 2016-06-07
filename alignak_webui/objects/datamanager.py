@@ -902,6 +902,7 @@ class DataManager(object):
                 'embedded': {
                     'check_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
+                    'maintenance_period': 1, 'snapshot_period': 1,
                     'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
                 }
             })
