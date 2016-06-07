@@ -415,7 +415,7 @@ class Helper(object):
         - nb_max_items page buttons to build a direct link to the corresponding pages
         """
         if count <= 0 or total <= 0:
-            return []
+            return [(object_type, start, count, total, False)]
 
         max_page = total // count + 1
         current_page = start // count + 1
