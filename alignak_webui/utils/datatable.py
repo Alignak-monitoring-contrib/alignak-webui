@@ -82,14 +82,7 @@ class Datatable(object):
         Request objects from the backend to pick-up total records count
         """
         # Request objects from the backend ...
-        resp = self.backend.get(self.object_type, params={'page': 0, 'max_results': 1})
-        logger.debug("get_total_records _meta: %s", resp['_meta'])
-
-        # Total number of records
-        self.recordsTotal = 0
-        if '_meta' in resp:
-            self.recordsTotal = int(resp['_meta']['total'])
-
+        self.recordsTotal = self.backend.count(self.object_type)
         return self.recordsTotal
 
     ##
@@ -415,28 +408,28 @@ class Datatable(object):
                     if column['search']['regex']:
                         if column_type == 'integer':
                             searched_columns.append(
-                                '{ "%s": { "$regex": .*%s.* } }' % (
-                                    column['data'], column['search']['value']
-                                )
+                                {
+                                    column['data']: {
+                                        "$regex": ".*" + column['search']['value'] + ".*"
+                                    }
+                                }
                             )
                         else:
                             searched_columns.append(
-                                '{ "%s": { "$regex": ".*%s.*" } }' % (
-                                    column['data'], column['search']['value']
-                                )
+                                {
+                                    column['data']: {
+                                        "$regex": ".*" + column['search']['value'] + ".*"
+                                    }
+                                }
                             )
                     else:
                         if column_type == 'integer':
                             searched_columns.append(
-                                '{ "%s": %s }' % (
-                                    column['data'], column['search']['value']
-                                )
+                                {column['data']: column['search']['value']}
                             )
                         else:
                             searched_columns.append(
-                                '{ "%s": "%s" }' % (
-                                    column['data'], column['search']['value']
-                                )
+                                {column['data']: column['search']['value']}
                             )
 
             logger.info("backend search columns parameters: %s", searched_columns)
@@ -461,36 +454,35 @@ class Datatable(object):
                         if 'regex' in params['search']:
                             if params['search']['regex']:
                                 searched_global.append(
-                                    '{ "%s": { "$regex": ".*%s.*" } }' % (
-                                        column['data'], params['search']['value']
-                                    )
+                                    {
+                                        column['data']: {
+                                            "$regex": ".*" + params['search']['value'] + ".*"
+                                        }
+                                    }
                                 )
                             else:
                                 searched_global.append(
-                                    '{ "%s": "%s" }' % (
-                                        column['data'], params['search']['value']
-                                    )
+                                    {column['data']: params['search']['value']}
                                 )
 
             logger.info("backend search global parameters: %s", searched_global)
 
         if searched_columns and searched_global:
-            parameters['where'] = '{"$and": [ %s, %s ] }' % (
-                '{"$and": [' + ','.join(searched_columns) + '] }',
-                '{"$or": [' + ','.join(searched_global) + '] }'
-            )
+            parameters['where'] = {"$and": [
+                {"$and": searched_columns},
+                {"$or": searched_global}
+            ]}
         if searched_columns:
-            parameters['where'] = '{"$and": [' + ','.join(searched_columns) + '] }'
+            parameters['where'] = {"$and": searched_columns}
         if searched_global:
-            parameters['where'] = '{"$or": [' + ','.join(searched_global) + '] }'
+            parameters['where'] = {"$or": searched_global}
 
         # Embed linked resources
-        embedded = {}
+        parameters['embedded'] = {}
         for field in self.table_columns:
             if field['type'] == 'objectid' and field['format'] != 'objectid':
-                embedded.update({field['data']: 1})
-        if embedded:
-            parameters['embedded'] = json.dumps(embedded)
+                parameters['embedded'].update({field['data']: 1})
+        if parameters['embedded']:
             logger.info("backend embedded parameters: %s", parameters['embedded'])
 
         # Request ALL objects from the backend
@@ -498,19 +490,13 @@ class Datatable(object):
 
         # Request objects from the backend ...
         logger.debug("table data get parameters: %s", parameters)
-        resp = self.backend.get(self.object_type, params=parameters)
-        logger.debug("response _meta: %s", resp['_meta'])
-        logger.debug("response _links: %s", resp['_links'])
-        # logger.debug("response _items: %s", resp['_items'])
+        items = self.backend.get(self.object_type, params=parameters)
 
         # Total number of filtered records
-        recordsFiltered = len(resp['_items'])
-        if '_meta' in resp and (searched_columns or searched_global):
-            recordsFiltered = int(resp['_meta']['total'])
-        # recordsFiltered = int(resp['_meta']['total'])
+        recordsFiltered = len(items)
 
         # Create an object ...
-        if resp['_items']:
+        if items:
             bo_object = None
             for k in globals().keys():
                 if isinstance(globals()[k], type) and \
@@ -531,7 +517,7 @@ class Datatable(object):
                 self.status_property = bo_object.__class__.status_property
 
             # Change item content ...
-            for item in resp['_items']:
+            for item in items:
                 # _update is the method name... yes, it sounds like a protected member :/
                 # pylint: disable=protected-access
                 bo_object._update(item)
@@ -562,7 +548,8 @@ class Datatable(object):
                         if field['type'] == 'boolean':
                             item[key] = Helper.get_on_off(item[key])
 
-                        if field['type'] == 'objectid' and key in embedded and item[key]:
+                        if field['type'] == 'objectid' and \
+                           key in parameters['embedded'] and item[key]:
                             for k in globals().keys():
                                 if isinstance(globals()[k], type) and \
                                    '_type' in globals()[k].__dict__ and \
@@ -584,6 +571,6 @@ class Datatable(object):
             "draw": int(params.get('draw', '0')),
             "recordsTotal": recordsTotal,
             "recordsFiltered": recordsFiltered,
-            "data": resp['_items']
+            "data": items
         }
         return json.dumps(rsp)
