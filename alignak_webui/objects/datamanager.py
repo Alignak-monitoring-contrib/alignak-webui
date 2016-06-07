@@ -33,8 +33,11 @@ from urlparse import urljoin
 from datetime import datetime
 from logging import getLogger, INFO
 
-from alignak_backend_client.client import Backend, BackendException
-from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
+from alignak_backend_client.client import BackendException
+# from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
+
+# Import the backend interface class
+from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
 from alignak_webui.objects.item import Contact, Command, Host, Service, Realm, TimePeriod
@@ -65,7 +68,8 @@ class DataManager(object):
 
         # Associated backend object
         self.backend_endpoint = backend_endpoint
-        self.backend = Backend(backend_endpoint)
+        # self.backend = Backend(backend_endpoint)
+        self.backend = BackendConnection(backend_endpoint)
 
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
@@ -111,33 +115,27 @@ class DataManager(object):
         """
         logger.info("user_login, connection requested: %s, load: %s", username, load)
 
+        self.connected = False
         self.connection_message = _('Backend connecting...')
-        if not password:
-            # Set backend token (no login request).
-            # Do not include the token in the application logs !
-            logger.debug("Update backend token")
-            self.backend.token = username
-            self.connected = True
-            self.connection_message = _('Backend connected')
-            # Load data if load required...
-            if load:
-                self.load(reset=True)
-            return self.connected
-
         try:
-            # Backend real login
+            # Backend login
             logger.info("Requesting backend authentication, username: %s", username)
             self.connected = self.backend.login(username, password)
             if self.connected:
                 self.connection_message = _('Connection successful')
 
                 # Fetch the logged-in user
-                users = self.find_object(
-                    'contact', {'where': {'token': self.backend.token}}
-                )
+                if password:
+                    users = self.backend.get(
+                        'contact', {'max_results': 1, 'where': {'name': username}}
+                    )
+                else:
+                    users = self.backend.get(
+                        'contact', {'max_results': 1, 'where': {'token': username}}
+                    )
+                self.logged_in_user = Contact(users[0])
                 # Tag user as authenticated
-                users[0].authenticated = True
-                self.logged_in_user = users[0]
+                self.logged_in_user.authenticated = True
 
                 # Get total objects count from the backend
                 self.get_objects_count(refresh=True, log=True)
@@ -150,7 +148,6 @@ class DataManager(object):
         except BackendException as e:  # pragma: no cover, should not happen
             logger.warning("configured backend is not available!")
             self.connection_message = e.message
-            self.connected = False
         except Exception as e:  # pragma: no cover, should not happen
             logger.warning("User login exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
@@ -204,66 +201,15 @@ class DataManager(object):
 
         items = []
 
-        # Update backend search parameters
-        if params is None:
-            params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
-        if 'where' in params:
-            params['where'] = json.dumps(params['where'])
-        if 'embedded' in params:
-            params['embedded'] = json.dumps(params['embedded'])
-        if 'where' not in params:
-            params['where'] = {}
-        if 'page' not in params:
-            params['page'] = 0
-        if 'max_results' not in params:
-            params['max_results'] = BACKEND_PAGINATION_LIMIT
-        logger.debug(
-            "find_object, search in the backend for %s: parameters=%s", object_type, params
-        )
+        result = self.backend.get(object_type, params, all_elements)
+        logger.debug("find_object, found: %s: %s", object_type, result)
 
-        try:
-            if all_elements:
-                result = self.backend.get_all(object_type, params=params)
-            else:
-                result = self.backend.get(object_type, params=params)
-        except BackendException as e:  # pragma: no cover, simple protection
-            logger.warning("find_object, backend exception: %s", str(e))
-            return items
-
-        logger.debug(
-            "find_object, search result for %s: result=%s", object_type, result
-        )
-        if result['_status'] != 'OK':  # pragma: no cover, should not happen
-            error = []
-            if "content" in result:
-                error.append(result["content"])
-            if "_issues" in result:
-                error.append(result["_issues"])
-            logger.warning("find_object, %s: %s, not found: %s", object_type, params, error)
+        if not result:
             raise ValueError(
-                '%s, where %s was not found in the backend, error: %s' % (
-                    object_type, params, error
-                )
+                '%s, search: %s was not found in the backend' % (object_type, params)
             )
 
-        if not result['_items']:  # pragma: no cover, should occur rarely
-            if items:
-                logger.debug(
-                    "find_object, no data in backend, found in the cache: %s: %s",
-                    object_type, items
-                )
-                return items
-            logger.debug(
-                "find_object, %s: %s: not found: %s", object_type, params, result
-            )
-            raise ValueError(
-                '%s, %s was not found in the cache nor in the backend' % (
-                    object_type, params['where']
-                )
-            )
-
-        logger.debug("find_object, found in the backend: %s: %s", object_type, result['_items'])
-        for item in result['_items']:
+        for item in result:
             # Find "Backend object type" classes in file imported modules ...
             for k, dummy in globals().items():
                 if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
@@ -463,64 +409,21 @@ class DataManager(object):
         Make a simple request for 1 element and we will get back the total count of elements
 
         search is a dictionary of key / value to search for
-
-        If log is set, an information log is made
         """
-        total = 0
-
         params = {
             'page': 0, 'max_results': 1
         }
         if search is not None:
-            params['where'] = json.dumps(search)
+            params['where'] = search
 
-        # Request objects from the backend ...
-        try:
-            resp = self.backend.get(object_type, params)
-            logger.debug("count_objects %s: %s", object_type, resp)
-
-            # Total number of records
-            if '_meta' in resp:
-                total = int(resp['_meta']['total'])
-        except BackendException as e:
-            logger.warning(
-                "count_objects exception for object type: %s: %s",
-                object_type, e.message
-            )
-
-        return total
+        return self.backend.count(object_type, params)
 
     def add_object(self, object_type, data=None, files=None):
         """ Add an element """
         logger.info("add_object, request to add a %s: data: %s", object_type, data)
 
-        # Do not set header to use the client default behavior:
-        # - set headers as {'Content-Type': 'application/json'}
-        # - encode provided data to JSON
-        headers = None
-        if files:
-            logger.info("add_object, request to add a %s with files: %s", object_type, files)
-            # Set header to disable client default behavior
-            headers = {'Content-type': 'multipart/form-data'}
-
-        try:
-            result = self.backend.post(object_type, data=data, files=files, headers=headers)
-            logger.debug("add_object, response: %s", result)
-            if result['_status'] != 'OK':
-                logger.warning("add_object, error: %s", result)
-                return None
-
-            self.find_object(object_type, result['_id'])
-        except BackendException as e:
-            logger.error("add_object, backend exception: %s", str(e))
-            if "response" in e and "_issues" in e.response:
-                logger.error("- issues: %s", e.response['_issues'])
-            return None
-        except ValueError as e:  # pragma: no cover, should never happen
-            logger.warning("add_object, error: %s", str(e))
-            return None
-
-        return result['_id']
+        object_id = self.backend.post(object_type, data=data, files=files)
+        return object_id
 
     def delete_object(self, object_type, element):
         """
@@ -535,49 +438,7 @@ class DataManager(object):
         else:
             object_id = element.get_id()
 
-        try:
-            # Get most recent version of the element
-            items = self.find_object(object_type, object_id)
-            element = items[0]
-        except ValueError:  # pragma: no cover, should never happen
-            logger.warning("delete_object, object %s, _id=%s not found", object_type, object_id)
-            return False
-
-        try:
-            # Request deletion
-            headers = {'If-Match': element['_etag']}
-            endpoint = '/'.join([object_type, object_id])
-            logger.info("delete_object, endpoint: %s", endpoint)
-            result = self.backend.delete(endpoint, headers)
-            logger.debug("delete_object, response: %s", result)
-            if result['_status'] != 'OK':  # pragma: no cover, should never happen
-                error = []
-                if "content" in result:
-                    error.append(result["content"])
-                if "_issues" in result:
-                    error.append(result["_issues"])
-                    for issue in result["_issues"]:
-                        error.append(result["_issues"][issue])
-                logger.warning("delete_object, error: %s", error)
-                return False
-        except BackendException as e:  # pragma: no cover, should never happen
-            logger.error("delete_object, backend exception: %s", str(e))
-            return False
-        except ValueError as e:  # pragma: no cover, should never happen
-            logger.warning("delete_object, not found %s: %s", object_type, element)
-            return False
-
-        try:
-            # Try to get most recent version of the element
-            items = self.find_object(object_type, object_id)
-        except ValueError:
-            logger.info("delete_object, object deleted: %s, _id=%s", object_type, object_id)
-            # Object deletion
-            # _delete is the deletion method name... yes, it sounds like a protected member :/
-            # pylint: disable=protected-access
-            element._delete()
-
-        return True
+        return self.backend.delete(object_type, object_id)
 
     def update_object(self, object_type, element, data):
         """
@@ -592,42 +453,12 @@ class DataManager(object):
         else:
             object_id = element.get_id()
 
-        try:
-            # Get most recent version of the element
-            items = self.find_object(object_type, object_id)
-            element = items[0]
-        except ValueError:
-            logger.warning("update_object, object %s, _id=%s not found", object_type, object_id)
-            return False
-
-        try:
-            # Request update
-            headers = {'If-Match': element['_etag']}
-            endpoint = '/'.join([object_type, object_id])
-            logger.info("update_object, endpoint: %s, data: %s", endpoint, data)
-            result = self.backend.patch(endpoint, data, headers)
-            logger.debug("update_object, response: %s", result)
-            if result['_status'] != 'OK':  # pragma: no cover, should never happen
-                error = []
-                if "content" in result:
-                    error.append(result["content"])
-                if "_issues" in result:
-                    error.append(result["_issues"])
-                    for issue in result["_issues"]:
-                        error.append(result["_issues"][issue])
-                logger.warning("update_object, error: %s", error)
-                return False
-
+        if self.backend.update(object_type, object_id, data):
             items = self.find_object(object_type, object_id)
             logger.info("update_object, updated: %s", items[0])
-        except BackendException as e:  # pragma: no cover, should never happen
-            logger.error("update_object, backend exception: %s", str(e))
-            return False
-        except ValueError:  # pragma: no cover, should never happen
-            logger.warning("update_object, not found %s: %s", object_type, element)
-            return False
+            return True
 
-        return True
+        return False
 
     ##
     # User's preferences
@@ -707,29 +538,25 @@ class DataManager(object):
             if not isinstance(value, dict):
                 value = {'value': value}
 
-            # Still existing ...
-            result = self.backend.get_all(
+            # First, get to check if it exists
+            result = self.backend.get(
                 'uipref',
-                params={'where': '{"type":"%s", "user": "%s"}' % (prefs_type, user)}
+                params={'where': {"type": prefs_type, "user": user}}
             )
-            if result['_status'] == 'OK' and result['_items']:
-                items = result['_items'][0]
+            if result:
+                object_id = result[0]['_id']
 
                 # Update existing record ...
                 logger.debug(
-                    "set_user_preferences, update existing record: %s / %s (%s)",
-                    prefs_type, user, items['_id']
+                    "set_user_preferences, update existing record: %s / %s (_id=%s)",
+                    prefs_type, user, object_id
                 )
-                headers = {'If-Match': items['_etag']}
                 data = {
                     "user": user,
                     "type": prefs_type,
                     "data": value
                 }
-                response = self.backend.patch(
-                    '/'.join(['uipref', items['_id']]),
-                    data=data, headers=headers, inception=True
-                )
+                response = self.backend.update('uipref', object_id, data=data)
             else:
                 # Create new record ...
                 logger.debug(
@@ -780,30 +607,25 @@ class DataManager(object):
 
             # All the preferences
             if user is None:
-                result = self.backend.get_all(
-                    'uipref',
-                    params={}
+                return self.backend.get(
+                    'uipref', params={}, all_elements=True
                 )
-                return result['_items']
 
             # All the user preferences
             if prefs_type is None:
-                result = self.backend.get_all(
-                    'uipref',
-                    params={'where': '{"user": "%s"}' % (user)}
+                return self.backend.get(
+                    'uipref', params={'where': {"user": user}}, all_elements=True
                 )
-                return result['_items']
 
-            # Still existing ...
-            result = self.backend.get_all(
+            # Get required preference
+            result = self.backend.get(
                 'uipref',
-                params={'where': '{"type":"%s", "user": "%s"}' % (prefs_type, user)}
+                params={'where': {"type": prefs_type, "user": user}}
             )
             logger.debug("get_user_preferences, result: %s", result)
-            if result['_status'] == 'OK':
-                if result['_items']:
-                    logger.debug("get_user_preferences, found: %s", result['_items'][0])
-                    return result['_items'][0]['data']
+            if result:
+                logger.debug("get_user_preferences, found: %s", result)
+                return result[0]['data']
 
         except Exception as e:  # pragma: no cover - should never happen
             logger.error("get_user_preferences, exception: %s", str(e))
