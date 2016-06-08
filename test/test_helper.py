@@ -374,6 +374,7 @@ class test_helper(unittest2.TestCase):
         print "Result:", s
         assert s == {'$ne': {'status': 'active'}}
 
+    @unittest2.skip("Replaced by another test because of stars :)")
     def test_06_print_business_impact(self):
         print "---"
 
@@ -447,4 +448,78 @@ class test_helper(unittest2.TestCase):
         s = helper.get_html_business_impact(5, icon=True, text=True)
         print "Result:", s
         self.assert_(s == 'Business critical <i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i>')
+
+    def test_06_bis_print_business_impact(self):
+        print "---"
+
+        # Invalid values
+        s = helper.get_html_business_impact(-1, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == 'n/a - value')
+        s = helper.get_html_business_impact(6, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'n/a - value')
+        s = helper.get_html_business_impact(0, icon=False, text=False)
+        print "Result:", s
+        self.assert_(s == 'n/a - parameters')
+
+        # Default with stars
+        s = helper.get_html_business_impact(0, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == '')   # Nothing
+        s = helper.get_html_business_impact(1, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == '<i class="fa fa-star text-primary"></i>')        # 1 star
+        s = helper.get_html_business_impact(2, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == '<i class="fa fa-star text-primary"></i>' * 2)    # 2 stars
+        s = helper.get_html_business_impact(3, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == '<i class="fa fa-star text-primary"></i>' * 3)    # 3 stars
+        s = helper.get_html_business_impact(4, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == '<i class="fa fa-star text-primary"></i>' * 4)    # 3 stars
+        s = helper.get_html_business_impact(5, icon=True, text=False)
+        print "Result:", s
+        self.assert_(s == '<i class="fa fa-star text-primary"></i>' * 5)    # 3 stars
+
+        # Default with text
+        s = helper.get_html_business_impact(0, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'None')
+        s = helper.get_html_business_impact(1, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'Low')
+        s = helper.get_html_business_impact(2, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'Normal')
+        s = helper.get_html_business_impact(3, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'Important')
+        s = helper.get_html_business_impact(4, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'Very important')
+        s = helper.get_html_business_impact(5, icon=False, text=True)
+        print "Result:", s
+        self.assert_(s == 'Business critical')
+
+        # Default with icon and text
+        s = helper.get_html_business_impact(0, icon=True, text=True)
+        print "Result:", s
+        self.assert_(s == 'None')
+        s = helper.get_html_business_impact(1, icon=True, text=True)
+        print "Result:", s
+        self.assert_(s == 'Low ' + '<i class="fa fa-star text-primary"></i>' * 1)
+        s = helper.get_html_business_impact(2, icon=True, text=True)
+        print "Result:", s
+        self.assert_(s == 'Normal ' + '<i class="fa fa-star text-primary"></i>' * 2)
+        s = helper.get_html_business_impact(3, icon=True, text=True)
+        print "Result:", s
+        self.assert_(s == 'Important ' + '<i class="fa fa-star text-primary"></i>' * 3)
+        s = helper.get_html_business_impact(4, icon=True, text=True)
+        print "Result:", s
+        self.assert_(s == 'Very important ' + '<i class="fa fa-star text-primary"></i>' * 4)
+        s = helper.get_html_business_impact(5, icon=True, text=True)
+        print "Result:", s
+        self.assert_(s == 'Business critical ' + '<i class="fa fa-star text-primary"></i>' * 5)
 

@@ -83,12 +83,6 @@ datamgr = None
 
 class test_1_find_and_search(unittest2.TestCase):
 
-    def setUp(self):
-        print ""
-
-    def tearDown(self):
-        print ""
-
     def test_1_1_find_objects(self):
         print ''
         print 'test find_objects - no objects in cache'

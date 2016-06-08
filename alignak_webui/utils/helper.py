@@ -197,8 +197,8 @@ class Helper(object):
             5: _('Business critical')
         }
 
-        nb_stars = max(0, business_impact - 2)
-        stars = '<i class="fa fa-star text-primary"></i>' * nb_stars
+        # nb_stars = max(0, business_impact - 2)
+        stars = '<i class="fa fa-star text-primary"></i>' * business_impact
 
         if not text:
             return stars
