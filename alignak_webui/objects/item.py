@@ -750,7 +750,15 @@ class Item(object):
 
         logger.debug(" --- updating a %s (%s)", self.__class__, self[id_property])
 
-        # if not isinstance(params, dict):
+        if not isinstance(params, dict):
+            if self.__class__ == params.__class__:
+                params = params.__dict__
+            elif self.getKnownClasses() and params.__class__ in self.getKnownClasses():
+                params = params.__dict__
+            else:
+                logger.critical("_update, cannot update an object with: %s", params, params.__class__)
+                return
+
         # params = params.__dict__
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
