@@ -145,7 +145,7 @@ class DataManager(object):
                 self.logged_in_user.authenticated = True
 
                 # Get total objects count from the backend
-                self.get_objects_count(refresh=True, log=True)
+                self.get_objects_count(refresh=True, log=False)
 
                 # Load data if load required...
                 if load:
@@ -223,7 +223,7 @@ class DataManager(object):
             bo_object = object_class(item)
             items.append(bo_object)
             self.updated = datetime.utcnow()
-            logger.info("find_object, created: %s", bo_object)
+            logger.debug("find_object, created: %s", bo_object)
 
         return items
 
@@ -822,9 +822,9 @@ class DataManager(object):
             search = {}
 
         try:
-            logger.info("get_livesynthesis, search: %s", search)
+            logger.debug("get_livesynthesis, search: %s", search)
             items = self.find_object('livesynthesis', search)
-            logger.info("get_livesynthesis, got: %d elements, %s", len(items), items)
+            logger.debug("get_livesynthesis, got: %d elements, %s", len(items), items)
         except ValueError:
             logger.debug("get_livesynthesis, none found")
             return None
