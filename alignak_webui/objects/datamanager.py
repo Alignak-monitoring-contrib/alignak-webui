@@ -224,7 +224,6 @@ class DataManager(object):
             items.append(bo_object)
             self.updated = datetime.utcnow()
             logger.info("find_object, created: %s", bo_object)
-            break
 
         return items
 
