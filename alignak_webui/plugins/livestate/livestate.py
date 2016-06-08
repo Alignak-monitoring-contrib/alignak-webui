@@ -29,7 +29,7 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response
+from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import sort_items_most_recent_first
@@ -331,7 +331,30 @@ def get_livestate_table_data():
     return dt.table_data()
 
 
+def get_livestate(element_id):
+    """
+    Display the element linked to a livestate item
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    element = datamgr.get_livestate({'where': {'_id': element_id}})
+    if not element:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Livestate element does not exist'))
+
+    element = element[0]
+    if element['type'] == 'host':
+        logger.error("Livestate: %s %s %s", element, element.host_name.get_id(), element.__dict__)
+        redirect('/host/' + element.host_name.get_id())
+    else:
+        logger.error("Livestate: %s %s %s", element, element.host_name.get_id(), element.__dict__)
+        redirect('/host/' + element.host_name.get_id() + '#services')
+
+
 pages = {
+    get_livestate: {
+        'name': 'Livestate',
+        'route': '/livestate/<element_id>'
+    },
     get_livestate_table: {
         'name': 'Livestate table',
         'route': '/livestate_table',
