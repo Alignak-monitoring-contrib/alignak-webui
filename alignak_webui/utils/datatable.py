@@ -485,7 +485,7 @@ class Datatable(object):
         if parameters['embedded']:
             logger.info("backend embedded parameters: %s", parameters['embedded'])
 
-        # Request ALL objects from the backend
+        # Request ALL objects count from the backend
         recordsTotal = self.get_total_records()
 
         # Request objects from the backend ...
@@ -493,7 +493,11 @@ class Datatable(object):
         items = self.backend.get(self.object_type, params=parameters)
 
         # Total number of filtered records
-        recordsFiltered = len(items)
+        recordsFiltered = recordsTotal
+        if 'where' in parameters and parameters['where'] != {}:
+            logger.debug("update filtered records: %s", parameters['where'])
+            recordsFiltered = len(items)
+        logger.info("filtered records: %d out of total: %d", recordsFiltered, recordsTotal)
 
         # Create an object ...
         if items:

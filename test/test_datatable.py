@@ -47,8 +47,10 @@ from alignak_webui.utils.datatable import Datatable
 
 
 from logging import getLogger, DEBUG, INFO, WARNING, ERROR
+loggerDm = getLogger('alignak_webui.application')
+loggerDm.setLevel(WARNING)
 loggerDm = getLogger('alignak_webui.utils.datatable')
-loggerDm.setLevel(DEBUG)
+loggerDm.setLevel(INFO)
 loggerDm = getLogger('alignak_webui.objects.datamanager')
 loggerDm.setLevel(WARNING)
 loggerDm = getLogger('alignak_webui.objects.item')
@@ -125,6 +127,342 @@ class test_datatable(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
+        self.items_count = 0
+
+    def tearDown(self):
+        print ""
+
+    def test_01_get(self):
+        print ''
+        print 'test get table'
+
+        print 'get page /commands_table'
+        response = self.app.get('/commands_table')
+        response.mustcontain(
+            '<div id="command_table">',
+            "$('#tbl_command').DataTable( {",
+            '<table id="tbl_command" class="table ',
+            '<th data-name="name" data-type="string">Command name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="command_line" data-type="string">Command line</th>',
+            '<th data-name="module_type" data-type="string">Module type</th>',
+            '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
+            '<th data-name="timeout" data-type="integer">Timeout</th>',
+            '<th data-name="poller_tag" data-type="string">Poller tag</th>',
+            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
+        )
+
+
+    def test_02_change(self):
+        print ''
+        print 'test get table'
+
+        print 'change content with /command_table_data'
+        response = self.app.post('/command_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary ...
+        self.items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == self.items_count
+        # assert response.json['recordsFiltered'] == self.items_count if self.items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        self.assertNotEqual(response.json['data'], [])
+        for x in range(0, self.items_count):
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name']
+                assert response.json['data'][x]['definition_order']
+                assert response.json['data'][x]['enable_environment_macros']
+                assert response.json['data'][x]['command_line']
+                assert response.json['data'][x]['timeout']
+                assert response.json['data'][x]['poller_tag']
+                assert response.json['data'][x]['reactionner_tag']
+                assert response.json['data'][x]['enable_environment_macros']
+                self.assertTrue(response.json['data'][x]['ui'])
+
+
+        # Specify count number ...
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 10,
+        })
+        self.assertEqual(response.json['recordsTotal'], self.items_count)
+        # Because no filtering is active ... equals to total records
+        self.assertEqual(response.json['recordsFiltered'], self.items_count)
+        self.assertNotEqual(response.json['data'], [])
+        self.assertEqual(len(response.json['data']), 10)
+
+
+        # Specify count number ... greater than number of elements
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 1000,
+        })
+        self.assertEqual(response.json['recordsTotal'], self.items_count)
+        # Because no filtering is active ... equals to total records
+        self.assertEqual(response.json['recordsFiltered'], self.items_count)
+        self.assertNotEqual(response.json['data'], [])
+        self.assertEqual(len(response.json['data']), BACKEND_PAGINATION_LIMIT)
+
+
+        # Rows 5 by 5 ...
+        print "Get rows 5 per 5"
+        count = 0
+        for x in range(0, self.items_count, 5):
+            response = self.app.post('/command_table_data', {
+                'object_type': 'command',
+                'draw': x / 5,
+                'start': x,
+                'length': 5
+            })
+            response_value = response.json
+            self.assertEqual(response.json['draw'], x / 5)
+            self.assertEqual(response.json['recordsTotal'], self.items_count)
+            # Because no filtering is active ... equals to total records
+            self.assertEqual(response.json['recordsFiltered'], self.items_count)
+            self.assertNotEqual(response.json['data'], [])
+            self.assertIn(len(response.json['data']), [5, self.items_count % 5])
+            count += len(response.json['data'])
+        self.assertEqual(count, self.items_count)
+
+        # Out of scope rows ...
+        response = self.app.post('/command_table_data', {
+            'start': self.items_count*2,
+            'length': 5
+        })
+        response_value = response.json
+        self.assertEqual(response.json['recordsTotal'], self.items_count)
+        # Because no filtering is active ... equals to total records
+        self.assertEqual(response.json['recordsFiltered'], self.items_count)
+        self.assertEqual(response.json['data'], [])
+
+
+    def test_03_sort(self):
+        print ''
+        print 'test sort table'
+
+        # Sort ascending ...
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 10,
+            'columns': json.dumps([
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]) # Ascending
+        })
+        self.assertEqual(len(response.json['data']), 10)
+
+        # Sort descending ...
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 10,
+            'columns': json.dumps([
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"desc"}])    # Descending !
+        })
+        self.assertEqual(len(response.json['data']), 10)
+
+        # TODO : check order of element ?
+
+
+    def test_04_filter(self):
+        print ''
+        print 'test filter table'
+
+        print 'change content with /command_table_data'
+        response = self.app.post('/command_table_data')
+        response_value = response.json
+        # Temporary ...
+        self.items_count = response.json['recordsTotal']
+
+        # Searching ...
+        # Global search ...
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 5,
+            'columns': json.dumps([
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            # Search 'check_ping' in all columns without regex
+            'search': json.dumps({"value":"check_ping","regex":False})
+        })
+        response_value = response.json
+        # Found items_count records and sent 1
+        self.assertEqual(response.json['recordsTotal'], self.items_count)
+        self.assertEqual(response.json['recordsFiltered'], 1)
+        self.assertEqual(len(response.json['data']), 1)
+
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 5,
+            'columns': json.dumps([
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            # Search 'close' in all columns without regex
+            'search': json.dumps({"value":"check_test","regex":False})
+        })
+        response_value = response.json
+        print response_value
+        # Not found!
+        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsFiltered'] == 0
+        assert not response.json['data']
+
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 5,
+            'columns': json.dumps([
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            # Search 'check' in all columns with regex
+            'search': json.dumps({"value":"check","regex":True})
+        })
+        response_value = response.json
+        print response_value
+        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsFiltered'] == 5
+        assert response.json['data']
+        assert len(response.json['data']) == 5
+
+
+        # Searching ...
+        # Individual search ...
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 5,
+            'columns': json.dumps([
+                # Search 'check_ping' in name column ...
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check_ping","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]),
+        })
+        response_value = response.json
+        print response_value
+        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsFiltered'] == 1
+        assert response.json['data']
+        assert len(response.json['data']) == 1
+
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 5,
+            'columns': json.dumps([
+                # Search 'op' in status column ...
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check","regex":False}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]),
+        })
+        response_value = response.json
+        print response_value
+        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsFiltered'] == 0
+        assert not response.json['data']
+
+        response = self.app.post('/command_table_data', {
+            'object_type': 'command',
+            'start': 0,
+            'length': 5,
+            'columns': json.dumps([
+                # Search 'check' in name column ... regex True
+                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check","regex":True}},
+                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+            ]),
+            'order': json.dumps([{"column":0,"dir":"asc"}]),
+        })
+        response_value = response.json
+        print response_value
+        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsFiltered'] == 5
+        assert response.json['data']
+        assert len(response.json['data']) == 5
+
+class test_datatable_objects(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
     def tearDown(self):
         print ""
 
@@ -171,235 +509,6 @@ class test_datatable(unittest2.TestCase):
                 assert response.json['data'][x]['reactionner_tag']
                 assert response.json['data'][x]['enable_environment_macros']
                 assert response.json['data'][x]['ui'] == True
-
-
-        # Rows 5 by 5 ...
-        print "Get rows 5 per 5"
-        count = 0
-        for x in range(0, items_count, 5):
-            response = self.app.post('/command_table_data', {
-                'object_type': 'command',
-                'draw': x / 5,
-                'start': x,
-                'length': 5
-            })
-            response_value = response.json
-            print response_value
-            assert response.json['draw'] == x / 5
-            assert response.json['recordsTotal'] == items_count
-            assert response.json['recordsFiltered'] == 5 or items_count % 5
-            count += response.json['recordsFiltered']
-            assert response.json['data']
-            assert len(response.json['data']) == 5 or items_count % 5
-        assert count == items_count
-
-        # Out of scope rows ...
-        response = self.app.post('/command_table_data', {
-            'start': items_count*2,
-            'length': 5
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 0
-        assert not response.json['data']
-
-        # Sorting ...
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]) # Ascending
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 5
-        assert response.json['data']
-        assert len(response.json['data']) == 5
-
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"desc"}])    # Descending !
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 5
-        assert response.json['data']
-        assert len(response.json['data']) == 5
-
-        # Searching ...
-        # Global search ...
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
-            # Search 'check_ping' in all columns without regex
-            'search': json.dumps({"value":"check_ping","regex":False})
-        })
-        response_value = response.json
-        # Found items_count records and sent 1
-        self.assertEqual(response.json['recordsTotal'], items_count)
-        self.assertEqual(response.json['recordsFiltered'], 1)
-        self.assertEqual(len(response.json['data']), 1)
-
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
-            # Search 'close' in all columns without regex
-            'search': json.dumps({"value":"check_test","regex":False})
-        })
-        response_value = response.json
-        print response_value
-        # Not found!
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 0
-        assert not response.json['data']
-
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
-            # Search 'check' in all columns with regex
-            'search': json.dumps({"value":"check","regex":True})
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 5
-        assert response.json['data']
-        assert len(response.json['data']) == 5
-
-
-        # Searching ...
-        # Individual search ...
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                # Search 'check_ping' in name column ...
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check_ping","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 1
-        assert response.json['data']
-        assert len(response.json['data']) == 1
-
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                # Search 'op' in status column ...
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 0
-        assert not response.json['data']
-
-        response = self.app.post('/command_table_data', {
-            'object_type': 'command',
-            'start': 0,
-            'length': 5,
-            'columns': json.dumps([
-                # Search 'check' in name column ... regex True
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check","regex":True}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-            ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
-        })
-        response_value = response.json
-        print response_value
-        assert response.json['recordsTotal'] == items_count
-        assert response.json['recordsFiltered'] == 5
-        assert response.json['data']
-        assert len(response.json['data']) == 5
 
 
     def test_02_hosts(self):
