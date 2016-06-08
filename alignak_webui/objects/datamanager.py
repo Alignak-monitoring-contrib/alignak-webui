@@ -40,7 +40,7 @@ from alignak_backend_client.client import BackendException
 from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
-from alignak_webui.objects.item import Contact, Command, Host, Service, Realm, TimePeriod
+from alignak_webui.objects.item import Item, Contact, Command, Host, Service, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis
 
 
@@ -75,7 +75,10 @@ class DataManager(object):
         # Search for classes including an _type attribute
         self.known_classes = []
         for k, dummy in globals().items():
-            if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
+            if isinstance(globals()[k], type) and \
+               '_type' in globals()[k].__dict__ and \
+               globals()[k].getType() is not None and \
+               globals()[k].getType() is not 'item':
                 self.known_classes.append(globals()[k])
                 logger.debug(
                     "Known class %s for object type: %s",
@@ -123,6 +126,10 @@ class DataManager(object):
             self.connected = self.backend.login(username, password)
             if self.connected:
                 self.connection_message = _('Connection successful')
+
+                # Set the backend to use by the data manager objects
+                Item().setBackend(self.backend)
+                Item().setKnownClasses(self.known_classes)
 
                 # Fetch the logged-in user
                 if password:
@@ -192,7 +199,6 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.debug("find_object, self: %s, updated:%s", self, self.updated)
         logger.debug("find_object, %s, params: %s", object_type, params)
 
         if isinstance(params, basestring):
@@ -211,18 +217,14 @@ class DataManager(object):
 
         for item in result:
             # Find "Backend object type" classes in file imported modules ...
-            for k, dummy in globals().items():
-                if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
-                    if globals()[k].getType() == object_type:
-                        # Create a new object
-                        bo_object = globals()[k](item)
-                        items.append(bo_object)
-                        self.updated = datetime.utcnow()
-                        logger.debug("find_object, created: %s", bo_object)
-                        break
-            else:  # pragma: no cover, should not happen
-                # No break, so not found a relative class!
-                logger.error("find_object, %s class not found for: %s", object_type, item)
+            object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
+
+            # Create a new object
+            bo_object = object_class(item)
+            items.append(bo_object)
+            self.updated = datetime.utcnow()
+            logger.info("find_object, created: %s", bo_object)
+            break
 
         return items
 
@@ -395,10 +397,16 @@ class DataManager(object):
             )
             if refresh:
                 count = self.count_objects(known_class.getType(), search=search)
-                log_function(
-                    "get_objects_count, currently %d total %ss for %s",
-                    count, known_class.getType(), search
-                )
+                if search:
+                    log_function(
+                        "get_objects_count, currently %d total %ss for %s",
+                        count, known_class.getType(), search
+                    )
+                else:
+                    log_function(
+                        "get_objects_count, currently %d total %ss",
+                        count, known_class.getType()
+                    )
             objects_count += count
 
         log_function("get_objects_count, currently %d elements", objects_count)
@@ -897,15 +905,15 @@ class DataManager(object):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
-        if 'embedded' not in search:
-            search.update({
-                'embedded': {
-                    'check_command': 1, 'event_handler': 1,
-                    'check_period': 1, 'notification_period': 1,
-                    'maintenance_period': 1, 'snapshot_period': 1,
-                    'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
-                }
-            })
+            # if 'embedded' not in search:
+            # search.update({
+            # 'embedded': {
+            # 'check_command': 1, 'event_handler': 1,
+            # 'check_period': 1, 'notification_period': 1,
+            # 'maintenance_period': 1, 'snapshot_period': 1,
+            # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+            # }
+            # })
 
         try:
             logger.info("get_hosts, search: %s", search)

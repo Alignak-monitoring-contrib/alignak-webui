@@ -31,7 +31,7 @@ loggerDm.setLevel(DEBUG)
 loggerItems = getLogger('alignak_webui.objects.item')
 loggerItems.setLevel(WARNING)
 loggerItems = getLogger('alignak_webui.objects.backend')
-loggerItems.setLevel(WARNING)
+loggerItems.setLevel(DEBUG)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -295,7 +295,7 @@ class test_4_not_admin(unittest2.TestCase):
         # Get main realm
         realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
 
-        # Get main realm
+        # Get main TP
         tp_all = self.dmg.get_timeperiod({'where': {'name': 'All time default 24x7'}})
 
         # Create a non admin user ...
@@ -501,7 +501,7 @@ class test_5_basic_tests(unittest2.TestCase):
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 1)
-        self.assertEqual(self.dmg.get_objects_count('command'), 50)
+        self.assertGreater(self.dmg.get_objects_count('command'), 50)   # More than 50 because of automatic links ... :)
         self.assertEqual(self.dmg.get_objects_count('timeperiod'), 5)
         self.assertEqual(self.dmg.get_objects_count('contact'), 4+1)
         self.assertEqual(self.dmg.get_objects_count('host'), 13)
@@ -518,3 +518,39 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 89)
         self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13+89)
         self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
+
+
+class test_6_relations(unittest2.TestCase):
+
+    def setUp(self):
+        print ""
+        print "setting up ..."
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and do not load
+        assert self.dmg.user_login('admin', 'admin', load=False)
+
+    def tearDown(self):
+        print ""
+        print "tearing down ..."
+        # Logout
+        self.dmg.reset(logout=True)
+
+    def test_01_host_command(self):
+        print "--- test Item"
+
+        # Get main realm
+        realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
+
+        # Get main TP
+        tp_all = self.dmg.get_timeperiod({'where': {'name': 'All time default 24x7'}})
+
+        # Get host
+        host = self.dmg.get_host({'where': {'name': 'webui'}})
+
+        print host.__dict__
+        print host.check_period
+        assert isinstance(host.check_command, Command)
+        assert host.check_command
+

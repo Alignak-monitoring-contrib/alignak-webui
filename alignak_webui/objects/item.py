@@ -40,6 +40,7 @@ from dateutil import tz
 
 from alignak_webui import get_app_config, _
 
+# Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
 from alignak_backend_client.client import BackendException
 
@@ -431,6 +432,7 @@ class Item(object):
     _total_count = -1
 
     _backend = None
+    _known_classes = None
 
     # Next value used for auto generated id
     _next_id = 1
@@ -460,9 +462,24 @@ class Item(object):
     ]
 
     @classmethod
+    def getKnownClasses(cls):
+        """ Get protected member """
+        return cls._known_classes
+
+    @classmethod
+    def setKnownClasses(cls, known_classes):
+        """ Set protected member _known_classes """
+        cls._known_classes = known_classes
+
+    @classmethod
     def getBackend(cls):
         """ Get protected member """
         return cls._backend
+
+    @classmethod
+    def setBackend(cls, backend):
+        """ Set protected member _backend """
+        cls._backend = backend
 
     @classmethod
     def getType(cls):
@@ -517,6 +534,17 @@ class Item(object):
         """
         id_property = getattr(cls, 'id_property', '_id')
         # print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
+
+        if not cls.getBackend():
+            # Get global configuration
+            app_config = get_app_config()
+            if not app_config:  # pragma: no cover, should not happen
+                return
+
+            cls._backend = BackendConnection(
+                app_config.get('alignak_backend', 'http://127.0.0.1:5000')
+            )
+            print "Class backend: %s" % (cls.getBackend())
 
         _id = '0'
         if params:
@@ -604,85 +632,64 @@ class Item(object):
             This feature allows to create links between embedded objects of the backend.
         """
         id_property = getattr(self.__class__, 'id_property', '_id')
-
         if id_property not in params:  # pragma: no cover, should never happen
             raise ValueError('No %s attribute in the provided parameters' % id_property)
-        logger.debug(
+        logger.warning(
             " --- creating a %s (%s - %s)",
             self.getType(), params[id_property], params['name'] if 'name' in params else ''
         )
 
         for key in params:  # pylint: disable=too-many-nested-blocks
-            logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
+            logger.info(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a _linked_ attribute ...
-            if hasattr(self, '_linked_' + key):
+            if hasattr(self, '_linked_' + key) and self.getKnownClasses():
+                logger.warning(
+                    " link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
+                )
+                # Linked resource type
+                object_type = getattr(self, '_linked_' + key, None)
+                if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+                    logger.error("_create, unknown %s for %s", object_type, params[key])
+                    continue
+
+                object_class = [kc for kc in self.getKnownClasses()
+                                if kc.getType() == object_type][0]
+
+                # Dictionary
                 if isinstance(params[key], dict):
-                    # Linked resource type
-                    object_type = getattr(self, '_linked_' + key, None)
-                    logger.debug(
-                        " parameter: %s is a dict for a linked object: %s, %s",
-                        key, object_type, params[key]
-                    )
-                    if object_type is None:  # pragma: no cover, should never happen
-                        setattr(self, key, params[key])
-                        continue
-
-                    for k in globals().keys():
-                        if isinstance(globals()[k], type) and \
-                           '_type' in globals()[k].__dict__ and \
-                           globals()[k]._type == object_type:
-                            linked_object = globals()[k](params[key])
-                            setattr(self, '_linked_' + key, linked_object)
-                            logger.warning("Linked with %s (%s)", key, linked_object['_id'])
-                            break
+                    linked_object = object_class(params[key])
+                    setattr(self, '_linked_' + key, linked_object)
+                    logger.warning("Linked with %s (%s)", key, linked_object['_id'])
                     continue
 
+                # List values
                 if isinstance(params[key], list):
-                    # Linked resource type
-                    object_type = getattr(self, '_linked_' + key, None)
-                    logger.debug(
-                        " parameter: %s is a dict for a linked object: %s, %s",
-                        key, object_type, params[key]
-                    )
-                    if object_type is None:  # pragma: no cover, should never happen
-                        setattr(self, key, params[key])
-                        continue
-
-                    for k in globals().keys():
-                        if isinstance(globals()[k], type) and \
-                           '_type' in globals()[k].__dict__ and \
-                           globals()[k]._type == object_type:
-                            objects_list = []
-                            for element in params[key]:
-                                objects_list.append(globals()[k](element))
-                                logger.warning("Linked with %s (%s)", key, linked_object['_id'])
-                            setattr(self, '_linked_' + key, objects_list)
-                            break
+                    objects_list = []
+                    for element in params[key]:
+                        objects_list.append(object_class(element))
+                        logger.warning("Linked with %s (%s)", key, linked_object['_id'])
+                    setattr(self, '_linked_' + key, objects_list)
                     continue
 
+                # string (considered as an object id)
                 if isinstance(params[key], basestring) and self.getBackend():
                     # Object link is a string, so we need to load the object from the backend
-                    # Linked resource type
-                    object_type = getattr(self, '_linked_' + key, None)
-                    logger.debug(
-                        " parameter: %s is a dict for a linked object: %s, %s",
-                        key, object_type, params[key]
-                    )
-                    if object_type is None:  # pragma: no cover, should never happen
-                        setattr(self, key, params[key])
+                    result = self.getBackend().get(object_type + '/' + params[key])
+                    if not result:
+                        logger.error(
+                            "_create, item not found for %s, %s", object_type, params[key]
+                        )
                         continue
 
-                    try:
-                        result = self.backend.get(object_type + '/' + params[key])
-                    except BackendException as e:  # pragma: no cover, simple protection
-                        logger.warning("_create, backend exception: %s", str(e))
-                    else:
-                        logger.warning("Found %s (%s)", object_type, result)
+                    # Create a new object
+                    linked_object = object_class(result)
+                    setattr(self, '_linked_' + key, linked_object)
+                    logger.warning("_create, linked with %s (%s)", key, linked_object['_id'])
                     continue
 
                 logger.warning(
-                    "Parameter: %s for %s is not a dict or a list "
-                    "and it should be, instead of being: %s",
+                    "Parameter: %s for %s is not a dict or a list or an object id "
+                    "as it should be, instead of being: %s",
                     key, self.getType(), params[key]
                 )
                 continue
@@ -743,62 +750,54 @@ class Item(object):
 
         logger.debug(" --- updating a %s (%s)", self.__class__, self[id_property])
 
-        if not isinstance(params, dict):
-            params = params.__dict__
+        # if not isinstance(params, dict):
+        # params = params.__dict__
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
             if hasattr(self, '_linked_' + key):
+                logger.warning(
+                    " link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
+                )
+                # Linked resource type
+                logger.warning(
+                    " existing link: %s ", getattr(self, '_linked_' + key, None)
+                )
+                object_type = getattr(self, '_linked_' + key, None)
+                if not isinstance(object_type, basestring):
+                    # Already contains an object, so update object ...
+                    logger.critical(" Update object: %s = %s", key, params[key])
+                    # object_type._update(params[key])
+                    continue
+
+                # No object yet linked...
+                if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+                    logger.error("_update, unknown %s for %s", object_type, params[key])
+                    continue
+
                 if isinstance(params[key], basestring) and self.getBackend():
+                    # Object link is a string, so it contains the object type
+                    object_type = getattr(self, '_linked_' + key, None)
+                    if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+                        logger.error("_update, unknown %s for %s", object_type, params[key])
+                        continue
+
+                    object_class = [kc for kc in self.getKnownClasses()
+                                    if kc.getType() == object_type][0]
+
                     # Object link is a string, so we need to load the object from the backend
-                    # Linked resource type
-                    object_type = getattr(self, '_linked_' + key, None)
-                    logger.debug(
-                        " parameter: %s is a dict for a linked object: %s, %s",
-                        key, object_type, params[key]
-                    )
-                    if object_type is None:  # pragma: no cover, should never happen
-                        setattr(self, key, params[key])
+                    result = self.getBackend().get(object_type + '/' + params[key])
+                    if not result:
+                        logger.error(
+                            "_create, item not found for %s, %s", object_type, params[key]
+                        )
                         continue
 
-                    try:
-                        result = self.backend.get(object_type + '/' + params[key])
-                    except BackendException as e:  # pragma: no cover, simple protection
-                        logger.warning("_create, backend exception: %s", str(e))
-                    else:
-                        logger.warning("Found %s (%s)", object_type, result)
+                    # Create a new object
+                    linked_object = object_class(result)
+                    setattr(self, '_linked_' + key, linked_object)
+                    logger.warning("_create, linked with %s (%s)", key, linked_object['_id'])
                     continue
 
-                if not isinstance(params[key], dict):
-                    logger.warning(
-                        "_update, parameter: %s for %s is not a dict "
-                        "and it should be, instead of being: %s",
-                        key, self.getType(), params[key]
-                    )
-                    continue
-
-                if not isinstance(getattr(self, '_linked_' + key, None), basestring):
-                    # Does not contain a string, so update object ...
-                    logger.debug(" Update object: %s = %s", key, params[key])
-                    getattr(self, '_linked_' + key)._update(params[key])
-                else:
-                    # Else, create new linked object
-                    object_type = getattr(self, '_linked_' + key, None)
-                    if object_type is None:  # pragma: no cover, should never happen
-                        setattr(self, key, params[key])
-                        continue
-
-                    for k in globals().keys():
-                        if isinstance(globals()[k], type) and \
-                           '_type' in globals()[k].__dict__ and \
-                           globals()[k]._type == object_type:
-                            linked_object = globals()[k](params[key])
-                            setattr(self, '_linked_' + key, linked_object)
-                            logger.debug(
-                                "Linked: %s (%s) with %s (%s)",
-                                self._type, self[id_property], key, linked_object.get_id()
-                            )
-                            break
-                    continue
                 continue
 
             # If the property is a date, make it a timestamp...
@@ -1335,6 +1334,8 @@ class Host(Item):
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
+        self._linked_snapshot_period = 'timeperiod'
+        self._linked_maintenance_period = 'timeperiod'
         self._linked_hostgroups = 'servicegroup'
         self._linked_contacts = 'contact'
         self._linked_contact_groups = 'contactgroup'
@@ -1416,6 +1417,16 @@ class Host(Item):
     def notification_period(self):
         """ Return linked object """
         return self._linked_notification_period
+
+    @property
+    def snapshot_period(self):
+        """ Return linked object """
+        return self._linked_snapshot_period
+
+    @property
+    def maintenance_period(self):
+        """ Return linked object """
+        return self._linked_maintenance_period
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

@@ -147,6 +147,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             Returns an object or an array of matching objects. All extra attributes
             (_links, _status, _meta, ...) are not returned.
 
+            Returns None if the search failed. Do not raise any exception to the caller.
+
             If all_elements is True, it calls the get_all function of the backend client to
             get all the elements without any pagination activated.
             """
@@ -155,8 +157,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             if isinstance(params, basestring):
                 params = {'where': {'_id': params}}
                 logger.debug("get, %s, params: %s", object_type, params)
-
-            items = []
 
             # Update backend search parameters
             if params is None:
@@ -182,7 +182,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
                 logger.warning("get, backend exception: %s", str(e))
-                return items
+                return None
 
             logger.debug(
                 "search, search result for %s: result=%s", object_type, result

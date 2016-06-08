@@ -33,10 +33,12 @@ from alignak_webui.utils.settings import Settings
 from alignak_webui import get_app_config, set_app_config
 from alignak_webui.objects.item import *
 
-from logging import getLogger, DEBUG, INFO
-loggerDm = getLogger('alignak_webui.objects.item')
-loggerDm.setLevel(INFO)
 
+from logging import getLogger, DEBUG, INFO, WARNING, ERROR
+loggerDm = getLogger('alignak_webui.objects.item')
+loggerDm.setLevel(DEBUG)
+loggerDm = getLogger('alignak_webui.objects.backend')
+loggerDm.setLevel(DEBUG)
 
 def setup_module(module):
     print ("")
@@ -870,3 +872,33 @@ class test_02_items(unittest2.TestCase):
         assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host">\n<span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
         print item.get_html_badge()
         assert item.get_html_badge() == '''<span class="item-badge item_hostUnknown " data-item-id="%s" data-item-type="host">\n<span class="fa-stack" title="Host is unknown">\n<i class="fa fa-stack-2x fa-circle"></i>\n<i class="fa fa-stack-1x fa-question fa-inverse"></i>\n</span>\n</span>''' % item.get_id()
+
+class test_03_relations(unittest2.TestCase):
+
+    def setUp(self):
+        print ""
+        print "setting up ..."
+
+    def tearDown(self):
+        print ""
+        print "tearing down ..."
+
+    def test_01_host_command(self):
+        print "--- test Item"
+
+        # Base item
+        cmd = Command({
+            '_id': 'cmd1',
+            'name': 'command 1'
+        })
+
+        host = Host({
+            '_id': 'host1',
+            'name': 'host 1',
+            'check_command': 'cmd1' # Command id
+        })
+
+        print host.__dict__
+        print host.check_command
+        assert host.check_command == 'command'  # Remained the init string because no link could be done with the command ... the backend is not available to find the command !
+
