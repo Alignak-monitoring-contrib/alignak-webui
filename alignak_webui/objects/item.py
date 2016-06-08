@@ -634,13 +634,13 @@ class Item(object):
         id_property = getattr(self.__class__, 'id_property', '_id')
         if id_property not in params:  # pragma: no cover, should never happen
             raise ValueError('No %s attribute in the provided parameters' % id_property)
-        logger.warning(
+        logger.debug(
             " --- creating a %s (%s - %s)",
             self.getType(), params[id_property], params['name'] if 'name' in params else ''
         )
 
         for key in params:  # pylint: disable=too-many-nested-blocks
-            logger.info(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
+            logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a _linked_ attribute ...
             if hasattr(self, '_linked_' + key) and self.getKnownClasses():
                 logger.warning(
@@ -1346,7 +1346,7 @@ class Host(Item):
         self._linked_notification_period = 'timeperiod'
         self._linked_snapshot_period = 'timeperiod'
         self._linked_maintenance_period = 'timeperiod'
-        self._linked_hostgroups = 'servicegroup'
+        self._linked_hostgroups = 'hostgroup'
         self._linked_contacts = 'contact'
         self._linked_contact_groups = 'contactgroup'
 
