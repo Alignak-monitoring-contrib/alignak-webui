@@ -62,7 +62,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             If no password is provided, the username is assumed to be an authentication token and we
             use the backend connect function.
             """
-            logger.info("login, connection requested: %s", username)
+            logger.info("login, connection requested, login: %s", username)
 
             self.connected = False
 
@@ -145,7 +145,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             Else, params is used to 'get' objects from the backend.
 
             Returns an object or an array of matching objects. All extra attributes
-            (_links, _status, _meta, ...) are not returned.
+            (_links, _status, _meta, ...) are not returned but an '_total' attribute is added
+            in each element to get the total count of elements stored in the backend.
 
             Returns None if the search failed. Do not raise any exception to the caller.
 
@@ -202,9 +203,14 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             # If more than one element is found, we get an _items list
             if '_items' in result:
+                if '_meta' in result:
+                    for item in result['_items']:
+                        item.update({'_total': result['_meta']['total']})
                 logger.debug("get, found in the backend: %s: %s", object_type, result['_items'])
                 return result['_items']
 
+            if '_meta' in result:
+                result.update({'_total': result['_meta']['total']})
             logger.debug("get, found one in the backend: %s: %s", object_type, result)
             return result
 

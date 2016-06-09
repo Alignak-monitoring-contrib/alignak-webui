@@ -66,7 +66,7 @@ if [ $? -ne 0 ]; then
     echo "main tests not compliant"
     exit
 fi
-nosetests -xvv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_datamanager.py test_datatable.py
+nosetests -xvv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_backend_alignak.py test_datamanager.py test_datatable.py
 if [ $? -ne 0 ]; then
     echo "data tests not compliant"
     exit
