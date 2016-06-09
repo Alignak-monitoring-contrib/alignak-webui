@@ -8,9 +8,8 @@
 <!-- Host view -->
 <div id="host">
    %host_id = host.get_id()
-   %host_name = host.get_name()
    %services = datamgr.get_services(search={'where': {'host_name':host_id}})
-   %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host_name}})
+   %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
    %livestate = livestate[0] if livestate else None
 
    %if debug:
@@ -41,7 +40,7 @@
             <div class="panel panel-default">
                <div class="panel-heading">
                   <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.get_id()}}"><i class="fa fa-bug"></i> Service: {{service.get_name()}}</a>
+                     <a data-toggle="collapse" href="#collapse{{service.get_id()}}"><i class="fa fa-bug"></i> Service: {{service.name}}</a>
                   </h4>
                </div>
                <div id="collapse{{service.get_id()}}" class="panel-collapse collapse" style="height: 200px;">
@@ -107,7 +106,7 @@
    <div class="panel panel-default">
       <div class="panel-heading" data-toggle="collapse" data-parent="#hostOverview" href="#collapseHostOverview">
          <h4 class="panel-title"><span class="caret"></span>
-            {{_('Overview for %s') % host.get_name()}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
+            {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
          </h4>
       </div>
 
@@ -190,7 +189,7 @@
                %if hasattr(host, 'hostgroups'):
                <dd>
                %for hg in host.hostgroups:
-               <a href="/hosts-group/{{hg.get_name()}}" class="link">{{hg.alias if hg.alias else hg.get_name()}}</a>
+               <a href="/hosts-group/{{hg.name}}" class="link">{{hg.alias if hg.alias else hg.name}}</a>
                %end
                </dd>
                %else:
@@ -237,7 +236,7 @@
          <tbody>
            <tr>
              <td>
-               <a role="menuitem" href="/all?search=type:service {{host.get_name()}}">
+               <a role="menuitem" href="/all?search=type:service {{host.name}}">
                   <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
                </a>
              </td>
@@ -245,7 +244,7 @@
              %for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
              <td>
                %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/all?search=type:service is:{{state}} {{host.get_name()}}">
+               <a role="menuitem" href="/all?search=type:service is:{{state}} {{host.name}}">
                %end
                  %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
                  {{! Service({'status':state}).get_html_state(label=label, disabled=(not synthesis["nb_" + state]))}}
@@ -271,7 +270,7 @@
                %cvconf = cvname.split('/')[1]
                %cvname = cvname.split('/')[0]
             %end
-            <li class="{{_go_active}} cv_pane" data-name="{{cvname}}" data-conf="{{cvconf}}" data-element='{{host.get_name()}}' id='tab-cv-{{cvname}}-{{cvconf}}'><a href="#cv{{cvname}}_{{cvconf}}" data-toggle="tab">{{cvname.capitalize()}}{{'/'+cvconf.capitalize() if cvconf!='default' else ''}}</a></li>
+            <li class="{{_go_active}} cv_pane" data-name="{{cvname}}" data-conf="{{cvconf}}" data-element='{{host.name}}' id='tab-cv-{{cvname}}-{{cvconf}}'><a href="#cv{{cvname}}_{{cvconf}}" data-toggle="tab">{{cvname.capitalize()}}{{'/'+cvconf.capitalize() if cvconf!='default' else ''}}</a></li>
             %_go_active = ''
          %end
 
@@ -327,7 +326,7 @@
                %cvconf = cvname.split('/')[1]
                %cvname = cvname.split('/')[0]
             %end
-            <div class="tab-pane fade {{_go_active}} {{_go_fadein}}" data-name="{{cvname}}" data-conf="{{cvconf}}" data-element="{{host.get_name()}}" id="cv{{cvname}}_{{cvconf}}">
+            <div class="tab-pane fade {{_go_active}} {{_go_fadein}}" data-name="{{cvname}}" data-conf="{{cvconf}}" data-element="{{host.name}}" id="cv{{cvname}}_{{cvconf}}">
                <div class="panel panel-default">
                   <div class="panel-body">
                      <!--<span class="alert alert-error">Sorry, I cannot load the {{cvname}}/{{cvconf}} view!</span>-->
@@ -366,7 +365,7 @@
                               <td><strong>{{_('Since:')}}</strong></td>
                               <td class="popover-dismiss"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                    data-title="{{host.get_name()}}{{_('}} last state change date')}}"
+                                    data-title="{{host.name}}{{_('}} last state change date')}}"
                                     data-content="{{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}"
                                     >
                                  {{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}
@@ -433,7 +432,7 @@
                               <td><strong>{{_('Last State Change:')}}</strong></td>
                               <td class="popover-dismiss"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                    data-title="{{host.get_name()}}{{_('}} last state change date')}}"
+                                    data-title="{{host.name}}{{_('}} last state change date')}}"
                                     data-content="{{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}"
                                     >
                                  {{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}
@@ -449,7 +448,7 @@
                               <td><strong>{{_('Next Active Check:')}}</strong></td>
                               <td class="popover-dismiss"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                    data-title="{{host.get_name()}}{{_('}} last state change date')}}"
+                                    data-title="{{host.name}}{{_('}} last state change date')}}"
                                     data-content="{{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}"
                                     >
                                  {{! Helper.print_duration(livestate.next_check, duration_only=True, x_elts=0)}}
@@ -488,7 +487,7 @@
                                     >
                                  %tp = host.check_period
                                  %if not isinstance(tp, basestring):
-                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.get_name()))}}
+                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.name))}}
                                  %else:
                                  {{tp}}
                                  %end
@@ -505,7 +504,7 @@
                                     >
                                  %tp = host.maintenance_period
                                  %if not isinstance(tp, basestring):
-                                 {{! '<a href="timeperiod/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.get_name()))}}
+                                 {{! '<a href="timeperiod/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.name))}}
                                  %else:
                                  {{tp}}
                                  %end
@@ -517,7 +516,7 @@
                               <td><strong>{{_('Check command:')}}</strong></td>
                               <td>
                                  %command = host.check_command
-                                 {{! '<a href="command/%s">%s</a>' % (command.get_id(), command.get_html_state(label=command.get_name()))}}
+                                 {{! '<a href="command/%s">%s</a>' % (command.get_id(), command.get_html_state(label=command.name))}}
                               </td>
                               <td>
                               </td>
@@ -592,7 +591,7 @@
                            <tr>
                               <td><strong>{{_('Event handler:')}}</strong></td>
                               <td>
-                                 <a href="/commands#{{host.event_handler.get_name()}}">{{ host.event_handler.name() }}</a>
+                                 <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name() }}</a>
                               </td>
                            </tr>
                            %end
@@ -745,7 +744,7 @@
                          %for s in host.services:
                          %for c in sorted(s.comments, key=lambda x: x.entry_time, reverse=True):
                             <tr>
-                               <td>{{s.get_name()}}</td>
+                               <td>{{s.name}}</td>
                                <td>{{c.author}}</td>
                                <td>{{c.comment}}</td>
                                <td>{{Helper.print_date(c.entry_time)}}</td>
@@ -843,7 +842,7 @@
                          %for s in host.services:
                          %for dt in sorted(s.downtimes, key=lambda dt: dt.entry_time, reverse=True):
                             <tr>
-                               <td>{{s.get_name()}}</td>
+                               <td>{{s.name}}</td>
                                <td>{{dt.author}}</td>
                                <td>{{dt.comment}}</td>
                                <td>{{Helper.print_date(dt.start_time)}} - {{Helper.print_date(dt.end_time)}}</td>
@@ -948,7 +947,7 @@
                      %uris['1y'] = ""
 
                      // let's create the html content for each time range
-                     var element='/host/{{host.get_name()}}';
+                     var element='/host/{{host.name}}';
                      %for period in ['4h', '1d', '1w', '1m', '1y']:
 
                      html_graphes['{{period}}'] = '<p>';
@@ -981,7 +980,7 @@
                   <div class="btn-group btn-group-sm pull-right">
                      <button data-type="action" action="fullscreen-request" data-element="inner_depgraph" class="btn btn-primary"><i class="fa fa-desktop"></i> Fullscreen</button>
                   </div>
-                  <div id="inner_depgraph" data-element='{{host.get_name()}}'>
+                  <div id="inner_depgraph" data-element='{{host.name}}'>
                      <div class="alert alert-info">
                         <p class="font-blue">{{_('Sorry, I cannot load the dependencies graph!')}}</p>
                      </div>
@@ -995,7 +994,7 @@
          <div class="tab-pane fade" id="history">
             <div class="panel panel-default">
                <div class="panel-body">
-                  <div id="inner_history" data-element='{{host.get_name()}}'>
+                  <div id="inner_history" data-element='{{host.name}}'>
                      <div class="alert alert-info">
                         <p class="font-blue">{{_('No history is available.')}}</p>
                      </div>
@@ -1009,7 +1008,7 @@
          <div class="tab-pane fade" id="availability">
             <div class="panel panel-default">
                <div class="panel-body">
-                  <div id="inner_availability" data-element='{{host.get_name()}}'>
+                  <div id="inner_availability" data-element='{{host.name}}'>
                      <div class="alert alert-info">
                         <p class="font-blue">{{_('No availability information are available.')}}</p>
                      </div>

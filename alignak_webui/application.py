@@ -341,7 +341,7 @@ def user_auth():
         logger.warning("user '%s' access denied, message: %s", username, session['message'])
         redirect('/login')
 
-    logger.warning("user '%s' (%s) signed in", username, session['current_user'].get_name())
+    logger.warning("user '%s' (%s) signed in", username, session['current_user'].name)
     redirect('/')
 
 

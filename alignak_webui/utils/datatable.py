@@ -533,10 +533,10 @@ class Datatable(object):
 
                         # Specific fields name
                         if field['data'] == self.name_property:
-                            item[key] = '''<a href="%s/%s">%s</a>''' % (
+                            item[key] = '''<a href="/%s/%s">%s</a>''' % (
                                 bo_object.getType(),
                                 bo_object.get_id(),
-                                bo_object.get_name()
+                                bo_object.name
                             )
 
                         if field['data'] == self.status_property:
@@ -564,7 +564,7 @@ class Datatable(object):
                                         field['format'],
                                         item[key]['_id'] if '_id' in item[key] else '',
                                         linked_object.get_html_state(
-                                            label=linked_object.get_name()
+                                            label=linked_object.name
                                         )
                                     )
                                     break

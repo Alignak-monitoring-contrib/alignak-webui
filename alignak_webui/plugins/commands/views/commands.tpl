@@ -57,7 +57,7 @@
                      </td>
 
                      <td>
-                        <small>{{command.get_name()}}</small>
+                        <small>{{command.name}}</small>
                      </td>
 
                      <td>

@@ -120,7 +120,7 @@
                         <span class="label label-warning" style="position:relative; left: 0px">{{target_user.get_username()}}</span>
                         %end
                         %end
-                        <span class="username hidden-sm hidden-xs hidden-md">{{current_user.get_name()}}</span>
+                        <span class="username hidden-sm hidden-xs hidden-md">{{current_user.name}}</span>
                         <i class="caret"></i>
                   </a>
 
@@ -134,11 +134,11 @@
                         <div class="panel panel-info" id="user_info">
                            <div class="panel-body panel-default">
                               <!-- User image / name -->
-                              <p class="username">{{current_user.get_name()}}</p>
+                              <p class="username">{{current_user.name}}</p>
                               <p class="usercategory">
                                  <small>{{current_user.get_role(display=True)}}</small>
                               </p>
-                              <img src="{{current_user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % current_user.get_name()}}" title="{{_('Photo: %s') % current_user.get_name()}}">
+                              <img src="{{current_user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % current_user.name}}" title="{{_('Photo: %s') % current_user.name}}">
                            </div>
                            <div class="panel-footer">
                               <div class="btn-group" role="group">

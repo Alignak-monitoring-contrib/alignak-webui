@@ -956,7 +956,7 @@ class DataManager(object):
         if hosts:
             for state in 'up', 'unreachable', 'down', 'unknown', 'ack', 'downtime':
                 synthesis['nb_' + state] = sum(
-                    1 for host in hosts if host.get_status().lower() == state
+                    1 for host in hosts if host.status.lower() == state
                 )
                 synthesis['pct_' + state] = round(
                     100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
@@ -1024,7 +1024,7 @@ class DataManager(object):
         if services:
             for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
                 synthesis['nb_' + state] = sum(
-                    1 for service in services if service.get_status().lower() == state
+                    1 for service in services if service.status.lower() == state
                 )
                 synthesis['pct_' + state] = round(
                     100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
@@ -1081,7 +1081,7 @@ class DataManager(object):
         if commands:
             for state in 'attached', 'empty', 'problem', 'unknown':
                 synthesis['nb_' + state] = sum(
-                    1 for command in commands if command.get_status().lower() == state
+                    1 for command in commands if command.status.lower() == state
                 )
                 synthesis['pct_' + state] = round(
                     100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2

@@ -49,7 +49,7 @@ logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class ItemState(object):
+class ItemState(object):    # pylint: disable=too-few-public-methods
     """
     Singleton design pattern ...
     """
@@ -222,7 +222,7 @@ class ItemState(object):
             if not icon and not text:
                 return 'n/a - icon/text'
 
-            status = object_item.get_status()
+            status = object_item.status
             status = status.replace('.', '_').lower()
             if object_type in self.get_objects_types():
                 if status not in self.get_icon_states(object_type):
@@ -241,7 +241,7 @@ class ItemState(object):
                 cfg_state_view = self.get_icon_state("user", 'state_view')
             if not cfg_state_view:  # pragma: no cover, should not happen
                 return 'n/a - cfg_state_view'
-            logger.debug("get_html_state, states view: %s", cfg_state_view)
+            # logger.debug("get_html_state, states view: %s", cfg_state_view)
 
             # Text
             res_icon_state = cfg_state['icon']
@@ -269,7 +269,7 @@ class ItemState(object):
             res_icon = res_icon_global
             res_icon = res_icon.replace("##type##", object_type)
             res_icon = res_icon.replace("##id##", item_id)
-            res_icon = res_icon.replace("##name##", object_item.get_name())
+            res_icon = res_icon.replace("##name##", object_item.name)
             res_icon = res_icon.replace("##state##", object_item.get_state())
             res_icon = res_icon.replace("##back##", res_icon_back)
             res_icon = res_icon.replace("##front##", res_icon_front)
@@ -290,100 +290,7 @@ class ItemState(object):
             else:
                 res_icon = res_icon.replace("##text##", "")
 
-            logger.debug("get_html_state, res_icon: %s", res_icon)
-            return res_icon
-
-        def get_html_badge(self, object_type, object_item, label='', disabled=False):
-            # Yes, but else it will be quite difficult :/
-            # pylint: disable=too-many-locals, too-many-return-statements
-            """
-            Returns an item status as HTML text and icon if needed
-
-            If parameters are not valid, returns 'n/a'
-
-            If disabled is True, the class does not depend upon status and is always font-greyed
-
-            If a label is specified, text must be True, and the label will be used instead
-            of the built text.
-
-            Text and icon are defined in the application configuration file.
-
-            :param element: force element type (to get generic element type view)
-            :type element: string
-            :param object_item: element
-            :type object: Item class based object
-
-            :param text: include text in the response
-            :type text: boolean
-            :param icon: include icon in the response
-            :type icon: boolean
-            :return: formatted status HTML string
-            :rtype: string
-            """
-            if not object_type:  # pragma: no cover, should not happen
-                return 'n/a - element'
-
-            if not object_item:  # pragma: no cover, should not happen
-                return 'n/a - object'
-
-            status = object_item.get_status()
-            status = status.replace('.', '_').lower()
-            if object_type in self.get_objects_types():
-                if status not in self.get_icon_states(object_type):
-                    return 'n/a - status: ' + status
-            else:  # pragma: no cover, not tested
-                if status not in self.get_default_states():
-                    return 'n/a - default status: ' + status
-
-            cfg_state = self.get_icon_state(object_type, status)
-            if object_type not in self.get_objects_types() and status in self.get_default_states():
-                cfg_state = self.get_icon_state("user", status)
-            logger.debug("get_html_badge, states: %s", cfg_state)
-
-            cfg_state_view = self.get_icon_state(object_type, 'state_view')
-            if object_type not in self.get_objects_types():
-                cfg_state_view = self.get_icon_state("user", 'state_view')
-            if not cfg_state_view:  # pragma: no cover, should not happen
-                return 'n/a - cfg_state_view'
-            logger.debug("get_html_badge, states view: %s", cfg_state_view)
-
-            # Text
-            res_icon_state = cfg_state['icon']
-            res_icon_text = cfg_state['text']
-            res_icon_class = 'item_' + cfg_state['class']
-            res_text = res_icon_text
-
-            # Icon
-            res_icon_badge = cfg_state_view['badge']
-            if not res_icon_badge:  # pragma: no cover, should not happen
-                return 'n/a - res_icon_badge'
-
-            res_extra = "fa-inverse"
-            res_opacity = ""
-
-            # Assembling ...
-            item_id = object_item.get_id()
-            res_icon = res_icon_badge
-            res_icon = res_icon.replace("##type##", object_type)
-            res_icon = res_icon.replace("##id##", item_id)
-            res_icon = res_icon.replace("##name##", object_item.get_name())
-            res_icon = res_icon.replace("##state##", object_item.get_state())
-            res_icon = res_icon.replace("##status##", status.lower())
-            if not disabled:
-                res_icon = res_icon.replace("##class##", res_icon_class)
-            else:
-                res_icon = res_icon.replace("##class##", "font-greyed")
-
-            res_icon = res_icon.replace("##icon##", res_icon_state)
-            res_icon = res_icon.replace("##extra##", res_extra)
-            res_icon = res_icon.replace("##title##", res_text)
-            res_icon = res_icon.replace("##opacity##", res_opacity)
-            if label:
-                res_icon = res_icon.replace("##text##", label)
-            else:
-                res_icon = res_icon.replace("##text##", "")
-
-            logger.debug("get_html_badge, res_icon: %s", res_icon)
+            # logger.debug("get_html_state, res_icon: %s", res_icon)
             return res_icon
 
     instance = None
@@ -402,15 +309,6 @@ class ItemState(object):
         """
         return self.instance.get_html_state(object_type, object_item,
                                             extra, icon, text, label, disabled)
-
-    def get_html_badge(self,
-                       label='', disabled=False,
-                       object_type='', object_item=None):  # pragma: no cover
-        """
-        Base function used by Item objects
-        """
-        return self.instance.get_html_badge(object_type, object_item,
-                                            label, disabled)
 
 
 class Item(object):
@@ -641,6 +539,7 @@ class Item(object):
 
         for key in params:  # pylint: disable=too-many-nested-blocks
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
+            #print(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a _linked_ attribute ...
             if hasattr(self, '_linked_' + key) and self.getKnownClasses():
                 logger.debug(
@@ -752,7 +651,15 @@ class Item(object):
         if not hasattr(self, 'name'):
             setattr(self, 'name', 'anonymous')
 
-        # Object state
+        # Object alias
+        if not hasattr(self, 'alias'):
+            setattr(self, 'alias', self.name)
+
+        # Object comment
+        if not hasattr(self, 'comment'):
+            setattr(self, 'comment', '')
+
+        # Object status
         if not hasattr(self, 'status'):
             setattr(self, 'status', 'unknown')
 
@@ -879,7 +786,7 @@ class Item(object):
 
     def __repr__(self):
         return ("<%s, id: %s, name: %s, status: %s>") % (
-            self.__class__._type, self.get_id(), self.get_name(), self.get_status()
+            self.__class__._type, self.get_id(), self.name, self.status
         )
 
     def __getitem__(self, key):
@@ -894,34 +801,82 @@ class Item(object):
             return getattr(self, self.__class__.id_property, None)
         return getattr(self, '_id', None)
 
-    def get_name(self):
+    @property
+    def name(self):
         """
         Get Item object name
         A class inheriting from an Item can define its own `name_property`
         """
         if hasattr(self.__class__, 'name_property'):
             return getattr(self, self.__class__.name_property, None)
-        return getattr(self, 'name', None)
+        return self._name
 
-    def get_comment(self):
+    @name.setter
+    def name(self, name):
+        """
+        Set Item object name
+        """
+        if hasattr(self.__class__, 'name_property'):
+            setattr(self, self.__class__.name_property, name)
+        else:
+            self._name = name
+
+    @property
+    def alias(self):
+        """
+        Get Item object alias
+        A class inheriting from an Item can define its own `name_property`
+        """
+        return getattr(self, '_alias', self.name)
+
+    @alias.setter
+    def alias(self, alias):
+        """
+        Set Item object alias
+        """
+        self._alias = alias
+
+    @property
+    def comment(self):
         """
         Get Item object comment
         A class inheriting from an Item can define its own `comment_property`
         """
         if hasattr(self.__class__, 'comment_property'):
             return getattr(self, self.__class__.comment_property, None)
-        if hasattr(self, 'comment'):
-            return self.comment
-        return self.get_name()
+        return self._comment
 
-    def get_status(self):
+    @comment.setter
+    def comment(self, comment):
+        """
+        Get Item object comment
+        A class inheriting from an Item can define its own `comment_property`
+        """
+        if hasattr(self.__class__, 'comment_property'):
+            setattr(self, self.__class__.comment_property, comment)
+        else:
+            self._comment = comment
+
+    @property
+    def status(self):
         """
         Get Item object status
         A class inheriting from an Item can define its own `status_property`
         """
         if hasattr(self.__class__, 'status_property'):
             return getattr(self, self.__class__.status_property, None)
-        return getattr(self, 'status', 'unknown')
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """
+        Get Item object status
+        A class inheriting from an Item can define its own `status_property`
+        """
+        if hasattr(self.__class__, 'status_property'):
+            setattr(self, self.__class__.status_property, status)
+        else:
+            self._status = status
 
     def get_state(self):
         """
@@ -959,19 +914,6 @@ class Item(object):
 
         return ItemState().get_html_state(object_type, object_item,
                                           extra, icon, text, label, disabled)
-
-    def get_html_badge(self, label='', disabled=False, object_type='', object_item=None):
-        """
-        Uses the ItemState singleton to display HTML badge for an item
-        """
-        if not object_type:
-            object_type = self.__class__._type
-
-        if not object_item:
-            object_item = self
-
-        return ItemState().get_html_badge(object_type, object_item,
-                                          label, disabled)
 
     def get_date(self, _date, fmt=None):
         """
@@ -1077,16 +1019,6 @@ class Contact(Item):
 
         self.authenticated = False
 
-        if not hasattr(self, 'email'):
-            self.email = None
-
-        if not hasattr(self, 'lync'):
-            self.lync = None
-
-        # Has a session token ?
-        if not hasattr(self, 'token'):
-            self.token = None
-
         # Is an administrator ?
         if not hasattr(self, 'is_admin'):
             self.is_admin = False
@@ -1131,17 +1063,24 @@ class Contact(Item):
     def __repr__(self):
         if self.authenticated:
             return ("<Authenticated %s, id: %s, name: %s, role: %s>") % (
-                self.__class__._type, self.get_id(), self.get_name(), self.get_role()
+                self.__class__._type, self.get_id(), self.name, self.get_role()
             )
         return ("<%s, id: %s, name: %s, role: %s>") % (
-            self.__class__._type, self.get_id(), self.get_name(), self.get_role()
+            self.__class__._type, self.get_id(), self.name, self.get_role()
         )
+
+    @property
+    def display_name(self):
+        """
+        Get Item display name
+        """
+        return getattr(self, 'display_name', self.name)
 
     def get_friendly_name(self):
         """
         Get the contact friendly name if defined, else returns the name
         """
-        return getattr(self, 'friendly_name', self.get_name())
+        return self.alias
 
     def get_username(self):
         """
@@ -1149,21 +1088,7 @@ class Contact(Item):
         Returns the 'username' field if it exisrs, else returns  the 'contact_name' field,
         else returns  the 'name' field
         """
-        if getattr(self, 'username', None):
-            return self.username
-        if getattr(self, 'contact_name', None):
-            return self.contact_name
-        return self.name
-
-    def get_name(self):
-        """
-        Get the contact name (for display).
-        Returns the 'alias' field if it exisrs, else returns  the contact username,
-        """
-        name = self.get_username()
-        if getattr(self, 'alias', None) and getattr(self, 'alias', None) != 'none':
-            return getattr(self, 'alias', name)
-        return name
+        return getattr(self, 'username', self.name)
 
     def get_role(self, display=False):
         """

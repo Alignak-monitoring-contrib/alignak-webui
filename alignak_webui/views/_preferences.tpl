@@ -11,7 +11,7 @@
          <div class="panel-body">
             <!-- User image -->
             <div class="user-header bg-light-blue">
-               <img src="{{current_user.picture}}" photo="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
+               <img src="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.name}}" title="Photo: {{current_user.name}}">
                <p class="username">
                  {{current_user.get_username()}}
                </p>
@@ -32,7 +32,7 @@
                   <tbody style="font-size:x-small;">
                      <tr>
                         <td><strong>{{_('User identification:')</strong></td>
-                        <td>{{"%s (%s)" % (current_user.get_name(), current_user.get_username()) if current_user.get_name() != 'none' else current_user.get_username()}}</td>
+                        <td>{{"%s (%s)" % (current_user.name, current_user.get_username()) if current_user.name != 'none' else current_user.get_username()}}</td>
                      </tr>
                      <tr>
                         <td><strong>{{_('User is allowed to run commands')}}</strong></td>
