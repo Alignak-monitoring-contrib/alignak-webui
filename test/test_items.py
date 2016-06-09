@@ -627,7 +627,7 @@ class test_02_items(unittest2.TestCase):
 
         assert item.role == 'user'
         assert item.read_only == True
-        assert item.picture == '/static/photos/user_guest'
+        assert item.picture == '/static/images/user_guest.png'
         assert item.authenticated == False
         assert item.widgets_allowed == False
         assert item.email == None
@@ -641,7 +641,7 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == True
         assert item.can_submit_commands() == False
         assert item.can_change_dashboard() == False
-        assert item.picture == '/static/photos/user_guest'
+        assert item.picture == '/static/images/user_guest.png'
         assert item.token == None
 
         print item.get_html_state()
@@ -668,7 +668,7 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == False
         assert item.can_submit_commands() == True
         assert item.can_change_dashboard() == True
-        assert item.picture == '/static/photos/user_default'
+        assert item.picture == '/static/images/user_default.png'
         assert item.token == 'token'
 
         print item.get_html_state()
@@ -693,7 +693,7 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == False
         assert item.can_submit_commands() == True
         assert item.can_change_dashboard() == True
-        assert item.picture == '/static/photos/user_admin'
+        assert item.picture == '/static/images/user_admin.png'
 
         print item.get_html_state()
         assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
@@ -719,7 +719,7 @@ class test_02_items(unittest2.TestCase):
         assert item.is_anonymous() == False
         assert item.can_submit_commands() == False
         assert item.can_change_dashboard() == False
-        assert item.picture == '/static/photos/user_default'
+        assert item.picture == '/static/images/user_default.png'
 
         print item.get_html_state()
         assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="Real name" data-item-type="contact">\n<span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span>\n<span></span>\n</div>''' % item.get_id()
