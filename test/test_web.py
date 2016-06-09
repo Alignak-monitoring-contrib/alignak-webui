@@ -78,7 +78,7 @@ def setup_module(module):
             shlex.split('alignak_backend')
         )
         print ("PID: %s" % pid)
-        time.sleep(2)
+        time.sleep(1)
 
         print ("")
         print ("populate backend content")
@@ -97,7 +97,7 @@ def teardown_module(module):
         pid.kill()
 
 
-class tests_1_login(unittest2.TestCase):
+class tests_0_no_login(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -149,6 +149,22 @@ class tests_1_login(unittest2.TestCase):
         print response
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
+
+
+class tests_1_login(unittest2.TestCase):
+
+    def setUp(self):
+        print ""
+        print "setting up ..."
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+    def tearDown(self):
+        print ""
+        print "tearing down ..."
 
     def test_1_2_login_refused(self):
         print ''
