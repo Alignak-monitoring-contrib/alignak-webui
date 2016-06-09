@@ -345,31 +345,6 @@ def user_auth():
     redirect('/')
 
 
-@route('/static/photos/<name>')
-def give_photo(name):
-    """
-    User picture URL
-    """
-    # logger.debug("Get photo for: %s", name)
-    # Find WebUI root directory
-    images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'htdocs', 'images'))
-    if os.path.exists(os.path.join(images_dir, name + '.png')):
-        return static_file(name + '.png', root=images_dir)
-    else:
-        return static_file('images/default_user.png', root=images_dir)
-
-
-@route('/static/logo/<name>')
-def give_logo(name):
-    """
-    Company logo URL
-    """
-    # logger.debug("Get logo named: %s", name)
-    app_dir = os.path.abspath(os.path.dirname(__file__))
-    htdocs_dir = os.path.join(app_dir, 'htdocs')
-    return static_file('images/%s.png' % name, root=htdocs_dir)
-
-
 @route('/static/<path:path>')
 def server_static(path):
     """
@@ -385,17 +360,6 @@ def server_static(path):
         return static_file(
             path, root=os.path.abspath(os.path.dirname(__file__))
         )
-
-
-@route('/favicon.ico')
-def give_favicon():
-    """
-    Web site favicon
-    """
-    # Find WebUI root directory
-    app_dir = os.path.abspath(os.path.dirname(__file__))
-    htdocs_dir = os.path.join(app_dir, 'htdocs')
-    return static_file('favicon.ico', root=os.path.join(htdocs_dir, 'images'))
 
 
 @route('/modal/<modal_name>')

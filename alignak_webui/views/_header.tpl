@@ -44,7 +44,7 @@
                <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/">
-               <img src="/static/logo/{{request.app.config.get('company_logo', 'default_company')}}" alt="{{_('Company logo')}}" />
+               <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
             </a>
          </div>
 
@@ -134,7 +134,7 @@
                               <p class="usercategory">
                                  <small>{{current_user.get_role(display=True)}}</small>
                               </p>
-                              <img src="{{current_user.picture}}" photo="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
+                              <img src="{{current_user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % current_user.get_name()}}" title="{{_('Photo: %s') % current_user.get_name()}}">
                            </div>
                            <div class="panel-footer">
                               <div class="btn-group" role="group">

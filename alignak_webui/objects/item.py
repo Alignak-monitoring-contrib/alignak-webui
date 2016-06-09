@@ -1090,12 +1090,12 @@ class Contact(Item):
             self.role = self.get_role()
 
         if not hasattr(self, 'picture'):
-            self.picture = '/static/photos/user_default'
+            self.picture = '/static/images/user_default.png'
             if self.name == 'anonymous':
-                self.picture = '/static/photos/user_guest'
+                self.picture = '/static/images/user_guest.png'
             else:
                 if self.is_admin:
-                    self.picture = '/static/photos/user_admin'
+                    self.picture = '/static/images/user_admin.png'
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
