@@ -871,7 +871,7 @@ class tests_4_target_user(unittest2.TestCase):
             "can_submit_commands": False,
 
             "host_notifications_enabled": True,
-            "host_notification_period": tp_all.get_id(),
+            "host_notification_period": tp_all.id,
             "host_notification_commands": [
             ],
             "host_notification_options": [
@@ -881,7 +881,7 @@ class tests_4_target_user(unittest2.TestCase):
             ],
 
             "service_notifications_enabled": True,
-            "service_notification_period": tp_all.get_id(),
+            "service_notification_period": tp_all.id,
             "service_notification_commands": [ ],
             "service_notification_options": [
                 "w",
@@ -901,7 +901,7 @@ class tests_4_target_user(unittest2.TestCase):
             "address6": "",
             "pager": "",
             "notificationways": [],
-            "_realm": realm_all.get_id()
+            "_realm": realm_all.id
         }
         response = self.app.post('/user/add', {
             'user_name': 'not_admin', 'comment': 'Not an administrator ... test user.'

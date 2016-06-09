@@ -535,7 +535,7 @@ class Datatable(object):
                         if field['data'] == self.name_property:
                             item[key] = '''<a href="/%s/%s">%s</a>''' % (
                                 bo_object.getType(),
-                                bo_object.get_id(),
+                                bo_object.id,
                                 bo_object.name
                             )
 

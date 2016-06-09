@@ -58,7 +58,7 @@
 
             <tbody>
                %for service in services:
-                  <tr data-toggle="collapse" data-target="#details-{{service.get_id()}}" class="accordion-toggle">
+                  <tr data-toggle="collapse" data-target="#details-{{service.id}}" class="accordion-toggle">
                      <td>
                         {{! service.get_html_state()}}
                      </td>
@@ -77,12 +77,12 @@
 
                      <td>
                         %host = service.host_name
-                        <small>{{! '<a href="host/%s">%s</a>' % (host.get_id(), host.get_html_state(label=host.get_name()))}}</small>
+                        <small>{{! '<a href="host/%s">%s</a>' % (host.id, host.get_html_state(label=host.name))}}</small>
                      </td>
 
                      <td>
                         %command = service.check_command
-                        <small>{{! '<a href="command/%s">%s</a>' % (command.get_id(), command.get_html_state(label=command.get_name()))}}</small>
+                        <small>{{! '<a href="command/%s">%s</a>' % (command.id, command.get_html_state(label=command.name))}}</small>
                      </td>
 
                      <td>

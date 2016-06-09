@@ -55,7 +55,7 @@
 
             <tbody>
                %for host in hosts:
-                  <tr data-toggle="collapse" data-target="#details-{{host.get_id()}}" class="accordion-toggle">
+                  <tr data-toggle="collapse" data-target="#details-{{host.id}}" class="accordion-toggle">
                      <td>
                         {{! host.get_html_state()}}
                      </td>

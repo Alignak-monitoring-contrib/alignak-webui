@@ -452,7 +452,7 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = element.get_id()
+            object_id = element.id
 
         return self.backend.delete(object_type, object_id)
 
@@ -467,7 +467,7 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = element.get_id()
+            object_id = element.id
 
         if self.backend.update(object_type, object_id, data):
             items = self.find_object(object_type, object_id)
@@ -1151,8 +1151,8 @@ class DataManager(object):
             if not contact:
                 return False
 
-        contact_id = contact.get_id()
-        if contact_id == self.get_logged_user().get_id():
+        contact_id = contact.id
+        if contact_id == self.get_logged_user().id:
             logger.warning(
                 "unauthorized request to delete the current logged-in user: %s",
                 contact_id

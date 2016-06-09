@@ -7,7 +7,7 @@
 
 <!-- Host view -->
 <div id="host">
-   %host_id = host.get_id()
+   %host_id = host.id
    %services = datamgr.get_services(search={'where': {'host_name':host_id}})
    %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
    %livestate = livestate[0] if livestate else None
@@ -40,10 +40,10 @@
             <div class="panel panel-default">
                <div class="panel-heading">
                   <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.get_id()}}"><i class="fa fa-bug"></i> Service: {{service.name}}</a>
+                     <a data-toggle="collapse" href="#collapse{{service.id}}"><i class="fa fa-bug"></i> Service: {{service.name}}</a>
                   </h4>
                </div>
-               <div id="collapse{{service.get_id()}}" class="panel-collapse collapse" style="height: 200px;">
+               <div id="collapse{{service.id}}" class="panel-collapse collapse" style="height: 200px;">
                   <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                      %for k,v in sorted(service.__dict__.items()):
                         <dt>{{k}}</dt>
@@ -487,7 +487,7 @@
                                     >
                                  %tp = host.check_period
                                  %if not isinstance(tp, basestring):
-                                 {{! '<a href="command/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.name))}}
+                                 {{! '<a href="command/%s">%s</a>' % (tp.id, tp.get_html_state(label=tp.name))}}
                                  %else:
                                  {{tp}}
                                  %end
@@ -504,7 +504,7 @@
                                     >
                                  %tp = host.maintenance_period
                                  %if not isinstance(tp, basestring):
-                                 {{! '<a href="timeperiod/%s">%s</a>' % (tp.get_id(), tp.get_html_state(label=tp.name))}}
+                                 {{! '<a href="timeperiod/%s">%s</a>' % (tp.id, tp.get_html_state(label=tp.name))}}
                                  %else:
                                  {{tp}}
                                  %end
@@ -516,7 +516,7 @@
                               <td><strong>{{_('Check command:')}}</strong></td>
                               <td>
                                  %command = host.check_command
-                                 {{! '<a href="command/%s">%s</a>' % (command.get_id(), command.get_html_state(label=command.name))}}
+                                 {{! '<a href="command/%s">%s</a>' % (command.id, command.get_html_state(label=command.name))}}
                               </td>
                               <td>
                               </td>

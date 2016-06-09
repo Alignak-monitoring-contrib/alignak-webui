@@ -27,11 +27,11 @@ import alignak_webui.app
 
 from logging import getLogger, DEBUG, INFO, WARNING
 loggerDm = getLogger('alignak_webui.objects.datamanager')
-loggerDm.setLevel(DEBUG)
+loggerDm.setLevel(INFO)
 loggerItems = getLogger('alignak_webui.objects.item')
 loggerItems.setLevel(WARNING)
 loggerItems = getLogger('alignak_webui.objects.backend')
-loggerItems.setLevel(DEBUG)
+loggerItems.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -306,7 +306,7 @@ class test_4_not_admin(unittest2.TestCase):
             "can_submit_commands": False,
 
             "host_notifications_enabled": True,
-            "host_notification_period": tp_all.get_id(),
+            "host_notification_period": tp_all.id,
             "host_notification_commands": [
             ],
             "host_notification_options": [
@@ -316,7 +316,7 @@ class test_4_not_admin(unittest2.TestCase):
             ],
 
             "service_notifications_enabled": True,
-            "service_notification_period": tp_all.get_id(),
+            "service_notification_period": tp_all.id,
             "service_notification_commands": [ ],
             "service_notification_options": [
                 "w",
@@ -336,7 +336,7 @@ class test_4_not_admin(unittest2.TestCase):
             "address6": "",
             "pager": "",
             "notificationways": [],
-            "_realm": realm_all.get_id()
+            "_realm": realm_all.id
         }
         assert self.dmg.add_contact(data)
 
@@ -432,7 +432,7 @@ class test_5_basic_tests(unittest2.TestCase):
         items = self.dmg.get_contacts()
         for item in items:
             print "Got", item
-            assert item.get_id()
+            assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 5)
 
@@ -440,7 +440,7 @@ class test_5_basic_tests(unittest2.TestCase):
         items = self.dmg.get_realms()
         for item in items:
             print "Got: ", item
-            assert item.get_id()
+            assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 1)
 
@@ -448,7 +448,7 @@ class test_5_basic_tests(unittest2.TestCase):
         items = self.dmg.get_commands()
         for item in items:
             print "Got: ", item
-            assert item.get_id()
+            assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 50)    # Backend pagination limit ...
 
@@ -456,7 +456,7 @@ class test_5_basic_tests(unittest2.TestCase):
         items = self.dmg.get_hosts()
         for item in items:
             print "Got: ", item
-            assert item.get_id()
+            assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 13)
 
@@ -464,7 +464,7 @@ class test_5_basic_tests(unittest2.TestCase):
         items = self.dmg.get_services()
         for item in items:
             print "Got: ", item
-            assert item.get_id()
+            assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 50)    # Backend pagination limit ...
 
@@ -472,7 +472,7 @@ class test_5_basic_tests(unittest2.TestCase):
         items = self.dmg.get_timeperiods()
         for item in items:
             print "Got: ", item
-            assert item.get_id()
+            assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 5)
 

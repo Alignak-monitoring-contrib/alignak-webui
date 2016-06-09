@@ -70,7 +70,7 @@
 
             <tbody>
             %for contact in contacts:
-               <tr data-toggle="collapse" data-target="#details-{{contact.get_id()}}" class="accordion-toggle">
+               <tr data-toggle="collapse" data-target="#details-{{contact.id}}" class="accordion-toggle">
                   <td>
                      {{! contact.get_html_state()}}
                   </td>
@@ -104,14 +104,14 @@
                               <button class="btn btn-default btn-sm navbar-btn"
                                    data-type="action" data-action="delete-user"
                                    data-toggle="tooltip" data-placement="bottom" title="{{_('Delete this user')}}"
-                                   data-element="{{user.get_id()}}"
+                                   data-element="{{user.id}}"
                                    >
                                    <i class="fa fa-remove"></i>
                               </button>
                               <button class="btn btn-default btn-sm navbar-btn"
                                    data-type="action" data-action="edit-user"
                                    data-toggle="tooltip" data-placement="bottom" title="{{_('Edit this user')}}"
-                                   data-element="{{user.get_id()}}"
+                                   data-element="{{user.id}}"
                                    >
                                    <i class="fa fa-edit"></i>
                               </button>

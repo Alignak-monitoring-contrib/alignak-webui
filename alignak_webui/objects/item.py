@@ -265,7 +265,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                 res_opacity = 'style="opacity: 0.5"'
 
             # Assembling ...
-            item_id = object_item.get_id()
+            item_id = object_item.id
             res_icon = res_icon_global
             res_icon = res_icon.replace("##type##", object_type)
             res_icon = res_icon.replace("##id##", item_id)
@@ -539,7 +539,7 @@ class Item(object):
 
         for key in params:  # pylint: disable=too-many-nested-blocks
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
-            #print(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
+            # print(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a _linked_ attribute ...
             if hasattr(self, '_linked_' + key) and self.getKnownClasses():
                 logger.debug(
@@ -645,7 +645,7 @@ class Item(object):
             try:
                 setattr(self, key, params[key])
             except Exception:
-                logger.warning(" parameter TypeError: %s = %s", key, params[key])
+                logger.critical(" parameter TypeError: %s = %s", key, params[key])
 
         # Object name
         if not hasattr(self, 'name'):
@@ -770,7 +770,7 @@ class Item(object):
             try:
                 setattr(self, key, params[key])
             except TypeError:  # pragma: no cover, should not happen
-                logger.warning(" parameter TypeError: %s = %s", key, params[key])
+                logger.critical(" parameter TypeError: %s = %s", key, params[key])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
@@ -786,20 +786,28 @@ class Item(object):
 
     def __repr__(self):
         return ("<%s, id: %s, name: %s, status: %s>") % (
-            self.__class__._type, self.get_id(), self.name, self.status
+            self.__class__._type, self.id, self.name, self.status
         )
 
     def __getitem__(self, key):
         return getattr(self, key, None)
 
-    def get_id(self):
+    @property
+    def object_type(self):
+        """
+        Get Item object type
+        """
+        return self._type
+
+    @property
+    def id(self):
         """
         Get Item object identifier
         A class inheriting from an Item can define its own `id_property`
         """
         if hasattr(self.__class__, 'id_property'):
             return getattr(self, self.__class__.id_property, None)
-        return getattr(self, '_id', None)
+        return self._id
 
     @property
     def name(self):
@@ -1063,10 +1071,10 @@ class Contact(Item):
     def __repr__(self):
         if self.authenticated:
             return ("<Authenticated %s, id: %s, name: %s, role: %s>") % (
-                self.__class__._type, self.get_id(), self.name, self.get_role()
+                self.__class__._type, self.id, self.name, self.get_role()
             )
         return ("<%s, id: %s, name: %s, role: %s>") % (
-            self.__class__._type, self.get_id(), self.name, self.get_role()
+            self.__class__._type, self.id, self.name, self.get_role()
         )
 
     @property

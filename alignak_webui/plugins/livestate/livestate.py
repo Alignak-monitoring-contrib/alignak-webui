@@ -343,11 +343,11 @@ def get_livestate(element_id):
 
     element = element[0]
     if element['type'] == 'host':
-        logger.debug("Livestate: %s %s %s", element, element.host_name.get_id(), element.__dict__)
-        redirect('/host/' + element.host_name.get_id())
+        logger.debug("Livestate: %s %s %s", element, element.host_name.id, element.__dict__)
+        redirect('/host/' + element.host_name.id)
     else:
-        logger.debug("Livestate: %s %s %s", element, element.host_name.get_id(), element.__dict__)
-        redirect('/host/' + element.host_name.get_id() + '#services')
+        logger.debug("Livestate: %s %s %s", element, element.host_name.id, element.__dict__)
+        redirect('/host/' + element.host_name.id + '#services')
 
 
 pages = {

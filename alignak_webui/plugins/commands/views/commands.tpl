@@ -51,7 +51,7 @@
 
             <tbody>
                %for command in commands:
-                  <tr data-toggle="collapse" data-target="#details-{{command.get_id()}}" class="accordion-toggle">
+                  <tr data-toggle="collapse" data-target="#details-{{command.id}}" class="accordion-toggle">
                      <td>
                         {{! command.get_html_state()}}
                      </td>
