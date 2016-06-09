@@ -544,7 +544,7 @@ class Item(object):
             cls._backend = BackendConnection(
                 app_config.get('alignak_backend', 'http://127.0.0.1:5000')
             )
-            print "Class backend: %s" % (cls.getBackend())
+            # print "Class backend: %s" % (cls.getBackend())
 
         _id = '0'
         if params:
@@ -643,7 +643,7 @@ class Item(object):
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a _linked_ attribute ...
             if hasattr(self, '_linked_' + key) and self.getKnownClasses():
-                logger.warning(
+                logger.debug(
                     " link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
                 )
                 # Linked resource type
@@ -655,25 +655,16 @@ class Item(object):
                 object_class = [kc for kc in self.getKnownClasses()
                                 if kc.getType() == object_type][0]
 
-                # Dictionary
+                # Dictionary - linked object attributes (backend embedded object)
                 if isinstance(params[key], dict):
                     linked_object = object_class(params[key])
                     setattr(self, '_linked_' + key, linked_object)
-                    logger.warning("Linked with %s (%s)", key, linked_object['_id'])
+                    logger.debug("_create, linked with %s (%s)", key, linked_object['_id'])
                     continue
 
-                # List values
-                if isinstance(params[key], list):
-                    objects_list = []
-                    for element in params[key]:
-                        objects_list.append(object_class(element))
-                        logger.warning("Linked with %s (%s)", key, linked_object['_id'])
-                    setattr(self, '_linked_' + key, objects_list)
-                    continue
-
-                # string (considered as an object id)
+                # String - object id
                 if isinstance(params[key], basestring) and self.getBackend():
-                    # Object link is a string, so we need to load the object from the backend
+                    # we need to load the object from the backend
                     result = self.getBackend().get(object_type + '/' + params[key])
                     if not result:
                         logger.error(
@@ -684,7 +675,29 @@ class Item(object):
                     # Create a new object
                     linked_object = object_class(result)
                     setattr(self, '_linked_' + key, linked_object)
-                    logger.warning("_create, linked with %s (%s)", key, linked_object['_id'])
+                    logger.debug("_create, linked with %s (%s)", key, linked_object['_id'])
+                    continue
+
+                # List - list of objects id
+                if isinstance(params[key], list):
+                    objects_list = []
+                    for element in params[key]:
+                        if isinstance(element, basestring) and self.getBackend():
+                            # we need to load the object from the backend
+                            result = self.getBackend().get(object_type + '/' + element)
+                            if not result:
+                                logger.error(
+                                    "_create, item not found for %s, %s", object_type, params[key]
+                                )
+                                continue
+
+                            # Create a new object
+                            objects_list.append(object_class(result))
+                        else:
+                            logger.error("_create, list element is not a string: %s", element)
+
+                    setattr(self, '_linked_' + key, objects_list)
+                    logger.debug("_create, linked with %s (%s)", key, [o for o in objects_list])
                     continue
 
                 logger.warning(
@@ -765,25 +778,26 @@ class Item(object):
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
             if hasattr(self, '_linked_' + key):
-                logger.warning(
-                    " link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
-                )
-                # Linked resource type
-                logger.warning(
-                    " existing link: %s ", getattr(self, '_linked_' + key, None)
+                logger.debug(
+                    "link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
                 )
                 object_type = getattr(self, '_linked_' + key, None)
                 if not isinstance(object_type, basestring):
                     # Already contains an object, so update object ...
-                    logger.critical(" Update object: %s = %s", key, params[key])
+                    logger.debug("_update, update object: %s = %s", key, params[key])
                     # object_type._update(params[key])
                     continue
 
+                # Linked resource type
+                logger.warning(
+                    "_update, must create link for %s with %s ", key, params[key]
+                )
                 # No object yet linked...
                 if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
 
+                # String - object id
                 if isinstance(params[key], basestring) and self.getBackend():
                     # Object link is a string, so it contains the object type
                     object_type = getattr(self, '_linked_' + key, None)
@@ -1218,6 +1232,56 @@ class Contact(Item):
         return False
 
 
+class ContactGroup(Item):
+    """
+    Object representing a contactgroup
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'contactgroup'
+    # _cache is a list of created objects
+    _cache = {}
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new contactgroup
+        """
+        return super(ContactGroup, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        """
+        Create a contactgroup (called only once when an object is newly created)
+        """
+        self._linked_contactgroup_members = 'contactgroup'
+        self._linked_members = 'contact'
+
+        super(ContactGroup, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a contactgroup (called every time an object is updated)
+        """
+        super(ContactGroup, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a contactgroup (called every time an object is invoked)
+        """
+        super(ContactGroup, self).__init__(params)
+
+    @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_members
+
+    @property
+    def contactgroup_members(self):
+        """ Return linked object """
+        return self._linked_contactgroup_members
+
+
 class LiveSynthesis(Item):
     """
     Object representing the live synthesis of the system
@@ -1446,10 +1510,59 @@ class Host(Item):
             return _('Never checked!')
 
         if timestamp:
-            print "timestamp"
             return self.last_check
 
         return super(Host, self).get_date(self.last_check, fmt)
+
+
+class HostGroup(Item):
+    """
+    Object representing a hostgroup
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'hostgroup'
+    # _cache is a list of created objects
+    _cache = {}
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new hostgroup
+        """
+        return super(HostGroup, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        """
+        Create a hostgroup (called only once when an object is newly created)
+        """
+        self._linked_hostgroup_members = 'hostgroup'
+        self._linked_members = 'host'
+
+        super(HostGroup, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a hostgroup (called every time an object is updated)
+        """
+        super(HostGroup, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a hostgroup (called every time an object is invoked)
+        """
+        super(HostGroup, self).__init__(params)
+
+    @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_members
+
+    @property
+    def hostgroup_members(self):
+        """ Return linked object """
+        return self._linked_hostgroup_members
 
 
 class Service(Item):
@@ -1521,6 +1634,56 @@ class Service(Item):
     def notification_period(self):
         """ Return linked object """
         return self._linked_notification_period
+
+
+class ServiceGroup(Item):
+    """
+    Object representing a servicegroup
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'servicegroup'
+    # _cache is a list of created objects
+    _cache = {}
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new servicegroup
+        """
+        return super(ServiceGroup, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        """
+        Create a servicegroup (called only once when an object is newly created)
+        """
+        self._linked_servicegroup_members = 'servicegroup'
+        self._linked_members = 'service'
+
+        super(ServiceGroup, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a servicegroup (called every time an object is updated)
+        """
+        super(ServiceGroup, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a servicegroup (called every time an object is invoked)
+        """
+        super(ServiceGroup, self).__init__(params)
+
+    @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_members
+
+    @property
+    def servicegroup_members(self):
+        """ Return linked object """
+        return self._linked_servicegroup_members
 
 
 class Command(Item):

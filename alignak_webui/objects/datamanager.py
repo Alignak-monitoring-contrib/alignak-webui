@@ -40,8 +40,11 @@ from alignak_backend_client.client import BackendException
 from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
-from alignak_webui.objects.item import Item, Contact, Command, Host, Service, Realm, TimePeriod
+from alignak_webui.objects.item import Item
+from alignak_webui.objects.item import Command, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis
+from alignak_webui.objects.item import Contact, Host, Service
+from alignak_webui.objects.item import ContactGroup, HostGroup, ServiceGroup
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
@@ -143,6 +146,7 @@ class DataManager(object):
                 self.logged_in_user = Contact(users[0])
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
+                logger.info("Logged-in user: %s", self.logged_in_user)
 
                 # Get total objects count from the backend
                 self.get_objects_count(refresh=True, log=False)
@@ -1097,6 +1101,9 @@ class DataManager(object):
         """ Get a list of known contacts """
         if not self.get_logged_user().is_administrator():
             return [self.get_logged_user()]
+
+        if search is None:
+            search = {}
 
         try:
             logger.info("get_contacts, search: %s", search)
