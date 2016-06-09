@@ -115,17 +115,21 @@
                <li class="dropdown user user-menu hidden-xs">
                   <a href="#" class="dropdown-toggle" data-original-title="{{_('User menu')}}" data-toggle="dropdown">
                      <i class="fa fa-user"></i>
+                        %if request.app.config.get('target_user', 'no') == 'yes':
                         %if not target_user.is_anonymous() and current_user.get_username() != target_user.get_username():
                         <span class="label label-warning" style="position:relative; left: 0px">{{target_user.get_username()}}</span>
+                        %end
                         %end
                         <span class="username hidden-sm hidden-xs hidden-md">{{current_user.get_name()}}</span>
                         <i class="caret"></i>
                   </a>
 
                   <ul class="dropdown-menu">
+                     %if request.app.config.get('target_user', 'no') == 'yes':
                      <li class="user-header">
                         %include("_select_target_user")
                      </li>
+                     %end
                      <li class="user-header">
                         <div class="panel panel-info" id="user_info">
                            <div class="panel-body panel-default">
