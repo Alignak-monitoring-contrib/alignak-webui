@@ -43,7 +43,7 @@
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand">
+            <a class="navbar-brand" href="/">
                <img src="/static/logo/{{request.app.config.get('company_logo', 'default_company')}}" alt="{{_('Company logo')}}" />
             </a>
          </div>
@@ -137,13 +137,23 @@
                               <img src="{{current_user.picture}}" photo="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
                            </div>
                            <div class="panel-footer">
-                              %if current_user.is_administrator():
                               <div class="btn-group" role="group">
-                                 <a href="/user/preferences" class="btn btn-default"><span class="fa fa-pencil"></span> </a>
-                              </div>
-                              %end
-                              <div class="btn-group" role="group">
-                                 <a href="/logout" class="btn btn-default btn-flat"><span class="fa fa-sign-out"></span> </a>
+                                 <a class="btn btn-default" href="#"
+                                    data-action="about-box"
+                                    title="{{_('Display application information')}}"
+                                    >
+                                    <span class="fa fa-question"></span>
+                                 </a>
+                                 %if current_user.is_administrator():
+                                 <a class="btn btn-default" href="/preferences/user"
+                                    title="{{_('Show all the stored user preferences')}}">
+                                    <span class="fa fa-pencil"></span>
+                                 </a>
+                                 %end
+                                 <a class="btn btn-default" href="/logout"
+                                    title="{{_('Disconnect from the application')}}">
+                                    <span class="fa fa-sign-out"></span>
+                                 </a>
                               </div>
                            </div>
                         </div>

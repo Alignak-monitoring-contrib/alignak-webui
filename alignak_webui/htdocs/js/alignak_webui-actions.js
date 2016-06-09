@@ -213,7 +213,7 @@ $(document).ready(function() {
       window.location.href = "/";
    });
    // Show application about box
-   $('body').on("click", '.navbar-brand', function () {
+   $('body').on("click", '[data-action="about-box"]', function () {
       if (actions_logs) console.debug("Application about")
       display_modal("/modal/about");
    });
