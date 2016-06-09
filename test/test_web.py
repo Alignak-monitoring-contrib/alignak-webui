@@ -624,20 +624,20 @@ class tests_2_static_files(unittest2.TestCase):
         print 'test static files'
 
         print 'get favicon'
-        response = self.app.get('/favicon.ico')
+        response = self.app.get('/static/images/favicon.ico')
 
         print 'get opensearch'
         # response = self.app.get('/opensearch.xml')
 
         print 'get logo'
-        response = self.app.get('/static/logo/default_company')
-        response = self.app.get('/static/logo/other_company', status=404)
+        response = self.app.get('/static/images/default_company.png')
+        response = self.app.get('/static/imeages/other_company.png', status=404)
 
         print 'get users pictures'
-        response = self.app.get('/static/photos/user_default')
-        response = self.app.get('/static/photos/user_guest')
-        response = self.app.get('/static/photos/user_admin')
-        response = self.app.get('/static/photos/unknown', status=404)
+        response = self.app.get('/static/images/user_default.png')
+        response = self.app.get('/static/images/user_guest.png')
+        response = self.app.get('/static/images/user_admin.png')
+        response = self.app.get('/static/images/unknown.png', status=404)
 
         print 'get CSS/JS'
         response = self.app.get('/static/css/alignak_webui.css')
