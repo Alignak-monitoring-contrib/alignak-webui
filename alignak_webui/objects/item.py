@@ -312,6 +312,8 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
 
 
 class Item(object):
+    # Yes, but it is the base object and it needs those pubic methods!
+    # pylint: disable=too-many-public-methods
     """
     Base class for all the data manager objects
 
