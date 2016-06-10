@@ -928,15 +928,15 @@ class DataManager(object):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
-            # if 'embedded' not in search:
-            # search.update({
-            # 'embedded': {
-            # 'check_command': 1, 'event_handler': 1,
-            # 'check_period': 1, 'notification_period': 1,
-            # 'maintenance_period': 1, 'snapshot_period': 1,
-            # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
-            # }
-            # })
+            if 'embedded' not in search:
+                search.update({
+                    'embedded': {
+                        'check_command': 1, 'event_handler': 1,
+                        'check_period': 1, 'notification_period': 1,
+                        'maintenance_period': 1, 'snapshot_period': 1,
+                        'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+                    }
+                })
 
         try:
             logger.info("get_hosts, search: %s", search)
