@@ -43,8 +43,8 @@ plugin_parameters = {
     'default_zoom': 16,
     'default_lng': 5.080625,
     'default_lat': 45.054148,
-    'hosts_level': [1,2,3,4,5],
-    'services_level': [1,2,3,4,5],
+    'hosts_level': [1, 2, 3, 4, 5],
+    'services_level': [1, 2, 3, 4, 5],
     'layer': ''
 }
 
@@ -52,7 +52,7 @@ plugin_parameters = {
 # Our page. If the user call /worldmap
 def show_worldmap():
     """
-    Get the hosts list
+    Get the hosts list to build a worldmap
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -118,68 +118,11 @@ def show_worldmap():
     }
 
 
-def show_worldmap_widget():
-    user = app.request.environ['USER']
-
-    wid = app.request.query.get('wid', 'widget_worldmap_' + str(int(time.time())))
-    collapsed = (app.request.query.get('collapsed', 'False') == 'True')
-
-    # We want to limit the number of elements, The user will be able to increase it
-    nb_elements = max(0, int(app.request.query.get('nb_elements', '10')))
-    refine_search = app.request.query.get('search', '')
-
-    # Apply search filter if exists ...
-    search = app.request.query.get('search', "type:host")
-
-    items = search_hosts_with_coordinates(search, user)
-
-    # Ok, if needed, apply the widget refine search filter
-    if refine_search:
-        pat = re.compile(refine_search, re.IGNORECASE)
-        items = [ i for i in items if pat.search(i.get_full_name()) ]
-
-    items = items[:nb_elements]
-
-    options = {
-        'search': {
-            'value': refine_search,
-            'type': 'hst_srv',
-            'label': 'Filter by name'
-        },
-        'nb_elements': {
-            'value': nb_elements,
-            'type': 'int',
-            'label': 'Max number of elements to show'
-        },
-    }
-
-    title = 'Worldmap'
-    if refine_search:
-        title = 'Worldmap (%s)' % refine_search
-
-    mapId = "map_%d" % random.randint(1, 9999)
-
-    return {'wid': wid, 'mapId': mapId,
-            'collapsed': collapsed, 'options': options,
-            'base_url': '/widget/worldmap', 'title': title,
-            'params': plugin_parameters, 'hosts' : items
-            }
-
-
 # We export our properties to the webui
 pages = {
     show_worldmap: {
         'name': 'Worldmap',
         'route': '/worldmap',
         'view': 'worldmap'
-    },
-    show_worldmap_widget: {
-        'name': 'wid_Worldmap',
-        'route': '/widget/worldmap',
-        'view': 'worldmap_widget',
-        'widget': ['dashboard'],
-        'widget_desc': '''<h4>Worldmap</h4>Show a map of all monitored hosts.''',
-        'widget_name': 'worldmap',
-        'widget_picture': '/static/worldmap/img/widget_worldmap.png'
     }
 }
