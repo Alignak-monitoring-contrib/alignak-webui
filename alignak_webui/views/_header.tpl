@@ -4,14 +4,15 @@
 %elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
 
 <script type="text/javascript">
+   // Check header refresh period (seconds)
+   var header_refresh_period = 10;
+
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
-      if (refresh_logs) console.debug("Page header refresh");
       $.ajax({
          url: "/ping?action=refresh&template=_header_hosts_state"
       })
       .done(function(content, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Refresh header - hosts state");
          $('#overall-hosts-states').html(content);
       });
 
@@ -19,7 +20,6 @@
          url: "/ping?action=refresh&template=_header_services_state"
       })
       .done(function(content, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Refresh header - services state");
          $('#overall-services-states').html(content);
       });
    }

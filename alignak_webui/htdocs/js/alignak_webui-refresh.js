@@ -25,8 +25,6 @@ var refresh_logs=false;
 var refresh_timeout = app_refresh_period;
 // Check refresh period (seconds)
 var check_period = 1;
-// Check header refresh period (seconds)
-var header_refresh_period = 10;
 // Ping period (seconds) - Set this value to 0 to disable periodical server ping.
 var ping_period = 0;
 // Refresh required
