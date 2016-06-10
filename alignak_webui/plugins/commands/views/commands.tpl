@@ -57,8 +57,6 @@
                   </td>
 
                   <td>
-                     <!-- anchor for each command -->
-                     <a name="{{command.id}}"></a>
                      <small>{{command.name}}</small>
                   </td>
 

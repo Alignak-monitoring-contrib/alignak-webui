@@ -934,7 +934,7 @@ class DataManager(object):
                         'check_command': 1, 'event_handler': 1,
                         'check_period': 1, 'notification_period': 1,
                         'maintenance_period': 1, 'snapshot_period': 1,
-                        'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+                        # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
                     }
                 })
 
@@ -1002,7 +1002,7 @@ class DataManager(object):
                     'host_name': 1,
                     'check_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
-                    'servicegroups': 1, 'contacts': 1, 'contact_groups': 1
+                    # 'servicegroups': 1, 'contacts': 1, 'contact_groups': 1
                 }
             })
 

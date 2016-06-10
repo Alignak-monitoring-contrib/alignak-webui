@@ -18,30 +18,34 @@
       </li>
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Livestate table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Livestate table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-            <span class="fa fa-fw fa-table"></span>
+            <span class="fa fa-fw fa-heartbeat"></span>
             <span class="hidden-sm hidden-xs">{{_('Livestate')}}</span>
          </a>
       </li>
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Hosts table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-            <span class="fa fa-fw fa-table"></span>
+            <span class="fa fa-fw fa-server"></span>
             <span class="hidden-sm hidden-xs">{{_('Hosts')}}</span>
          </a>
       </li>
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Services table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-            <span class="fa fa-fw fa-table"></span>
+            <span class="fa fa-fw fa-cubes"></span>
             <span class="hidden-sm hidden-xs">{{_('Services')}}</span>
          </a>
       </li>
-      %if current_user.is_administrator():
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Contacts')}}">
          <a class="navbar-link" href="{{ webui.get_url('Contacts') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-users"></span>
             <span class="hidden-sm hidden-xs">{{_('Contacts')}}</span>
          </a>
       </li>
-      %end
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Timeperiods')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Timeperiods') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <span class="fa fa-fw fa-calendar"></span>
+            <span class="hidden-sm hidden-xs">{{_('Timeperiods')}}</span>
+         </a>
+      </li>
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Commands')}}">
          <a class="navbar-link" href="{{ webui.get_url('Commands') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-bolt"></span>

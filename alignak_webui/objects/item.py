@@ -597,7 +597,9 @@ class Item(object):
                             # Create a new object
                             objects_list.append(object_class(result))
                         else:
-                            logger.error("_create, list element is not a string: %s", element)
+                            logger.critical(
+                                "_create, list element %s is not a string: %s", key, element
+                            )
 
                     setattr(self, '_linked_' + key, objects_list)
                     logger.debug("_create, linked with %s (%s)", key, [o for o in objects_list])
@@ -835,6 +837,13 @@ class Item(object):
         Get Item html link
         """
         return '<a href="%s">%s</a>' % (self.endpoint, self.alias)
+
+    @property
+    def html_state_link(self):
+        """
+        Get Item html link
+        """
+        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(label=self.alias))
 
     @name.setter
     def name(self, name):
@@ -1722,6 +1731,13 @@ class TimePeriod(Item):
         Initialize a timeperiod (called every time an object is invoked)
         """
         super(TimePeriod, self).__init__(params)
+
+    @property
+    def endpoint(self):
+        """
+        Overload default property. Link to the main objects page with an anchor.
+        """
+        return '/%ss#%s' % (self.object_type, self.id)
 
 
 # Sort methods

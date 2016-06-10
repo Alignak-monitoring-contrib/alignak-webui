@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
@@ -156,7 +156,8 @@
                <dt>{{_('Parents:')}}</dt>
                %if hasattr(host, 'parents'):
                <dd>
-               %parents=['<a href="/host/'+parent.host_name+'" class="link">'+parent.display_name+'</a>' for parent in sorted(host.parents,key=lambda x:x.display_name)]
+               {{host.parents}}
+               %parents=['<a href="/host/'+parent.id+'" class="link">'+parent.alias+'</a>' for parent in host.parents if isinstance(parent, type)]
                {{!','.join(parents)}}
                </dd>
                %else:
@@ -485,12 +486,7 @@
                                     data-title='{{host.check_period}}'
                                     data-content='{{host.check_period}}'
                                     >
-                                 %tp = host.check_period
-                                 %if not isinstance(tp, basestring):
-                                 {{! '<a href="command/%s">%s</a>' % (tp.id, tp.get_html_state(label=tp.name))}}
-                                 %else:
-                                 {{tp}}
-                                 %end
+                                 {{! host.check_period.html_state_link}}
                               </td>
                            </tr>
 
@@ -502,12 +498,7 @@
                                     data-title='{{host.maintenance_period}}'
                                     data-content='{{host.maintenance_period}}'
                                     >
-                                 %tp = host.maintenance_period
-                                 %if not isinstance(tp, basestring):
-                                 {{! '<a href="timeperiod/%s">%s</a>' % (tp.id, tp.get_html_state(label=tp.name))}}
-                                 %else:
-                                 {{tp}}
-                                 %end
+                                 {{! host.maintenance_period.html_state_link}}
                               </td>
                            </tr>
                            %end
@@ -515,8 +506,7 @@
                            <tr>
                               <td><strong>{{_('Check command:')}}</strong></td>
                               <td>
-                                 %command = host.check_command
-                                 {{! '<a href="command/%s">%s</a>' % (command.id, command.get_html_state(label=command.name))}}
+                                 {{! host.check_command.html_state_link}}
                               </td>
                               <td>
                               </td>

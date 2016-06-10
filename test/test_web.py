@@ -765,6 +765,43 @@ class tests_3(unittest2.TestCase):
             '25 elements out of 89',
         )
 
+    def test_3_6_timeperiods(self):
+        print ''
+        print 'test timeperiods'
+
+        print 'get page /timeperiods'
+        response = self.app.get('/timeperiods')
+        response.mustcontain(
+            '<div id="timeperiods">',
+            '5 elements out of 5',
+        )
+
+    def test_3_7_livestate(self):
+        print ''
+        print 'test livestate'
+
+        print 'get page /livestate'
+        response = self.app.get('/livestate/fake_id', status=204)
+
+        session = response.request.environ['beaker.session']
+        datamgr = session['datamanager']
+        lv_host = datamgr.get_livestate({'where': {'name': 'webui'}})
+        lv_service = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+
+        # Redirect to host page
+        response = self.app.get('/livestate/' + lv_host[0].id)
+        response = response.follow()
+        response.mustcontain(
+            '<div id="host">',
+        )
+
+        # Redirect to host page
+        response = self.app.get('/livestate/' + lv_service[0].id)
+        response = response.follow()
+        response.mustcontain(
+            '<div id="host">',
+        )
+
 
 class tests_4_target_user(unittest2.TestCase):
 

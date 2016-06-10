@@ -173,7 +173,7 @@ class Datatable(object):
             self.table_columns.append({
                 # 'name': field,
                 'data': field,
-                'regex': model.get('regex', False),
+                'regex': model.get('regex', True),
                 'title': model.get('title', field),
                 'type': model.get('type', 'string'),
                 'format': model.get('format', 'string'),

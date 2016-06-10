@@ -477,3 +477,46 @@ class Helper(object):
             )
 
         return res
+
+    @staticmethod
+    def get_html_timeperiod(tp, title=None):
+        """
+        Build an html definition list for the timeperiod date ranges and exclusions.
+        """
+        if tp is None or len(tp.dateranges) == 0:
+            return ''
+
+        content = '<button class="btn btn-default btn-xs btn-block" type="button"' \
+                  'data-toggle="collapse" data-target="#html_tp_%s" aria-expanded="false" ' \
+                  'aria-controls="html_tp_%s">%s</button>' \
+                  '<div class="collapse" id="html_tp_%s"><div class="well">' % (
+                      tp.id, tp.id, tp.name if not title else title, tp.id
+                  )
+
+        # Build the included list ...
+        if tp.dateranges:
+            content += '''<ul class="list-group">'''
+            for daterange in tp.dateranges:
+                for key in daterange.keys():
+                    content += \
+                        '<li class="list-group-item">'\
+                        '<span class="fa fa-check">&nbsp;%s - %s</li>' % (
+                            key, daterange[key]
+                        )
+            content += '''</ul>'''
+
+        # Build the excluded list ...
+        if tp.exclude:
+            content += '<ul class="list-group">'
+            for daterange in tp.exclude:
+                for key in daterange.keys():
+                    content += \
+                        '<li class="list-group-item">'\
+                        '<span class="fa fa-close">&nbsp;%s - %s</li>''' % (
+                            key, daterange[key]
+                        )
+            content += '</ul>'
+
+        content += '</div></div>'
+
+        return content

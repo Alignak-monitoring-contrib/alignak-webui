@@ -61,7 +61,7 @@
                   </td>
 
                   <td>
-                     <small>{{host.name}}</small>
+                     <small>{{!host.html_link}}</small>
                   </td>
 
                   <td>
@@ -77,8 +77,7 @@
                   </td>
 
                   <td>
-                     %command = host.check_command
-                     <small>{{! '<a href="%s">%s</a>' % (command.endpoint, command.get_html_state(label=command.name))}}</small>
+                     <small>{{! host.check_command.html_state_link}}</small>
                   </td>
 
                   <td>

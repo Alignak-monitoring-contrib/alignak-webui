@@ -31,6 +31,7 @@ from nose.tools import *
 from alignak_webui import get_app_config, set_app_config
 from alignak_webui.utils.settings import Settings
 from alignak_webui.utils.helper import Helper
+from alignak_webui.objects.item import TimePeriod
 helper = Helper()
 
 
@@ -522,4 +523,17 @@ class test_helper(unittest2.TestCase):
         s = helper.get_html_business_impact(5, icon=True, text=True)
         print "Result:", s
         self.assert_(s == 'Business critical ' + '<i class="fa fa-star text-primary"></i>' * 5)
+
+    def test_07_bis_print_timeperiod(self):
+        print "---"
+
+        # Invalid values
+        s = helper.get_html_timeperiod(None)
+        print "Result:", s
+        self.assertEqual(s, '')
+
+        tp = TimePeriod({'_updated': 1465548247, '_total': 5, '_type': 'timeperiod', 'definition_order': 100, '_default_date': 0, '_comment': '', 'is_active': True, '_name': u'All time default 24x7', 'dateranges': [{u'monday': u'00:00-24:00'}, {u'tuesday': u'00:00-24:00'}, {u'wednesday': u'00:00-24:00'}, {u'thursday': u'00:00-24:00'}, {u'friday': u'00:00-24:00'}, {u'saturday': u'00:00-24:00'}, {u'sunday': u'00:00-24:00'}], '_alias': u'', '_links': {u'self': {u'href': u'timeperiod/575a7dd74c988c170e857988', u'title': u'Timeperiod'}}, '_realm': u'575a7dd74c988c170e857987', '_created': 1465548247, 'exclude': [], '_status': 'unknown', '_id': u'575a7dd74c988c170e857988', '_etag': u'e9f5fb031b79f9abdc42f44d413f8220c321767b', 'imported_from': u''})
+        s = helper.get_html_timeperiod(tp)
+        print "Result:", s
+        self.assertEqual(s, '<button class="btn btn-default btn-xs btn-block" type="button"data-toggle="collapse" data-target="#html_tp_575a7dd74c988c170e857988" aria-expanded="false" aria-controls="html_tp_575a7dd74c988c170e857988">All time default 24x7</button><div class="collapse" id="html_tp_575a7dd74c988c170e857988"><div class="well"><ul class="list-group"><li class="list-group-item"><span class="fa fa-check">&nbsp;monday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;tuesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;wednesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;thursday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;friday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;saturday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;sunday - 00:00-24:00</li></ul></div></div>')
 
