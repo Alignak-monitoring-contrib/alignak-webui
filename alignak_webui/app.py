@@ -93,7 +93,7 @@ cfg_file = None
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
     print "Application is in test mode"
-else:
+else:  # pragma: no cover - tests are run in test mode...
     print "Application is in production mode"
 
 if os.environ.get('TEST_WEBUI_CFG'):

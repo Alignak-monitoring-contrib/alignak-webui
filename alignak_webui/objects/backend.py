@@ -98,9 +98,15 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
         def count(self, object_type, params=None):
             """
-            params is used to 'get' objects from the backend.
+            If params is a string, it is considered to be an object id and params
+            is modified to {'_id': params}.
+
+            Else, params is used to 'get' objects from the backend.
             """
             logger.debug("count, %s, params: %s", object_type, params)
+
+            if isinstance(params, basestring):
+                params = {'where': {'_id': params}}
 
             # Update backend search parameters
             if params is None:
@@ -134,8 +140,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 logger.debug("count, found in the backend: %s: %s", object_type, result['_items'])
                 return result['_meta']['total']
 
-            logger.debug("count, found one element: %s: %s", object_type, result)
-            return 1
+            # pragma: no cover, simple protection
+            return 0
 
         def get(self, object_type, params=None, all_elements=False):
             """

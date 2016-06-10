@@ -138,6 +138,34 @@ class test_3_get(unittest2.TestCase):
     def tearDown(self):
         print ""
 
+    def test_count(self):
+        print "--- count"
+
+        # Count all contacts
+        result = self.be.count('contact')
+        print "Result: %s", result
+        self.assertEqual(result, 4)
+
+        parameters = {'where': {"name":"admin"}}
+        result = self.be.count('contact', parameters)
+        print "Result: %s", result
+        self.assertEqual(result, 1)
+
+        parameters = {'where': {"name":"fake"}}
+        result = self.be.count('contact', parameters)
+        print "Result: %s", result
+        self.assertEqual(result, 0) # Not found !
+
+        # Get admin contact
+        parameters = {'where': {"name":"admin"}}
+        result = self.be.get('contact', parameters)
+        print result
+        self.assertEqual(len(result), 1)    # Only 1 is admin
+
+        result = self.be.count('contact', result[0]['_id'])
+        print "Result: %s", result
+        self.assertEqual(result, 1)
+
     def test_get(self):
         print "--- get"
 
@@ -150,10 +178,28 @@ class test_3_get(unittest2.TestCase):
             print " - %s (one out of %d)" % (contact['name'], contact['_total'])
         self.assertEqual(len(result), 4)        # Default configuration has 4 contacts
 
+        parameters = {'where': {"name":"fake"}}
+        result = self.be.get('contact', parameters)
+        print result
+        self.assertEqual(len(result), 0)    # Not found
+
         parameters = {'where': {"name":"admin"}}
         result = self.be.get('contact', parameters)
         print result
         self.assertEqual(len(result), 1)    # Only 1 is admin
+        admin_id = result[0]['_id']
+        print "Administrator id:", admin_id
+
+        result = self.be.get('contact', result[0]['_id'])
+        print "Result: %s", result
+        self.assertEqual(len(result), 1)    # Only 1 is admin
+        self.assertEqual(result[0]['_id'], admin_id)
+
+        # Directly address object in the backend
+        result = self.be.get('contact/' + result[0]['_id'])
+        print "--- Result: %s", result
+        self.assertEqual(len(result), 40)    # 40 attributes in the result
+        self.assertEqual(result['_id'], admin_id)
 
     def test_get_all(self):
         print "--- get all"

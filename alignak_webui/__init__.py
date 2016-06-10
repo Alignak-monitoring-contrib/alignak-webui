@@ -141,7 +141,7 @@ def set_app_config(config):
     # Set application log level (default is INFO (20))
     print "Activate logs level: %d" % int(app_config.get('logs.level', '20'))
     logger.setLevel(int(app_config.get('logs.level', '20')))
-    if app_config.get('debug', '0') == '1':
+    if app_config.get('debug', '0') == '1':  # pragma: no cover - not testable easily...
         print "Activate DEBUG logs"
         logger.setLevel(DEBUG)
 

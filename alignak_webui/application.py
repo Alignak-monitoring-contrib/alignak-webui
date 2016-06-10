@@ -226,6 +226,7 @@ def ping():
             # Send rendered template
             return template(page_template)
 
+        # pragma: no cover - should not happen
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(
