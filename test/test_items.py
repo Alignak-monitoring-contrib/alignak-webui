@@ -890,5 +890,4 @@ class test_03_relations(unittest2.TestCase):
         print host.__dict__
         print host.check_command
         assert host.check_command == 'command'  # Remained the init string because no link could be done with the command ... the backend is not available to find the command !
-        assert False
 
