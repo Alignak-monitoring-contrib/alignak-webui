@@ -534,7 +534,7 @@ class Datatable(object):
                         # Specific fields name
                         if field['data'] == self.name_property:
                             item[key] = '''<a href="/%s/%s">%s</a>''' % (
-                                bo_object.getType(),
+                                bo_object.object_type,
                                 bo_object.id,
                                 bo_object.name
                             )
@@ -559,14 +559,8 @@ class Datatable(object):
                                    '_type' in globals()[k].__dict__ and \
                                    globals()[k]._type == field['format']:
                                     linked_object = globals()[k](item[key])
-                                    logger.debug("created: %s", linked_object)
-                                    item[key] = '''<a href="%s/%s">%s</a>''' % (
-                                        field['format'],
-                                        item[key]['_id'] if '_id' in item[key] else '',
-                                        linked_object.get_html_state(
-                                            label=linked_object.name
-                                        )
-                                    )
+                                    logger.debug("created: %s / %s", linked_object, linked_object.status)
+                                    item[key] = linked_object.html_link
                                     break
 
         # Prepare response

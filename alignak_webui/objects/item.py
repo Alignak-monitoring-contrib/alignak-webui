@@ -447,7 +447,7 @@ class Item(object):
         _id = '0'
         if params:
             if not isinstance(params, dict):
-                print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
+                # print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
                 raise ValueError('Item.__new__: object parameters must be a dictionary!')
 
             if id_property in params:
@@ -470,13 +470,15 @@ class Item(object):
             cls._cache[_id] = super(Item, cls).__new__(cls, params, date_format)
             cls._cache[_id]._type = cls.getType()
             cls._cache[_id]._default_date = cls._default_date
+            # print " ... new: %s" % cls._cache[_id]
 
             # Call the new object create function
             cls._cache[_id]._create(params, date_format)
+            # print " ... created: %s" % cls._cache[_id]
             cls._count += 1
         else:
             if params != cls._cache[_id].__dict__:
-                # print "Update existing instance for: ", _id, params
+                # print "Update existing instance for: ", cls._cache[_id]
                 cls._cache[_id]._update(params, date_format)
 
         return cls._cache[_id]
@@ -668,7 +670,7 @@ class Item(object):
     def _update(self, params, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         id_property = getattr(self.__class__, 'id_property', '_id')
 
-        logger.debug(" --- updating a %s (%s)", self.__class__, self[id_property])
+        logger.debug(" --- updating a %s (%s)", self.object_type, self[id_property])
 
         if not isinstance(params, dict):
             if self.__class__ == params.__class__:
@@ -681,7 +683,6 @@ class Item(object):
                 )
                 return
 
-        # params = params.__dict__
         for key in params:
             logger.debug(" --- parameter %s = %s", key, params[key])
             if hasattr(self, '_linked_' + key):
@@ -819,6 +820,20 @@ class Item(object):
             return getattr(self, self.__class__.name_property, None)
         return self._name
 
+    @property
+    def endpoint(self):
+        """
+        Get Item endpoint (page url)
+        """
+        return '/%s/%s' % (self.object_type, self.id)
+
+    @property
+    def html_link(self):
+        """
+        Get Item html link
+        """
+        return '<a href="%s">%s</a>' % (self.endpoint, self.alias)
+
     @name.setter
     def name(self, name):
         """
@@ -915,7 +930,7 @@ class Item(object):
         Uses the ItemState singleton to display HTML state for an item
         """
         if not object_type:
-            object_type = self.__class__._type
+            object_type = self.object_type
 
         if not object_item:
             object_item = self
@@ -1069,13 +1084,20 @@ class Contact(Item):
         super(Contact, self).__init__(params)
 
     def __repr__(self):
-        if self.authenticated:
+        if hasattr(self, 'authenticated') and self.authenticated:
             return ("<Authenticated %s, id: %s, name: %s, role: %s>") % (
                 self.__class__._type, self.id, self.name, self.get_role()
             )
         return ("<%s, id: %s, name: %s, role: %s>") % (
             self.__class__._type, self.id, self.name, self.get_role()
         )
+
+    @property
+    def endpoint(self):
+        """
+        Overload default property. Link to the main objects page with an anchor.
+        """
+        return '/%ss#%s' % (self.object_type, self.id)
 
     @property
     def display_name(self):
@@ -1654,6 +1676,13 @@ class Command(Item):
         Initialize a command (called every time an object is invoked)
         """
         super(Command, self).__init__(params)
+
+    @property
+    def endpoint(self):
+        """
+        Overload default property. Link to the main objects page with an anchor.
+        """
+        return '/%ss#%s' % (self.object_type, self.id)
 
 
 class TimePeriod(Item):

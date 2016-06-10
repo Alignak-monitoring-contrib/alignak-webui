@@ -55,44 +55,44 @@
 
             <tbody>
                %for host in hosts:
-                  <tr data-toggle="collapse" data-target="#details-{{host.id}}" class="accordion-toggle">
-                     <td>
-                        {{! host.get_html_state()}}
-                     </td>
+               <tr id="#{{host.id}}">
+                  <td>
+                     {{! host.get_html_state()}}
+                  </td>
 
-                     <td>
-                        <small>{{host.name}}</small>
-                     </td>
+                  <td>
+                     <small>{{host.name}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.alias}}</small>
-                     </td>
+                  <td>
+                     <small>{{host.alias}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.display_name}}</small>
-                     </td>
+                  <td>
+                     <small>{{host.display_name}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.address}}</small>
-                     </td>
+                  <td>
+                     <small>{{host.address}}</small>
+                  </td>
 
-                     <td>
-                        %command=host.check_command
-                        <small>{{! command.get_html_state(label=command.name)}}</small>
-                     </td>
+                  <td>
+                     %command = host.check_command
+                     <small>{{! '<a href="%s">%s</a>' % (command.endpoint, command.get_html_state(label=command.name))}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{! Helper.get_on_off(host.active_checks_enabled)}}</small>
-                     </td>
+                  <td>
+                     <small>{{! Helper.get_on_off(host.active_checks_enabled)}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{! Helper.get_on_off(host.passive_checks_enabled)}}</small>
-                     </td>
+                  <td>
+                     <small>{{! Helper.get_on_off(host.passive_checks_enabled)}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.business_impact}}</small>
-                     </td>
-                  </tr>
+                  <td>
+                     <small>{{host.business_impact}}</small>
+                  </td>
+               </tr>
              %end
             </tbody>
          </table>

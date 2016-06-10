@@ -1,4 +1,4 @@
-%setdefault('debug', False)
+%setdefault('debug', True)
 %# When layout is False, this template is embedded
 %setdefault('layout', True)
 
@@ -58,45 +58,45 @@
 
             <tbody>
                %for service in services:
-                  <tr data-toggle="collapse" data-target="#details-{{service.id}}" class="accordion-toggle">
-                     <td>
-                        {{! service.get_html_state()}}
-                     </td>
+               <tr id="#{{service.id}}">
+                  <td>
+                     {{! service.get_html_state()}}
+                  </td>
 
-                     <td>
-                        <small>{{service.name}}</small>
-                     </td>
+                  <td>
+                     <small>{{service.name}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{service.alias}}</small>
-                     </td>
+                  <td>
+                     <small>{{service.alias}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{service.display_name}}</small>
-                     </td>
+                  <td>
+                     <small>{{service.display_name}}</small>
+                  </td>
 
-                     <td>
-                        %host = service.host_name
-                        <small>{{! '<a href="host/%s">%s</a>' % (host.id, host.get_html_state(label=host.name))}}</small>
-                     </td>
+                  <td>
+                     %host = service.host_name
+                     <small>{{! '<a href="%s">%s</a>' % (host.endpoint, host.get_html_state(label=host.name))}}</small>
+                  </td>
 
-                     <td>
-                        %command = service.check_command
-                        <small>{{! '<a href="command/%s">%s</a>' % (command.id, command.get_html_state(label=command.name))}}</small>
-                     </td>
+                  <td>
+                     %command = service.check_command
+                     <small>{{! '<a href="%s">%s</a>' % (command.endpoint, command.get_html_state(label=command.name))}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{! Helper.get_on_off(service.active_checks_enabled)}}</small>
-                     </td>
+                  <td>
+                     <small>{{! Helper.get_on_off(service.active_checks_enabled)}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{! Helper.get_on_off(service.passive_checks_enabled)}}</small>
-                     </td>
+                  <td>
+                     <small>{{! Helper.get_on_off(service.passive_checks_enabled)}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{service.business_impact}}</small>
-                     </td>
-                  </tr>
+                  <td>
+                     <small>{{service.business_impact}}</small>
+                  </td>
+               </tr>
              %end
             </tbody>
          </table>

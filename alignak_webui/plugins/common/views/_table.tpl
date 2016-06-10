@@ -14,6 +14,15 @@
 tbody > tr {
    font-size:11px;
 }
+/* Modal opening button position adjusted */
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+   top: 3px;
+}
+/* Selected line */
+table.dataTable tbody>tr.selected,
+table.dataTable tbody>tr>.selected {
+   background-color:#FAF3CD; color: black;
+}
 </style>
 
 <!-- Table display -->

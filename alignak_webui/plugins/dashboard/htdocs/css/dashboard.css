@@ -113,36 +113,35 @@ ul#Navigation li {
 .badger-big {
   background-color: #999999;
   border-radius: 3px;
-  color: #FFFFFF;
-  font-size: 1.3em;
-  font-weight: bold;
-  padding: 1px 3px 2px;
+  color: #ffffff;
+  font-size: 1em;
   text-transform: uppercase;
 
+  width: 45%;
   position: relative;
-  bottom: 4.8em;
+  bottom: 6em;
 }
 .badger-left {
-  left: -10px;
+  float: left;
 }
 .badger-right {
-  right: -10px;
+  float: right;
 }
 
 .badger-info {
-  background-color: #337ABF; opacity: 0.85;
+  background-color: #337ABF; opacity: 0.75;
 }
 
 .badger-critical {
-  background-color: #FF2727; opacity: 0.85;
+  background-color: #FF2727; opacity: 0.75;
 }
 
 .badger-warning {
-  background-color: #FFA827; opacity: 0.85;
+  background-color: #FFA827; opacity: 0.75;
 }
 
 .badger-ok {
-  background-color: #7AB317;
+  background-color: #7AB317; opacity: 0.75;
 }
 
 .badger-title {

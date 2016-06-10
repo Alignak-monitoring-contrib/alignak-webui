@@ -51,39 +51,41 @@
 
             <tbody>
                %for command in commands:
-                  <tr data-toggle="collapse" data-target="#details-{{command.id}}" class="accordion-toggle">
-                     <td>
-                        {{! command.get_html_state()}}
-                     </td>
+               <tr id="#{{command.id}}">
+                  <td>
+                     {{! command.get_html_state()}}
+                  </td>
 
-                     <td>
-                        <small>{{command.name}}</small>
-                     </td>
+                  <td>
+                     <!-- anchor for each command -->
+                     <a name="{{command.id}}"></a>
+                     <small>{{command.name}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.command_line}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.command_line}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.timeout}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.timeout}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.module_type}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.module_type}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.enable_environment_macros}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.enable_environment_macros}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.poller_tag}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.poller_tag}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.reactionner_tag}}</small>
-                     </td>
-                  </tr>
+                  <td>
+                     <small>{{command.reactionner_tag}}</small>
+                  </td>
+               </tr>
              %end
             </tbody>
          </table>

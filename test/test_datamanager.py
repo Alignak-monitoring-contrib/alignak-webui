@@ -179,9 +179,11 @@ class test_2_creation(unittest2.TestCase):
         print datamanager.logged_in_user
         assert datamanager.logged_in_user
         assert datamanager.get_logged_user() != None
+        assert datamanager.get_logged_user().id != None
         assert datamanager.get_logged_user().get_username() == 'admin'
         assert datamanager.get_logged_user().authenticated
         user_token = datamanager.get_logged_user().token
+        print Contact._cache[datamanager.get_logged_user().id].__dict__
 
         print 'DM reset'
         datamanager.reset()
@@ -210,8 +212,10 @@ class test_2_creation(unittest2.TestCase):
 
         assert datamanager.logged_in_user
         assert datamanager.get_logged_user() != None
+        assert datamanager.get_logged_user().id != None
         assert datamanager.get_logged_user().get_username() == 'admin'
         assert datamanager.get_logged_user().authenticated
+        # assert False
 
 
 class test_3_load_create(unittest2.TestCase):
