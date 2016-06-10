@@ -32,7 +32,7 @@
             <td>
                <center>
                   <a href="{{ webui.get_url('Services') }}" class="btn btn-sm">
-                     <i class="fa fa-4x fa-desktop font-greyed"></i>
+                     <i class="fa fa-4x fa-cubes font-greyed"></i>
                      <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Services')}}</span>
                      <div class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{ss["nb_elts"]}}</div>
                      <div class="badger-big badger-right badger-{{font}}" title="{{_('Number of services in problems')}}">{{ss["nb_problems"]}}</div>

@@ -25,7 +25,7 @@
    class="services-all" data-count="{{ services_states['nb_elts'] }}" data-problems="{{ services_states['nb_problems'] }}"
    href="{{webui.get_url('Services')}}"
    data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d) up') % (services_states['nb_elts'], services_states['nb_ok'])}}" data-html="true" data-trigger="hover">
-   <i class="fa fa-desktop"></i>
+   <i class="fa fa-cubes"></i>
    <span class="label label-as-badge label-{{label}}">{{services_states["nb_ok"]}}</span>
 </a>
 
