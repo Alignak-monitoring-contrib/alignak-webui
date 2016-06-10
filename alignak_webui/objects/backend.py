@@ -209,6 +209,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 logger.debug("get, found in the backend: %s: %s", object_type, result['_items'])
                 return result['_items']
 
+            if '_status' in result:
+                result.pop('_status', None)
             if '_meta' in result:
                 result.update({'_total': result['_meta']['total']})
             logger.debug("get, found one in the backend: %s: %s", object_type, result)
