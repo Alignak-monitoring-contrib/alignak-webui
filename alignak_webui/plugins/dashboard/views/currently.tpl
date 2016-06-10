@@ -332,7 +332,7 @@
 </script>
 
 %hs = datamgr.get_livesynthesis()['hosts_synthesis']
-%s = datamgr.get_livesynthesis()['services_synthesis']
+%ss = datamgr.get_livesynthesis()['services_synthesis']
 
 <div class="container-fluid">
    <div class="row">
@@ -451,8 +451,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="fa fa-cubes"></i>
-                    <span class="services-all" data-count="{{ s['nb_elts'] }}" data-problems="{{ s['nb_problems'] }}">
-                        {{s['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (s['nb_problems']) if s['nb_problems'] else '.'}}
+                    <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
+                        {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
                     </span>
                     <div class="pull-right">
                         <a href="#p_panel_counters_services" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_counters_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
@@ -462,9 +462,9 @@
                     <div class="panel-body">
                         %for state in 'ok', 'warning', 'critical', 'unknown':
                         <div class="col-xs-6 col-md-3 text-center">
-                            %label = "%d<br/><em>(%s)</em>" % (s['nb_' + state], state)
+                            %label = "%d<br/><em>(%s)</em>" % (ss['nb_' + state], state)
                             <a role="button" href="/all?search=type:service is:{{state}} isnot:ack isnot:downtime" class="font-{{state.lower()}}">
-                                <span class="services-count" data-count="{{ s['nb_' + state] }}" data-state="{{ state }}" style="font-size: 3em;">{{ s['nb_' + state] }}</span>
+                                <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 3em;">{{ ss['nb_' + state] }}</span>
                                 <br/>
                                 <span style="font-size: 1.5em;">{{ state }}</span>
                             </a>
@@ -530,8 +530,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="fa fa-cubes"></i>
-                    <span class="services-all" data-count="{{ s['nb_elts'] }}" data-problems="{{ s['nb_problems'] }}">
-                        {{s['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (s['nb_problems']) if s['nb_problems'] else '.'}}
+                    <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
+                        {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
                     </span>
                     <div class="pull-right">
                         <a href="#p_panel_percentage_services" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_percentage_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
@@ -543,7 +543,7 @@
                         <div class="col-xs-4 col-sm-4 text-center">
                             <a href="/all?search=type:service" class="btn">
                                <div>
-                                  %state = (100 - s['pct_ok'])
+                                  %state = (100 - ss['pct_ok'])
                                   %font='ok' if state >= 95.0 else 'warning' if state >= 90.0 else 'critical'
                                   <span class="badger-big badger-right font-{{font}}">{{state}}%</span>
                                </div>
@@ -556,17 +556,17 @@
                         %for state in 'ok', 'warning', 'critical', 'unknown':
                         <div class="col-xs-4 col-sm-4 text-center">
                             <a role="button" href="/all?search=type:service is:{{state}} isnot:ack isnot:downtime" class="font-{{state.lower()}}">
-                                <span class="services-count" data-count="{{ s['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ s['pct_' + state] }}%</span>
+                                <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ ss['pct_' + state] }}%</span>
                                 <br/>
                                 <span style="font-size: 1em;">{{ state }}</span>
                             </a>
                         </div>
                         %end
-                        %known_problems=s['nb_acknowledged']+s['nb_in_downtime']+s['nb_problems']
-                        %pct_known_problems=round(100.0 * known_problems / s['nb_elts'], 2) if s['nb_elts'] else -1
+                        %known_problems=ss['nb_acknowledged']+ss['nb_in_downtime']+ss['nb_problems']
+                        %pct_known_problems=round(100.0 * known_problems / ss['nb_elts'], 2) if ss['nb_elts'] else -1
                         <div class="col-xs-4 col-sm-4 text-center">
                             <a role="button" href="/all?search=type:service is:ack" class="font-unknown">
-                                <span class="services-count" data-count="{{ s['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ pct_known_problems }}%</span>
+                                <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ pct_known_problems }}%</span>
                                 <br/>
                                 <span style="font-size: 1em;">Known problems</span>
                             </a>
@@ -642,8 +642,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="fa fa-pie-chart"></i>
-                    <span class="services-all" data-count="{{ s['nb_elts'] }}" data-problems="{{ s['nb_problems'] }}">
-                        {{s['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (s['nb_problems']) if s['nb_problems'] else '.'}}
+                    <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
+                        {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
                     </span>
                     <div class="pull-right">
                         <div class="btn-group">
@@ -703,7 +703,7 @@
                 <div class="panel-heading">
                     <i class="fa fa-bar-chart"></i>
                     <span class="hosts-all" data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}">
-                        {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (['nb_problems']) if hs['nb_problems'] else '.'}}
+                        {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (hs['nb_problems']) if hs['nb_problems'] else '.'}}
                     </span>
                     <div class="pull-right">
                         <div class="btn-group">
@@ -762,8 +762,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="fa fa-bar-chart"></i>
-                    <span class="services-all" data-count="{{ s['nb_elts'] }}" data-problems="{{ s['nb_problems'] }}">
-                        {{s['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (s['nb_problems']) if s['nb_problems'] else '.'}}
+                    <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
+                        {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
                     </span>
                     <div class="pull-right">
                         <div class="btn-group">
