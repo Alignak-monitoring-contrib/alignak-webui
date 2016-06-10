@@ -11,35 +11,52 @@
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
+            %hs = datamgr.get_livesynthesis()['hosts_synthesis']
+            %if hs:
+            %font='critical' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'ok'
             <td>
-               %hs = datamgr.get_hosts_synthesis()
-               <center><a href="{{ webui.get_url('Hosts') }}" class="btn btn-sm">
-                  <i class="fa fa-4x fa-server font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Hosts')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{hs["nb_up"]}}</span>
-                  <span class="badger-big badger-right badger-info" title="{{_('Number of hosts down')}}">{{hs["nb_down"]}}</span>
-               </a></center>
+               <center>
+                  <a href="{{ webui.get_url('Hosts') }}" class="btn btn-sm">
+                     <i class="fa fa-4x fa-server font-greyed"></i>
+                     <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Hosts')}}</span>
+                     <span class="badger-big badger-left badger-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
+                     <span class="badger-big badger-right badger-{{font}}" title="{{_('Number of hosts in problem')}}">{{hs["nb_problems"]}}</span>
+                  </a>
+               </center>
             </td>
+            %end
 
+            %ss = datamgr.get_livesynthesis()['services_synthesis']
+            %if ss:
+            %font='critical' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'ok'
             <td>
-               %ss = datamgr.get_services_synthesis()
-               <center><a href="{{ webui.get_url('Services') }}" class="btn btn-sm">
-                  <i class="fa fa-4x fa-server font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Services')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{ss["nb_ok"]}}</span>
-                  <span class="badger-big badger-right badger-info" title="{{_('Number of hosts down')}}">{{ss["nb_critical"]}}</span>
-               </a></center>
+               <center>
+                  <a href="{{ webui.get_url('Services') }}" class="btn btn-sm">
+                     <i class="fa fa-4x fa-desktop font-greyed"></i>
+                     <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Services')}}</span>
+                     <div class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{ss["nb_elts"]}}</div>
+                     <div class="badger-big badger-right badger-{{font}}" title="{{_('Number of services in problems')}}">{{ss["nb_problems"]}}</div>
+                  </a>
+               </center>
             </td>
+            %end
 
+            %if hs and ss:
+            %problems = hs['nb_problems'] + ss['nb_problems']
+            %elements = hs['nb_elts'] + ss['nb_elts']
+            %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
+            %font='critical' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'ok'
             <td>
-               %hs = datamgr.get_hosts_synthesis()
-               <center><a href="{{ webui.get_url('Hosts') }}" class="btn btn-sm">
-                  <i class="fa fa-4x fa-server font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Problems')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{hs["nb_up"]}}</span>
-                  <span class="badger-big badger-right badger-info" title="{{_('Number of hosts down')}}">{{hs["nb_down"]}}</span>
-               </a></center>
+               <center>
+                  <a href="{{ webui.get_url('Livestate table') }}" class="btn btn-sm">
+                     <i class="fa fa-4x fa-exclamation-triangle font-greyed"></i>
+                     <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Problems')}}</span>
+                     <span class="badger-big badger-left badger-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
+                     <span class="badger-big badger-right badger-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
+                  </a>
+               </center>
             </td>
+            %end
 
             <td>
                %hs = datamgr.get_hosts_synthesis()

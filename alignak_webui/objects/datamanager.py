@@ -841,8 +841,18 @@ class DataManager(object):
         hosts_synthesis = {
             'nb_elts': ls["hosts_total"],
             'business_impact': ls["hosts_business_impact"],
+            'critical_threshold': 5.0,
+            'warning_threshold': 2.0,
+            'global_critical_threshold': 5.0,
+            'global_warning_threshold': 2.0,
         }
         for state in 'up', 'down', 'unreachable':
+            hosts_synthesis.update({
+                "nb_%s_hard" % state: ls["hosts_%s_hard" % state]
+            })
+            hosts_synthesis.update({
+                "nb_%s_soft" % state: ls["hosts_%s_soft" % state]
+            })
             hosts_synthesis.update({
                 "nb_" + state: ls["hosts_%s_hard" % state] + ls["hosts_%s_soft" % state]
             })
@@ -870,8 +880,18 @@ class DataManager(object):
         services_synthesis = {
             'nb_elts': ls["services_total"],
             'business_impact': ls["services_business_impact"],
+            'critical_threshold': 5.0,
+            'warning_threshold': 2.0,
+            'global_critical_threshold': 5.0,
+            'global_warning_threshold': 2.0,
         }
         for state in 'ok', 'warning', 'critical', 'unknown':
+            hosts_synthesis.update({
+                "nb_%s_hard" % state: ls["services_%s_hard" % state]
+            })
+            hosts_synthesis.update({
+                "nb_%s_soft" % state: ls["services_%s_soft" % state]
+            })
             services_synthesis.update({
                 "nb_" + state: ls["services_%s_hard" % state] + ls["services_%s_soft" % state]
             })
