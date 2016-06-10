@@ -559,7 +559,7 @@ class Datatable(object):
                                    '_type' in globals()[k].__dict__ and \
                                    globals()[k]._type == field['format']:
                                     linked_object = globals()[k](item[key])
-                                    logger.debug("created: %s / %s", linked_object, linked_object.status)
+                                    logger.debug("created: %s", linked_object)
                                     item[key] = linked_object.html_link
                                     break
 
