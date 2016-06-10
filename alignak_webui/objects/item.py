@@ -179,10 +179,10 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
 
         def get_html_state(self, object_type, object_item, extra='', icon=True, text=False,
                            label='', disabled=False):
-            # Yes, but it is needed ;)
             # pylint: disable=too-many-arguments
-            # Yes, but else it will be quite difficult :/
+            # Yes, but it is needed ;)
             # pylint: disable=too-many-locals, too-many-return-statements
+            # Yes, but else it will be quite difficult :/
             """
             Returns an item status as HTML text and icon if needed
 
@@ -291,6 +291,8 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                 res_icon = res_icon.replace("##text##", "")
 
             # logger.debug("get_html_state, res_icon: %s", res_icon)
+            res_icon = res_icon.replace("\n", "")
+            res_icon = res_icon.replace("\r", "")
             return res_icon
 
     instance = None
