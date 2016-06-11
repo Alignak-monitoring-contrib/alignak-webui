@@ -58,12 +58,9 @@
       <script>
       $("#elts_per_page li a").click(function(e){
          var value = $(this).data('elts');
-         console.log(value)
 
          // Save user preference
          save_user_preference('elts_per_page', value);
-
-         e.preventDefault();
 
          // Force page reloading
          location.reload();
@@ -78,8 +75,6 @@
             $('#elts_per_page input').val(value);
          }
 
-         e.preventDefault();
-
          // Force page reloading
          location.reload();
       });
@@ -92,8 +87,6 @@
          } else {
             $('#elts_per_page input').val(value);
          }
-
-         e.preventDefault();
 
          // Force page reloading
          location.reload();
