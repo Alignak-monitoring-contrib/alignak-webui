@@ -552,3 +552,20 @@ class test_6_relations(unittest2.TestCase):
         assert isinstance(host.check_command, Command)
         assert host.check_command
 
+
+    def test_02_host_service(self):
+        print "--- test Item"
+
+        # Get main realm
+        realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
+
+        # Get main TP
+        tp_all = self.dmg.get_timeperiod({'where': {'name': 'All time default 24x7'}})
+
+        # Get host
+        host = self.dmg.get_host({'where': {'name': 'webui'}})
+        print "Host: ", host.__dict__
+
+        # Get services of this host
+        service = self.dmg.get_service({'where': {'name': 'Shinken2-broker', 'host_name': host.id}})
+        print "Services: ", service.__dict__
