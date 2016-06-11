@@ -802,6 +802,26 @@ class tests_3(unittest2.TestCase):
             '<div id="host">',
         )
 
+    def test_3_8_worldmap(self):
+        print ''
+        print 'test worldmap'
+
+        print 'get page /worldmap'
+        response = self.app.get('/worldmap')
+        response.mustcontain(
+            '<div id="hostsMap" class="osm">'
+        )
+
+    def test_3_9_minemap(self):
+        print ''
+        print 'test minemap'
+
+        print 'get page /min'
+        response = self.app.get('/minemap')
+        response.mustcontain(
+            '<div id="minemap">'
+        )
+
 
 class tests_4_target_user(unittest2.TestCase):
 
