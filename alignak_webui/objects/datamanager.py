@@ -700,7 +700,8 @@ class DataManager(object):
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
             search.update({'embedded': {'host_name': 1}})
-        search.update({'where': {'type': 'host'}})
+        if 'where' in search:
+            search['where'].update({'type': 'host'})
 
         try:
             logger.info("get_livestate_hosts, search: %s", search)
@@ -739,15 +740,16 @@ class DataManager(object):
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
             search.update({'embedded': {'service_description': 1}})
-        search.update({'where': {'type': 'service'}})
+        if 'where' in search:
+            search['where'].update({'type': 'service'})
 
         try:
-            logger.info("get_livestate_hosts, search: %s", search)
+            logger.info("get_livestate_services, search: %s", search)
             items = self.find_object('livestate', search)
-            logger.info("get_livestate_hosts, got: %d elements, %s", len(items), items)
+            logger.info("get_livestate_services, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
-            logger.debug("get_livestate_hosts, none found")
+            logger.debug("get_livestate_services, none found")
 
     def get_livestate_service(self, search):
         """ Get a service livestate """
