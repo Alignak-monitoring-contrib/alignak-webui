@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 
 %setdefault('display_steps_form', False)
 
@@ -56,21 +56,17 @@
          </div>
       </form>
       <script>
-      var current_elts_per_page = {{elts_per_page}};
       $("#elts_per_page li a").click(function(e){
          var value = $(this).data('elts');
+         console.log(value)
 
          // Save user preference
          save_user_preference('elts_per_page', value);
 
-         // Update input field
-         $('#elts_per_page input').val(value);
-
-         current_elts_per_page = value;
-
          e.preventDefault();
 
-         refresh_required = true;
+         // Force page reloading
+         location.reload();
       });
       $('#elts_per_page').submit(function(e){
          var value = $('#elts_per_page input').val();
@@ -78,14 +74,14 @@
          if (value == parseInt(value)) {
             // Update input field
             save_user_preference('elts_per_page', value);
-            current_elts_per_page = value;
          } else {
-            $('#elts_per_page input').val(current_elts_per_page);
+            $('#elts_per_page input').val(value);
          }
 
          e.preventDefault();
 
-         refresh_required = true;
+         // Force page reloading
+         location.reload();
       });
       $('#elts_per_page input').blur(function(e){
          var value = $('#elts_per_page input').val();
@@ -93,14 +89,14 @@
          if (value == parseInt(value)) {
             // Update input field
             save_user_preference('elts_per_page', value);
-            current_elts_per_page = value;
          } else {
-            $('#elts_per_page input').val(current_elts_per_page);
+            $('#elts_per_page input').val(value);
          }
 
          e.preventDefault();
 
-         refresh_required = true;
+         // Force page reloading
+         location.reload();
       });
       </script>
       %end
