@@ -48,6 +48,8 @@ def show_minemap():
     """
     Get the hosts list to build a minemap
     """
+    # Yes, but that's how it is made, and it suits ;)
+    # pylint: disable=too-many-locals
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -82,7 +84,9 @@ def show_minemap():
         minemap_row = {'host_check': host}
 
         # services = datamgr.get_services(search={'where': {'host_name': host.id}})
-        services = datamgr.get_livestate_services(search={'where': {'host_name': host.host_name.id}})
+        services = datamgr.get_livestate_services(
+            search={'where': {'host_name': host.host_name.id}}
+        )
         if services:
             for service_check in services:
                 if isinstance(service_check.service_description, basestring):
@@ -94,8 +98,8 @@ def show_minemap():
         minemap.append(minemap_row)
 
     # Sort column names by most frequent ...
-    columns = collections.Counter(columns)
-    columns = [c for c, i in columns.most_common()]
+    count_columns = collections.Counter(columns)
+    columns = [c for c, dummy in count_columns.most_common()]
 
     # Get last total elements count
     total = datamgr.get_objects_count('host', search=where, refresh=True)
