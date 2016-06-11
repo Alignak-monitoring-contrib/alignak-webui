@@ -52,10 +52,16 @@
             <span class="hidden-sm hidden-xs">{{_('Commands')}}</span>
          </a>
       </li>
-      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Commands')}}">
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Worldmap')}}">
          <a class="navbar-link" href="{{ webui.get_url('Worldmap') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-globe"></span>
             <span class="hidden-sm hidden-xs">{{_('Worldmap')}}</span>
+         </a>
+      </li>
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Minemap')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Minemap') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <span class="fa fa-fw fa-table"></span>
+            <span class="hidden-sm hidden-xs">{{_('Minemap')}}</span>
          </a>
       </li>
       %if action_bar and in_sidebar and current_user.can_change_dashboard():
