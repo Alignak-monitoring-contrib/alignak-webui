@@ -49,7 +49,6 @@ plugin_parameters = {
 }
 
 
-# Our page. If the user call /worldmap
 def show_worldmap():
     """
     Get the hosts list to build a worldmap
@@ -114,7 +113,7 @@ def show_worldmap():
         'params': plugin_parameters,
         'hosts': valid_hosts,
         'pagination': Helper.get_pagination_control('host', total, start, count),
-        'title': request.query.get('title', _('All hosts'))
+        'title': request.query.get('title', _('Hosts worldmap'))
     }
 
 
