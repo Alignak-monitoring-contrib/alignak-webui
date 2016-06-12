@@ -294,7 +294,7 @@ class test_4_not_admin(unittest2.TestCase):
         realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
 
         # Get main TP
-        tp_all = self.dmg.get_timeperiod({'where': {'name': 'All time default 24x7'}})
+        tp_all = self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Create a non admin user ...
         # Create a new contact
@@ -478,7 +478,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.id
             icon_status = item.get_html_state()
-        self.assertEqual(len(items), 5)
+        self.assertEqual(len(items), 4)
 
     def test_5_2_total_count(self):
         print ''
@@ -487,7 +487,7 @@ class test_5_basic_tests(unittest2.TestCase):
         # Get each object type count
         self.assertEqual(self.dmg.count_objects('realm'), 1)
         self.assertEqual(self.dmg.count_objects('command'), 103)
-        self.assertEqual(self.dmg.count_objects('timeperiod'), 5)
+        self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
         self.assertEqual(self.dmg.count_objects('contact'), 4+1)    #Because a new user is created during the tests
         self.assertEqual(self.dmg.count_objects('host'), 13)
         self.assertEqual(self.dmg.count_objects('service'), 89)
@@ -495,12 +495,12 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 334+1)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 333+1)
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 1)
         self.assertGreater(self.dmg.get_objects_count('command'), 50)   # More than 50 because of automatic links ... :)
-        self.assertEqual(self.dmg.get_objects_count('timeperiod'), 5)
+        self.assertEqual(self.dmg.get_objects_count('timeperiod'), 4)
         self.assertEqual(self.dmg.get_objects_count('contact'), 4+1)
         self.assertEqual(self.dmg.get_objects_count('host'), 13)
         self.assertEqual(self.dmg.get_objects_count('service'), 37)     # Because the livestate is not complete ...
@@ -510,7 +510,7 @@ class test_5_basic_tests(unittest2.TestCase):
         # With refresh to get total backend objects count
         self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 1)
         self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
-        self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 5)
+        self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
         self.assertEqual(self.dmg.get_objects_count('contact', refresh=True), 4+1)
         self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
         self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 89)
@@ -542,7 +542,7 @@ class test_6_relations(unittest2.TestCase):
         realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
 
         # Get main TP
-        tp_all = self.dmg.get_timeperiod({'where': {'name': 'All time default 24x7'}})
+        tp_all = self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
         host = self.dmg.get_host({'where': {'name': 'webui'}})
@@ -560,7 +560,7 @@ class test_6_relations(unittest2.TestCase):
         realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
 
         # Get main TP
-        tp_all = self.dmg.get_timeperiod({'where': {'name': 'All time default 24x7'}})
+        tp_all = self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
         host = self.dmg.get_host({'where': {'name': 'webui'}})
