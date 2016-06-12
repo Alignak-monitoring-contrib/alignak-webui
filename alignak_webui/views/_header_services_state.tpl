@@ -3,16 +3,17 @@
 %if datamgr:
 %from alignak_webui.objects.item import Service
 
-%services_states = datamgr.get_livesynthesis()['services_synthesis']
-%if services_states:
+%ss = datamgr.get_livesynthesis()['services_synthesis']
+%if ss:
 <div id="services-states-popover-content" class="hidden">
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
             %for state in "ok", "warning", "critical", "unknown":
             <td>
-              %label = "%s <i>(%s%%)</i>" % (services_states["nb_" + state], services_states["pct_" + state])
-              {{! Service({'status':state}).get_html_state(title=label, disabled=(not services_states["nb_" + state]))}}
+              %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
+              %label = "%s" % (ss["nb_" + state])
+              {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not ss["nb_" + state]))}}
             </td>
             %end
          </tr>
@@ -20,13 +21,13 @@
    </table>
 </div>
 
-%label = 'success'
+%font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
 <a id="services-states-popover"
-   class="services-all" data-count="{{ services_states['nb_elts'] }}" data-problems="{{ services_states['nb_problems'] }}"
+   class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}"
    href="{{webui.get_url('Services')}}"
-   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d) up') % (services_states['nb_elts'], services_states['nb_ok'])}}" data-html="true" data-trigger="hover">
+   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d) up') % (ss['nb_elts'], ss['nb_ok'])}}" data-html="true" data-trigger="hover">
    <i class="fa fa-cubes"></i>
-   <span class="label label-as-badge label-{{label}}">{{services_states["nb_ok"]}}</span>
+   <span class="label label-as-badge label-{{font}}">{{ss["nb_ok"]}}</span>
 </a>
 
 <script>
