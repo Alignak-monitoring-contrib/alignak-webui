@@ -162,6 +162,7 @@ schema['state'] = {
         'size': 5,
         # 'priority': 0,
     },
+    'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
 }
 schema['state_type'] = {
     'type': 'string',
@@ -264,6 +265,7 @@ schema['last_state'] = {
         'visible': True,
         'hidden': True
     },
+    'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
 }
 schema['last_state_type'] = {
     'type': 'string',
