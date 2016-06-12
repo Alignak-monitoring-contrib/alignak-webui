@@ -240,6 +240,7 @@ class test_00_class(unittest2.TestCase):
         assert len(Item.getCache()) == 1
         assert Item.getCount() == 1
 
+
 class test_01_items_states(unittest2.TestCase):
 
     def setUp(self):
@@ -365,7 +366,7 @@ class test_01_items_states(unittest2.TestCase):
             '_id': '0', 'status': 'fake'
         })
         print items_states.get_html_state(save_object_type, object)
-        assert items_states.get_html_state(save_object_type, object) == 'n/a - default status: fake'
+        assert items_states.get_html_state(save_object_type, object) == 'n/a - status: fake'
 
         print "Html for: fake, state: unknown"
         print "Unknown object type"
@@ -374,39 +375,49 @@ class test_01_items_states(unittest2.TestCase):
         })
         item_state = items_states.get_html_state('fake', object)
         print item_state
-        assert item_state == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="fake"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id
+        assert item_state == 'n/a - cfg_state_view'
 
         # Bad parameters
         print "No icon/text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=False, text=False)
+        item_state = items_states.get_html_state(save_object_type, object, icon=False, text='')
         print item_state
         assert item_state == 'n/a - icon/text'
 
         print "Default icon/text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=False)
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='')
         print item_state
-        assert item_state == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id
+        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % object.id)
 
         # Other parameters
         print "Default icon/text - disabled"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=False, disabled=True)
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='', disabled=True)
         print item_state
-        assert item_state == '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id
+        self.assertEqual(item_state, '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % object.id)
 
-        print "Default icon/text - label"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=False, label='Test label')
+        print "Default icon/text - title and default text"
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, title='Test title')
         print item_state
-        assert item_state == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test label</span></div>''' % object.id
+        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % object.id)
 
-        print "Default icon/text - not label and text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=True)
+        print "Default icon/text - title without text"
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=None, title='Test title')
         print item_state
-        assert item_state == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id
+        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id)
+
+        print "Default icon/text - not title and default text"
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='Test')
+        print item_state
+        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test</span></div>''' % object.id)
+
+        print "Default icon/text - not title and text"
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='Test text')
+        print item_state
+        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test text</span></div>''' % object.id)
 
         print "Default icon/text - extra"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=False, extra='test')
+        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='', extra='test')
         print item_state
-        assert item_state == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack" style="opacity: 0.5" title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x test"></i></span><span></span></div>''' % object.id
+        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack" style="opacity: 0.5" title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x test"></i></span><span>Contact default text</span></div>''' % object.id)
 
 
 class test_02_items(unittest2.TestCase):
@@ -583,10 +594,6 @@ class test_02_items(unittest2.TestCase):
         assert item.status == 'unknown'
         print item.get_icon_states()
         assert item.get_icon_states()
-        # Tested with a specific test case ... see further
-        # assert item.get_icon_states() == 'unknown'
-        print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="item"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item._id
 
     def test_02_users(self):
         print "--- test Contact"
@@ -641,7 +648,7 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_guest.png'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item._id
+        self.assertEqual(item.get_html_state(), '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item._id)
 
 
         item = Contact({
@@ -666,7 +673,7 @@ class test_02_items(unittest2.TestCase):
         assert item.token == 'token'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item._id
+        assert item.get_html_state() == '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item._id
 
 
         item = Contact({
@@ -689,7 +696,7 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_admin.png'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item.id
+        assert item.get_html_state() == '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item.id
 
 
         item = Contact({
@@ -715,7 +722,7 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_default.png'
 
         print "State: ", item.get_html_state()
-        self.assertEqual(item.get_html_state(), '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item.id)
+        self.assertEqual(item.get_html_state(), '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item.id)
 
         item = Contact({
             'username': 'test_priority',
@@ -860,7 +867,8 @@ class test_02_items(unittest2.TestCase):
         assert item.comment == 'Host comment'
         assert item.status == 'unknown'
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item.id
+        assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span><span>Host is unknown</span></div>''' % item.id
+
 
 class test_03_relations(unittest2.TestCase):
 

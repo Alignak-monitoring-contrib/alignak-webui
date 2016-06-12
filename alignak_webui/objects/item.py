@@ -177,8 +177,8 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                 if status == s:
                     return self.get_icon_states(object_type)[s]
 
-        def get_html_state(self, object_type, object_item, extra='', icon=True, text=False,
-                           label='', disabled=False):
+        def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
+                           title='', disabled=False):
             # pylint: disable=too-many-arguments
             # Yes, but it is needed ;)
             # pylint: disable=too-many-locals, too-many-return-statements
@@ -191,8 +191,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             If disabled is True, the class does not depend upon object status and is always
             font-greyed
 
-            If a label is specified, text must be True, and the label will be used instead
-            of the built text.
+            If a title is specified, it will be used instead of the default built-in text.
 
             If object status contains '.' characters they are replaced with '_'
 
@@ -207,7 +206,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             :type extra: string
 
             :param text: include text in the response
-            :type text: boolean
+            :type text: string
             :param icon: include icon in the response
             :type icon: boolean
             :return: formatted status HTML string
@@ -249,8 +248,11 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             res_icon_class = 'item_' + cfg_state['class']
             res_text = res_icon_text
 
-            if text and not icon:
-                return res_text
+            if not icon:
+                if text == '':
+                    return res_text
+                else:
+                    return text
 
             # Icon
             res_icon_global = cfg_state_view['content']
@@ -281,16 +283,20 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
 
             res_icon = res_icon.replace("##icon##", res_icon_state)
             res_icon = res_icon.replace("##extra##", res_extra)
-            res_icon = res_icon.replace("##title##", res_text)
             res_icon = res_icon.replace("##opacity##", res_opacity)
-            if label:
-                res_icon = res_icon.replace("##text##", label)
-            elif text:
-                res_icon = res_icon.replace("##text##", res_text)
-            else:
-                res_icon = res_icon.replace("##text##", "")
 
-            # logger.debug("get_html_state, res_icon: %s", res_icon)
+            if not title:
+                title = res_text
+
+            if text is None:
+                res_text = ''
+            elif text != '':
+                res_text = text
+
+            res_icon = res_icon.replace("##title##", title)
+            res_icon = res_icon.replace("##text##", res_text)
+
+            logger.debug("get_html_state, res_icon: %s", res_icon)
             res_icon = res_icon.replace("\n", "")
             res_icon = res_icon.replace("\r", "")
             return res_icon
@@ -302,15 +308,15 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             ItemState.instance = ItemState.__ItemState()
         return ItemState.instance
 
-    def get_html_state(self, extra='', icon=True, text=False,
-                       label='', disabled=False,
+    def get_html_state(self, extra='', icon=True, text='',
+                       title='', disabled=False,
                        object_type='', object_item=None):  # pragma: no cover
         # pylint: disable=too-many-arguments
         """
         Base function used by Item objects
         """
         return self.instance.get_html_state(object_type, object_item,
-                                            extra, icon, text, label, disabled)
+                                            extra, icon, text, title, disabled)
 
 
 class Item(object):
@@ -845,7 +851,7 @@ class Item(object):
         """
         Get Item html link
         """
-        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(label=self.alias))
+        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(title=self.alias))
 
     @name.setter
     def name(self, name):
@@ -936,8 +942,8 @@ class Item(object):
         item_state = ItemState()
         return item_state.get_icon_states()
 
-    def get_html_state(self, extra='', icon=True, text=False,
-                       label='', disabled=False, object_type=None, object_item=None):
+    def get_html_state(self, extra='', icon=True, text='',
+                       title='', disabled=False, object_type=None, object_item=None):
         # pylint: disable=too-many-arguments
         """
         Uses the ItemState singleton to display HTML state for an item
@@ -949,7 +955,7 @@ class Item(object):
             object_item = self
 
         return ItemState().get_html_state(object_type, object_item,
-                                          extra, icon, text, label, disabled)
+                                          extra, icon, text, title, disabled)
 
     def get_date(self, _date, fmt=None):
         """

@@ -248,7 +248,7 @@
                <a role="menuitem" href="/all?search=type:service is:{{state}} {{host.name}}">
                %end
                  %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-                 {{! Service({'status':state}).get_html_state(label=label, disabled=(not synthesis["nb_" + state]))}}
+                 {{! Service({'status':state}).get_html_state(title=label, disabled=(not synthesis["nb_" + state]))}}
 
                %if synthesis['nb_' + state]>0:
                </a>

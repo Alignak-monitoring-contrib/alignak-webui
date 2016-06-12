@@ -12,7 +12,7 @@
             %for state in 'up', 'unreachable', 'down':
            <td>
               %label = "%s <i>(%s%%)</i>" % (hosts_states["nb_" + state], hosts_states["pct_" + state])
-              {{! Host({'status':state}).get_html_state(label=label, disabled=(not hosts_states["nb_" + state]))}}
+              {{! Host({'status':state}).get_html_state(title=label, disabled=(not hosts_states["nb_" + state]))}}
             </td>
             %end
          </tr>

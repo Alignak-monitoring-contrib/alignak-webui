@@ -12,7 +12,7 @@
             %for state in "ok", "warning", "critical", "unknown":
             <td>
               %label = "%s <i>(%s%%)</i>" % (services_states["nb_" + state], services_states["pct_" + state])
-              {{! Service({'status':state}).get_html_state(label=label, disabled=(not services_states["nb_" + state]))}}
+              {{! Service({'status':state}).get_html_state(title=label, disabled=(not services_states["nb_" + state]))}}
             </td>
             %end
          </tr>

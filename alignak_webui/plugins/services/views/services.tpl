@@ -77,12 +77,12 @@
 
                   <td>
                      %host = service.host_name
-                     <small>{{! '<a href="%s">%s</a>' % (host.endpoint, host.get_html_state(label=host.name))}}</small>
+                     <small>{{! '<a href="%s">%s</a>' % (host.endpoint, host.get_html_state(title=host.name))}}</small>
                   </td>
 
                   <td>
                      %command = service.check_command
-                     <small>{{! '<a href="%s">%s</a>' % (command.endpoint, command.get_html_state(label=command.name))}}</small>
+                     <small>{{! '<a href="%s">%s</a>' % (command.endpoint, command.get_html_state(title=command.name))}}</small>
                   </td>
 
                   <td>

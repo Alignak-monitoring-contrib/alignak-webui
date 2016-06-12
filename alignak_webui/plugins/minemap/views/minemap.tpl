@@ -36,8 +36,9 @@
                   %host = minemap_row['host_check']
                   <tr>
                      <td title="{{host.name}} - {{host.status}}">
+                        %title = host.name
                         <a href="{{! host.endpoint}}">
-                           {{ ! host.get_html_state(label=host.name)}}
+                           {{ ! host.get_html_state(text=host.name, title=title)}}
                         </a>
                      </td>
                      %if debug:
@@ -58,9 +59,10 @@
                      %for column in columns:
                         %if column in minemap_row:
                            %service = minemap_row[column]
-                           <td title="{{service.name}} - {{service.status}}">
+                           %title = "%s - %s - %s (%s)" % (service.name, service.status, service.last_check, service.output)
+                           <td>
                               <a href="{{! service.endpoint}}">
-                                 {{ ! service.get_html_state()}}
+                                 {{ ! service.get_html_state(text=None, title=title)}}
                               </a>
                            </td>
                         %else:
