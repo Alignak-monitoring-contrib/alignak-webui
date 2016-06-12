@@ -359,7 +359,7 @@
                            <tr>
                               <td><strong>{{_('Status:')}}</strong></td>
                               <td>
-                                 {{! livestate.get_html_state(text=True)}}
+                                 {{! livestate.get_html_state()}}
                               </td>
                            </tr>
                            <tr>
