@@ -768,41 +768,42 @@ class DataManager(object):
             Example backend response::
 
                 {
-                    "hosts_total": 12,
-                    "hosts_business_impact": 0,
-                    "hosts_acknowledged": 0,
-                    "hosts_in_downtime": 0,
-                    "hosts_flapping": 0,
-                    "hosts_up_hard": 0,
-                    "hosts_up_soft": 0,
-                    "hosts_unreachable_hard": 0,
-                    "hosts_unreachable_soft": 0,
-                    "hosts_down_hard": 0,
-                    "hosts_down_soft": 0,
+                    'services_total': 89,
+                    'services_business_impact': 0,
+                    'services_ok_hard': 8,
+                    'services_ok_soft': 0,
+                    'services_warning_hard': 0,
+                    'services_warning_soft': 0,
+                    'services_critical_hard': 83,
+                    'services_critical_soft': -23,
+                    'services_unknown_hard': 24,
+                    'services_unknown_soft': -3,
+                    'services_acknowledged': 0,
+                    'services_flapping': 0,
+                    'services_in_downtime': 0,
 
-                    "services_total": 245,
-                    "services_business_impact": 0,
-                    "services_acknowledged": 0,
-                    "services_in_downtime": 0,
-                    "services_flapping": 0,
-                    "services_ok_hard": 0,
-                    "services_ok_soft": 0,
-                    "services_warning_hard": 0,
-                    "services_warning_soft": 0,
-                    "services_critical_hard": 0,
-                    "services_critical_soft": 0,
-                    "services_unknown_soft": 0,
-                    "services_unknown_hard": 0,
-                    "_created": "Thu, 01 Jan 1970 00:00:00 GMT",
-                    "_updated": "Sat, 10 Oct 2015 09:08:59 GMT",
-                    "_id": "5618d5abf9e3852e3444a5ee",
-                    "_etag": "edce4629fff2412ab7257216bb66c54795baada4"
-                    "_links": {
-                        "self": {
-                            "href": "livesynthesis/5618d5abf9e3852e3444a5ee",
-                            "title": "Livesynthesi"
-                        }
-                    },
+                    'hosts_total': 13,
+                    'hosts_business_impact': 0,
+                    'hosts_up_hard': 3,
+                    'hosts_up_soft': 0,
+                    'hosts_down_hard': 14,
+                    'hosts_down_soft': -4,
+                    'hosts_unreachable_hard': 0,
+                    'hosts_unreachable_soft': 0,
+                    'hosts_acknowledged': 0,
+                    'hosts_flapping': 0,
+                    'hosts_in_downtime': 0,
+
+                    '_links': {u'self': {u'href': u'livesynthesis/575d43d65eb3a102e5680e16', u'title': u'Livesynthesi'}},
+                    '_total': 1,
+                    '_type': 'livesynthesis',
+                    '_default_date': 0,
+                    '_name': 'anonymous',
+                    '_updated': 1465730006,
+                    '_comment': '',
+                    '_created': 0,
+                    '_id': u'575d43d65eb3a102e5680e16',
+                    '_etag': u'859bd03f100b372197860885383fb1e42ce88927'
                 }
 
             Returns an hosts_synthesis dictionary containing:
@@ -838,6 +839,7 @@ class DataManager(object):
         if not items:
             return None
         ls = items[0]
+        logger.warning("live synthesis, %s", ls.__dict__)
 
         # Services synthesis
         hosts_synthesis = {
