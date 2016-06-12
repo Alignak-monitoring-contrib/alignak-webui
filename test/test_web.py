@@ -773,7 +773,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/timeperiods')
         response.mustcontain(
             '<div id="timeperiods">',
-            '5 elements out of 5',
+            '4 elements out of 4',
         )
 
     def test_3_7_livestate(self):
