@@ -274,6 +274,22 @@ schema['last_state_type'] = {
     },
     'allowed': ["HARD", "SOFT"]
 }
+schema['latency'] = {
+    'type': 'float',
+    'ui': {
+        'title': _('Latency'),
+        'visible': True,
+        'hidden': True
+    },
+}
+schema['execution_time'] = {
+    'type': 'float',
+    'ui': {
+        'title': _('Execution time'),
+        'visible': True,
+        'hidden': True
+    },
+}
 
 
 # This to define the global information for the table
