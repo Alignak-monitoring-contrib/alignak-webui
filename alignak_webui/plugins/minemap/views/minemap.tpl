@@ -59,7 +59,7 @@
                      %for column in columns:
                         %if column in minemap_row:
                            %service = minemap_row[column]
-                           %title = "%s - %s - %s (%s)" % (service.name, service.status, service.last_check, service.output)
+                           %title = "%s - %s - %s (%s)" % (service.name, service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
                            <td>
                               <a href="{{! service.endpoint}}">
                                  {{ ! service.get_html_state(text=None, title=title)}}
