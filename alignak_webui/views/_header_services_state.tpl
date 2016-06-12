@@ -25,9 +25,9 @@
 <a id="services-states-popover"
    class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}"
    href="{{webui.get_url('Services')}}"
-   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d) up') % (ss['nb_elts'], ss['nb_ok'])}}" data-html="true" data-trigger="hover">
+   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d problems)') % (ss['nb_elts'], ss['nb_problems'])}}" data-html="true" data-trigger="hover">
    <i class="fa fa-cubes"></i>
-   <span class="label label-as-badge label-{{font}}">{{ss["nb_ok"]}}</span>
+   <span class="label label-as-badge label-{{font}}">{{ss["nb_problems"] if ss["nb_problems"] else ''}}</span>
 </a>
 
 <script>
