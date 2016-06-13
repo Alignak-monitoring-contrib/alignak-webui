@@ -219,7 +219,7 @@ def ping():
                     'status': 'ok', 'message': 'pong'
                 }
             )
-        logger.info("ping, refresh: %s", session['refresh_required'])
+        logger.debug("ping, refresh: %s", session['refresh_required'])
     elif action == 'refresh':
         page_template = request.query.get('template', None)
         if page_template:
@@ -331,7 +331,7 @@ def user_auth():
     """
     username = request.forms.get('username', None)
     password = request.forms.get('password', None)
-    logger.info("login, user '%s' is signing in ...", username)
+    logger.debug("login, user '%s' is signing in ...", username)
 
     session = request.environ['beaker.session']
     session['message'] = None
@@ -394,7 +394,7 @@ def user_authentication(username, password):
     if 'datamanager' not in session:
         logger.info("user authentication, creating a new data manager in the session...")
         logger.info(
-            "Backend: %s",
+            "backend: %s",
             request.app.config.get('alignak_backend', 'http://127.0.0.1:5000')
         )
         session['datamanager'] = DataManager(
