@@ -725,10 +725,10 @@ class tests_3(unittest2.TestCase):
         print ''
         print 'test users'
 
-        print 'get page /contacts'
-        response = self.app.get('/contacts')
+        print 'get page /users'
+        response = self.app.get('/users')
         response.mustcontain(
-            '<div id="contacts">',
+            '<div id="users">',
             '0 elements',
         )
 
@@ -897,11 +897,11 @@ class tests_4_target_user(unittest2.TestCase):
         # Data manager
         datamgr = host['datamanager']
         search = {'where': {'name': 'admin'}}
-        user = datamgr.get_contact(search)
+        user = datamgr.get_user(search)
         print user
         assert user
         search = {'where': {'name': 'not_admin'}}
-        user = datamgr.get_contact(search)
+        user = datamgr.get_user(search)
         print user
         assert not user
 
@@ -922,8 +922,8 @@ class tests_4_target_user(unittest2.TestCase):
 
 
 
-        # Create a new contact
-        print 'create a contact'
+        # Create a new user
+        print 'create a user'
         data = {
             "name": "not_admin",
             "alias": "Not an administrator ... test user.",
@@ -1026,10 +1026,10 @@ class tests_4_target_user(unittest2.TestCase):
         print ''
         print 'test users'
 
-        print 'get page /contacts'
-        response = self.app.get('/contacts')
+        print 'get page /users'
+        response = self.app.get('/users')
         response.mustcontain(
-            '<div id="contacts">',
+            '<div id="users">',
             '0 elements',
         )
 

@@ -34,10 +34,10 @@
             <span class="hidden-sm hidden-xs">{{_('Services')}}</span>
          </a>
       </li>
-      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Contacts')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Contacts') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Users') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-users"></span>
-            <span class="hidden-sm hidden-xs">{{_('Contacts')}}</span>
+            <span class="hidden-sm hidden-xs">{{_('Users')}}</span>
          </a>
       </li>
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Timeperiods')}}">

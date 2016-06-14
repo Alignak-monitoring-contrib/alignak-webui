@@ -43,8 +43,8 @@ from alignak_webui.objects.backend import BackendConnection
 from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import Command, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis
-from alignak_webui.objects.item import Contact, Host, Service
-from alignak_webui.objects.item import ContactGroup, HostGroup, ServiceGroup
+from alignak_webui.objects.item import User, Host, Service
+from alignak_webui.objects.item import UserGroup, HostGroup, ServiceGroup
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
@@ -137,13 +137,13 @@ class DataManager(object):
                 # Fetch the logged-in user
                 if password:
                     users = self.backend.get(
-                        'contact', {'max_results': 1, 'where': {'name': username}}
+                        'user', {'max_results': 1, 'where': {'name': username}}
                     )
                 else:
                     users = self.backend.get(
-                        'contact', {'max_results': 1, 'where': {'token': username}}
+                        'user', {'max_results': 1, 'where': {'token': username}}
                     )
-                self.logged_in_user = Contact(users[0])
+                self.logged_in_user = User(users[0])
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
                 logger.info("Logged-in user: %s", self.logged_in_user)
@@ -278,9 +278,9 @@ class DataManager(object):
         self.get_realms()
 
         # -----------------------------------------------------------------------------------------
-        # Get all contacts if current user is an administrator
+        # Get all users if current user is an administrator
         # -----------------------------------------------------------------------------------------
-        self.get_contacts()
+        self.get_users()
 
         # -----------------------------------------------------------------------------------------
         # Get all timeperiods
@@ -667,7 +667,7 @@ class DataManager(object):
         if "sort" not in search:
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
-            search.update({'embedded': {'host_name': 1, 'service_description': 1}})
+            search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
             logger.info("get_livestate, search: %s", search)
@@ -694,7 +694,7 @@ class DataManager(object):
         if "sort" not in search:
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
-            search.update({'embedded': {'host_name': 1}})
+            search.update({'embedded': {'host': 1}})
         if 'where' in search:
             search['where'].update({'type': 'host'})
 
@@ -720,7 +720,7 @@ class DataManager(object):
     def get_livestate_services(self, search=None):
         """ Get livestate for services
 
-            Elements in the livestat which service_description is not null (eg. services)
+            Elements in the livestat which service is not null (eg. services)
 
             :param search: backend request search
             :type search: dic
@@ -734,7 +734,7 @@ class DataManager(object):
         if "sort" not in search:
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
-            search.update({'embedded': {'service_description': 1}})
+            search.update({'embedded': {'service': 1}})
         if 'where' in search:
             search['where'].update({'type': 'service'})
 
@@ -925,7 +925,7 @@ class DataManager(object):
                     'check_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
                     'maintenance_period': 1, 'snapshot_period': 1,
-                    # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+                    # 'parents': 1, 'hostgroups': 1, 'users': 1, 'contact_groups': 1
                 }
             })
 
@@ -989,10 +989,10 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    'host_name': 1,
+                    'host': 1,
                     'check_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
-                    # 'servicegroups': 1, 'contacts': 1, 'contact_groups': 1
+                    # 'servicegroups': 1, 'users': 1, 'contact_groups': 1
                 }
             })
 
@@ -1104,10 +1104,10 @@ class DataManager(object):
         return synthesis
 
     ##
-    # Contacts
+    # Users
     ##
-    def get_contacts(self, search=None):
-        """ Get a list of known contacts """
+    def get_users(self, search=None):
+        """ Get a list of known users """
         if not self.get_logged_user().is_administrator():
             return [self.get_logged_user()]
 
@@ -1115,60 +1115,60 @@ class DataManager(object):
             search = {}
 
         try:
-            logger.info("get_contacts, search: %s", search)
-            items = self.find_object('contact', search)
+            logger.info("get_users, search: %s", search)
+            items = self.find_object('user', search)
             return items
         except ValueError:
-            logger.debug("get_contacts, none found")
+            logger.debug("get_users, none found")
 
         return []
 
-    def get_contact(self, search):
+    def get_user(self, search):
         """
-        Get a contact by its id or a search pattern
+        Get a user by its id or a search pattern
         """
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
-        items = self.get_contacts(search=search)
+        items = self.get_users(search=search)
         return items[0] if items else None
 
-    def add_contact(self, data):
-        """ Add a contact. """
+    def add_user(self, data):
+        """ Add a user. """
 
-        return self.add_object('contact', data)
+        return self.add_object('user', data)
 
-    def delete_contact(self, contact):
-        """ Delete a contact.
+    def delete_user(self, user):
+        """ Delete a user.
 
-        Cannot delete the currently logged in contact ...
+        Cannot delete the currently logged in user ...
 
-        If contact is a string it is assumed to be the Contact object id to be searched in
+        If user is a string it is assumed to be the User object id to be searched in
         the objects cache.
 
-        :param contact: Contact object instance
-        :type contact: Contact (or string)
+        :param user: User object instance
+        :type user: User (or string)
 
-        Returns True/False depending if contact closed
+        Returns True/False depending if user has been deleted
         """
-        logger.info("delete_contact, request to delete the contact: %s", contact)
+        logger.info("delete_user, request to delete the user: %s", user)
 
-        if isinstance(contact, basestring):
-            contact = self.get_contact(contact)
-            if not contact:
+        if isinstance(user, basestring):
+            user = self.get_user(user)
+            if not user:
                 return False
 
-        contact_id = contact.id
-        if contact_id == self.get_logged_user().id:
+        user_id = user.id
+        if user_id == self.get_logged_user().id:
             logger.warning(
                 "unauthorized request to delete the current logged-in user: %s",
-                contact_id
+                user_id
             )
             return False
 
-        return self.delete_object('contact', contact)
+        return self.delete_object('user', user)
 
     ##
     # realms

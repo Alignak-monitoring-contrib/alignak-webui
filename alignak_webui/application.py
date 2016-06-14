@@ -47,7 +47,7 @@ from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
 # Local import
-from alignak_webui.objects.item import Contact
+from alignak_webui.objects.item import User
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
 
@@ -129,7 +129,7 @@ def before_request():
     if target_user_username == "":
         if 'target_user' in session and not session['target_user'].is_anonymous():
             logger.warning("no more target user in the session")
-            session['target_user'] = Contact()
+            session['target_user'] = User()
 
             # Reload data ...
             session['datamanager'].load(reset=True)
@@ -150,7 +150,7 @@ def before_request():
                 session['datamanager'].load(reset=True)
             else:
                 logger.warning("before_request, no more target_user in the session")
-                session['target_user'] = Contact()
+                session['target_user'] = User()
 
     # Make session target user available in the templates
     BaseTemplate.defaults['target_user'] = session['target_user']
@@ -382,7 +382,7 @@ def user_authentication(username, password):
     The authentication is requested near the data manager. This functions uses the data manager
     of the current session, else it creates a new one.
 
-    Stores the authenticated Contact object in the session to make it available
+    Stores the authenticated User object in the session to make it available
     """
 
     logger.info("user_authentication, authenticating: %s", username)
@@ -412,7 +412,7 @@ def user_authentication(username, password):
 
     # Create a new target user in the session
     if 'target_user' not in session:
-        session['target_user'] = Contact()
+        session['target_user'] = User()
 
     session['message'] = session['datamanager'].connection_message
     session['current_user'] = session['datamanager'].get_logged_user()

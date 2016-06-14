@@ -56,7 +56,7 @@
 
             <tbody>
                %for service in services:
-               %lv_service = datamgr.get_livestate_service({'where': {'host_name': service.host_name.id, 'service_description': service.id}})
+               %lv_service = datamgr.get_livestate_service({'where': {'host': service.host.id, 'service': service.id}})
                <tr id="#{{service.id}}">
                   <td title="{{service.alias}}">
                   %if lv_service:
@@ -72,7 +72,7 @@
                   </td>
 
                   <td>
-                     <small>{{! service.host_name.html_link}}</small>
+                     <small>{{! service.host.html_link}}</small>
                   </td>
 
                   <td>

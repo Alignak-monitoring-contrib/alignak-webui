@@ -8,7 +8,7 @@
 <!-- Host view -->
 <div id="host">
    %host_id = host.id
-   %services = datamgr.get_services(search={'where': {'host_name':host_id}})
+   %services = datamgr.get_services(search={'where': {'host':host_id}})
    %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
    %livestate = livestate[0] if livestate else None
 
@@ -146,7 +146,7 @@
                <dt>{{_('Depends upon:')}}</dt>
                %if hasattr(host, 'parent_dependencies'):
                <dd>
-               %parents=['<a href="/host/'+parent.host_name+'" class="link">'+parent.display_name+'</a>' for parent in sorted(host.parent_dependencies,key=lambda x:x.display_name)]
+               %parents=['<a href="/host/'+parent.host+'" class="link">'+parent.display_name+'</a>' for parent in sorted(host.parent_dependencies,key=lambda x:x.display_name)]
                {{!','.join(parents)}}
                </dd>
                %else:
@@ -167,7 +167,7 @@
                <dt>{{_('Depends upon me:')}}</dt>
                %if hasattr(host, 'child_dependencies'):
                <dd>
-               %children=['<a href="/host/'+child.host_name+'" class="link">'+child.display_name+'</a>' for child in sorted(host.child_dependencies,key=lambda x:x.display_name) if child.__class__.my_type=='host']
+               %children=['<a href="/host/'+child.host+'" class="link">'+child.display_name+'</a>' for child in sorted(host.child_dependencies,key=lambda x:x.display_name) if child.__class__.my_type=='host']
                {{!','.join(children)}}
                </dd>
                %else:
@@ -177,7 +177,7 @@
                <dt>{{_('Children:')}}</dt>
                %if hasattr(host, 'childs'):
                <dd>
-               %children=['<a href="/host/'+child.host_name+'" class="link">'+child.display_name+'</a>' for child in sorted(host.childs,key=lambda x:x.display_name)]
+               %children=['<a href="/host/'+child.host+'" class="link">'+child.display_name+'</a>' for child in sorted(host.childs,key=lambda x:x.display_name)]
                {{!','.join(children)}}
                </dd>
                %else:

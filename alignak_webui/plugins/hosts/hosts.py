@@ -207,7 +207,7 @@ schema['business_impact'] = {
 schema['contacts'] = {
     'type': 'list',
     'ui': {
-        'title': _('Contacts'),
+        'title': _('Users'),
         'visible': True
     },
     'data_relation': {
@@ -218,7 +218,7 @@ schema['contacts'] = {
 schema['contact_groups'] = {
     'type': 'list',
     'ui': {
-        'title': _('Contacts groups'),
+        'title': _('Users groups'),
         'visible': True
     },
     'data_relation': {

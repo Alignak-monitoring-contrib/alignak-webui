@@ -10,7 +10,7 @@
    %# List hosts and their services
    var hosts = [
    %for host in hosts:
-      %services = datamgr.get_services(search={'where': {'host_name':host.id}})
+      %services = datamgr.get_services(search={'where': {'host':host.id}})
       %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
       %livestate = livestate[0] if livestate else None
       new Host(
@@ -161,7 +161,7 @@
   var imagesDir = "/static/plugins/worldmap/htdocs/img/";
 
   //------------------------------------------------------------------------------
-  // Sequentially load necessary scripts to create map with markers 
+  // Sequentially load necessary scripts to create map with markers
   //------------------------------------------------------------------------------
   loadScripts = function(scripts, complete) {
     var loadScript = function(src) {

@@ -19,7 +19,7 @@
       </tr></thead>
       <tbody>
          %for host in hosts:
-         %lv_host = datamgr.get_livestate_host({'where': {'host_name': host.id}})
+         %lv_host = datamgr.get_livestate_host({'where': {'host': host.id}})
          <tr id="#{{host.id}}">
             <td title="{{host.alias}}">
             %if lv_host:

@@ -83,17 +83,17 @@ def show_minemap():
     for host in hosts:
         minemap_row = {'host_check': host}
 
-        # services = datamgr.get_services(search={'where': {'host_name': host.id}})
+        # services = datamgr.get_services(search={'where': {'host': host.id}})
         services = datamgr.get_livestate_services(
-            search={'where': {'host_name': host.host_name.id}}
+            search={'where': {'host': host.host.id}}
         )
         if services:
             for service_check in services:
-                if isinstance(service_check.service_description, basestring):
+                if isinstance(service_check.service, basestring):
                     logger.critical(service_check.__dict__)
                 else:
-                    columns.append(service_check.service_description.name)
-                    minemap_row.update({service_check.service_description.name: service_check})
+                    columns.append(service_check.service.name)
+                    minemap_row.update({service_check.service.name: service_check})
 
         minemap.append(minemap_row)
 

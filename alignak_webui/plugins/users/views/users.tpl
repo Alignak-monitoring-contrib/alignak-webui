@@ -5,25 +5,25 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/contacts")
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/users")
 
-<!-- contacts filtering and display -->
-<div id="contacts">
+<!-- users filtering and display -->
+<div id="users">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse1"><i class="fa fa-bug"></i> Contacts as dictionaries</a>
+               <a data-toggle="collapse" href="#collapse1"><i class="fa fa-bug"></i> Users as dictionaries</a>
             </h4>
          </div>
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
-               %for contact in contacts:
-                  <li class="list-group-item"><small>Contact: {{contact}} - {{contact.__dict__}}</small></li>
+               %for user in users:
+                  <li class="list-group-item"><small>User: {{user}} - {{user.__dict__}}</small></li>
                %end
             </ul>
-            <div class="panel-footer">{{len(contacts)}} elements</div>
+            <div class="panel-footer">{{len(users)}} elements</div>
          </div>
       </div>
    </div>
@@ -47,7 +47,7 @@
       %end
 
       <div class="panel-body">
-      %if not contacts:
+      %if not users:
          %include("_nothing_found.tpl", search_string=search_string)
       %else:
 
@@ -69,30 +69,30 @@
             </tr></thead>
 
             <tbody>
-            %for contact in contacts:
-               <tr data-toggle="collapse" data-target="#details-{{contact.id}}" class="accordion-toggle">
+            %for user in users:
+               <tr data-toggle="collapse" data-target="#details-{{user.id}}" class="accordion-toggle">
                   <td>
-                     {{! contact.get_html_state()}}
+                     {{! user.get_html_state()}}
                   </td>
 
                   <td>
-                     <small data-toggle="tooltip" data-placement="top" title="{{contact.comment}}">{{contact.name}}</small>
+                     <small data-toggle="tooltip" data-placement="top" title="{{user.comment}}">{{user.name}}</small>
                   </td>
 
                   <td>
-                     <small data-toggle="tooltip" data-placement="top" title="{{contact.comment}}">{{contact.get_username()}}</small>
+                     <small data-toggle="tooltip" data-placement="top" title="{{user.comment}}">{{user.get_username()}}</small>
                   </td>
 
                   <td>
-                     <small>{{! webui.helper.get_on_off(status=contact.is_administrator())}}</small>
+                     <small>{{! webui.helper.get_on_off(status=user.is_administrator())}}</small>
                   </td>
 
                   <td>
-                     <small>{{! webui.helper.get_on_off(contact.can_submit_commands())}}</small>
+                     <small>{{! webui.helper.get_on_off(user.can_submit_commands())}}</small>
                   </td>
 
                   <td>
-                     <small>{{! webui.helper.get_on_off(contact.can_change_dashboard())}}</small>
+                     <small>{{! webui.helper.get_on_off(user.can_change_dashboard())}}</small>
                   </td>
 
                   %if commands and current_user.can_submit_commands():

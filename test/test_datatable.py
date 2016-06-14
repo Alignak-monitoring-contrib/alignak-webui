@@ -168,6 +168,7 @@ class test_datatable(unittest2.TestCase):
         self.assertNotEqual(response.json['data'], [])
         for x in range(0, self.items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
                 assert response.json['data'][x]['definition_order']
@@ -177,7 +178,8 @@ class test_datatable(unittest2.TestCase):
                 assert response.json['data'][x]['poller_tag']
                 assert response.json['data'][x]['reactionner_tag']
                 assert response.json['data'][x]['enable_environment_macros']
-                self.assertTrue(response.json['data'][x]['ui'])
+                # No more ui in the backend
+                # self.assertTrue(response.json['data'][x]['ui'])
 
 
         # Specify count number ...
@@ -508,7 +510,8 @@ class test_datatable_objects(unittest2.TestCase):
                 assert response.json['data'][x]['poller_tag']
                 assert response.json['data'][x]['reactionner_tag']
                 assert response.json['data'][x]['enable_environment_macros']
-                assert response.json['data'][x]['ui'] == True
+                # No more ui in the backend
+                # assert response.json['data'][x]['ui'] == True
 
 
     def test_02_hosts(self):
@@ -552,24 +555,24 @@ class test_datatable_objects(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
-    def test_03_contacts(self):
+    def test_03_users(self):
         print ''
-        print 'test contacts table'
+        print 'test users table'
 
         global items_count
 
-        print 'get page /contacts_table'
-        response = self.app.get('/contacts_table')
+        print 'get page /users_table'
+        response = self.app.get('/users_table')
         response.mustcontain(
-            '<div id="contact_table">',
-            "$('#tbl_contact').DataTable( {",
-            '<table id="tbl_contact" class="table ',
-            '<th data-name="name" data-type="string">Contact name</th>',
+            '<div id="user_table">',
+            "$('#tbl_user').DataTable( {",
+            '<table id="tbl_user" class="table ',
+            '<th data-name="name" data-type="string">User name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Contact alias</th>',
+            '<th data-name="alias" data-type="string">User alias</th>',
         )
 
-        response = self.app.post('/contact_table_data')
+        response = self.app.post('/user_table_data')
         response_value = response.json
         print response_value
         # Temporary
@@ -633,6 +636,13 @@ class test_datatable_objects(unittest2.TestCase):
         for x in range(0, items_count+0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
                 assert response.json['data'][x]
-                assert response.json['data'][x]['host_name']
+                assert response.json['data'][x]['type']
+                assert response.json['data'][x]['name']
                 assert response.json['data'][x]['state']
+                assert response.json['data'][x]['host']
+                if response.json['data'][x]['type'] == 'service':
+                    assert response.json['data'][x]['service'] is not None
+                else:
+                    assert response.json['data'][x]['service'] is None

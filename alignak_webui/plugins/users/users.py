@@ -4,7 +4,7 @@
 # Copyright (C) 2015-2016 F. Mohier pour IPM France
 
 """
-    Plugin Contacts
+    Plugin Users
 """
 
 import json
@@ -31,7 +31,7 @@ schema = OrderedDict()
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Contact name'),
+        'title': _('User name'),
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -56,7 +56,7 @@ schema['definition_order'] = {
 schema['alias'] = {
     'type': 'string',
     'ui': {
-        'title': _('Contact alias'),
+        'title': _('User alias'),
         'visible': True
     },
 }
@@ -68,7 +68,7 @@ schema['ui'] = {
 
     # UI parameters for the objects
     'ui': {
-        'page_title': _('Contacts table (%d items)'),
+        'page_title': _('Users table (%d items)'),
         'uid': '_id',
         'visible': True,
         'orderable': True,
@@ -78,36 +78,36 @@ schema['ui'] = {
 }
 
 
-def show_contact_add():  # pragma: no cover - not yet implemented
+def show_user_add():  # pragma: no cover - not yet implemented
     """
-        Show form to add a contact
+        Show form to add a user
     """
     return {
-        'contact_name': request.query.get('contact_name', ''),
+        'user_name': request.query.get('user_name', ''),
         'password': request.query.get('password', 'no_password'),
         'friendly_name': request.query.get('friendly_name', 'Friendly name'),
         'is_admin': request.query.get('is_admin', '0') == '1',
         'is_read_only': request.query.get('is_read_only', '1') == '1',
         'widgets_allowed': request.query.get('widgets_allowed', '1') == '1',
-        'comment': request.query.get('comment', _('Contact description ...')),
-        'title': request.query.get('title', _('Create a new contact')),
+        'comment': request.query.get('comment', _('User description ...')),
+        'title': request.query.get('title', _('Create a new user')),
     }
 
 
-def add_contact():  # pragma: no cover - not yet implemented
+def add_user():  # pragma: no cover - not yet implemented
     """
-        Add a contact
+        Add a user
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    contact_name = request.forms.get('contact_name', '')
-    if not contact_name:
-        logger.error("request to add a contact: missing contact_name parameter!")
-        return webui.response_invalid_parameters(_('Missing contact name'))
+    user_name = request.forms.get('user_name', '')
+    if not user_name:
+        logger.error("request to add a user: missing user_name parameter!")
+        return webui.response_invalid_parameters(_('Missing user name'))
 
     # Prepare post request ...
     data = {
-        'name': contact_name,
+        'name': user_name,
         'password': request.forms.get('password', ''),
         'friendly_name': request.forms.get('friendly_name', ''),
         'is_admin': request.forms.get('is_admin') == '1',
@@ -115,63 +115,63 @@ def add_contact():  # pragma: no cover - not yet implemented
         'widgets_allowed': request.forms.get('widgets_allowed') == '1',
         'description': request.forms.get('comment')
     }
-    contact_id = datamgr.add_contact(data=data)
-    if not contact_id:
-        return webui.response_ko(_('Contact creation failed'))
+    user_id = datamgr.add_user(data=data)
+    if not user_id:
+        return webui.response_ko(_('User creation failed'))
 
     # Refresh data ...
     # datamgr.require_refresh()
 
-    return webui.response_ok(message=_('Contact created'))
+    return webui.response_ok(message=_('User created'))
 
 
-def show_contact_delete():  # pragma: no cover - not yet implemented
+def show_user_delete():  # pragma: no cover - not yet implemented
     """
-    Contact deletion form
+    User deletion form
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    contact_id = request.query.get('contact_id', -1)
-    if contact_id == -1:
-        logger.error("request to show a contact deletion form: missing contact_id parameter!")
-        return webui.response_invalid_parameters(_('Missing contact identifier'))
+    user_id = request.query.get('user_id', -1)
+    if user_id == -1:
+        logger.error("request to show a user deletion form: missing user_id parameter!")
+        return webui.response_invalid_parameters(_('Missing user identifier'))
 
-    contact = datamgr.get_contact(contact_id)
-    if not contact:  # pragma: no cover - should never happen
-        return webui.response_invalid_parameters(_('Contact does not exist'))
+    user = datamgr.get_user(user_id)
+    if not user:  # pragma: no cover - should never happen
+        return webui.response_invalid_parameters(_('User does not exist'))
 
     return {
-        'contact_id': contact_id,
-        'contact_name': contact.get_username(),
+        'user_id': user_id,
+        'user_name': user.get_username(),
         'comment': request.query.get('comment', _('Optional comment ...')),
-        'title': request.query.get('title', _('Delete a contact')),
+        'title': request.query.get('title', _('Delete a user')),
     }
 
 
-def delete_contact():  # pragma: no cover - not yet implemented
+def delete_user():  # pragma: no cover - not yet implemented
     """
-        Delete a contact
+        Delete a user
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    contact_id = request.forms.get('contact_id', -1)
-    if contact_id == -1:  # pragma: no cover - should never happen
-        logger.error("request to close a contact: missing contact_id parameter!")
-        return webui.response_invalid_parameters(_('Missing contact identifier'))
+    user_id = request.forms.get('user_id', -1)
+    if user_id == -1:  # pragma: no cover - should never happen
+        logger.error("request to close a user: missing user_id parameter!")
+        return webui.response_invalid_parameters(_('Missing user identifier'))
 
-    # Contact deletion request ...
-    if not datamgr.delete_contact(contact_id):  # pragma: no cover - should never happen
-        return webui.response_ko(_('Contact deletion failed'))
+    # User deletion request ...
+    if not datamgr.delete_user(user_id):  # pragma: no cover - should never happen
+        return webui.response_ko(_('User deletion failed'))
 
     # Refresh data ...
     # datamgr.require_refresh()
 
-    return webui.response_ok(message=_('Contact deleted'))
+    return webui.response_ok(message=_('User deleted'))
 
 
-def get_contacts():
+def get_users():
     """
-        Show list of contacts
+        Show list of users
     """
     user = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
@@ -195,22 +195,22 @@ def get_contacts():
         'where': where
     }
 
-    # Get contacts
-    contacts = datamgr.get_contacts(search)
+    # Get users
+    users = datamgr.get_users(search)
     # Get last total elements count
-    total = datamgr.get_objects_count('contact', search=where, refresh=True)
+    total = datamgr.get_objects_count('user', search=where, refresh=True)
     count = min(count, total)
 
     return {
-        'contacts': contacts,
-        'pagination': Helper.get_pagination_control('contact', total, start, count),
-        'title': request.query.get('title', _('All contacts'))
+        'users': users,
+        'pagination': Helper.get_pagination_control('user', total, start, count),
+        'title': request.query.get('title', _('All users'))
     }
 
 
-def get_contacts_table():
+def get_users_table():
     """
-    Get the contacts list and transform it as a table
+    Get the users list and transform it as a table
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
@@ -218,28 +218,28 @@ def get_contacts_table():
     where = webui.helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
-    total = datamgr.get_objects_count('contact', search=where)
+    total = datamgr.get_objects_count('user', search=where)
 
     # Build table structure
-    dt = Datatable('contact', datamgr.backend, schema)
+    dt = Datatable('user', datamgr.backend, schema)
 
     title = dt.title
     if '%d' in title:
         title = title % total
 
     return {
-        'object_type': 'contact',
+        'object_type': 'user',
         'dt': dt,
         'title': request.query.get('title', title)
     }
 
 
-def get_contacts_table_data():
+def get_users_table_data():
     """
-    Get the contacts list and provide table data
+    Get the users list and provide table data
     """
     datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('contact', datamgr.backend, schema)
+    dt = Datatable('user', datamgr.backend, schema)
 
     response.status = 200
     response.content_type = 'application/json'
@@ -247,50 +247,50 @@ def get_contacts_table_data():
 
 
 pages = {
-    show_contact_add: {
-        'name': 'Contact add form',
-        'route': '/contact/form/add',
-        'view': 'contact_form_add'
+    show_user_add: {
+        'name': 'User add form',
+        'route': '/user/form/add',
+        'view': 'user_form_add'
     },
-    add_contact: {
-        'name': 'Contact add',
-        'route': '/contact/add',
+    add_user: {
+        'name': 'User add',
+        'route': '/user/add',
         'method': 'POST'
     },
 
-    show_contact_delete: {
-        'name': 'Contact delete form',
-        'route': '/contact/form/delete',
-        'view': 'contact_form_delete'
+    show_user_delete: {
+        'name': 'User delete form',
+        'route': '/user/form/delete',
+        'view': 'user_form_delete'
     },
-    delete_contact: {
-        'name': 'Contact delete',
-        'route': '/contact/delete',
+    delete_user: {
+        'name': 'User delete',
+        'route': '/user/delete',
         'method': 'POST'
     },
 
-    get_contacts: {
-        'name': 'Contacts',
-        'route': '/contacts',
-        'view': 'contacts',
+    get_users: {
+        'name': 'Users',
+        'route': '/users',
+        'view': 'users',
         'search_engine': True,
         'search_prefix': '',
         'search_filters': {
             _('Administrator'): 'role:administrator',
             _('Power'): 'role:power',
-            _('Contact'): 'role:contact',
+            _('User'): 'role:user',
             _('Guest'): 'name:anonymous'
         }
     },
 
-    get_contacts_table: {
-        'name': 'Contacts table',
-        'route': '/contacts_table',
+    get_users_table: {
+        'name': 'Users table',
+        'route': '/users_table',
         'view': '_table'
     },
-    get_contacts_table_data: {
-        'name': 'Contacts table data',
-        'route': '/contact_table_data',
+    get_users_table_data: {
+        'name': 'Users table data',
+        'route': '/user_table_data',
         'method': 'POST'
     }
 }

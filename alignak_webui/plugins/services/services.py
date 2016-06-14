@@ -104,10 +104,10 @@ schema['display_name'] = {
         'visible': True
     },
 }
-schema['host_name'] = {
+schema['host'] = {
     'type': 'objectid',
     'ui': {
-        'title': _('Host name'),
+        'title': _('Host'),
         'visible': True
     },
     'data_relation': {
@@ -217,7 +217,7 @@ schema['business_impact'] = {
 schema['contacts'] = {
     'type': 'list',
     'ui': {
-        'title': _('Contacts'),
+        'title': _('Users'),
         'visible': True
     },
     'data_relation': {
@@ -228,7 +228,7 @@ schema['contacts'] = {
 schema['contact_groups'] = {
     'type': 'list',
     'ui': {
-        'title': _('Contacts groups'),
+        'title': _('Users groups'),
         'visible': True
     },
     'data_relation': {
@@ -438,7 +438,7 @@ def get_services():
         'sort': '-_id',
         'where': where,
         'embedded': {
-            'host_name': 1,
+            'host': 1,
             'check_command': 1, 'event_handler': 1,
             'check_period': 1, 'notification_period': 1,
             'servicegroups': 1, 'contacts': 1, 'contact_groups': 1

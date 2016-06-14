@@ -252,7 +252,7 @@ class: command
 text:
 icon: bolt
 
-; User states: unknown only! Needs refactoring user/contact ...
+; User states: unknown only! Needs refactoring user/user ...
 [items.user.unknown]
 class: user
 text:

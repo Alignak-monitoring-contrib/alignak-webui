@@ -92,10 +92,10 @@ schema['name'] = {
         # 'priority': 0,
     }
 }
-schema['host_name'] = {
+schema['host'] = {
     'type': 'objectid',
     'ui': {
-        'title': _('Host name'),
+        'title': _('Host'),
         'width': '10',
         'visible': True,
         'hidden': True,
@@ -114,10 +114,10 @@ schema['display_name_host'] = {
         'hidden': True,
     },
 }
-schema['service_description'] = {
+schema['service'] = {
     'type': 'objectid',
     'ui': {
-        'title': _('Service description'),
+        'title': _('Service'),
         'width': '10px',
         'visible': True,
         'hidden': True,

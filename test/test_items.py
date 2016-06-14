@@ -341,7 +341,7 @@ class test_01_items_states(unittest2.TestCase):
         assert items_states.states
 
         # Objects known states
-        save_object_type = 'contact'
+        save_object_type = 'user'
         for object_type in items_states.object_types_states:
             print "Html for: ", object_type
             for state in items_states.get_icon_states(object_type):
@@ -373,51 +373,52 @@ class test_01_items_states(unittest2.TestCase):
         object = Item({
             '_id': '0', 'status': 'unknown'
         })
+        # Unknown object_type provides a default user html state ...
         item_state = items_states.get_html_state('fake', object)
         print item_state
-        assert item_state == 'n/a - cfg_state_view'
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="fake"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % object.id)
 
         # Bad parameters
         print "No icon/text"
         item_state = items_states.get_html_state(save_object_type, object, icon=False, text='')
         print item_state
-        assert item_state == 'n/a - icon/text'
+        self.assertEqual(item_state, 'n/a - icon/text')
 
         print "Default icon/text"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, text='')
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % object.id)
 
         # Other parameters
         print "Default icon/text - disabled"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, text='', disabled=True)
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % object.id)
 
         print "Default icon/text - title and default text"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, title='Test title')
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % object.id)
 
         print "Default icon/text - title without text"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, text=None, title='Test title')
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % object.id)
 
         print "Default icon/text - not title and default text"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, text='Test')
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test</span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test</span></div>''' % object.id)
 
         print "Default icon/text - not title and text"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, text='Test text')
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test text</span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Test text</span></div>''' % object.id)
 
         print "Default icon/text - extra"
         item_state = items_states.get_html_state(save_object_type, object, icon=True, text='', extra='test')
         print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack" style="opacity: 0.5" title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x test"></i></span><span>Contact default text</span></div>''' % object.id)
+        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack" style="opacity: 0.5" title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x test"></i></span><span>User default text</span></div>''' % object.id)
 
 
 class test_02_items(unittest2.TestCase):
@@ -596,39 +597,39 @@ class test_02_items(unittest2.TestCase):
         assert item.get_icon_states()
 
     def test_02_users(self):
-        print "--- test Contact"
+        print "--- test User"
 
         # Global (Item) objects count
         global_objects_count = Item().getCount()
         print global_objects_count, "objects"
         print "--- cache:"
-        print Contact.getCache()
-        assert len(Contact.getCache()) == 0
+        print User.getCache()
+        assert len(User.getCache()) == 0
 
         # Base item
-        item = Contact()
+        item = User()
         assert item
         print "--- cache:"
-        print Contact.getCache()
-        assert len(Contact.getCache()) == 1
+        print User.getCache()
+        assert len(User.getCache()) == 1
 
 
-        # Specific (Contact) objects count and cache
+        # Specific (User) objects count and cache
         user_objects_count = item._count
-        print user_objects_count, " Contact objects"
+        print user_objects_count, " User objects"
         print item._cache
 
         # Global objects count and cache did not changed
         assert global_objects_count == Item().getCount()
         assert len(Item().getCache()) == global_objects_count
-        # Only 1 Contact object
+        # Only 1 User object
         assert item._count == 1
-        assert len(Contact.getCache()) == 1
+        assert len(User.getCache()) == 1
 
         print item
-        assert "%s" % item == "<contact, id: contact_0, name: anonymous, role: user>"
-        assert item._id == 'contact_0'  # Because no _id in the parameters ...
-        assert item._type == 'contact'
+        assert "%s" % item == "<user, id: user_0, name: anonymous, role: user>"
+        assert item._id == 'user_0'  # Because no _id in the parameters ...
+        assert item._type == 'user'
         assert item.name == 'anonymous'
         assert item.status == 'unknown'
 
@@ -648,10 +649,10 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_guest.png'
 
         print item.get_html_state()
-        self.assertEqual(item.get_html_state(), '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item._id)
+        self.assertEqual(item.get_html_state(), '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % item._id)
 
 
-        item = Contact({
+        item = User({
             'name': 'test',
             'password': 'test',
             'is_admin': False,
@@ -661,7 +662,7 @@ class test_02_items(unittest2.TestCase):
             'lync': 'test@lync.com',
             'token': 'token'
         })
-        assert item._id == 'contact_1' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
+        assert item._id == 'user_1' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.get_role() == 'power'
         assert item.get_role(display=True) == 'Power user'
@@ -673,17 +674,17 @@ class test_02_items(unittest2.TestCase):
         assert item.token == 'token'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item._id
+        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % item._id
 
 
-        item = Contact({
+        item = User({
             'name': 'test',
-            'contact_name': 'test',
+            'user_name': 'test',
             'friendly_name': 'Friendly name',
             'password': 'test',
             'is_admin': True
         })
-        assert item._id == 'contact_2' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
+        assert item._id == 'user_2' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.name == 'test'
         assert item.friendly_name == 'Friendly name'
@@ -696,10 +697,10 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_admin.png'
 
         print item.get_html_state()
-        assert item.get_html_state() == '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item.id
+        assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % item.id
 
 
-        item = Contact({
+        item = User({
             'username': 'test_priority',
             'name': 'test',
             'alias': 'Real name',
@@ -722,9 +723,9 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_default.png'
 
         print "State: ", item.get_html_state()
-        self.assertEqual(item.get_html_state(), '''<div class="item-state item_contact " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="contact"><span class="fa-stack"  title="Contact default text"><i class="fa fa-circle fa-stack-2x item_contact"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>Contact default text</span></div>''' % item.id)
+        self.assertEqual(item.get_html_state(), '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span>User default text</span></div>''' % item.id)
 
-        item = Contact({
+        item = User({
             'username': 'test_priority',
             'name': 'test',
             'alias': 'Aliased name',
@@ -738,7 +739,7 @@ class test_02_items(unittest2.TestCase):
         assert item.can_submit_commands() == False
         assert item.can_change_dashboard() == False
         # Update with a new obect declaration
-        item = Contact({
+        item = User({
             '_id': item._id,
             'alias': 'Aliased name (bis)',
             'is_admin': True
@@ -782,7 +783,7 @@ class test_02_items(unittest2.TestCase):
         # Global objects count and cache did not changed
         assert global_objects_count == Item().getCount()
         assert len(Item().getCache()) == global_objects_count
-        # Only 1 Contact object
+        # Only 1 User object
         assert item._count == 1
         assert len(item._cache) == 1
         assert len(Command.getCache()) == 1

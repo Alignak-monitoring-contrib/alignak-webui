@@ -710,7 +710,8 @@ class Item(object):
 
                 # Linked resource type
                 logger.warning(
-                    "_update, must create link for %s with %s ", key, params[key]
+                    "_update, must create link for %s/%s with %s ",
+                    self.object_type, key, params[key]
                 )
                 # No object yet linked...
                 if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
@@ -1024,19 +1025,19 @@ class Realm(Item):
         super(Realm, self).__init__(params)
 
 
-class Contact(Item):
+class User(Item):
     """
-    Object representing a contact
+    Object representing a user
     """
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'contact'
+    _type = 'user'
     # _cache is a list of created objects
     _cache = {}
 
-    # Displayable strings for the contact role
+    # Displayable strings for the user role
     roles = {
         "user": _("User"),
         "power": _("Power user"),
@@ -1045,21 +1046,21 @@ class Contact(Item):
 
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
-        Create a new contact
+        Create a new user
         """
-        return super(Contact, cls).__new__(cls, params, date_format)
+        return super(User, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
         # Not that bad ... because od _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
-        Create a contact (called only once when an object is newly created)
+        Create a user (called only once when an object is newly created)
         """
         if params and 'can_submit_commands' in params:
             params['read_only'] = False
             params.pop('can_submit_commands', None)
 
-        super(Contact, self)._create(params, date_format)
+        super(User, self)._create(params, date_format)
 
         self.authenticated = False
 
@@ -1089,20 +1090,20 @@ class Contact(Item):
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
-        Update a contact (called every time an object is updated)
+        Update a user (called every time an object is updated)
         """
         if params and 'can_submit_commands' in params:
             params['read_only'] = False
             params.pop('can_submit_commands', None)
 
-        super(Contact, self)._update(params, date_format)
+        super(User, self)._update(params, date_format)
 
     def __init__(self, params=None):
         """
-        Initialize a contact (called every time an object is invoked)
+        Initialize a user (called every time an object is invoked)
         """
         self.role = None
-        super(Contact, self).__init__(params)
+        super(User, self).__init__(params)
 
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
@@ -1129,24 +1130,24 @@ class Contact(Item):
 
     def get_friendly_name(self):
         """
-        Get the contact friendly name if defined, else returns the name
+        Get the user friendly name if defined, else returns the name
         """
         return self.alias
 
     def get_username(self):
         """
-        Get the contact username (for login).
-        Returns the 'username' field if it exisrs, else returns  the 'contact_name' field,
+        Get the user username (for login).
+        Returns the 'username' field if it exisrs, else returns  the 'name' field,
         else returns  the 'name' field
         """
         return getattr(self, 'username', self.name)
 
     def get_role(self, display=False):
         """
-        Get the contact role.
-        If contact role is not defined, set the property according to the contact attributes:
-        - role='administrator' if the contact is an administrator
-        - role='power' if the contact can submit commands
+        Get the user role.
+        If user role is not defined, set the property according to the user attributes:
+        - role='administrator' if the user is an administrator
+        - role='power' if the user can submit commands
         - role='user' else
 
         If the display parameter is set, the function returns a displayable string else it
@@ -1167,7 +1168,7 @@ class Contact(Item):
 
     def is_anonymous(self):
         """
-        An anonymous user is created when no 'name' attribute exists for the contact ... 'anonymous'
+        An anonymous user is created when no 'name' attribute exists for the user ... 'anonymous'
         is the default value of the Item name property.
         """
         return self.name == 'anonymous'
@@ -1208,15 +1209,15 @@ class Contact(Item):
         return False
 
 
-class ContactGroup(Item):
+class UserGroup(Item):
     """
-    Object representing a contactgroup
+    Object representing a user group
     """
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'contactgroup'
+    _type = 'usergroup'
     # _cache is a list of created objects
     _cache = {}
 
@@ -1224,7 +1225,7 @@ class ContactGroup(Item):
         """
         Create a new contactgroup
         """
-        return super(ContactGroup, cls).__new__(cls, params, date_format)
+        return super(UserGroup, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
         """
@@ -1233,19 +1234,19 @@ class ContactGroup(Item):
         self._linked_contactgroup_members = 'contactgroup'
         self._linked_members = 'contact'
 
-        super(ContactGroup, self)._create(params, date_format)
+        super(UserGroup, self)._create(params, date_format)
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
         Update a contactgroup (called every time an object is updated)
         """
-        super(ContactGroup, self)._update(params, date_format)
+        super(UserGroup, self)._update(params, date_format)
 
     def __init__(self, params=None):
         """
         Initialize a contactgroup (called every time an object is invoked)
         """
-        super(ContactGroup, self).__init__(params)
+        super(UserGroup, self).__init__(params)
 
     @property
     def members(self):
@@ -1325,8 +1326,8 @@ class LiveState(Item):
         """
         Create a livestate (called only once when an object is newly created)
         """
-        self._linked_host_name = 'host'
-        self._linked_service_description = 'service'
+        self._linked_host = 'host'
+        self._linked_service = 'service'
 
         super(LiveState, self)._create(params, date_format)
 
@@ -1343,14 +1344,14 @@ class LiveState(Item):
         super(LiveState, self).__init__(params)
 
     @property
-    def host_name(self):
+    def host(self):
         """ Return linked object """
-        return self._linked_host_name
+        return self._linked_host
 
     @property
-    def service_description(self):
+    def service(self):
         """ Return linked object """
-        return self._linked_service_description
+        return self._linked_service
 
 
 class Host(Item):
@@ -1387,8 +1388,8 @@ class Host(Item):
         self._linked_snapshot_period = 'timeperiod'
         self._linked_maintenance_period = 'timeperiod'
         self._linked_hostgroups = 'hostgroup'
-        self._linked_contacts = 'contact'
-        self._linked_contact_groups = 'contactgroup'
+        self._linked_users = 'user'
+        self._linked_usergroups = 'usergroup'
 
         super(Host, self)._create(params, date_format)
 
@@ -1563,14 +1564,14 @@ class Service(Item):
         """
         Create a service (called only once when an object is newly created)
         """
-        self._linked_host_name = 'host'
+        self._linked_host = 'host'
         self._linked_check_command = 'command'
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
         self._linked_servicegroups = 'servicegroup'
-        self._linked_contacts = 'contact'
-        self._linked_contact_groups = 'contactgroup'
+        self._linked_users = 'user'
+        self._linked_usergroups = 'usergroup'
 
         super(Service, self)._create(params, date_format)
 
@@ -1597,9 +1598,9 @@ class Service(Item):
         return self._linked_event_handler
 
     @property
-    def host_name(self):
+    def host(self):
         """ Return linked object """
-        return self._linked_host_name
+        return self._linked_host
 
     @property
     def check_period(self):
