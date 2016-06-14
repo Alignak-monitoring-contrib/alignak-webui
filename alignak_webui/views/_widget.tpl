@@ -30,8 +30,8 @@
             </button>
             <ul class="dropdown-menu pull-right" role="menu" style="padding: 10px; min-width: 320px;">
                <li>
-                  <form role="form" onsubmit="return submit_{{widget_id}}_form();" style="font-size: 0.9em">
-
+                  <form role="form" data-widget="{{widget_id}}" data-action="save-options" method="post" action="{{widget_uri}}" style="font-size: 0.9em">
+                     <input type="hidden" name='widget_id' value='{{widget_id}}'/>
                      <div class="panel panel-default">
                         <div class="panel-heading">
                            <h3 class="panel-title">{{_('Widget options:')}}</h3>
@@ -88,7 +88,7 @@
                                        });
                                     </script>
                                     %else:
-                                    <input type="text" class="form-control input-sm" placeholder="{{ value }} ..." name="{{key}}" value="{{value}}" id="input-{{widget_id}}-{{key}}">
+                                    <input type="{{'number' if type=='int' else 'text'}}" class="form-control input-sm" placeholder="{{ value }} ..." name="{{key}}" value="{{value}}" id="input-{{widget_id}}-{{key}}">
                                     %end
                                  </div>
                                  %continue
@@ -125,81 +125,17 @@
                               %end
                            %end
 
-                           <a class="btn btn-success" title="{{_('Save changes')}}">
-                              <i class="fa fa-save fa-white"></i> {{_('Save changes')}}
-                           </a>
+                           <button type="submit" class="btn btn-success btn-block"> <i class="fa fa-save"></i>{{_('Save changes')}}</button>
                         </div>
                      </div>
                   </form>
                </li>
             </ul>
          </div>
-         <a href="#p_wd_panel_{{widget_id}}" data-toggle="collapse" type="button" class="btn btn-xs">
-            <span class="fa {{'fa-minus-square' if not collapsed else 'fa-plus-square'}} fa-fw"></span>
-         </a>
       </div>
    </div>
-   <div id="p_wd_panel_{{widget_id}}" class="panel-collapse collapse {{'in' if not collapsed else ''}}">
       <div class="panel-body">
          % setdefault('base', 'nothing')
          {{!base}}
       </div>
-   </div>
 </div>
-
-<script>
-   // Panels collapse state
-   $('.panel').on('hidden.bs.collapse', function () {
-      console.log("Panel hide", $(this))
-//      stop_refresh();
-      //panels[$(this).parent().attr('id')].collapsed = true;
-      var grid = $('.grid-stack').data('gridstack');
-      console.log(grid)
-      $(this).find('.fa-minus-square').removeClass('fa-minus-square').addClass('fa-plus-square');
-      /*
-      save_user_preference('panels', JSON.stringify(panels), function() {
-         start_refresh();
-         do_refresh(true);
-      });
-      */
-   });
-   $('.panel').on('shown.bs.collapse', function () {
-      console.log("Panel show")
-//      stop_refresh();
-      //panels[$(this).parent().attr('id')].collapsed = false;
-      $(this).find('.fa-plus-square').removeClass('fa-plus-square').addClass('fa-minus-square');
-      /*
-      save_user_preference('panels', JSON.stringify(panels), function() {
-         start_refresh();
-         do_refresh();
-      });
-      */
-   });
-
-   // Graphs options
-   $('[data-action="toggle-title"]').on('click', function () {
-      stop_refresh();
-      graphs[$(this).data('graph')].title = ! graphs[$(this).data('graph')].title;
-      save_user_preference('graphs', JSON.stringify(graphs), function() {
-         start_refresh();
-         do_refresh(true);
-      });
-   });
-   $('[data-action="toggle-legend"]').on('click', function () {
-      stop_refresh();
-      graphs[$(this).data('graph')].legend = ! graphs[$(this).data('graph')].legend;
-      save_user_preference('graphs', JSON.stringify(graphs), function() {
-         start_refresh();
-         do_refresh(true);
-      });
-   });
-   $('[data-action="toggle-state"]').on('click', function () {
-      stop_refresh();
-      graphs[$(this).data('graph')]['display_states'][$(this).data('state')] = ! graphs[$(this).data('graph')]['display_states'][$(this).data('state')];
-      save_user_preference('graphs', JSON.stringify(graphs), function() {
-         start_refresh();
-         do_refresh(true);
-      });
-   });
-
-</script>

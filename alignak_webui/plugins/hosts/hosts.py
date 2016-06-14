@@ -449,6 +449,8 @@ def get_hosts():
 
 
 def get_hosts_widget():
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
     """
     Get the hosts list as a widget
     - widget_id: widget identifier
@@ -496,8 +498,7 @@ def get_hosts_widget():
     if not widget_id:
         webui.response_invalid_parameters(_('Missing widget identifier'))
 
-    header = (request.forms.get('header', 'false') == 'true')
-    commands = (request.forms.get('commands', 'false') == 'true')
+    widget_place = request.forms.get('widget_place', 'dashboard')
 
     options = {
         'search': {
@@ -505,20 +506,10 @@ def get_hosts_widget():
             'type': 'text',
             'label': _('Filter (ex. status:up)')
         },
-        'nb_elements': {
-            'value': int(request.forms.get('nb_elements', '10')),
+        'count': {
+            'value': count,
             'type': 'int',
-            'label': _('Maximum number of elements')
-        },
-        'commands': {
-            'value': commands,
-            'type': 'bool',
-            'label': _('Commands')
-        },
-        'header': {
-            'value': header,
-            'type': 'bool',
-            'label': _('Sessions header')
+            'label': _('Number of elements')
         }
     }
 
@@ -526,11 +517,28 @@ def get_hosts_widget():
     if request.forms.get('filter', ''):
         title = _('Hosts (%s)') % request.forms.get('search', '')
 
+    logger.critical("Nb : %s", count)
+
+    # Search for the dashboard widgets
+    saved_widgets = datamgr.get_user_preferences(username, '%s_widgets' % widget_place, {'widgets': []})
+    if saved_widgets:
+        for widget in saved_widgets['widgets']:
+            if widget['id'] == widget_id:
+                widget['options'] = options
+                datamgr.set_user_preferences(username, '%s_widgets' % widget_place, saved_widgets)
+                break
+
+    saved_widgets = datamgr.get_user_preferences(username, '%s_widgets' % widget_place, {'widgets': []})
+    logger.critical("Nb : %s", saved_widgets)
+
+
     return {
         'widget_id': widget_id,
+        'widget_place': widget_place,
+        'widget_uri': request.urlparts.path,
         'hosts': hosts,
         'options': options,
-        'title': request.forms.get('title', _('All hosts'))
+        'title': request.forms.get('title', title)
     }
 
 

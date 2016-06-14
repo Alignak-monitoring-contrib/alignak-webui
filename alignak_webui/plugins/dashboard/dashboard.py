@@ -46,16 +46,14 @@ def get_page():
     if not target_user.is_anonymous():
         username = target_user.get_username()
 
-    # Look for the widgets as the json entry
-    saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'dashboard': []})
-    # If void, create an empty one
-    if not saved_widgets:  # pragma: no cover - widgets may exist or not ...
-        saved_widgets = {'dashboard': []}
+    # Search for the dashboard widgets
+    saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'widgets': []})
+    if not saved_widgets:
+        saved_widgets = {'widgets': []}
         datamgr.set_user_preferences(username, 'widgets', saved_widgets)
-    logger.error("Dashboard widgets: %s", saved_widgets)
 
     widgets = []
-    for widget in saved_widgets['dashboard']:
+    for widget in saved_widgets['widgets']:
         if 'id' not in widget:
             continue
 

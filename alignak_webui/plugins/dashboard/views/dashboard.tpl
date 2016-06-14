@@ -138,6 +138,7 @@
 
    $('.grid-stack').on('change', function (e, items) {
       console.log("Grid layout changed:", items);
+      if (items === undefined) return;
       var widgets = [];
       for (i = 0; i < items.length; i++) {
          console.log($('#'+items[i].id));
@@ -162,11 +163,42 @@
          }
       }
       if (widgets.length > 0) {
-         var to_save = {'{{widgets_place}}': widgets}
+         var to_save = {'widgets': widgets}
          save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
             console.log("Saved {{widgets_place}} widgets grid", to_save)
          });
       }
+   });
+
+   $('body').on("submit", 'form[data-action="save-options"]', function (evt) {
+      console.debug('Submit form data: ', $(this));
+      console.debug('Form item/action: ', $(this).data("widget"), $(this).data("action"));
+      console.debug('Form data: ', $(this).serializeArray());
+
+      // Do not automatically submit ...
+      evt.preventDefault();
+
+      $('#widgets_loading').show();
+
+      $.ajax({
+         url: $(this).attr('action'),
+         type: $(this).attr('method'),
+         data: $(this).serialize()
+      })
+      .done(function( data, textStatus, jqXHR ) {
+         if (jqXHR.status != 200) {
+            raise_message_ko(jqXHR.status, data);
+         } else {
+            $("#" + $(this).data("widget") + " div.grid-stack-item-content").html(data);
+            raise_message_ok("{{_('Widget options saved')}}");
+         }
+      })
+      .fail(function( jqXHR, textStatus, errorThrown ) {
+         raise_message_ko(jqXHR.responseJSON['message']);
+      })
+     .always(function() {
+         $('#widgets_loading').hide();
+      });
    });
 
    $(document).ready(function(){
@@ -189,7 +221,7 @@
 
       var options = {
          float: false,
-         cellHeight: '80px',
+         cellHeight: 20,
          disableDrag: false,
          disableResize: false,
          removable: true,
@@ -206,6 +238,9 @@
          $("#{{widget['id']}} div.grid-stack-item-content").load(
             "{{widget['uri']}}",
             {
+               %for (key, v) in widget['options'].iteritems():
+                  {{key}}: '{{v.get('value', '')}}',
+               %end
                widget_id: '{{widget['id']}}'
             },
             function(response, status, xhr) {
@@ -216,8 +251,7 @@
                }
 
                if ( status == "error" ) {
-                  var msg = "Sorry but there was an error: ";
-                  $( "#error" ).html( msg + xhr.status + " " + xhr.statusText );
+                  raise_message_ko(status, data);
                }
             }
          );
