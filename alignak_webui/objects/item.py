@@ -851,7 +851,9 @@ class Item(object):
         """
         Get Item html link
         """
-        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(title=self.alias))
+        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(
+            text=None, title=self.alias
+        ))
 
     @name.setter
     def name(self, name):
