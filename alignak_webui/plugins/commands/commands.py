@@ -155,7 +155,7 @@ def get_commands():
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-opening_date',
+        'sort': '-_id',
         'where': where,
         'embedded': {
             'userservice': 1, 'userservice_session': 1,

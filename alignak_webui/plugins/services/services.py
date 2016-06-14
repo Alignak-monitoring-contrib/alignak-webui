@@ -435,7 +435,7 @@ def get_services():
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-opening_date',
+        'sort': '-_id',
         'where': where,
         'embedded': {
             'host_name': 1,

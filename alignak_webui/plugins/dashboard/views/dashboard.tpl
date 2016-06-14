@@ -58,15 +58,25 @@
             </td>
             %end
 
+            %if hs and ss:
+
+            %# TO BE REPLACED WITH IMPACTS DATA ...
+
+            %problems = hs['nb_problems'] + ss['nb_problems']
+            %elements = hs['nb_elts'] + ss['nb_elts']
+            %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
+            %font='critical' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'ok'
             <td>
-               %hs = datamgr.get_hosts_synthesis()
-               <center><a href="{{ webui.get_url('Hosts') }}" class="btn btn-sm">
-                  <i class="fa fa-4x fa-server font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Impacts')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{hs["nb_up"]}}</span>
-                  <span class="badger-big badger-right badger-info" title="{{_('Number of hosts down')}}">{{hs["nb_down"]}}</span>
-               </a></center>
+               <center>
+                  <a href="{{ webui.get_url('Livestate table') }}" class="btn btn-sm">
+                     <i class="fa fa-4x fa-bolt font-greyed"></i>
+                     <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Impacts')}}</span>
+                     <span class="badger-big badger-left badger-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
+                     <span class="badger-big badger-right badger-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
+                  </a>
+               </center>
             </td>
+            %end
          </tr>
       </tbody>
    </table>
