@@ -1,13 +1,11 @@
+%setdefault('debug', False)
+
 %setdefault('action_bar', False)
 
 %from bottle import request
-%rebase("layout", js=['dashboard/htdocs/js/widgets.js', 'dashboard/htdocs/js/jquery.easywidgets.js'], css=['dashboard/htdocs/css/dashboard.css'], title=title)
+%rebase("layout", js=['dashboard/htdocs/js/lodash.js', 'dashboard/htdocs/js/jquery.ui.touch-punch.min.js', 'dashboard/htdocs/js/gridstack.min.js'], css=['dashboard/htdocs/css/dashboard.css', 'dashboard/htdocs/css/gridstack.min.css'], title=title)
 
 <div id="dashboard">
-   <script type="text/javascript">
-      /* We are saving the global context for the widgets */
-      widget_context = 'dashboard';
-   </script>
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
@@ -109,34 +107,121 @@
       <!-- Widgets loading indicator -->
       <div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>
 
-      <div class="row">
-         <!-- /place-1 -->
-         <div class="widget-place col-xs-12 col-sm-12 col-lg-4" id="widget-place-1"> </div>
+      <div class="well well-sm">
+         <div class="grid-stack">
+            %for widget in dashboard_widgets:
+               <div class="grid-stack-item"
+                     id="{{widget['id']}}"
+                     data-name="{{widget['name']}}"
+                     data-uri="{{widget['uri']}}"
 
-         <!-- /place-2 -->
-         <div class="widget-place col-xs-12 col-sm-12 col-lg-4" id="widget-place-2"> </div>
-
-         <!-- /place-3 -->
-         <div class="widget-place col-xs-12 col-sm-12 col-lg-4" id="widget-place-3"> </div>
+                     data-gs-id="{{widget['id']}}"
+                     data-gs-x="{{widget['x']}}"
+                     data-gs-y="{{widget['y']}}"
+                     data-gs-width="{{widget['width']}}"
+                     data-gs-min-width="{{widget['minWidth']}}"
+                     data-gs-max-width="{{widget['maxWidth']}}"
+                     data-gs-height="{{widget['height']}}"
+                     data-gs-min-height="{{widget['minHeight']}}"
+                     data-gs-max-height="{{widget['maxHeight']}}"
+                     >
+                  <div class="grid-stack-item-content">
+                  </div>
+               </div>
+            %end
+         </div>
       </div>
    </div>
 </div>
 <script type="text/javascript">
    var dashboard_logs = false;
 
+   $('.grid-stack').on('change', function (e, items) {
+      console.log("Grid layout changed:", items);
+      var widgets = [];
+      for (i = 0; i < items.length; i++) {
+         console.log($('#'+items[i].id));
+         var widget = {
+            'id': items[i].id,
+            'name': $('#'+items[i].id).data('name'),
+            'uri': $('#'+items[i].id).data('uri'),
+            'x': items[i].x,
+            'y': items[i].y,
+            'width': items[i].width,
+            'minWidth': items[i].minWidth,
+            'maxWidth': items[i].maxWidth,
+            'height': items[i].height,
+            'minHeight': items[i].minHeight,
+            'maxHeight': items[i].maxHeight
+         };
+         var found = widgets.some(function (el) {
+            return el.id === widget.id;
+         });
+         if (!found) {
+            widgets.push(widget);
+         }
+      }
+      if (widgets.length > 0) {
+         var to_save = {'{{widgets_place}}': widgets}
+         save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
+            console.log("Saved {{widgets_place}} widgets grid", to_save)
+         });
+      }
+   });
+
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
 
       %if not len(dashboard_widgets):
-         // display the widgets proposal area.
+         // Show the widgets proposal area.
          $('#propose-widgets').show();
+      %else:
+         // Hide the widgets proposal area ...
+         $('#propose-widgets').hide();
+
+         // Loading indicator ...
+         $("#widgets_loading").
+            html('<i class="fa fa-spinner fa-spin fa-3x"></i> <span class="lead">{{_('Loading widgets ... ')}}</span>').
+            show();
+
+         nb_widgets_loading = 0;
       %end
 
-      // load all widgets.
-      %for w in dashboard_widgets:
-         %if 'base_url' in w and 'position' in w:
-            AddWidget("{{!w['base_url']}}", {{!w['options_json']}}, "{{w['position']}}");
-         %end
+      var options = {
+         float: false,
+         cellHeight: '80px',
+         disableDrag: false,
+         disableResize: false,
+         removable: true,
+         verticalMargin: 20
+      };
+      $('.grid-stack').gridstack(options);
+
+      %for widget in dashboard_widgets:
+         // We are saying to the user that we are loading a widget with
+         // a spinner
+         nb_widgets_loading += 1;
+
+         console.log("Load: {{widget['uri']}}")
+         $("#{{widget['id']}} div.grid-stack-item-content").load(
+            "{{widget['uri']}}",
+            {
+               widget_id: '{{widget['id']}}'
+            },
+            function(response, status, xhr) {
+               //console.log(status, response)
+               nb_widgets_loading -= 1;
+               if (nb_widgets_loading==0){
+                  $('#widgets_loading').hide();
+               }
+
+               if ( status == "error" ) {
+                  var msg = "Sorry but there was an error: ";
+                  $( "#error" ).html( msg + xhr.status + " " + xhr.statusText );
+               }
+            }
+         );
+
       %end
    });
 </script>

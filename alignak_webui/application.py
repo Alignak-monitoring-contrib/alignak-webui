@@ -655,27 +655,31 @@ class WebUI(object):
                             )
 
                         # It's a valid widget entry if it got all data, and at least one route
-                        # ONLY the first route will be used for Add!
-                        widget_lst = entry.get('widget', [])
-                        widget_id = entry.get('widget_id', None)
-                        widget_desc = entry.get('widget_desc', None)
-                        widget_name = entry.get('widget_name', None)
-                        widget_picture = entry.get('widget_picture', None)
-                        if widget_id and widget_name and widget_desc and \
-                                widget_lst != [] and page_route:
-                            for place in widget_lst:
-                                if place not in self.widgets:
-                                    self.widgets[place] = []
-                                self.widgets[place].append({
-                                    'widget_id': widget_id,
-                                    'widget_name': widget_name,
-                                    'widget_desc': widget_desc,
-                                    'base_uri': page_route,
-                                    'widget_picture': os.path.join(
-                                        os.path.join('/static/plugins/', plugin_name),
-                                        widget_picture
+                        if 'widget' in entry:
+                            widget = entry.get('widget')
+                            widget_lst = entry.get('widget.for', [])
+                            widget_id = entry.get('widget.id', None)
+                            widget_desc = entry.get('widget.description', None)
+                            widget_name = entry.get('widget.name', None)
+                            widget_picture = entry.get('widget.picture', None)
+                            if 'id' in widget and 'name' in widget and \
+                               'description' in widget and 'for' in widget and page_route:
+                                for place in widget['for']:
+                                    if place not in self.widgets:
+                                        self.widgets[place] = []
+                                    self.widgets[place].append({
+                                        'id': widget['id'],
+                                        'name': widget['name'],
+                                        'description': widget['description'],
+                                        'picture': os.path.join(
+                                            os.path.join('/static/plugins/', plugin_name),
+                                            widget.get('picture', '')
+                                        ),
+                                        'base_uri': page_route
+                                    })
+                                    logger.info(
+                                        "Found widget (%s): %s", place, self.widgets[place]
                                     )
-                                })
 
                 # Add the views sub-directory of the plugin in the Bottle templates path
                 dir_views = os.path.join(

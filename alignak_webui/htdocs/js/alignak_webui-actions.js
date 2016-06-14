@@ -72,7 +72,7 @@ function save_user_preference(key, value, callback) {
       if (actions_logs) console.debug('User preference saved: ', key, value);
 
       if (typeof callback !== 'undefined' && $.isFunction(callback)) {
-         if (actions_logs) console.debug('Calling callback function ...', callback);
+         if (actions_logs) console.debug('Calling callback function ...');
          callback(value);
       }
    })
@@ -100,7 +100,7 @@ function save_common_preference(key, value, callback) {
       if (actions_logs) console.debug('Common preference saved: ', key, value);
 
       if (typeof callback !== 'undefined' && $.isFunction(callback)) {
-         if (actions_logs) console.debug('Calling callback function ...', callback);
+         if (actions_logs) console.debug('Calling callback function ...');
          callback(JSON.parse(value));
       }
    })
@@ -224,8 +224,26 @@ $(document).ready(function() {
     */
    // Add a widget
    $('body').on("click", '[data-action="add-widget"]', function () {
-      if (actions_logs) console.debug("Add a widget")
-      AddNewWidget($(this).data('wuri'), null, 'widget-place-1');
+      var widget = {
+         id: $(this).data('widget-id') + '_' + Date.now(),
+         name: $(this).data('widget-name'),
+         uri: $(this).data('widget-uri')
+      };
+
+      if (actions_logs) console.debug("Adding a widget: ", name)
+
+      // Get widgets grid
+      grid = $('.grid-stack').data('gridstack');
+      // and add a widget to the grid
+      var widget = grid.addWidget(
+         $(
+            '<div id="'+widget.id+'" data-name="'+encodeURI(widget.name)+'" data-uri="'+encodeURI(widget.uri)+'" class="grid-stack-item-content" />'),
+         0, 0, 6, 6,       // x, y, width, height
+         true,             // autoPosition
+         1, 12, 1, 12,     // minWidth, maxWidth, minHeight, maxHeight
+         widget.id
+      );
+      if (actions_logs) console.debug("Added a widget:", widget)
    });
 
    $('body').on("click", '.dashboard-widget', function () {

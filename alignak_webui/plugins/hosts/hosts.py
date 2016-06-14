@@ -448,6 +448,92 @@ def get_hosts():
     }
 
 
+def get_hosts_widget():
+    """
+    Get the hosts list as a widget
+    - widget_id: widget identifier
+
+    - start and count for pagination
+    - search for specific elements search
+
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Pagination and search
+    start = int(request.forms.get('start', '0'))
+    count = int(request.forms.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.forms.get('search', ''))
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'sort': '-_id',
+        'where': where,
+        'embedded': {
+            'check_command': 1, 'event_handler': 1,
+            'check_period': 1, 'notification_period': 1,
+            'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+        }
+    }
+
+    # Get elements from the data manager
+    hosts = datamgr.get_hosts(search)
+    # Get last total elements count
+    total = datamgr.get_objects_count('host', search=where, refresh=True)
+    count = min(count, total)
+
+    # Widget options
+    widget_id = request.forms.get('widget_id', None)
+    if not widget_id:
+        webui.response_invalid_parameters(_('Missing widget identifier'))
+
+    header = (request.forms.get('header', 'false') == 'true')
+    commands = (request.forms.get('commands', 'false') == 'true')
+
+    options = {
+        'search': {
+            'value': request.forms.get('search', ''),
+            'type': 'text',
+            'label': _('Filter (ex. status:up)')
+        },
+        'nb_elements': {
+            'value': int(request.forms.get('nb_elements', '10')),
+            'type': 'int',
+            'label': _('Maximum number of elements')
+        },
+        'commands': {
+            'value': commands,
+            'type': 'bool',
+            'label': _('Commands')
+        },
+        'header': {
+            'value': header,
+            'type': 'bool',
+            'label': _('Sessions header')
+        }
+    }
+
+    title = _('Hosts')
+    if request.forms.get('filter', ''):
+        title = _('Hosts (%s)') % request.forms.get('search', '')
+
+    return {
+        'widget_id': widget_id,
+        'hosts': hosts,
+        'options': options,
+        'title': request.forms.get('title', _('All hosts'))
+    }
+
+
 def get_hosts_table():
     """
     Get the hosts list and transform it as a table
@@ -531,5 +617,19 @@ pages = {
         'name': 'Hosts table data',
         'route': '/host_table_data',
         'method': 'POST'
+    },
+
+    get_hosts_widget: {
+        'name': 'Hosts widget',
+        'route': '/hosts/widget',
+        'method': 'POST',
+        'view': 'hosts_widget',
+        'widget': {
+            'id': 'hosts',
+            'for': ['dashboard'],
+            'name': _('Hosts widget'),
+            'description': _('<h4>Hosts</h4>List the system hosts'),
+            'picture': 'htdocs/img/widget_hosts.png'
+        }
     },
 }

@@ -13,22 +13,24 @@
          </a>
 
          <ul class="dropdown-menu" role="menu" aria-labelledby="Widgets bar menu">
-            %for w in webui.get_widgets_for('dashboard'):
+            %for widget in webui.get_widgets_for('dashboard'):
             <li>
                <a href="#"
                   class="dashboard-widget"
                   data-widget-title="
                       <button href='#' role='button'
                           data-action='add-widget'
-                          data-widget='{{w['widget_id']}}' data-wuri='{{w['base_uri']}}'
+                          data-widget-id='{{widget['id']}}'
+                          data-widget-name='{{widget['name']}}'
+                          data-widget-uri='{{widget['base_uri']}}'
                           class='btn btn-sm btn-success'>
                           <span class='fa fa-plus'></span>
                           {{_('Add this widget to your dashboard')}}
                       </button>"
-                  data-widget-description='{{!w["widget_desc"]}} <hr/> <div class="center-block"><img class="text-center" src="{{w["widget_picture"]}}"/></div>'
+                  data-widget-description='{{!widget["description"]}} <hr/> <div class="center-block"><img class="text-center" src="{{widget["picture"]}}"/></div>'
                   >
                   <span class="fa fa-leaf"></span>
-                  {{w['widget_name']}}
+                  {{widget['name']}}
                </a>
             </li>
             %end

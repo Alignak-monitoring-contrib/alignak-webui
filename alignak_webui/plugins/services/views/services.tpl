@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 %# When layout is False, this template is embedded
 %setdefault('layout', True)
 
@@ -47,8 +47,6 @@
             <thead><tr>
                <th width="40px"></th>
                <th>{{_('Service description')}}</th>
-               <th>{{_('Alias')}}</th>
-               <th>{{_('Display name')}}</th>
                <th>{{_('Host name')}}</th>
                <th>{{_('Check command')}}</th>
                <th>{{_('Active checks enabled')}}</th>
@@ -58,9 +56,15 @@
 
             <tbody>
                %for service in services:
+               %lv_service = datamgr.get_livestate_service({'where': {'host_name': service.host_name.id, 'service_description': service.id}})
                <tr id="#{{service.id}}">
-                  <td>
-                     {{! service.get_html_state()}}
+                  <td title="{{service.alias}}">
+                  %if lv_service:
+                     %title = "%s - %s (%s)" % (lv_service.status, Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0), lv_service.output)
+                     {{! lv_service.get_html_state(text=None, title=title)}}
+                  %else:
+                     {{! service.get_html_state(text=None, title=_('No livestate for this element'))}}
+                  %end
                   </td>
 
                   <td>
@@ -68,21 +72,11 @@
                   </td>
 
                   <td>
-                     <small>{{service.alias}}</small>
+                     <small>{{! service.host_name.html_link}}</small>
                   </td>
 
                   <td>
-                     <small>{{service.display_name}}</small>
-                  </td>
-
-                  <td>
-                     %host = service.host_name
-                     <small>{{! '<a href="%s">%s</a>' % (host.endpoint, host.get_html_state(title=host.name))}}</small>
-                  </td>
-
-                  <td>
-                     %command = service.check_command
-                     <small>{{! '<a href="%s">%s</a>' % (command.endpoint, command.get_html_state(title=command.name))}}</small>
+                     <small>{{! service.check_command.html_link}}</small>
                   </td>
 
                   <td>
@@ -94,7 +88,7 @@
                   </td>
 
                   <td>
-                     <small>{{service.business_impact}}</small>
+                     <small>{{! Helper.get_html_business_impact(service.business_impact)}}</small>
                   </td>
                </tr>
              %end

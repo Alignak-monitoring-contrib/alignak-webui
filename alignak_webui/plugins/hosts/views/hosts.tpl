@@ -44,8 +44,6 @@
             <thead><tr>
                <th width="40px"></th>
                <th>{{_('Host name')}}</th>
-               <th>{{_('Alias')}}</th>
-               <th>{{_('Display name')}}</th>
                <th>{{_('Address')}}</th>
                <th>{{_('Check command')}}</th>
                <th>{{_('Active checks enabled')}}</th>
@@ -55,21 +53,19 @@
 
             <tbody>
                %for host in hosts:
+               %lv_host = datamgr.get_livestate_host({'where': {'host_name': host.id}})
                <tr id="#{{host.id}}">
-                  <td>
-                     {{! host.get_html_state()}}
+                  <td title="{{host.alias}}">
+                  %if lv_host:
+                     %title = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)
+                     {{! lv_host.get_html_state(text=None, title=title)}}
+                  %else:
+                     {{! host.get_html_state(text=None, title=_('No livestate for this element'))}}
+                  %end
                   </td>
 
                   <td>
                      <small>{{!host.html_link}}</small>
-                  </td>
-
-                  <td>
-                     <small>{{host.alias}}</small>
-                  </td>
-
-                  <td>
-                     <small>{{host.display_name}}</small>
                   </td>
 
                   <td>
@@ -89,7 +85,7 @@
                   </td>
 
                   <td>
-                     <small>{{host.business_impact}}</small>
+                     <small>{{! Helper.get_html_business_impact(host.business_impact)}}</small>
                   </td>
                </tr>
              %end

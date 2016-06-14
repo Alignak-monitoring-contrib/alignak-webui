@@ -47,37 +47,60 @@ def get_page():
         username = target_user.get_username()
 
     # Look for the widgets as the json entry
-    saved_widgets = datamgr.get_user_preferences(username, 'widgets', {'widgets': []})
+    saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'dashboard': []})
     # If void, create an empty one
     if not saved_widgets:  # pragma: no cover - widgets may exist or not ...
-        datamgr.set_user_preferences(username, 'widgets', {'widgets': []})
-        saved_widgets = {'widgets': []}
+        saved_widgets = {'dashboard': []}
+        datamgr.set_user_preferences(username, 'widgets', saved_widgets)
+    logger.error("Dashboard widgets: %s", saved_widgets)
 
     widgets = []
-    for w in saved_widgets['widgets']:
-        if 'id' not in w or 'position' not in w:
+    for widget in saved_widgets['dashboard']:
+        if 'id' not in widget:
             continue
 
+        logger.warning("Dashboard widget, got: %s", widget)
+
+        # Widget data:
+        # - for: widget page (default: dashboard)
+        # - id: unique identifier
+        # - x, y: position (default: 0, 0)
+        # - width, height: size (default: 1, 1)
+        # - base_url
+        # - options_json
+
         # by default the widget is for /dashboard
-        w['for'] = w.get('for', 'dashboard')
-        if not w['for'] == 'dashboard':  # pragma: no cover - not testable yet
+        widget['for'] = widget.get('for', 'dashboard')
+        if not widget['for'] == 'dashboard':  # pragma: no cover - not testable yet
             # Not a dashboard widget? I don't want it so
             continue
 
-        options = w.get('options', {})
-        collapsed = w.get('collapsed', '0')
+        widget['x'] = widget.get('x', 0)
+        widget['y'] = widget.get('x', 0)
+        widget['width'] = widget.get('width', 1)
+        widget['minWidth'] = widget.get('minWidth', 1)
+        widget['maxWidth'] = widget.get('maxWidth', 12)
+        widget['height'] = widget.get('height', 1)
+        widget['minHeight'] = widget.get('minHeight', 1)
+        widget['maxHeight'] = widget.get('maxHeight', 6)
 
-        options["wid"] = w["id"]
-        options["collapsed"] = collapsed
-        w['options'] = options
-        w['options_json'] = json.dumps(options)
-        args = {'wid': w['id'], 'collapsed': collapsed}
+        widget['id'] = widget.get('id', None)
+        widget['name'] = widget.get('name', None)
+        widget['uri'] = widget.get('uri', '/')
+
+        options = widget.get('options', {})
+
+        widget['options'] = options
+        widget['options_json'] = json.dumps(options)
+        args = {'id': widget['id']}
         args.update(options)
-        w['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
-        widgets.append(w)
+        widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
+        logger.info("Dashboard widget: %s", widget)
+        widgets.append(widget)
 
     return {
         'action_bar': len(widgets) != 0,
+        'widgets_place': 'dashboard',
         'dashboard_widgets': widgets,
         'title': request.query.get('title', _('Dashboard'))
     }
