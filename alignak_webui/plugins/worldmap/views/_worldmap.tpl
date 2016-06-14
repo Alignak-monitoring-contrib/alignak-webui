@@ -160,7 +160,9 @@
   // Images dir
   var imagesDir = "/static/plugins/worldmap/htdocs/img/";
 
-  //------------------------------------------------------------------------------ Sequentially load necessary scripts to create map with markers ------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // Sequentially load necessary scripts to create map with markers 
+  //------------------------------------------------------------------------------
   loadScripts = function(scripts, complete) {
     var loadScript = function(src) {
       if (!src)
