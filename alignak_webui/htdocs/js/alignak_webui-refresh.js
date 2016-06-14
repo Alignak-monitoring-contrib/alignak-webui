@@ -32,7 +32,6 @@ var refresh_required=false;
 
 
 if (refresh_logs) console.debug("Refresh period is :", refresh_timeout);
-if (refresh_logs) console.debug("Header refresh period is :", header_refresh_period);
 if (refresh_logs) console.debug("Check period is :", check_period);
 if (refresh_logs) console.debug("Ping period is :", ping_period);
 
@@ -156,28 +155,30 @@ function check_UI_backend(){
       return;
    }
 
-   $.get({
-      url: '/heartbeat',
-      dataType: "json"
-   })
-   .done(function(data, textStatus, jqXHR) {
-      if (data.status == 'ok') {
-         if (data.message == 'Session expired') {
-            // Force page reloading
-            location.reload();
-         } else {
-            if (sessionStorage.getItem("refresh_active") == '1') {
-               // Go Refresh
-               do_refresh();
+   if (sessionStorage.getItem("refresh_active") == '1') {
+      $.get({
+         url: '/heartbeat',
+         dataType: "json"
+      })
+      .done(function(data, textStatus, jqXHR) {
+         if (data.status == 'ok') {
+            if (data.message == 'Session expired') {
+               // Force page reloading
+               location.reload();
+            } else {
+               if (sessionStorage.getItem("refresh_active") == '1') {
+                  // Go Refresh
+                  do_refresh();
+               }
             }
          }
-      }
-   })
-   .fail(function(jqXHR, textStatus, errorThrown) {
-      if (refresh_logs) console.error('UI backend is not available, retrying later ...');
-      if (refresh_logs) console.error(textStatus, errorThrown);
-      postpone_refresh();
-   });
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+         if (refresh_logs) console.error('UI backend is not available, retrying later ...');
+         if (refresh_logs) console.error(textStatus, errorThrown);
+         postpone_refresh();
+      });
+   }
 
    reinit_refresh();
 }
