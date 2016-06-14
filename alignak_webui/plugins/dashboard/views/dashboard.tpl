@@ -180,6 +180,7 @@
 
       $('#widgets_loading').show();
 
+      var widget_id = $(this).data("widget");
       $.ajax({
          url: $(this).attr('action'),
          type: $(this).attr('method'),
@@ -189,7 +190,7 @@
          if (jqXHR.status != 200) {
             raise_message_ko(jqXHR.status, data);
          } else {
-            $("#" + $(this).data("widget") + " div.grid-stack-item-content").html(data);
+            $("#" + widget_id + " div.grid-stack-item-content").html(data);
             raise_message_ok("{{_('Widget options saved')}}");
          }
       })
