@@ -273,14 +273,14 @@ class DataManager(object):
         logger.debug("Load, start, objects in cache: %d", objects_count)
 
         # -----------------------------------------------------------------------------------------
-        # Get all contacts if current user is an administrator
-        # -----------------------------------------------------------------------------------------
-        self.get_contacts()
-
-        # -----------------------------------------------------------------------------------------
         # Get all realms
         # -----------------------------------------------------------------------------------------
         self.get_realms()
+
+        # -----------------------------------------------------------------------------------------
+        # Get all contacts if current user is an administrator
+        # -----------------------------------------------------------------------------------------
+        self.get_contacts()
 
         # -----------------------------------------------------------------------------------------
         # Get all timeperiods
@@ -296,11 +296,6 @@ class DataManager(object):
         # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
         self.get_livestate()
-
-        # -----------------------------------------------------------------------------------------
-        # Get livesynthesis (not necessary but load it once ...)
-        # -----------------------------------------------------------------------------------------
-        self.get_livesynthesis()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
