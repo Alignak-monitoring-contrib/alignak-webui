@@ -52,7 +52,7 @@
                                  <div class="form-group">
                                     <label for = "{{key}}">{{label}}</label>
                                     %if type == 'hst_srv':
-                                    <input type="text" class="form-control input-sm typeahead" placeholder="Search hosts ..." name="{{key}}" value="{{value}}" id="input-{{widget_id}}-{{key}}">
+                                    <input type="text" class="form-control input-sm typeahead" placeholder="{{_('Search by name ...')}}" name="{{key}}" value="{{value}}" id="input-{{widget_id}}-{{key}}">
                                     <script>
                                        // On page loaded ...
                                        $(function() {
@@ -61,7 +61,7 @@
                                              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
                                              queryTokenizer: Bloodhound.tokenizers.whitespace,
                                              remote: {
-                                                url: '/lookup?q=%QUERY',
+                                                url: '/lookup?query=%QUERY',
                                                 filter: function (hosts) {
                                                    return $.map(hosts, function (host) { return { value: host }; });
                                                 }
@@ -70,7 +70,7 @@
                                           hosts.initialize();
 
                                           // Typeahead: activation
-                                          var typeahead = $('#input-{{wid}}-{{key}}').typeahead({
+                                          var typeahead = $('#input-{{widget_id}}-{{key}}').typeahead({
                                              hint: true,
                                              highlight: true,
                                              minLength: 3
@@ -82,7 +82,7 @@
                                           });
 
                                           typeahead.on('typeahead:selected', function (eventObject, suggestionObject, suggestionDataset) {
-                                             $('#input-{{wid}}-{{key}}').val(suggestionObject.value).html(suggestionObject.value);
+                                             $('#input-{{widget_id}}-{{key}}').val(suggestionObject.value).html(suggestionObject.value);
                                              hostSubmittable = true;
                                           });
                                        });
@@ -125,7 +125,7 @@
                               %end
                            %end
 
-                           <button type="submit" class="btn btn-success btn-block"> <i class="fa fa-save"></i>{{_('Save changes')}}</button>
+                           <button type="submit" class="btn btn-success btn-block"> <i class="fa fa-save"></i>&nbsp;{{_('Save changes')}}</button>
                         </div>
                      </div>
                   </form>

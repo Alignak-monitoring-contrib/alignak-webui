@@ -38,20 +38,23 @@ def lookup():  # pragma: no cover - not yet implemented!
     TODO:
     Empty ... not yet implemented!
     """
-    response.content_type = 'application/json'
-
-    query = request.GET.get('q', '')
-    name = query
     user = request.environ['beaker.session']['current_user']
-
-    logger.debug("[WebUI] lookup: %s", name)
-
     datamgr = request.environ['beaker.session']['datamanager']
-    filtered_elements = datamgr.get_elements(user)
-    hnames = (h.host_name for h in filtered_elements)
-    r = [n for n in hnames if name in n]
+    target_user = request.environ['beaker.session']['target_user']
 
-    return json.dumps(r)
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    query = request.query.get('query', '')
+
+    logger.warning("lookup: %s", query)
+
+    elements = datamgr.get_livestate(search={'where': {'name': {"$regex": ".*" + query + ".*"}}})
+    names = [e.name for e in elements]
+    logger.warning("lookup: %s", names)
+
+    return json.dumps(names)
 
 
 pages = {
