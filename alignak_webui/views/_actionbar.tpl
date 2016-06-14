@@ -22,6 +22,7 @@
                           data-action='add-widget'
                           data-widget-id='{{widget['id']}}'
                           data-widget-name='{{widget['name']}}'
+                          data-widget-template='{{widget['template']}}'
                           data-widget-uri='{{widget['base_uri']}}'
                           class='btn btn-sm btn-success'>
                           <span class='fa fa-plus'></span>
@@ -29,7 +30,7 @@
                       </button>"
                   data-widget-description='{{!widget["description"]}} <hr/> <div class="center-block"><img class="text-center" src="{{widget["picture"]}}"/></div>'
                   >
-                  <span class="fa fa-leaf"></span>
+                  <span class="fa fa-{{widget['icon']}}"></span>
                   {{widget['name']}}
                </a>
             </li>

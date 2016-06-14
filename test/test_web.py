@@ -754,6 +754,13 @@ class tests_3(unittest2.TestCase):
             '13 elements out of 13',
         )
 
+        print 'get page /hosts/widget'
+        response = self.app.post('/hosts/widget', {'widget_id': 'test_widget'})
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_test_widget" class="panel panel-default">'
+        )
+
     def test_3_5_services(self):
         print ''
         print 'test services'

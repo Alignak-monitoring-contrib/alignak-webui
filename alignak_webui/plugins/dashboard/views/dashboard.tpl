@@ -3,7 +3,16 @@
 %setdefault('action_bar', False)
 
 %from bottle import request
-%rebase("layout", js=['dashboard/htdocs/js/lodash.js', 'dashboard/htdocs/js/jquery.ui.touch-punch.min.js', 'dashboard/htdocs/js/gridstack.min.js'], css=['dashboard/htdocs/css/dashboard.css', 'dashboard/htdocs/css/gridstack.min.css'], title=title)
+%rebase("layout", js=['dashboard/htdocs/js/lodash.js', 'dashboard/htdocs/js/jquery.ui.touch-punch.min.js', 'dashboard/htdocs/js/gridstack.min.js', 'dashboard/htdocs/js/Chart.js'], css=['dashboard/htdocs/css/dashboard.css', 'dashboard/htdocs/css/gridstack.min.css'], title=title)
+
+
+<style type="text/css">
+   .grid-stack {
+   }
+
+   .grid-stack-item-content {
+   }
+</style>
 
 <div id="dashboard">
    <table class="table table-invisible table-condensed">
@@ -107,13 +116,15 @@
       <!-- Widgets loading indicator -->
       <div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>
 
-      <div class="well well-sm">
+      <div>
          <div class="grid-stack">
             %for widget in dashboard_widgets:
                <div class="grid-stack-item"
                      id="{{widget['id']}}"
-                     data-name="{{widget['name']}}"
                      data-uri="{{widget['uri']}}"
+                     data-name="{{widget['name']}}"
+                     data-icon="{{widget['icon']}}"
+                     data-template="{{widget['template']}}"
 
                      data-gs-id="{{widget['id']}}"
                      data-gs-x="{{widget['x']}}"
@@ -137,15 +148,17 @@
    var dashboard_logs = false;
 
    $('.grid-stack').on('change', function (e, items) {
-      console.log("Grid layout changed:", items);
+      if (dashboard_logs) console.log("Grid layout changed:", items);
       if (items === undefined) return;
       var widgets = [];
       for (i = 0; i < items.length; i++) {
-         console.log($('#'+items[i].id));
+         if (dashboard_logs) console.log("Grid item: ", $('#'+items[i].id));
          var widget = {
             'id': items[i].id,
-            'name': $('#'+items[i].id).data('name'),
             'uri': $('#'+items[i].id).data('uri'),
+            'name': $('#'+items[i].id).data('name'),
+            'icon': $('#'+items[i].id).data('icon'),
+            'template': $('#'+items[i].id).data('template'),
             'x': items[i].x,
             'y': items[i].y,
             'width': items[i].width,
@@ -165,41 +178,15 @@
       if (widgets.length > 0) {
          var to_save = {'widgets': widgets}
          save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
-            console.log("Saved {{widgets_place}} widgets grid", to_save)
+            if (dashboard_logs) console.log("Saved {{widgets_place}} widgets grid", to_save)
          });
       }
    });
 
-   $('body').on("submit", 'form[data-action="save-options"]', function (evt) {
-      console.debug('Submit form data: ', $(this));
-      console.debug('Form item/action: ', $(this).data("widget"), $(this).data("action"));
-      console.debug('Form data: ', $(this).serializeArray());
-
-      // Do not automatically submit ...
-      evt.preventDefault();
-
-      $('#widgets_loading').show();
-
-      var widget_id = $(this).data("widget");
-      $.ajax({
-         url: $(this).attr('action'),
-         type: $(this).attr('method'),
-         data: $(this).serialize()
-      })
-      .done(function( data, textStatus, jqXHR ) {
-         if (jqXHR.status != 200) {
-            raise_message_ko(jqXHR.status, data);
-         } else {
-            $("#" + widget_id + " div.grid-stack-item-content").html(data);
-            raise_message_ok("{{_('Widget options saved')}}");
-         }
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         raise_message_ko(jqXHR.responseJSON['message']);
-      })
-     .always(function() {
-         $('#widgets_loading').hide();
-      });
+   $('.grid-stack').on('removed', function(event, items) {
+      for (var i = 0; i < items.length; i++) {
+         if (dashboard_logs) console.log('Item removed from grid:', items[i]);
+      }
    });
 
    $(document).ready(function(){
@@ -222,11 +209,16 @@
 
       var options = {
          float: false,
+         animate: true,
          cellHeight: 20,
          disableDrag: false,
          disableResize: false,
          removable: true,
-         verticalMargin: 20
+         verticalMargin: 20,
+         alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+         resizable: {
+            handles: 'e, se, s, sw, w'
+         }
       };
       $('.grid-stack').gridstack(options);
 
@@ -235,17 +227,18 @@
          // a spinner
          nb_widgets_loading += 1;
 
-         console.log("Load: {{widget['uri']}}")
+         if (dashboard_logs) console.log("Load: {{widget['uri']}} for {{widget['id']}}")
          $("#{{widget['id']}} div.grid-stack-item-content").load(
             "{{widget['uri']}}",
             {
                %for (key, v) in widget['options'].iteritems():
                   {{key}}: '{{v.get('value', '')}}',
                %end
+               title: '{{widget['name']}}',
+               widget_template: '{{widget['template']}}',
                widget_id: '{{widget['id']}}'
             },
             function(response, status, xhr) {
-               //console.log(status, response)
                nb_widgets_loading -= 1;
                if (nb_widgets_loading==0){
                   $('#widgets_loading').hide();

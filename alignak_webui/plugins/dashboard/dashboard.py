@@ -83,8 +83,10 @@ def get_page():
         widget['maxHeight'] = widget.get('maxHeight', 6)
 
         widget['id'] = widget.get('id', None)
-        widget['name'] = widget.get('name', None)
         widget['uri'] = widget.get('uri', '/')
+        widget['name'] = widget.get('name', None)
+        widget['icon'] = widget.get('icon', 'leaf')
+        widget['template'] = widget.get('template', None)
 
         options = widget.get('options', {})
 

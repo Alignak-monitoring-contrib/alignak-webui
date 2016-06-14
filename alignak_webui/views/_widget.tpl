@@ -1,20 +1,8 @@
 %# Default values
-%setdefault('css', [])
-%setdefault('js', [])
 %setdefault('title', _('Untitled...'))
 
 %setdefault('widget_id', 'widget')
 %setdefault('collapsed', False)
-
-<script type="text/javascript">
-%for p in css:
-    loadjscssfile('/static/plugins/{{p}}', 'css');
-%end
-
-%for p in js:
-    loadjscssfile('/static/{{p}}', 'js');
-%end
-</script>
 
 <div id="wd_panel_{{widget_id}}" class="panel panel-default">
    <div class="panel-heading">
@@ -22,6 +10,10 @@
       <span class="hosts-all">
          {{title}}
       </span>
+      <div class="pull-right">
+         <a data-widget="{{widget_id}}" data-action="remove-widget" type="button" class="btn btn-xs"><i class="fa fa-close fa-fw"></i></a>
+      </div>
+      %if options:
       <div class="pull-right">
          <div class="btn-group">
             <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -32,6 +24,8 @@
                <li>
                   <form role="form" data-widget="{{widget_id}}" data-action="save-options" method="post" action="{{widget_uri}}" style="font-size: 0.9em">
                      <input type="hidden" name='widget_id' value='{{widget_id}}'/>
+                     <input type="hidden" name='widget_template' value='{{widget_template}}'/>
+                     <input type="hidden" name='title' value='{{title}}'/>
                      <div class="panel panel-default">
                         <div class="panel-heading">
                            <h3 class="panel-title">{{_('Widget options:')}}</h3>
@@ -133,9 +127,52 @@
             </ul>
          </div>
       </div>
+      %end
    </div>
       <div class="panel-body">
          % setdefault('base', 'nothing')
          {{!base}}
       </div>
 </div>
+
+<script>
+   $('body').on("submit", 'form[data-action="save-options"]', function (evt) {
+      console.debug('Submit form data: ', $(this));
+      console.debug('Form item/action: ', $(this).data("widget"), $(this).data("action"));
+      console.debug('Form data: ', $(this).serializeArray());
+
+      // Do not automatically submit ...
+      evt.preventDefault();
+
+      $('#widgets_loading').show();
+
+      var widget_id = $(this).data("widget");
+      $.ajax({
+         url: $(this).attr('action'),
+         type: $(this).attr('method'),
+         data: $(this).serialize()
+      })
+      .done(function( data, textStatus, jqXHR ) {
+         if (jqXHR.status != 200) {
+            raise_message_ko(jqXHR.status, data);
+         } else {
+            $("#" + widget_id + " div.grid-stack-item-content").html(data);
+            raise_message_ok("{{_('Widget options saved')}}");
+         }
+      })
+      .fail(function( jqXHR, textStatus, errorThrown ) {
+         raise_message_ko(jqXHR.responseJSON['message']);
+      })
+     .always(function() {
+         $('#widgets_loading').hide();
+      });
+   });
+
+   $('body').on("click", 'a[data-action="remove-widget"]', function (evt) {
+      console.debug('Remove widget: ', $(this));
+      console.debug('Form item/action: ', $(this).data("widget"), $(this).data("action"));
+
+      var grid = $('.grid-stack').data('gridstack');
+      grid.removeWidget('#' + $(this).data("widget"));
+   });
+</script>

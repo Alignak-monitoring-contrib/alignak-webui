@@ -227,6 +227,7 @@ $(document).ready(function() {
       var widget = {
          id: $(this).data('widget-id') + '_' + Date.now(),
          name: $(this).data('widget-name'),
+         template: $(this).data('widget-template'),
          uri: $(this).data('widget-uri')
       };
 
@@ -235,15 +236,15 @@ $(document).ready(function() {
       // Get widgets grid
       grid = $('.grid-stack').data('gridstack');
       // and add a widget to the grid
-      var widget = grid.addWidget(
+      var added_widget = grid.addWidget(
          $(
-            '<div id="'+widget.id+'" data-name="'+encodeURI(widget.name)+'" data-uri="'+encodeURI(widget.uri)+'" class="grid-stack-item-content" />'),
+            '<div id="'+widget.id+'" data-name="'+widget.name+'" data-template="'+widget.template+'" data-uri="'+encodeURI(widget.uri)+'" class="grid-stack-item-content" />'),
          0, 0, 6, 6,       // x, y, width, height
          true,             // autoPosition
-         1, 12, 1, 12,     // minWidth, maxWidth, minHeight, maxHeight
+         3, 12, 2, 64,     // minWidth, maxWidth, minHeight, maxHeight
          widget.id
       );
-      if (actions_logs) console.debug("Added a widget:", widget)
+      if (actions_logs) console.debug("Added a widget:", added_widget)
    });
 
    $('body').on("click", '.dashboard-widget', function () {

@@ -29,7 +29,7 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response
+from bottle import request, template, response
 
 from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import sort_items_most_recent_first
@@ -486,9 +486,9 @@ def get_hosts_widget():
             'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
         }
     }
-    name_filter = request.forms.get('filter', None)
+    name_filter = request.forms.get('filter', '')
     if name_filter:
-        search['where'].update({'name': {"$regex": ".*" + filter + ".*"}})
+        search['where'].update({'name': {"$regex": ".*" + name_filter + ".*"}})
 
     # Get elements from the data manager
     hosts = datamgr.get_hosts(search)
@@ -500,55 +500,39 @@ def get_hosts_widget():
     widget_id = request.forms.get('widget_id', None)
     if not widget_id:
         webui.response_invalid_parameters(_('Missing widget identifier'))
+    widget_template = request.forms.get('widget_template', None)
+    if not widget_template:
+        webui.response_invalid_parameters(_('Missing widget template'))
 
     widget_place = request.forms.get('widget_place', 'dashboard')
 
-    options = {
-        'search': {
-            'value': request.forms.get('search', ''),
-            'type': 'text',
-            'label': _('Filter (ex. status:up)')
-        },
-        'count': {
-            'value': count,
-            'type': 'int',
-            'label': _('Number of elements')
-        },
-        'filter': {
-            'value': name_filter,
-            'type': 'hst_srv',
-            'label': _('Host name search')
-        }
-    }
+    # Search in the application widgets (all plugins widgets)
+    options = {}
+    for widget in webui.widgets[widget_place]:
+        if widget_id.startswith(widget['id']):
+            options = widget['options']
 
-    title = _('Hosts')
-    if request.forms.get('search', ''):
-        title = _('Hosts (%s)') % request.forms.get('search', '')
+    if options.get('search') and options.get('search.value'):
+        search.options.value = request.forms.get('search', '')
+    if options.get('count') and options.get('count.value'):
+        search['options']['value'] = count
+    if options.get('filter') and options.get('filter.value'):
+        search['options']['filter'] = name_filter
 
-    # Search for the dashboard widgets
-    saved_widgets = datamgr.get_user_preferences(
-        username, '%s_widgets' % widget_place, {'widgets': []}
-    )
-    if saved_widgets:
-        for widget in saved_widgets['widgets']:
-            if widget['id'] == widget_id:
-                widget['options'] = options
-                datamgr.set_user_preferences(username, '%s_widgets' % widget_place, saved_widgets)
-                break
+    title = request.forms.get('title', _('Hosts'))
+    if name_filter:
+        title = _('%s (%s)') % (title, name_filter)
 
-    saved_widgets = datamgr.get_user_preferences(
-        username, '%s_widgets' % widget_place, {'widgets': []}
-    )
-    logger.info("Saved widgets : %s", saved_widgets)
-
-    return {
+    # Use required template to render the widget
+    return template(widget_template, {
         'widget_id': widget_id,
         'widget_place': widget_place,
+        'widget_template': widget_template,
         'widget_uri': request.urlparts.path,
         'hosts': hosts,
         'options': options,
-        'title': request.forms.get('title', title)
-    }
+        'title': title
+    })
 
 
 def get_hosts_table():
@@ -641,12 +625,49 @@ pages = {
         'route': '/hosts/widget',
         'method': 'POST',
         'view': 'hosts_widget',
-        'widget': {
-            'id': 'hosts',
-            'for': ['dashboard'],
-            'name': _('Hosts widget'),
-            'description': _('<h4>Hosts</h4>List the system hosts'),
-            'picture': 'htdocs/img/widget_hosts.png'
-        }
+        'widgets': [
+            {
+                'id': 'hosts_table',
+                'for': ['dashboard'],
+                'name': _('Hosts table widget'),
+                'template': 'hosts_table_widget',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Hosts table widget</h4>Display a list of the monitored system hosts.<br>'
+                    'The number of hosts in this list can be defined in the widget options.'
+                    'The list of hosts can be filtered thanks to regex on the host name'
+                ),
+                'picture': 'htdocs/img/hosts_table_widget.png',
+                'options': {
+                    'search': {
+                        'value': '',
+                        'type': 'text',
+                        'label': _('Filter (ex. status:up)')
+                    },
+                    'count': {
+                        'value': -1,
+                        'type': 'int',
+                        'label': _('Number of elements')
+                    },
+                    'filter': {
+                        'value': '',
+                        'type': 'hst_srv',
+                        'label': _('Host name search')
+                    }
+                }
+            },
+            {
+                'id': 'hosts_graph',
+                'for': ['dashboard'],
+                'name': _('Hosts chart widget'),
+                'template': 'hosts_chart_widget',
+                'icon': 'pie-chart',
+                'description': _(
+                    '<h4>Hosts chart widget</h4>Display a pi chart with the system hosts states.'
+                ),
+                'picture': 'htdocs/img/hosts_chart_widget.png',
+                'options': {}
+            }
+        ]
     },
 }
