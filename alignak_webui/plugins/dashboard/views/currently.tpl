@@ -114,23 +114,23 @@
              }
              if (old_hosts_problems < hosts_problems) {
                  var message = (hosts_problems - old_hosts_problems) + " more " + ((hosts_problems - old_hosts_problems)==1 ? "hosts problem" : "hosts problems") + " since last "+app_refresh_period+" seconds."
-                 alertify.log(message, "error", 5000);
+                 raise_message_ko(message);
                  if (dashboard_logs) console.debug(message);
              }
              if (hosts_problems < old_hosts_problems) {
                  var message = (old_hosts_problems - hosts_problems) + " less " + ((old_hosts_problems - hosts_problems)==1 ? "hosts problem" : "hosts problems") + " since last "+app_refresh_period+" seconds."
-                 alertify.log(message, "success", 5000);
+                 raise_message_ok(message);
                  if (dashboard_logs) console.debug(message);
              }
              sessionStorage.setItem("hosts_problems", hosts_problems);
              if (old_services_problems < services_problems) {
                  var message = (services_problems - old_services_problems) + " more " + ((services_problems - old_services_problems)==1 ? "services problem" : "services problems") + " since last "+app_refresh_period+" seconds."
-                 alertify.log(message, "error", 5000);
+                 raise_message_ko(message);
                  if (dashboard_logs) console.debug(message);
              }
              if (services_problems < old_services_problems) {
                  var message = (old_services_problems - services_problems) + " less " + ((old_services_problems - services_problems)==1 ? "services problem" : "services problems") + " since last "+app_refresh_period+" seconds."
-                 alertify.log(message, "success", 5000);
+                 raise_message_ok(success);
                  if (dashboard_logs) console.debug(message);
              }
              sessionStorage.setItem("services_problems", services_problems);
@@ -637,8 +637,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-      <div class="col-md-6" id="panel_pie_graph_services">
+         </div>
+         <div class="col-md-6" id="panel_pie_graph_services">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="fa fa-pie-chart"></i>

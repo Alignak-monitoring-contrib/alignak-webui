@@ -51,7 +51,8 @@
       <link rel="stylesheet" href="/static/css/font-awesome.min.css" >
       <link rel="stylesheet" href="/static/css/typeahead.css" >
       <link rel="stylesheet" href="/static/css/daterangepicker.css" >
-      <link rel="stylesheet" href="/static/css/alertify.css" >
+      <link rel="stylesheet" href="/static/css/alertify.min.css" >
+      <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
@@ -80,7 +81,7 @@
       <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jTruncate.js"></script>
-      <script type="text/javascript" src="/static/js/alertify.js"></script>
+      <script type="text/javascript" src="/static/js/alertify.min.js"></script>
       <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
 

@@ -268,7 +268,7 @@ function start_refresh() {
 function postpone_refresh(){
    // If we are not in our first try, warn the user
    if (nb_refresh_try > 0){
-      alertify.log("The Web UI backend is not available", "info", 5000);
+      raise_message_ko("The Web UI backend is not available");
    }
    nb_refresh_try += 1;
 

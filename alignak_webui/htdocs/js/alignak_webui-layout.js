@@ -58,7 +58,7 @@ function loadjscssfile(filename, filetype){
          url: filename,
          dataType: "script",
          error: function () {
-            console.error('Shinken script error, not loaded: ', filename);
+            console.error('Script loading error, not loaded: ', filename);
          }
       });
    } else if (filetype=="css") {

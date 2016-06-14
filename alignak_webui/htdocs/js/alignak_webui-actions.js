@@ -20,8 +20,8 @@
 
 var actions_logs=false;
 var refresh_delay_after_action=1000;
-var alert_success_delay=3000;
-var alert_error_delay=5000;
+var alert_success_delay=3;
+var alert_error_delay=5;
 
 /**
  * Get current user preference value:
@@ -115,11 +115,11 @@ function save_common_preference(key, value, callback) {
  * Message raise part
  */
 function raise_message_ok(text){
-   alertify.log(text, "success", alert_success_delay);
+   alertify.success(text, alert_success_delay);
 }
 
 function raise_message_ko(text){
-   alertify.log(text, "error", alert_error_delay);
+   alertify.error(text, alert_error_delay);
 }
 
 
