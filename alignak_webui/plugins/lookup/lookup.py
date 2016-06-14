@@ -38,13 +38,7 @@ def lookup():  # pragma: no cover - not yet implemented!
     TODO:
     Empty ... not yet implemented!
     """
-    user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
 
     query = request.query.get('query', '')
 

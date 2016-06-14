@@ -657,11 +657,6 @@ class WebUI(object):
                         # It's a valid widget entry if it got all data, and at least one route
                         if 'widget' in entry:
                             widget = entry.get('widget')
-                            widget_lst = entry.get('widget.for', [])
-                            widget_id = entry.get('widget.id', None)
-                            widget_desc = entry.get('widget.description', None)
-                            widget_name = entry.get('widget.name', None)
-                            widget_picture = entry.get('widget.picture', None)
                             if 'id' in widget and 'name' in widget and \
                                'description' in widget and 'for' in widget and page_route:
                                 for place in widget['for']:

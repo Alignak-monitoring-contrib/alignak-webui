@@ -486,8 +486,8 @@ def get_hosts_widget():
             'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
         }
     }
-    filter = request.forms.get('filter', None)
-    if filter:
+    name_filter = request.forms.get('filter', None)
+    if name_filter:
         search['where'].update({'name': {"$regex": ".*" + filter + ".*"}})
 
     # Get elements from the data manager
@@ -515,7 +515,7 @@ def get_hosts_widget():
             'label': _('Number of elements')
         },
         'filter': {
-            'value': request.forms.get('filter', ''),
+            'value': name_filter,
             'type': 'hst_srv',
             'label': _('Host name search')
         }
@@ -526,7 +526,9 @@ def get_hosts_widget():
         title = _('Hosts (%s)') % request.forms.get('search', '')
 
     # Search for the dashboard widgets
-    saved_widgets = datamgr.get_user_preferences(username, '%s_widgets' % widget_place, {'widgets': []})
+    saved_widgets = datamgr.get_user_preferences(
+        username, '%s_widgets' % widget_place, {'widgets': []}
+    )
     if saved_widgets:
         for widget in saved_widgets['widgets']:
             if widget['id'] == widget_id:
@@ -534,9 +536,10 @@ def get_hosts_widget():
                 datamgr.set_user_preferences(username, '%s_widgets' % widget_place, saved_widgets)
                 break
 
-    saved_widgets = datamgr.get_user_preferences(username, '%s_widgets' % widget_place, {'widgets': []})
+    saved_widgets = datamgr.get_user_preferences(
+        username, '%s_widgets' % widget_place, {'widgets': []}
+    )
     logger.info("Saved widgets : %s", saved_widgets)
-
 
     return {
         'widget_id': widget_id,
