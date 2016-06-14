@@ -13,7 +13,6 @@ html, body {
  * ------------------------------------------------------------------------
  * Minimize table layout ...
  * ------------------------------------------------------------------------
- * Backported from shinken-webui.css
  *
  */
 .table-invisible > thead > tr > th,
