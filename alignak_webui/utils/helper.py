@@ -382,7 +382,7 @@ class Helper(object):
                 patterns.append(('name', match.group('name')))
             elif match.group('key'):
                 patterns.append((match.group('key'), match.group('value')))
-        logger.debug("decode_search, search patterns: %s", patterns)
+        logger.info("decode_search, search patterns: %s", patterns)
 
         parameters = {}
         for t, s in patterns:
@@ -395,6 +395,7 @@ class Helper(object):
 
             parameters.update({t: s})
 
+        logger.info("decode_search, parameters: %s", parameters)
         return parameters
 
     @staticmethod
