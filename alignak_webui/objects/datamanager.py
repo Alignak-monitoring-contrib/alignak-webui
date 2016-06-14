@@ -794,16 +794,7 @@ class DataManager(object):
                     'hosts_flapping': 0,
                     'hosts_in_downtime': 0,
 
-                    '_links': {u'self': {u'href': u'livesynthesis/575d43d65eb3a102e5680e16', u'title': u'Livesynthesi'}},
-                    '_total': 1,
-                    '_type': 'livesynthesis',
-                    '_default_date': 0,
-                    '_name': 'anonymous',
-                    '_updated': 1465730006,
-                    '_comment': '',
-                    '_created': 0,
-                    '_id': u'575d43d65eb3a102e5680e16',
-                    '_etag': u'859bd03f100b372197860885383fb1e42ce88927'
+                    ... / ...
                 }
 
             Returns an hosts_synthesis dictionary containing:
@@ -932,15 +923,16 @@ class DataManager(object):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
-            if 'embedded' not in search:
-                search.update({
-                    'embedded': {
-                        'check_command': 1, 'event_handler': 1,
-                        'check_period': 1, 'notification_period': 1,
-                        'maintenance_period': 1, 'snapshot_period': 1,
-                        # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
-                    }
-                })
+
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'check_command': 1, 'event_handler': 1,
+                    'check_period': 1, 'notification_period': 1,
+                    'maintenance_period': 1, 'snapshot_period': 1,
+                    # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+                }
+            })
 
         try:
             logger.info("get_hosts, search: %s", search)
@@ -970,8 +962,7 @@ class DataManager(object):
         if elts:
             hosts = [item for item in elts if item.getType() == 'host']
         else:
-            # Use internal object list ...
-            hosts = [item for dummy, item in Host.getCache().items()]
+            hosts = self.get_hosts()
         logger.debug("get_hosts_synthesis, %d hosts", len(hosts))
 
         synthesis = dict()
@@ -1038,8 +1029,7 @@ class DataManager(object):
         if elts:
             services = [item for item in elts if item.getType() == 'service']
         else:
-            # Use internal object list ...
-            services = [item for dummy, item in Service.getCache().items()]
+            services = self.get_services()
         logger.debug("get_services_synthesis, %d services", len(services))
 
         synthesis = dict()
