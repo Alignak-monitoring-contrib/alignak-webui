@@ -5,7 +5,7 @@
 
 <script type="text/javascript">
    // Check header refresh period (seconds)
-   var header_refresh_period = 10;
+   var header_refresh_period = 30;
 
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
