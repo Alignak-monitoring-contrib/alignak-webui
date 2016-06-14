@@ -66,6 +66,11 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             self.connected = False
 
+            if not username:
+                # Refuse backend login without username
+                logger.warning("No login without username!")
+                return self.connected
+
             if not password:
                 # Set backend token (no login request).
                 logger.debug("Update backend token")
@@ -315,7 +320,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             try:
                 # Get most recent version of the element
                 element = self.get('/'.join([object_type, object_id]))
-                logger.warning("update, element: %s", element)
+                logger.debug("update, element: %s", element)
             except ValueError:
                 logger.warning("update, object %s, _id=%s not found", object_type, object_id)
                 return False
