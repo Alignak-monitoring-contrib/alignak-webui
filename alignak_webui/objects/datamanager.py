@@ -295,7 +295,7 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
-        self.get_livestate()
+        # self.get_livestate()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -825,7 +825,7 @@ class DataManager(object):
         if not items:
             return None
         ls = items[0]
-        logger.warning("live synthesis, %s", ls.__dict__)
+        logger.debug("live synthesis, %s", ls.__dict__)
 
         # Services synthesis
         hosts_synthesis = {
