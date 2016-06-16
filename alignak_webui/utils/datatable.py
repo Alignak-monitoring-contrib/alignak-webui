@@ -533,11 +533,7 @@ class Datatable(object):
 
                         # Specific fields name
                         if field['data'] == self.name_property:
-                            item[key] = '''<a href="/%s/%s">%s</a>''' % (
-                                bo_object.object_type,
-                                bo_object.id,
-                                bo_object.name
-                            )
+                            item[key] = bo_object.html_link
 
                         if field['data'] == self.status_property:
                             item[key] = bo_object.get_html_state()
@@ -551,6 +547,12 @@ class Datatable(object):
 
                         if field['type'] == 'boolean':
                             item[key] = Helper.get_on_off(item[key])
+
+                        if field['type'] == 'list':
+                            item[key] = Helper.get_html_item_list(
+                                bo_object, field['format'],
+                                getattr(bo_object, key), title=field['title']
+                            )
 
                         if field['type'] == 'objectid' and \
                            key in parameters['embedded'] and item[key]:

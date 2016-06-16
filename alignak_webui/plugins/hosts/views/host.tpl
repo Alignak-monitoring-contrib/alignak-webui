@@ -135,6 +135,9 @@
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
+               <dt>{{_('Notes:')}}</dt>
+               <dd>{{host.notes}}</dd>
+
                <dt>{{_('Address:')}}</dt>
                <dd>{{host.address}}</dd>
 
@@ -248,7 +251,7 @@
                <a role="menuitem" href="/all?search=type:service is:{{state}} {{host.name}}">
                %end
                  %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-                 {{! Service({'status':state}).get_html_state(title=label, disabled=(not synthesis["nb_" + state]))}}
+                 {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
 
                %if synthesis['nb_' + state]>0:
                </a>
@@ -671,7 +674,7 @@
                      <thead>
                         <tr>
                            <th>{{_('Author')}}</th>
-                           <th>{{_('Comment')}}</th>
+                           <th>{{_('Comments')}}</th>
                            <th>{{_('Date')}}</th>
                            <th></th>
                         </tr>

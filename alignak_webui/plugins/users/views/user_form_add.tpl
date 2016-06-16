@@ -77,7 +77,7 @@
 
       <div class="form-group">
          <div class="col-sm-12">
-            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}"></textarea>
+            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="notes" id="notes" rows="3" placeholder="{{notes}}"></textarea>
          </div>
       </div>
 

@@ -89,7 +89,7 @@ def show_user_add():  # pragma: no cover - not yet implemented
         'is_admin': request.query.get('is_admin', '0') == '1',
         'is_read_only': request.query.get('is_read_only', '1') == '1',
         'widgets_allowed': request.query.get('widgets_allowed', '1') == '1',
-        'comment': request.query.get('comment', _('User description ...')),
+        'notes': request.query.get('notes', _('User description ...')),
         'title': request.query.get('title', _('Create a new user')),
     }
 
@@ -113,7 +113,7 @@ def add_user():  # pragma: no cover - not yet implemented
         'is_admin': request.forms.get('is_admin') == '1',
         'read_only': request.forms.get('is_read_only') == '1',
         'widgets_allowed': request.forms.get('widgets_allowed') == '1',
-        'description': request.forms.get('comment')
+        'description': request.forms.get('notes')
     }
     user_id = datamgr.add_user(data=data)
     if not user_id:
@@ -143,7 +143,7 @@ def show_user_delete():  # pragma: no cover - not yet implemented
     return {
         'user_id': user_id,
         'user_name': user.get_username(),
-        'comment': request.query.get('comment', _('Optional comment ...')),
+        'notes': request.query.get('notes', _('Optional notes ...')),
         'title': request.query.get('title', _('Delete a user')),
     }
 

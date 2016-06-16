@@ -968,7 +968,7 @@ class tests_4_target_user(unittest2.TestCase):
             "_realm": realm_all.id
         }
         response = self.app.post('/user/add', {
-            'user_name': 'not_admin', 'comment': 'Not an administrator ... test user.'
+            'user_name': 'not_admin', 'alias': 'Not an administrator ... test user.'
         })
         print response
         assert response.json['status'] == "ok"

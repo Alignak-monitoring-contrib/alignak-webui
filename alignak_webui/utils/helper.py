@@ -521,3 +521,60 @@ class Helper(object):
         content += '</div></div>'
 
         return content
+
+    @staticmethod
+    def get_html_item_list(bo_object, object_type, objects_list, title=None):
+        """
+        Build an html definition list for the items list
+        """
+        if not objects_list:
+            return ''
+
+        content = '<button class="btn btn-default btn-xs btn-block" type="button"' \
+                  'data-toggle="collapse" data-target="#list_%s_%s" aria-expanded="false">'\
+                  '%s</button>' \
+                  '<div class="collapse" id="list_%s_%s"><div class="well">' % (
+                      object_type, bo_object.id,
+                      object_type if not title else title,
+                      object_type, bo_object.id
+                  )
+
+        content += '<ul class="list-group">'
+        for item in objects_list:
+            content += \
+                '<li class="list-group-item">'\
+                '<span class="fa fa-check">&nbsp;%s</li>' % (
+                    item.html_link
+                )
+        content += '</ul>'
+        content += '</div></div>'
+
+        return content
+
+        logger.debug("Object: %s, %s, %s", bo_object, object_type, objects_list)
+
+        content = '<a href="%s_%s" data-toggle="popover" title="%s" data-html="true" data-trigger="hover">' \
+                  '<i class="fa fa-server"></i>%s' \
+                  '</a>' % (
+                      bo_object.id, object_type
+                      , object_type if not title else title, object_type if not title else title
+                  )
+
+        content += '<div id="%s_%s" class="hidden" title="%s">' \
+                  '<table class="table table-invisible table-condensed">' \
+                  '<tbody>' % (
+                      bo_object.id, object_type, object_type if not title else title
+                  )
+
+        content += '<tr>'
+        for item in objects_list:
+            content += \
+                '<td>%s</td><td>%s</td>' % (
+                    item.get_html_state(text=None, title=_('No livestate for this element')),
+                    item.html_link
+                )
+        content += '</tr>'
+
+        content += '</tbody></table></div>'
+        content += '<script>$("#%s_%s").popover()</script>' % (bo_object.id, object_type)
+        return content

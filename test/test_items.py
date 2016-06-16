@@ -564,12 +564,14 @@ class test_02_items(unittest2.TestCase):
         assert item.foo_date == 1459508293
         assert item.now_date == timegm(now.timetuple())
         assert item.fake_date == 0
-        assert item.comment == ''
+        assert item.alias == ''
+        assert item.notes == ''
 
         # Base item methods
         now = datetime.now()
         parameters = {
-            'comment': 'Item comment',
+            'alias': 'Item alias',
+            'notes': 'Item notes',
             'foo': 'bar', 'foo_int': 1,
             'foo_date': '2016-04-01 10:58:13',
             'now_date': now,
@@ -591,7 +593,8 @@ class test_02_items(unittest2.TestCase):
         assert item.dict_param['param2'] == '2'
 
         assert item.name == 'anonymous'
-        assert item.comment == 'Item comment'
+        assert item.alias == 'Item alias'
+        assert item.notes == 'Item notes'
         assert item.status == 'unknown'
         print item.get_icon_states()
         assert item.get_icon_states()
@@ -854,7 +857,7 @@ class test_02_items(unittest2.TestCase):
         now2 = datetime.now()
         parameters = {
             'last_check': now2,
-            'comment': 'Host comment'
+            'notes': 'Host notes'
         }
         item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
         print item.__dict__
@@ -865,7 +868,7 @@ class test_02_items(unittest2.TestCase):
         # No backend id (_id)
         assert item.id == 'host_1'
         assert item.name == 'test'
-        assert item.comment == 'Host comment'
+        assert item.notes == 'Host notes'
         assert item.status == 'unknown'
         print item.get_html_state()
         assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span><span>Host is unknown</span></div>''' % item.id

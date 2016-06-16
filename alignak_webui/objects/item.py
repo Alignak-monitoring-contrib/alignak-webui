@@ -326,7 +326,7 @@ class Item(object):
     Base class for all the data manager objects
 
     An Item is created from a dictionary with some specific features:
-    - an item has an identifier, a name, a comment
+    - an item has an identifier, a name, an alias and a comment (notes)
     - some specific treatments are applied on some specific fields (see _create method doc)
     - all objects are cached internally to avoid creating several instances for the same element
 
@@ -457,8 +457,8 @@ class Item(object):
         _id = '0'
         if params:
             if not isinstance(params, dict):
-                # print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
-                raise ValueError('Item.__new__: object parameters must be a dictionary!')
+                print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
+                raise ValueError('Class %s, Item.__new__: object parameters must be a dictionary!' % (cls))
 
             if id_property in params:
                 if not isinstance(params[id_property], basestring):
@@ -669,9 +669,9 @@ class Item(object):
         if not hasattr(self, 'alias'):
             setattr(self, 'alias', self.name)
 
-        # Object comment
-        if not hasattr(self, 'comment'):
-            setattr(self, 'comment', '')
+        # Object notes
+        if not hasattr(self, 'notes'):
+            setattr(self, 'notes', '')
 
         # Object status
         if not hasattr(self, 'status'):
@@ -718,6 +718,9 @@ class Item(object):
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
 
+                object_class = [kc for kc in self.getKnownClasses()
+                                if kc.getType() == object_type][0]
+
                 # String - object id
                 if isinstance(params[key], basestring) and self.getBackend():
                     # Object link is a string, so it contains the object type
@@ -733,14 +736,41 @@ class Item(object):
                     result = self.getBackend().get(object_type + '/' + params[key])
                     if not result:
                         logger.error(
-                            "_create, item not found for %s, %s", object_type, params[key]
+                            "_update, item not found for %s, %s", object_type, params[key]
                         )
                         continue
 
                     # Create a new object
                     linked_object = object_class(result)
                     setattr(self, '_linked_' + key, linked_object)
-                    logger.warning("_create, linked with %s (%s)", key, linked_object['_id'])
+                    logger.warning("_update, linked with %s (%s)", key, linked_object['_id'])
+                    continue
+
+                # List - list of objects id
+                if isinstance(params[key], list):
+                    objects_list = []
+                    for element in params[key]:
+                        if isinstance(element, basestring) and self.getBackend():
+                            # we need to load the object from the backend
+                            result = self.getBackend().get(object_type + '/' + element)
+                            if not result:
+                                logger.error(
+                                    "_update, item not found for %s, %s", object_type, params[key]
+                                )
+                                continue
+
+                            # Create a new object
+                            objects_list.append(object_class(result))
+                        elif isinstance(element, dict):
+                            objects_list.append(object_class(element))
+                        else:
+                            logger.critical(
+                                "_update, list element %s is not a string nor a dict: %s",
+                                key, element
+                            )
+
+                    setattr(self, '_linked_' + key, objects_list)
+                    logger.info("_update, linked with %s (%s)", key, [o for o in objects_list])
                     continue
 
                 continue
@@ -882,25 +912,25 @@ class Item(object):
         self._alias = alias
 
     @property
-    def comment(self):
+    def notes(self):
         """
-        Get Item object comment
+        Get Item object notes
         A class inheriting from an Item can define its own `comment_property`
         """
         if hasattr(self.__class__, 'comment_property'):
             return getattr(self, self.__class__.comment_property, None)
         return self._comment
 
-    @comment.setter
-    def comment(self, comment):
+    @notes.setter
+    def notes(self, notes):
         """
-        Get Item object comment
+        Get Item object notes
         A class inheriting from an Item can define its own `comment_property`
         """
         if hasattr(self.__class__, 'comment_property'):
-            setattr(self, self.__class__.comment_property, comment)
+            setattr(self, self.__class__.comment_property, notes)
         else:
-            self._comment = comment
+            self._comment = notes
 
     @property
     def status(self):
@@ -1002,7 +1032,7 @@ class Realm(Item):
 
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
-        Create a new user
+        Constructor
         """
         return super(Realm, cls).__new__(cls, params, date_format)
 
@@ -1010,6 +1040,8 @@ class Realm(Item):
         """
         Create a realm (called only once when an object is newly created)
         """
+        self._linked_members = 'host'
+
         super(Realm, self)._create(params, date_format)
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
@@ -1023,6 +1055,11 @@ class Realm(Item):
         Initialize a realm (called every time an object is invoked)
         """
         super(Realm, self).__init__(params)
+
+    @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_members
 
 
 class User(Item):
@@ -1051,7 +1088,7 @@ class User(Item):
         return super(User, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
-        # Not that bad ... because od _create is called from __new__
+        # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
         Create a user (called only once when an object is newly created)
@@ -1321,7 +1358,7 @@ class LiveState(Item):
         return super(LiveState, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
-        # Not that bad ... because od _create is called from __new__
+        # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
         Create a livestate (called only once when an object is newly created)
@@ -1376,7 +1413,7 @@ class Host(Item):
         return super(Host, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
-        # Not that bad ... because od _create is called from __new__
+        # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
         Create a host (called only once when an object is newly created)
@@ -1506,7 +1543,7 @@ class HostGroup(Item):
 
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
-        Create a new hostgroup
+        Constructor
         """
         return super(HostGroup, cls).__new__(cls, params, date_format)
 
@@ -1514,8 +1551,8 @@ class HostGroup(Item):
         """
         Create a hostgroup (called only once when an object is newly created)
         """
-        self._linked_hostgroup_members = 'hostgroup'
-        self._linked_members = 'host'
+        self._linked_hostgroups = 'hostgroup'
+        self._linked_hosts = 'host'
 
         super(HostGroup, self)._create(params, date_format)
 
@@ -1532,14 +1569,14 @@ class HostGroup(Item):
         super(HostGroup, self).__init__(params)
 
     @property
-    def members(self):
+    def hosts(self):
         """ Return linked object """
-        return self._linked_members
+        return self._linked_hosts
 
     @property
-    def hostgroup_members(self):
+    def hostgroups(self):
         """ Return linked object """
-        return self._linked_hostgroup_members
+        return self._linked_hostgroups
 
 
 class Service(Item):
@@ -1661,6 +1698,56 @@ class ServiceGroup(Item):
     def servicegroup_members(self):
         """ Return linked object """
         return self._linked_servicegroup_members
+
+
+class Log(Item):
+    """
+    Object representing a log item (host or service)
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'loghost'
+    # _cache is a list of created objects
+    _cache = {}
+
+    # Status property
+    status_property = 'state'
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new log
+        """
+        return super(Log, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        # Not that bad ... because _create is called from __new__
+        # pylint: disable=attribute-defined-outside-init
+        """
+        Create a log (called only once when an object is newly created)
+        """
+        self._linked_host = 'host'
+        # self._linked_service = 'service'
+
+        super(Log, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a log (called every time an object is updated)
+        """
+        super(Log, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a log (called every time an object is invoked)
+        """
+        super(Log, self).__init__(params)
+
+    @property
+    def host(self):
+        """ Return linked object """
+        return self._linked_host
 
 
 class Command(Item):

@@ -22,6 +22,32 @@
             <span class="hidden-sm hidden-xs">{{_('Livestate')}}</span>
          </a>
       </li>
+      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Log table')}}">
+         <a class="navbar-link" href="{{ webui.get_url('Log table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <span class="fa fa-fw fa-history"></span>
+            <span class="hidden-sm hidden-xs">{{_('Log')}}</span>
+         </a>
+      </li>
+
+      <!-- Groups -->
+      <li class="dropdown" data-toggle="tooltip" data-placement="left" title="{{_('Groups')}}">
+         <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="fa fa-sitemap"></span>
+            <span class="hidden-sm hidden-xs">{{_('Groups')}}</span>
+         </a>
+
+         <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Groups menu')}}">
+            <li>
+               <a class="navbar-link" href="{{ webui.get_url('Hosts groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Hosts groups table')}}</span>
+               </a>
+            </li>
+         </ul>
+      </li>
+
+
       <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Hosts table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-server"></span>

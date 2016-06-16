@@ -76,11 +76,11 @@
                   </td>
 
                   <td>
-                     <small data-toggle="tooltip" data-placement="top" title="{{user.comment}}">{{user.name}}</small>
+                     <small data-toggle="tooltip" data-placement="top" title="{{user.notes}}">{{user.name}}</small>
                   </td>
 
                   <td>
-                     <small data-toggle="tooltip" data-placement="top" title="{{user.comment}}">{{user.get_username()}}</small>
+                     <small data-toggle="tooltip" data-placement="top" title="{{user.notes}}">{{user.get_username()}}</small>
                   </td>
 
                   <td>

@@ -445,7 +445,8 @@ class test_datatable(unittest2.TestCase):
         assert response.json['data']
         assert len(response.json['data']) == 5
 
-class test_datatable_objects(unittest2.TestCase):
+
+class test_datatable_commands(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -514,6 +515,29 @@ class test_datatable_objects(unittest2.TestCase):
                 # assert response.json['data'][x]['ui'] == True
 
 
+class test_datatable_hosts(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
     def test_02_hosts(self):
         print ''
         print 'test hosts table'
@@ -555,6 +579,73 @@ class test_datatable_objects(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
+    def test_02_1_hosts_groups(self):
+        print ''
+        print 'test hostgroup table'
+
+        global items_count
+
+        print 'get page /hostgroup_table'
+        response = self.app.get('/hostgroup_table')
+        response.mustcontain(
+            '<div id="hostgroup_table">',
+            "$('#tbl_hostgroup').DataTable( {",
+            '<table id="tbl_hostgroup" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Hosts group name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Hosts group alias</th>',
+            '<th data-name="realm" data-type="objectid">Realm</th>',
+            '<th data-name="members" data-type="objectid">Hosts members</th>',
+            '<th data-name="hostgroup_members" data-type="objectid">Hosts groups members</th>'
+        )
+
+        response = self.app.post('/hostgroup_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
+                assert response.json['data'][x]
+                assert response.json['data'][x]['type']
+                assert response.json['data'][x]['name']
+                assert response.json['data'][x]['state']
+                assert response.json['data'][x]['host']
+                if response.json['data'][x]['type'] == 'service':
+                    assert response.json['data'][x]['service'] is not None
+                else:
+                    assert response.json['data'][x]['service'] is None
+
+
+class test_datatable_users(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
     def test_03_users(self):
         print ''
         print 'test users table'
@@ -586,6 +677,29 @@ class test_datatable_objects(unittest2.TestCase):
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
 
+
+class test_datatable_livestate(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
 
     def test_04_livestate(self):
         print ''
@@ -626,6 +740,85 @@ class test_datatable_objects(unittest2.TestCase):
         )
 
         response = self.app.post('/livestate_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
+                assert response.json['data'][x]
+                assert response.json['data'][x]['type']
+                assert response.json['data'][x]['name']
+                assert response.json['data'][x]['state']
+                assert response.json['data'][x]['host']
+                if response.json['data'][x]['type'] == 'service':
+                    assert response.json['data'][x]['service'] is not None
+                else:
+                    assert response.json['data'][x]['service'] is None
+
+
+class test_datatable_log(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_05_log(self):
+        print ''
+        print 'test log table'
+
+        global items_count
+
+        print 'get page /log_table'
+        response = self.app.get('/log_table')
+        response.mustcontain(
+            '<div id="log_table">',
+            "$('#tbl_log').DataTable( {",
+            '<table id="tbl_log" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="type" data-type="string">Type</th>',
+            '<th data-name="name" data-type="string">Element name</th>',
+            '<th data-name="host" data-type="objectid">Host</th>',
+            '<th data-name="service" data-type="objectid">Service</th>',
+            # '<th data-name="business_impact" data-type="integer">Business impact</th>',
+            '<th data-name="state" data-type="string">State</th>',
+            '<th data-name="state_type" data-type="string">State type</th>',
+            '<th data-name="state_id" data-type="integer">State identifier</th>',
+            '<th data-name="acknowledged" data-type="boolean">Acknowledged</th>',
+            # '<th data-name="downtime" data-type="boolean">In scheduled downtime</th>',
+            '<th data-name="last_check" data-type="integer">Last check</th>',
+            '<th data-name="output" data-type="string">Check output</th>',
+            '<th data-name="long_output" data-type="string">Check long output</th>',
+            '<th data-name="perf_data" data-type="string">Performance data</th>',
+            # '<th data-name="next_check" data-type="integer">Next check</th>',
+            '<th data-name="last_state_changed" data-type="integer">Last check</th>',
+            '<th data-name="last_state" data-type="string">Last state</th>',
+            '<th data-name="last_state_type" data-type="string">Last state type</th>',
+        )
+
+        response = self.app.post('/log_table_data')
         response_value = response.json
         print response_value
         # Temporary
