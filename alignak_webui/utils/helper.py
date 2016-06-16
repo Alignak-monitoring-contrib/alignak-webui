@@ -544,7 +544,7 @@ class Helper(object):
             content += \
                 '<li class="list-group-item">'\
                 '<span class="fa fa-check">&nbsp;%s</li>' % (
-                    item.html_link
+                    item.html_link is isinstance(item, type) else item
                 )
         content += '</ul>'
         content += '</div></div>'
