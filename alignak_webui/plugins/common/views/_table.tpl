@@ -249,10 +249,17 @@ table.dataTable tbody>tr>.selected {
          "paging": {{'true' if dt.paginable else 'false'}},
          "pagingType": "full_numbers",
 
-         // Page length
+         // Pagination
          "lengthChange": true,
          "pageLength": 25,
-         "lengthMenu": [ 5, 10, 25, 50, 75, 100 ],
+         "lengthMenu": [ 5, 10, 25, 50, 75, 100, '-1' ],
+         "lengthMenu": [
+            [ 10, 25, 50, 100, -1 ],
+            [
+               "{{_('10 rows')}}", "{{_('25 rows')}}", "{{_('50 rows')}}",
+               "{{_('100 rows')}}", "{{_('Show all')}}"
+            ]
+         ],
 
          // Table information
          "info": true,
@@ -437,7 +444,7 @@ table.dataTable tbody>tr>.selected {
             r - processing display element
          dom: 'Blfrtip',
          */
-         dom: "<'row'<'col-sm-6'B><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+         dom: "<'row'<'col-sm-8'B><'col-sm-4'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
          // Table columns visibility button
          buttons: [
             {
