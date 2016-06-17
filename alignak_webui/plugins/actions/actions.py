@@ -76,13 +76,16 @@ def add_acknowledge():
     data = {
         'action': 'add',
         'host': livestate.host.id,
-        'service': livestate.service.id,
+        'service': None,
         'user': user_id,
         'sticky': request.forms.get('sticky', '0') == '1',
         'notify': request.forms.get('notify', '0') == '1',
         'persistent': request.forms.get('persistent', '0') == '1',
         'comment': request.forms.get('comment', "{{_('No comment')}}")
     }
+    if livestate.service != 'service':
+        data.update({'service': livestate.service.id})
+
     if not datamgr.add_acknowledge(data=data):
         return webui.response_ko(_("Failed adding an acknowledge"))
 

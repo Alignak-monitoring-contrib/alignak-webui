@@ -30,21 +30,21 @@
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" {{'checked' if sticky else ''}} value="{{sticky}}"> {{_('Sticky')}}
+                  <input type="checkbox" checked="{{'checked' if sticky else ''}}" value="{{sticky}}"> {{_('Sticky')}}
                </label>
             </div>
          </div>
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" {{'checked' if notify else ''}} value="{{notify}}"> {{_('Notify')}}
+                  <input type="checkbox" checked="{{'checked' if notify else ''}}" value="{{notify}}"> {{_('Notify')}}
                </label>
             </div>
          </div>
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" {{'checked' if persistent else ''}} value="{{persistent}}"> {{_('Persistent')}}
+                  <input type="checkbox" checked="{{'checked' if persistent else ''}}" value="{{persistent}}"> {{_('Persistent')}}
                </label>
             </div>
          </div>
