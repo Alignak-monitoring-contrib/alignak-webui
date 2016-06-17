@@ -42,8 +42,8 @@ def show_acknowledge_add():
         'action': request.query.get('action', 'add'),
         'element_name': request.query.get('element_name', 'Unknown'),
         'livestate_id': request.query.get('livestate_id', '-1'),
-        'sticky': request.query.get('is_admin', '1') == '1',
-        'notify': request.query.get('is_read_only', '0') == '1',
+        'sticky': request.query.get('sticky', '1') == '1',
+        'notify': request.query.get('notify', '0') == '1',
         'persistent': request.query.get('persistent', '1') == '1',
         'comment': request.query.get('comment', _('Acknowledge comment...')),
     }
@@ -78,9 +78,9 @@ def add_acknowledge():
         'host': livestate.host.id,
         'service': None,
         'user': user_id,
-        'sticky': request.forms.get('sticky', '0') == '1',
-        'notify': request.forms.get('notify', '0') == '1',
-        'persistent': request.forms.get('persistent', '0') == '1',
+        'sticky': request.forms.get('sticky', 'false') == 'true',
+        'notify': request.forms.get('notify', 'false') == 'true',
+        'persistent': request.forms.get('persistent', 'false') == 'true',
         'comment': request.forms.get('comment', "{{_('No comment')}}")
     }
     if livestate.service != 'service':

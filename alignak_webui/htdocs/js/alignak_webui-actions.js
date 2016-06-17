@@ -153,6 +153,53 @@ function launch(url, response_message){
    });
 }
 
+/*
+ * Overload jQuery serialize to include checkboxes
+ */
+(function ($) {
+
+     $.fn.serialize = function (options) {
+         console.log("Here !")
+         return $.param(this.serializeArray(options));
+     };
+
+     $.fn.serializeArray = function (options) {
+         var o = $.extend({
+         checkboxesAsBools: false
+     }, options || {});
+
+     var rselectTextarea = /select|textarea/i;
+     var rinput = /text|hidden|password|search/i;
+
+     return this.map(function () {
+         return this.elements ? $.makeArray(this.elements) : this;
+     })
+     .filter(function () {
+         return this.name && !this.disabled &&
+             (this.checked
+             || (o.checkboxesAsBools && this.type === 'checkbox')
+             || rselectTextarea.test(this.nodeName)
+             || rinput.test(this.type));
+         })
+         .map(function (i, elem) {
+             var val = $(this).val();
+             return val == null ?
+             null :
+             $.isArray(val) ?
+             $.map(val, function (val, i) {
+                 return { name: elem.name, value: val };
+             }) :
+             {
+                 name: elem.name,
+                 value: (o.checkboxesAsBools && this.type === 'checkbox') ? //moar ternaries!
+                        (this.checked ? 'true' : 'false') :
+                        val
+             };
+         }).get();
+     };
+
+})(jQuery);
+
 
 $(document).ready(function() {
    /*
@@ -169,6 +216,7 @@ $(document).ready(function() {
    $('body').on("submit", 'form[data-item]', function (evt) {
       if (actions_logs) console.debug('Submit form data: ', $(this));
       if (actions_logs) console.debug('Form item/action: ', $(this).data("item"), $(this).data("action"));
+      if (actions_logs) console.debug('Form fields: ', $(this).serialize({ checkboxesAsBools: true }));
 
       // Do not automatically submit ...
       evt.preventDefault();
@@ -180,7 +228,7 @@ $(document).ready(function() {
       $.ajax({
          url: $(this).attr('action'),
          type: $(this).attr('method'),
-         data: $(this).serialize()
+         data: $(this).serialize({ checkboxesAsBools: true })
       })
       .done(function( data, textStatus, jqXHR ) {
          if (jqXHR.status != 200) {

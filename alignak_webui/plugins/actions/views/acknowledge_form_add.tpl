@@ -14,7 +14,7 @@
 </div>
 
 <div class="modal-body">
-   <form data-item="acknowledge" data-action="add" class="form-horizontal" method="post" action="/acknowledge/add" role="form" enctype="multipart/form-data">
+   <form data-item="acknowledge" data-action="add" class="form-horizontal" method="post" action="/acknowledge/add" role="form">
       <div class="form-group" style="display: none">
          <label for="livestate_id">Livestate id: </label>
          <input type="text" readonly id="livestate_id" name="livestate_id" placeholder="{{livestate_id}}" value="{{livestate_id}}">
@@ -30,21 +30,21 @@
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" checked="{{'checked' if sticky else ''}}" value="{{sticky}}"> {{_('Sticky')}}
+                  <input type="checkbox" name="sticky" {{'checked' if sticky else ''}} value="{{sticky}}"> {{_('Sticky')}}
                </label>
             </div>
          </div>
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" checked="{{'checked' if notify else ''}}" value="{{notify}}"> {{_('Notify')}}
+                  <input type="checkbox" name="notify" {{'checked' if notify else ''}} value="{{notify}}"> {{_('Notify')}}
                </label>
             </div>
          </div>
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" checked="{{'checked' if persistent else ''}}" value="{{persistent}}"> {{_('Persistent')}}
+                  <input type="checkbox" name="persistent" {{'checked' if persistent else ''}} value="{{persistent}}"> {{_('Persistent')}}
                </label>
             </div>
          </div>

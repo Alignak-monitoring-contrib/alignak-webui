@@ -88,16 +88,18 @@ function display_modal(inner_url, hidden) {
       show = false;
    }
 
-   if (log_layout) console.debug('Display modal: ', inner_url, show);
-   // stop_refresh();
-   $('#mainModal').modal({
-      backdrop: true,
-      keyboard: true,
-      show: show,
-      // remote: inner_url
-   });
+   window.setTimeout(function() {
+      if (log_layout) console.debug('Display modal: ', inner_url, show);
+      // stop_refresh();
+      $('#mainModal').modal({
+         backdrop: true,
+         keyboard: true,
+         show: show,
+         // remote: inner_url
+      });
 
-   $("#mainModal .modal-content").load(inner_url);
+      $("#mainModal .modal-content").load(inner_url);
+   }, 100);
 }
 
 
