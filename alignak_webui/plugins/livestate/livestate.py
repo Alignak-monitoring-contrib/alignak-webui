@@ -363,29 +363,29 @@ def get_livestate_table_data():
     return dt.table_data()
 
 
-def get_livestate(element_id):
+def get_livestate(livestate_id):
     """
     Display the element linked to a livestate item
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    element = datamgr.get_livestate({'where': {'_id': element_id}})
-    if not element:
+    livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
+    if not livestate:
         return webui.response_invalid_parameters(_('Livestate element does not exist'))
 
-    element = element[0]
-    if element.getType() == 'host':
-        logger.debug("Livestate: %s %s %s", element, element.host.id, element.__dict__)
-        redirect('/host/' + element.host.id)
+    livestate = livestate[0]
+    if livestate.getType() == 'host':
+        logger.debug("Livestate: %s %s %s", livestate, livestate.host.id, livestate.__dict__)
+        redirect('/host/' + livestate.host.id)
     else:
-        logger.debug("Livestate: %s %s %s", element, element.host.id, element.__dict__)
-        redirect('/host/' + element.host.id + '#services')
+        logger.debug("Livestate: %s %s %s", livestate, livestate.host.id, livestate.__dict__)
+        redirect('/host/' + livestate.host.id + '#services')
 
 
 pages = {
     get_livestate: {
         'name': 'Livestate',
-        'route': '/livestate/<element_id>'
+        'route': '/livestate/<livestate_id>'
     },
     get_livestate_table: {
         'name': 'Livestate table',
