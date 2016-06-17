@@ -579,6 +579,59 @@ table.dataTable tbody>tr>.selected {
             }
             */
             %end
+            %if dt.commands:
+            // Only for tables with 'commands' attribute (eg. livestate)
+            ,{
+               extend: 'collection',
+               text: '<span class="fa fa-bolt"></span>',
+               buttons: [
+                  {
+                     extend: 'selected',
+                     text: "Re-check",
+                     action: function ( e, dt, button, config ) {
+                        //display_modal("/acknowledge/form/add");
+                     }
+                  }
+                  ,
+                  {
+                     extend: 'selected',
+                     text: "Acknowledge",
+                     action: function ( e, dt, button, config ) {
+                        var selected = dt.rows( { selected: true } );
+                        var count_selected = selected.indexes().length;
+                        if (count_selected == 0) {
+                           return;
+                        }
+                        if (count_selected > 1) {
+                           $.each(selected.data(), function(index, elt){
+                              console.log(elt);
+                              var elt_name = elt.display_name_host;
+                              if (elt.type == 'service') {
+                                 elt_name += ' (' + elt.display_name_service + ')';
+                              }
+                              display_modal("/acknowledge/form/add?livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&read_only=1&auto_post=1');
+                           });
+                        } else {
+                           var elt = selected.data()[0];
+                           var elt_name = elt.display_name_host;
+                           if (elt.type == 'service') {
+                              elt_name += ' (' + elt.display_name_service + ')';
+                           }
+                           display_modal("/acknowledge/form/add?livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name));
+                        }
+                     }
+                  }
+                  ,
+                  {
+                     extend: 'selected',
+                     text: "Downtime",
+                     action: function ( e, dt, button, config ) {
+                        alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected' );
+                     }
+                  }
+               ]
+            }
+            %end
          ]
       });
 

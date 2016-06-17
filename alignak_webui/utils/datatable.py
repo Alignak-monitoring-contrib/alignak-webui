@@ -65,6 +65,7 @@ class Datatable(object):
         self.searchable = True
         self.editable = False
         self.responsive = True
+        self.commands = (object_type == 'livestate')
 
         self.paginable = True
         self.exportable = True

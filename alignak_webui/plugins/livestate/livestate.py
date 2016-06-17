@@ -318,7 +318,7 @@ schema['ui'] = {
         'visible': True,
         'orderable': False,
         'editable': False,
-        'selectable': False,
+        'selectable': True,
         'searchable': True,
         'responsive': True
     }

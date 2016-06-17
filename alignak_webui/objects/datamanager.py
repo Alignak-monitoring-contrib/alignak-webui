@@ -911,6 +911,12 @@ class DataManager(object):
         }
         return synthesis
 
+    def add_acknowledge(self, data):
+        """ Acknowledge a problem. """
+
+        logger.info("add_acknowledge, send an acknowledge, data: %s", data)
+        return self.add_object('actionacknowledge', data)
+
     ##
     # Hosts
     ##
