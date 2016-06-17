@@ -248,10 +248,9 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     return None
             except BackendException as e:
                 logger.error("post, backend exception: %s", str(e))
-                if "response" in e and "_issues" in e.response:
-                    logger.error("- issues: %s", e.response['_issues'])
+                logger.error("- response: %s", e.response)
                 return None
-            except ValueError as e:  # pragma: no cover, should never happen
+            except Exception as e:
                 logger.warning("post, error: %s", str(e))
                 return None
 

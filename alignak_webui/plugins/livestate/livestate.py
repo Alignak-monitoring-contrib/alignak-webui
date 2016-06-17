@@ -47,7 +47,7 @@ schema = OrderedDict()
 schema['#'] = {
     'type': 'string',
     'ui': {
-        'title': '',
+        'title': '#',
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -61,6 +61,19 @@ schema['#'] = {
         # defines the priority for the responsive column hidding (0 is the most important)
         # Default is 10000
         # 'priority': 0,
+    }
+}
+# Specific field to include the commands button
+schema['$'] = {
+    'type': 'string',
+    'ui': {
+        'title': '<i class="fa fa-bolt"></i>',
+        'visible': True,
+        'hidden': False,
+        'searchable': False,
+        'selectable': True,
+        'orderable': False,
+        'regex': False,
     }
 }
 schema['type'] = {
@@ -303,9 +316,11 @@ schema['ui'] = {
         'page_title': _('Livestate table (%d items)'),
         'uid': '_id',
         'visible': True,
-        'orderable': True,
+        'orderable': False,
+        'editable': False,
+        'selectable': False,
         'searchable': True,
-        'responsive': False
+        'responsive': True
     }
 }
 
@@ -355,16 +370,16 @@ def get_livestate(element_id):
     datamgr = request.environ['beaker.session']['datamanager']
 
     element = datamgr.get_livestate({'where': {'_id': element_id}})
-    if not element:  # pragma: no cover, should not happen
+    if not element:
         return webui.response_invalid_parameters(_('Livestate element does not exist'))
 
     element = element[0]
-    if element['type'] == 'host':
-        logger.debug("Livestate: %s %s %s", element, element.host_name.id, element.__dict__)
-        redirect('/host/' + element.host_name.id)
+    if element.getType() == 'host':
+        logger.debug("Livestate: %s %s %s", element, element.host.id, element.__dict__)
+        redirect('/host/' + element.host.id)
     else:
-        logger.debug("Livestate: %s %s %s", element, element.host_name.id, element.__dict__)
-        redirect('/host/' + element.host_name.id + '#services')
+        logger.debug("Livestate: %s %s %s", element, element.host.id, element.__dict__)
+        redirect('/host/' + element.host.id + '#services')
 
 
 pages = {

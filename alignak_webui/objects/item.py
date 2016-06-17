@@ -458,7 +458,11 @@ class Item(object):
         if params:
             if not isinstance(params, dict):
                 print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
-                raise ValueError('Class %s, Item.__new__: object parameters must be a dictionary!' % (cls))
+                raise ValueError(
+                    '%s.__new__: object parameters must be a dictionary!' % (
+                        cls._type
+                    )
+                )
 
             if id_property in params:
                 if not isinstance(params[id_property], basestring):
@@ -667,7 +671,7 @@ class Item(object):
 
         # Object alias
         if not hasattr(self, 'alias'):
-            setattr(self, 'alias', self.name)
+            setattr(self, 'alias', '')
 
         # Object notes
         if not hasattr(self, 'notes'):
@@ -680,6 +684,7 @@ class Item(object):
         logger.debug(" --- created %s (%s): %s", self.__class__, self[id_property], self.__dict__)
 
     def _update(self, params, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        # pylint: disable=too-many-nested-blocks
         id_property = getattr(self.__class__, 'id_property', '_id')
 
         logger.debug(" --- updating a %s (%s)", self.object_type, self[id_property])
@@ -709,7 +714,7 @@ class Item(object):
                     continue
 
                 # Linked resource type
-                logger.warning(
+                logger.debug(
                     "_update, must create link for %s/%s with %s ",
                     self.object_type, key, params[key]
                 )
@@ -1040,8 +1045,6 @@ class Realm(Item):
         """
         Create a realm (called only once when an object is newly created)
         """
-        self._linked_members = 'host'
-
         super(Realm, self)._create(params, date_format)
 
     def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
@@ -1055,11 +1058,6 @@ class Realm(Item):
         Initialize a realm (called every time an object is invoked)
         """
         super(Realm, self).__init__(params)
-
-    @property
-    def members(self):
-        """ Return linked object """
-        return self._linked_members
 
 
 class User(Item):
@@ -1157,19 +1155,6 @@ class User(Item):
         Overload default property. Link to the main objects page with an anchor.
         """
         return '/%ss#%s' % (self.object_type, self.id)
-
-    @property
-    def display_name(self):
-        """
-        Get Item display name
-        """
-        return getattr(self, 'display_name', self.name)
-
-    def get_friendly_name(self):
-        """
-        Get the user friendly name if defined, else returns the name
-        """
-        return self.alias
 
     def get_username(self):
         """

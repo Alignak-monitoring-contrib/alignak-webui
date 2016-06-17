@@ -72,6 +72,8 @@ schema['ui'] = {
         'uid': '_id',
         'visible': True,
         'orderable': True,
+        'editable': False,
+        'selectable': True,
         'searchable': True,
         'responsive': True
     }

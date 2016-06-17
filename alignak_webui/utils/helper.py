@@ -30,6 +30,9 @@ import time
 import math
 
 from logging import getLogger
+
+from alignak_webui import get_app_config
+
 logger = getLogger(__name__)
 
 
@@ -551,30 +554,42 @@ class Helper(object):
 
         return content
 
-        logger.debug("Object: %s, %s, %s", bo_object, object_type, objects_list)
+    @classmethod
+    def get_html_commands_buttons(cls, bo_object, title=''):
+        """
+        Build an html button bar for a livestate element
+        """
+        if not bo_object:
+            return ''
 
-        content = '<a href="%s_%s" data-toggle="popover" title="%s" data-html="true" data-trigger="hover">' \
-                  '<i class="fa fa-server"></i>%s' \
-                  '</a>' % (
-                      bo_object.id, object_type
-                      , object_type if not title else title, object_type if not title else title
-                  )
+        # Get global configuration
+        app_config = get_app_config()
 
-        content += '<div id="%s_%s" class="hidden" title="%s">' \
-                  '<table class="table table-invisible table-condensed">' \
-                  '<tbody>' % (
-                      bo_object.id, object_type, object_type if not title else title
-                  )
+        buttons = []
+        button = app_config.get('buttons.livestate_command')
+        button = button.replace("##id##", bo_object.id)
+        button = button.replace("##action##", 'acknowledge')
+        button = button.replace("##title##", _('Acknowledge this problem'))
+        button = button.replace("##icon##", 'check')
+        buttons.append(button)
 
-        content += '<tr>'
-        for item in objects_list:
-            content += \
-                '<td>%s</td><td>%s</td>' % (
-                    item.get_html_state(text=None, title=_('No livestate for this element')),
-                    item.html_link
-                )
-        content += '</tr>'
+        button = app_config.get('buttons.livestate_command')
+        button = button.replace("##id##", bo_object.id)
+        button = button.replace("##action##", 'recheck')
+        button = button.replace("##title##", _('Re-check this host/service'))
+        button = button.replace("##icon##", 'refresh')
+        buttons.append(button)
 
-        content += '</tbody></table></div>'
-        content += '<script>$("#%s_%s").popover()</script>' % (bo_object.id, object_type)
+        button = app_config.get('buttons.livestate_command')
+        button = button.replace("##id##", bo_object.id)
+        button = button.replace("##action##", 'downtime')
+        button = button.replace("##title##", _('Schedule a downtime'))
+        button = button.replace("##icon##", 'ambulance')
+        buttons.append(button)
+
+        content = app_config.get('buttons.livestate_commands')
+        content = content.replace("##title##", title)
+        content = content.replace("##commands##", ''.join(buttons))
+        logger.debug("Content: %s", content)
+
         return content

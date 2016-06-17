@@ -34,6 +34,7 @@ from bottle import request, response, redirect
 from alignak_webui.objects.item import Item
 
 from alignak_webui.utils.datatable import Datatable
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -47,7 +48,7 @@ schema = OrderedDict()
 schema['#'] = {
     'type': 'string',
     'ui': {
-        'title': '',
+        'title': '#',
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -81,24 +82,42 @@ schema['name'] = {
         # 'priority': 0,
     }
 }
-schema['realm_members'] = {
-    'type': 'list',
+schema['definition_order'] = {
+    'type': 'integer',
     'ui': {
-        'title': _('Realm members'),
+        'title': _('Definition order'),
+        'visible': True,
+        'hidden': True,
+        'orderable': False,
+    },
+}
+schema['alias'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Realm alias'),
         'visible': True
     },
-    'data_relation': {
-        'resource': 'realm',
-        'embeddable': True
+}
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
     }
 }
 schema['default'] = {
     'type': 'boolean',
     'default': False,
     'ui': {
-        'title': _('Deafult realm'),
+        'title': _('Default realm'),
         'visible': True,
         'hidden': True
+    },
+}
+schema['_level'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Level'),
+        'visible': True,
     },
 }
 schema['hosts_critical_threshold'] = {
@@ -180,8 +199,10 @@ schema['ui'] = {
         'uid': '_id',
         'visible': True,
         'orderable': True,
+        'editable': False,
+        'selectable': True,
         'searchable': True,
-        'responsive': False
+        'responsive': True
     }
 }
 
@@ -224,6 +245,48 @@ def get_realm_table_data():
     return dt.table_data()
 
 
+def get_realms():
+    """
+    Get the realms list
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Pagination and search
+    start = int(request.query.get('start', '0'))
+    count = int(request.query.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.query.get('search', ''))
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'sort': '-_id',
+        'where': where,
+        'embedded': {
+        }
+    }
+
+    # Get elements from the data manager
+    realms = datamgr.get_realms(search)
+    # Get last total elements count
+    total = datamgr.get_objects_count('realm', search=where, refresh=True)
+    count = min(count, total)
+
+    return {
+        'realms': realms,
+        'pagination': Helper.get_pagination_control('realm', total, start, count),
+        'title': request.query.get('title', _('All realms'))
+    }
+
+
 def get_realm(realm_id):
     """
     Display the element linked to a realm item
@@ -247,6 +310,16 @@ pages = {
         'route': '/realm/<realm_id>',
         'view': 'realm'
     },
+    get_realms: {
+        'name': 'Realms',
+        'route': '/realms',
+        'view': 'realms',
+        'search_engine': False,
+        'search_prefix': '',
+        'search_filters': {
+        }
+    },
+
     get_realm_table: {
         'name': 'Realm table',
         'route': '/realm_table',

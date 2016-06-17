@@ -141,64 +141,64 @@ class test_3_get(unittest2.TestCase):
     def test_count(self):
         print "--- count"
 
-        # Count all contacts
-        result = self.be.count('contact')
+        # Count all users
+        result = self.be.count('user')
         print "Result: %s", result
         self.assertEqual(result, 4)
 
         parameters = {'where': {"name":"admin"}}
-        result = self.be.count('contact', parameters)
+        result = self.be.count('user', parameters)
         print "Result: %s", result
         self.assertEqual(result, 1)
 
         parameters = {'where': {"name":"fake"}}
-        result = self.be.count('contact', parameters)
+        result = self.be.count('user', parameters)
         print "Result: %s", result
         self.assertEqual(result, 0) # Not found !
 
-        # Get admin contact
+        # Get admin user
         parameters = {'where': {"name":"admin"}}
-        result = self.be.get('contact', parameters)
+        result = self.be.get('user', parameters)
         print result
         self.assertEqual(len(result), 1)    # Only 1 is admin
 
-        result = self.be.count('contact', result[0]['_id'])
+        result = self.be.count('user', result[0]['_id'])
         print "Result: %s", result
         self.assertEqual(result, 1)
 
     def test_get(self):
         print "--- get"
 
-        # Get all contacts
-        result = self.be.get('contact')
-        print "%s contacts: " % len(result)
-        for contact in result:
-            self.assertIn('name', contact)
-            self.assertIn('_total', contact)    # Each element has an extra _total attribute !
-            print " - %s (one out of %d)" % (contact['name'], contact['_total'])
-        self.assertEqual(len(result), 4)        # Default configuration has 4 contacts
+        # Get all users
+        result = self.be.get('user')
+        print "%s users: " % len(result)
+        for user in result:
+            self.assertIn('name', user)
+            self.assertIn('_total', user)    # Each element has an extra _total attribute !
+            print " - %s (one out of %d)" % (user['name'], user['_total'])
+        self.assertEqual(len(result), 4)        # Default configuration has 4 users
 
         parameters = {'where': {"name":"fake"}}
-        result = self.be.get('contact', parameters)
+        result = self.be.get('user', parameters)
         print result
         self.assertEqual(len(result), 0)    # Not found
 
         parameters = {'where': {"name":"admin"}}
-        result = self.be.get('contact', parameters)
+        result = self.be.get('user', parameters)
         print result
         self.assertEqual(len(result), 1)    # Only 1 is admin
         admin_id = result[0]['_id']
         print "Administrator id:", admin_id
 
-        result = self.be.get('contact', result[0]['_id'])
+        result = self.be.get('user', result[0]['_id'])
         print "Result: %s", result
         self.assertEqual(len(result), 1)    # Only 1 is admin
         self.assertEqual(result[0]['_id'], admin_id)
 
         # Directly address object in the backend
-        result = self.be.get('contact/' + result[0]['_id'])
+        result = self.be.get('user/' + result[0]['_id'])
         print "--- Result: %s", result
-        self.assertEqual(len(result), 40)    # 40 attributes in the result
+        self.assertEqual(len(result), 39)    # 39 attributes in the result
         self.assertEqual(result['_id'], admin_id)
 
     def test_get_all(self):

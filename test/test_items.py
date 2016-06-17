@@ -72,7 +72,7 @@ class test_00_class(unittest2.TestCase):
             item = Item(1)
         ex = cm.exception
         print ex
-        assert str(ex) == "Item.__new__: object parameters must be a dictionary!"
+        self.assertEqual(str(ex), "item.__new__: object parameters must be a dictionary!")
 
         # Declaration without any parameter is allowed
         item = Item()
@@ -452,11 +452,13 @@ class test_02_items(unittest2.TestCase):
         # Same object
         parameters = { '_id': 'test_id', 'foo': 'bar', 'foo_int': 1 }
         item2 = Item(parameters)
-        print item2.__dict__
+        print "item2", item2.__dict__
         assert item2._id == 'test_id'
         assert item2.foo == 'bar'
         assert item2.foo_int == 1
         assert item.name == 'anonymous'
+        assert item.alias == 'anonymous'
+        assert item.notes == ''
 
         # Same objects!
         assert item == item2
@@ -556,16 +558,16 @@ class test_02_items(unittest2.TestCase):
         }
         item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
         print item.__dict__
-        assert item._id == 'item_2'     # Still the same object
-        assert item.id == 'item_2'
-        assert item.foo == 'bar2'
-        assert item.foo_int == 2
-        assert item.ts_date == 1459508293
-        assert item.foo_date == 1459508293
-        assert item.now_date == timegm(now.timetuple())
-        assert item.fake_date == 0
-        assert item.alias == ''
-        assert item.notes == ''
+        self.assertEqual(item._id, 'item_2')     # Still the same object
+        self.assertEqual(item.id, 'item_2')
+        self.assertEqual(item.foo, 'bar2')
+        self.assertEqual(item.foo_int, 2)
+        self.assertEqual(item.ts_date, 1459508293)
+        self.assertEqual(item.foo_date, 1459508293)
+        self.assertEqual(item.now_date, timegm(now.timetuple()))
+        self.assertEqual(item.fake_date, 0)
+        self.assertEqual(item.alias, item.name)
+        self.assertEqual(item.notes, '')
 
         # Base item methods
         now = datetime.now()

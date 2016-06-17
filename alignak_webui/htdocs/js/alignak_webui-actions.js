@@ -278,4 +278,21 @@ $(document).ready(function() {
          display_modal("/user/form/delete?user_id="+encodeURIComponent(elt));
       }
    });
+
+
+   /*
+    * Livestate actions
+    */
+   // Acknowledge
+   $('body').on("click", '[data-action="acknowledge"]', function () {
+      if (actions_logs) console.debug("Required an acknowledge for:", $(this).data('element'))
+   });
+   // Recheck
+   $('body').on("click", '[data-action="recheck"]', function () {
+      if (actions_logs) console.debug("Required a recheck for:", $(this).data('element'))
+   });
+   // Downtime
+   $('body').on("click", '[data-action="downtime"]', function () {
+      if (actions_logs) console.debug("Required a downtime for:", $(this).data('element'))
+   });
 });

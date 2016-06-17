@@ -755,7 +755,20 @@ class tests_3(unittest2.TestCase):
         )
 
         print 'get page /hosts/widget'
-        response = self.app.post('/hosts/widget', {'widget_id': 'test_widget'})
+        response = self.app.post('/hosts/widget', status=204)
+        response = self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=204)
+        response = self.app.post('/hosts/widget', {
+            'widget_id': 'test_widget',
+            'widget_template': 'hosts_table_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_test_widget" class="panel panel-default">'
+        )
+        response = self.app.post('/hosts/widget', {
+            'widget_id': 'test_widget',
+            'widget_template': 'hosts_chart_widget'
+        })
         print response
         response.mustcontain(
             '<div id="wd_panel_test_widget" class="panel panel-default">'

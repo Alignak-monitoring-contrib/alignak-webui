@@ -61,7 +61,9 @@ class Datatable(object):
 
         self.visible = True
         self.orderable = True
+        self.selectable = True
         self.searchable = True
+        self.editable = False
         self.responsive = True
 
         self.paginable = True
@@ -71,6 +73,8 @@ class Datatable(object):
         self.id_property = None
         self.name_property = None
         self.status_property = None
+
+        self.commands = False
 
         self.get_data_model(schema)
 
@@ -129,8 +133,10 @@ class Datatable(object):
         }
 
         for field, model in schema.iteritems():
-            logger.debug("get_data_model, field: %s = %s", field, model)
             ui_dm['model']['fields'].update({field: model})
+
+            if field == '$':
+                self.commands = True
 
             if field == 'ui':
                 if 'uid' not in model['ui']:  # pragma: no cover - should never happen
@@ -146,8 +152,12 @@ class Datatable(object):
                 ui_dm['model']['orderable'] = model['ui']['orderable']
                 # Useful? Table is searchable ?
                 ui_dm['model']['searchable'] = model['ui']['searchable']
-                # Useful? Table is searchable ?
+                # Useful? Table is editable ?
+                ui_dm['model']['editable'] = model['ui']['editable']
+                # Useful? Table is responsive ?
                 ui_dm['model']['responsive'] = model['ui']['responsive']
+                # Useful? Table is selectable ?
+                ui_dm['model']['selectable'] = model['ui']['selectable']
                 continue
 
             if 'ui' in model and ('visible' not in model['ui'] or not model['ui']['visible']):
@@ -156,6 +166,7 @@ class Datatable(object):
             # If element is considered for the UI
             if 'ui' not in model:
                 continue
+            logger.debug("get_data_model, visible field: %s = %s", field, model)
 
             # Copy all model 'ui' dictionary fields and mange specific values for the field format
             ui_dm['model']['fields'][field].update(model['ui'])
@@ -183,6 +194,7 @@ class Datatable(object):
                 'size': model.get('size', 10),
                 'visible': not model.get('hidden', False),
                 'orderable': model.get('orderable', True),
+                'editable': model.get('editable', False),
                 'searchable': model.get('searchable', True),
                 # 'responsivePriority': model.get('priority', 10000),
             })
@@ -196,8 +208,11 @@ class Datatable(object):
         self.title = ui_dm['model']['page_title']
         self.visible = ui_dm['model']['visible']
         self.orderable = ui_dm['model']['orderable']
+        self.selectable = ui_dm['model']['selectable']
+        self.editable = ui_dm['model']['editable']
         self.searchable = ui_dm['model']['searchable']
         self.responsive = ui_dm['model']['responsive']
+        # logger.debug("get_data_model, table columns: %s", self.table_columns)
 
     ##
     # Localization
@@ -526,12 +541,12 @@ class Datatable(object):
                 # pylint: disable=protected-access
                 bo_object._update(item)
                 logger.debug("Object: %s", bo_object)
+
                 for key in item.keys():
                     for field in self.table_columns:
                         if field['data'] != key:
                             continue
 
-                        # Specific fields name
                         if field['data'] == self.name_property:
                             item[key] = bo_object.html_link
 
@@ -564,6 +579,13 @@ class Datatable(object):
                                     logger.debug("created: %s", linked_object)
                                     item[key] = linked_object.html_link
                                     break
+
+                # Very specific fields...
+                if self.responsive:
+                    item['#'] = ''
+
+                if self.commands:
+                    item['$'] = Helper.get_html_commands_buttons(bo_object)
 
         # Prepare response
         rsp = {

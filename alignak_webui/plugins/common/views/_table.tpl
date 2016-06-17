@@ -25,6 +25,10 @@ table.dataTable tbody>tr>.selected {
 }
 </style>
 
+%if dt.editable:
+%include("_edition.tpl")
+%end
+
 <!-- Table display -->
 <div id="{{object_type}}_table">
    <!-- Bootstrap responsive table
@@ -62,12 +66,31 @@ table.dataTable tbody>tr>.selected {
 </div>
 
 <script>
-   var debugTable = true;
+   var debugTable = false;
    var columns = {{ ! json.dumps(dt.table_columns) }};
    var selectedRows = [];
 
    $(document).ready(function() {
       set_current_page("{{ webui.get_url(request.route.name) }}");
+
+
+      %if dt.commands:
+         /*
+          * Livestate actions
+          */
+         // Acknowledge
+         $('[data-action="acknowledge"]').on("click", function () {
+            console.debug("Required an acknowledge for:", $(this).data('element'))
+         });
+         // Recheck
+         $('[data-action="recheck"]').on("click", function () {
+            if (actions_logs) console.debug("Required a recheck for:", $(this).data('element'))
+         });
+         // Downtime
+         $('[data-action="downtime"]').on("click", function () {
+            if (actions_logs) console.debug("Required a downtime for:", $(this).data('element'))
+         });
+      %end
 
       %if dt.searchable:
       // Setup - add a text/select input to each search cell
@@ -150,17 +173,50 @@ table.dataTable tbody>tr>.selected {
       $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+
+         if (table.rows( { selected: true } ).count() > 0) {
+             $('[data-reaction="selection-not-empty"]').prop('disabled', false);
+             $('[data-reaction="selection-empty"]').prop('disabled', true);
+         } else {
+             $('[data-reaction="selection-not-empty"]').prop('disabled', true);
+             $('[data-reaction="selection-empty"]').prop('disabled', false);
+         }
+
       });
 
+      %if dt.selectable:
       $('#tbl_{{object_type}}').on( 'select.dt', function ( e, dt, type, indexes ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, selected row ...');
+
+         var rowData = table.rows( indexes ).data().toArray();
+         if (debugJs) console.debug('Datatable event, selected: ', rowData);
+
+         if (table.rows( { selected: true } ).count() > 0) {
+             $('[data-reaction="selection-not-empty"]').prop('disabled', false);
+             $('[data-reaction="selection-empty"]').prop('disabled', true);
+         } else {
+             $('[data-reaction="selection-not-empty"]').prop('disabled', true);
+             $('[data-reaction="selection-empty"]').prop('disabled', false);
+         }
       });
 
       $('#tbl_{{object_type}}').on( 'deselect.dt', function ( e, dt, type, indexes ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, deselected row ...');
+
+            var rowData = table.rows( indexes ).data().toArray();
+            if (debugJs) console.debug('Datatable event, deselected: ', rowData);
+
+            if (table.rows( { selected: true } ).count() > 0) {
+                $('[data-reaction="selection-not-empty"]').prop('disabled', false);
+                $('[data-reaction="selection-empty"]').prop('disabled', true);
+            } else {
+                $('[data-reaction="selection-not-empty"]').prop('disabled', true);
+                $('[data-reaction="selection-empty"]').prop('disabled', false);
+            }
       });
+      %end
 
       $('#tbl_{{object_type}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
@@ -207,7 +263,7 @@ table.dataTable tbody>tr>.selected {
          // First row for ordering
          "orderCellsTop": true,
          // Default initial sort
-         "order": [[1, 'asc']],
+         "order": [[2, 'asc']],
 
          // Responsive mode
          %if dt.responsive:
@@ -249,17 +305,10 @@ table.dataTable tbody>tr>.selected {
          %end
 
          // Selection mode
-         select: true,
+         select: {{'true' if dt.selectable else 'false'}},
 
          // Table columns definition
          "columns": columns,
-         "columnDefs": [{
-            "targets": [0,1],
-            "width": "200px"
-         }, {
-            "targets": 2,
-            "width": "500px"
-         }],
 
          // Server side processing: request new data
          "serverSide": true,
@@ -270,6 +319,7 @@ table.dataTable tbody>tr>.selected {
             "data": function ( d ) {
                // Add an extra field
                d = $.extend({}, d, { "object_type": '{{object_type}}' });
+
                // Json stringify to avoid complex array formatting ...
                d.columns = JSON.stringify( d.columns );
                d.search = JSON.stringify( d.search );
@@ -482,6 +532,15 @@ table.dataTable tbody>tr>.selected {
                }
             }
             %end
+            %if dt.selectable:
+            'selected',
+            'selectedSingle',
+            'selectAll',
+            'selectNone',
+            'selectRows',
+            'selectColumns',
+            'selectCells'
+            %end
          ]
       });
 
@@ -509,7 +568,6 @@ table.dataTable tbody>tr>.selected {
          });
          // Recalculate columns and table width
          if (debugTable) console.debug('Datatable event, state loaded ... recalculate columns and table width');
-         console.debug('Datatable event, state loaded ... recalculate columns and table width');
          table.columns.adjust()
          table.responsive.recalc();
       });

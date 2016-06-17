@@ -327,9 +327,7 @@ class test_4_not_admin(unittest2.TestCase):
                 "c",
                 "r"
             ],
-            "retain_status_information": False,
             "note": "Monitoring template : default",
-            "retain_nonstatus_information": False,
             "definition_order": 100,
             "address1": "",
             "address2": "",
@@ -445,7 +443,7 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.id
             icon_status = item.get_html_state()
-        self.assertEqual(len(items), 1)
+        self.assertEqual(len(items), 5)
 
         # Get commands
         items = self.dmg.get_commands()
@@ -484,7 +482,7 @@ class test_5_basic_tests(unittest2.TestCase):
         print 'test objects count'
 
         # Get each object type count
-        self.assertEqual(self.dmg.count_objects('realm'), 1)
+        self.assertEqual(self.dmg.count_objects('realm'), 5)
         self.assertEqual(self.dmg.count_objects('command'), 103)
         self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
         self.assertEqual(self.dmg.count_objects('user'), 4+1)    #Because a new user is created during the tests
@@ -492,24 +490,25 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('service'), 89)
         self.assertEqual(self.dmg.count_objects('livestate'), 13+89)
         self.assertEqual(self.dmg.count_objects('servicegroup'), 5)
-        self.assertEqual(self.dmg.count_objects('hostgroup'), 9)
+        self.assertEqual(self.dmg.count_objects('hostgroup'), 8)
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 331+1)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 337)
 
         # No refresh so get current cached objects count
-        self.assertEqual(self.dmg.get_objects_count('realm'), 1)
+        self.assertEqual(self.dmg.get_objects_count('realm'), 5)
         self.assertEqual(self.dmg.get_objects_count('command'), 50)
         self.assertEqual(self.dmg.get_objects_count('timeperiod'), 4)
         self.assertEqual(self.dmg.get_objects_count('user'), 4+1)
+        # Not loaded on login in the data manager ... so 0
         self.assertEqual(self.dmg.get_objects_count('host'), 0)
         self.assertEqual(self.dmg.get_objects_count('service'), 0)
-        self.assertEqual(self.dmg.get_objects_count('livestate'), 50)
+        self.assertEqual(self.dmg.get_objects_count('livestate'), 0)
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis'), 1)  # Not loaded on login ...
 
         # With refresh to get total backend objects count
-        self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 1)
+        self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 5)
         self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
         self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
         self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4+1)

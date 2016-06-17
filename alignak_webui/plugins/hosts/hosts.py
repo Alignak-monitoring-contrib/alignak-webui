@@ -403,6 +403,8 @@ schema['ui'] = {
         'uid': '_id',
         'visible': True,
         'orderable': True,
+        'editable': False,
+        'selectable': True,
         'searchable': True,
         'responsive': True
     }
@@ -503,15 +505,14 @@ def get_hosts_widget():
     count = min(count, total)
 
     # Widget options
-    widget_id = request.forms.get('widget_id', None)
-    if not widget_id:
-        webui.response_invalid_parameters(_('Missing widget identifier'))
-    widget_template = request.forms.get('widget_template', None)
-    if not widget_template:
-        webui.response_invalid_parameters(_('Missing widget template'))
+    widget_id = request.forms.get('widget_id', '')
+    if widget_id == '':
+        return webui.response_invalid_parameters(_('Missing widget identifier'))
+    widget_template = request.forms.get('widget_template', '')
+    if widget_template == '':
+        return webui.response_invalid_parameters(_('Missing widget template'))
 
     widget_place = request.forms.get('widget_place', 'dashboard')
-
     # Search in the application widgets (all plugins widgets)
     options = {}
     for widget in webui.widgets[widget_place]:
