@@ -127,7 +127,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             try:
                 result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
-                logger.warning("get, backend exception: %s", str(e))
+                logger.warning("count, backend exception for %s: %s", object_type, str(e))
                 return 0
 
             logger.debug("count, search result for %s: result=%s", object_type, result)
@@ -193,7 +193,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 else:
                     result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
-                logger.warning("get, backend exception: %s", str(e))
+                logger.warning("get, backend exception for %s: %s", object_type, str(e))
                 return None
 
             logger.debug(
