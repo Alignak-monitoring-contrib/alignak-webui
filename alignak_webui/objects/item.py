@@ -907,7 +907,9 @@ class Item(object):
         Get Item object alias
         A class inheriting from an Item can define its own `name_property`
         """
-        return getattr(self, '_alias', self.name)
+        if hasattr(self, 'alias') and getattr(self, '_alias', None):
+            return getattr(self, '_alias', None)
+        return getattr(self, 'name', '')
 
     @alias.setter
     def alias(self, alias):
