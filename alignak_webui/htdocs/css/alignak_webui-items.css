@@ -22,8 +22,9 @@
 }
 
 /* Teals */
+.item_realm,
 .turquoise { color: #1abc9c; }
-.item_contact,
+.item_user,
 .green-sea { color: #16a085; }
 
 /* Greens */
