@@ -190,7 +190,7 @@ table.dataTable tbody>tr>.selected {
          if (debugTable) console.debug('Datatable event, selected row ...');
 
          var rowData = table.rows( indexes ).data().toArray();
-         if (debugJs) console.debug('Datatable event, selected: ', rowData);
+         if (debugTable) console.debug('Datatable event, selected: ', rowData);
 
          if (table.rows( { selected: true } ).count() > 0) {
              $('[data-reaction="selection-not-empty"]').prop('disabled', false);
@@ -206,7 +206,7 @@ table.dataTable tbody>tr>.selected {
          if (debugTable) console.debug('Datatable event, deselected row ...');
 
             var rowData = table.rows( indexes ).data().toArray();
-            if (debugJs) console.debug('Datatable event, deselected: ', rowData);
+            if (debugTable) console.debug('Datatable event, deselected: ', rowData);
 
             if (table.rows( { selected: true } ).count() > 0) {
                 $('[data-reaction="selection-not-empty"]').prop('disabled', false);
@@ -533,13 +533,44 @@ table.dataTable tbody>tr>.selected {
             }
             %end
             %if dt.selectable:
-            'selected',
-            'selectedSingle',
-            'selectAll',
-            'selectNone',
-            'selectRows',
-            'selectColumns',
-            'selectCells'
+            /*
+            ,{
+               extend: 'selected',
+               text: 'Count selected rows',
+               action: function ( e, dt, button, config ) {
+                  alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected' );
+               }
+            }
+            ,{
+               extend: 'selected',
+               text: 'Count selected rows 2',
+               action: function ( e, dt, button, config ) {
+                  alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected !' );
+               }
+            }
+            */
+            /*
+            ,{
+               extend: 'selectedSingle',
+            }
+            */
+            ,{
+               extend: 'selectAll',
+            }
+            ,{
+               extend: 'selectNone',
+            }
+            /*
+            ,{
+               extend: 'selectRows',
+            }
+            ,{
+               extend: 'selectColumns',
+            }
+            ,{
+               extend: 'selectCells'
+            }
+            */
             %end
          ]
       });

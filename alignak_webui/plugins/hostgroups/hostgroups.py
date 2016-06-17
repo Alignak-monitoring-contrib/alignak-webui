@@ -113,6 +113,17 @@ schema['action_url'] = {
         'title': _('Action URL')
     }
 }
+schema['hostgroups'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Hosts groups members'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'hostgroup',
+        'embeddable': True
+    }
+}
 schema['hosts'] = {
     'type': 'list',
     'ui': {
@@ -124,16 +135,16 @@ schema['hosts'] = {
         'embeddable': True
     }
 }
-schema['hostgroups'] = {
-    'type': 'list',
+schema['realm'] = {
+    'type': 'string',
     'ui': {
-        'title': _('Hosts groups members'),
-        'visible': True
+        'title': _('Hosts group realm'),
+        'visible': True,
+        'hidden': False,
+        'searchable': True,
+        'regex': True,
+        'orderable': True,
     },
-    'data_relation': {
-        'resource': 'hostgroup',
-        'embeddable': True
-    }
 }
 
 

@@ -232,14 +232,14 @@ class Datatable(object):
             'lengthMenu': _('Show _MENU_ entries'),
             'loadingRecords': _('Loading...'),
             'processing': _('Processing...'),
-            'search': _('<i class="fa fa-search"></i>'),
+            'search': _('<span class="fa fa-search"></span>'),
             'searchPlaceholder': _('search...'),
             'zeroRecords': _('No matching records found'),
             'paginate': {
-                'first': _('<i class="fa fa-fast-backward"></i>'),
-                'last': _('<i class="fa fa-fast-forward"></i>'),
-                'next': _('<i class="fa fa-forward"></i>'),
-                'previous': _('<i class="fa fa-backward"></i>')
+                'first': _('<span class="fa fa-fast-backward"></span>'),
+                'last': _('<span class="fa fa-fast-forward"></span>'),
+                'next': _('<span class="fa fa-forward"></span>'),
+                'previous': _('<span class="fa fa-backward"></span>')
             },
             'aria': {
                 'sortAscending': _(': activate to sort column ascending'),
@@ -257,17 +257,17 @@ class Datatable(object):
                     '_': _('Show %d rows')
                 },
 
-                'collection': _('<i class="fa fa-external-link"></i>'),
+                'collection': _('<span class="fa fa-external-link"></span>'),
                 'csv': _('CSV'),
                 'excel': _('Excel'),
                 'pdf': _('PDF'),
 
-                'print': _('<i class="fa fa-print"></i>'),
+                'print': _('<span class="fa fa-print"></span>'),
 
-                'copy': _('<i class="fa fa-clipboard"></i>'),
+                'copy': _('<span class="fa fa-clipboard"></span>'),
                 'copyTitle': _('Copy to clipboard'),
                 'copyKeys': _(
-                    r'Press <i>ctrl</i> or <i>\u2318</i> + <i>C</i> to copy the table data to<br>'
+                    r'Press <span>ctrl</span> or <span>\u2318</span> + <span>C</span> to copy the table data to<br>'
                     r'your system clipboard.<br><br>To cancel, click this message or press escape.'
                 ),
                 'copySuccess': {
@@ -275,8 +275,16 @@ class Datatable(object):
                     '_': _('Copied %d rows to clipboard')
                 },
 
-                'colvis': _('<i class="fa fa-eye-slash"></i>'),
-                'colvisRestore': _('Restore')
+                'colvis': _('<span class="fa fa-eye-slash"></span>'),
+                'colvisRestore': _('Restore'),
+
+                'selectAll': _('<span class="fa fa-plus-square"></span>'),
+                'selectNone': _('<span class="fa fa-square-o"></span>'),
+                'selectCells': _('Select cells'),
+                'selectColumns': _('Select columns'),
+                'selectRows': _('Select rows'),
+                'selectedSingle': _('Selected single'),
+                'selected': _('Selected')
             }
         }
 
