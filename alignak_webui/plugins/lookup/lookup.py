@@ -33,7 +33,7 @@ logger = getLogger(__name__)
 webui = None
 
 
-def lookup():  # pragma: no cover - not yet implemented!
+def lookup():
     """
     Search in the livestate for an element name
     """
