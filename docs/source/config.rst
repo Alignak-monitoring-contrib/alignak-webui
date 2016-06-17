@@ -7,6 +7,18 @@ The application can be run without any extra configuration file with default par
 
 The application can be configured thanks to a configuration file. When installed for an end user, the configuration file ``settings.cfg`` is installed on your system in the */etc/alignak_webui* or */usr/local/etc/alignak_webui* directory according to whether your system is a Linux (Debian) or Unix (FreeBSD) distribution.
 
+Configuration file location
+---------------------------
+ The application searches in several location for a configuration file:
+ - /usr/local/etc/alignak_webui/settings.cfg
+ - /etc/alignak_webui/settings.cfg
+ - ~/alignak_webui/settings.cfg
+ - */etc/settings.cfg
+ - */alignak_webui/etc/settings.cfg
+ - ./settings.cfg
+
+
+
 Configuration file format
 -------------------------
 
