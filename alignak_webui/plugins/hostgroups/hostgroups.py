@@ -194,29 +194,27 @@ def get_hostgroup_table_data():
     return dt.table_data()
 
 
-def get_hostgroup(element_id):
+def get_hostgroup(hostgroup_id):
     """
     Display the element linked to a hostgroup item
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    element = datamgr.get_hostgroup({'where': {'_id': element_id}})
-    if not element:  # pragma: no cover, should not happen
+    hostgroup = datamgr.get_hostgroup(hostgroup_id)
+    if not hostgroup:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('HostGroup element does not exist'))
 
-    element = element[0]
-    if element['type'] == 'host':
-        logger.debug("HostGroup: %s %s %s", element, element.host_name.id, element.__dict__)
-        redirect('/host/' + element.host_name.id)
-    else:
-        logger.debug("HostGroup: %s %s %s", element, element.host_name.id, element.__dict__)
-        redirect('/host/' + element.host_name.id + '#services')
+    return {
+        'hostgroup_id': hostgroup_id,
+        'hostgroup': hostgroup,
+        'title': request.query.get('title', _('Hosts group view'))
+    }
 
 
 pages = {
     get_hostgroup: {
         'name': 'HostGroup',
-        'route': '/hostgroup/<element_id>'
+        'route': '/hostgroup/<hostgroup_id>'
     },
     get_hostgroup_table: {
         'name': 'Hosts groups table',
