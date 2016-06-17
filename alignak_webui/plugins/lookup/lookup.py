@@ -35,8 +35,7 @@ webui = None
 
 def lookup():  # pragma: no cover - not yet implemented!
     """
-    TODO:
-    Empty ... not yet implemented!
+    Search in the livestate for an element name
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
