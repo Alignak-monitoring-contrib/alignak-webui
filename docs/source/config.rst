@@ -17,6 +17,7 @@ Configuration file location
  - */alignak_webui/etc/settings.cfg
  - ./settings.cfg
 
+ Each file found takes precedence over the previous files.
 
 
 Configuration file format
