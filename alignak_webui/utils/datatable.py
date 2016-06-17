@@ -515,6 +515,7 @@ class Datatable(object):
         # Request objects from the backend ...
         logger.debug("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
+        logger.debug("table data, got: %s", items)
 
         # Total number of filtered records
         recordsFiltered = recordsTotal
