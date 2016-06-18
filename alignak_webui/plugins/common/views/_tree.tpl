@@ -71,7 +71,7 @@
          "id": '{{item.id}}',
          "parent" : '{{'#' if item._level == 0 else item._tree_parents[0]}}',
          "text": '{{item.alias}}',
-         "icon": "",
+         "icon": '{{item.get_state()}}',
          "state": {
             "opened": true,
             "selected": false,
@@ -125,21 +125,21 @@
             "contextmenu": {
                "items": function(node) {
                   if (debugJs) console.debug('Calling context menu for: ', node);
+
                   // Non terminating node ...
                   if (node.children.length && !node.host_name) {
                      return;
                   }
 
                   var tree = $("#{{object_type}}_tree").jstree(true);
-
                   return ({
-                     "Action": {
-                        "label": "Programmer une maintenance pour "+node,
-                        "icon": "ion-monitor",
-                        "action": function (obj) {
-                           console.log("Action ...");
-                        }
-                     }
+                  %for action in context_menu['actions']:
+                     "{{action}}": {
+                        "label": "{{context_menu['actions'][action]['label']}}",
+                        "icon": "{{context_menu['actions'][action]['icon']}}",
+                        "action": {{! context_menu['actions'][action]['action']}}
+                     },
+                  %end
                   });
                }
             }

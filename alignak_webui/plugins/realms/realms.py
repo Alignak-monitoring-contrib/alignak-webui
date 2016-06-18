@@ -275,14 +275,42 @@ def get_realms():
     }
 
     # Get elements from the data manager
-    realms = datamgr.get_realms(search)
+    items = datamgr.get_realms(search)
     # Get last total elements count
     total = datamgr.get_objects_count('realm', search=where, refresh=True)
     count = min(count, total)
 
+    """
+    Define contextual menu
+    """
+    context_menu = {
+        'actions': {
+            'action1': {
+                "label": "Cueillir des fraises...",
+                "icon": "ion-monitor",
+                "separator_before": False,
+                "separator_after": True,
+                "action": '''function (obj) {
+                   console.log('Miam!');
+                }'''
+            },
+            'action2': {
+                "label": "... et encore des fraises!",
+                "icon": "ion-monitor",
+                "separator_before": False,
+                "separator_after": False,
+                "action": '''function (obj) {
+                   console.log('Et que ça saute !');
+                }'''
+            }
+        }
+    }
+
     return {
         'object_type': 'realm',
-        'items': realms,
+        'items': items,
+        'selectable': False,
+        'context_menu': context_menu,
         'pagination': Helper.get_pagination_control('realm', total, start, count),
         'title': request.query.get('title', _('All realms'))
     }
