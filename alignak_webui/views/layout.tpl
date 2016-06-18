@@ -57,6 +57,9 @@
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
 
+      <!-- jsTree jQuery plugin -->
+      <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
+
       <!-- Datatables jQuery plugin -->
       <link rel="stylesheet" href="/static/css/datatables.min.css" >
       <!-- Datatables custom filtering jQuery plugin -->
@@ -84,6 +87,9 @@
       <script type="text/javascript" src="/static/js/alertify.min.js"></script>
       <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
+
+      <!-- jsTree jQuery plugin -->
+      <script type="text/javascript" src="/static/js/jstree.min.js"></script>
 
       <!-- Datatables jQuery plugin -->
       <script type="text/javascript" src="/static/js/datatables.min.js"></script>

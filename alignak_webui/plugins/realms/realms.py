@@ -281,7 +281,8 @@ def get_realms():
     count = min(count, total)
 
     return {
-        'realms': realms,
+        'object_type': 'realm',
+        'items': realms,
         'pagination': Helper.get_pagination_control('realm', total, start, count),
         'title': request.query.get('title', _('All realms'))
     }
@@ -313,7 +314,7 @@ pages = {
     get_realms: {
         'name': 'Realms',
         'route': '/realms',
-        'view': 'realms',
+        'view': '_tree',
         'search_engine': False,
         'search_prefix': '',
         'search_filters': {
