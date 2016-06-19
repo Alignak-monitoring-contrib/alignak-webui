@@ -1695,7 +1695,7 @@ class Log(Item):
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'loghost'
+    _type = 'logcheckresult'
     # _cache is a list of created objects
     _cache = {}
 
