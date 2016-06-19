@@ -579,7 +579,30 @@ class test_datatable_hosts(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
-    def test_02_1_hosts_groups(self):
+class test_datatable_hostgroups(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_01_hosts_groups(self):
         print ''
         print 'test hostgroup table'
 
@@ -592,10 +615,11 @@ class test_datatable_hosts(unittest2.TestCase):
             "$('#tbl_hostgroup').DataTable( {",
             '<table id="tbl_hostgroup" class="table ',
             '<th data-name="#" data-type="string"></th>',
-            '<th data-name="name" data-type="string">Hosts group name</th>',
+            '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Hosts group alias</th>',
-            '<th data-name="hosts" data-type="list">Hosts members</th>',
+            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="_level" data-type="integer">Level</th>',
+            '<th data-name="_parent" data-type="objectid">Parent</th>',
             '<th data-name="hostgroups" data-type="list">Hosts groups members</th>'
         )
 
@@ -615,8 +639,72 @@ class test_datatable_hosts(unittest2.TestCase):
                 assert response.json['data'][x]['name']
                 assert response.json['data'][x]['definition_order']
                 assert response.json['data'][x]['alias']
-                assert 'hosts' in response.json['data'][x]
+                # assert 'hosts' in response.json['data'][x]
                 assert 'hostgroups' in response.json['data'][x]
+
+
+class test_datatable_servicegroups(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_01_services_groups(self):
+        print ''
+        print 'test servicegroup table'
+
+        global items_count
+
+        print 'get page /servicegroup_table'
+        response = self.app.get('/servicegroup_table')
+        response.mustcontain(
+            '<div id="servicegroup_table">',
+            "$('#tbl_servicegroup').DataTable( {",
+            '<table id="tbl_servicegroup" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="_level" data-type="integer">Level</th>',
+            '<th data-name="_parent" data-type="objectid">Parent</th>',
+            '<th data-name="servicegroups" data-type="list">services groups members</th>'
+        )
+
+        response = self.app.post('/servicegroup_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name']
+                assert response.json['data'][x]['definition_order']
+                assert response.json['data'][x]['alias']
+                # assert 'services' in response.json['data'][x]
+                # assert 'servicegroups' in response.json['data'][x]
 
 
 class test_datatable_users(unittest2.TestCase):

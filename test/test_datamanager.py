@@ -489,12 +489,12 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('host'), 13)
         self.assertEqual(self.dmg.count_objects('service'), 89)
         self.assertEqual(self.dmg.count_objects('livestate'), 13+89)
-        self.assertEqual(self.dmg.count_objects('servicegroup'), 5)
-        self.assertEqual(self.dmg.count_objects('hostgroup'), 8)
+        self.assertEqual(self.dmg.count_objects('servicegroup'), 6)
+        self.assertEqual(self.dmg.count_objects('hostgroup'), 9)
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 337)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 339)
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 5)
