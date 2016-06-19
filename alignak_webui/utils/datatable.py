@@ -268,7 +268,8 @@ class Datatable(object):
                 'copy': _('<span class="fa fa-clipboard"></span>'),
                 'copyTitle': _('Copy to clipboard'),
                 'copyKeys': _(
-                    r'Press <span>ctrl</span> or <span>\u2318</span> + <span>C</span> to copy the table data to<br>'
+                    r'Press <span>ctrl</span> or <span>\u2318</span> + <span>C</span> '
+                    'to copy the table data to<br>'
                     r'your system clipboard.<br><br>To cancel, click this message or press escape.'
                 ),
                 'copySuccess': {

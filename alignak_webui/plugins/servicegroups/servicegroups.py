@@ -117,7 +117,7 @@ schema['action_url'] = {
 schema['_level'] = {
     'type': 'integer',
     'ui': {
-        'title': _('Group level'),
+        'title': _('Level'),
         'visible': True,
     },
 }
@@ -237,9 +237,7 @@ def get_servicegroups():
     total = datamgr.get_objects_count('servicegroup', search=where, refresh=True)
     count = min(count, total)
 
-    """
-    Define contextual menu
-    """
+    # Define contextual menu
     context_menu = {
         'actions': {
             'action1': {
