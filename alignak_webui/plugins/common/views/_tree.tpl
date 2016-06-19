@@ -79,7 +79,11 @@
          },
          "data": {
             %for key in item.__dict__:
+            %try:
             "{{key}}": {{! json.dumps(item[key])}},
+            %except TypeError:
+            %pass
+            %end
             %end
          },
          li_attr: {

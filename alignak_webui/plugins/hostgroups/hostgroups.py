@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin HostGroup
+    Plugin hosts groups
 """
 
 import time
@@ -34,6 +34,7 @@ from bottle import request, response, redirect
 from alignak_webui.objects.item import Item
 
 from alignak_webui.utils.datatable import Datatable
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -66,7 +67,7 @@ schema['#'] = {
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Hosts group name'),
+        'title': _('Name'),
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -91,7 +92,7 @@ schema['definition_order'] = {
 schema['alias'] = {
     'type': 'string',
     'ui': {
-        'title': _('Hosts group alias'),
+        'title': _('Alias'),
         'visible': True
     },
 }
@@ -113,6 +114,24 @@ schema['action_url'] = {
         'title': _('Action URL')
     }
 }
+schema['_level'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Group level'),
+        'visible': True,
+    },
+}
+schema['_parent'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Parent'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'hostgroup',
+        'embeddable': True
+    }
+}
 schema['hostgroups'] = {
     'type': 'list',
     'ui': {
@@ -123,28 +142,6 @@ schema['hostgroups'] = {
         'resource': 'hostgroup',
         'embeddable': True
     }
-}
-schema['hosts'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Hosts members'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'host',
-        'embeddable': True
-    }
-}
-schema['realm'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Hosts group realm'),
-        'visible': True,
-        'hidden': False,
-        'searchable': True,
-        'regex': True,
-        'orderable': True,
-    },
 }
 
 
@@ -205,6 +202,77 @@ def get_hostgroup_table_data():
     return dt.table_data()
 
 
+def get_hostgroups():
+    """
+    Get the hostgroups list
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Pagination and search
+    start = int(request.query.get('start', '0'))
+    count = int(request.query.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.query.get('search', ''))
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'sort': '-_id',
+        'where': where,
+        'embedded': {
+        }
+    }
+
+    # Get elements from the data manager
+    items = datamgr.get_hostgroups(search)
+    # Get last total elements count
+    total = datamgr.get_objects_count('hostgroup', search=where, refresh=True)
+    count = min(count, total)
+
+    """
+    Define contextual menu
+    """
+    context_menu = {
+        'actions': {
+            'action1': {
+                "label": "Cueillir des fraises...",
+                "icon": "ion-monitor",
+                "separator_before": False,
+                "separator_after": True,
+                "action": '''function (obj) {
+                   console.log('Miam!');
+                }'''
+            },
+            'action2': {
+                "label": "... et encore des fraises!",
+                "icon": "ion-monitor",
+                "separator_before": False,
+                "separator_after": False,
+                "action": '''function (obj) {
+                   console.log('Et que ça saute !');
+                }'''
+            }
+        }
+    }
+
+    return {
+        'object_type': 'hostgroup',
+        'items': items,
+        'selectable': False,
+        'context_menu': context_menu,
+        'pagination': Helper.get_pagination_control('hostgroup', total, start, count),
+        'title': request.query.get('title', _('All hostgroups'))
+    }
+
+
 def get_hostgroup(hostgroup_id):
     """
     Display the element linked to a hostgroup item
@@ -213,7 +281,7 @@ def get_hostgroup(hostgroup_id):
 
     hostgroup = datamgr.get_hostgroup(hostgroup_id)
     if not hostgroup:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('HostGroup element does not exist'))
+        return webui.response_invalid_parameters(_('Hosts group element does not exist'))
 
     return {
         'hostgroup_id': hostgroup_id,
@@ -224,9 +292,19 @@ def get_hostgroup(hostgroup_id):
 
 pages = {
     get_hostgroup: {
-        'name': 'HostGroup',
+        'name': 'Host group',
         'route': '/hostgroup/<hostgroup_id>'
     },
+    get_hostgroups: {
+        'name': 'Hosts groups',
+        'route': '/hostgroups',
+        'view': '_tree',
+        'search_engine': False,
+        'search_prefix': '',
+        'search_filters': {
+        }
+    },
+
     get_hostgroup_table: {
         'name': 'Hosts groups table',
         'route': '/hostgroup_table',

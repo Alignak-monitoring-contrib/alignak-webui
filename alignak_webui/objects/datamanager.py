@@ -918,6 +918,34 @@ class DataManager(object):
         return self.add_object('actionacknowledge', data)
 
     ##
+    # hostgroups
+    ##
+    def get_hostgroups(self, search=None):
+        """ Get a list of all hostgroups. """
+        if search is None:
+            search = {}
+
+        try:
+            logger.info("get_hostgroups, search: %s", search)
+            items = self.find_object('hostgroup', search)
+            return items
+        except ValueError:
+            logger.debug("get_hostgroups, none found")
+
+        return []
+
+    def get_hostgroup(self, search):
+        """ Get a hostgroup by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_hostgroups(search=search)
+        return items[0] if items else None
+
+    ##
     # Hosts
     ##
     def get_hosts(self, search=None):
@@ -984,6 +1012,34 @@ class DataManager(object):
 
         logger.debug("get_hosts_synthesis: %s", synthesis)
         return synthesis
+
+    ##
+    # servicegroups
+    ##
+    def get_servicegroups(self, search=None):
+        """ Get a list of all servicegroups. """
+        if search is None:
+            search = {}
+
+        try:
+            logger.info("get_servicegroups, search: %s", search)
+            items = self.find_object('servicegroup', search)
+            return items
+        except ValueError:
+            logger.debug("get_servicegroups, none found")
+
+        return []
+
+    def get_servicegroup(self, search):
+        """ Get a servicegroup by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_servicegroups(search=search)
+        return items[0] if items else None
 
     ##
     # Services

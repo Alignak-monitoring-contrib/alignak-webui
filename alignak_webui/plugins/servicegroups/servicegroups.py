@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin Realm
+    Plugin services groups
 """
 
 import time
@@ -48,7 +48,7 @@ schema = OrderedDict()
 schema['#'] = {
     'type': 'string',
     'ui': {
-        'title': '#',
+        'title': '',
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -67,8 +67,7 @@ schema['#'] = {
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Realm name'),
-        'width': '10px',
+        'title': _('Name'),
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -79,8 +78,7 @@ schema['name'] = {
         'regex': True,
         # This field is orderable (default: True)
         'orderable': True,
-        # 'priority': 0,
-    }
+    },
 }
 schema['definition_order'] = {
     'type': 'integer',
@@ -94,7 +92,7 @@ schema['definition_order'] = {
 schema['alias'] = {
     'type': 'string',
     'ui': {
-        'title': _('Realm alias'),
+        'title': _('Alias'),
         'visible': True
     },
 }
@@ -104,19 +102,22 @@ schema['notes'] = {
         'title': _('Notes')
     }
 }
-schema['default'] = {
-    'type': 'boolean',
-    'default': False,
+schema['notes_url'] = {
+    'type': 'string',
     'ui': {
-        'title': _('Default realm'),
-        'visible': True,
-        'hidden': True
-    },
+        'title': _('Notes URL')
+    }
+}
+schema['action_url'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Action URL')
+    }
 }
 schema['_level'] = {
     'type': 'integer',
     'ui': {
-        'title': _('Level'),
+        'title': _('Group level'),
         'visible': True,
     },
 }
@@ -127,75 +128,20 @@ schema['_parent'] = {
         'visible': True
     },
     'data_relation': {
-        'resource': 'realm',
+        'resource': 'servicegroup',
         'embeddable': True
     }
 }
-schema['hosts_critical_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
+schema['servicegroups'] = {
+    'type': 'list',
     'ui': {
-        'title': _('Hosts critical threshold'),
-        'visible': True,
-        'hidden': False
+        'title': _('services groups members'),
+        'visible': True
     },
-}
-schema['hosts_warning_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Hosts warning threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['services_critical_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Services critical threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['services_warning_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Services warning threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['globals_critical_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Global critical threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['globals_warning_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Global warning threshold'),
-        'visible': True,
-        'hidden': False
-    },
+    'data_relation': {
+        'resource': 'servicegroup',
+        'embeddable': True
+    }
 }
 
 
@@ -206,7 +152,7 @@ schema['ui'] = {
 
     # UI parameters for the objects
     'ui': {
-        'page_title': _('Realm table (%d items)'),
+        'page_title': _('services groups table (%d items)'),
         'uid': '_id',
         'visible': True,
         'orderable': True,
@@ -218,9 +164,9 @@ schema['ui'] = {
 }
 
 
-def get_realm_table():
+def get_servicegroup_table():
     """
-    Get the realm list and transform it as a table
+    Get the servicegroup list and transform it as a table
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
@@ -228,37 +174,37 @@ def get_realm_table():
     where = webui.helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
-    total = datamgr.get_objects_count('realm', search=where)
+    total = datamgr.get_objects_count('servicegroup', search=where)
 
     # Build table structure
-    dt = Datatable('realm', datamgr.backend, schema)
+    dt = Datatable('servicegroup', datamgr.backend, schema)
 
     title = dt.title
     if '%d' in title:
         title = title % total
 
     return {
-        'object_type': 'realm',
+        'object_type': 'servicegroup',
         'dt': dt,
         'title': request.query.get('title', title)
     }
 
 
-def get_realm_table_data():
+def get_servicegroup_table_data():
     """
-    Get the realm list and provide table data
+    Get the servicegroup list and provide table data
     """
     datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('realm', datamgr.backend, schema)
+    dt = Datatable('servicegroup', datamgr.backend, schema)
 
     response.status = 200
     response.content_type = 'application/json'
     return dt.table_data()
 
 
-def get_realms():
+def get_servicegroups():
     """
-    Get the realms list
+    Get the servicegroups list
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -286,16 +232,18 @@ def get_realms():
     }
 
     # Get elements from the data manager
-    items = datamgr.get_realms(search)
+    items = datamgr.get_servicegroups(search)
     # Get last total elements count
-    total = datamgr.get_objects_count('realm', search=where, refresh=True)
+    total = datamgr.get_objects_count('servicegroup', search=where, refresh=True)
     count = min(count, total)
 
-    # Define contextual menu
+    """
+    Define contextual menu
+    """
     context_menu = {
         'actions': {
             'action1': {
-                "label": "Cueillir des fraises...",
+                "label": "Cueillir des cerises...",
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": True,
@@ -304,7 +252,7 @@ def get_realms():
                 }'''
             },
             'action2': {
-                "label": "... et encore des fraises!",
+                "label": "... et encore des cerises!",
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": False,
@@ -316,41 +264,40 @@ def get_realms():
     }
 
     return {
-        'object_type': 'realm',
+        'object_type': 'servicegroup',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('realm', total, start, count),
-        'title': request.query.get('title', _('All realms'))
+        'pagination': Helper.get_pagination_control('servicegroup', total, start, count),
+        'title': request.query.get('title', _('All servicegroups'))
     }
 
 
-def get_realm(realm_id):
+def get_servicegroup(servicegroup_id):
     """
-    Display the element linked to a realm item
+    Display the element linked to a servicegroup item
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    realm = datamgr.get_realm({'where': {'_id': realm_id}})
-    if not realm:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Realm element does not exist'))
+    servicegroup = datamgr.get_servicegroup(servicegroup_id)
+    if not servicegroup:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Services group element does not exist'))
 
     return {
-        'realm_id': realm_id,
-        'realm': realm,
-        'title': request.query.get('title', _('Realm view'))
+        'servicegroup_id': servicegroup_id,
+        'servicegroup': servicegroup,
+        'title': request.query.get('title', _('Services group view'))
     }
 
 
 pages = {
-    get_realm: {
-        'name': 'Realm',
-        'route': '/realm/<realm_id>',
-        'view': 'realm'
+    get_servicegroup: {
+        'name': 'Service group',
+        'route': '/servicegroup/<servicegroup_id>'
     },
-    get_realms: {
-        'name': 'Realms',
-        'route': '/realms',
+    get_servicegroups: {
+        'name': 'Services groups',
+        'route': '/servicegroups',
         'view': '_tree',
         'search_engine': False,
         'search_prefix': '',
@@ -358,15 +305,15 @@ pages = {
         }
     },
 
-    get_realm_table: {
-        'name': 'Realms table',
-        'route': '/realm_table',
+    get_servicegroup_table: {
+        'name': 'Services groups table',
+        'route': '/servicegroup_table',
         'view': '_table'
     },
 
-    get_realm_table_data: {
-        'name': 'Realms table data',
-        'route': '/realm_table_data',
+    get_servicegroup_table_data: {
+        'name': 'Services groups table data',
+        'route': '/servicegroup_table_data',
         'method': 'POST'
     },
 }
