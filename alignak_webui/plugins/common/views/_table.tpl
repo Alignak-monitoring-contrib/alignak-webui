@@ -33,10 +33,7 @@ table.dataTable tbody>tr>.selected {
 <div id="{{object_type}}_table">
    <!-- Bootstrap responsive table
    <div class="table-responsive"> -->
-      <table id="tbl_{{object_type}}" class="table table-striped table-condensed dt-responsive nowrap" cellspacing="0" width="100%">
-         %for column in dt.table_columns:
-         <col style="width: {{ column['width'] }}">
-         %end
+      <table id="tbl_{{object_type}}" class="table table-striped table-condensed dt-responsive">
          <thead>
             <tr>
                %for column in dt.table_columns:
@@ -66,7 +63,8 @@ table.dataTable tbody>tr>.selected {
 </div>
 
 <script>
-   var debugTable = false;
+   var debugTable = true;
+   var where = {{! json.dumps(where)}};
    var columns = {{ ! json.dumps(dt.table_columns) }};
    var selectedRows = [];
 
@@ -127,6 +125,7 @@ table.dataTable tbody>tr>.selected {
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
          if (debugTable) console.debug('Datatable event, text column search ...');
 
+         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
             .column( $(this).parent().index()+':visible' )
                .search($(this).val(), $(this).data('regex')=='True', false)
@@ -138,10 +137,11 @@ table.dataTable tbody>tr>.selected {
 
       // Apply the search filter for selectable fields
       $("#tbl_{{object_type}} thead select").on('change', function () {
-         if (debugTable) console.debug('Datatable event, selectable column search ...');
+         if (debugTable) console.debug('Datatable event, selectable column search ...', table);
 
+         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
-            .column( $(this).parent().index()+':visible' )
+            .column( $(this).parent().index() )
               .search($(this).val(), false, false)
               .draw();
 
@@ -166,6 +166,10 @@ table.dataTable tbody>tr>.selected {
          if (debugTable) console.debug('Datatable event, draw ...');
       });
 
+      $('#tbl_{{object_type}}').on( 'column-sizing.dt', function () {
+         if (debugTable) console.debug('Datatable event, column-sizing ...');
+      });
+
       $('#tbl_{{object_type}}').on( 'error.dt', function ( e, settings ) {
          if (debugTable) console.error('Datatable event, error ...');
       });
@@ -174,6 +178,7 @@ table.dataTable tbody>tr>.selected {
          if (debugTable) console.debug('Datatable event, init ...');
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
 
+         %if dt.selectable:
          if (table.rows( { selected: true } ).count() > 0) {
              $('[data-reaction="selection-not-empty"]').prop('disabled', false);
              $('[data-reaction="selection-empty"]').prop('disabled', true);
@@ -181,7 +186,7 @@ table.dataTable tbody>tr>.selected {
              $('[data-reaction="selection-not-empty"]').prop('disabled', true);
              $('[data-reaction="selection-empty"]').prop('disabled', false);
          }
-
+         %end
       });
 
       %if dt.selectable:
@@ -235,6 +240,15 @@ table.dataTable tbody>tr>.selected {
                // Enable the clear filter button
                table.buttons('clearFilter:data').enable();
             }
+         });
+
+         // Update each search field with the filter URL parameters
+         $.each(where, function(key, value) {
+            var index = table.column(key+':name').index();
+            if (debugTable) console.debug('Update column search', index, key, value);
+
+            // Update search filter input field value
+            $('#filterrow th[data-index="'+index+'"]').children().val(value).trigger('change');
          });
       });
 
@@ -641,7 +655,6 @@ table.dataTable tbody>tr>.selected {
          if (debugTable) console.debug('Datatable event, responsive resize...');
 
          $.each(columns, function(index, visibility){
-            if (debugTable) console.debug('Column: '+index+', visibility: '+visibility);
             if (visibility == false) {
                // Update search filter input field value
                $('#filterrow th[data-index="'+index+'"]').css({

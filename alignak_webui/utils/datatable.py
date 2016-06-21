@@ -134,8 +134,6 @@ class Datatable(object):
         }
 
         for field, model in schema.iteritems():
-            ui_dm['model']['fields'].update({field: model})
-
             if field == '$':
                 self.commands = True
 
@@ -169,9 +167,23 @@ class Datatable(object):
                 continue
             logger.debug("get_data_model, visible field: %s = %s", field, model)
 
-            # Copy all model 'ui' dictionary fields and mange specific values for the field format
-            ui_dm['model']['fields'][field].update(model['ui'])
-            ui_dm['model']['fields'][field].update({'format': model.get('type', '')})
+            ui_dm['model']['fields'].update({field: {
+                'data': field,
+                'type': model.get('type', 'string'),
+                'allowed': ','.join(model.get('allowed', [])),
+                'defaultContent': model.get('default', ''),
+                'regex': model['ui'].get('regex', True),
+                'title': model['ui'].get('title', field),
+                'format': model['ui'].get('format', 'string'),
+                'width': model['ui'].get('width', '50px'),
+                'size': model['ui'].get('size', 10),
+                'visible': not model['ui'].get('hidden', False),
+                'orderable': model['ui'].get('orderable', True),
+                'editable': model['ui'].get('editable', False),
+                'searchable': model['ui'].get('searchable', True),
+            }})
+
+            # Specific format fields
             if 'allowed' in model:
                 ui_dm['model']['fields'][field].update(
                     {'format': 'select'}
@@ -180,31 +192,10 @@ class Datatable(object):
                 ui_dm['model']['fields'][field].update(
                     {'format': model['data_relation']['resource']}
                 )
+            logger.debug("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
 
             # Convert data model format to datatables' one ...
-            self.table_columns.append({
-                # 'name': field,
-                'data': field,
-                'regex': model.get('regex', True),
-                'title': model.get('title', field),
-                'type': model.get('type', 'string'),
-                'format': model.get('format', 'string'),
-                'allowed': ','.join(model.get('allowed', [])),
-                'defaultContent': model.get('default', ''),
-                'width': model.get('width', '500px'),
-                'size': model.get('size', 10),
-                'visible': not model.get('hidden', False),
-                'orderable': model.get('orderable', True),
-                'editable': model.get('editable', False),
-                'searchable': model.get('searchable', True),
-                # 'responsivePriority': model.get('priority', 10000),
-            })
-
-        if not ui_dm['model']['fields']:  # pragma: no cover, should never happen
-            logger.error(
-                "get_data_model, missing UI information in the backend data model"
-            )
-            return None
+            self.table_columns.append(ui_dm['model']['fields'][field])
 
         self.title = ui_dm['model']['page_title']
         self.visible = ui_dm['model']['visible']
@@ -213,7 +204,6 @@ class Datatable(object):
         self.editable = ui_dm['model']['editable']
         self.searchable = ui_dm['model']['searchable']
         self.responsive = ui_dm['model']['responsive']
-        # logger.debug("get_data_model, table columns: %s", self.table_columns)
 
     ##
     # Localization
@@ -431,31 +421,17 @@ class Datatable(object):
                 # Only take care of 'regex'
                 if 'regex' in column['search']:
                     if column['search']['regex']:
-                        if column_type == 'integer':
-                            searched_columns.append(
-                                {
-                                    column['data']: {
-                                        "$regex": ".*" + column['search']['value'] + ".*"
-                                    }
+                        searched_columns.append(
+                            {
+                                column['data']: {
+                                    "$regex": ".*" + column['search']['value'] + ".*"
                                 }
-                            )
-                        else:
-                            searched_columns.append(
-                                {
-                                    column['data']: {
-                                        "$regex": ".*" + column['search']['value'] + ".*"
-                                    }
-                                }
-                            )
+                            }
+                        )
                     else:
-                        if column_type == 'integer':
-                            searched_columns.append(
-                                {column['data']: column['search']['value']}
-                            )
-                        else:
-                            searched_columns.append(
-                                {column['data']: column['search']['value']}
-                            )
+                        searched_columns.append(
+                            {column['data']: column['search']['value']}
+                        )
 
             logger.info("backend search columns parameters: %s", searched_columns)
 
@@ -516,7 +492,7 @@ class Datatable(object):
         # Request objects from the backend ...
         logger.debug("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
-        logger.debug("table data, got: %s", items)
+        # logger.debug("table data, got: %s", items)
 
         # Total number of filtered records
         recordsFiltered = recordsTotal
@@ -568,7 +544,7 @@ class Datatable(object):
                             item[key] = Helper.get_html_business_impact(bo_object.business_impact)
 
                         # Specific fields type
-                        if field['type'] == 'datetime':
+                        if field['type'] == 'datetime' or field['format'] == 'date':
                             item[key] = bo_object.get_date(item[key])
 
                         if field['type'] == 'boolean':
