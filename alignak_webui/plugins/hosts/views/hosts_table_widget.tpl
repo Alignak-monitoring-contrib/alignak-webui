@@ -12,7 +12,7 @@
 %else:
    <table class="table table-condensed">
       <thead><tr>
-         <th width="40px"></th>
+         <th style="width: 40px"></th>
          <th>{{_('Host name')}}</th>
          <th>{{_('Business impact')}}</th>
          <th>{{_('Check command')}}</th>

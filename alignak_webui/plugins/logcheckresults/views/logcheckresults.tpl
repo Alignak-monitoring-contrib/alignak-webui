@@ -45,8 +45,8 @@
 
          <table class="table table-condensed" style="width: 100%">
             <thead><tr>
-               <th width="40px"></th>
-               <th>{{! _('<span class="fa fa-clock-o"></span>')}}</th>
+               <th class="col-md-1"></th>
+               <th class="col-md-2">{{! _('<span class="fa fa-clock-o"></span>')}}</th>
                <th>{{_('Host')}}</th>
                <th>{{_('Service')}}</th>
                <th>{{_('State')}}</th>

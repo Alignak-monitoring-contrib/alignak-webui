@@ -89,7 +89,9 @@
                   </td>
 
                   <td>
-                     <small>{{! lcr.logcheckresult.html_link if lcr.logcheckresult and lcr.logcheckresult!='logcheckresult' else ''}}</small>
+                     <small>
+                        <a href="{{ webui.get_url('Log check result table') }}?search=host:{{lcr.host.name}}"> {{_('View checks results log')}} </a>
+                     </small>
                   </td>
                </tr>
              %end

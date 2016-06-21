@@ -39,7 +39,7 @@
 
          <table class="table table-condensed">
             <thead><tr>
-               <th width="40px"></th>
+               <th style="width: 40px"></th>
                <th>{{_('Command name')}}</th>
                <th>{{_('Command line')}}</th>
                <th>{{_('Timeout')}}</th>

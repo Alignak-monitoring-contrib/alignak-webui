@@ -591,27 +591,26 @@ def get_host(host_id):
     if not host:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('Host does not exist'))
 
-    services = datamgr.get_services(search={'where': {'host':host_id}})
-    livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
+    services = datamgr.get_services(search={'where': {'host': host_id}})
+    livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name': '%s' % host.name}})
     if livestate:
         livestate = livestate[0]
     history = datamgr.get_history(
         search={
-            'where': {'host':host_id},
-            # 'embedded': {'host': 0, 'service': 1, 'logcheckresult': 1},
+            'where': {'host': host_id},
             'sort': '-_created'
         }
     )
     acks = datamgr.get_history(
         search={
-            'where': {'type': 'ack.*', 'host':host_id},
+            'where': {'type': 'ack.*', 'host': host_id},
             'embedded': {'host': 0, 'service': 1},
             'sort': '-date'
         }
     )
     downtimes = datamgr.get_history(
         search={
-            'where': {'type': 'downtime.*', 'host':host_id},
+            'where': {'type': 'downtime.*', 'host': host_id},
             'embedded': {'host': 0, 'service': 1},
             'sort': '-date'
         }

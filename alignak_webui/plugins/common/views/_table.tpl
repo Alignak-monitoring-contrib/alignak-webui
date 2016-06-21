@@ -72,24 +72,6 @@ table.dataTable tbody>tr>.selected {
       set_current_page("{{ webui.get_url(request.route.name) }}");
 
 
-      %if dt.commands:
-         /*
-          * Livestate actions
-          */
-         // Acknowledge
-         $('[data-action="acknowledge"]').on("click", function () {
-            console.debug("Required an acknowledge for:", $(this).data('element'))
-         });
-         // Recheck
-         $('[data-action="recheck"]').on("click", function () {
-            if (actions_logs) console.debug("Required a recheck for:", $(this).data('element'))
-         });
-         // Downtime
-         $('[data-action="downtime"]').on("click", function () {
-            if (actions_logs) console.debug("Required a downtime for:", $(this).data('element'))
-         });
-      %end
-
       %if dt.searchable:
       // Setup - add a text/select input to each search cell
       $('#tbl_{{object_type}} thead tr#filterrow th').each( function () {
@@ -603,6 +585,11 @@ table.dataTable tbody>tr>.selected {
                      extend: 'selected',
                      text: "Re-check",
                      action: function ( e, dt, button, config ) {
+                        var selected = dt.rows( { selected: true } );
+                        var count_selected = selected.indexes().length;
+                        if (count_selected == 0) {
+                           return;
+                        }
                         //display_modal("/acknowledge/form/add");
                      }
                   }

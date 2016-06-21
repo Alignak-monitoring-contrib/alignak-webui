@@ -1,7 +1,9 @@
 %setdefault('debug', False)
 %setdefault('services', None)
 %setdefault('livestate', None)
-%setdefault('logs', None)
+%setdefault('history', None)
+%setdefault('acks', None)
+%setdefault('downtimes', None)
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
@@ -362,7 +364,11 @@
                            <tr>
                               <td><strong>{{_('Status:')}}</strong></td>
                               <td>
-                                 {{! livestate.get_html_state()}}
+                                 %extra=None
+                                 %if livestate.acknowledged:
+                                 %extra = _(' and acknowledged')
+                                 %end
+                                 {{! livestate.get_html_state(extra=extra)}}
                               </td>
                            </tr>
                            <tr>
@@ -373,6 +379,7 @@
                                     data-content="{{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}"
                                     >
                                  {{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}
+                                 {{livestate.last_state_changed}}
                               </td>
                            </tr>
                         </tbody>
@@ -669,92 +676,12 @@
          <div class="tab-pane fade" id="comments">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %if host.comments:
-                  <table class="table table-condensed table-hover">
-                     <thead>
-                        <tr>
-                           <th>{{_('Author')}}</th>
-                           <th>{{_('Comments')}}</th>
-                           <th>{{_('Date')}}</th>
-                           <th></th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                     %for c in sorted(host.comments, key=lambda x: x.entry_time, reverse=True):
-                        <tr>
-                           <td>{{c.author}}</td>
-                           <td>{{c.comment}}</td>
-                           <td>{{Helper.print_date(c.entry_time)}}</td>
-                           <td>
-                              <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                                    data-type="action" action="delete-comment"
-                                    data-toggle="tooltip" data-placement="bottom" title="{{_('Delete this comment')}}"
-                                    data-element="{{host_id}}" data-comment="{{c.id}}"
-                                    >
-                                 <i class="fa fa-trash-o"></i>
-                              </button>
-                           </td>
-                        </tr>
-                     %end
-                     </tbody>
-                  </table>
+                  %if acks:
+                     %include("acks.tpl", acks=acks, layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
                   %else:
-                  <div class="alert alert-info">
-                     <p class="font-blue">{{_('No comments available.')}}</p>
-                  </div>
-                  %end
-
-                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                        data-type="action" action="add-comment"
-                        data-toggle="tooltip" data-placement="bottom" title="{{_('Add a comment for this host')}}"
-                        data-element="host_id"
-                        >
-                     <i class="fa fa-plus"></i>{{_('Add a comment')}}
-                  </button>
-                  %if host.comments:
-                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                        data-type="action" action="delete-comments"
-                        data-toggle="tooltip" data-placement="bottom" title="{{_('Delete all the comments for this host')}}"
-                        data-element="{{host_id}}"
-                        >
-                     <i class="fa fa-minus"></i>{{_('Delete all comments')}}
-                  </button>
-                  %end
-                  %if host.services:
-                      <br/><br/>
-                      <h4>{{_('Current host services comments:')}}</h4>
-                      <table class="table table-condensed table-hover">
-                         <thead>
-                            <tr>
-                               <th>{{_('Service')}}</th>
-                               <th>{{_('Author')}}</th>
-                               <th>{{_('Comment')}}</th>
-                               <th>{{_('Date')}}</th>
-                               <th></th>
-                            </tr>
-                         </thead>
-                         <tbody>
-                         %for s in host.services:
-                         %for c in sorted(s.comments, key=lambda x: x.entry_time, reverse=True):
-                            <tr>
-                               <td>{{s.name}}</td>
-                               <td>{{c.author}}</td>
-                               <td>{{c.comment}}</td>
-                               <td>{{Helper.print_date(c.entry_time)}}</td>
-                               <td>
-                                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                                        data-type="action" action="delete-comment"
-                                        data-toggle="tooltip" data-placement="bottom" title="Delete this comment"
-                                        data-element="{{host_id}}" data-comment="{{c.id}}"
-                                        >
-                                     <i class="fa fa-trash-o"></i>
-                                  </button>
-                               </td>
-                            </tr>
-                         %end
-                         %end
-                         </tbody>
-                      </table>
+                     <div class="alert alert-info">
+                        <p class="font-blue">{{_('No acknowledgements for this host.')}}</p>
+                     </div>
                   %end
                </div>
 
@@ -766,93 +693,12 @@
          <div class="tab-pane fade" id="downtimes">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %if host.downtimes:
-                  <table class="table table-condensed table-hover">
-                     <thead>
-                        <tr>
-                           <th>{{_('Author')}}</th>
-                           <th>{{_('Reason')}}</th>
-                           <th>{{_('Period')}}</th>
-                           <th></th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                     %for dt in sorted(host.downtimes, key=lambda dt: dt.entry_time, reverse=True):
-                        <tr>
-                           <td>{{dt.author}}</td>
-                           <td>{{dt.comment}}</td>
-                           <td>{{Helper.print_date(dt.start_time)}} - {{Helper.print_date(dt.end_time)}}</td>
-                           <td>
-                              <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                                    data-type="action" action="delete-downtime"
-                                    data-toggle="tooltip" data-placement="bottom" title="{{_('Delete the downtime [%s] for this host') % dt.id}}"
-                                    data-element="{{host_id}}" data-downtime="{{dt.id}}"
-                                    >
-                                 <i class="fa fa-trash-o"></i>
-                              </button>
-                           </td>
-                        </tr>
-                     %end
-                     </tbody>
-                  </table>
+                  %if downtimes:
+                     %include("downtimes.tpl", downtimes=downtimes, layout=False, pagination=Helper.get_pagination_control('history', len(downtimes), 0, len(downtimes)))
                   %else:
-                  <div class="alert alert-info">
-                     <p class="font-blue">{{_('No downtimes available.')}}</p>
-                  </div>
-                  %end
-
-                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                        data-type="action" action="schedule-downtime"
-                        data-toggle="tooltip" data-placement="bottom" title="{{_('Schedule a downtime for this host')}}"
-                        data-element="{{host_id}}"
-                        >
-                     <i class="fa fa-plus"></i> {{_('Schedule a downtime')}}
-                  </button>
-                  %if host.downtimes:
-                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                        data-type="action" action="delete-downtimes"
-                        data-toggle="tooltip" data-placement="bottom" title="{{_('Delete all the downtimes of this host')}}"
-                        data-element="{{host_id}}"
-                        >
-                     <i class="fa fa-minus"></i> {{_('Delete all downtimes')}}
-                  </button>
-                  %end
-
-                  %if host.services:
-                      <br/><br/>
-                      <h4>{{_('Current host services downtimes:')}}</h4>
-                      <table class="table table-condensed table-hover">
-                         <thead>
-                            <tr>
-                               <th>{{_('Service')}}</th>
-                               <th>{{_('Author')}}</th>
-                               <th>{{_('Reason')}}</th>
-                               <th>{{_('Period')}}</th>
-                               <th></th>
-                            </tr>
-                         </thead>
-                         <tbody>
-                         %for s in host.services:
-                         %for dt in sorted(s.downtimes, key=lambda dt: dt.entry_time, reverse=True):
-                            <tr>
-                               <td>{{s.name}}</td>
-                               <td>{{dt.author}}</td>
-                               <td>{{dt.comment}}</td>
-                               <td>{{Helper.print_date(dt.start_time)}} - {{Helper.print_date(dt.end_time)}}</td>
-                               <td>
-                                  <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                                        data-type="action" action="delete-downtime"
-                                        data-toggle="tooltip" data-placement="bottom" title="{{_('Delete the downtime [%s] for this service') % dt.id}}"
-                                        data-element="{{Helper.get_uri_name(s)}}" data-downtime="{{dt.id}}"
-                                        >
-                                     <i class="fa fa-trash-o"></i>
-                                  </button>
-                               </td>
-                            </tr>
-                         %end
-                         %end
-                         </tbody>
-                      </table>
+                     <div class="alert alert-info">
+                        <p class="font-blue">{{_('No downtimes for this host.')}}</p>
+                     </div>
                   %end
                </div>
             </div>
@@ -911,51 +757,9 @@
          <div class="tab-pane fade" id="graphs">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %# Set source as '' or module ui-graphite will try to fetch templates from default 'detail'
-                  %uris = []
-                  %if uris:
-                  <div class='well'>
-                     <!-- 5 standard time ranges to display ...  -->
-                     <ul id="graph_periods" class="nav nav-pills nav-justified">
-                       <li><a data-type="graph" data-period="4h" > {{_('4 hours')}}</a></li>
-                       <li><a data-type="graph" data-period="1d" > {{_('1 day')}}</a></li>
-                       <li><a data-type="graph" data-period="1w" > {{_('1 week')}}</a></li>
-                       <li><a data-type="graph" data-period="1m" > {{_('1 month')}}</a></li>
-                       <li><a data-type="graph" data-period="1y" > {{_('1 year')}}</a></li>
-                     </ul>
-                  </div>
-
-                  <div class='well'>
-                     <div id='real_graphs'>
-                     </div>
-                  </div>
-
-                  <script>
-                  $('a[href="#graphs"]').on('shown.bs.tab', function (e) {
-                     %uris = dict()
-                     %uris['4h'] = ""
-                     %uris['1d'] = ""
-                     %uris['1w'] = ""
-                     %uris['1m'] = ""
-                     %uris['1y'] = ""
-
-                     // let's create the html content for each time range
-                     var element='/host/{{host.name}}';
-                     %for period in ['4h', '1d', '1w', '1m', '1y']:
-
-                     html_graphes['{{period}}'] = '<p>';
-                     %for g in uris[period]:
-                     html_graphes['{{period}}'] +=  '<img src="{{g['img_src']}}" class="jcropelt"/> <p></p>';
-                     %end
-                     html_graphes['{{period}}'] += '</p>';
-
-                     %end
-
-                     // Set first graph
-                     current_graph = '4h';
-                     $('a[data-type="graph"][data-period="'+current_graph+'"]').trigger('click');
-                  });
-                  </script>
+                  %grafana = True
+                  %if grafana:
+                  <iframe src="http://94.76.229.155:92/dashboard-solo/db/my-dashboard?panelId=2&from=1466373600000&to=1466414828717" width="100%" height="200" frameborder="0"></iframe>
                   %else:
                   <div class="alert alert-info">
                       <div class="font-blue"><strong>{{_('No graphs are available.')}}</strong></div>
@@ -987,11 +791,11 @@
          <div class="tab-pane fade" id="history">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %if logs:
-                     %include("logcheckresults.tpl", logcheckresults=logs, layout=False, pagination=Helper.get_pagination_control('logcheckresult', len(logs), 0, len(logs)))
+                  %if history:
+                     %include("histories.tpl", histories=history, layout=False, pagination=Helper.get_pagination_control('history', len(history), 0, len(history)))
                   %else:
                      <div class="alert alert-info">
-                        <p class="font-blue">{{_('No history logs available.!')}}</p>
+                        <p class="font-blue">{{_('No history logs available.')}}</p>
                      </div>
                   %end
                </div>

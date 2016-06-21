@@ -41,7 +41,7 @@
 
          <table class="table table-condensed">
             <thead><tr>
-               <th width="40px"></th>
+               <th style="width: 40px"></th>
                <th>{{_('Timeperiod name')}}</th>
                <th>{{_('Alias')}}</th>
                <th>{{_('Date ranges and exclusions')}}</th>

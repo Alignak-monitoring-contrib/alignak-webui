@@ -45,7 +45,7 @@
 
          <table class="table table-condensed">
             <thead><tr>
-               <th width="40px"></th>
+               <th style="width: 40px"></th>
                <th>{{_('Host')}}</th>
                <th>{{_('Service')}}</th>
                <th>{{_('Check command')}}</th>

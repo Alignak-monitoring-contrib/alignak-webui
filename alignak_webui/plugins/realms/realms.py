@@ -67,7 +67,7 @@ schema['#'] = {
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Realm name'),
+        'title': _('Name'),
         'width': '10px',
         # This field is visible (default: False)
         'visible': True,
@@ -94,7 +94,7 @@ schema['definition_order'] = {
 schema['alias'] = {
     'type': 'string',
     'ui': {
-        'title': _('Realm alias'),
+        'title': _('Alias'),
         'visible': True
     },
 }

@@ -75,8 +75,6 @@ class Datatable(object):
         self.name_property = None
         self.status_property = None
 
-        self.commands = False
-
         self.get_data_model(schema)
 
     ##
@@ -134,9 +132,6 @@ class Datatable(object):
         }
 
         for field, model in schema.iteritems():
-            if field == '$':
-                self.commands = True
-
             if field == 'ui':
                 if 'uid' not in model['ui']:  # pragma: no cover - should never happen
                     logger.error(
@@ -411,11 +406,6 @@ class Datatable(object):
                     "search column '%s' for '%s'",
                     column['data'], column['search']['value']
                 )
-                column_type = 'string'
-                for field in self.table_columns:
-                    if field['data'] == column['data']:
-                        column_type = field['type']
-                        break
 
                 # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...
                 # Only take care of 'regex'
@@ -538,6 +528,7 @@ class Datatable(object):
                             item[key] = bo_object.html_link
 
                         if field['data'] == self.status_property:
+                            # if self.commands
                             item[key] = bo_object.get_html_state()
 
                         if field['data'] == "business_impact":
@@ -570,9 +561,6 @@ class Datatable(object):
                 # Very specific fields...
                 if self.responsive:
                     item['#'] = ''
-
-                if self.commands:
-                    item['$'] = Helper.get_html_commands_buttons(bo_object)
 
         # Prepare response
         rsp = {

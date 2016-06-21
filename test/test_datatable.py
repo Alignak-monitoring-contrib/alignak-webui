@@ -109,7 +109,7 @@ def teardown_module(module):
 
 from webtest import TestApp
 
-class test_datatable(unittest2.TestCase):
+class test_00_datatable(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -552,7 +552,7 @@ class test_02_datatable_realms(unittest2.TestCase):
             '<div id="realm_table">',
             "$('#tbl_realm').DataTable( {",
             '<table id="tbl_realm" class="table ',
-            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="#" data-type="string">#</th>',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Alias</th>',
@@ -580,11 +580,11 @@ class test_02_datatable_realms(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print response.json['data'][x]
                 assert response.json['data'][x]
-                assert response.json['data'][x]['name']
-                assert response.json['data'][x]['definition_order']
-                assert response.json['data'][x]['alias']
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
                 # assert 'hosts' in response.json['data'][x]
-                assert 'realms' in response.json['data'][x]
+                # assert 'realms' in response.json['data'][x] is not None
 
 
 class test_03_datatable_hosts(unittest2.TestCase):
@@ -647,8 +647,8 @@ class test_03_datatable_hosts(unittest2.TestCase):
         for x in range(0, items_count+0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
-                assert response.json['data'][x]
-                assert response.json['data'][x]['name']
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
 
 
 class test_04_datatable_hostgroups(unittest2.TestCase):
@@ -708,11 +708,11 @@ class test_04_datatable_hostgroups(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print response.json['data'][x]
                 assert response.json['data'][x]
-                assert response.json['data'][x]['name']
-                assert response.json['data'][x]['definition_order']
-                assert response.json['data'][x]['alias']
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
                 # assert 'hosts' in response.json['data'][x]
-                assert 'hostgroups' in response.json['data'][x]
+                assert 'hostgroups' in response.json['data'][x] is not None
 
 
 class test_05_datatable_servicegroups(unittest2.TestCase):
@@ -772,11 +772,9 @@ class test_05_datatable_servicegroups(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print response.json['data'][x]
                 assert response.json['data'][x]
-                assert response.json['data'][x]['name']
-                assert response.json['data'][x]['definition_order']
-                assert response.json['data'][x]['alias']
-                # assert 'services' in response.json['data'][x]
-                # assert 'servicegroups' in response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
 
 
 class test_06_datatable_users(unittest2.TestCase):
@@ -911,12 +909,11 @@ class test_07_datatable_livestate(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print response.json['data'][x]
                 assert response.json['data'][x]
-                assert response.json['data'][x]['#']
-                assert response.json['data'][x]['$']
-                assert response.json['data'][x]['type']
-                assert response.json['data'][x]['name']
-                assert response.json['data'][x]['state']
-                assert response.json['data'][x]['host']
+                assert response.json['data'][x]['#'] is not None
+                assert response.json['data'][x]['type'] is not None
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['state'] is not None
+                assert response.json['data'][x]['host'] is not None
                 if response.json['data'][x]['type'] == 'service':
                     assert response.json['data'][x]['service'] is not None
                 else:

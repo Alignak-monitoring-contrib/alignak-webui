@@ -57,7 +57,7 @@
 
          <table class="table table-condensed">
             <thead><tr>
-               <th width="40px"></th>
+               <th style="width: 40px"></th>
                <th>{{_('Name')}}</th>
                <th>{{_('Username')}}</th>
                <th>{{_('Administrator')}}</th>
