@@ -98,8 +98,8 @@ class Helper(object):
             seconds = int(time.time()) - int(timestamp)
 
         # If it's now, say it :)
-        if seconds == 0:
-            return _('Now')
+        if seconds < 3:
+            return _('Just now')
 
         in_future = False
 
@@ -146,7 +146,7 @@ class Helper(object):
         if x_elts >= 1:
             duration = duration[:x_elts]
 
-        # Maybe the user just want the duration
+        # Maybe the user just wants the duration
         if duration_only:
             return ' '.join(duration)
 
