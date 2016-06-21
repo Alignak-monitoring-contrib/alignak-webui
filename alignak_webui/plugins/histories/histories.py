@@ -63,13 +63,20 @@ schema['#'] = {
         # 'priority': 0,
     }
 }
+schema['_created'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Date'),
+        'visible': True
+    },
+}
 schema['host'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Host'),
         'width': '10',
         'visible': True,
-        'hidden': True,
+        'hidden': False,
     },
     'data_relation': {
         'resource': 'host',
@@ -82,101 +89,53 @@ schema['service'] = {
         'title': _('Service'),
         'width': '10px',
         'visible': True,
-        'hidden': True,
+        'hidden': False,
     },
     'data_relation': {
         'resource': 'service',
         'embeddable': True
     }
 }
-schema['state'] = {
+schema['user'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('User'),
+        'width': '10',
+        'visible': True,
+        'hidden': False,
+    },
+    'data_relation': {
+        'resource': 'user',
+        'embeddable': True
+    }
+}
+schema['type'] = {
     'type': 'string',
     'ui': {
-        'title': _('State'),
-        'visible': True,
-        'size': 5,
-        # 'priority': 0,
-    },
-    'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
-}
-schema['state_type'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('State type'),
-        'visible': True,
-        # 'priority': 0,
-    },
-    'allowed': ["HARD", "SOFT"]
-}
-schema['state_id'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('State identifier'),
-        'visible': True,
-        'hidden': True
-    },
-    'allowed': ['0', '1', '2', '3', '4']
-}
-schema['acknowledged'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Acknowledged'),
-        'visible': True,
-        'size': 2,
-    },
-}
-schema['last_check'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Last check'),
+        'title': _('Type'),
         'visible': True
     },
+    'allowed': ["check.result", "ack.add", "ack.delete", "downtime.add", "downtime.delete"]
 }
-schema['last_state'] = {
+schema['message'] = {
     'type': 'string',
     'ui': {
-        'title': _('Last state'),
+        'title': _('Message'),
         'visible': True,
-        'hidden': True
-    },
-    'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+    }
 }
-schema['output'] = {
-    'type': 'string',
+schema['check_result'] = {
+    'type': 'objectid',
     'ui': {
-        'title': _('Check output'),
-        'visible': True
-    },
-}
-schema['long_output'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Check long output'),
-        'visible': True
-    },
-}
-schema['perf_data'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Performance data'),
-        'visible': True
-    },
-}
-schema['latency'] = {
-    'type': 'float',
-    'ui': {
-        'title': _('Latency'),
+        'title': _('Check result'),
+        'width': '10',
         'visible': True,
-        'hidden': True
+        'hidden': False,
     },
-}
-schema['execution_time'] = {
-    'type': 'float',
-    'ui': {
-        'title': _('Execution time'),
-        'visible': True,
-        'hidden': True
-    },
+    'data_relation': {
+        'resource': 'logcheckresult',
+        'embeddable': True
+    }
 }
 
 
@@ -199,9 +158,9 @@ schema['ui'] = {
 }
 
 
-def get_logcheckresult_table():
+def get_history_table():
     """
-    Get the logcheckresult list and transform it as a table
+    Get the history list and transform it as a table
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
@@ -209,67 +168,44 @@ def get_logcheckresult_table():
     where = webui.helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
-    total = datamgr.get_objects_count('logcheckresult', search=where)
+    total = datamgr.get_objects_count('history', search=where)
 
     # Build table structure
-    dt = Datatable('logcheckresult', datamgr.backend, schema)
+    dt = Datatable('history', datamgr.backend, schema)
 
     title = dt.title
     if '%d' in title:
         title = title % total
 
     return {
-        'object_type': 'logcheckresult',
+        'object_type': 'history',
         'dt': dt,
         'title': request.query.get('title', title)
     }
 
 
-def get_logcheckresult_table_data():
+def get_history_table_data():
     """
-    Get the logcheckresult list and provide table data
+    Get the history list and provide table data
     """
     datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('logcheckresult', datamgr.backend, schema)
+    dt = Datatable('history', datamgr.backend, schema)
 
     response.status = 200
     response.content_type = 'application/json'
     return dt.table_data()
 
 
-def get_logcheckresult(element_id):
-    """
-    Display the element linked to a logcheckresult item
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    element = datamgr.get_logcheckresult({'where': {'_id': element_id}})
-    if not element:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Log check result element does not exist'))
-
-    element = element[0]
-    if element['type'] == 'host':
-        logger.debug("Log check result: %s %s %s", element, element.host.id, element.__dict__)
-        redirect('/host/' + element.host.id)
-    else:
-        logger.debug("Log check result: %s %s %s", element, element.host.id, element.__dict__)
-        redirect('/host/' + element.host.id + '#services')
-
-
 pages = {
-    get_logcheckresult: {
-        'name': 'Log check result',
-        'route': '/logcheckresult/<element_id>'
-    },
-    get_logcheckresult_table: {
-        'name': 'Log check result table',
-        'route': '/logcheckresult_table',
+    get_history_table: {
+        'name': 'History table',
+        'route': '/history_table',
         'view': '_table'
     },
 
-    get_logcheckresult_table_data: {
-        'name': 'Log check result table data',
-        'route': '/logcheckresult_table_data',
+    get_history_table_data: {
+        'name': 'History table data',
+        'route': '/history_table_data',
         'method': 'POST'
     },
 }

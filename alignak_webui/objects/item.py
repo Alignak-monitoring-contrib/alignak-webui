@@ -28,7 +28,7 @@
 """
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import locale
 
@@ -43,6 +43,8 @@ from alignak_webui import get_app_config, _
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
 from alignak_backend_client.client import BackendException
+
+from alignak_webui.utils.helper import Helper
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -888,7 +890,7 @@ class Item(object):
         Get Item html link
         """
         return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(
-            text=None, title=self.alias
+            text=self.alias, title=self.alias
         ))
 
     @name.setter
@@ -997,15 +999,20 @@ class Item(object):
         return ItemState().get_html_state(object_type, object_item,
                                           extra, icon, text, title, disabled)
 
-    def get_date(self, _date, fmt=None):
+    def get_date(self, _date, fmt=None, duration=False):
         """
-        Format the provided `_date` according to the specified format.
+        Format the provided `_date` as a string according to the specified format.
 
         If no date format is specified, it uses the one defined in the ItemState object that is
         the date format defined in the application configuration.
+
+        If duration is True, the date is displayed as a pretty date: 1 day 12 minutes ago ...
         """
         if _date == self.__class__._default_date:
             return _('Never dated!')
+
+        if duration:
+            return Helper.print_duration(_date, duration_only=False, x_elts=0)
 
         if not fmt:
             item_state = ItemState()
@@ -1019,6 +1026,7 @@ class Item(object):
         _date = _date.replace(tzinfo=item_state.tz_from)
         # Convert to required time zone
         _date = _date.astimezone(item_state.tz_to)
+
         if fmt:
             return _date.strftime(fmt)
 
@@ -1695,7 +1703,7 @@ class Log(Item):
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'loghost'
+    _type = 'logcheckresult'
     # _cache is a list of created objects
     _cache = {}
 
@@ -1715,7 +1723,7 @@ class Log(Item):
         Create a log (called only once when an object is newly created)
         """
         self._linked_host = 'host'
-        # self._linked_service = 'service'
+        self._linked_service = 'service'
 
         super(Log, self)._create(params, date_format)
 
@@ -1735,6 +1743,107 @@ class Log(Item):
     def host(self):
         """ Return linked object """
         return self._linked_host
+
+    @property
+    def service(self):
+        """ Return linked object """
+        return self._linked_service
+
+    def get_check_date(self, timestamp=False, fmt=None, duration=False):
+        """
+        Returns a string formatted data
+        """
+        if self.last_check == self.__class__._default_date and not timestamp:
+            return _('Never checked!')
+
+        if timestamp:
+            return self.last_check
+
+        return super(Log, self).get_date(self.last_check, fmt, duration)
+
+
+class History(Item):
+    """
+    Object representing a History item (host or service)
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'history'
+    # _cache is a list of created objects
+    _cache = {}
+
+    # Status property
+    status_property = 'type'
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new History
+        """
+        return super(History, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        # Not that bad ... because _create is called from __new__
+        # pylint: disable=attribute-defined-outside-init
+        """
+        Create a History (called only once when an object is newly created)
+        """
+        self._linked_host = 'host'
+        self._linked_service = 'service'
+        self._linked_user = 'user'
+        self._linked_logcheckresult = 'logcheckresult'
+
+        super(History, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a History (called every time an object is updated)
+        """
+        super(History, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a History (called every time an object is invoked)
+        """
+        super(History, self).__init__(params)
+
+    @property
+    def date(self):
+        """ Return linked object """
+        return self._created
+
+    @property
+    def host(self):
+        """ Return linked object """
+        return self._linked_host
+
+    @property
+    def service(self):
+        """ Return linked object """
+        return self._linked_service
+
+    @property
+    def user(self):
+        """ Return linked object """
+        return self._linked_user
+
+    @property
+    def logcheckresult(self):
+        """ Return linked object """
+        return self._linked_logcheckresult
+
+    def get_check_date(self, timestamp=False, fmt=None, duration=False):
+        """
+        Returns a string formatted data
+        """
+        if self.date == self.__class__._default_date and not timestamp:
+            return _('Never dated!')
+
+        if timestamp:
+            return self.date
+
+        return super(History, self).get_date(self.date, fmt, duration)
 
 
 class Command(Item):

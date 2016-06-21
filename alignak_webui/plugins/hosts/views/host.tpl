@@ -1,4 +1,7 @@
 %setdefault('debug', False)
+%setdefault('services', None)
+%setdefault('livestate', None)
+%setdefault('logs', None)
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
@@ -8,9 +11,6 @@
 <!-- Host view -->
 <div id="host">
    %host_id = host.id
-   %services = datamgr.get_services(search={'where': {'host':host_id}})
-   %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
-   %livestate = livestate[0] if livestate else None
 
    %if debug:
    <div class="panel-group">
@@ -987,11 +987,13 @@
          <div class="tab-pane fade" id="history">
             <div class="panel panel-default">
                <div class="panel-body">
-                  <div id="inner_history" data-element='{{host.name}}'>
+                  %if logs:
+                     %include("logcheckresults.tpl", logcheckresults=logs, layout=False, pagination=Helper.get_pagination_control('logcheckresult', len(logs), 0, len(logs)))
+                  %else:
                      <div class="alert alert-info">
-                        <p class="font-blue">{{_('No history is available.')}}</p>
+                        <p class="font-blue">{{_('No history logs available.!')}}</p>
                      </div>
-                  </div>
+                  %end
                </div>
             </div>
          </div>

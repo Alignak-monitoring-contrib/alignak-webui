@@ -212,7 +212,7 @@ schema['ui'] = {
         'orderable': True,
         'editable': False,
         'selectable': True,
-        'searchable': True,
+        'searchable': False,
         'responsive': True
     }
 }

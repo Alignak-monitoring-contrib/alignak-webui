@@ -4,23 +4,6 @@
  * Items states classes used to colour icons ...
  */
 
-/* Commands execution status */
-.item_evt_command.ok {
-    color: #2ecc71;
- }
-.item_evt_command.warning {
-    color: #f39c12;
-}
-.item_evt_command.critical {
-    color: #c0392b;
-}
-.item_evt_command.unknown {
-    color: #3498db;
-}
-.item_evt_command.not_executed {
-    color: #95a5a6;
-}
-
 /* Teals */
 .item_realm,
 .turquoise { color: #1abc9c; }
@@ -49,7 +32,15 @@
 .item_hostDowntime,
 .item_serviceDowntime,
 .item_livestateDowntime,
+.item_historyCheckRequest,
+.item_historyCheckRequested,
+.historyAckAdd,
+.historyAckProcessed,
+.historyAckDelete,
 .amethyst { color: #9b59b6; }
+.historyDowntimeAdd,
+.historyDowntimeProcessed,
+.historyDowntimeDelete,
 .wisteria { color: #8e44ad; }
 
 /* Blacks */
@@ -59,7 +50,9 @@
 .midnight-blue { color: #2c3e50; }
 
 /* Yellows */
-.sunflower { color: #f1c40f; }
+.sunflower,
+.item_historyCheckResult
+ { color: #f1c40f; }
 .orange { color: #f39c12; }
 
 /* Oranges */

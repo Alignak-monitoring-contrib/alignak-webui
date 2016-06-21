@@ -46,8 +46,8 @@
          <table class="table table-condensed">
             <thead><tr>
                <th width="40px"></th>
-               <th>{{_('Service description')}}</th>
-               <th>{{_('Host name')}}</th>
+               <th>{{_('Host')}}</th>
+               <th>{{_('Service')}}</th>
                <th>{{_('Check command')}}</th>
                <th>{{_('Active checks enabled')}}</th>
                <th>{{_('Passive checks enabled')}}</th>
@@ -68,11 +68,11 @@
                   </td>
 
                   <td>
-                     <small>{{service.name}}</small>
+                     <small>{{! service.host.html_link}}</small>
                   </td>
 
                   <td>
-                     <small>{{! service.host.html_link}}</small>
+                     <small>{{! service.html_link}}</small>
                   </td>
 
                   <td>

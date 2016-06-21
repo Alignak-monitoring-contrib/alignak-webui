@@ -90,9 +90,11 @@ def setup_module(module):
         print ("")
         print ("populate backend content")
         fh = open("NUL","w")
-        exit_code = subprocess.call(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
+        q = subprocess.Popen(
+            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'),
+            stdout=FNULL, stderr=FNULL
         )
+        (stdoutdata, stderrdata) = q.communicate() # now wait
         assert exit_code == 0
 
 
@@ -446,7 +448,7 @@ class test_datatable(unittest2.TestCase):
         assert len(response.json['data']) == 5
 
 
-class test_datatable_commands(unittest2.TestCase):
+class test_01_datatable_commands(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -515,7 +517,77 @@ class test_datatable_commands(unittest2.TestCase):
                 # assert response.json['data'][x]['ui'] == True
 
 
-class test_datatable_hosts(unittest2.TestCase):
+class test_02_datatable_realms(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_01_realms(self):
+        print ''
+        print 'test realm table'
+
+        global items_count
+
+        print 'get page /realm_table'
+        response = self.app.get('/realm_table')
+        response.mustcontain(
+            '<div id="realm_table">',
+            "$('#tbl_realm').DataTable( {",
+            '<table id="tbl_realm" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="default" data-type="boolean">Default realm</th>',
+            '<th data-name="_level" data-type="integer">Level</th>',
+            '<th data-name="_parent" data-type="objectid">Parent</th>',
+            '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
+            '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
+            '<th data-name="services_critical_threshold" data-type="integer">Services critical threshold</th>',
+            '<th data-name="services_warning_threshold" data-type="integer">Services warning threshold</th>',
+            '<th data-name="globals_critical_threshold" data-type="integer">Global critical threshold</th>',
+            '<th data-name="globals_warning_threshold" data-type="integer">Global warning threshold</th>'
+        )
+
+        response = self.app.post('/realm_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name']
+                assert response.json['data'][x]['definition_order']
+                assert response.json['data'][x]['alias']
+                # assert 'hosts' in response.json['data'][x]
+                assert 'realms' in response.json['data'][x]
+
+
+class test_03_datatable_hosts(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -579,7 +651,7 @@ class test_datatable_hosts(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
-class test_datatable_hostgroups(unittest2.TestCase):
+class test_04_datatable_hostgroups(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -643,7 +715,7 @@ class test_datatable_hostgroups(unittest2.TestCase):
                 assert 'hostgroups' in response.json['data'][x]
 
 
-class test_datatable_servicegroups(unittest2.TestCase):
+class test_05_datatable_servicegroups(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -707,7 +779,7 @@ class test_datatable_servicegroups(unittest2.TestCase):
                 # assert 'servicegroups' in response.json['data'][x]
 
 
-class test_datatable_users(unittest2.TestCase):
+class test_06_datatable_users(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -762,7 +834,7 @@ class test_datatable_users(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
-class test_datatable_livestate(unittest2.TestCase):
+class test_07_datatable_livestate(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -851,7 +923,7 @@ class test_datatable_livestate(unittest2.TestCase):
                     assert response.json['data'][x]['service'] is None
 
 
-class test_datatable_log(unittest2.TestCase):
+class test_08_datatable_log(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)

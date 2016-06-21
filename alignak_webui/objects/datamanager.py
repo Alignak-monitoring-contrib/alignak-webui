@@ -42,7 +42,7 @@ from alignak_webui.objects.backend import BackendConnection
 # Import all objects we will need
 from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import Command, Realm, TimePeriod
-from alignak_webui.objects.item import LiveState, LiveSynthesis
+from alignak_webui.objects.item import LiveState, LiveSynthesis, Log, History
 from alignak_webui.objects.item import User, Host, Service
 from alignak_webui.objects.item import UserGroup, HostGroup, ServiceGroup
 
@@ -1111,7 +1111,7 @@ class DataManager(object):
     ##
     # Logs
     ##
-    def get_log(self, search=None):
+    def get_logcheckresult(self, search=None):
         """ Get log for all elements
 
             Elements in the log which type is 'host' or 'service'
@@ -1129,14 +1129,14 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
-            logger.info("get_log, search: %s", search)
-            items = self.find_object('log', search)
-            logger.info("get_log, got: %d elements, %s", len(items), items)
+            logger.info("get_logcheckresult, search: %s", search)
+            items = self.find_object('logcheckresult', search)
+            logger.info("get_logcheckresult, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
-            logger.debug("get_log, none found")
+            logger.debug("get_logcheckresult, none found")
 
-    def get_log_hosts(self, search=None):
+    def get_logcheckresult_hosts(self, search=None):
         """ Get log for hosts
 
             Elements in the log which type is 'host'
@@ -1158,25 +1158,14 @@ class DataManager(object):
             search['where'].update({'type': 'host'})
 
         try:
-            logger.info("get_log_hosts, search: %s", search)
-            items = self.find_object('log', search)
-            logger.info("get_log_hosts, got: %d elements, %s", len(items), items)
+            logger.info("get_logcheckresult_hosts, search: %s", search)
+            items = self.find_object('logcheckresult', search)
+            logger.info("get_logcheckresult_hosts, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
-            logger.debug("get_log_hosts, none found")
+            logger.debug("get_logcheckresult_hosts, none found")
 
-    def get_log_host(self, search):
-        """ Get a host log """
-
-        if isinstance(search, basestring):
-            search = {'max_results': 1, 'where': {'_id': search}}
-        elif 'max_results' not in search:
-            search.update({'max_results': 1})
-
-        items = self.get_log_hosts(search=search)
-        return items[0] if items else None
-
-    def get_log_services(self, search=None):
+    def get_logcheckresult_services(self, search=None):
         """ Get log for services
 
             Elements in the livestat which service is not null (eg. services)
@@ -1198,23 +1187,98 @@ class DataManager(object):
             search['where'].update({'type': 'service'})
 
         try:
-            logger.info("get_log_services, search: %s", search)
-            items = self.find_object('log', search)
-            logger.info("get_log_services, got: %d elements, %s", len(items), items)
+            logger.info("get_logcheckresult_services, search: %s", search)
+            items = self.find_object('logcheckresult', search)
+            logger.info("get_logcheckresult_services, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
-            logger.debug("get_log_services, none found")
+            logger.debug("get_logcheckresult_services, none found")
 
-    def get_log_service(self, search):
-        """ Get a service log """
+    ##
+    # Logs
+    ##
+    def get_history(self, search=None):
+        """ Get log for all elements
 
-        if isinstance(search, basestring):
-            search = {'max_results': 1, 'where': {'_id': search}}
-        elif 'max_results' not in search:
-            search.update({'max_results': 1})
+            Elements in the log which type is 'host' or 'service'
 
-        items = self.get_log_services(search=search)
-        return items[0] if items else None
+            :param search: backend request search
+            :type search: dic
+            :return: list of hosts/services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1, 'service': 1, 'check_result': 1}})
+
+        try:
+            logger.info("get_history, search: %s", search)
+            items = self.find_object('history', search)
+            logger.info("get_history, got: %d elements, %s", len(items), items)
+            return items
+        except ValueError:
+            logger.debug("get_history, none found")
+
+    def get_history_hosts(self, search=None):
+        """ Get log for hosts
+
+            Elements in the log which type is 'host'
+
+            :param search: backend request search
+            :type search: dic
+            :param all_elements: get all elements (True) or apply default pagination
+            :type all_elements: bool
+            :return: list of hosts live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1}})
+        if 'where' in search:
+            search['where'].update({'type': 'host'})
+
+        try:
+            logger.info("get_history_hosts, search: %s", search)
+            items = self.find_object('logcheckresult', search)
+            logger.info("get_history_hosts, got: %d elements, %s", len(items), items)
+            return items
+        except ValueError:
+            logger.debug("get_history_hosts, none found")
+
+    def get_history_services(self, search=None):
+        """ Get log for services
+
+            Elements in the livestat which service is not null (eg. services)
+
+            :param search: backend request search
+            :type search: dic
+            :param all_elements: get all elements (True) or apply default pagination
+            :type all_elements: bool
+            :return: list of services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'service': 1}})
+        if 'where' in search:
+            search['where'].update({'type': 'service'})
+
+        try:
+            logger.info("get_history_services, search: %s", search)
+            items = self.find_object('logcheckresult', search)
+            logger.info("get_history_services, got: %d elements, %s", len(items), items)
+            return items
+        except ValueError:
+            logger.debug("get_history_services, none found")
 
     ##
     # Commands

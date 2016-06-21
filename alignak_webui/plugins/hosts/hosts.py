@@ -590,9 +590,23 @@ def get_host(host_id):
     if not host:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('Host does not exist'))
 
+    services = datamgr.get_services(search={'where': {'host':host_id}})
+    livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
+    if livestate:
+        livestate = livestate[0]
+    logs = datamgr.get_log(
+        search={
+            'where': {'host':host_id},
+            'embedded': {'host': 0, 'service': 1},
+            'sort': '-_id'
+        }
+    )
+
     return {
-        'host_id': host_id,
         'host': host,
+        'services': services,
+        'livestate': livestate,
+        'logs': logs,
         'title': request.query.get('title', _('Host view'))
     }
 
