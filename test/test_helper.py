@@ -105,18 +105,22 @@ class test_helper(unittest2.TestCase):
         # Now, default format
         s = helper.print_duration(now)
         print "Result:", s
-        self.assert_(s == 'Now')
-
-        # In the past ...
+        self.assert_(s == 'Just now')
         # 2s ago
         s = helper.print_duration(now - 2)
         print "Result:", s
-        self.assert_(s == '2s ago')
+        self.assert_(s == 'Just now')
+
+        # In the past ...
+        # 4s ago
+        s = helper.print_duration(now - 4)
+        print "Result:", s
+        self.assert_(s == '4s ago')
 
         # Only the duration string
-        s = helper.print_duration(now - 2, duration_only=True)
+        s = helper.print_duration(now - 4, duration_only=True)
         print "Result:", s
-        self.assert_(s == '2s')
+        self.assert_(s == '4s')
 
         # Got 2minutes
         s = helper.print_duration(now - 120)
@@ -174,25 +178,29 @@ class test_helper(unittest2.TestCase):
         self.assert_(s == '2M 2w 2d 2h 2m ago')
 
         # Not a timestamp but a duration !
-        s = helper.print_duration(2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=2, duration_only=True, ts_is_duration=True)
+        s = helper.print_duration(2 + 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56, x_elts=2, duration_only=True, ts_is_duration=True)
         print "Result:", s
         self.assert_(s == '2M 2w')
-        s = helper.print_duration(2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=6, duration_only=True, ts_is_duration=True)
+        s = helper.print_duration(2 + 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56, x_elts=6, duration_only=True, ts_is_duration=True)
         print "Result:", s
-        self.assert_(s == '2M 2w 2d 2h 1m 58s')
+        self.assert_(s == '2M 2w 2d 2h 2m 2s')
 
         # Return to the future
         # Get the 2s ago
         s = helper.print_duration(now + 2)
         print "Result:", s
-        self.assert_(s == 'in 2s')
+        self.assert_(s == 'Very soon')
 
-        # Got 2minutes
+        s = helper.print_duration(now + 4)
+        print "Result:", s
+        self.assert_(s == 'in 4s')
+
+        # Go 2 minutes
         s = helper.print_duration(now + 120)
         print "Result:", s
         self.assert_(s == 'in 2m')
 
-        # Go 2hours ago
+        # Go 2 hours ago
         s = helper.print_duration(now + 3600*2)
         print "Result:", s
         self.assert_(s == 'in 2h')

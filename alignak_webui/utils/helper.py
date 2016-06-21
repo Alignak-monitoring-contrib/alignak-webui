@@ -99,7 +99,10 @@ class Helper(object):
 
         # If it's now, say it :)
         if seconds < 3:
-            return _('Just now')
+            if seconds < 0 and seconds > -4:
+                return _('Very soon')
+            if seconds >= 0:
+                return _('Just now')
 
         in_future = False
 
