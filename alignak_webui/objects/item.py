@@ -42,9 +42,9 @@ from alignak_webui import get_app_config, _
 
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
-from alignak_backend_client.client import BackendException
-
 from alignak_webui.utils.helper import Helper
+
+from alignak_backend_client.client import BackendException
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -261,12 +261,12 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             res_icon_back = cfg_state_view['back']
             res_icon_front = cfg_state_view['front']
 
-            res_extra = "fa-inverse"
+            res_extra = ""
             if extra:
                 res_extra = extra
             res_opacity = ""
             if extra:
-                res_opacity = 'style="opacity: 0.5"'
+                res_opacity = 'style="opacity: 0.7"'
 
             # Assembling ...
             item_id = object_item.id
