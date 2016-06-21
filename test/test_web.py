@@ -842,6 +842,36 @@ class tests_3(unittest2.TestCase):
             '<div id="minemap">'
         )
 
+    def test_3_10_hostgroups(self):
+        print ''
+        print 'test hostgroups'
+
+        print 'get page /hostgroups'
+        response = self.app.get('/hostgroups')
+        response.mustcontain(
+            '<div id="hostgroup_tree_view">',
+        )
+
+    def test_3_10_servicegroups(self):
+        print ''
+        print 'test servicegroups'
+
+        print 'get page /servicegroups'
+        response = self.app.get('/servicegroups')
+        response.mustcontain(
+            '<div id="servicegroup_tree_view">',
+        )
+
+    def test_3_11_realms(self):
+        print ''
+        print 'test realms'
+
+        print 'get page /realms'
+        response = self.app.get('/realms')
+        response.mustcontain(
+            '<div id="realm_tree_view">',
+        )
+
 
 class tests_4_target_user(unittest2.TestCase):
 
