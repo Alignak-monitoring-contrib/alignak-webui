@@ -217,7 +217,7 @@ def get_users_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('user', search=where)
@@ -232,6 +232,7 @@ def get_users_table():
     return {
         'object_type': 'user',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 

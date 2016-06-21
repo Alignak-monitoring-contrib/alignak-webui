@@ -34,6 +34,7 @@ from bottle import request, response, redirect
 from alignak_webui.objects.item import Item
 
 from alignak_webui.utils.datatable import Datatable
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -165,7 +166,7 @@ def get_history_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('history', search=where)
@@ -180,6 +181,7 @@ def get_history_table():
     return {
         'object_type': 'history',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 

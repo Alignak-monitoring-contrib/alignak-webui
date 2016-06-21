@@ -171,7 +171,7 @@ def get_servicegroup_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('servicegroup', search=where)
@@ -186,6 +186,7 @@ def get_servicegroup_table():
     return {
         'object_type': 'servicegroup',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 

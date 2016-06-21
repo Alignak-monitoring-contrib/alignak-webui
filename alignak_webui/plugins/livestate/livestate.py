@@ -34,6 +34,7 @@ from bottle import request, response, redirect
 from alignak_webui.objects.item import Item
 
 from alignak_webui.utils.datatable import Datatable
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -156,6 +157,14 @@ schema['definition_order'] = {
         'orderable': False,
     },
 }
+schema['last_check'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Last check'),
+        'format': 'date',
+        'visible': True
+    },
+}
 schema['business_impact'] = {
     'type': 'integer',
     'ui': {
@@ -210,13 +219,6 @@ schema['downtime'] = {
         'width': '20px',
     },
 }
-schema['last_check'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Last check'),
-        'visible': True
-    },
-}
 schema['output'] = {
     'type': 'string',
     'ui': {
@@ -265,7 +267,7 @@ schema['next_check'] = {
 schema['last_state_changed'] = {
     'type': 'integer',
     'ui': {
-        'title': _('Last check'),
+        'title': _('Last state changed'),
         'visible': True,
         'hidden': True
     },
@@ -332,7 +334,7 @@ def get_livestate_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('livestate', search=where)
@@ -347,6 +349,7 @@ def get_livestate_table():
     return {
         'object_type': 'livestate',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 

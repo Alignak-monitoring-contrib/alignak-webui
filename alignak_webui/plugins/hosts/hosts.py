@@ -549,7 +549,7 @@ def get_hosts_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('host', search=where)
@@ -564,6 +564,7 @@ def get_hosts_table():
     return {
         'object_type': 'host',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 
@@ -594,11 +595,25 @@ def get_host(host_id):
     livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
     if livestate:
         livestate = livestate[0]
-    logs = datamgr.get_log(
+    history = datamgr.get_history(
         search={
             'where': {'host':host_id},
+            # 'embedded': {'host': 0, 'service': 1, 'logcheckresult': 1},
+            'sort': '-_created'
+        }
+    )
+    acks = datamgr.get_history(
+        search={
+            'where': {'type': 'ack.*', 'host':host_id},
             'embedded': {'host': 0, 'service': 1},
-            'sort': '-_id'
+            'sort': '-date'
+        }
+    )
+    downtimes = datamgr.get_history(
+        search={
+            'where': {'type': 'downtime.*', 'host':host_id},
+            'embedded': {'host': 0, 'service': 1},
+            'sort': '-date'
         }
     )
 
@@ -606,7 +621,9 @@ def get_host(host_id):
         'host': host,
         'services': services,
         'livestate': livestate,
-        'logs': logs,
+        'history': history,
+        'acks': acks,
+        'downtimes': downtimes,
         'title': request.query.get('title', _('Host view'))
     }
 

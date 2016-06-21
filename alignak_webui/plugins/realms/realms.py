@@ -225,7 +225,7 @@ def get_realm_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('realm', search=where)
@@ -240,6 +240,7 @@ def get_realm_table():
     return {
         'object_type': 'realm',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 

@@ -34,6 +34,7 @@ from bottle import request, response, redirect
 from alignak_webui.objects.item import Item
 
 from alignak_webui.utils.datatable import Datatable
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -62,6 +63,14 @@ schema['#'] = {
         # Default is 10000
         # 'priority': 0,
     }
+}
+schema['last_check'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Last check'),
+        'format': 'date',
+        'visible': True
+    },
 }
 schema['host'] = {
     'type': 'objectid',
@@ -133,19 +142,18 @@ schema['execution_time'] = {
         'hidden': True
     },
 }
+schema['state_changed'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('State changed'),
+        'visible': True,
+    },
+}
 schema['acknowledged'] = {
     'type': 'boolean',
     'ui': {
         'title': _('Acknowledged'),
         'visible': True,
-        'size': 2,
-    },
-}
-schema['last_check'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Last check'),
-        'visible': True
     },
 }
 schema['last_state'] = {
@@ -156,6 +164,24 @@ schema['last_state'] = {
         'hidden': True
     },
     'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+}
+schema['last_state_type'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Last state type'),
+        'visible': True,
+        'hidden': True
+    },
+    'allowed': ["HARD", "SOFT"]
+}
+schema['last_state_id'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Last state identifier'),
+        'visible': True,
+        'hidden': True
+    },
+    'allowed': ['0', '1', '2', '3', '4']
 }
 schema['output'] = {
     'type': 'string',
@@ -206,7 +232,7 @@ def get_logcheckresult_table():
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('logcheckresult', search=where)
@@ -221,6 +247,7 @@ def get_logcheckresult_table():
     return {
         'object_type': 'logcheckresult',
         'dt': dt,
+        'where': where,
         'title': request.query.get('title', title)
     }
 
