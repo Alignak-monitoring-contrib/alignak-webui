@@ -855,8 +855,7 @@ class test_07_datatable_livestate(unittest2.TestCase):
     def tearDown(self):
         print ""
 
-    # @unittest2.skip("Do not known why ...")
-    def test_04_livestate(self):
+    def test_livestate(self):
         print ''
         print 'test livestate table'
 
@@ -921,7 +920,71 @@ class test_07_datatable_livestate(unittest2.TestCase):
                     assert response.json['data'][x]['service'] is None
 
 
-class test_08_datatable_log(unittest2.TestCase):
+class test_08_datatable_timeperiod(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_timeperiod(self):
+        print ''
+        print 'test timeperiod table'
+
+        global items_count
+
+        print 'get page /timeperiods_table'
+        response = self.app.get('/timeperiods_table')
+        response.mustcontain(
+            '<div id="timeperiod_table">',
+            "$('#tbl_timeperiod').DataTable( {",
+            '<table id="tbl_timeperiod" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="is_active" data-type="boolean">Currently active</th>',
+            '<th data-name="dateranges" data-type="list">Date ranges</th>',
+            '<th data-name="exclude" data-type="list">Excluded</th>'
+        )
+
+        response = self.app.post('/timeperiod_table_data')
+        print response
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print response.json['data'][x]
+                assert response.json['data'][x]
+                assert response.json['data'][x]['#'] is not None
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['alias'] is not None
+                assert response.json['data'][x]['is_active'] is not None
+
+
+class test_09_datatable_log(unittest2.TestCase):
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -979,5 +1042,59 @@ class test_08_datatable_log(unittest2.TestCase):
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
         # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+
+        # No data in the test backend
+
+class test_10_datatable_history(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_history(self):
+        print ''
+        print 'test history table'
+
+        global items_count
+
+        print 'get page /historys_table'
+        response = self.app.get('/history_table')
+        response.mustcontain(
+            '<div id="history_table">',
+            "$('#tbl_history').DataTable( {",
+            '<table id="tbl_history" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="_created" data-type="integer">Date</th>',
+            '<th data-name="host" data-type="objectid">Host</th>',
+            '<th data-name="service" data-type="objectid">Service</th>',
+            '<th data-name="user" data-type="objectid">User</th>',
+            '<th data-name="type" data-type="string">Type</th>',
+            '<th data-name="message" data-type="string">Message</th>',
+            '<th data-name="check_result" data-type="objectid">Check result</th>'
+        )
+
+        response = self.app.post('/history_table_data')
+        print response
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
 
         # No data in the test backend
