@@ -69,7 +69,7 @@ schema['#'] = {
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Timeperiod name'),
+        'title': _('Name'),
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
