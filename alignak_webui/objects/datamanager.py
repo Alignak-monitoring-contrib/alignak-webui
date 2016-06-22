@@ -1202,9 +1202,7 @@ class DataManager(object):
     # Logs
     ##
     def get_history(self, search=None):
-        """ Get log for all elements
-
-            Elements in the log which type is 'host' or 'service'
+        """ Get history
 
             :param search: backend request search
             :type search: dic
@@ -1214,14 +1212,14 @@ class DataManager(object):
         if not search:
             search = {}
         if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
+            search.update({'sort': '-_id'})
         if 'embedded' not in search:
             search.update({'embedded': {'host': 1, 'service': 1, 'check_result': 1}})
 
         try:
             logger.info("get_history, search: %s", search)
             items = self.find_object('history', search)
-            logger.info("get_history, got: %d elements, %s", len(items), items)
+            # logger.info("get_history, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_history, none found")
@@ -1355,6 +1353,7 @@ class DataManager(object):
         try:
             logger.info("get_users, search: %s", search)
             items = self.find_object('user', search)
+            #logger.info("get_users, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_users, none found")
@@ -1419,6 +1418,7 @@ class DataManager(object):
         try:
             logger.info("get_realms, search: %s", search)
             items = self.find_object('realm', search)
+            # logger.info("get_realms, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_realms, none found")
@@ -1447,6 +1447,7 @@ class DataManager(object):
         try:
             logger.info("get_timeperiods, search: %s", search)
             items = self.find_object('timeperiod', search)
+            # logger.info("get_timeperiods, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_timeperiods, none found")

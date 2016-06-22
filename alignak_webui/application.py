@@ -563,7 +563,7 @@ class WebUI(object):
     """
     WebUI application
     """
-    def __init__(self, config):
+    def __init__(self, config=None):
         """
         Application configuration
 
