@@ -57,6 +57,8 @@
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
 
+      <link rel="stylesheet" href="/static/css/timeline.css" >
+
       <!-- jsTree jQuery plugin -->
       <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
 

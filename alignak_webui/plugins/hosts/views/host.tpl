@@ -310,6 +310,9 @@
             <a href="#depgraph" data-toggle="tab">{{_('Impact graph')}}</a>
          </li>
          <li>
+            <a href="#timeline" data-toggle="tab">{{_('Timeline')}}</a>
+         </li>
+         <li>
             <a href="#history" data-toggle="tab">{{_('History')}}</a>
          </li>
          <li>
@@ -677,7 +680,7 @@
             <div class="panel panel-default">
                <div class="panel-body">
                   %if acks:
-                     %include("acks.tpl", acks=acks, layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
+                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=acks, title=_('Acknowledge history for %s'), layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
                   %else:
                      <div class="alert alert-info">
                         <p class="font-blue">{{_('No acknowledgements for this host.')}}</p>
@@ -694,7 +697,7 @@
             <div class="panel panel-default">
                <div class="panel-body">
                   %if downtimes:
-                     %include("downtimes.tpl", downtimes=downtimes, layout=False, pagination=Helper.get_pagination_control('history', len(downtimes), 0, len(downtimes)))
+                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=downtimes, title=_('Downtime history for %s'), layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
                   %else:
                      <div class="alert alert-info">
                         <p class="font-blue">{{_('No downtimes for this host.')}}</p>
@@ -786,6 +789,22 @@
             </div>
          </div>
          <!-- Tab Dependency graph End -->
+
+         <!-- Tab Timeline start -->
+         <div class="tab-pane fade" id="timeline">
+            <div class="panel panel-default">
+               <div class="panel-body">
+                  %if history:
+                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=history, title=_('Checks, acknowledges, downtimes history for %s'), layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
+                  %else:
+                     <div class="alert alert-info">
+                        <p class="font-blue">{{_('No history logs available.')}}</p>
+                     </div>
+                  %end
+               </div>
+            </div>
+         </div>
+         <!-- Tab Timeline end -->
 
          <!-- Tab History start -->
          <div class="tab-pane fade" id="history">

@@ -603,7 +603,7 @@ def get_host(host_id):
     )
     acks = datamgr.get_history(
         search={
-            'where': {'type': 'ack.*', 'host': host_id},
+            'where': {'type': 'ack.add', 'host': host_id},
             'embedded': {'host': 0, 'service': 1},
             'sort': '-date'
         }

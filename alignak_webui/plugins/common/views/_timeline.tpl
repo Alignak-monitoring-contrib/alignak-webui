@@ -1,11 +1,16 @@
 %setdefault('debug', False)
+%# When layout is False, this template is embedded
+%setdefault('layout', True)
 
-%setdefault('host', None)
+%# For a specific host ?
+%setdefault('timeline_host', None)
 
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, pagination=pagination, page='/'+object_type + ('/'+host.id if host else ''), css=['common/htdocs/css/timeline.css'])
+%if layout:
+%rebase("layout", title=title, pagination=pagination, page='/'+object_type + ('/'+timeline_host.id if timeline_host else ''))
+%end
 
 %from alignak_webui.utils.helper import Helper
 
@@ -37,7 +42,7 @@
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
 
-   <h3 class="timeline-title">{{! _('Timeline for: %s') % host.html_link}}</h3>
+   <h3 class="timeline-title">{{! (title % timeline_host.alias) if timeline_host else title}}</h3>
 
    <ul class="timeline">
    %for item in items:
@@ -61,7 +66,7 @@
                %if item.status.startswith('check'):
                   <p>
                      <small>
-                     %if host:
+                     %if timeline_host:
                      {{! item.service.html_link if item.service and item.service!='service' else ''}}
                      %else:
                      {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
@@ -78,7 +83,7 @@
                   {{! item.user.get_html_state(text=item.user.alias) if item.user and item.user!='user' else ''}}
                   <p>
                      <small>
-                     %if host:
+                     %if timeline_host:
                      {{! item.service.html_link if item.service and item.service!='service' else ''}}
                      %else:
                      {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
@@ -94,7 +99,7 @@
                   {{! item.user.get_html_state(text=item.user.alias) if item.user and item.user!='user' else ''}}
                   <p>
                      <small>
-                     %if host:
+                     %if timeline_host:
                      {{! item.service.html_link if item.service and item.service!='service' else ''}}
                      %else:
                      {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
@@ -112,4 +117,12 @@
    %end
    </ul>
 </div>
+%end
+
+%if layout:
+ <script>
+   $(document).ready(function(){
+      set_current_page("{{ webui.get_url(request.route.name) }}");
+   });
+ </script>
 %end
