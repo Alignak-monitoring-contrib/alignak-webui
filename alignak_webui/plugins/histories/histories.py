@@ -159,6 +159,56 @@ schema['ui'] = {
 }
 
 
+def get_history(host_id):
+    """
+    Get the timeline history for an host
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    host = datamgr.get_host(host_id)
+    if not host:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Host does not exist'))
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Pagination and search
+    start = int(request.query.get('start', '0'))
+    count = int(request.query.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.query.get('search', ''))
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'sort': '-_created',
+        'where': where,
+        'embedded': {
+        }
+    }
+
+    search['where'].update({'host': host_id})
+
+    # Get host elements from the datamanager
+    history = datamgr.get_history(search)
+    # Get last total elements count
+    total = datamgr.get_objects_count('history', search=where, refresh=True)
+    count = min(count, total)
+
+    return {
+        'object_type': 'history',
+        'host': host,
+        'items': history,
+        'pagination': Helper.get_pagination_control('history', total, start, count),
+        'title': request.query.get('title', _('Host history'))
+    }
+
+
 def get_history_table():
     """
     Get the history list and transform it as a table
@@ -199,6 +249,16 @@ def get_history_table_data():
 
 
 pages = {
+    get_history: {
+        'name': 'History',
+        'route': '/history/<host_id>',
+        'view': '_timeline',
+        'search_engine': False,
+        'search_prefix': '',
+        'search_filters': {
+        }
+    },
+
     get_history_table: {
         'name': 'History table',
         'route': '/history_table',
