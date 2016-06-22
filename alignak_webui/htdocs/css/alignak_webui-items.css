@@ -34,13 +34,13 @@
 .item_livestateDowntime,
 .item_historyCheckRequest,
 .item_historyCheckRequested,
-.historyAckAdd,
-.historyAckProcessed,
-.historyAckDelete,
+.item_historyAckAdd,
+.item_historyAckProcessed,
+.item_historyAckDelete,
 .amethyst { color: #9b59b6; }
-.historyDowntimeAdd,
-.historyDowntimeProcessed,
-.historyDowntimeDelete,
+.item_historyDowntimeAdd,
+.item_historyDowntimeProcessed,
+.item_historyDowntimeDelete,
 .wisteria { color: #8e44ad; }
 
 /* Blacks */
