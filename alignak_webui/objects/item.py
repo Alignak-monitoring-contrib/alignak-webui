@@ -407,6 +407,11 @@ class Item(object):
         return cls._total_count
 
     @classmethod
+    def setTotalCount(cls, count):
+        """ Set protected member _total_count """
+        cls._total_count = count
+
+    @classmethod
     def getCache(cls):
         """ Get protected member """
         return cls._cache

@@ -229,6 +229,10 @@ class DataManager(object):
             self.updated = datetime.utcnow()
             logger.debug("find_object, created: %s", bo_object)
 
+            # Update class _total_count (each item got from backend has an _total field)
+            if '_total' in item:
+                object_class.setTotalCount(item['_total'])
+
         return items
 
     def load(self, reset=False, refresh=False):
