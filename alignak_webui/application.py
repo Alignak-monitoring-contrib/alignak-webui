@@ -113,7 +113,7 @@ def before_request():
         redirect('/login')
 
     current_user = session['current_user']
-    if not user_authentication(current_user.token, None):
+    if not user_authentication(current_user.token, None):  # pragma: no cover - simple security!
         # Redirect to application login page
         logger.warning(
             "before_request, current_user in the session is not authenticated."
@@ -563,7 +563,7 @@ class WebUI(object):
     """
     WebUI application
     """
-    def __init__(self):
+    def __init__(self, config):
         """
         Application configuration
 
@@ -585,13 +585,13 @@ class WebUI(object):
         # Store all the plugins
         self.plugins = []
 
-        # User preferences module
-        self.prefs_module = None
-
         # Helper class
         self.helper = Helper()
 
-        # Look at the plugins directory ...
+        # Application configuration
+        self.app_config = config
+
+        # Load plugins in the plugins directory ...
         self.plugins_count = self.load_plugins(
             bottle.app(),
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
@@ -712,22 +712,6 @@ class WebUI(object):
                         logger.info("plugin '%s' configured.", plugin_name)
                     else:  # pragma: no cover - if any ...
                         logger.warning("plugin '%s' configuration failed.", plugin_name)
-
-                # Manage plugin type
-                f = getattr(plugin, 'get_user_preferences', None)
-                if config and f and callable(f):
-                    logger.info(
-                        "plugin '%s' is a user's preferences module. Configuring...", plugin_name
-                    )
-                    self.prefs_module = f(app)
-                    if self.prefs_module:
-                        logger.info(
-                            "plugin '%s' is a user's preferences plugin.", plugin_name
-                        )
-                    else:  # pragma: no cover - if any ...
-                        logger.warning(
-                            "plugin '%s' user's preferences load failed.", plugin_name
-                        )
 
                 i += 1
                 self.plugins.append({

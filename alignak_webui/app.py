@@ -120,7 +120,7 @@ if __name__ != "__main__":
     set_app_config(app_config)
 
     # Make the application available globally for the package
-    app_webui = set_app_webui(WebUI())
+    app_webui = set_app_webui(WebUI(app_config))
 
 
 # --------------------------------------------------------------------------------------------------
