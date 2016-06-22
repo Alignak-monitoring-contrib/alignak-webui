@@ -1353,7 +1353,7 @@ class DataManager(object):
         try:
             logger.info("get_users, search: %s", search)
             items = self.find_object('user', search)
-            #logger.info("get_users, got: %d elements, %s", len(items), items)
+            # logger.info("get_users, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_users, none found")

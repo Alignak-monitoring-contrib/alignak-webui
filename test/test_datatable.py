@@ -855,7 +855,7 @@ class test_07_datatable_livestate(unittest2.TestCase):
     def tearDown(self):
         print ""
 
-    @unittest2.skip("Do not known why ...")
+    # @unittest2.skip("Do not known why ...")
     def test_04_livestate(self):
         print ''
         print 'test livestate table'
@@ -869,7 +869,6 @@ class test_07_datatable_livestate(unittest2.TestCase):
             "$('#tbl_livestate').DataTable( {",
             '<table id="tbl_livestate" class="table ',
             '<th data-name="#" data-type="string">#</th>',
-            '<th data-name="$" data-type="string">&lt;i class=&quot;fa fa-bolt&quot;&gt;&lt;/i&gt;</th>',
             '<th data-name="type" data-type="string">Type</th>',
             '<th data-name="name" data-type="string">Element name</th>',
             '<th data-name="host" data-type="objectid">Host</th>',
@@ -877,22 +876,24 @@ class test_07_datatable_livestate(unittest2.TestCase):
             '<th data-name="service" data-type="objectid">Service</th>',
             '<th data-name="display_name_service" data-type="string">Host display service</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="last_check" data-type="integer">Last check</th>',
             '<th data-name="business_impact" data-type="integer">Business impact</th>',
             '<th data-name="state" data-type="string">State</th>',
             '<th data-name="state_type" data-type="string">State type</th>',
             '<th data-name="state_id" data-type="integer">State identifier</th>',
             '<th data-name="acknowledged" data-type="boolean">Acknowledged</th>',
             '<th data-name="downtime" data-type="boolean">In scheduled downtime</th>',
-            '<th data-name="last_check" data-type="integer">Last check</th>',
             '<th data-name="output" data-type="string">Check output</th>',
             '<th data-name="long_output" data-type="string">Check long output</th>',
             '<th data-name="perf_data" data-type="string">Performance data</th>',
             '<th data-name="current_attempt" data-type="integer">Current attempt</th>',
             '<th data-name="max_attempts" data-type="integer">Max attempts</th>',
             '<th data-name="next_check" data-type="integer">Next check</th>',
-            '<th data-name="last_state_changed" data-type="integer">Last check</th>',
+            '<th data-name="last_state_changed" data-type="integer">Last state changed</th>',
             '<th data-name="last_state" data-type="string">Last state</th>',
             '<th data-name="last_state_type" data-type="string">Last state type</th>',
+            '<th data-name="latency" data-type="float">Latency</th>',
+            '<th data-name="execution_time" data-type="float">Execution time</th>'
         )
 
         response = self.app.post('/livestate_table_data')

@@ -85,12 +85,12 @@ def show_user_add():  # pragma: no cover - not yet implemented
         Show form to add a user
     """
     return {
-        'user_name': request.query.get('user_name', ''),
+        'name': request.query.get('name', ''),
         'password': request.query.get('password', 'no_password'),
-        'friendly_name': request.query.get('friendly_name', 'Friendly name'),
+        'alias': request.query.get('alias', 'Friendly name'),
         'is_admin': request.query.get('is_admin', '0') == '1',
-        'is_read_only': request.query.get('is_read_only', '1') == '1',
-        'widgets_allowed': request.query.get('widgets_allowed', '1') == '1',
+        'expert': request.query.get('expert', '1') == '1',
+        'can_submit_commands': request.query.get('can_submit_commands', '1') == '1',
         'notes': request.query.get('notes', _('User description ...')),
         'title': request.query.get('title', _('Create a new user')),
     }
@@ -102,20 +102,55 @@ def add_user():  # pragma: no cover - not yet implemented
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
-    user_name = request.forms.get('user_name', '')
-    if not user_name:
-        logger.error("request to add a user: missing user_name parameter!")
+    name = request.forms.get('name', '')
+    if not name:
+        logger.error("request to add a user: missing name parameter!")
         return webui.response_invalid_parameters(_('Missing user name'))
+
+    # Get main realm
+    default_realm = datamgr.get_realm({'where': {'name': 'All'}})
+
+    # Get main TP
+    default_tp = datamgr.get_timeperiod({'where': {'name': '24x7'}})
 
     # Prepare post request ...
     data = {
-        'name': user_name,
+        'imported_from': webui.app_config['name'],
+        'definition_order': 100,
+
+        'name': name,
         'password': request.forms.get('password', ''),
-        'friendly_name': request.forms.get('friendly_name', ''),
+        'alias': request.forms.get('alias', ''),
+        'notes': request.forms.get('notes', ''),
         'is_admin': request.forms.get('is_admin') == '1',
-        'read_only': request.forms.get('is_read_only') == '1',
-        'widgets_allowed': request.forms.get('widgets_allowed') == '1',
-        'description': request.forms.get('notes')
+        'expert': request.forms.get('expert') == '1',
+        'can_submit_commands': request.forms.get('can_submit_commands') == '1',
+
+        'email': request.forms.get('email'),
+
+        'customs': request.forms.get('customs', default={}, type=dict),
+
+        'host_notifications_enabled':
+            request.forms.get('host_notifications_enabled') == '1',
+        'host_notification_period':
+            request.forms.get('host_notification_period', default_tp),
+        'host_notification_commands':
+            request.forms.get('host_notification_commands', default=[], type=list),
+        'host_notification_options':
+            request.forms.get('host_notification_options', default=[], type=list),
+
+        'service_notifications_enabled':
+            request.forms.get('service_notifications_enabled') == '1',
+        'service_notification_period':
+            request.forms.get('service_notification_period', default_tp),
+        'service_notification_commands':
+            request.forms.get('service_notification_commands', default=[], type=list),
+        'service_notification_options':
+            request.forms.get('service_notification_options', default=[], type=list),
+
+        'min_business_impact': request.forms.get('min_business_impact', 0),
+
+        '_realm': request.forms.get('_realm', default_realm)
     }
     user_id = datamgr.add_user(data=data)
     if not user_id:
@@ -144,7 +179,7 @@ def show_user_delete():  # pragma: no cover - not yet implemented
 
     return {
         'user_id': user_id,
-        'user_name': user.get_username(),
+        'name': user.get_username(),
         'notes': request.query.get('notes', _('Optional notes ...')),
         'title': request.query.get('title', _('Delete a user')),
     }
@@ -200,7 +235,7 @@ def get_users():
     # Get users
     users = datamgr.get_users(search)
     # Get last total elements count
-    total = datamgr.get_objects_count('user', search=where, refresh=True)
+    total = datamgr.get_objects_count('user', search=where, refresh=True, log=True)
     count = min(count, total)
 
     return {

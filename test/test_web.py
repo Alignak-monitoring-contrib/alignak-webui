@@ -729,7 +729,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '0 elements',
+            '4 elements out of 4',
         )
 
     def test_3_3_commands(self):
@@ -850,6 +850,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/hostgroups')
         response.mustcontain(
             '<div id="hostgroup_tree_view">',
+            # '8 elements out of 8'
         )
 
     def test_3_10_servicegroups(self):
@@ -860,6 +861,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/servicegroups')
         response.mustcontain(
             '<div id="servicegroup_tree_view">',
+            # '5 elements out of 5'
         )
 
     def test_3_11_realms(self):
@@ -870,6 +872,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/realms')
         response.mustcontain(
             '<div id="realm_tree_view">',
+            # '5 elements out of 5'
         )
 
 
@@ -931,7 +934,16 @@ class tests_4_target_user(unittest2.TestCase):
         print host['target_user']
         assert host['target_user'].get_username() == 'anonymous'
 
-        # Only one user in the host data manager !
+        print 'get page /users'
+        # 4 users
+        response = self.app.get('/users')
+        response.mustcontain(
+            '<div id="users">',
+            '4 elements out of 4',
+            'admin', 'guest', 'anonymous', 'mohier'
+        )
+
+        # Current user is admin
         host = response.request.environ['beaker.session']
         assert 'current_user' in host and host['current_user']
         print host['current_user']
@@ -939,37 +951,29 @@ class tests_4_target_user(unittest2.TestCase):
 
         # Data manager
         datamgr = host['datamanager']
-        search = {'where': {'name': 'admin'}}
-        user = datamgr.get_user(search)
+        user = datamgr.get_user({'where': {'name': 'admin'}})
         print user
         assert user
-        search = {'where': {'name': 'not_admin'}}
-        user = datamgr.get_user(search)
+        user = datamgr.get_user({'where': {'name': 'not_admin'}})
         print user
         assert not user
 
 
+        # Get main realm
+        realm_all = datamgr.get_realm({'where': {'name': 'All'}})
+        assert realm_all
 
+        # Get main TP
+        tp_all = datamgr.get_timeperiod({'where': {'name': '24x7'}})
+        assert tp_all
 
-
-
-
-
-
-
-
-
-
-        #TODO: to be tested later ...
-        return
-
-
-
+        # Create a non admin user ...
         # Create a new user
         print 'create a user'
         data = {
             "name": "not_admin",
-            "alias": "Not an administrator ... test user.",
+            "alias": "Testing user - not administrator",
+            "note": "Monitoring template : default",
             "min_business_impact": 0,
             "email": "frederic.mohier@gmail.com",
 
@@ -996,9 +1000,6 @@ class tests_4_target_user(unittest2.TestCase):
                 "c",
                 "r"
             ],
-            "retain_status_information": False,
-            "note": "Monitoring template : default",
-            "retain_nonstatus_information": False,
             "definition_order": 100,
             "address1": "",
             "address2": "",
@@ -1010,24 +1011,23 @@ class tests_4_target_user(unittest2.TestCase):
             "notificationways": [],
             "_realm": realm_all.id
         }
-        response = self.app.post('/user/add', {
-            'user_name': 'not_admin', 'alias': 'Not an administrator ... test user.'
-        })
+        response = self.app.post('/user/add', data)
         print response
         assert response.json['status'] == "ok"
         assert response.json['message'] == "User created"
 
+        users = datamgr.get_users()
+        assert len(users) == 5
+
         print 'get page /users'
+        # Now 5 users
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '2 elements',
-            'admin',
+            '5 elements out of 5',
+            'admin', 'guest', 'anonymous', 'mohier',
             'not_admin'
         )
-        # Test one request later ... because the test in the request environ not in the response environ !
-        host = response.request.environ['beaker.session']
-        datamgr = host['datamanager']
 
         print 'get home page /dashboard - no target user'
         response = self.app.get('/dashboard')
@@ -1073,7 +1073,7 @@ class tests_4_target_user(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '0 elements',
+            '5 elements out of 5'
         )
 
     def test_3_3_commands(self):
