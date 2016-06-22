@@ -4,7 +4,8 @@
 %setdefault('selectable', True)
 %setdefault('context_menu', True)
 
-%from bottle import request
+%search_string = request.query.get('search', '')
+
 %# jsTree js and css are included in the page layout
 %rebase("layout", title=title, page="/{{object_type}}_tree")
 
@@ -31,7 +32,7 @@
             <ul class="list-group">
                %for item in items:
                   <li class="list-group-item">
-                     <small>Host: {{item}} - {{item.__dict__}}</small>
+                     <small>Element: {{item}} - {{item.__dict__}}</small>
                   </li>
                %end
             </ul>
