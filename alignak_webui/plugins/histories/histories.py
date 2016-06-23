@@ -116,7 +116,18 @@ schema['type'] = {
         'title': _('Type'),
         'visible': True
     },
-    'allowed': ["check.result", "ack.add", "ack.delete", "downtime.add", "downtime.delete"]
+    'allowed': {
+        "webui.comment": _('User comments'),
+        "check.result": _('Check results'),
+        "check.request": _('Check requests'),
+        "check.requested": _('Forced re-check'),
+        "ack.add": _('Acknowledge requests'),
+        "ack.processed": _('Acknowledge processed'),
+        "ack.delete": _('Acknowledge delete'),
+        "downtime.add": _('Downtime schedule requests'),
+        "downtime.processed": _('Downtime processed'),
+        "downtime.delete": _('Downtime delete')
+    }
 }
 schema['message'] = {
     'type': 'string',
@@ -194,6 +205,23 @@ def get_history(host_id):
 
     search['where'].update({'host': host_id})
 
+    # Fetch timeline filters preference for user, default is []
+    selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+    selected_types = selected_types['value']
+    for selected_type in schema['type']['allowed']:
+        if request.query.get(selected_type) == 'true':
+            if selected_type not in selected_types:
+                selected_types.append(type)
+            logger.critical("Filter: %s=%s", selected_type, request.query.get(selected_type))
+        elif request.query.get(selected_type) == 'false':
+            if selected_type in selected_types:
+                selected_types.remove(selected_type)
+
+    if selected_types:
+        datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+        search['where'].update({'type': {'$in': selected_types}})
+    logger.debug("History selected types: %s", selected_types)
+
     # Get host elements from the datamanager
     history = datamgr.get_history(search)
     # Get last total elements count
@@ -202,10 +230,12 @@ def get_history(host_id):
 
     return {
         'object_type': 'history',
-        'host': host,
+        'timeline_host': host,
+        'types': schema['type']['allowed'],
+        'selected_types': selected_types,
         'items': history,
         'pagination': Helper.get_pagination_control('history', total, start, count),
-        'title': request.query.get('title', _('Host history'))
+        'title': request.query.get('title', _('History for %s') % host.alias)
     }
 
 

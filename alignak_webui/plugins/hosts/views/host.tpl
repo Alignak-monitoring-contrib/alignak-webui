@@ -795,7 +795,7 @@
             <div class="panel panel-default">
                <div class="panel-body">
                   %if history:
-                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=history, title=_('Checks, acknowledges, downtimes history for %s'), layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
+                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=history, title=_('Checks, acknowledges, downtimes history for %s') % host.alias, layout=False, pagination=Helper.get_pagination_control('history', len(history), 0, len(history)))
                   %else:
                      <div class="alert alert-info">
                         <p class="font-blue">{{_('No history logs available.')}}</p>

@@ -1838,6 +1838,20 @@ class History(Item):
         """ Return linked object """
         return self._linked_logcheckresult
 
+    def get_html_state(self, extra='', icon=True, text='',
+                       title='', disabled=False, object_type=None, object_item=None):
+        # pylint: disable=too-many-arguments
+        """
+        Uses the ItemState singleton to display HTML state for an item
+        """
+        if self.type.startswith('check.result') and self.logcheckresult != 'logcheckresult':
+            return ItemState().get_html_state('logcheckresult', self.logcheckresult,
+                                              extra, icon, text, title, disabled)
+
+        return super(History, self).get_html_state(object_type=self.getType(), object_item=self,
+                                                   extra=extra, icon=icon, text=text,
+                                                   title=title, disabled=disabled)
+
     def get_check_date(self, timestamp=False, fmt=None, duration=False):
         """
         Returns a string formatted data

@@ -603,16 +603,16 @@ def get_host(host_id):
     )
     acks = datamgr.get_history(
         search={
-            'where': {'type': 'ack.add', 'host': host_id},
+            'where': {'type': {"$regex": "^ack.*"}, 'host': host_id},
             'embedded': {'host': 0, 'service': 1},
-            'sort': '-date'
+            'sort': '-_created'
         }
     )
     downtimes = datamgr.get_history(
         search={
             'where': {'type': 'downtime.*', 'host': host_id},
             'embedded': {'host': 0, 'service': 1},
-            'sort': '-date'
+            'sort': '-_created'
         }
     )
 

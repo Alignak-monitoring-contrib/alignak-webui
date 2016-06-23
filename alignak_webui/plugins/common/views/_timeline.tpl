@@ -2,8 +2,12 @@
 %# When layout is False, this template is embedded
 %setdefault('layout', True)
 
-%# For a specific host ?
+%# For a specific host?
 %setdefault('timeline_host', None)
+
+%# Filtering?
+%setdefault('filters', [])
+%setdefault('selected_filters', [])
 
 %from bottle import request
 %search_string = request.query.get('search', '')
@@ -42,28 +46,66 @@
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
 
-   <h3 class="timeline-title">{{! (title % timeline_host.alias) if timeline_host else title}}</h3>
+   <div class="pull-left">
+   <h3 class="timeline-title">{{title}}</h3>
+   </div>
+
+   <!-- Filtering menu -->
+   %if types:
+   <div class="pull-right">
+      <form data-item="filter-timeline" data-action="filter" class="form" method="get" role="form">
+         <div class="btn-group">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+               <span class="fa fa-filter fa-fw"></span>
+               <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right" role="menu" style="width: 240px">
+               %for type in types:
+               <li style="padding:5px">
+                  <label class="checkbox-inline">
+                     <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}"> {{types[type]}}
+                  </label>
+               </li>
+               %end
+               <li class="divider"></li>
+               <li style="padding:5px">
+                  <button type="submit" class="btn btn-default btn-sm btn-block">
+                     <span class="fa fa-check"></i>
+                     &nbsp;{{_('Apply filter')}}
+                  </button>
+               </li>
+             </ul>
+         </div>
+      </form>
+   </div>
+   %end
+
+   <div class="clearfix"></div>
 
    <ul class="timeline">
    %for item in items:
       %if not item.user:
       %continue
       %end
-      <li class="{{'' if item.status.startswith('check') else 'timeline-inverted'}}">
+      <li class="{{'' if item.status.startswith('check.result') else 'timeline-inverted'}}">
          <div class="timeline-badge">
             {{! item.get_html_state(text=None)}}
          </div>
          <div class="timeline-panel">
             <div class="timeline-heading">
-               <p>
-                  <small class="text-muted">
-                     <i class="fa fa-clock-o"></i>
-                     {{item.get_check_date(fmt='%H:%M:%S', duration=True)}}
-                  </small>
-               </p>
+               <div class="pull-left">
+                  {{! item.user.get_html_state(text=item.user.alias) if item.user and item.user!='user' else ''}}
+               </div>
+               <div class="pull-right clearfix">
+                  <small class="text-muted"><em>
+                     <i class="fa fa-clock-o"></i> {{item.get_check_date(fmt='%H:%M:%S', duration=True)}}
+                  </em></small>
+               </div>
+               <div class="clearfix">
+               </div>
             </div>
             <div class="timeline-body">
-               %if item.status.startswith('check'):
+               %if item.status.startswith('check.result'):
                   <p>
                      <small>
                      %if timeline_host:
@@ -73,14 +115,32 @@
                      %end
                      </small>
                   </p>
+                  %if item.logcheckresult!='logcheckresult':
                   %message = "%s - %s" % (item.logcheckresult.get_html_state(text=None), item.logcheckresult.output)
+                  %else:
+                  %message = 'Fake!'
+                  %end
                   <p>
                      <small>{{! message}}</small>
                   </p>
                %end
 
+               %if item.status.startswith('check.request'):
+                  <p>
+                     <small>
+                     %if timeline_host:
+                     {{! item.service.html_link if item.service and item.service!='service' else ''}}
+                     %else:
+                     {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
+                     %end
+                     </small>
+                  </p>
+                  <p>
+                     <small>{{! item.message}}</small>
+                  </p>
+               %end
+
                %if item.status.startswith('ack'):
-                  {{! item.user.get_html_state(text=item.user.alias) if item.user and item.user!='user' else ''}}
                   <p>
                      <small>
                      %if timeline_host:
@@ -117,12 +177,4 @@
    %end
    </ul>
 </div>
-%end
-
-%if layout:
- <script>
-   $(document).ready(function(){
-      set_current_page("{{ webui.get_url(request.route.name) }}");
-   });
- </script>
 %end

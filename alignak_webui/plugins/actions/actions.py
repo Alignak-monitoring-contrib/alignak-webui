@@ -25,10 +25,10 @@
 
 import json
 from logging import getLogger
-from bottle import request, response
-
 import datetime
 from time import gmtime, strftime
+
+from bottle import request, response
 
 logger = getLogger(__name__)
 
@@ -75,10 +75,10 @@ def add_acknowledge():
     problem = False
     status = ""
     index = 0
-    for id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': id}})
+    for livestate_id in livestate_ids:
+        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
         if not livestate:
-            status += _('Livestate element %s does not exist') % id
+            status += _('Livestate element %s does not exist') % livestate_id
             continue
 
         livestate = livestate[0]
@@ -145,10 +145,10 @@ def add_recheck():
     problem = False
     status = ""
     index = 0
-    for id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': id}})
+    for livestate_id in livestate_ids:
+        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
         if not livestate:
-            status += _('Livestate element %s does not exist') % id
+            status += _('Livestate element %s does not exist') % livestate_id
             continue
 
         livestate = livestate[0]
@@ -216,10 +216,10 @@ def add_downtime():
     problem = False
     status = ""
     index = 0
-    for id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': id}})
+    for livestate_id in livestate_ids:
+        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
         if not livestate:
-            status += _('Livestate element %s does not exist') % id
+            status += _('Livestate element %s does not exist') % livestate_id
             continue
 
         livestate = livestate[0]
