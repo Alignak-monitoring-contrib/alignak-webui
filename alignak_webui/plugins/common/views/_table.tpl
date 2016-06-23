@@ -63,7 +63,7 @@ table.dataTable tbody>tr>.selected {
 </div>
 
 <script>
-   var debugTable = true;
+   var debugTable = false;
    var where = {{! json.dumps(where)}};
    var columns = {{ ! json.dumps(dt.table_columns) }};
    var selectedRows = [];
@@ -540,19 +540,17 @@ table.dataTable tbody>tr>.selected {
             ,{
                extend: 'selected',
                text: 'Count selected rows',
-               action: function ( e, dt, button, config ) {
+               action: function (e, dt, button, config) {
                   alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected' );
                }
             }
             ,{
                extend: 'selected',
                text: 'Count selected rows 2',
-               action: function ( e, dt, button, config ) {
+               action: function (e, dt, button, config) {
                   alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected !' );
                }
             }
-            */
-            /*
             ,{
                extend: 'selectedSingle',
             }
@@ -579,55 +577,89 @@ table.dataTable tbody>tr>.selected {
             // Only for tables with 'commands' attribute (eg. livestate)
             ,{
                extend: 'collection',
-               text: '<span class="fa fa-bolt"></span>',
+               text: '{{! _('<span class="fa fa-bolt"></span>')}}',
                buttons: [
                   {
                      extend: 'selected',
-                     text: "Re-check",
-                     action: function ( e, dt, button, config ) {
+                     text: "{{_('Re-check')}}",
+                     action: function (e, dt, button, config) {
+                        // Fix for datatable that do not close dropdown immediatly...
+                        $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
                         var count_selected = selected.indexes().length;
                         if (count_selected == 0) {
                            return;
                         }
-                        //display_modal("/acknowledge/form/add");
-                     }
-                  }
-                  ,
-                  {
-                     extend: 'selected',
-                     text: "Acknowledge",
-                     action: function ( e, dt, button, config ) {
-                        var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
-                           return;
-                        }
-                        if (count_selected > 1) {
-                           $.each(selected.data(), function(index, elt){
-                              console.log(elt);
-                              var elt_name = elt.display_name_host;
-                              if (elt.type == 'service') {
-                                 elt_name += ' (' + elt.display_name_service + ')';
-                              }
-                              display_modal("/acknowledge/form/add?livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&read_only=1&auto_post=1');
-                           });
-                        } else {
-                           var elt = selected.data()[0];
+                        var url = "/recheck/form/add?";
+                        var first = true;
+                        $.each(selected.data(), function(index, elt){
                            var elt_name = elt.display_name_host;
                            if (elt.type == 'service') {
                               elt_name += ' (' + elt.display_name_service + ')';
                            }
-                           display_modal("/acknowledge/form/add?livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name));
-                        }
+                           if (! first) url += '&';
+                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           if (first) first = false;
+                        });
+                        window.setTimeout(function(){
+                           display_modal(url);
+                        }, 50);
                      }
                   }
                   ,
                   {
                      extend: 'selected',
-                     text: "Downtime",
-                     action: function ( e, dt, button, config ) {
-                        alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected' );
+                     text: "{{_('Acknowledge')}}",
+                     action: function (e, dt, button, config) {
+                        // Fix for datatable that do not close dropdown immediatly...
+                        $(".dt-button-background").trigger("click");
+                        var selected = dt.rows( { selected: true } );
+                        var count_selected = selected.indexes().length;
+                        if (count_selected == 0) {
+                           return;
+                        }
+                        var url = "/acknowledge/form/add?";
+                        var first = true;
+                        $.each(selected.data(), function(index, elt){
+                           var elt_name = elt.display_name_host;
+                           if (elt.type == 'service') {
+                              elt_name += ' (' + elt.display_name_service + ')';
+                           }
+                           if (! first) url += '&';
+                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           if (first) first = false;
+                        });
+                        window.setTimeout(function(){
+                           display_modal(url);
+                        }, 50);
+                     }
+                  }
+                  ,
+                  {
+                     extend: 'selected',
+                     text: "{{_('Downtime')}}",
+                     action: function (e, dt, button, config) {
+                        // Fix for datatable that do not close dropdown immediatly...
+                        $(".dt-button-background").trigger("click");
+                        var selected = dt.rows( { selected: true } );
+                        var count_selected = selected.indexes().length;
+                        if (count_selected == 0) {
+                           return;
+                        }
+                        var url = "/downtime/form/add?";
+                        var first = true;
+                        $.each(selected.data(), function(index, elt){
+                           var elt_name = elt.display_name_host;
+                           if (elt.type == 'service') {
+                              elt_name += ' (' + elt.display_name_service + ')';
+                           }
+                           if (! first) url += '&';
+                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           if (first) first = false;
+                        });
+                        window.setTimeout(function(){
+                           display_modal(url);
+                        }, 50);
                      }
                   }
                ]
