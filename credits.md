@@ -11,6 +11,8 @@ jQuery Datatables: https://datatables.net/
 
 jQuery jsTree: https://www.jstree.com/
 
+jQuery / Bootstrap daterangepicker: http://www.daterangepicker.com/
+
 
 Contributors
 ------------
