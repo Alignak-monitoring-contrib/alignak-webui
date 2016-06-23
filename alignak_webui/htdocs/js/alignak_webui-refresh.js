@@ -176,7 +176,12 @@ function check_UI_backend(){
       .fail(function(jqXHR, textStatus, errorThrown) {
          if (refresh_logs) console.error('UI backend is not available, retrying later ...');
          if (refresh_logs) console.error(textStatus, errorThrown);
-         postpone_refresh();
+         if (jqXHR.status == 401) {
+            // Session expired, force page reloading
+            location.reload();
+         } else {
+            postpone_refresh();
+         }
       });
    }
 
