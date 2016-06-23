@@ -928,6 +928,8 @@ class DataManager(object):
         """ Get a list of all hostgroups. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
             logger.info("get_hostgroups, search: %s", search)
@@ -956,7 +958,8 @@ class DataManager(object):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
-
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
         if 'embedded' not in search:
             search.update({
                 'embedded': {
@@ -1024,6 +1027,8 @@ class DataManager(object):
         """ Get a list of all servicegroups. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
             logger.info("get_servicegroups, search: %s", search)
@@ -1052,6 +1057,8 @@ class DataManager(object):
         """ Get a list of all services. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
         if 'embedded' not in search:
             search.update({
                 'embedded': {
@@ -1199,7 +1206,7 @@ class DataManager(object):
             logger.debug("get_logcheckresult_services, none found")
 
     ##
-    # Logs
+    # History
     ##
     def get_history(self, search=None):
         """ Get history
@@ -1289,6 +1296,8 @@ class DataManager(object):
         """ Get a list of all commands. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
             logger.info("get_commands, search: %s", search)
@@ -1349,6 +1358,8 @@ class DataManager(object):
 
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
             logger.info("get_users, search: %s", search)
@@ -1414,6 +1425,8 @@ class DataManager(object):
         """ Get a list of all realms. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
             logger.info("get_realms, search: %s", search)
@@ -1443,6 +1456,8 @@ class DataManager(object):
         """ Get a list of all timeperiods. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
             logger.info("get_timeperiods, search: %s", search)
