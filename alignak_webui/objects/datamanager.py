@@ -637,7 +637,7 @@ class DataManager(object):
                 'uipref',
                 params={'where': {"type": prefs_type, "user": user}}
             )
-            logger.debug("get_user_preferences, result: %s", result)
+            logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
             if result:
                 logger.debug("get_user_preferences, found: %s", result)
                 return result[0]['data']
@@ -648,7 +648,7 @@ class DataManager(object):
             return None
 
         logger.debug("get_user_preferences, not found, default value: %s", default)
-        if default and self.set_user_preferences(user, prefs_type, default):
+        if default is not None and self.set_user_preferences(user, prefs_type, default):
             return self.get_user_preferences(user, prefs_type)
 
         return None
