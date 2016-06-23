@@ -4,6 +4,7 @@
 %setdefault('selectable', True)
 %setdefault('context_menu', True)
 
+%from bottle import request
 %search_string = request.query.get('search', '')
 
 %# jsTree js and css are included in the page layout
