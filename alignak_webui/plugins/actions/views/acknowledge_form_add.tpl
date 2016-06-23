@@ -10,23 +10,25 @@
 
 <div class="modal-header">
    <a class="close" data-refresh="start" data-dismiss="modal">×</a>
-    <h3>{{title}}</h3>
+   <h3>{{title}}</h3>
+   <small><em>
+      {{', '.join(element_name)}}
+   </em></small>
 </div>
 
 <div class="modal-body">
-   <form data-item="acknowledge" data-action="add" class="form-horizontal" method="post" action="/acknowledge/add" role="form">
+   <form data-item="acknowledge" data-action="{{action}}" class="form-horizontal" method="post" action="/acknowledge/add" role="form">
       <div class="form-group" style="display: none">
-         <label for="livestate_id">Livestate id: </label>
-         <input type="text" readonly id="livestate_id" name="livestate_id" placeholder="{{livestate_id}}" value="{{livestate_id}}">
-      </div>
-
-      <div class="form-group" >
-         <label for="element_name">{{_('Element name:')}}</label>
-         <input type="text" readonly id="element_name" name="element_name" placeholder="{{element_name}}" value="{{element_name}}">
+         %for id in livestate_id:
+         <input type="text" readonly id="livestate_id" name="livestate_id" value="{{id}}">
+         %end
+         %for name in element_name:
+         <input type="text" readonly id="element_name" name="element_name" value="{{name}}">
+         %end
       </div>
 
       <div class="form-group">
-         <label class="col-sm-3 control-label">{{_('Acknowledge options: ')}}</label>
+         <label class="col-sm-offset-1 control-label">{{_('Acknowledge options')}}</label>
          <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
                <label>
@@ -52,11 +54,11 @@
 
       <div class="form-group">
          <div class="col-sm-12">
-            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}"></textarea>
+            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
          </div>
       </div>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Confirm creation')}}</button>
+      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request acknowledge')}}</button>
    </form>
 </div>
 
