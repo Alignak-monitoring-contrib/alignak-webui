@@ -916,10 +916,22 @@ class DataManager(object):
         return synthesis
 
     def add_acknowledge(self, data):
-        """ Acknowledge a problem. """
+        """ Request to acknowledge a problem. """
 
-        logger.info("add_acknowledge, send an acknowledge, data: %s", data)
+        logger.info("add_acknowledge, request an acknowledge, data: %s", data)
         return self.add_object('actionacknowledge', data)
+
+    def add_recheck(self, data):
+        """ Request to re-check an host/service. """
+
+        logger.info("add_recheck, request a recheck, data: %s", data)
+        return self.add_object('actionforcecheck', data)
+
+    def add_downtime(self, data):
+        """ Request to schedule a downtime. """
+
+        logger.info("add_downtime, request a downtime, data: %s", data)
+        return self.add_object('actiondowntime', data)
 
     ##
     # hostgroups
