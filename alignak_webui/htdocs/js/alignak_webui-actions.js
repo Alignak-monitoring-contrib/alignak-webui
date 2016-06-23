@@ -159,7 +159,6 @@ function launch(url, response_message){
 (function ($) {
 
      $.fn.serialize = function (options) {
-         console.log("Here !")
          return $.param(this.serializeArray(options));
      };
 
@@ -231,10 +230,11 @@ $(document).ready(function() {
          data: $(this).serialize({ checkboxesAsBools: true })
       })
       .done(function( data, textStatus, jqXHR ) {
+         if (actions_logs) console.debug('Submit form result: ', data, textStatus);
          if (jqXHR.status != 200) {
-            raise_message_ko(jqXHR.status);
+            raise_message_ko(data.message);
          } else {
-            raise_message_ok(data.status)
+            raise_message_ok(data.message)
          }
       })
       .fail(function( jqXHR, textStatus, errorThrown ) {
