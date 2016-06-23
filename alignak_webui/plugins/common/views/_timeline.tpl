@@ -6,8 +6,8 @@
 %setdefault('timeline_host', None)
 
 %# Filtering?
-%setdefault('filters', [])
-%setdefault('selected_filters', [])
+%setdefault('types', [])
+%setdefault('selected_types', [])
 
 %from bottle import request
 %search_string = request.query.get('search', '')
