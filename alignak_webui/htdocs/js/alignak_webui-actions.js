@@ -27,6 +27,7 @@ var alert_error_delay=5;
  * Get current user preference value:
  * - key
  * - callback function called after data are posted
+ * - default_value to use if user preference does not exist
 **/
 function get_user_preference(key, callback, default_value) {
    if (actions_logs) console.debug('Get user preference: ', key);
