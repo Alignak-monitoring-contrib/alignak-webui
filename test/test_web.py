@@ -477,7 +477,7 @@ class tests_1_preferences(unittest2.TestCase):
 
     def test_1_3_user(self):
         print ''
-        print 'test common preferences'
+        print 'test user preferences'
 
         ### User's preferences
         # Get all the preferences in the database
@@ -486,7 +486,9 @@ class tests_1_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences('admin', None)
         for pref in user_prefs:
             print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 2
+            datamgr.delete_user_preferences('admin', pref['type'])
+        user_prefs = datamgr.get_user_preferences('admin', None)
+        assert len(user_prefs) == 0
 
 
         # Set a user's preference
@@ -588,7 +590,7 @@ class tests_1_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences('admin', None)
         for pref in user_prefs:
             print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 6
+        self.assertEqual(len(user_prefs), 4)
 
     def test_1_4_all(self):
         print ''
@@ -601,7 +603,7 @@ class tests_1_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences(None, None)
         for pref in user_prefs:
             print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
-        assert len(user_prefs) == 8
+        self.assertEqual(len(user_prefs), 10)
 
 
 class tests_2_static_files(unittest2.TestCase):

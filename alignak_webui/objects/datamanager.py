@@ -500,21 +500,21 @@ class DataManager(object):
             )
 
             # Still existing ...
-            result = self.backend.get_all(
+            result = self.backend.get(
                 'uipref',
-                params={'where': '{"type":"%s", "user": "%s"}' % (prefs_type, user)}
+                params={'where': {"type": prefs_type, "user": user}}
             )
-            if result['_status'] == 'OK':
-                items = result['_items'][0]
+            logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
+            if result:
+                item = result[0]
                 logger.debug(
                     "delete_user_preferences, delete an exising record: %s / %s (%s)",
-                    prefs_type, user, items['_id']
+                    prefs_type, user, item['_id']
                 )
                 # Delete existing record ...
-                headers = {'If-Match': items['_etag']}
-                self.backend.delete('/'.join(['uipref', items['_id']]), headers)
+                return self.delete_object('uipref', item['_id'])
 
-            return True
+            return False
         except Exception as e:  # pragma: no cover - need specific backend tests
             logger.error("delete_user_preferences, exception: %s", str(e))
             raise e

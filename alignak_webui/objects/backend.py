@@ -266,9 +266,9 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             try:
                 # Get most recent version of the element
-                items = self.find_object(object_type, object_id)
-                element = items[0]
-            except ValueError:  # pragma: no cover, should never happen
+                element = self.get('/'.join([object_type, object_id]))
+                logger.debug("delete, element: %s", element)
+            except ValueError:
                 logger.warning("delete, object %s, _id=%s not found", object_type, object_id)
                 return False
 
@@ -295,16 +295,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             except ValueError as e:  # pragma: no cover, should never happen
                 logger.warning("delete, not found %s: %s", object_type, element)
                 return False
-
-            try:
-                # Try to get most recent version of the element
-                items = self.find_object(object_type, object_id)
-            except ValueError:
-                logger.info("delete, object deleted: %s, _id=%s", object_type, object_id)
-                # Object deletion
-                # _delete is the deletion method name... yes, it sounds like a protected member :/
-                # pylint: disable=protected-access
-                element._delete()
 
             return True
 
