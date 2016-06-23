@@ -411,7 +411,7 @@ class tests_1_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences('common', None)
         for pref in user_prefs:
             print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 0
+        assert len(user_prefs) == 1 # bookmarks is already created
 
         # Set a common preference named prefs
         common_value = { 'foo': 'bar', 'foo_int': 1 }
@@ -473,7 +473,7 @@ class tests_1_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences('common', None)
         for pref in user_prefs:
             print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 2
+        assert len(user_prefs) == 3
 
     def test_1_3_user(self):
         print ''
