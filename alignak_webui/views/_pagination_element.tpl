@@ -1,5 +1,7 @@
 %setdefault('debug', False)
 
+%setdefault('page', 'unknown')
+
 %setdefault('display_steps_form', False)
 
 %setdefault('start', 0)
@@ -7,34 +9,33 @@
 %setdefault('total', 0)
 
 %from alignak_webui.utils.helper import Helper
-%setdefault('pagination', Helper.get_pagination_control('unknown', total, start, count))
+%setdefault('pagination', Helper.get_pagination_control(page, total, start, count))
 
 %from bottle import request
 
-%if pagination:
-   %if debug:
-   <div class="panel-group">
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_pagination"><i class="fa fa-bug"></i> Pagination</a>
-            </h4>
-         </div>
-         <div id="collapse_pagination" class="panel-collapse collapse">
-            <ul class="list-group">
-               %for pagination_elt in pagination:
-                  <li class="list-group-item"><small>Element: {{pagination_elt}}</small></li>
-               %end
-            </ul>
-            <div class="panel-footer">{{len(pagination)}} elements</div>
-         </div>
+%if debug:
+<div class="panel-group">
+   <div class="panel panel-default">
+      <div class="panel-heading">
+         <h4 class="panel-title">
+            <a data-toggle="collapse" href="#collapse_pagination"><i class="fa fa-bug"></i> Pagination</a>
+         </h4>
+      </div>
+      <div id="collapse_pagination" class="panel-collapse collapse">
+         <ul class="list-group">
+            %for pagination_elt in pagination:
+               <li class="list-group-item"><small>Element: {{pagination_elt}}</small></li>
+            %end
+         </ul>
+         <div class="panel-footer">{{len(pagination)}} elements</div>
       </div>
    </div>
-   %end
-   %# First element for global data
-   %name, start, count, total, active = pagination[0]
+</div>
 %end
-<div class="btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
+%# First element for global data
+%# page_url start, count and total
+%page_url, start, count, total, active = pagination[0]
+<div id="" class="btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
    %if pagination and len(pagination) > 1:
       %if display_steps_form and elts_per_page is not None:
       <form id="elts_per_page" class="form-inline">
@@ -106,7 +107,7 @@
          %request.query['start'] = start
          %request.query['count'] = count
          <a class="btn btn-default {{'active' if active else ''}}"
-            href="{{page}}?{{urlencode(request.query)}}">
+            href="{{page_url}}?{{urlencode(request.query)}}">
             {{!label}}
             <span class="sr-only">{{!label}}</span>
          </a>

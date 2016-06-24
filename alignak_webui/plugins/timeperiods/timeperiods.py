@@ -179,7 +179,7 @@ def get_timeperiods():
 
     return {
         'timeperiods': timeperiods,
-        'pagination': Helper.get_pagination_control('timeperiod', total, start, count),
+        'pagination': Helper.get_pagination_control('/timeperiods', total, start, count),
         'title': request.query.get('title', _('All timeperiods')),
         'elts_per_page': elts_per_page
     }

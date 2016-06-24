@@ -405,7 +405,7 @@ class Helper(object):
         return parameters
 
     @staticmethod
-    def get_pagination_control(object_type, total, start=0, count=25, nb_max_items=5):
+    def get_pagination_control(page_url, total, start=0, count=25, nb_max_items=5):
         """
         Build page navigation buttons as a list of elements containing:
         - button label
@@ -413,6 +413,12 @@ class Helper(object):
         - count of elements
         - total number of elements
         - active element (True / False)
+
+        The first element in the list contains:
+        - page_url, the current page main URL
+        - start
+        - count
+        - total
 
         Note that nb_max_items should be an odd number ... it will have a better look ;)
 
@@ -422,7 +428,7 @@ class Helper(object):
         - nb_max_items page buttons to build a direct link to the corresponding pages
         """
         if count <= 0 or total <= 0:
-            return [(object_type, start, count, total, False)]
+            return [(page_url, start, count, total, False)]
 
         max_page = total // count + 1
         current_page = start // count + 1
@@ -438,7 +444,7 @@ class Helper(object):
         res = []
         # First element contains pagination global data
         res.append(
-            (object_type, start, count, total, False)
+            (page_url, start, count, total, False)
         )
         if current_page > (nb_max_items / 2) + 1:
             # First page

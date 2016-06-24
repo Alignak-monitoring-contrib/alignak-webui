@@ -1,8 +1,5 @@
 %debug=False
 
-%# Fetch page count preference for user, default is 25
-%elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-
 <script type="text/javascript">
    // Check header refresh period (seconds)
    var header_refresh_period = 30;

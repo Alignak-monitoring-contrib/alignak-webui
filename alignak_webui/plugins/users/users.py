@@ -240,7 +240,7 @@ def get_users():
 
     return {
         'users': users,
-        'pagination': Helper.get_pagination_control('user', total, start, count),
+        'pagination': Helper.get_pagination_control('/users', total, start, count),
         'title': request.query.get('title', _('All users'))
     }
 

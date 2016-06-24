@@ -321,7 +321,7 @@ def get_realms():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('realm', total, start, count),
+        'pagination': Helper.get_pagination_control('/realms', total, start, count),
         'title': request.query.get('title', _('All realms'))
     }
 

@@ -61,7 +61,6 @@ def show_minemap():
     # Fetch elements per page preference for user, default is 25
     elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
     elts_per_page = elts_per_page['value']
-    logger.warning("Eleemnts per page: %s", elts_per_page)
 
     # Pagination and search
     start = int(request.query.get('start', '0'))
@@ -109,7 +108,7 @@ def show_minemap():
         'params': plugin_parameters,
         'minemap': minemap,
         'columns': columns,
-        'pagination': Helper.get_pagination_control('host', total, start, count),
+        'pagination': Helper.get_pagination_control('/minemap', total, start, count),
         'title': request.query.get('title', _('Hosts minemap'))
     }
 

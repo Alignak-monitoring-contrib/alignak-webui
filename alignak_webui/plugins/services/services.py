@@ -455,7 +455,7 @@ def get_services():
 
     return {
         'services': services,
-        'pagination': Helper.get_pagination_control('service', total, start, count),
+        'pagination': Helper.get_pagination_control('/services', total, start, count),
         'title': request.query.get('title', _('All services'))
     }
 

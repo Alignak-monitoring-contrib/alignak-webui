@@ -173,9 +173,8 @@ def get_commands():
 
     return {
         'commands': commands,
-        'pagination': Helper.get_pagination_control('command', total, start, count),
-        'title': request.query.get('title', _('All commands')),
-        'elts_per_page': elts_per_page
+        'pagination': Helper.get_pagination_control('/commands', total, start, count),
+        'title': request.query.get('title', _('All commands'))
     }
 
 

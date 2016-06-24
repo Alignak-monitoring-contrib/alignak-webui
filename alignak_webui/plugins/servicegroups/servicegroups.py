@@ -267,7 +267,7 @@ def get_servicegroups():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('servicegroup', total, start, count),
+        'pagination': Helper.get_pagination_control('/servicegroups', total, start, count),
         'title': request.query.get('title', _('All servicegroups'))
     }
 

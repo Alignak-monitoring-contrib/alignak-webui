@@ -267,7 +267,7 @@ def get_hostgroups():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('hostgroup', total, start, count),
+        'pagination': Helper.get_pagination_control('/hostgroups', total, start, count),
         'title': request.query.get('title', _('All hostgroups'))
     }
 

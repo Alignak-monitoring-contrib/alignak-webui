@@ -3,7 +3,7 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/timeperiods", elts_per_page=elts_per_page)
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/timeperiods")
 
 %from alignak_webui.utils.helper import Helper
 
