@@ -52,6 +52,15 @@
                %include("_filters.tpl")
             </div>
 
+            <ul class="nav navbar-nav">
+               <li class="hidden-xs" id="loading" style="display: none;">
+                  <a href="#">
+                     <i class="fa fa-spinner fa-pulse fa-1x"></i>
+                     <span class="sr-only">{{_('Loading...')}}</span>
+                  </a>
+               </li>
+            </ul>
+
             <ul class="nav navbar-nav navbar-right">
                <li id="overall-hosts-states">
                   %include("_header_hosts_state.tpl")

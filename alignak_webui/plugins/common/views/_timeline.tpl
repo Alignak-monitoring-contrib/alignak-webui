@@ -9,16 +9,28 @@
 %setdefault('types', [])
 %setdefault('selected_types', [])
 
+%setdefault('object_type', 'history')
+%setdefault('page', '/'+object_type + ('/'+timeline_host.id if timeline_host else ''))
+
 %from bottle import request
 %search_string = request.query.get('search', '')
 
+%username = current_user.get_username()
+%if not target_user.is_anonymous():
+%username = target_user.get_username()
+%end
+
+%# Fetch elements per page preference for user, default is 25
+%elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+%elts_per_page = elts_per_page['value']
+
 %if layout:
-%rebase("layout", title=title, pagination=pagination, page='/'+object_type + ('/'+timeline_host.id if timeline_host else ''))
+%rebase("layout", title=title, pagination=pagination, page=page)
 %end
 
 %from alignak_webui.utils.helper import Helper
 
-<!-- Tree display -->
+<!-- Timeline display -->
 <div id="{{object_type}}_timeline_view">
    %if debug:
    <div class="panel-group">
@@ -42,10 +54,6 @@
    </div>
    %end
 
-   %if not items:
-      %include("_nothing_found.tpl", search_string=search_string)
-   %else:
-
    <div class="pull-left">
    <h3 class="timeline-title">{{title}}</h3>
    </div>
@@ -54,27 +62,41 @@
    %if types:
    <div class="pull-right">
       <form data-item="filter-timeline" data-action="filter" class="form" method="get" role="form">
-         <div class="btn-group">
-            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-               <span class="fa fa-filter fa-fw"></span>
-               <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right" role="menu" style="width: 240px">
-               %for type in types:
-               <li style="padding:5px">
-                  <label class="checkbox-inline">
-                     <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}"> {{types[type]}}
-                  </label>
-               </li>
-               %end
-               <li class="divider"></li>
-               <li style="padding:5px">
-                  <button type="submit" class="btn btn-default btn-sm btn-block">
-                     <span class="fa fa-check"></i>
-                     &nbsp;{{_('Apply filter')}}
-                  </button>
-               </li>
-             </ul>
+         <div class="btn-toolbar" role="toolbar" aria-label="...">
+            <div class="btn-group btn-group-xs" role="group" aria-label="{{_('Timeline filtering')}}">
+               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                  <span class="fa fa-filter fa-fw"></span>
+                  <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu pull-right" role="menu" style="width: 240px">
+                  %for type in types:
+                  <li style="padding:5px">
+                     <label class="checkbox-inline">
+                        <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}"> {{types[type]}}
+                     </label>
+                  </li>
+                  %end
+                  <li class="divider"></li>
+                  <li style="padding:5px">
+                     <button type="submit" class="btn btn-default btn-sm btn-block">
+                        <span class="fa fa-check"></i>
+                        &nbsp;{{_('Apply filter')}}
+                     </button>
+                  </li>
+                </ul>
+            </div>
+
+            <div class="btn-group btn-group-xs" role="group" aria-label="{{_('Timeline navigation')}}">
+            %if layout:
+               <a href="/host/{{timeline_host.id}}" class="btn btn-default">
+                  <span class="fa fa-server"></span>&nbsp;
+               </a>
+            %else:
+               <a href="/history/{{timeline_host.id}}" class="btn btn-default">
+                  <span class="fa fa-desktop"></span>&nbsp;
+               </a>
+            %end
+            </div>
          </div>
       </form>
    </div>
@@ -82,7 +104,11 @@
 
    <div class="clearfix"></div>
 
-   <ul class="timeline">
+   %if timeline_pagination and not layout:
+   %include("_pagination_element", pagination=timeline_pagination, page=page, elts_per_page=elts_per_page, display_steps_form=True)
+   %end
+
+   <ol id="included_timeline" class="timeline">
    %for item in items:
       %if not item.user:
       %continue
@@ -97,9 +123,10 @@
                   {{! item.user.get_html_state(text=item.user.alias) if item.user and item.user!='user' else ''}}
                </div>
                <div class="pull-right clearfix">
-                  <small class="text-muted"><em>
-                     <i class="fa fa-clock-o"></i> {{item.get_check_date(fmt='%H:%M:%S', duration=True)}}
-                  </em></small>
+                  <small class="text-muted">
+                     <span class="fa fa-clock-o"></span>
+                     <em><strong>{{item.get_check_date(fmt='%H:%M:%S', duration=True)}}</strong></em>
+                  </small>
                </div>
                <div class="clearfix">
                </div>
@@ -175,6 +202,110 @@
          </div>
       </li>
    %end
-   </ul>
+   </ol>
 </div>
-%end
+<script>
+   function infiniteScroll() {
+      %name, start, count, total, active = timeline_pagination[0]
+      var offset = {{count}};
+
+      // on initialise ajaxready à true au premier chargement de la fonction
+      $(window).data('ajaxready', true);
+
+      //$('#content').append('<div id="loader"><img src="/img/ajax-loader.gif" alt="loader ajax"></div>');
+      $('#loading').show();
+
+      var deviceAgent = navigator.userAgent.toLowerCase();
+      var agentID = deviceAgent.match(/(iphone|ipod|ipad)/);
+
+      $(window).scroll(function() {
+         // If a request is still in progress, return...
+         if ($(window).data('ajaxready') == false) return;
+
+         if (($(window).scrollTop() + $(window).height()) == $(document).height()
+         || agentID && ($(window).scrollTop() + $(window).height()) + 150 > $(document).height()) {
+            console.log("End of page ...")
+            // Set ajaxready to avoid multiple requests...
+            $(window).data('ajaxready', false);
+
+            $('#content #loader').fadeIn(400);
+            var url = '{{'/'+object_type + ('/'+timeline_host.id if timeline_host else '')}}' + '?infiniteScroll=true&start=' + offset + '&count=' + {{count}} + ' #included_timeline li';
+            $('#included_timeline').load(url, function(response, status, xhr){
+               console.log(status)
+               // Unset ajaxready because request is finished...
+               $(window).data('ajaxready', true);
+               if (status != 'error') {
+                  //$('#content #loader').before(data);
+                  $('#loading').fadeIn(400);
+                  offset+= {{count}};
+               }
+
+               //$('#content #loader').fadeOut(400);
+            });
+         }
+      });
+   };
+
+   /*
+   $(document).ready(function() {
+      infiniteScroll();
+
+      $('#{{object_type}}_timeline_view').jscroll({
+         debug: true,
+         autoTrigger: true,
+         loadingHtml: "<div><i class='fa fa-spinner fa-pulse fa-2x fa-fw'></i><span class='sr-only'>{{_('Loading...')}}</span></div>",
+         contentSelector: '#included_timeline li',
+         nextSelector: '.next_page',
+         callback: function() {
+            console.log("Done...")
+         }
+      });
+   });
+   */
+   $(document).ready(function() {
+      var win = $(window);
+      %name, start, count, total, active = timeline_pagination[0]
+      var start = {{start}};
+
+      // Set ajaxready status
+      $(window).data('ajaxready', true);
+
+      // Each time the user scrolls
+      win.scroll(function() {
+         // If a request is still in progress, return...
+         if ($(window).data('ajaxready') == false) return;
+
+         // End of the document reached?
+         if ($(document).height() - win.height() == win.scrollTop()) {
+            $('#loading').show();
+
+            // Set ajaxready to avoid multiple requests...
+            $(window).data('ajaxready', false);
+
+            start += {{elts_per_page}};
+            var url = '{{'/'+object_type + ('/'+timeline_host.id if timeline_host else '')}}' + '?infiniteScroll=true&start=' + start + '&count={{count}}';
+            $.get(url, function(data) {
+               var content = $(data).find('#included_timeline li').html();
+
+               $(data).find('#included_timeline li').each(function(idx, li){
+                  var elt = '<li/>';
+                  if ($(li).hasClass("timeline-inverted")) {
+                     elt = '<li class="timeline-inverted"/>';
+                  }
+                  $(elt)
+                     .hide()
+                     .append(li)
+                     .appendTo('#included_timeline')
+                     .delay(100)
+                     .slideDown('slow');
+               });
+
+               $('#loading').hide();
+               // Unset ajaxready because request is finished...
+               $(window).data('ajaxready', true);
+            });
+         }
+      });
+   });
+
+</script>

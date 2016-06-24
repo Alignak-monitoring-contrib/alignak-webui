@@ -34,6 +34,8 @@ from bottle import request, template, response
 from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import sort_items_most_recent_first
 
+from alignak_webui.plugins.histories.histories import schema as history_schema
+
 from alignak_webui.utils.datatable import Datatable
 from alignak_webui.utils.helper import Helper
 
@@ -451,7 +453,7 @@ def get_hosts():
 
     return {
         'hosts': hosts,
-        'pagination': Helper.get_pagination_control('host', total, start, count),
+        'pagination': Helper.get_pagination_control('/hosts', total, start, count),
         'title': request.query.get('title', _('All hosts'))
     }
 
@@ -585,7 +587,13 @@ def get_host(host_id):
     """
     Display an host
     """
+    user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
 
     host = datamgr.get_host(host_id)
     if not host:  # pragma: no cover, should not happen
@@ -595,34 +603,54 @@ def get_host(host_id):
     livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name': '%s' % host.name}})
     if livestate:
         livestate = livestate[0]
-    history = datamgr.get_history(
-        search={
-            'where': {'host': host_id},
-            'sort': '-_created'
-        }
-    )
-    acks = datamgr.get_history(
-        search={
-            'where': {'type': {"$regex": "^ack.*"}, 'host': host_id},
-            'embedded': {'host': 0, 'service': 1},
-            'sort': '-_created'
-        }
-    )
-    downtimes = datamgr.get_history(
-        search={
-            'where': {'type': 'downtime.*', 'host': host_id},
-            'embedded': {'host': 0, 'service': 1},
-            'sort': '-_created'
-        }
-    )
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Host history pagination and search parameters
+    start = int(request.query.get('start', '0'))
+    count = int(request.query.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.query.get('search', ''))
+    search={
+        'where': {'host': host_id},
+        'page': start // count + 1,
+        'max_results': count,
+        'sort': '-_created'
+    }
+
+    # Fetch timeline filters preference for user, default is []
+    selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+    selected_types = selected_types['value']
+    for selected_type in history_schema['type']['allowed']:
+        if request.query.get(selected_type) == 'true':
+            if selected_type not in selected_types:
+                selected_types.append(selected_type)
+            logger.critical("Filter: %s=%s", selected_type, request.query.get(selected_type))
+        elif request.query.get(selected_type) == 'false':
+            if selected_type in selected_types:
+                selected_types.remove(selected_type)
+
+    if selected_types:
+        datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+        search['where'].update({'type': {'$in': selected_types}})
+    logger.debug("History selected types: %s", selected_types)
+
+    history = datamgr.get_history(search=search)
+    if history is None:
+        history = []
+
+    # Get last total elements count
+    total = datamgr.get_objects_count('history', search=where, refresh=True)
 
     return {
         'host': host,
         'services': services,
         'livestate': livestate,
         'history': history,
-        'acks': acks,
-        'downtimes': downtimes,
+        'timeline_pagination': Helper.get_pagination_control('/host/' + host_id, total, start, count),
+        'types': history_schema['type']['allowed'],
+        'selected_types': selected_types,
         'title': request.query.get('title', _('Host view'))
     }
 

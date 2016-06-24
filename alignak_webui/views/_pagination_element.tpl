@@ -35,7 +35,7 @@
 %# First element for global data
 %# page_url start, count and total
 %page_url, start, count, total, active = pagination[0]
-<div id="" class="btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
+<div id="pagination_{{page_url.replace('/', '_')}}" class="btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
    %if pagination and len(pagination) > 1:
       %if display_steps_form and elts_per_page is not None:
       <form id="elts_per_page" class="form-inline">
@@ -98,6 +98,7 @@
       <div class="btn-group" role="group" aria-label="{{_('Pages sequence')}}">
       %from urllib import urlencode
       %first_element=False
+      %next_page=False
       %for label, start, count, total, active in pagination:
          %# Skip first element
          %if not first_element:
@@ -106,11 +107,15 @@
          %end
          %request.query['start'] = start
          %request.query['count'] = count
-         <a class="btn btn-default {{'active' if active else ''}}"
-            href="{{page_url}}?{{urlencode(request.query)}}">
-            {{!label}}
-            <span class="sr-only">{{!label}}</span>
-         </a>
+         <a class="btn btn-default {{'active' if active else ''}} {{'next_page' if next_page else ''}}"
+            href="{{page_url}}?{{urlencode(request.query)}}">{{!label}}<span class="sr-only">{{!label}}</span></a>
+         %if active:
+         %next_page=True
+         %else:
+            %if next_page:
+            %next_page=False
+            %end
+         %end
       %end
       </div>
    %end

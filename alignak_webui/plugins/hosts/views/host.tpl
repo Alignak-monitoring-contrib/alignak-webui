@@ -2,8 +2,6 @@
 %setdefault('services', None)
 %setdefault('livestate', None)
 %setdefault('history', None)
-%setdefault('acks', None)
-%setdefault('downtimes', None)
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
@@ -291,15 +289,6 @@
             <a href="#configuration" data-toggle="tab">{{_('Configuration')}}</a>
          </li>
          %end
-         <li>
-            <a href="#comments" data-toggle="tab">{{_('Comments')}}</a>
-         </li>
-         <li>
-            <a href="#downtimes" data-toggle="tab">{{_('Downtimes')}}</a>
-         </li>
-         <li>
-            <a href="#timeline" data-toggle="tab">Timeline</a>
-         </li>
          <li>
             <a href="#metrics" data-toggle="tab">{{_('Metrics')}}</a>
          </li>
@@ -675,39 +664,6 @@
          %end
          <!-- Tab Configuration end -->
 
-         <!-- Tab Comments start -->
-         <div class="tab-pane fade" id="comments">
-            <div class="panel panel-default">
-               <div class="panel-body">
-                  %if acks:
-                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=acks, title=_('Acknowledge history for %s'), layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
-                  %else:
-                     <div class="alert alert-info">
-                        <p class="font-blue">{{_('No acknowledgements for this host.')}}</p>
-                     </div>
-                  %end
-               </div>
-
-            </div>
-         </div>
-         <!-- Tab Comments end -->
-
-         <!-- Tab Downtimes start -->
-         <div class="tab-pane fade" id="downtimes">
-            <div class="panel panel-default">
-               <div class="panel-body">
-                  %if downtimes:
-                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=downtimes, title=_('Downtime history for %s'), layout=False, pagination=Helper.get_pagination_control('history', len(acks), 0, len(acks)))
-                  %else:
-                     <div class="alert alert-info">
-                        <p class="font-blue">{{_('No downtimes for this host.')}}</p>
-                     </div>
-                  %end
-               </div>
-            </div>
-         </div>
-         <!-- Tab Downtimes end -->
-
          <!-- Tab Metrics start -->
          <div class="tab-pane fade" id="metrics">
             <div class="panel panel-default">
@@ -760,7 +716,7 @@
          <div class="tab-pane fade" id="graphs">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %grafana = True
+                  %grafana = False
                   %if grafana:
                   <iframe src="http://94.76.229.155:92/dashboard-solo/db/my-dashboard?panelId=2&from=1466373600000&to=1466414828717" width="100%" height="200" frameborder="0"></iframe>
                   %else:
@@ -794,13 +750,7 @@
          <div class="tab-pane fade" id="timeline">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %if history:
-                     %include("_timeline.tpl", object_type='host', timeline_host=host, items=history, title=_('Checks, acknowledges, downtimes history for %s') % host.alias, layout=False, pagination=Helper.get_pagination_control('history', len(history), 0, len(history)))
-                  %else:
-                     <div class="alert alert-info">
-                        <p class="font-blue">{{_('No history logs available.')}}</p>
-                     </div>
-                  %end
+                  %include("_timeline.tpl", object_type='host', timeline_host=host, items=history, title=_('Checks, acknowledges, downtimes history for %s') % host.alias, layout=False, timeline_pagination=timeline_pagination)
                </div>
             </div>
          </div>
