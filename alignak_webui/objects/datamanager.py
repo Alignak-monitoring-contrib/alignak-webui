@@ -1233,7 +1233,7 @@ class DataManager(object):
         if "sort" not in search:
             search.update({'sort': '-_id'})
         if 'embedded' not in search:
-            search.update({'embedded': {'host': 1, 'service': 1, 'check_result': 1}})
+            search.update({'embedded': {'host': 1, 'service': 1, 'logcheckresult': 1}})
 
         try:
             logger.info("get_history, search: %s", search)
