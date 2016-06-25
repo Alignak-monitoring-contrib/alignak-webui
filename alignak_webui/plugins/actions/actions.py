@@ -57,6 +57,15 @@ def show_acknowledge_add():
 def add_acknowledge():
     """
     Add an acknowledgement
+
+    Parameters:
+    - livestate_id[]: all the livestate elements identifiers to be acknowledged
+
+    - sticky
+    - notify
+    - persistent
+    - comment
+
     """
     user = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
@@ -66,7 +75,6 @@ def add_acknowledge():
     if not target_user.is_anonymous():
         user_id = target_user.id
 
-    element_names = request.forms.getall('element_name')
     livestate_ids = request.forms.getall('livestate_id')
     if not livestate_ids:
         logger.error("request to send an acknowledge: missing livestate_id parameter!")
@@ -97,10 +105,10 @@ def add_acknowledge():
             data.update({'service': livestate.service.id})
 
         if not datamgr.add_acknowledge(data=data):
-            status += _("Failed adding an acknowledge for %s") % element_names[index]
+            status += _("Failed adding an acknowledge for %s") % livestate.name
             problem = True
         else:
-            status += _('Acknowledge sent for %s.') % element_names[index]
+            status += _('Acknowledge sent for %s.') % livestate.name
 
     logger.info("Request an acknowledge, result: %s", status)
 
@@ -136,7 +144,6 @@ def add_recheck():
     if not target_user.is_anonymous():
         user_id = target_user.id
 
-    element_names = request.forms.getall('element_name')
     livestate_ids = request.forms.getall('livestate_id')
     if not livestate_ids:
         logger.error("request to send an recheck: missing livestate_id parameter!")
@@ -163,10 +170,10 @@ def add_recheck():
             data.update({'service': livestate.service.id})
 
         if not datamgr.add_recheck(data=data):
-            status += _("Failed adding an recheck for %s") % element_names[index]
+            status += _("Failed adding a check request for %s") % livestate.name
             problem = True
         else:
-            status += _('recheck sent for %s.') % element_names[index]
+            status += _('Check request sent for %s.') % livestate.name
 
     logger.info("Request a re-check, result: %s", status)
 
@@ -207,7 +214,6 @@ def add_downtime():
     if not target_user.is_anonymous():
         user_id = target_user.id
 
-    element_names = request.forms.getall('element_name')
     livestate_ids = request.forms.getall('livestate_id')
     if not livestate_ids:
         logger.error("request to send an downtime: missing livestate_id parameter!")
@@ -241,10 +247,10 @@ def add_downtime():
 
         logger.critical("Request a downtime, data: %s", data)
         if not datamgr.add_downtime(data=data):
-            status += _("Failed adding a downtime for %s") % element_names[index]
+            status += _("Failed adding a downtime for %s") % livestate.name
             problem = True
         else:
-            status += _('downtime sent for %s.') % element_names[index]
+            status += _('downtime sent for %s.') % livestate.name
 
     logger.info("Request a downtime, result: %s", status)
 

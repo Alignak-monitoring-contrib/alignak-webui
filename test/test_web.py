@@ -26,7 +26,8 @@ import time
 import shlex
 import unittest2
 import subprocess
-# from gettext import gettext as _
+from calendar import timegm
+from datetime import datetime, timedelta
 
 from nose import with_setup
 from nose.tools import *
@@ -349,263 +350,6 @@ class tests_1_login(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class tests_1_preferences(unittest2.TestCase):
-
-    def setUp(self):
-        print ""
-        print "setting up ..."
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        print 'get login page'
-        response = self.app.get('/login')
-        response.mustcontain('<form role="form" method="post" action="/login">')
-
-        print 'login accepted - go to home page'
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
-        self.stored_response = redirected_response
-
-    def tearDown(self):
-        print ""
-        print "tearing down ..."
-
-        print 'logout - go to login page'
-        response = self.app.get('/logout')
-        redirected_response = response.follow()
-        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
-
-    @unittest2.skip("Broken test ...")
-    def test_1_1_global_preferences(self):
-        print ''
-        print 'test global user preferences page'
-
-        # /ping, still sends a status 200, but refresh is required
-        response = self.app.get('/ping')
-        # response.mustcontain('refresh')
-        response = self.app.get('/ping?action=done')
-        # response.mustcontain('pong')
-
-        # Get user's preferences page
-        response = self.app.get('/preferences/user')
-        response.mustcontain(
-            '<div id="user-preferences">',
-            'admin', 'Administrator',
-            'Preferences'
-        )
-
-    def test_1_2_common(self):
-        print ''
-        print 'test common preferences'
-
-        ### Common preferences
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('common', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 1 # bookmarks is already created
-
-        # Set a common preference named prefs
-        common_value = { 'foo': 'bar', 'foo_int': 1 }
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/common', {'key': 'prefs', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('Common preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'Common preferences saved'
-
-        # Get common preferences
-        response = self.app.get('/preference/common', {'key': 'prefs'})
-        response_value = response.json
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 1
-
-        # Update common preference named prefs
-        common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/common', {'key': 'prefs', 'value': json.dumps(common_value)})
-        response.mustcontain('Common preferences saved')
-
-        # Get common preferences
-        response = self.app.get('/preference/common', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-
-        # Set a common preference ; simple value
-        common_value = 10
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/common', {'key': 'simple', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('Common preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'Common preferences saved'
-
-        # Get common preferences ; simple value
-        response = self.app.get('/preference/common', {'key': 'simple'})
-        response_value = response.json
-        response.mustcontain('value')
-        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
-        assert 'value' in response_value
-        assert response.json['value'] == 10
-
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('common', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 3
-
-    def test_1_3_user(self):
-        print ''
-        print 'test user preferences'
-
-        ### User's preferences
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-            datamgr.delete_user_preferences('admin', pref['type'])
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        assert len(user_prefs) == 0
-
-
-        # Set a user's preference
-        common_value = { 'foo': 'bar', 'foo_int': 1 }
-        response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('User preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'User preferences saved'
-
-        response = self.app.get('/preference/user', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 1
-
-        # Update a user's preference
-        common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
-        print response
-        response.mustcontain("User preferences saved")
-
-        response = self.app.get('/preference/user', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-
-        # Set another user's preference
-        common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.post('/preference/user', {'key': 'prefs2', 'value': json.dumps(common_value)})
-        print response
-        response.mustcontain("User preferences saved")
-
-        response = self.app.get('/preference/user', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-        response = self.app.get('/preference/user', {'key': 'prefs2'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-
-        # Set a user preference ; simple value
-        common_value = 10
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/user', {'key': 'simple', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('User preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'User preferences saved'
-
-        # Get user preferences ; simple value
-        response = self.app.get('/preference/user', {'key': 'simple'})
-        response_value = response.json
-        response.mustcontain('value')
-        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
-        assert 'value' in response_value
-        assert response.json['value'] == 10
-
-
-        # Get a user preference ; default value, missing default
-        default_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.get('/preference/user', {'key': 'def'})
-        print "Body: '%s'" % response.body
-        # Response do not contain anything ...
-        assert response.body == ''
-
-
-        # Get a user preference ; default value
-        default_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.get('/preference/user', {'key': 'def', 'default': json.dumps(default_value)})
-        print response
-        response_value = response.json
-        print response_value
-        # response.mustcontain('value')
-        assert response_value == default_value
-
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-        self.assertEqual(len(user_prefs), 4)
-
-    def test_1_4_all(self):
-        print ''
-        print 'test all preferences'
-
-        ### User's preferences
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences(None, None)
-        for pref in user_prefs:
-            print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
-        self.assertEqual(len(user_prefs), 9)
-
-
 class tests_2_static_files(unittest2.TestCase):
 
     def setUp(self):
@@ -878,6 +622,304 @@ class tests_3(unittest2.TestCase):
         )
 
 
+class tests_actions(unittest2.TestCase):
+
+    def setUp(self):
+        print ""
+        print "setting up ..."
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.get('/login')
+        response.mustcontain('<form role="form" method="post" action="/login">')
+
+        print 'login accepted - go to home page'
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+        redirected_response.mustcontain('<div id="dashboard">')
+        # A host cookie now exists
+        assert self.app.cookies['Alignak-WebUI']
+
+    def tearDown(self):
+        print ""
+        print "tearing down ..."
+
+        response = self.app.get('/logout')
+        redirected_response = response.follow()
+        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
+
+    def test_acknowledge(self):
+        print ''
+        print 'test actions'
+
+        print 'get page /acknowledge/form/add'
+        response = self.app.get('/acknowledge/form/add')
+        response.mustcontain(
+            '<form data-item="acknowledge" data-action="add"'
+        )
+
+        # Current user is admin
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+
+        # Data manager
+        datamgr = session['datamanager']
+
+        # Get host, user and realm in the backend
+        host = datamgr.get_host({'where': {'name': 'webui'}})
+        user = datamgr.get_user({'where': {'name': 'admin'}})
+        livestate = datamgr.get_livestate({'where': {'name': 'webui'}})
+
+        # -------------------------------------------
+        # Add an acknowledge
+        # Missing livestate_id!
+        data = {
+            "action": "add",
+            "host": host.id,
+            "service": None,
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "comment": "User comment",
+        }
+        response = self.app.post('/acknowledge/add', data, status=204)
+
+        # Acknowledge an host
+        data = {
+            "action": "add",
+            "livestate_id": livestate[0].id,
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "comment": "User comment",
+        }
+        response = self.app.post('/acknowledge/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "Acknowledge sent for webui."
+
+        # Acknowledge a service
+        livestate = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+        data = {
+            "action": "add",
+            "livestate_id": livestate[0].id,
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "comment": "User comment",
+        }
+        response = self.app.post('/acknowledge/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter."
+
+        # Acknowledge several services
+        livestate1 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+        livestate2 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-reactionner'}})
+        data = {
+            "action": "add",
+            "livestate_id": [livestate1[0].id, livestate2[0].id],
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "comment": "User comment",
+        }
+        response = self.app.post('/acknowledge/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter.Acknowledge sent for webui/Shinken2-reactionner."
+
+        print 'get page /downtime/form/add'
+        response = self.app.get('/downtime/form/add')
+        response.mustcontain(
+            '<form data-item="downtime" data-action="add"'
+        )
+
+        print 'get page /recheck/form/add'
+        response = self.app.get('/recheck/form/add')
+        response.mustcontain(
+            '<form data-item="recheck" data-action="recheck" '
+        )
+
+    def test_downtime(self):
+        print ''
+        print 'test actions'
+
+        print 'get page /downtime/form/add'
+        response = self.app.get('/downtime/form/add')
+        response.mustcontain(
+            '<form data-item="downtime" data-action="add"'
+        )
+
+        # Current user is admin
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+
+        # Data manager
+        datamgr = session['datamanager']
+
+        # Get host, user and realm in the backend
+        host = datamgr.get_host({'where': {'name': 'webui'}})
+        user = datamgr.get_user({'where': {'name': 'admin'}})
+        livestate = datamgr.get_livestate({'where': {'name': 'webui'}})
+
+        now = datetime.utcnow()
+        later = now + timedelta(days=2, hours=4, minutes=3, seconds=12)
+        now = timegm(now.timetuple())
+        later = timegm(later.timetuple())
+
+        # -------------------------------------------
+        # Add an downtime
+        # Missing livestate_id!
+        data = {
+            "action": "add",
+            "host": host.id,
+            "service": None,
+            "start_time": now,
+            "end_time": later,
+            "fixed": False,
+            'duration': 86400,
+            "comment": "User comment",
+        }
+        response = self.app.post('/downtime/add', data, status=204)
+
+        # downtime an host
+        data = {
+            "action": "add",
+            "livestate_id": livestate[0].id,
+            "start_time": now,
+            "end_time": later,
+            "fixed": False,
+            'duration': 86400,
+            "comment": "User comment",
+        }
+        response = self.app.post('/downtime/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "downtime sent for webui."
+
+        # downtime a service
+        livestate = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+        data = {
+            "action": "add",
+            "livestate_id": livestate[0].id,
+            "start_time": now,
+            "end_time": later,
+            "fixed": False,
+            'duration': 86400,
+            "comment": "User comment",
+        }
+        response = self.app.post('/downtime/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "downtime sent for webui/Shinken2-arbiter."
+
+        # downtime several services
+        livestate1 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+        livestate2 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-reactionner'}})
+        data = {
+            "action": "add",
+            "livestate_id": [livestate1[0].id, livestate2[0].id],
+            "start_time": now,
+            "end_time": later,
+            "fixed": False,
+            'duration': 86400,
+            "comment": "User comment",
+        }
+        response = self.app.post('/downtime/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "downtime sent for webui/Shinken2-arbiter.downtime sent for webui/Shinken2-reactionner."
+
+        print 'get page /downtime/form/add'
+        response = self.app.get('/downtime/form/add')
+        response.mustcontain(
+            '<form data-item="downtime" data-action="add"'
+        )
+
+        print 'get page /recheck/form/add'
+        response = self.app.get('/recheck/form/add')
+        response.mustcontain(
+            '<form data-item="recheck" data-action="recheck" '
+        )
+
+    def test_recheck(self):
+        print ''
+        print 'test recheck'
+
+        print 'get page /recheck/form/add'
+        response = self.app.get('/recheck/form/add')
+        response.mustcontain(
+            '<form data-item="recheck" data-action="recheck" '
+        )
+
+        # Current user is admin
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+
+        # Data manager
+        datamgr = session['datamanager']
+
+        # Get host, user and realm in the backend
+        host = datamgr.get_host({'where': {'name': 'webui'}})
+        user = datamgr.get_user({'where': {'name': 'admin'}})
+        livestate = datamgr.get_livestate({'where': {'name': 'webui'}})
+
+        # -------------------------------------------
+        # Add a recheck
+        # Missing livestate_id!
+        data = {
+            "host": host.id,
+            "service": None,
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "comment": "User comment",
+        }
+        response = self.app.post('/recheck/add', data, status=204)
+
+        # Recheck an host
+        data = {
+            "livestate_id": livestate[0].id,
+            "comment": "User comment",
+        }
+        response = self.app.post('/recheck/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "Check request sent for webui."
+
+        # Recheck a service
+        livestate = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+        data = {
+            "livestate_id": livestate[0].id,
+            "comment": "User comment",
+        }
+        response = self.app.post('/recheck/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter."
+
+        # Recheck several services
+        livestate1 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
+        livestate2 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-reactionner'}})
+        data = {
+            "livestate_id": [livestate1[0].id, livestate2[0].id],
+            "comment": "User comment",
+        }
+        response = self.app.post('/recheck/add', data)
+        print response
+        assert response.json['status'] == "ok"
+        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter.Check request sent for webui/Shinken2-reactionner."
+
+
 class tests_4_target_user(unittest2.TestCase):
 
     def setUp(self):
@@ -928,13 +970,13 @@ class tests_4_target_user(unittest2.TestCase):
         print 'get home page /dashboard'
         response = self.app.get('/dashboard')
         response.mustcontain('<div id="dashboard">')
-        host = response.request.environ['beaker.session']
-        assert 'current_user' in host and host['current_user']
-        print host['current_user']
-        assert host['current_user'].get_username() == 'admin'
-        assert 'target_user' in host and host['target_user']
-        print host['target_user']
-        assert host['target_user'].get_username() == 'anonymous'
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        print session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+        assert 'target_user' in session and session['target_user']
+        print session['target_user']
+        assert session['target_user'].get_username() == 'anonymous'
 
         print 'get page /users'
         # 4 users
@@ -946,13 +988,13 @@ class tests_4_target_user(unittest2.TestCase):
         )
 
         # Current user is admin
-        host = response.request.environ['beaker.session']
-        assert 'current_user' in host and host['current_user']
-        print host['current_user']
-        assert host['current_user'].get_username() == 'admin'
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        print session['current_user']
+        assert session['current_user'].get_username() == 'admin'
 
         # Data manager
-        datamgr = host['datamanager']
+        datamgr = session['datamanager']
         user = datamgr.get_user({'where': {'name': 'admin'}})
         print user
         assert user

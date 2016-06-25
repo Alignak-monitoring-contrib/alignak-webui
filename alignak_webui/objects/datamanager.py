@@ -43,7 +43,7 @@ from alignak_webui.objects.backend import BackendConnection
 from alignak_webui.objects.item import Item
 from alignak_webui.objects.item import Command, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis, Log, History
-from alignak_webui.objects.item import User, Host, Service
+from alignak_webui.objects.item import UIPref, User, Host, Service
 from alignak_webui.objects.item import UserGroup, HostGroup, ServiceGroup
 
 
@@ -453,7 +453,15 @@ class DataManager(object):
         else:
             object_id = element.id
 
-        return self.backend.delete(object_type, object_id)
+        if self.backend.delete(object_type, object_id):
+            # Find object type class...
+            object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
+
+            # Delete existing cache object
+            if object_id in object_class.getCache():
+                del object_class.getCache()[object_id]
+
+        return True
 
     def update_object(self, object_type, element, data):
         """
@@ -517,6 +525,7 @@ class DataManager(object):
             return False
         except Exception as e:  # pragma: no cover - need specific backend tests
             logger.error("delete_user_preferences, exception: %s", str(e))
+            logger.error("traceback: %s", traceback.format_exc())
             raise e
 
         return False

@@ -66,12 +66,12 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             self.connected = False
 
-            if not username:
+            if not username:  # pragma: no cover, should not happen
                 # Refuse backend login without username
                 logger.warning("No login without username!")
                 return self.connected
 
-            if not password:
+            if not password:  # pragma: no cover, should not happen
                 # Set backend token (no login request).
                 logger.debug("Update backend token")
                 self.backend.token = username
@@ -145,8 +145,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 logger.debug("count, found in the backend: %s: %s", object_type, result['_items'])
                 return result['_meta']['total']
 
-            # pragma: no cover, simple protection
-            return 0
+            return 0 # pragma: no cover, simple protection
 
         def get(self, object_type, params=None, all_elements=False):
             """
@@ -246,11 +245,11 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 if result['_status'] != 'OK':
                     logger.warning("post, error: %s", result)
                     return None
-            except BackendException as e:
+            except BackendException as e:  # pragma: no cover, simple protection
                 logger.error("post, backend exception: %s", str(e))
                 logger.error("- response: %s", e.response)
                 return None
-            except Exception as e:
+            except Exception as e:  # pragma: no cover, simple protection
                 logger.warning("post, error: %s", str(e))
                 return None
 
@@ -268,7 +267,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 # Get most recent version of the element
                 element = self.get('/'.join([object_type, object_id]))
                 logger.debug("delete, element: %s", element)
-            except ValueError:
+            except ValueError:  # pragma: no cover, simple protection
                 logger.warning("delete, object %s, _id=%s not found", object_type, object_id)
                 return False
 
@@ -310,7 +309,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 # Get most recent version of the element
                 element = self.get('/'.join([object_type, object_id]))
                 logger.debug("update, element: %s", element)
-            except ValueError:
+            except ValueError:  # pragma: no cover, simple protection
                 logger.warning("update, object %s, _id=%s not found", object_type, object_id)
                 return False
 
