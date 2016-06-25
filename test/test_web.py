@@ -1076,11 +1076,11 @@ class tests_4_target_user(unittest2.TestCase):
         print 'get home page /dashboard - no target user'
         response = self.app.get('/dashboard')
         response.mustcontain('<div id="dashboard">')
-        assert 'current_user' in host and host['current_user']
-        print host['current_user']
-        assert 'target_user' in host and host['target_user']
-        print host['target_user']
-        assert host['target_user'].get_username() == 'anonymous'
+        assert 'current_user' in session and session['current_user']
+        print session['current_user']
+        assert 'target_user' in session and session['target_user']
+        print session['target_user']
+        assert session['target_user'].get_username() == 'anonymous'
 
         print 'get home page /dashboard - set target user'
         response = self.app.get('/dashboard', {'target_user': 'not_admin'})
@@ -1092,9 +1092,9 @@ class tests_4_target_user(unittest2.TestCase):
         response.mustcontain(
             '<div id="dashboard">'
         )
-        assert 'current_user' in host and host['current_user']
-        assert 'target_user' in host and host['target_user']
-        assert host['target_user'].get_username() == 'anonymous'
+        assert 'current_user' in session and session['current_user']
+        assert 'target_user' in session and session['target_user']
+        assert session['target_user'].get_username() == 'anonymous'
 
         print "Current user is:", response.request.environ['beaker.session']['current_user']
         print "Target user is:", response.request.environ['beaker.session']['target_user']
