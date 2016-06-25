@@ -603,7 +603,7 @@ class tests_1_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences(None, None)
         for pref in user_prefs:
             print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
-        self.assertEqual(len(user_prefs), 10)
+        self.assertEqual(len(user_prefs), 9)
 
 
 class tests_2_static_files(unittest2.TestCase):
