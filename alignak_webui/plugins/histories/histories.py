@@ -234,7 +234,8 @@ def get_history(host_id):
         'types': schema['type']['allowed'],
         'selected_types': selected_types,
         'items': history,
-        'timeline_pagination': Helper.get_pagination_control('/history/' + host_id, total, start, count),
+        'timeline_pagination': Helper.get_pagination_control('/history/' + host_id,
+                                                             total, start, count),
         'title': request.query.get('title', _('History for %s') % host.alias)
     }
 

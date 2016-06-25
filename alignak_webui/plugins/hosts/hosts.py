@@ -584,6 +584,8 @@ def get_hosts_table_data():
 
 
 def get_host(host_id):
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
     """
     Display an host
     """
@@ -612,7 +614,7 @@ def get_host(host_id):
     start = int(request.query.get('start', '0'))
     count = int(request.query.get('count', elts_per_page))
     where = webui.helper.decode_search(request.query.get('search', ''))
-    search={
+    search = {
         'where': {'host': host_id},
         'page': start // count + 1,
         'max_results': count,
@@ -648,7 +650,8 @@ def get_host(host_id):
         'services': services,
         'livestate': livestate,
         'history': history,
-        'timeline_pagination': Helper.get_pagination_control('/host/' + host_id, total, start, count),
+        'timeline_pagination': Helper.get_pagination_control('/host/' + host_id,
+                                                             total, start, count),
         'types': history_schema['type']['allowed'],
         'selected_types': selected_types,
         'title': request.query.get('title', _('Host view'))
