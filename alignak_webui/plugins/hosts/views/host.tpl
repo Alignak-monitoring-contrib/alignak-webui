@@ -400,7 +400,7 @@
                         %if livestate:
                         <tbody style="font-size:x-small;">
                            <tr>
-                              <td><strong>{{_('Last Check:')}}</strong></td>
+                              <td><strong>{{_('Last check:')}}</strong></td>
                               <td>
                                  <span class="popover-dismiss" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="{{_('Last check was at %s') % Helper.print_duration(livestate.last_check)}}">was {{Helper.print_duration(livestate.last_check)}}</span></td>
                            </tr>
@@ -425,14 +425,14 @@
                               </td>
                            </tr>
                            <tr>
-                              <td><strong>{{_('Check latency / duration:')}}</strong></td>
+                              <td><strong>{{_('Check duration (latency):')}}</strong></td>
                               <td>
-                                 {{_('%.2f / %.2f seconds') % (9999, 9999999) }}
+                                 {{_('%.2f (%.2f) seconds') % (livestate.execution_time, livestate.latency) }}
                               </td>
                            </tr>
 
                            <tr>
-                              <td><strong>{{_('Last State Change:')}}</strong></td>
+                              <td><strong>{{_('Last state change:')}}</strong></td>
                               <td class="popover-dismiss"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
                                     data-title="{{host.name}}{{_('}} last state change date')}}"
@@ -442,13 +442,13 @@
                               </td>
                            </tr>
                            <tr>
-                              <td><strong>{{_('Current Attempt:')}}</strong></td>
+                              <td><strong>{{_('Current attempt:')}}</strong></td>
                               <td>
                                  {{_('%s / %s %s state') % (host.attempt, livestate.max_attempts, livestate.state_type) }}
                               </td>
                            </tr>
                            <tr>
-                              <td><strong>{{_('Next Active Check:')}}</strong></td>
+                              <td><strong>{{_('Next active check:')}}</strong></td>
                               <td class="popover-dismiss"
                                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
                                     data-title="{{host.name}}{{_('}} last state change date')}}"
@@ -513,6 +513,14 @@
                               <td>
                               </td>
                            </tr>
+
+                           <tr>
+                              <td><strong>{{_('Process performance data:')}}</strong></td>
+                              <td>
+                                 {{! Helper.get_on_off(host.process_perf_data)}}
+                              </td>
+                           </tr>
+
                            <tr>
                               <td><strong>{{_('Active checks:')}}</strong></td>
                               <td>
@@ -522,11 +530,11 @@
                            %if (host.active_checks_enabled):
                            <tr>
                               <td><strong>{{_('Check interval:')}}</strong></td>
-                              <td>{{host.check_interval}} seconds</td>
+                              <td>{{host.check_interval}} minutes</td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Retry interval:')}}</strong></td>
-                              <td>{{host.retry_interval}} seconds</td>
+                              <td>{{host.retry_interval}} minutes</td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Max check attempts:')}}</strong></td>
@@ -553,12 +561,6 @@
                            </tr>
                            %end
                            %end
-                           <tr>
-                              <td><strong>{{_('Process performance data:')}}</strong></td>
-                              <td>
-                                 {{! Helper.get_on_off(host.process_perf_data)}}
-                              </td>
-                           </tr>
                         </tbody>
                      </table>
 
