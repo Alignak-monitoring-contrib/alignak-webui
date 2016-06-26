@@ -50,7 +50,7 @@ def get_page():
     saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'widgets': []})
     if not saved_widgets:
         saved_widgets = {'widgets': []}
-        datamgr.set_user_preferences(username, 'widgets', saved_widgets)
+        datamgr.set_user_preferences(username, 'dashboard_widgets', saved_widgets)
 
     widgets = []
     for widget in saved_widgets['widgets']:
