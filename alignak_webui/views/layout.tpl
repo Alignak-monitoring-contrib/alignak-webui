@@ -93,9 +93,6 @@
       <!-- jsTree jQuery plugin -->
       <script type="text/javascript" src="/static/js/jstree.min.js"></script>
 
-      <!-- jscroll jQuery plugin -->
-      <script type="text/javascript" src="/static/js/jquery.jscroll.js"></script>
-
       <!-- Datatables jQuery plugin -->
       <script type="text/javascript" src="/static/js/datatables.min.js"></script>
       <!-- Datatables custom filtering jQuery plugin -->
