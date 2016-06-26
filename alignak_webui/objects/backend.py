@@ -145,7 +145,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 logger.debug("count, found in the backend: %s: %s", object_type, result['_items'])
                 return result['_meta']['total']
 
-            return 0 # pragma: no cover, simple protection
+            return 0  # pragma: no cover, simple protection
 
         def get(self, object_type, params=None, all_elements=False):
             """
