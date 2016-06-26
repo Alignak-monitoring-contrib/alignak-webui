@@ -1227,7 +1227,7 @@ class DataManager(object):
             logger.info("get_commands, search: %s", search)
             items = self.find_object('command', search)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_commands, none found")
 
         return []
@@ -1242,35 +1242,6 @@ class DataManager(object):
 
         items = self.get_commands(search=search)
         return items[0] if items else None
-
-    def get_commands_synthesis(self, elts=None):
-        """
-        Documents synthesis by status
-        """
-        if elts:
-            commands = [item for item in elts if item.getType() == 'command']
-        else:
-            # Use internal object list ...
-            commands = [item for dummy, item in Command.getCache().items()]
-        logger.debug("get_commands_synthesis, %d commands", len(commands))
-
-        synthesis = dict()
-        synthesis['nb_elts'] = len(commands)
-        if commands:
-            for state in 'attached', 'empty', 'problem', 'unknown':
-                synthesis['nb_' + state] = sum(
-                    1 for command in commands if command.status.lower() == state
-                )
-                synthesis['pct_' + state] = round(
-                    100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
-                )
-        else:
-            for state in 'attached', 'empty', 'problem', 'unknown':
-                synthesis['nb_' + state] = 0
-                synthesis['pct_' + state] = 0
-
-        logger.debug("get_commands_synthesis: %s", synthesis)
-        return synthesis
 
     ##
     # Users
@@ -1290,7 +1261,7 @@ class DataManager(object):
             items = self.find_object('user', search)
             # logger.info("get_users, got: %d elements, %s", len(items), items)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_users, none found")
 
         return []
@@ -1357,7 +1328,7 @@ class DataManager(object):
             items = self.find_object('realm', search)
             # logger.info("get_realms, got: %d elements, %s", len(items), items)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_realms, none found")
 
         return []
