@@ -1989,27 +1989,3 @@ class TimePeriod(Item):
         Overload default property. Link to the main objects page with an anchor.
         """
         return '/%ss#%s' % (self.object_type, self.id)
-
-
-# Sort methods
-# -----------------------------------------------------
-def sort_items_most_recent_first(s1, s2):
-    """
-    Sort elemnts by descending date
-    """
-    if s1.get_date() > s2.get_date():
-        return -1
-    if s1.get_date() < s2.get_date():
-        return 1
-    return 0
-
-
-def sort_items_least_recent_first(s1, s2):
-    """
-    Sort elements by ascending date
-    """
-    if s1.get_date() < s2.get_date():
-        return -1
-    if s1.get_date() > s2.get_date():
-        return 1
-    return 0

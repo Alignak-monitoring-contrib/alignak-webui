@@ -32,7 +32,6 @@ from logging import getLogger
 from bottle import request, template, response
 
 from alignak_webui.objects.item import Item
-from alignak_webui.objects.item import sort_items_most_recent_first
 
 from alignak_webui.plugins.histories.histories import schema as history_schema
 

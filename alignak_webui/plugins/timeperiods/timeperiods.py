@@ -33,7 +33,6 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui.objects.item import Item
-from alignak_webui.objects.item import sort_items_most_recent_first
 
 from alignak_webui.utils.datatable import Datatable
 from alignak_webui.utils.helper import Helper
