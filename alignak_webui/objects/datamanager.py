@@ -827,18 +827,60 @@ class DataManager(object):
         if not search:
             search = {}
 
+        default_ls = {
+            'hosts_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_up': 0, 'pct_up': 100.0,
+                'nb_up_hard': 0, 'nb_up_soft': 0,
+                'nb_down': 0, 'pct_down': 0.0,
+                'nb_down_hard': 0, 'nb_down_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
+            },
+            'services_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_ok': 0, 'pct_ok': 100.0,
+                'nb_ok_hard': 0, 'nb_ok_soft': 0,
+                'nb_warning': 0, 'pct_warning': 0.0,
+                'nb_warning_hard': 0, 'nb_warning_soft': 0,
+                'nb_critical': 0, 'pct_critical': 0.0,
+                'nb_critical_hard': 0, 'nb_critical_soft': 0,
+                'nb_unknown': 0, 'pct_unknown': 0.0,
+                'nb_unknown_hard': 0, 'nb_unknown_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0
+            }
+        }
+
         try:
             logger.debug("get_livesynthesis, search: %s", search)
             items = self.find_object('livesynthesis', search)
             logger.debug("get_livesynthesis, got: %d elements, %s", len(items), items)
         except ValueError:
             logger.debug("get_livesynthesis, none found")
-            return None
+            return default_ls
 
         if not items:
-            return None
+            return default_ls
         ls = items[0]
-        logger.debug("live synthesis, %s", ls.__dict__)
 
         # Services synthesis
         hosts_synthesis = {
@@ -889,10 +931,10 @@ class DataManager(object):
             'global_warning_threshold': 2.0,
         }
         for state in 'ok', 'warning', 'critical', 'unknown':
-            hosts_synthesis.update({
+            services_synthesis.update({
                 "nb_%s_hard" % state: ls["services_%s_hard" % state]
             })
-            hosts_synthesis.update({
+            services_synthesis.update({
                 "nb_%s_soft" % state: ls["services_%s_soft" % state]
             })
             services_synthesis.update({
@@ -922,8 +964,12 @@ class DataManager(object):
             'hosts_synthesis': hosts_synthesis,
             'services_synthesis': services_synthesis
         }
+        logger.debug("live synthesis, %s", synthesis)
         return synthesis
 
+    ##
+    # Actions
+    ##
     def add_acknowledge(self, data):
         """ Request to acknowledge a problem. """
 
