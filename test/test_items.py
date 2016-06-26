@@ -639,7 +639,7 @@ class test_02_items(unittest2.TestCase):
         assert item.status == 'unknown'
 
         assert item.role == 'user'
-        assert item.read_only == True
+        assert item.can_submit_commands == False
         assert item.picture == '/static/images/user_guest.png'
         assert item.authenticated == False
         assert item.widgets_allowed == False
@@ -649,7 +649,7 @@ class test_02_items(unittest2.TestCase):
         assert item.get_role(display=True) == 'User'
         assert item.is_administrator() == False
         assert item.is_anonymous() == True
-        assert item.can_submit_commands() == False
+        assert item.can_submit_commands == False
         assert item.can_change_dashboard() == False
         assert item.picture == '/static/images/user_guest.png'
 
@@ -662,7 +662,7 @@ class test_02_items(unittest2.TestCase):
             'password': 'test',
             'is_admin': False,
             'widgets_allowed': True,
-            'read_only': False,
+            'can_submit_commands': True,
             'email': 'test@gmail.com',
             'lync': 'test@lync.com',
             'token': 'token'
@@ -673,7 +673,7 @@ class test_02_items(unittest2.TestCase):
         assert item.get_role(display=True) == 'Power user'
         assert item.is_administrator() == False
         assert item.is_anonymous() == False
-        assert item.can_submit_commands() == True
+        assert item.is_power() == True
         assert item.can_change_dashboard() == True
         assert item.picture == '/static/images/user_default.png'
         assert item.token == 'token'
@@ -697,7 +697,7 @@ class test_02_items(unittest2.TestCase):
         assert item.get_role(display=True) == 'Administrator'
         assert item.is_administrator() == True
         assert item.is_anonymous() == False
-        assert item.can_submit_commands() == True
+        assert item.is_power() == True
         assert item.can_change_dashboard() == True
         assert item.picture == '/static/images/user_admin.png'
 
@@ -712,7 +712,7 @@ class test_02_items(unittest2.TestCase):
             'password': 'test',
             'is_admin': False,
             'widgets_allowed': '0',
-            'read_only': True
+            'can_submit_commands': False
         })
         print item.__dict__
 
@@ -723,7 +723,7 @@ class test_02_items(unittest2.TestCase):
         assert item.get_role(display=True) == 'User'
         assert item.is_administrator() == False
         assert item.is_anonymous() == False
-        assert item.can_submit_commands() == False
+        assert item.is_power() == False
         assert item.can_change_dashboard() == False
         assert item.picture == '/static/images/user_default.png'
 
@@ -736,12 +736,12 @@ class test_02_items(unittest2.TestCase):
             'alias': 'Aliased name',
             'password': 'test',
             'is_admin': False,
-            'read_only': '1'
+            'can_submit_commands': '0'
         })
         assert item.name == 'test'
         assert item.alias == 'Aliased name'
         assert item.get_username() == 'test_priority'
-        assert item.can_submit_commands() == False
+        assert item.is_power() == False
         assert item.can_change_dashboard() == False
         # Update with a new obect declaration
         item = User({
@@ -751,7 +751,7 @@ class test_02_items(unittest2.TestCase):
         })
         assert item.alias == 'Aliased name (bis)'
         assert item.get_username() == 'test_priority'
-        assert item.can_submit_commands() == True
+        assert item.is_power() == True
         assert item.can_change_dashboard() == True
         # Update calling _update
         item._update({
@@ -760,7 +760,7 @@ class test_02_items(unittest2.TestCase):
         })
         assert item.alias == 'Aliased name (bis)'
         assert item.get_username() == 'test_priority'
-        assert item.can_submit_commands() == True
+        assert item.is_power() == True
         assert item.can_change_dashboard() == True
 
     def test_03_commands(self):
