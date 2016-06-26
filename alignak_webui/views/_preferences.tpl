@@ -36,7 +36,7 @@
                      </tr>
                      <tr>
                         <td><strong>{{_('User is allowed to run commands')}}</strong></td>
-                        <td>{{! webui.helper.get_on_off(current_user.can_submit_commands(), _('Is this user allowed to launch commands from Web UI?'))}}</td>
+                        <td>{{! webui.helper.get_on_off(current_user.is_power(), _('Is this user allowed to launch commands from Web UI?'))}}</td>
                      </tr>
                      <tr>
                         <td><strong>{{_('User can change dashboard widgets')}}</strong></td>

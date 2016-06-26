@@ -63,7 +63,7 @@
                <th>{{_('Administrator')}}</th>
                <th>{{_('Commands')}}</th>
                <th>{{_('Widgets')}}</th>
-               %if commands and current_user.can_submit_commands():
+               %if commands and current_user.is_power():
                <th class="hidden-sm hidden-xs" width="50px">{{_('Commands')}}</th>
                %end
             </tr></thead>
@@ -88,14 +88,14 @@
                   </td>
 
                   <td>
-                     <small>{{! webui.helper.get_on_off(user.can_submit_commands())}}</small>
+                     <small>{{! webui.helper.get_on_off(user.is_power())}}</small>
                   </td>
 
                   <td>
                      <small>{{! webui.helper.get_on_off(user.can_change_dashboard())}}</small>
                   </td>
 
-                  %if commands and current_user.can_submit_commands():
+                  %if commands and current_user.is_power():
                   <td align="right">
                      <div class="navbar" role="toolbar" aria-label="{{_('Select a user to change dashboard layout')}}">
                         <form class="form-inline" role="search">

@@ -1145,10 +1145,6 @@ class User(Item):
         """
         Create a user (called only once when an object is newly created)
         """
-        if params and 'can_submit_commands' in params:
-            params['read_only'] = False
-            params.pop('can_submit_commands', None)
-
         super(User, self)._create(params, date_format)
 
         self.authenticated = False
@@ -1158,8 +1154,8 @@ class User(Item):
             self.is_admin = False
 
         # Can submit commands
-        if not hasattr(self, 'read_only'):
-            self.read_only = True
+        if not hasattr(self, 'can_submit_commands'):
+            self.can_submit_commands = False
 
         # Can change dashboard
         if not hasattr(self, 'widgets_allowed'):
@@ -1181,10 +1177,6 @@ class User(Item):
         """
         Update a user (called every time an object is updated)
         """
-        if params and 'can_submit_commands' in params:
-            params['read_only'] = False
-            params.pop('can_submit_commands', None)
-
         super(User, self)._update(params, date_format)
 
     def __init__(self, params=None):
@@ -1213,7 +1205,7 @@ class User(Item):
     def get_username(self):
         """
         Get the user username (for login).
-        Returns the 'username' field if it exisrs, else returns  the 'name' field,
+        Returns the 'username' field if it exists, else returns  the 'name' field,
         else returns  the 'name' field
         """
         return getattr(self, 'username', self.name)
@@ -1229,13 +1221,12 @@ class User(Item):
         If the display parameter is set, the function returns a displayable string else it
         returns the defined role property
         """
-        if not getattr(self, 'role', None):
-            if self.is_administrator():
-                self.role = 'administrator'
-            elif self.can_submit_commands():
-                self.role = 'power'
-            else:
-                self.role = 'user'
+        if self.is_administrator():
+            self.role = 'administrator'
+        elif self.is_power():
+            self.role = 'power'
+        else:
+            self.role = 'user'
 
         if display and self.role in self.__class__.roles:
             return self.__class__.roles[self.role]
@@ -1249,40 +1240,48 @@ class User(Item):
         """
         return self.name == 'anonymous'
 
+    def is_super_administrator(self):
+        """
+        Is user a super administrator?
+        """
+        if getattr(self, 'back_role_super_admin', None):
+            return self.back_role_super_admin
+
     def is_administrator(self):
         """
         Is user an administrator?
         """
-        if getattr(self, 'back_role_super_admin', None):
-            return self.back_role_super_admin
-        return self.is_admin
+        if self.is_super_administrator():
+            return True
 
-    def can_submit_commands(self):
+        if isinstance(self.is_admin, bool):
+            return self.is_admin
+        else:
+            return getattr(self, 'is_admin', '1') == '1'
+
+    def is_power(self):
         """
-        Is allowed to use commands?
+        Is allowed to use commands (power user)?
         """
         if self.is_administrator():
             return True
 
-        if isinstance(self.read_only, bool):
-            return not self.read_only
+        if isinstance(self.can_submit_commands, bool):
+            return self.can_submit_commands
         else:
-            return not getattr(self, 'read_only', '0') == '1'
+            return getattr(self, 'can_submit_commands', '1') == '1'
 
     def can_change_dashboard(self):
         """
         Can the use change dashboard (edit widgets,...)?
         """
-        if self.is_administrator():
+        if self.is_power():
             return True
 
-        if hasattr(self, 'widgets_allowed'):
-            if isinstance(self.widgets_allowed, bool):
-                return self.widgets_allowed
-            else:
-                return getattr(self, 'widgets_allowed', '0') == '1'
-
-        return False
+        if isinstance(self.widgets_allowed, bool):
+            return self.widgets_allowed
+        else:
+            return getattr(self, 'widgets_allowed', '1') == '1'
 
 
 class UserGroup(Item):

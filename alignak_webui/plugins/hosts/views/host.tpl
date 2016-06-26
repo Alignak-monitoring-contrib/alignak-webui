@@ -212,7 +212,7 @@
    </div>
 
    <!-- Third row : business impact alerting ... -->
-   %if current_user.can_submit_commands():
+   %if current_user.is_power():
       %if host.is_problem and host.business_impact > 2 and not host.problem_has_been_acknowledged:
       <div class="panel panel-default">
          <div class="panel-heading" style="padding-bottom: -10">
@@ -620,7 +620,7 @@
                <div class="panel-body">
                   <table class="table table-condensed table-bordered">
                      <colgroup>
-                        %if current_user.can_submit_commands():
+                        %if current_user.is_power():
                         <col style="width: 30%" />
                         <col style="width: 60%" />
                         <col style="width: 10%" />
@@ -639,21 +639,6 @@
                         <tr>
                            <td>{{var}}</td>
                            <td>{{host.customs[var]}}</td>
-                           %# ************
-                           %# Remove the Change button because Shinken does not take care of the external command!
-                           %# Issue #224
-                           %# ************
-                           %if current_user.can_submit_commands() and False:
-                           <td>
-                              <button class="{{'disabled' if not current_user.can_submit_commands() else ''}} btn btn-primary btn-sm"
-                                    data-type="action" action="change-variable"
-                                    data-toggle="tooltip" data-placement="bottom" title="{{_('Change a custom variable for this host')}}"
-                                    data-element="{{host_id}}" data-variable="{{var}}" data-value="{{host.customs[var]}}"
-                                    >
-                                 <i class="fa fa-gears"></i>{{_('Change variable')}}
-                              </button>
-                           </td>
-                           %end
                         </tr>
                      %end
                      </tbody>
