@@ -596,7 +596,7 @@ class DataManager(object):
             logger.debug("set_user_preferences, response: %s", response)
             return response
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover - should not happen
             logger.error("set_user_preferences, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
             if "_issues" in e.response:
@@ -718,7 +718,7 @@ class DataManager(object):
             items = self.find_object('livestate', search)
             logger.info("get_livestate_hosts, got: %d elements, %s", len(items), items)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livestate_hosts, none found")
 
     def get_livestate_host(self, search):
@@ -876,7 +876,7 @@ class DataManager(object):
             logger.debug("get_livesynthesis, search: %s", search)
             items = self.find_object('livesynthesis', search)
             logger.debug("get_livesynthesis, got: %d elements, %s", len(items), items)
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livesynthesis, none found")
             return default_ls
 
@@ -1004,7 +1004,7 @@ class DataManager(object):
             logger.info("get_hostgroups, search: %s", search)
             items = self.find_object('hostgroup', search)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hostgroups, none found")
 
         return []
@@ -1044,7 +1044,7 @@ class DataManager(object):
             items = self.find_object('host', search)
             logger.info("get_hosts, got: %d elements, %s", len(items), items)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hosts, none found")
 
         return []
@@ -1060,35 +1060,6 @@ class DataManager(object):
         items = self.get_hosts(search=search)
         return items[0] if items else None
 
-    def get_hosts_synthesis(self, elts=None):
-        """
-        Hosts synthesis by status
-        """
-        if elts:
-            hosts = [item for item in elts if item.getType() == 'host']
-        else:
-            hosts = self.get_hosts()
-        logger.debug("get_hosts_synthesis, %d hosts", len(hosts))
-
-        synthesis = dict()
-        synthesis['nb_elts'] = len(hosts)
-        synthesis['nb_problem'] = 0
-        if hosts:
-            for state in 'up', 'unreachable', 'down', 'unknown', 'ack', 'downtime':
-                synthesis['nb_' + state] = sum(
-                    1 for host in hosts if host.status.lower() == state
-                )
-                synthesis['pct_' + state] = round(
-                    100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
-                )
-        else:
-            for state in 'up', 'unreachable', 'down', 'unknown', 'ack', 'downtime':
-                synthesis['nb_' + state] = 0
-                synthesis['pct_' + state] = 0
-
-        logger.debug("get_hosts_synthesis: %s", synthesis)
-        return synthesis
-
     ##
     # servicegroups
     ##
@@ -1103,7 +1074,7 @@ class DataManager(object):
             logger.info("get_servicegroups, search: %s", search)
             items = self.find_object('servicegroup', search)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_servicegroups, none found")
 
         return []
@@ -1143,7 +1114,7 @@ class DataManager(object):
             items = self.find_object('service', search)
             logger.info("get_services, got: %d elements, %s", len(items), items)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_services, none found")
 
         return []
@@ -1213,66 +1184,8 @@ class DataManager(object):
             items = self.find_object('logcheckresult', search)
             logger.info("get_logcheckresult, got: %d elements, %s", len(items), items)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_logcheckresult, none found")
-
-    def get_logcheckresult_hosts(self, search=None):
-        """ Get log for hosts
-
-            Elements in the log which type is 'host'
-
-            :param search: backend request search
-            :type search: dic
-            :param all_elements: get all elements (True) or apply default pagination
-            :type all_elements: bool
-            :return: list of hosts live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'host': 1}})
-        if 'where' in search:
-            search['where'].update({'type': 'host'})
-
-        try:
-            logger.info("get_logcheckresult_hosts, search: %s", search)
-            items = self.find_object('logcheckresult', search)
-            logger.info("get_logcheckresult_hosts, got: %d elements, %s", len(items), items)
-            return items
-        except ValueError:
-            logger.debug("get_logcheckresult_hosts, none found")
-
-    def get_logcheckresult_services(self, search=None):
-        """ Get log for services
-
-            Elements in the livestat which service is not null (eg. services)
-
-            :param search: backend request search
-            :type search: dic
-            :param all_elements: get all elements (True) or apply default pagination
-            :type all_elements: bool
-            :return: list of services live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'service': 1}})
-        if 'where' in search:
-            search['where'].update({'type': 'service'})
-
-        try:
-            logger.info("get_logcheckresult_services, search: %s", search)
-            items = self.find_object('logcheckresult', search)
-            logger.info("get_logcheckresult_services, got: %d elements, %s", len(items), items)
-            return items
-        except ValueError:
-            logger.debug("get_logcheckresult_services, none found")
 
     ##
     # History
@@ -1299,64 +1212,6 @@ class DataManager(object):
             return items
         except ValueError:
             logger.debug("get_history, none found")
-
-    def get_history_hosts(self, search=None):
-        """ Get log for hosts
-
-            Elements in the log which type is 'host'
-
-            :param search: backend request search
-            :type search: dic
-            :param all_elements: get all elements (True) or apply default pagination
-            :type all_elements: bool
-            :return: list of hosts live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'host': 1}})
-        if 'where' in search:
-            search['where'].update({'type': 'host'})
-
-        try:
-            logger.info("get_history_hosts, search: %s", search)
-            items = self.find_object('logcheckresult', search)
-            logger.info("get_history_hosts, got: %d elements, %s", len(items), items)
-            return items
-        except ValueError:
-            logger.debug("get_history_hosts, none found")
-
-    def get_history_services(self, search=None):
-        """ Get log for services
-
-            Elements in the livestat which service is not null (eg. services)
-
-            :param search: backend request search
-            :type search: dic
-            :param all_elements: get all elements (True) or apply default pagination
-            :type all_elements: bool
-            :return: list of services live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'service': 1}})
-        if 'where' in search:
-            search['where'].update({'type': 'service'})
-
-        try:
-            logger.info("get_history_services, search: %s", search)
-            items = self.find_object('logcheckresult', search)
-            logger.info("get_history_services, got: %d elements, %s", len(items), items)
-            return items
-        except ValueError:
-            logger.debug("get_history_services, none found")
 
     ##
     # Commands
