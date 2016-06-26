@@ -224,8 +224,14 @@ class tests_preferences(unittest2.TestCase):
         datamgr = session['datamanager']
         user_prefs = datamgr.get_user_preferences('common', None)
         for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
+            print "Common pref: %s: %s" % (pref['type'], pref['data'])
         assert len(user_prefs) == 2
+        user_prefs = datamgr.get_user_preferences('common', None)
+        for pref in user_prefs:
+            print "Common pref to delete: %s: %s" % (pref['type'], pref['data'])
+            datamgr.delete_user_preferences('common', pref['type'])
+        user_prefs = datamgr.get_user_preferences('common', None)
+        assert len(user_prefs) == 0
 
     def test_1_3_user(self):
         print ''
@@ -343,6 +349,11 @@ class tests_preferences(unittest2.TestCase):
         for pref in user_prefs:
             print "Item: %s: %s" % (pref['type'], pref['data'])
         self.assertEqual(len(user_prefs), 4)
+        for pref in user_prefs:
+            print "Item to delete: %s: %s" % (pref['type'], pref['data'])
+            datamgr.delete_user_preferences('admin', pref['type'])
+        user_prefs = datamgr.get_user_preferences('admin', None)
+        assert len(user_prefs) == 0
 
     def test_1_4_all(self):
         print ''
@@ -355,7 +366,7 @@ class tests_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences(None, None)
         for pref in user_prefs:
             print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
-        self.assertEqual(len(user_prefs), 9)
+        self.assertEqual(len(user_prefs), 3)
 
 
 if __name__ == '__main__':
