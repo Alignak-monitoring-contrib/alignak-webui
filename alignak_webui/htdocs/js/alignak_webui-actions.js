@@ -18,7 +18,7 @@
  * along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var actions_logs=false;
+var actions_logs=true;
 var refresh_delay_after_action=1000;
 var alert_success_delay=3;
 var alert_error_delay=5;
@@ -334,14 +334,38 @@ $(document).ready(function() {
     */
    // Acknowledge
    $('body').on("click", '[data-action="acknowledge"]', function () {
-      if (actions_logs) console.debug("Required an acknowledge for:", $(this).data('element'))
+      if (actions_logs) console.debug("Required an acknowledge for:", $(this).data('element'));
+
+      var url = "/acknowledge/form/add?";
+      var elt_id = $(this).data('element');
+      var elt_name = $(this).data('name');
+      url += "livestate_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      window.setTimeout(function(){
+         display_modal(url);
+      }, 50);
    });
    // Recheck
    $('body').on("click", '[data-action="recheck"]', function () {
-      if (actions_logs) console.debug("Required a recheck for:", $(this).data('element'))
+      if (actions_logs) console.debug("Required a recheck for:", $(this).data('element'));
+
+      var url = "/recheck/form/add?";
+      var elt_id = $(this).data('element');
+      var elt_name = $(this).data('name');
+      url += "livestate_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      window.setTimeout(function(){
+         display_modal(url);
+      }, 50);
    });
    // Downtime
    $('body').on("click", '[data-action="downtime"]', function () {
-      if (actions_logs) console.debug("Required a downtime for:", $(this).data('element'))
+      if (actions_logs) console.debug("Required a downtime for:", $(this).data('element'));
+
+      var url = "/downtime/form/add?";
+      var elt_id = $(this).data('element');
+      var elt_name = $(this).data('name');
+      url += "livestate_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      window.setTimeout(function(){
+         display_modal(url);
+      }, 50);
    });
 });

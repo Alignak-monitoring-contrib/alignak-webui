@@ -730,7 +730,7 @@ pages = {
                 'template': 'hosts_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
-                    '<h4>Hosts chart widget</h4>Display a pi chart with the system hosts states.'
+                    '<h4>Hosts chart widget</h4>Display a pie chart with the system hosts states.'
                 ),
                 'picture': 'htdocs/img/hosts_chart_widget.png',
                 'options': {}

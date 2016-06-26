@@ -59,6 +59,8 @@ class Datatable(object):
 
         self.recordsTotal = 0
 
+        self.table_uid = '_id'
+
         self.visible = True
         self.orderable = True
         self.selectable = True
@@ -138,20 +140,18 @@ class Datatable(object):
                         'get_data_model, UI schema is not well formed: missing uid property'
                     )
                     continue
-                ui_dm['model']['uid'] = model['ui']['uid']
-                ui_dm['model']['page_title'] = model['ui']['page_title']
-                # Useful? Table is visible ?
-                ui_dm['model']['visible'] = model['ui']['visible']
-                # Useful? Table is orderable ?
-                ui_dm['model']['orderable'] = model['ui']['orderable']
-                # Useful? Table is searchable ?
-                ui_dm['model']['searchable'] = model['ui']['searchable']
-                # Useful? Table is editable ?
-                ui_dm['model']['editable'] = model['ui']['editable']
-                # Useful? Table is responsive ?
-                ui_dm['model']['responsive'] = model['ui']['responsive']
-                # Useful? Table is selectable ?
-                ui_dm['model']['selectable'] = model['ui']['selectable']
+
+                self.table_uid = model['ui']['uid']
+
+                self.title = model['ui']['page_title']
+                self.visible = model['ui']['visible']
+                self.orderable = model['ui']['orderable']
+                self.selectable = model['ui']['selectable']
+                self.editable = model['ui']['editable']
+                self.searchable = model['ui']['searchable']
+                self.responsive = model['ui']['responsive']
+
+                self.initial_sort = model['ui'].get('initial_sort', '[[2, "asc"]]')
                 continue
 
             if 'ui' in model and ('visible' not in model['ui'] or not model['ui']['visible']):
@@ -191,14 +191,6 @@ class Datatable(object):
 
             # Convert data model format to datatables' one ...
             self.table_columns.append(ui_dm['model']['fields'][field])
-
-        self.title = ui_dm['model']['page_title']
-        self.visible = ui_dm['model']['visible']
-        self.orderable = ui_dm['model']['orderable']
-        self.selectable = ui_dm['model']['selectable']
-        self.editable = ui_dm['model']['editable']
-        self.searchable = ui_dm['model']['searchable']
-        self.responsive = ui_dm['model']['responsive']
 
     ##
     # Localization

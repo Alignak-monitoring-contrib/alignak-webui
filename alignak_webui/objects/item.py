@@ -294,6 +294,8 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                 res_text = ''
             elif text != '':
                 res_text = text
+                if extra:
+                    res_text += extra
 
             res_icon = res_icon.replace("##title##", title)
             res_icon = res_icon.replace("##text##", res_text)

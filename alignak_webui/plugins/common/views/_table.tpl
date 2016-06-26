@@ -266,7 +266,7 @@ table.dataTable tbody>tr>.selected {
          // First row for ordering
          "orderCellsTop": true,
          // Default initial sort
-         "order": [[2, 'asc']],
+         "order": {{! json.dumps(dt.initial_sort)}},
 
          // Responsive mode
          %if dt.responsive:

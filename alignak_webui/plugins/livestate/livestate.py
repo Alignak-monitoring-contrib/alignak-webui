@@ -29,7 +29,7 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response, redirect
+from bottle import request, response, redirect, template
 
 from alignak_webui.objects.item import Item
 
@@ -318,11 +318,14 @@ schema['ui'] = {
         'page_title': _('Livestate table (%d items)'),
         'uid': '_id',
         'visible': True,
-        'orderable': False,
+        'orderable': True,
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': True
+        'responsive': True,
+
+        # Sort by descending business impact
+        'initial_sort': [[9, "desc"]]
     }
 }
 
@@ -385,6 +388,90 @@ def get_livestate(livestate_id):
         redirect('/host/' + livestate.host.id + '#services')
 
 
+def get_livestate_widget():
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
+    """
+    Get the livestate as a widget
+    - widget_id: widget identifier
+
+    - start and count for pagination
+    - search for specific elements search
+
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Pagination and search
+    start = int(request.forms.get('start', '0'))
+    count = int(request.forms.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.forms.get('search', ''))
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'sort': '-_id',
+        'where': where,
+        'embedded': {
+            'host': 1, 'service': 1
+        }
+    }
+    name_filter = request.forms.get('filter', '')
+    if name_filter:
+        search['where'].update({'name': {"$regex": ".*" + name_filter + ".*"}})
+
+    # Get elements from the data manager
+    livestates = datamgr.get_livestate(search)
+    # Get last total elements count
+    total = datamgr.get_objects_count('livestate', search=where, refresh=True)
+    count = min(count, total)
+
+    # Widget options
+    widget_id = request.forms.get('widget_id', '')
+    if widget_id == '':
+        return webui.response_invalid_parameters(_('Missing widget identifier'))
+    widget_template = request.forms.get('widget_template', '')
+    if widget_template == '':
+        return webui.response_invalid_parameters(_('Missing widget template'))
+
+    widget_place = request.forms.get('widget_place', 'dashboard')
+    # Search in the application widgets (all plugins widgets)
+    options = {}
+    for widget in webui.widgets[widget_place]:
+        if widget_id.startswith(widget['id']):
+            options = widget['options']
+
+    if options.get('search') and options.get('search.value'):
+        search.options.value = request.forms.get('search', '')
+    if options.get('count') and options.get('count.value'):
+        search['options']['value'] = count
+    if options.get('filter') and options.get('filter.value'):
+        search['options']['filter'] = name_filter
+
+    title = request.forms.get('title', _('Livestate'))
+    if name_filter:
+        title = _('%s (%s)') % (title, name_filter)
+
+    # Use required template to render the widget
+    return template(widget_template, {
+        'widget_id': widget_id,
+        'widget_place': widget_place,
+        'widget_template': widget_template,
+        'widget_uri': request.urlparts.path,
+        'livestates': livestates,
+        'options': options,
+        'title': title
+    })
+
+
 pages = {
     get_livestate: {
         'name': 'Livestate',
@@ -400,5 +487,58 @@ pages = {
         'name': 'Livestate table data',
         'route': '/livestate_table_data',
         'method': 'POST'
+    },
+
+    get_livestate_widget: {
+        'name': 'Livestate widget',
+        'route': '/livestate/widget',
+        'method': 'POST',
+        'view': 'livestate_widget',
+        'widgets': [
+            {
+                'id': 'livestate_table',
+                'for': ['dashboard'],
+                'name': _('Livestate table widget'),
+                'template': 'livestate_table_widget',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Livestate table widget</h4>Display a list of the live state of the'
+                    'monitored system hosts.<br>'
+                    'The number of hosts in this list can be defined in the widget options.'
+                    'The list of hosts can be filtered thanks to regex on the host name'
+                ),
+                'picture': 'htdocs/img/livestate_table_widget.png',
+                'options': {
+                    'search': {
+                        'value': '',
+                        'type': 'text',
+                        'label': _('Filter (ex. status:up)')
+                    },
+                    'count': {
+                        'value': -1,
+                        'type': 'int',
+                        'label': _('Number of elements')
+                    },
+                    'filter': {
+                        'value': '',
+                        'type': 'hst_srv',
+                        'label': _('Host name search')
+                    }
+                }
+            },
+            {
+                'id': 'livestate_graph',
+                'for': ['dashboard'],
+                'name': _('Livestate chart widget'),
+                'template': 'livestate_chart_widget',
+                'icon': 'pie-chart',
+                'description': _(
+                    '<h4>Hosts livestat chart widget</h4>Display a pie chart with the monitored'
+                    'system hosts states.'
+                ),
+                'picture': 'htdocs/img/hosts_chart_widget.png',
+                'options': {}
+            }
+        ]
     },
 }

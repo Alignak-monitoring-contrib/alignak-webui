@@ -577,13 +577,22 @@ class Helper(object):
         buttons = []
         button = app_config.get('buttons.livestate_command')
         button = button.replace("##id##", bo_object.id)
+        button = button.replace("##name##", bo_object.name)
         button = button.replace("##action##", 'acknowledge')
         button = button.replace("##title##", _('Acknowledge this problem'))
         button = button.replace("##icon##", 'check')
+        if getattr(bo_object, 'state_id', 0) in [1, 2]:
+            if getattr(bo_object, 'acknowledged', False):
+                button = button.replace("##disabled##", 'disabled="disabled"')
+            else:
+                button = button.replace("##disabled##", '')
+        else:
+            button = button.replace("##disabled##", 'disabled="disabled"')
         buttons.append(button)
 
         button = app_config.get('buttons.livestate_command')
         button = button.replace("##id##", bo_object.id)
+        button = button.replace("##name##", bo_object.name)
         button = button.replace("##action##", 'recheck')
         button = button.replace("##title##", _('Re-check this host/service'))
         button = button.replace("##icon##", 'refresh')
@@ -591,9 +600,17 @@ class Helper(object):
 
         button = app_config.get('buttons.livestate_command')
         button = button.replace("##id##", bo_object.id)
+        button = button.replace("##name##", bo_object.name)
         button = button.replace("##action##", 'downtime')
         button = button.replace("##title##", _('Schedule a downtime'))
         button = button.replace("##icon##", 'ambulance')
+        if getattr(bo_object, 'state_id', 0) in [1, 2]:
+            if getattr(bo_object, 'in_downtime', False):
+                button = button.replace("##disabled##", 'disabled="disabled"')
+            else:
+                button = button.replace("##disabled##", '')
+        else:
+            button = button.replace("##disabled##", 'disabled="disabled"')
         buttons.append(button)
 
         content = app_config.get('buttons.livestate_commands')
