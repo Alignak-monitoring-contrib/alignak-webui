@@ -594,6 +594,7 @@ class DataManager(object):
                 }
                 response = self.backend.post('uipref', data=data)
             logger.debug("set_user_preferences, response: %s", response)
+            return response
 
         except Exception as e:
             logger.error("set_user_preferences, exception: %s", str(e))
@@ -658,6 +659,7 @@ class DataManager(object):
 
         logger.debug("get_user_preferences, not found, default value: %s", default)
         if default is not None and self.set_user_preferences(user, prefs_type, default):
+            # No default value...
             return self.get_user_preferences(user, prefs_type)
 
         return None

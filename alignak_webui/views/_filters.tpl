@@ -42,7 +42,7 @@
          <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}">
       </div>
    </div>
-   %if user_bookmarks['value'] or common_bookmarks['value']:
+   %if ('value' in user_bookmarks and user_bookmarks['value']) or ('value' in common_bookmarks and common_bookmarks['value']):
    <div class="dropdown form-group text-left">
       <button class="btn btn-default dropdown-toggle" type="button" id="bookmarks_menu" data-toggle="dropdown" aria-expanded="true">
          <i class="fa fa-bookmark"></i>

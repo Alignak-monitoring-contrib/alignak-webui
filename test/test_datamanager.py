@@ -517,6 +517,57 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13+89)
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
 
+    def test_5_3_livesynthesis(self):
+        print ''
+        print 'test livesynthesis'
+
+        default_ls = {
+            'hosts_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_up': 0, 'pct_up': 100.0,
+                'nb_up_hard': 0, 'nb_up_soft': 0,
+                'nb_down': 0, 'pct_down': 0.0,
+                'nb_down_hard': 0, 'nb_down_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
+            },
+            'services_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_ok': 0, 'pct_ok': 100.0,
+                'nb_ok_hard': 0, 'nb_ok_soft': 0,
+                'nb_warning': 0, 'pct_warning': 0.0,
+                'nb_warning_hard': 0, 'nb_warning_soft': 0,
+                'nb_critical': 0, 'pct_critical': 0.0,
+                'nb_critical_hard': 0, 'nb_critical_soft': 0,
+                'nb_unknown': 0, 'pct_unknown': 0.0,
+                'nb_unknown_hard': 0, 'nb_unknown_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0
+            }
+        }
+
+        # Get livesynthesis
+        self.dmg.get_livesynthesis()
+        # self.assertEqual(self.dmg.get_livesynthesis(), default_ls)
+
 
 class test_6_relations(unittest2.TestCase):
 
@@ -551,7 +602,6 @@ class test_6_relations(unittest2.TestCase):
         print host.check_period
         assert isinstance(host.check_command, Command)
         assert host.check_command
-
 
     def test_02_host_service(self):
         print "--- test Item"

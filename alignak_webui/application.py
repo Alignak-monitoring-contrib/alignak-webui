@@ -124,6 +124,11 @@ def before_request():
     session['current_user'] = session['datamanager'].get_logged_user()
     logger.debug("before_request, session authenticated user: %s", session['current_user'])
 
+    # Make session current user available in the templates
+    BaseTemplate.defaults['current_user'] = session['current_user']
+    # Make session datamanager available in the templates
+    BaseTemplate.defaults['datamgr'] = session['datamanager']
+
     # Set/change target user in the session
     target_user_username = request.query.get('target_user', None)
     if target_user_username == "":
