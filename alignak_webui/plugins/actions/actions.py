@@ -82,7 +82,6 @@ def add_acknowledge():
 
     problem = False
     status = ""
-    index = 0
     for livestate_id in livestate_ids:
         livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
         if not livestate:
@@ -151,7 +150,6 @@ def add_recheck():
 
     problem = False
     status = ""
-    index = 0
     for livestate_id in livestate_ids:
         livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
         if not livestate:
@@ -221,7 +219,6 @@ def add_downtime():
 
     problem = False
     status = ""
-    index = 0
     for livestate_id in livestate_ids:
         livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
         if not livestate:
