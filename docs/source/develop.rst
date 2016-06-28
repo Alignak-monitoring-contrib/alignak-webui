@@ -37,6 +37,16 @@ Data manager
  TO BE DETAILED !
 
 
+Datatables
+------------------
+ Pages displaying a datatable can receive an URL parameter 'search' (eg. name:test) taht allows to pre-filter the table on the specified column.
+
+ Table state is saved in user's preferences and automatically restored. The URL search filter is applied after the restoration.
+
+
+ TO BE DETAILED !
+
+
 User's preferences
 ------------------
  `application.js` declares functions for managing user's preferences, but the `_object_list.html` declares its own functions for the datatables because the saved parameters must be loaded synchronously ...

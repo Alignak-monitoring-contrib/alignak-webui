@@ -50,11 +50,56 @@ Configuration parameters
 [Alignak-WebUI] section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section contains parameters to configure the user interface.
+This section contains parameters to configure the application.
+
+    * **alignak_backend**, Alignak backend endpoint (default: *http://127.0.0.1:5000*)
+
+    * **debug**, to make the application run in debug mode (much more log in the log file!)
+
+    * **host**, interface the application listens to (default: *127.0.0.1*)
+
+    * **port**, TCP port the application listens to (default: *8868*)
+
+    * **about_name**, application name in About modal box (default is defined in Alignak WebUI package __init__.py)
+    * **about_version**, application name in About modal box (default is defined in Alignak WebUI package __init__.py)
+    * **about_copyright**, application copyright in About modal box (default is defined in Alignak WebUI package __init__.py)
+    * **about_release**, application release notes in About modal box (default is defined in Alignak WebUI package __init__.py)
+
+    * **port**, TCP port the application listens to (default: *8868*)
+
+    * **login_text**, welcome text on the login form (default: *Welcome!<br> Log-in to use the application*)
+
+    * **company_log**, logo image used on the login form (default: *'/static/images/default_company.png'*)
+
+    * **webui_logo**, logo image used in the application footer (default: */static/images/logo_webui_xxs.png*)
+
+    * **play_sound**, plays a sound when a new problem is raised (default: *no*)
+
+    * **refresh_period**, page refresh period in seconds (default: *60*). Use 0 to disable page refresh.
+
+    * **locale**, language file to use (default: *en_US*). Language files are located in *res* sub-directory.
+
+    * **timezone**, preferred timezone for dates (default: *Europe/Paris*).
+
+    * **timeformat**, default date format (default: *%Y-%m-%d %H:%M:%S*).
+
 
 [logs] section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section contains parameters to configure the application logs.
+This section contains parameters to configure the application logs. This section is commented to understand how the parameters may be changed.
 
-TO BE COMPLETED:!
+The default logging is storing INFO level logs in a file named alignak_webui.log in the /var/log/alignak_webui directory. On log file is built each day on a 6 days rotating schema.
+
+**Note**: if the required log directory is not writable for the application, the log file is built in the current directory.
+
+
+[buttons] section
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section defines patterns used by the application to build the buttons commands toolbar.
+
+[items] section
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section defines patterns used by the application to build the elements icons.
