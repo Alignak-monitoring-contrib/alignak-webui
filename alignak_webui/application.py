@@ -175,6 +175,22 @@ def external(panel):
     Application external panel
     """
     # Authenticate external access...
+    if 'Authorization' not in request.headers or not request.headers['Authorization']:
+        logger.warning("external application access denied")
+        response.status = 200
+        response.content_type = 'text/html'
+        return _(
+            '<div>'
+            '<h1>External access denied.</h1>'
+            '<p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>'
+            'Make a request with a Basic-Authentication allowing access to Alignak backend.</p>'
+            '</div>'
+        )
+
+    # Get HTTP authentication
+    authentication = request.headers.get('Authorization')
+    username, password = parse_auth(authentication)
+
     # Session...
     session = request.environ['beaker.session']
     session['datamanager'] = DataManager(
@@ -185,7 +201,7 @@ def external(panel):
     )
 
     # Set user for the data manager and try to log-in.
-    if not session['datamanager'].user_login('admin', 'admin', load=True):
+    if not session['datamanager'].user_login(username, password, load=True):
         logger.warning("external application access denied")
         return WebUI.response_ko(
             message=_('Access denied!')

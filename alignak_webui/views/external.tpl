@@ -72,6 +72,5 @@
             </div>
          </div>
       </div>
-      %include("_footer", commands=True)
    </body>
 </html>
