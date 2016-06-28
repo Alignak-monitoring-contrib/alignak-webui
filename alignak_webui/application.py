@@ -39,7 +39,7 @@ import setproctitle
 import pytz
 
 # Bottle import
-from bottle import hook, route, request, response, redirect, static_file, view
+from bottle import hook, route, request, response, redirect, static_file, view, parse_auth
 from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
@@ -203,8 +203,14 @@ def external(panel):
     # Set user for the data manager and try to log-in.
     if not session['datamanager'].user_login(username, password, load=True):
         logger.warning("external application access denied")
-        return WebUI.response_ko(
-            message=_('Access denied!')
+        response.status = 200
+        response.content_type = 'text/html'
+        return _(
+            '<div>'
+            '<h1>External access denied.</h1>'
+            '<p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>'
+            'Please provide proper credentials.</p>'
+            '</div>'
         )
 
     session['current_user'] = session['datamanager'].get_logged_user()

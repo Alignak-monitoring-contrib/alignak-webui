@@ -151,6 +151,35 @@ class tests_0_no_login(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
+    def test_1_2_external(self):
+        print ''
+        print 'external access'
+
+        # Refused - no credentials
+        response = self.app.get(
+            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget'
+        )
+        print response
+        response.mustcontain('<div><h1>External access denied.</h1><p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>Make a request with a Basic-Authentication allowing access to Alignak backend.</p></div>')
+
+        # Refused - bad credentials
+        self.app.authorization = ('Basic', ('admin', 'fake'))
+        response = self.app.get(
+            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget'
+        )
+        response.mustcontain('<div><h1>External access denied.</h1><p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>Please provide proper credentials.</p></div>')
+
+        # Allowed
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/hosts_table?widget_id=test&widget_template=hosts_table_widget'
+        )
+        print response
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<div id="wd_panel_test" class="panel panel-default">'
+        )
 
 class tests_1_login(unittest2.TestCase):
 
