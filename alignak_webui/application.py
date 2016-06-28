@@ -26,10 +26,7 @@
 import traceback
 import sys
 import os
-import time
-import datetime
 import json
-import threading
 
 from importlib import import_module
 
@@ -47,6 +44,7 @@ from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
 # Local import
+from alignak_webui import get_app_webui
 from alignak_webui.objects.item import User
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
@@ -76,6 +74,10 @@ def before_request():
     if request.urlparts.path.startswith('/static'):
         return
 
+    # External URLs routing ...
+    if request.urlparts.path.startswith('/external'):
+        return
+
     # Get the server session (if it exists ...)
     session = None
     if 'beaker.session' in request.environ:
@@ -98,6 +100,7 @@ def before_request():
        request.urlparts.path == '/heartbeat':
         return
 
+    # Login/logout URLs routing ...
     if request.urlparts.path == '/login' or \
        request.urlparts.path == '/logout':
         return
@@ -166,6 +169,54 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 # WebUI routes
 # --------------------------------------------------------------------------------------------------
+@route('/external/<panel>')
+def external(panel):
+    """
+    Application external panel
+    """
+    # Authenticate external access...
+    # Session...
+    session = request.environ['beaker.session']
+    session['datamanager'] = DataManager(
+        request.app.config.get(
+            'alignak_backend',
+            'http://127.0.0.1:5000'
+        )
+    )
+
+    # Set user for the data manager and try to log-in.
+    if not session['datamanager'].user_login('admin', 'admin', load=True):
+        logger.warning("external application access denied")
+        return WebUI.response_ko(
+            message=_('Access denied!')
+        )
+
+    session['current_user'] = session['datamanager'].get_logged_user()
+    session['target_user'] = session['current_user']
+    logger.debug("user_authentication, current user authenticated")
+
+    # Make session data available in the templates
+    BaseTemplate.defaults['current_user'] = session['current_user']
+    BaseTemplate.defaults['target_user'] = session['target_user']
+    BaseTemplate.defaults['datamgr'] = session['datamanager']
+
+    found_widget = None
+    for widget in get_app_webui().get_widgets_for('dashboard'):
+        if panel == widget['id']:
+            found_widget = widget
+            break
+    else:
+        logger.warning("external application requested unknown widget: %s", panel)
+        return WebUI.response_ko(
+            message=_('Widget not found!')
+        )
+    logger.warning("Found widget: %s", found_widget)
+
+    return template('external', {
+        'panel': found_widget['function']()
+    })
+
+
 @route('/heartbeat')
 def heartbeat():
     """
@@ -301,7 +352,7 @@ def user_login():
                 'login_text', _('Welcome!<br> Log-in to use the application')
             ),
             'company_logo': request.app.config.get(
-                'company_logo', 'default_company'
+                'company_logo', '/static/images/default_company.png'
             ),
             'message': message
         }
@@ -646,9 +697,9 @@ class WebUI(object):
                         if page_view:
                             f = view(page_view)(f)
 
-                        # Maybe there is no route to link, so pass
                         page_route = entry.get('route', None)
                         page_name = entry.get('name', None)
+                        # Maybe there is no route to link, so pass
                         if page_route:
                             method = entry.get('method', 'GET')
 
@@ -683,7 +734,8 @@ class WebUI(object):
                                             os.path.join('/static/plugins/', plugin_name),
                                             widget.get('picture', '')
                                         ),
-                                        'base_uri': page_route
+                                        'base_uri': page_route,
+                                        'function': f
                                     })
                                     logger.info(
                                         "Found widget (%s): %s", place, self.widgets[place]

@@ -672,7 +672,7 @@ class Item(object):
             try:
                 setattr(self, key, params[key])
             except Exception:
-                logger.critical(" parameter TypeError: %s = %s", key, params[key])
+                logger.critical("_create parameter TypeError: %s = %s", key, params[key])
 
         # Object name
         if not hasattr(self, 'name'):
@@ -828,7 +828,7 @@ class Item(object):
             try:
                 setattr(self, key, params[key])
             except TypeError:  # pragma: no cover, should not happen
-                logger.critical(" parameter TypeError: %s = %s", key, params[key])
+                logger.critical("_update, parameter TypeError: %s = %s", key, params[key])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
@@ -1021,8 +1021,8 @@ class Item(object):
         if duration:
             return Helper.print_duration(_date, duration_only=False, x_elts=0)
 
+        item_state = ItemState()
         if not fmt:
-            item_state = ItemState()
             if item_state.date_format:
                 fmt = item_state.date_format
 
@@ -1158,10 +1158,19 @@ class User(Item):
         # Can submit commands
         if not hasattr(self, 'can_submit_commands'):
             self.can_submit_commands = False
+            if hasattr(self, 'read_only'):
+                if isinstance(self.read_only, bool):
+                    self.can_submit_commands = not self.read_only
+                else:
+                    self.can_submit_commands = getattr(self, 'read_only', '1') == '0'
+        if self.is_admin:
+            self.can_submit_commands = True
 
         # Can change dashboard
         if not hasattr(self, 'widgets_allowed'):
             self.widgets_allowed = False
+        if self.is_admin:
+            self.widgets_allowed = True
 
         # Has a role ?
         if not hasattr(self, 'role'):

@@ -481,9 +481,9 @@ def get_hosts_widget():
     elts_per_page = elts_per_page['value']
 
     # Pagination and search
-    start = int(request.forms.get('start', '0'))
-    count = int(request.forms.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.forms.get('search', ''))
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
         'page': start // count + 1,
         'max_results': count,
@@ -495,7 +495,7 @@ def get_hosts_widget():
             'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
         }
     }
-    name_filter = request.forms.get('filter', '')
+    name_filter = request.params.get('filter', '')
     if name_filter:
         search['where'].update({'name': {"$regex": ".*" + name_filter + ".*"}})
 
@@ -506,14 +506,14 @@ def get_hosts_widget():
     count = min(count, total)
 
     # Widget options
-    widget_id = request.forms.get('widget_id', '')
+    widget_id = request.params.get('widget_id', '')
     if widget_id == '':
         return webui.response_invalid_parameters(_('Missing widget identifier'))
-    widget_template = request.forms.get('widget_template', '')
+    widget_template = request.params.get('widget_template', '')
     if widget_template == '':
         return webui.response_invalid_parameters(_('Missing widget template'))
 
-    widget_place = request.forms.get('widget_place', 'dashboard')
+    widget_place = request.params.get('widget_place', 'dashboard')
     # Search in the application widgets (all plugins widgets)
     options = {}
     for widget in webui.widgets[widget_place]:
@@ -521,13 +521,13 @@ def get_hosts_widget():
             options = widget['options']
 
     if options.get('search') and options.get('search.value'):
-        search.options.value = request.forms.get('search', '')
+        search.options.value = request.params.get('search', '')
     if options.get('count') and options.get('count.value'):
         search['options']['value'] = count
     if options.get('filter') and options.get('filter.value'):
         search['options']['filter'] = name_filter
 
-    title = request.forms.get('title', _('Hosts'))
+    title = request.params.get('title', _('Hosts'))
     if name_filter:
         title = _('%s (%s)') % (title, name_filter)
 

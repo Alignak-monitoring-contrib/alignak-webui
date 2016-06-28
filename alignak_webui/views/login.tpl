@@ -42,7 +42,7 @@
                <div class="panel-heading">
                   <h2>{{request.app.config.get('about_name', manifest['name'])}} <small>{{_('version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h2>
                   <center>
-                     <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company Logo')}}" style="width: 80%"/>
+                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 80%"/>
                   </center>
                </div>
                <div class="panel-body">

@@ -438,7 +438,10 @@ class DataManager(object):
         logger.info("add_object, request to add a %s: data: %s", object_type, data)
 
         object_id = self.backend.post(object_type, data=data, files=files)
-        return object_id
+        if object_id:
+            items = self.find_object(object_type, object_id)
+            return items[0]['_id']
+        return None
 
     def delete_object(self, object_type, element):
         """
