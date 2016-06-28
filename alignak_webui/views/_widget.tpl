@@ -2,9 +2,10 @@
 %setdefault('title', _('Untitled...'))
 
 %setdefault('widget_id', 'widget')
-%setdefault('collapsed', False)
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
 
-<div id="wd_panel_{{widget_id}}" class="panel panel-default">
+<div id="wd_panel_{{widget_id}}" class="panel panel-default {{'embedded' if embedded else ''}}">
    <div class="panel-heading">
       <i class="fa fa-leaf"></i>
       <span class="hosts-all">

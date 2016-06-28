@@ -37,40 +37,23 @@
       <link rel="stylesheet"href="/static/css/bootstrap.min.css" >
       <link rel="stylesheet"href="/static/css/bootstrap-theme.min.css" >
       <link rel="stylesheet"href="/static/css/font-awesome.min.css" >
-      <link rel="stylesheet" href="/static/css/alertify.css" >
+      <link rel="stylesheet" href="/static/css/alertify.min.css" >
+      <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
+      <!--
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
-
-      %# Specific CSS files
-      %for f in css:
-      <link rel="stylesheet" href="/static/plugins/{{f}}">
-      %end
+      -->
 
       <!-- Scripts
       ================================================== -->
       <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
-      <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
       <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-
-      <!-- Specific scripts ... -->
-      %# Specific Js files ...
-      %for f in js:
-      <script type="text/javascript" src="/static/plugins/{{f}}"></script>
-      %end
    </head>
 
    <body>
-      <div id="page-wrapper" class="container-fluid">
-         <div class="row">
-            <div id="page-content" class="col-lg-12">
-
-               <!-- Page content -->
-               <section class="content">
-                  {{! panel}}
-               </section>
-            </div>
-         </div>
-      </div>
+      <section>
+         {{! panel}}
+      </section>
    </body>
 </html>

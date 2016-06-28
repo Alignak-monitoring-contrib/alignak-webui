@@ -1,4 +1,7 @@
 <!-- Hosts widget -->
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
+%setdefault('links', False)
 
 %rebase("_widget", js=[], css=[])
 
@@ -31,7 +34,7 @@
             </td>
 
             <td>
-               <small>{{!host.html_link}}</small>
+               <small>{{! host.html_link if links else host.alias}}</small>
             </td>
 
             <td>
@@ -39,7 +42,7 @@
             </td>
 
             <td>
-               <small>{{! host.check_command.html_link}}</small>
+               <small>{{! host.check_command.html_link if links else host.check_command.alias}}</small>
             </td>
          </tr>
        %end

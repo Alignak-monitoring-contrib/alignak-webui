@@ -457,7 +457,7 @@ def get_hosts():
     }
 
 
-def get_hosts_widget():
+def get_hosts_widget(embedded=False):
     # Because there are many locals needed :)
     # pylint: disable=too-many-locals
     """
@@ -539,7 +539,9 @@ def get_hosts_widget():
         'widget_uri': request.urlparts.path,
         'hosts': hosts,
         'options': options,
-        'title': title
+        'title': title,
+        'embedded': embedded,
+        'links': (request.params.get('links', 'no') != 'no')
     })
 
 

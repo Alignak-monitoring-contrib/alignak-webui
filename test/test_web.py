@@ -157,7 +157,8 @@ class tests_0_no_login(unittest2.TestCase):
 
         # Refused - no credentials
         response = self.app.get(
-            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget'
+            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget',
+            status=401
         )
         print response
         response.mustcontain('<div><h1>External access denied.</h1><p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>Make a request with a Basic-Authentication allowing access to Alignak backend.</p></div>')
@@ -165,16 +166,26 @@ class tests_0_no_login(unittest2.TestCase):
         # Refused - bad credentials
         self.app.authorization = ('Basic', ('admin', 'fake'))
         response = self.app.get(
-            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget'
+            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget',
+            status=401
         )
         response.mustcontain('<div><h1>External access denied.</h1><p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>Please provide proper credentials.</p></div>')
 
-        # Allowed
+        # Allowed - default widgets parameters: widget_id and widget_template
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
             '/external/hosts_table?widget_id=test&widget_template=hosts_table_widget'
         )
-        print response
+        response.mustcontain(
+            '<div id="wd_panel_test" class="panel panel-default embedded">'
+        )
+
+        # Allowed - default widgets parameters: widget_id and widget_template
+        # Add parameter page to get a whole page: js, css, ...
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/hosts_table?page&widget_id=test&widget_template=hosts_table_widget'
+        )
         response.mustcontain(
             '<!DOCTYPE html>',
             '<html lang="en">',

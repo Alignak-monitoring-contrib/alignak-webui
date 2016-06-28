@@ -169,74 +169,97 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 # WebUI routes
 # --------------------------------------------------------------------------------------------------
-@route('/external/<panel>')
-def external(panel):
+@route('/external/<type>/<panel>')
+def external(type, panel):
     """
     Application external panel
+
+    Use internal authentication (if a user is logged-in) or external basic authentication provided
+    by the requiring application.
+
+    Search in the known widgets
     """
-    # Authenticate external access...
-    if 'Authorization' not in request.headers or not request.headers['Authorization']:
-        logger.warning("external application access denied")
-        response.status = 200
-        response.content_type = 'text/html'
-        return _(
-            '<div>'
-            '<h1>External access denied.</h1>'
-            '<p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>'
-            'Make a request with a Basic-Authentication allowing access to Alignak backend.</p>'
-            '</div>'
-        )
-
-    # Get HTTP authentication
-    authentication = request.headers.get('Authorization')
-    username, password = parse_auth(authentication)
-
-    # Session...
     session = request.environ['beaker.session']
-    session['datamanager'] = DataManager(
-        request.app.config.get(
-            'alignak_backend',
-            'http://127.0.0.1:5000'
-        )
-    )
+    if 'current_user' in session:
+        current_user = session['current_user']
+        if not user_authentication(current_user.token, None):
+            # Redirect to application login page
+            logger.warning(
+                "before_request, current_user in the session is not authenticated."
+                " Redirecting to the login page..."
+            )
+            redirect('/login')
 
-    # Set user for the data manager and try to log-in.
-    if not session['datamanager'].user_login(username, password, load=True):
-        logger.warning("external application access denied")
-        response.status = 200
+    else:
+        # Authenticate external access...
+        if 'Authorization' not in request.headers or not request.headers['Authorization']:
+            logger.warning("external application access denied")
+            response.status = 401
+            response.content_type = 'text/html'
+            return _(
+                '<div>'
+                '<h1>External access denied.</h1>'
+                '<p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>'
+                'Log into the Alignak WebUI with your credentials, or make a request '
+                'with a Basic-Authentication allowing access to Alignak backend.</p>'
+                '</div>'
+            )
+
+        # Get HTTP authentication
+        authentication = request.headers.get('Authorization')
+        username, password = parse_auth(authentication)
+
+        if not user_authentication(username, password):
+            logger.warning("external application access denied for %s", username)
+            response.status = 401
+            response.content_type = 'text/html'
+            return _(
+                '<div>'
+                '<h1>External access denied.</h1>'
+                '<p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>'
+                'Please provide proper credentials.</p>'
+                '</div>'
+            )
+
+        # Make session data available in the templates
+        BaseTemplate.defaults['current_user'] = session['current_user']
+        BaseTemplate.defaults['target_user'] = session['target_user']
+        BaseTemplate.defaults['datamgr'] = session['datamanager']
+
+    if type not in ['widget', 'table']:
+        response.status = 409
         response.content_type = 'text/html'
         return _(
-            '<div>'
-            '<h1>External access denied.</h1>'
-            '<p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>'
-            'Please provide proper credentials.</p>'
-            '</div>'
+            '<div><h1>Unknown required type: %s.</h1>' % type,
+            '<p class="lead">The required type is unknwown</p></div>'
         )
 
-    session['current_user'] = session['datamanager'].get_logged_user()
-    session['target_user'] = session['current_user']
-    logger.debug("user_authentication, current user authenticated")
+    if type =='widget':
+        found_widget = None
+        for widget in get_app_webui().get_widgets_for('dashboard'):
+            if panel == widget['id']:
+                found_widget = widget
+                break
+        else:
+            logger.warning("external application requested unknown widget: %s", panel)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div>'
+                '<h1>Widget not available.</h1>'
+                '<p class="lead">The required widget is not available.<br>'
+                'Make a request with a Basic-Authentication allowing access to Alignak backend.</p>'
+                '</div>'
+            )
+        logger.warning("Found widget: %s", found_widget)
 
-    # Make session data available in the templates
-    BaseTemplate.defaults['current_user'] = session['current_user']
-    BaseTemplate.defaults['target_user'] = session['target_user']
-    BaseTemplate.defaults['datamgr'] = session['datamanager']
+        if request.params.get('page', 'no') == 'no':
+            return found_widget['function'](embedded=True)
 
-    found_widget = None
-    for widget in get_app_webui().get_widgets_for('dashboard'):
-        if panel == widget['id']:
-            found_widget = widget
-            break
-    else:
-        logger.warning("external application requested unknown widget: %s", panel)
-        return WebUI.response_ko(
-            message=_('Widget not found!')
-        )
-    logger.warning("Found widget: %s", found_widget)
-
-    return template('external', {
-        'panel': found_widget['function']()
-    })
+        return template('external', {
+            'panel': found_widget['function'](embedded=True),
+            'whole_page': True
+        })
 
 
 @route('/heartbeat')
