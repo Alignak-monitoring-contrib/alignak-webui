@@ -1040,6 +1040,45 @@ class Item(object):
         return _date.isoformat(' ')
 
 
+class ActionAcknowledge(Item):
+    """
+    Object representing an actionacknowledge
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'actionacknowledge'
+    # _cache is a list of created objects
+    _cache = {}
+
+
+class ActionDowntime(Item):
+    """
+    Object representing an actiondowntime
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'actiondowntime'
+    # _cache is a list of created objects
+    _cache = {}
+
+
+class ActionForceCheck(Item):
+    """
+    Object representing an actionforcecheck
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'actionforcecheck'
+    # _cache is a list of created objects
+    _cache = {}
+
+
 class UIPref(Item):
     """
     Object representing a UIPref

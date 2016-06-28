@@ -651,6 +651,92 @@ class test_03_datatable_hosts(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
 
 
+class test_03_datatable_services(unittest2.TestCase):
+    def setUp(self):
+        print ""
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print 'Data manager', self.dmg
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print ""
+
+    def test_02_services(self):
+        print ''
+        print 'test services table'
+
+        global items_count
+
+        print 'get page /services_table'
+        response = self.app.get('/services_table')
+        response.mustcontain(
+            '<div id="service_table">',
+            "$('#tbl_service').DataTable( {",
+            '<table id="tbl_service" class="table ',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Service name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Service alias</th>',
+            '<th data-name="display_name" data-type="string">Service display name</th>',
+            '<th data-name="host" data-type="objectid">Host</th>',
+            '<th data-name="hostgroup_name" data-type="string">Hosts group name</th>',
+            '<th data-name="check_command" data-type="objectid">Check command</th>',
+            '<th data-name="check_command_args" data-type="string">Check command arguments</th>',
+            '<th data-name="check_period" data-type="objectid">Check period</th>',
+            '<th data-name="check_interval" data-type="integer">Check interval</th>',
+            '<th data-name="retry_interval" data-type="integer">Retry interval</th>',
+            '<th data-name="max_check_attempts" data-type="integer">Maximum check attempts</th>',
+            '<th data-name="active_checks_enabled" data-type="boolean">Active checks enabled</th>',
+            '<th data-name="passive_checks_enabled" data-type="boolean">Passive checks enabled</th>',
+            '<th data-name="servicegroups" data-type="list">Services groups</th>',
+            '<th data-name="business_impact" data-type="integer">Business impact</th>',
+            '<th data-name="contacts" data-type="list">Users</th>',
+            '<th data-name="contact_groups" data-type="list">Users groups</th>',
+            '<th data-name="notifications_enabled" data-type="boolean">Notifications enabled</th>',
+            '<th data-name="notification_period" data-type="objectid">Notification period</th>',
+            '<th data-name="notification_interval" data-type="integer">Notification interval</th>',
+            '<th data-name="first_notification_delay" data-type="integer">First notification delay</th>',
+            '<th data-name="notification_options" data-type="list">Flapping detection options</th>',
+            '<th data-name="stalking_options" data-type="list">Flapping detection options</th>',
+            '<th data-name="check_freshness" data-type="boolean">Freshness check enabled</th>',
+            '<th data-name="freshness_threshold" data-type="integer">Freshness threshold</th>',
+            '<th data-name="flap_detection_enabled" data-type="boolean">Flapping detection enabled</th>',
+            '<th data-name="flap_detection_options" data-type="list">Flapping detection options</th>',
+            '<th data-name="low_flap_threshold" data-type="integer">Low flapping threshold</th>',
+            '<th data-name="high_flap_threshold" data-type="integer">High flapping threshold</th>',
+            '<th data-name="event_handler_enabled" data-type="boolean">Event handler enabled</th>',
+            '<th data-name="event_handler" data-type="objectid">Event handler command</th>',
+            '<th data-name="process_perf_data" data-type="boolean">Process performance data</th>'
+        )
+
+        response = self.app.post('/service_table_data')
+        response_value = response.json
+        print response_value
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count+0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
+
+
 class test_04_datatable_hostgroups(unittest2.TestCase):
     def setUp(self):
         print ""

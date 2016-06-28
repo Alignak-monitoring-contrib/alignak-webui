@@ -45,11 +45,12 @@ from alignak_webui.objects.item import Command, Realm, TimePeriod
 from alignak_webui.objects.item import LiveState, LiveSynthesis, Log, History
 from alignak_webui.objects.item import UIPref, User, Host, Service
 from alignak_webui.objects.item import UserGroup, HostGroup, ServiceGroup
+from alignak_webui.objects.item import ActionAcknowledge, ActionDowntime, ActionForceCheck
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
-logger.setLevel(INFO)
+# logger.setLevel(INFO)
 
 
 class DataManager(object):
