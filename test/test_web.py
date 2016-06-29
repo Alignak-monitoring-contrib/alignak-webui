@@ -211,14 +211,14 @@ class tests_0_external(unittest2.TestCase):
         # Add parameter page to get a whole page: js, css, ...
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/widget/hosts_table?page&widget_id=test'
+            '/external/widget/hosts_table?page&widget_id=hosts_table'
         )
         response.mustcontain(
             '<!DOCTYPE html>',
             '<html lang="en">',
             '<body>',
             '<section>',
-            '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
             '</section>',
             '</body>'
         )
@@ -227,10 +227,10 @@ class tests_0_external(unittest2.TestCase):
         # No parameter page: only the widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/widget/hosts_table?widget_id=test'
+            '/external/widget/hosts_table?widget_id=hosts_table'
         )
         response.mustcontain(
-            '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
             '<small>Graphite on VM</small>',
             '<small>check_host_alive</small>'
         )
@@ -240,12 +240,24 @@ class tests_0_external(unittest2.TestCase):
         # With links
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/widget/hosts_table?links&widget_id=test'
+            '/external/widget/hosts_table?links&widget_id=hosts_table'
         )
         response.mustcontain(
-            '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
             'Graphite on VM</a></small>',
             'check_host_alive</a></small>'
+        )
+
+        # Allowed - default widgets parameters: widget_id
+        # No parameter page: only the widget
+        # With links
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/hosts_graph?links&widget_id=hosts_graph'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_hosts_graph" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="pie-graph-hosts">'
         )
 
     def test_1_3_allowed_tables(self):
