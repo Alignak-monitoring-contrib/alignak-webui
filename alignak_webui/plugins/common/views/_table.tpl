@@ -239,8 +239,6 @@ table.dataTable tbody>tr>.selected {
          // Disable automatic width calculation
          "autoWidth": false,
 
-         // Language
-         "language": {{! json.dumps(dt.get_language_strings())}},
          // Pagination
          "paging": {{'true' if dt.paginable else 'false'}},
          "pagingType": "full_numbers",
@@ -268,10 +266,13 @@ table.dataTable tbody>tr>.selected {
          // First row for ordering
          "orderCellsTop": true,
          // Default initial sort
-         "order": {{ dt.initial_sort}},
+         "order": {{ ! json.dumps(dt.initial_sort) }},
          %else:
          "ordering": false,
          %end
+
+         // Language
+         "language": {{! json.dumps(dt.get_language_strings())}},
 
          // Responsive mode
          %if dt.responsive:

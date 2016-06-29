@@ -151,7 +151,7 @@ class Datatable(object):
                 self.searchable = model['ui']['searchable']
                 self.responsive = model['ui']['responsive']
 
-                self.initial_sort = model['ui'].get('initial_sort', '[[2, "asc"]]')
+                self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
                 continue
 
             if 'ui' in model and ('visible' not in model['ui'] or not model['ui']['visible']):
