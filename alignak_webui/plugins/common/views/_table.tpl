@@ -123,7 +123,7 @@ table.dataTable tbody>tr>.selected {
                .draw();
 
          // Enable the clear filter button
-         table.buttons('clearFilter:data').enable();
+         table.buttons('clearFilter:name').enable();
       });
 
       // Apply the search filter for selectable fields
