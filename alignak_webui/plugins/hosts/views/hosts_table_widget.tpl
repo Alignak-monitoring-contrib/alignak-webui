@@ -23,7 +23,7 @@
       <tbody>
          %for host in hosts:
          %lv_host = datamgr.get_livestate_host({'where': {'host': host.id}})
-         <tr id="#{{host.id}}">
+         <tr id="{{host.id}}">
             <td title="{{host.alias}}">
             %if lv_host:
                %label = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)

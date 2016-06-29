@@ -10,12 +10,12 @@ An external application can embed some Alignak WebUI widgets and pages.
 Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Embedding a part of Alignak WebUI requires an authentication. Provide credentials in a Basic HTTP authentication form in the page request. The HTTP request must have an 'Authorization' header  containing the authentication. As of it, the WebUI will use this authentication parameters to check authentication on its Alignak backend.
+Embedding a part of Alignak WebUI requires an authentication. Provide credentials as a Basic HTTP authentication in the page request. The HTTP request must have an 'Authorization' header  containing the authentication. The Alignak WebUI will use this authentication parameters to check authentication on its Alignak backend.
 
 API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
- URL syntax::
+URL syntax::
 
     GET <alignak_webui>/external/<type>/<identifier>
 
@@ -25,6 +25,15 @@ API
         <type> = table for a table
 
         <identifier> is the identifier of the widget or table
+
+The application response content type is always displayable HTML (eg. `text/html`). Even when an error message is provided. As of it the content can always be included in an HTML page or an iframe HTML element. The HTTP status code is :
+
+    * 401 (Unauthorized) for an unauthorized access
+    * 409 (Conflict) for an API error
+    * 200 (Success) if content is delivered
+
+The application server implements the CORS an, as of it, filters the external access. The Access Control Allow Origin can be configured in the application configuration file thanks to the **cors_acao** parameter.
+
 
 Requests mode
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +61,7 @@ Please note that in the default mode (no **page** parameter), it is the caller's
     <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
 
-This list is to be confirmed but it should be the right one ;) All the Css and Javascript files (except for Alignak WebUI...) are easily found on CDNs...
+This list is to be confirmed but it should be the right one ;) All the Css and Javascript files (except for Alignak WebUI...) are easily found on major CDNs.
 
 For some external widgets, it is necessary to include also::
 

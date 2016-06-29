@@ -4,16 +4,20 @@
 %setdefault('widget_id', 'widget')
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
+%# only use typeahead if not embedded
+%setdefault('bloodhound', not embedded)
 
-<div id="wd_panel_{{widget_id}}" class="panel panel-default {{'embedded' if embedded else ''}}">
+<div id="wd_panel_{{widget_id}}" class="panel panel-default alignak_webui_widget {{'embedded' if embedded else ''}}">
    <div class="panel-heading">
       <i class="fa fa-leaf"></i>
       <span class="hosts-all">
          {{title}}
       </span>
+      %if not embedded:
       <div class="pull-right">
          <a data-widget="{{widget_id}}" data-action="remove-widget" type="button" class="btn btn-xs"><i class="fa fa-close fa-fw"></i></a>
       </div>
+      %end
       %if options:
       <div class="pull-right">
          <div class="btn-group">
@@ -46,8 +50,8 @@
                               %if type in ['text', 'int', 'hst_srv']:
                                  <div class="form-group">
                                     <label for = "{{key}}">{{label}}</label>
-                                    %if type == 'hst_srv':
-                                    <input type="text" class="form-control input-sm typeahead" placeholder="{{_('Search by name ...')}}" name="{{key}}" value="{{value}}" id="input-{{widget_id}}-{{key}}">
+                                    %if type == 'hst_srv' and bloodhound:
+                                    <input type="text" class="form-control input-sm typeahead" placeholder="{{_('Search by name ...')}}" name="{{key}}" value="{{value}}">
                                     <script>
                                        // On page loaded ...
                                        $(function() {
@@ -83,7 +87,7 @@
                                        });
                                     </script>
                                     %else:
-                                    <input type="{{'number' if type=='int' else 'text'}}" class="form-control input-sm" placeholder="{{ value }} ..." name="{{key}}" value="{{value}}" id="input-{{widget_id}}-{{key}}">
+                                    <input type="{{'number' if type=='int' else 'text'}}" class="form-control input-sm" placeholder="{{ value }}" name="{{key}}" value="{{value}}">
                                     %end
                                  </div>
                                  %continue
@@ -137,43 +141,58 @@
 </div>
 
 <script>
-   $('body').on("submit", 'form[data-action="save-options"]', function (evt) {
-      console.debug('Submit form data: ', $(this));
-      console.debug('Form item/action: ', $(this).data("widget"), $(this).data("action"));
-      console.debug('Form data: ', $(this).serializeArray());
-
+   $('form[data-widget="{{widget_id}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
       evt.preventDefault();
 
       $('#widgets_loading').show();
 
       var widget_id = $(this).data("widget");
+      console.log(widget_id, $(this).serialize());
       $.ajax({
          url: $(this).attr('action'),
          type: $(this).attr('method'),
          data: $(this).serialize()
       })
       .done(function( data, textStatus, jqXHR ) {
+         //console.log(data)
          if (jqXHR.status != 200) {
-            raise_message_ko(jqXHR.status, data);
+            console.error(jqXHR.status, data);
          } else {
+            %if not embedded:
+            //console.log($(data))
+            console.log($('#{{widget_id}} div.grid-stack-item-content'))
+            $('#wd_panel_{{widget_id}}').remove();
+            var elt = $(data).find('div.alignak_webui_widget');
+            console.log('elt:', elt)
+            /*$('#{{widget_id}} div.grid-stack-item-content')
+               .append(elt)
+               .delay(100)
+               .slideDown('slow');*/
+
+            //$("#" + widget_id + " div.grid-stack-item-content").hide();
+            console.log($("#" + widget_id))
             $("#" + widget_id + " div.grid-stack-item-content").html(data);
-            raise_message_ok("{{_('Widget options saved')}}");
+            %else:
+            $("#" + widget_id).hide();
+            %end
+            console.log("{{_('Widget options saved')}}");
          }
       })
       .fail(function( jqXHR, textStatus, errorThrown ) {
-         raise_message_ko(jqXHR.responseJSON['message']);
+         console.error(errorThrown, textStatus);
       })
      .always(function() {
          $('#widgets_loading').hide();
       });
    });
 
+   %if not embedded:
    $('body').on("click", 'a[data-action="remove-widget"]', function (evt) {
       console.debug('Remove widget: ', $(this));
-      console.debug('Form item/action: ', $(this).data("widget"), $(this).data("action"));
 
       var grid = $('.grid-stack').data('gridstack');
       grid.removeWidget('#' + $(this).data("widget"));
    });
+   %end
 </script>

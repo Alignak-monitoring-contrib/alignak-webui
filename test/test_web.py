@@ -151,46 +151,103 @@ class tests_0_no_login(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
-    def test_1_2_external(self):
+
+class tests_0_external(unittest2.TestCase):
+
+    def setUp(self):
+        print ""
+        print "setting up ..."
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+    def tearDown(self):
+        print ""
+        print "tearing down ..."
+
+    def test_1_1_refused(self):
         print ''
-        print 'external access'
+        print 'refused external access'
 
         # Refused - no credentials
         response = self.app.get(
-            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget',
+            '/external/widget/hosts_table?widget_id=test',
             status=401
         )
         print response
-        response.mustcontain('<div><h1>External access denied.</h1><p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>Make a request with a Basic-Authentication allowing access to Alignak backend.</p></div>')
+        response.mustcontain('<div><h1>External access denied.</h1><p>To embed an Alignak WebUI widget or table, you must provide credentials.<br>Log into the Alignak WebUI with your credentials, or make a request with a Basic-Authentication allowing access to Alignak backend.</p></div>')
 
         # Refused - bad credentials
         self.app.authorization = ('Basic', ('admin', 'fake'))
         response = self.app.get(
-            '/external/hosts_table?widget_id=fred&widget_template=hosts_table_widget',
+            '/external/widget/hosts_table?widget_id=test',
             status=401
         )
-        response.mustcontain('<div><h1>External access denied.</h1><p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>Please provide proper credentials.</p></div>')
+        response.mustcontain('<div><h1>External access denied.</h1><p>The provided credentials do not grant you access to Alignak WebUI.<br>Please provide proper credentials.</p></div>')
 
-        # Allowed - default widgets parameters: widget_id and widget_template
+        # Refused - bad type
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/hosts_table?widget_id=test&widget_template=hosts_table_widget'
+            '/external/unknown/hosts_table?widget_id=test',
+            status=409
         )
-        response.mustcontain(
-            '<div id="wd_panel_test" class="panel panel-default embedded">'
+        response.mustcontain('<div><h1>Unknown required type: unknown.</h1><p>The required type is unknwown</p></div>')
+
+        # Refused - unknown widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/unknown?widget_id=test',
+            status=409
         )
+        response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
+
+    def test_1_2_allowed(self):
+        print ''
+        print 'allowed external access'
 
         # Allowed - default widgets parameters: widget_id and widget_template
         # Add parameter page to get a whole page: js, css, ...
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/hosts_table?page&widget_id=test&widget_template=hosts_table_widget'
+            '/external/widget/hosts_table?page&widget_id=test'
         )
         response.mustcontain(
             '<!DOCTYPE html>',
             '<html lang="en">',
-            '<div id="wd_panel_test" class="panel panel-default">'
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_test" class="panel panel-default embedded">',
+            '</section>',
+            '</body>'
         )
+
+        # Allowed - default widgets parameters: widget_id and widget_template
+        # No parameter page: only the widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/hosts_table?widget_id=test'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_test" class="panel panel-default embedded">',
+            '<small>Graphite on VM</small>',
+            '<small>check_host_alive</small>'
+        )
+
+        # Allowed - default widgets parameters: widget_id and widget_template
+        # No parameter page: only the widget
+        # With links
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/hosts_table?links&widget_id=test'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_test" class="panel panel-default embedded">',
+            'Graphite on VM</a></small>',
+            'check_host_alive</a></small>'
+        )
+
 
 class tests_1_login(unittest2.TestCase):
 

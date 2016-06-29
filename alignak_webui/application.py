@@ -169,10 +169,29 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 # WebUI routes
 # --------------------------------------------------------------------------------------------------
-@route('/external/<type>/<panel>')
-def external(type, panel):
+# CORS decorator
+def enable_cors(fn):
+    def _enable_cors(*args, **kwargs):
+        # set CORS headers
+        response.headers['Access-Control-Allow-Origin'] = \
+            request.app.config.get('cors_acao', '127.0.0.1')
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = \
+            'Origin, Accept, Authorization, X-HTTP-Method-Override, If-Match, Content-Type'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+
+        if bottle.request.method != 'OPTIONS':
+            # actual request; reply with the actual response
+            return fn(*args, **kwargs)
+
+    return _enable_cors
+
+
+@route('/external/<type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
+@enable_cors
+def external(type, identifier):
     """
-    Application external panel
+    Application external identifier
 
     Use internal authentication (if a user is logged-in) or external basic authentication provided
     by the requiring application.
@@ -199,7 +218,7 @@ def external(type, panel):
             return _(
                 '<div>'
                 '<h1>External access denied.</h1>'
-                '<p class="lead">To embed an Alignak WebUI panel, you must provide credentials.<br>'
+                '<p>To embed an Alignak WebUI widget or table, you must provide credentials.<br>'
                 'Log into the Alignak WebUI with your credentials, or make a request '
                 'with a Basic-Authentication allowing access to Alignak backend.</p>'
                 '</div>'
@@ -216,7 +235,7 @@ def external(type, panel):
             return _(
                 '<div>'
                 '<h1>External access denied.</h1>'
-                '<p class="lead">The provided credentials do not grant you access to Alignak WebUI.<br>'
+                '<p>The provided credentials do not grant you access to Alignak WebUI.<br>'
                 'Please provide proper credentials.</p>'
                 '</div>'
             )
@@ -227,37 +246,35 @@ def external(type, panel):
         BaseTemplate.defaults['datamgr'] = session['datamanager']
 
     if type not in ['widget', 'table']:
+        logger.warning("External application requested unknown type: %s", type)
         response.status = 409
         response.content_type = 'text/html'
         return _(
-            '<div><h1>Unknown required type: %s.</h1>' % type,
-            '<p class="lead">The required type is unknwown</p></div>'
+            '<div><h1>Unknown required type: %s.</h1>'
+            '<p>The required type is unknwown</p></div>' % type
         )
 
     if type =='widget':
         found_widget = None
         for widget in get_app_webui().get_widgets_for('dashboard'):
-            if panel == widget['id']:
+            if identifier == widget['id']:
                 found_widget = widget
                 break
         else:
-            logger.warning("external application requested unknown widget: %s", panel)
+            logger.warning("External application requested unknown widget: %s", identifier)
             response.status = 409
             response.content_type = 'text/html'
             return _(
-                '<div>'
-                '<h1>Widget not available.</h1>'
-                '<p class="lead">The required widget is not available.<br>'
-                'Make a request with a Basic-Authentication allowing access to Alignak backend.</p>'
-                '</div>'
+                '<div><h1>Unknown required widget: %s.</h1>'
+                '<p>The required widget is not available.</p></div>' % identifier
             )
-        logger.warning("Found widget: %s", found_widget)
+        logger.info("Found widget: %s", found_widget)
 
         if request.params.get('page', 'no') == 'no':
             return found_widget['function'](embedded=True)
 
         return template('external', {
-            'panel': found_widget['function'](embedded=True),
+            'widget': found_widget['function'](embedded=True),
             'whole_page': True
         })
 

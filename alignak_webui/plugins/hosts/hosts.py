@@ -490,14 +490,21 @@ def get_hosts_widget(embedded=False):
         'sort': '-_id',
         'where': where,
         'embedded': {
-            'check_command': 1, 'event_handler': 1,
-            'check_period': 1, 'notification_period': 1,
-            'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
+            'check_command': 1,
+            # 'event_handler': 1,
+            # 'check_period': 1, 'notification_period': 1,
+            # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
         }
     }
     name_filter = request.params.get('filter', '')
     if name_filter:
-        search['where'].update({'name': {"$regex": ".*" + name_filter + ".*"}})
+        search['where'].update({
+            '$or': [
+                {'name': {'$regex': ".*%s.*" % name_filter}},
+                {'alias': {'$regex': ".*%s.*" % name_filter}}
+            ]
+        })
+    logger.info("Search parameters: %s", search)
 
     # Get elements from the data manager
     hosts = datamgr.get_hosts(search)
@@ -509,23 +516,24 @@ def get_hosts_widget(embedded=False):
     widget_id = request.params.get('widget_id', '')
     if widget_id == '':
         return webui.response_invalid_parameters(_('Missing widget identifier'))
-    widget_template = request.params.get('widget_template', '')
-    if widget_template == '':
-        return webui.response_invalid_parameters(_('Missing widget template'))
 
     widget_place = request.params.get('widget_place', 'dashboard')
+    widget_template = request.params.get('widget_template', 'hosts_table_widget')
     # Search in the application widgets (all plugins widgets)
     options = {}
     for widget in webui.widgets[widget_place]:
         if widget_id.startswith(widget['id']):
             options = widget['options']
+            widget_template = widget['template']
+            logger.info("Widget identifier found, options: %s", options)
+            break
+    else:
+        logger.info("Widget identifier not found using default template and no options")
 
-    if options.get('search') and options.get('search.value'):
-        search.options.value = request.params.get('search', '')
-    if options.get('count') and options.get('count.value'):
-        search['options']['value'] = count
-    if options.get('filter') and options.get('filter.value'):
-        search['options']['filter'] = name_filter
+    options['search']['value'] = request.params.get('search', '')
+    options['count']['value'] = count
+    options['filter']['value'] = name_filter
+    logger.info("Widget options: %s", options)
 
     title = request.params.get('title', _('Hosts'))
     if name_filter:
@@ -629,7 +637,6 @@ def get_host(host_id):
         if request.query.get(selected_type) == 'true':
             if selected_type not in selected_types:
                 selected_types.append(selected_type)
-            logger.critical("Filter: %s=%s", selected_type, request.query.get(selected_type))
         elif request.query.get(selected_type) == 'false':
             if selected_type in selected_types:
                 selected_types.remove(selected_type)

@@ -53,7 +53,7 @@
 
    <body>
       <section>
-         {{! panel}}
+         {{! widget}}
       </section>
    </body>
 </html>
