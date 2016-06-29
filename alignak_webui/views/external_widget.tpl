@@ -37,8 +37,6 @@
       <link rel="stylesheet"href="/static/css/bootstrap.min.css" >
       <link rel="stylesheet"href="/static/css/bootstrap-theme.min.css" >
       <link rel="stylesheet"href="/static/css/font-awesome.min.css" >
-      <link rel="stylesheet" href="/static/css/alertify.min.css" >
-      <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
       <!--
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
@@ -53,7 +51,7 @@
 
    <body>
       <section>
-         {{! widget}}
+         {{! embedded_element}}
       </section>
    </body>
 </html>
