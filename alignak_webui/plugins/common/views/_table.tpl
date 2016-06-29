@@ -2,7 +2,9 @@
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
-%setdefault('widget_id', 'widget')
+%setdefault('links', False)
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
 
 %setdefault('commands', False)
 %setdefault('object_type', 'unknown')
@@ -75,6 +77,9 @@ table.dataTable tbody>tr>.selected {
    var selectedRows = [];
 
    $(document).ready(function() {
+      $.ajaxSetup({
+         headers: { "Authorization": "Basic " + btoa('{{credentials}}') }
+      });
 
       %if dt.searchable:
       // Setup - add a text/select input to each search cell
@@ -264,6 +269,28 @@ table.dataTable tbody>tr>.selected {
          /* Table fixed header - do not activate because table scrolling is not compatible
          "fixedHeader": true, */
 
+         // Server side processing: request new data
+         "serverSide": true,
+         "ajax": {
+            "url": "{{'/external/table/' + identifier if embedded else ''}}/{{object_type}}_table_data",
+            "type": "POST",
+            //"dataSrc": "data",
+            "data": function ( d ) {
+               // Add an extra field
+               d = $.extend({}, d, {
+                  "object_type": '{{object_type}}',
+                  "embedded": '{{embedded}}',
+                  "links": '{{links}}'
+               });
+
+               // Json stringify to avoid complex array formatting ...
+               d.columns = JSON.stringify( d.columns );
+               d.search = JSON.stringify( d.search );
+               d.order = JSON.stringify( d.order );
+               return ( d );
+            }
+         },
+
          %if dt.orderable:
          // Table ordering
          "ordering": true,
@@ -322,28 +349,6 @@ table.dataTable tbody>tr>.selected {
 
          // Table columns definition
          "columns": {{ ! json.dumps(dt.table_columns) }},
-
-         // Server side processing: request new data
-         "serverSide": true,
-         "ajax": {
-            "url": "/{{object_type}}_table_data",
-            "type": "POST",
-            //"dataSrc": "data",
-            "data": function ( d ) {
-               // Add an extra field
-               d = $.extend({}, d, {
-                  "object_type": '{{object_type}}',
-                  "embedded": '{{embedded}}',
-                  "links": '{{links}}'
-               });
-
-               // Json stringify to avoid complex array formatting ...
-               d.columns = JSON.stringify( d.columns );
-               d.search = JSON.stringify( d.search );
-               d.order = JSON.stringify( d.order );
-               return ( d );
-            }
-         },
 
          // Table state saving/restoring
          stateSave: true,

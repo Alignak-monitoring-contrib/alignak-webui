@@ -3,6 +3,9 @@
 
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
+
 %setdefault('widget_id', 'widget')
 
 %# only use typeahead if not embedded

@@ -3,11 +3,13 @@
 
 %#Set default values
 %setdefault('debug', False)
-%setdefault('js', [])
-%setdefault('css', [])
 %setdefault('title', _('Untitled...'))
 
-%setdefault('panel', None)
+%setdefault('embedded', False)
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
+
+%setdefault('embedded_element', _('No content embedded'))
 <!DOCTYPE html>
 <html lang="en">
    <head>

@@ -187,17 +187,19 @@ def enable_cors(fn):
     return _enable_cors
 
 
-@route('/external/<type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
 @enable_cors
-def external(type, identifier):
+@route('/external/<type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
+@route('/external/<type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
+def external(type, identifier, action=None):
     """
     Application external identifier
 
     Use internal authentication (if a user is logged-in) or external basic authentication provided
     by the requiring application.
 
-    Search in the known widgets
+    Search in the known 'type' (widget or table) to find the element 'identifier'
     """
+    credentials = None
     session = request.environ['beaker.session']
     if 'current_user' in session:
         current_user = session['current_user']
@@ -208,6 +210,7 @@ def external(type, identifier):
                 " Redirecting to the login page..."
             )
             redirect('/login')
+        credentials = current_user.token + ':'
 
     else:
         # Authenticate external access...
@@ -240,6 +243,9 @@ def external(type, identifier):
                 '</div>'
             )
 
+        current_user = session['current_user']
+        credentials = current_user.token + ':'
+
         # Make session data available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
         BaseTemplate.defaults['target_user'] = session['target_user']
@@ -271,11 +277,10 @@ def external(type, identifier):
         logger.info("Found widget: %s", found_widget)
 
         if request.params.get('page', 'no') == 'no':
-            return found_widget['function'](embedded=True)
+            return found_widget['function'](embedded=True, identifier=identifier, credentials=credentials)
 
         return template('external_widget', {
-            'embedded_element': found_widget['function'](embedded=True),
-            'whole_page': True
+            'embedded_element': found_widget['function'](embedded=True, identifier=identifier, credentials=credentials)
         })
 
     if type =='table':
@@ -294,12 +299,15 @@ def external(type, identifier):
             )
         logger.info("Found table: %s", found_table)
 
+        if action and action in found_table['actions']:
+            logger.info("Required action: %s", action)
+            return found_table['actions'][action]()
+
         if request.params.get('page', 'no') == 'no':
-            return found_table['function'](embedded=True)
+            return found_table['function'](embedded=True, identifier=identifier, credentials=credentials)
 
         return template('external_table', {
-            'embedded_element': found_table['function'](embedded=True),
-            'whole_page': True
+            'embedded_element': found_table['function'](embedded=True, identifier=identifier, credentials=credentials)
         })
 
 
@@ -850,7 +858,8 @@ class WebUI(object):
                                         'template': table['template'],
                                         'icon': table.get('icon', 'leaf'),
                                         'base_uri': page_route,
-                                        'function': f
+                                        'function': f,
+                                        'actions': table.get('actions', {})
                                     })
                                     logger.info(
                                         "Found table (%s): %s", place, self.tables[place]

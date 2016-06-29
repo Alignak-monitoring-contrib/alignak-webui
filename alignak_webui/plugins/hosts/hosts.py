@@ -451,7 +451,7 @@ def get_hosts():
     }
 
 
-def get_hosts_widget(embedded=False):
+def get_hosts_widget(embedded=False, identifier=None, credentials=None):
     # Because there are many locals needed :)
     # pylint: disable=too-many-locals
     """
@@ -537,11 +537,13 @@ def get_hosts_widget(embedded=False):
         'options': options,
         'title': title,
         'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials,
         'links': (request.params.get('links', 'no') != 'no')
     })
 
 
-def get_hosts_table(embedded=False):
+def get_hosts_table(embedded=False, identifier=None, credentials=None):
     """
     Get the hosts list and transform it as a table
     """
@@ -566,6 +568,8 @@ def get_hosts_table(embedded=False):
         'where': where,
         'title': request.query.get('title', title),
         'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials,
         'links': (request.params.get('links', 'no') != 'no')
     }
 
@@ -684,7 +688,10 @@ pages = {
                 'icon': 'table',
                 'description': _(
                     '<h4>Hosts table</h4>Displays a datatable for the monitored system hosts.<br>'
-                )
+                ),
+                'actions': {
+                    'host_table_data': get_hosts_table_data
+                }
             }
         ]
     },
