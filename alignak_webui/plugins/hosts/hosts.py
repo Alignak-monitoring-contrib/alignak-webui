@@ -435,13 +435,7 @@ def get_hosts():
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-_id',
         'where': where,
-        'embedded': {
-            'check_command': 1, 'event_handler': 1,
-            'check_period': 1, 'notification_period': 1,
-            'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
-        }
     }
 
     # Get elements from the data manager
@@ -487,14 +481,7 @@ def get_hosts_widget(embedded=False):
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-_id',
-        'where': where,
-        'embedded': {
-            'check_command': 1,
-            # 'event_handler': 1,
-            # 'check_period': 1, 'notification_period': 1,
-            # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
-        }
+        'where': where
     }
     name_filter = request.params.get('filter', '')
     if name_filter:
@@ -554,7 +541,7 @@ def get_hosts_widget(embedded=False):
     })
 
 
-def get_hosts_table():
+def get_hosts_table(embedded=False):
     """
     Get the hosts list and transform it as a table
     """
@@ -577,7 +564,9 @@ def get_hosts_table():
         'object_type': 'host',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'links': (request.params.get('links', 'no') != 'no')
     }
 
 
@@ -625,10 +614,7 @@ def get_host(host_id):
     count = int(request.query.get('count', elts_per_page))
     where = webui.helper.decode_search(request.query.get('search', ''))
     search = {
-        'where': {'host': host_id},
-        'page': start // count + 1,
-        'max_results': count,
-        'sort': '-_created'
+        'where': {'host': host_id}
     }
 
     # Fetch timeline filters preference for user, default is []
@@ -688,7 +674,19 @@ pages = {
     get_hosts_table: {
         'name': 'Hosts table',
         'route': '/hosts_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'hosts_table',
+                'for': ['external'],
+                'name': _('Hosts table widget'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Hosts table</h4>Displays a datatable for the monitored system hosts.<br>'
+                )
+            }
+        ]
     },
 
     get_hosts_table_data: {

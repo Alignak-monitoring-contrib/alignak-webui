@@ -1,13 +1,19 @@
 %import json
 
-%setdefault('commands', True)
+%# embedded is True if the table is got from an external application
+%setdefault('embedded', False)
+%setdefault('widget_id', 'widget')
+
+%setdefault('commands', False)
 %setdefault('object_type', 'unknown')
 
 %from bottle import request
 %search_string = request.query.get('search', '')
 
+%if not embedded:
 %# Datatables js and css are included in the page layout
 %rebase("layout", title=title, page="/{{object_type}}_table")
+%end
 
 <style>
 /* Set smaller font for table content */
@@ -30,7 +36,7 @@ table.dataTable tbody>tr>.selected {
 %end
 
 <!-- Table display -->
-<div id="{{object_type}}_table">
+<div id="{{object_type}}_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
    <!-- Bootstrap responsive table
    <div class="table-responsive"> -->
       <table id="tbl_{{object_type}}" class="table table-striped table-condensed dt-responsive">
@@ -69,8 +75,6 @@ table.dataTable tbody>tr>.selected {
    var selectedRows = [];
 
    $(document).ready(function() {
-      set_current_page("{{ webui.get_url(request.route.name) }}");
-
 
       %if dt.searchable:
       // Setup - add a text/select input to each search cell
@@ -327,7 +331,11 @@ table.dataTable tbody>tr>.selected {
             //"dataSrc": "data",
             "data": function ( d ) {
                // Add an extra field
-               d = $.extend({}, d, { "object_type": '{{object_type}}' });
+               d = $.extend({}, d, {
+                  "object_type": '{{object_type}}'
+                  "embedded": '{{embedded}}'
+                  "links": '{{links}}'
+               });
 
                // Json stringify to avoid complex array formatting ...
                d.columns = JSON.stringify( d.columns );
@@ -583,7 +591,7 @@ table.dataTable tbody>tr>.selected {
             // Only for tables with 'commands' attribute (eg. livestate)
             ,{
                extend: 'collection',
-               text: '{{! _('<span class="fa fa-bolt"></span>')}}',
+               text: "{{! _('<span class="fa fa-bolt"></span>')}}",
                buttons: [
                   {
                      extend: 'selected',

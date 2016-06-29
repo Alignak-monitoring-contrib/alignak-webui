@@ -338,16 +338,16 @@ class Datatable(object):
             Not included if there is no error.
         """
         # Manage request parameters ...
-        logger.info("request data for table: %s", request.forms.get('object_type'))
+        logger.info("request data for table: %s", request.params.get('object_type'))
 
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
-        for key in request.forms.keys():
+        for key in request.params.keys():
             if key == 'columns' or key == 'order' or key == 'search':
-                params[key] = json.loads(request.forms.get(key))
+                params[key] = json.loads(request.params.get(key))
             else:
-                params[key] = request.forms.get(key)
+                params[key] = request.params.get(key)
         # params now contains 'valid' query parameters as we should have found them ...
         logger.debug("table request parameters: %s", params)
 

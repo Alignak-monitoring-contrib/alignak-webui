@@ -225,6 +225,7 @@ class DataManager(object):
             object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
 
             # Create a new object
+            logger.debug("find_object, begin creation")
             bo_object = object_class(item)
             items.append(bo_object)
             self.updated = datetime.utcnow()
@@ -1038,8 +1039,8 @@ class DataManager(object):
                 'embedded': {
                     'check_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
-                    'maintenance_period': 1, 'snapshot_period': 1,
-                    # 'parents': 1, 'hostgroups': 1, 'users': 1, 'contact_groups': 1
+                    'snapshot_period': 1, 'maintenance_period': 1,
+                    'parents': 1, 'hostgroups': 1, 'users': 1, 'usergroups': 1
                 }
             })
 

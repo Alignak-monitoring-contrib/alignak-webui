@@ -203,9 +203,9 @@ class tests_0_external(unittest2.TestCase):
         )
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
-    def test_1_2_allowed(self):
+    def test_1_2_allowed_widgets(self):
         print ''
-        print 'allowed external access'
+        print 'allowed widgets external access'
 
         # Allowed - default widgets parameters: widget_id and widget_template
         # Add parameter page to get a whole page: js, css, ...
@@ -223,7 +223,7 @@ class tests_0_external(unittest2.TestCase):
             '</body>'
         )
 
-        # Allowed - default widgets parameters: widget_id and widget_template
+        # Allowed - default widgets parameters: widget_id
         # No parameter page: only the widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -235,7 +235,7 @@ class tests_0_external(unittest2.TestCase):
             '<small>check_host_alive</small>'
         )
 
-        # Allowed - default widgets parameters: widget_id and widget_template
+        # Allowed - default widgets parameters: widget_id
         # No parameter page: only the widget
         # With links
         self.app.authorization = ('Basic', ('admin', 'admin'))
@@ -246,6 +246,58 @@ class tests_0_external(unittest2.TestCase):
             '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
             'Graphite on VM</a></small>',
             'check_host_alive</a></small>'
+        )
+
+    def test_1_3_allowed_tables(self):
+        print ''
+        print 'allowed tables external access'
+
+        # Allowed - default table parameters: none
+        # Add parameter page to get a whole page: js, css, ...
+        print "Whole page..."
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/table/hosts_table?page'
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="host_table" class="alignak_webui_table embedded">',
+            '</section>',
+            '</body>'
+        )
+
+        # Allowed - default table parameters: none
+        # No parameter page: only the widget
+        print "Only div..."
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/table/hosts_table'
+        )
+        response.mustcontain(
+            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Host name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Host alias</th>'
+        )
+
+        # Allowed - default table parameters: none
+        # No parameter page: only the widget
+        # With links
+        print "Only div with links..."
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/table/hosts_table?links'
+        )
+        response.mustcontain(
+            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Host name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Host alias</th>'
         )
 
 

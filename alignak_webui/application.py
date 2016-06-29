@@ -273,8 +273,32 @@ def external(type, identifier):
         if request.params.get('page', 'no') == 'no':
             return found_widget['function'](embedded=True)
 
-        return template('external', {
-            'widget': found_widget['function'](embedded=True),
+        return template('external_widget', {
+            'embedded_element': found_widget['function'](embedded=True),
+            'whole_page': True
+        })
+
+    if type =='table':
+        found_table = None
+        for table in get_app_webui().get_tables_for('external'):
+            if identifier == table['id']:
+                found_table = table
+                break
+        else:
+            logger.warning("External application requested unknown table: %s", identifier)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required table: %s.</h1>'
+                '<p>The required table is not available.</p></div>' % identifier
+            )
+        logger.info("Found table: %s", found_table)
+
+        if request.params.get('page', 'no') == 'no':
+            return found_table['function'](embedded=True)
+
+        return template('external_table', {
+            'embedded_element': found_table['function'](embedded=True),
             'whole_page': True
         })
 
@@ -697,11 +721,14 @@ class WebUI(object):
 
         logger.info("Initializing...")
 
+        # Store all the plugins
+        self.plugins = []
+
         # Store all the widgets
         self.widgets = {}
 
-        # Store all the plugins
-        self.plugins = []
+        # Store all the tables
+        self.tables = {}
 
         # Helper class
         self.helper = Helper()
@@ -803,6 +830,32 @@ class WebUI(object):
                                         "Found widget (%s): %s", place, self.widgets[place]
                                     )
 
+                        # It's a valid widget entry if it got all data, and at least one route
+                        if 'tables' in entry:
+                            for table in entry.get('tables'):
+                                if 'id' not in table or 'for' not in table:
+                                    continue
+                                if 'name' not in table or 'description' not in table:
+                                    continue
+                                if 'template' not in table or not page_route:
+                                    continue
+
+                                for place in table['for']:
+                                    if place not in self.tables:
+                                        self.tables[place] = []
+                                    self.tables[place].append({
+                                        'id': table['id'],
+                                        'name': table['name'],
+                                        'description': table['description'],
+                                        'template': table['template'],
+                                        'icon': table.get('icon', 'leaf'),
+                                        'base_uri': page_route,
+                                        'function': f
+                                    })
+                                    logger.info(
+                                        "Found table (%s): %s", place, self.tables[place]
+                                    )
+
                 # Add the views sub-directory of the plugin in the Bottle templates path
                 dir_views = os.path.join(
                     os.path.join(plugins_dir, plugin_name), 'views'
@@ -858,6 +911,12 @@ class WebUI(object):
         For a specific place like 'dashboard', return the application widgets list
         """
         return self.widgets.get(place, [])
+
+    def get_tables_for(self, place):
+        """
+        For a specific place like 'external', return the application tables list
+        """
+        return self.tables.get(place, [])
 
     ##
     # Make responses for browser client requests

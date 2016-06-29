@@ -1,9 +1,10 @@
 %# Default values
 %setdefault('title', _('Untitled...'))
 
-%setdefault('widget_id', 'widget')
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
+%setdefault('widget_id', 'widget')
+
 %# only use typeahead if not embedded
 %setdefault('bloodhound', not embedded)
 
