@@ -626,7 +626,7 @@ class Item(object):
                     logger.debug("_create, linked with %s (%s)", key, [o for o in objects_list])
                     continue
 
-                logger.warning(
+                logger.debug(
                     "Parameter: %s for %s is not a dict or a list or an object id "
                     "as it should be, instead of being: %s",
                     key, self.getType(), params[key]
