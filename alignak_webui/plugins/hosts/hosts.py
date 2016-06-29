@@ -528,11 +528,12 @@ def get_hosts_widget(embedded=False):
             logger.info("Widget identifier found, options: %s", options)
             break
     else:
-        logger.info("Widget identifier not found using default template and no options")
+        logger.info("Widget identifier not found: using default template and no options")
 
-    options['search']['value'] = request.params.get('search', '')
-    options['count']['value'] = count
-    options['filter']['value'] = name_filter
+    if options:
+        options['search']['value'] = request.params.get('search', '')
+        options['count']['value'] = count
+        options['filter']['value'] = name_filter
     logger.info("Widget options: %s", options)
 
     title = request.params.get('title', _('Hosts'))

@@ -35,10 +35,10 @@ The application response content type is always displayable HTML (eg. `text/html
 The application server implements the CORS an, as of it, filters the external access. The Access Control Allow Origin can be configured in the application configuration file thanks to the **cors_acao** parameter.
 
 
-Requests mode
+Embedding mode
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-As default, the widget is provided as it is defined in the Alignak WebUI. Mainly, it is an HTML <div> with its content ...
+As default, the widget is provided as it is defined in the Alignak WebUI. The widget is an HTML <div class="alignak_webui_widget"> with its content ...
 
 .. image:: images/api-1.png
 
@@ -47,9 +47,6 @@ Use the URL parameter **page** to get a full page embeddable in an iframe. Witho
 
 .. image:: images/api-2.png
 
-Use the URL parameter **links** to have the navigable links in the embedded page. Else, the links are replaced with their text counterpart.
-
-.. image:: images/api-3.png
 
 Please note that in the default mode (no **page** parameter), it is the caller's responsibility to include the necessary Javascript and CSS files. Currently, those files are (at minimum)::
 
@@ -68,3 +65,10 @@ For some external widgets, it is necessary to include also::
     <!-- Datatables jQuery plugin -->
     <link rel="stylesheet" href="/static/css/datatables.min.css" >
     <script type="text/javascript" src="/static/js/datatables.min.js"></script>
+
+Embedding options
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the URL parameter **links** to have the navigable links in the embedded page. Else, the links are replaced with their text counterpart.
+
+.. image:: images/api-3.png

@@ -218,7 +218,7 @@ class tests_0_external(unittest2.TestCase):
             '<html lang="en">',
             '<body>',
             '<section>',
-            '<div id="wd_panel_test" class="panel panel-default embedded">',
+            '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
             '</section>',
             '</body>'
         )
@@ -230,7 +230,7 @@ class tests_0_external(unittest2.TestCase):
             '/external/widget/hosts_table?widget_id=test'
         )
         response.mustcontain(
-            '<div id="wd_panel_test" class="panel panel-default embedded">',
+            '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
             '<small>Graphite on VM</small>',
             '<small>check_host_alive</small>'
         )
@@ -243,7 +243,7 @@ class tests_0_external(unittest2.TestCase):
             '/external/widget/hosts_table?links&widget_id=test'
         )
         response.mustcontain(
-            '<div id="wd_panel_test" class="panel panel-default embedded">',
+            '<div id="wd_panel_test" class="panel panel-default alignak_webui_widget embedded">',
             'Graphite on VM</a></small>',
             'check_host_alive</a></small>'
         )
