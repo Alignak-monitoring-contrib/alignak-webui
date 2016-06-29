@@ -136,8 +136,11 @@
                <dd>{{host.alias}}</dd>
 
                <dt>{{_('Notes:')}}</dt>
-               <dd>{{host.notes}}</dd>
-
+               <dd>
+               %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
+                  <button class="btn btn-default btn-xs">{{! note_url}}</button>
+               %end
+               </dd>
                <dt>{{_('Address:')}}</dt>
                <dd>{{host.address}}</dd>
 
@@ -157,9 +160,8 @@
                %end
 
                <dt>{{_('Parents:')}}</dt>
-               %if hasattr(host, 'parents'):
+               %if host.parents:
                <dd>
-               {{host.parents}}
                %parents=['<a href="/host/'+parent.id+'" class="link">'+parent.alias+'</a>' for parent in host.parents if isinstance(parent, type)]
                {{!','.join(parents)}}
                </dd>
@@ -199,13 +201,6 @@
                %else:
                <dd>{{_('Not member of any group')}}</dd>
                %end
-
-               <dt>{{_('Notes:')}}</dt>
-               <dd>
-               %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
-                  <button class="btn btn-default btn-xs">{{! note_url}}</button>
-               %end
-               </dd>
             </dl>
          </div>
       </div>
@@ -775,3 +770,10 @@
       </div>
    </div>
  </div>
+
+ <script>
+   $(function () {
+      // Activate the popover for the notes and actions urls
+      $('[data-toggle="popover urls"]').popover()
+   })
+ </script>

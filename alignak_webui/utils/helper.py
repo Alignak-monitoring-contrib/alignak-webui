@@ -272,7 +272,7 @@ class Helper(object):
             if popover:
                 if url != '':
                     result.append(
-                        '<a href="%s" target="_blank" role="button" data-toggle="popover medium" '
+                        '<a href="%s" target="_blank" role="button" data-toggle="popover urls" '
                         'data-html="true" data-content="%s" data-trigger="hover focus" '
                         'data-placement="bottom"><i class="fa fa-%s"></i>&nbsp;%s</a>' % (
                             url, description, icon, title
@@ -280,7 +280,7 @@ class Helper(object):
                     )
                 else:
                     result.append(
-                        '<span data-toggle="popover medium" data-html="true" data-content="%s" '
+                        '<span data-toggle="popover urls" data-html="true" data-content="%s" '
                         'data-trigger="hover focus" data-placement="bottom">'
                         '<i class="fa fa-%s"></i>&nbsp;%s</span>''' % (
                             description, icon, title
