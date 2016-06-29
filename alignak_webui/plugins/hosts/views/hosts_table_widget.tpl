@@ -1,4 +1,4 @@
-<!-- Hosts widget -->
+<!-- Hosts table widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %setdefault('links', False)

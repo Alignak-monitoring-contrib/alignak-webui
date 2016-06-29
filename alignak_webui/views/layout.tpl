@@ -90,6 +90,9 @@
       <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
 
+      <!-- jQuery Chart -->
+      <script type="text/javascript" src="/static/js/Chart.min.js"></script>
+
       <!-- jsTree jQuery plugin -->
       <script type="text/javascript" src="/static/js/jstree.min.js"></script>
 

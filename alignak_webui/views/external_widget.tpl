@@ -49,6 +49,9 @@
       ================================================== -->
       <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
       <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+
+      <!-- jQuery Chart -->
+      <script type="text/javascript" src="/static/js/Chart.min.js"></script>
    </head>
 
    <body>

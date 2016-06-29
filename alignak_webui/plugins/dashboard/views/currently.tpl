@@ -1,7 +1,7 @@
 %from bottle import request
 
 %setdefault('refresh', True)
-%rebase("fullscreen", css=['dashboard/htdocs/css/currently.css'], js=['dashboard/htdocs/js/Chart.js'], title=title)
+%rebase("fullscreen", css=['dashboard/htdocs/css/currently.css'], js=[], title=title)
 
 %import json
 %from alignak_webui.utils.helper import Helper
@@ -130,7 +130,7 @@
              }
              if (services_problems < old_services_problems) {
                  var message = (old_services_problems - services_problems) + " less " + ((old_services_problems - services_problems)==1 ? "services problem" : "services problems") + " since last "+app_refresh_period+" seconds."
-                 raise_message_ok(success);
+                 raise_message_ok(message);
                  if (dashboard_logs) console.debug(message);
              }
              sessionStorage.setItem("services_problems", services_problems);

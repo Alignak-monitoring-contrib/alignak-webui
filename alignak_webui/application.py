@@ -276,11 +276,16 @@ def external(type, identifier, action=None):
             )
         logger.info("Found widget: %s", found_widget)
 
+        embedded_element = found_widget['function'](
+            embedded=True,
+            identifier=identifier, credentials=credentials
+        )
+
         if request.params.get('page', 'no') == 'no':
-            return found_widget['function'](embedded=True, identifier=identifier, credentials=credentials)
+            return embedded_element
 
         return template('external_widget', {
-            'embedded_element': found_widget['function'](embedded=True, identifier=identifier, credentials=credentials)
+            'embedded_element': embedded_element
         })
 
     if type =='table':
@@ -304,10 +309,14 @@ def external(type, identifier, action=None):
             return found_table['actions'][action]()
 
         if request.params.get('page', 'no') == 'no':
-            return found_table['function'](embedded=True, identifier=identifier, credentials=credentials)
+            return found_table['function'](
+                embedded=True, identifier=identifier, credentials=credentials
+            )
 
         return template('external_table', {
-            'embedded_element': found_table['function'](embedded=True, identifier=identifier, credentials=credentials)
+            'embedded_element': found_table['function'](
+                embedded=True, identifier=identifier, credentials=credentials
+            )
         })
 
 

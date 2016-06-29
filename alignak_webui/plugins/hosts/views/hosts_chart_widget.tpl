@@ -1,6 +1,11 @@
-<!-- Hosts widget -->
+<!-- Hosts chart widget -->
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
+%setdefault('links', False)
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
 
-%rebase("_widget")
+%rebase("_widget", js=[], css=[])
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Host

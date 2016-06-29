@@ -69,8 +69,11 @@
       <script type="text/javascript" src="/static/js/moment.min.js"></script>
 
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
-      <script type="text/javascript" src="/static/js/alertify.js"></script>
+      <script type="text/javascript" src="/static/js/alertify.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
+
+      <!-- jQuery Chart -->
+      <script type="text/javascript" src="/static/js/Chart.min.js"></script>
 
       <!--
        Application globals ...

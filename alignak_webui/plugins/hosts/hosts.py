@@ -512,7 +512,7 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
         if widget_id.startswith(widget['id']):
             options = widget['options']
             widget_template = widget['template']
-            logger.info("Widget identifier found, options: %s", options)
+            logger.info("Widget found, template: %s, options: %s", options, widget_template)
             break
     else:
         logger.info("Widget identifier not found: using default template and no options")
@@ -715,7 +715,7 @@ pages = {
                 'template': 'hosts_table_widget',
                 'icon': 'table',
                 'description': _(
-                    '<h4>Hosts table widget</h4>Display a list of the monitored system hosts.<br>'
+                    '<h4>Hosts table widget</h4>Displays a list of the monitored system hosts.<br>'
                     'The number of hosts in this list can be defined in the widget options.'
                     'The list of hosts can be filtered thanks to regex on the host name'
                 ),
@@ -745,7 +745,7 @@ pages = {
                 'template': 'hosts_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
-                    '<h4>Hosts chart widget</h4>Display a pie chart with the system hosts states.'
+                    '<h4>Hosts chart widget</h4>Displays a pie chart with the system hosts states.'
                 ),
                 'picture': 'htdocs/img/hosts_chart_widget.png',
                 'options': {}
