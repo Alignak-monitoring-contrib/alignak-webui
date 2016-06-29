@@ -205,63 +205,6 @@
    </ol>
 </div>
 <script>
-   function infiniteScroll() {
-      %name, start, count, total, active = timeline_pagination[0]
-      var offset = {{count}};
-
-      // on initialise ajaxready à true au premier chargement de la fonction
-      $(window).data('ajaxready', true);
-
-      //$('#content').append('<div id="loader"><img src="/img/ajax-loader.gif" alt="loader ajax"></div>');
-      $('#loading').show();
-
-      var deviceAgent = navigator.userAgent.toLowerCase();
-      var agentID = deviceAgent.match(/(iphone|ipod|ipad)/);
-
-      $(window).scroll(function() {
-         // If a request is still in progress, return...
-         if ($(window).data('ajaxready') == false) return;
-
-         if (($(window).scrollTop() + $(window).height()) == $(document).height()
-         || agentID && ($(window).scrollTop() + $(window).height()) + 150 > $(document).height()) {
-            console.log("End of page ...")
-            // Set ajaxready to avoid multiple requests...
-            $(window).data('ajaxready', false);
-
-            $('#content #loader').fadeIn(400);
-            var url = '{{'/'+object_type + ('/'+timeline_host.id if timeline_host else '')}}' + '?infiniteScroll=true&start=' + offset + '&count=' + {{count}} + ' #included_timeline li';
-            $('#included_timeline').load(url, function(response, status, xhr){
-               console.log(status)
-               // Unset ajaxready because request is finished...
-               $(window).data('ajaxready', true);
-               if (status != 'error') {
-                  //$('#content #loader').before(data);
-                  $('#loading').fadeIn(400);
-                  offset+= {{count}};
-               }
-
-               //$('#content #loader').fadeOut(400);
-            });
-         }
-      });
-   };
-
-   /*
-   $(document).ready(function() {
-      infiniteScroll();
-
-      $('#{{object_type}}_timeline_view').jscroll({
-         debug: true,
-         autoTrigger: true,
-         loadingHtml: "<div><i class='fa fa-spinner fa-pulse fa-2x fa-fw'></i><span class='sr-only'>{{_('Loading...')}}</span></div>",
-         contentSelector: '#included_timeline li',
-         nextSelector: '.next_page',
-         callback: function() {
-            console.log("Done...")
-         }
-      });
-   });
-   */
    $(document).ready(function() {
       var win = $(window);
       %name, start, count, total, active = timeline_pagination[0]
@@ -285,7 +228,7 @@
             start += {{elts_per_page}};
             var url = '{{'/'+object_type + ('/'+timeline_host.id if timeline_host else '')}}' + '?infiniteScroll=true&start=' + start + '&count={{count}}';
             $.get(url, function(data) {
-               var content = $(data).find('#included_timeline li').html();
+               //var content = $(data).find('#included_timeline li').html();
 
                $(data).find('#included_timeline li').each(function(idx, li){
                   var elt = '<li/>';

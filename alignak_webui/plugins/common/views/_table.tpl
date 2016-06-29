@@ -65,7 +65,7 @@ table.dataTable tbody>tr>.selected {
 <script>
    var debugTable = false;
    var where = {{! json.dumps(where)}};
-   var columns = {{ ! json.dumps(dt.table_columns) }};
+   var columns = '';
    var selectedRows = [];
 
    $(document).ready(function() {
@@ -80,7 +80,7 @@ table.dataTable tbody>tr>.selected {
          var title = $('#tbl_{{object_type}} thead th').eq( $(this).index() ).text();
 
          if ($(this).data('searchable') != 'True') {
-            if (debugTable) console.log('Do not search for field: ' + $(this).data('data'));
+            if (debugTable) console.log('Do not search for field: ' + $(this).data('name'));
             return;
          }
 
@@ -261,12 +261,17 @@ table.dataTable tbody>tr>.selected {
          "info": true,
          /* Table fixed header - do not activate because table scrolling is not compatible
          "fixedHeader": true, */
+
+         %if dt.orderable:
          // Table ordering
-         "ordering": {{'true' if dt.orderable else 'false'}},
+         "ordering": true,
          // First row for ordering
          "orderCellsTop": true,
          // Default initial sort
-         "order": {{! json.dumps(dt.initial_sort)}},
+         "order": {{ dt.initial_sort}},
+         %else:
+         "ordering": false,
+         %end
 
          // Responsive mode
          %if dt.responsive:
@@ -311,7 +316,7 @@ table.dataTable tbody>tr>.selected {
          select: {{'true' if dt.selectable else 'false'}},
 
          // Table columns definition
-         "columns": columns,
+         "columns": {{ ! json.dumps(dt.table_columns) }},
 
          // Server side processing: request new data
          "serverSide": true,

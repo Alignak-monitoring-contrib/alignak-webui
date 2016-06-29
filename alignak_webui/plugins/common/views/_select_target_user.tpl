@@ -1,13 +1,13 @@
 ﻿
 %# If more than one user declared ...
-%if current_user.is_administrator() and datamgr.get_objects_count('contact') > 1:
+%if current_user.is_administrator() and datamgr.get_objects_count('user') > 1:
    <div class="navbar" role="toolbar" aria-label="{{_('Select a user to change dashboard layout')}}">
       <form>
          %# No target user is defined ...
          %if target_user.is_anonymous() or current_user.get_username() == target_user.get_username():
                <!-- List existing users, except current and target users -->
                <select id="users_list" class="form-control" >
-               %for user in datamgr.get_contacts():
+               %for user in datamgr.get_users():
                   %if user.id != current_user.id and user.id != target_user.id:
                   <option value="{{user.get_username()}}" selected={{'selected' if target_user and target_user.get_username() == user.get_username() else ''}}>{{user.name}}&nbsp;({{user.get_username()}})</option>
                   %end
@@ -28,7 +28,7 @@
       </form>
    </div>
 
-   %if datamgr.get_objects_count('contact') > 1:
+   %if datamgr.get_objects_count('user') > 1:
    <script>
       $(document).ready(function(){
          $("#users_list").change(function() {
