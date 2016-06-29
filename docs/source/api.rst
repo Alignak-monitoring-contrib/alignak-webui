@@ -29,11 +29,20 @@ API
 Requests mode
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+As default, the widget is provided as it is defined in the Alignak WebUI. Mainly, it is an HTML <div> with its content ...
+
+.. image:: images/api-1.png
+
+
 Use the URL parameter **page** to get a full page embeddable in an iframe. Without this parameter only the required widget is provided as a text/html response.
+
+.. image:: images/api-2.png
 
 Use the URL parameter **links** to have the navigable links in the embedded page. Else, the links are replaced with their text counterpart.
 
-Please note that in the default mode (no **page** parameter), it is the caller responsibility to include the necessary Javascript and CSS files. Currently, those files are (at minimum)::
+.. image:: images/api-3.png
+
+Please note that in the default mode (no **page** parameter), it is the caller's responsibility to include the necessary Javascript and CSS files. Currently, those files are (at minimum)::
 
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" >
     <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css" >
