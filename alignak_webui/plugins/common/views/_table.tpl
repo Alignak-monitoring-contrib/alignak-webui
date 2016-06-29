@@ -596,7 +596,7 @@ table.dataTable tbody>tr>.selected {
             // Only for tables with 'commands' attribute (eg. livestate)
             ,{
                extend: 'collection',
-               text: "{{! _('<span class="fa fa-bolt"></span>')}}",
+               text: "{{! _('<span class=\'fa fa-bolt\'></span>')}}",
                buttons: [
                   {
                      extend: 'selected',
