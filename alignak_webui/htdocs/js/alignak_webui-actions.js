@@ -169,7 +169,7 @@ function launch(url, response_message){
      }, options || {});
 
      var rselectTextarea = /select|textarea/i;
-     var rinput = /text|hidden|password|search/i;
+     var rinput = /text|number|email|color|date|datetime|datetime-local|month|range|tel|time|url|week|hidden|password|search/i;
 
      return this.map(function () {
          return this.elements ? $.makeArray(this.elements) : this;
