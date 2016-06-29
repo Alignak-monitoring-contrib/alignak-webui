@@ -332,8 +332,8 @@ table.dataTable tbody>tr>.selected {
             "data": function ( d ) {
                // Add an extra field
                d = $.extend({}, d, {
-                  "object_type": '{{object_type}}'
-                  "embedded": '{{embedded}}'
+                  "object_type": '{{object_type}}',
+                  "embedded": '{{embedded}}',
                   "links": '{{links}}'
                });
 
