@@ -1622,6 +1622,16 @@ class Host(Item):
         """ Return linked object """
         return self._linked_maintenance_period
 
+    @property
+    def usergroups(self):
+        """ Return linked object """
+        return self._linked_usergroups
+
+    @property
+    def users(self):
+        """ Return linked object """
+        return self._linked_users
+
     def get_last_check(self, timestamp=False, fmt=None):
         """
         Get last check date

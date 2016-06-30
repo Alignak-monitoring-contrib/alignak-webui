@@ -1,11 +1,10 @@
 <!-- Hosts metrics widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
-%setdefault('links', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
-
-%rebase("_widget", js=[], css=[], options=options)
 
 %from alignak_webui.utils.helper import Helper
 

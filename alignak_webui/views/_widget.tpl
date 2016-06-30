@@ -1,6 +1,8 @@
 %# Default values
 %setdefault('title', _('Untitled...'))
 
+%setdefault('widget_name', 'widget')
+
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %setdefault('links', '')
@@ -15,9 +17,10 @@
 %setdefault('bloodhound', not embedded)
 
 <div id="wd_panel_{{widget_id}}" class="panel panel-default alignak_webui_widget {{'embedded' if embedded else ''}}">
+   %if title is not None:
    <div class="panel-heading">
       <i class="fa fa-leaf"></i>
-      <span class="hosts-all">
+      <span>
          {{title}}
       </span>
       %if not embedded:
@@ -141,10 +144,10 @@
       </div>
       %end
    </div>
-      <div class="panel-body">
-         % setdefault('base', 'nothing')
-         {{!base}}
-      </div>
+   %end
+   <div class="panel-body">
+      %include(widget_name, **locals())
+   </div>
 </div>
 
 <script>

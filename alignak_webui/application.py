@@ -174,7 +174,7 @@ def enable_cors(fn):
     def _enable_cors(*args, **kwargs):
         # set CORS headers
         response.headers['Access-Control-Allow-Origin'] = \
-            request.app.config.get('cors_acao', 'http://127.0.0.1')
+            request.app.config.get('cors_acao', '127.0.0.1')
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = \
             'Origin, Accept, Authorization, X-HTTP-Method-Override, If-Match, Content-Type'
@@ -187,9 +187,9 @@ def enable_cors(fn):
     return _enable_cors
 
 
+@enable_cors
 @route('/external/<type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
 @route('/external/<type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
-@enable_cors
 def external(type, identifier, action=None):
     """
     Application external identifier

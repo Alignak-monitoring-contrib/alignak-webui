@@ -1,18 +1,22 @@
-<!-- Hosts widget -->
-
-%rebase("_widget")
+<!-- Livestate chart widget -->
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Host
 
-%if not hosts:
+%if not livestates:
    <center>
-      <h3>{{_('No hosts matching the filter...')}}</h3>
+      <h3>{{_('No livestates matching the filter...')}}</h3>
    </center>
 %else:
    %hs = datamgr.get_livesynthesis()['hosts_synthesis']
    %if hs:
-   <div id="hosts-states-popover-content" class="hidden">
+   <div id="livestates-states-popover-content" class="hidden">
       <table class="table table-invisible table-condensed">
          <tbody>
             <tr>
@@ -31,13 +35,13 @@
    <div class="panel panel-default">
       <div class="panel-body">
          <!-- Chart -->
-         <div id="pie-graph-hosts">
+         <div id="pie-graph-livestates">
             <div class="graph">
                <canvas></canvas>
             </div>
             <div class="title">
                <div class="text-center">
-                  <h4>Hosts states</h4>
+                  <h4>livestates states</h4>
                   <span class="text-muted">-/-</span>
                </div>
             </div>
@@ -193,7 +197,7 @@
       onAnimationComplete: function(){}
    };
 
-   var pie_graph_hosts_parameters = {
+   var pie_graph_livestates_parameters = {
      "up": {
          color:"#5bb75b",
          highlight: "#5AD3D1",
@@ -210,9 +214,9 @@
          label: "Down"
      }
    };
-   var pie_graph_hosts_options = {
+   var pie_graph_livestates_options = {
       legendTemplate: [
-         '<div id="pie_graph_hosts_legend">',
+         '<div id="pie_graph_livestates_legend">',
              '<% for (var i=0; i<segments.length; i++)\{\%>',
                  '<div>',
                      '<span style="background-color:<%=segments[i].fillColor%>; display: inline-block; width: 12px; height: 12px; margin-right: 5px;"></span>',
@@ -232,32 +236,32 @@
       var data = [];
       %for state in 'up', 'unreachable', 'down':
          // Update table rows
-         row = pie_graph_hosts_parameters['{{state}}'];
+         row = pie_graph_livestates_parameters['{{state}}'];
          row['value'] = {{hs["nb_" + state]}};
          data.push(row)
       %end
 
       // Update graph
-      var ctx = $("#pie-graph-hosts canvas").get(0).getContext("2d");
-      var myPieChart = new Chart(ctx).Doughnut(data, pie_graph_hosts_options);
+      var ctx = $("#pie-graph-livestates canvas").get(0).getContext("2d");
+      var myPieChart = new Chart(ctx).Doughnut(data, pie_graph_livestates_options);
       if (title) {
-         $("#pie-graph-hosts .title").show();
-         $("#pie-graph-hosts .title span").html({{hs["nb_elts"]}} + " hosts").show();
+         $("#pie-graph-livestates .title").show();
+         $("#pie-graph-livestates .title span").html({{hs["nb_elts"]}} + " livestates").show();
       } else {
-         $("#pie-graph-hosts .title").hide();
+         $("#pie-graph-livestates .title").hide();
       }
       if (legend) {
-         if (pie_graph_hosts_options) {
-             $("#pie-graph-hosts .legend").show();
-             if ($("#pie-graph-hosts span.legend").length) {
-                 if (! $("#pie_graph_hosts_legend").length) {
-                     $("#pie-graph-hosts .legend span").append(myPieChart.generateLegend());
+         if (pie_graph_livestates_options) {
+             $("#pie-graph-livestates .legend").show();
+             if ($("#pie-graph-livestates span.legend").length) {
+                 if (! $("#pie_graph_livestates_legend").length) {
+                     $("#pie-graph-livestates .legend span").append(myPieChart.generateLegend());
                  }
                  // TODO: Update ...
              }
          }
       } else {
-         $("#pie-graph-hosts .legend").hide();
+         $("#pie-graph-livestates .legend").hide();
       }
    });
 </script>

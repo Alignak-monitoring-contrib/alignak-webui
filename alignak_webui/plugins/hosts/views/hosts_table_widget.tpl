@@ -6,8 +6,6 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%rebase("_widget", js=[], css=[], options=options, links=links)
-
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Command
 

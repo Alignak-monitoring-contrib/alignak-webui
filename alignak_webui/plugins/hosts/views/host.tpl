@@ -616,14 +616,8 @@
                <div class="panel-body">
                   <table class="table table-condensed table-bordered">
                      <colgroup>
-                        %if current_user.is_power():
-                        <col style="width: 30%" />
-                        <col style="width: 60%" />
-                        <col style="width: 10%" />
-                        %else:
                         <col style="width: 40%" />
                         <col style="width: 60%" />
-                        %end
                      </colgroup>
                      <thead>
                         <tr>
@@ -647,11 +641,7 @@
 
          <!-- Tab Metrics start -->
          <div class="tab-pane fade" id="metrics">
-            <div class="panel panel-default">
-               <div class="panel-body">
-                  %include("host_metrics_widget.tpl", perf_data=livestate.perf_data, options=None)
-               </div>
-            </div>
+            %include("_widget.tpl", widget_name='host_metrics_widget', perf_data=livestate.perf_data, options=None, embedded=True, title=None)
          </div>
          <!-- Tab Metrics end -->
 

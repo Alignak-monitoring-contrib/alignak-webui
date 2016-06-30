@@ -1,6 +1,10 @@
-<!-- livestates widget -->
-
-%rebase("_widget", js=[], css=[])
+<!-- Livestate table widget -->
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Command
@@ -13,9 +17,9 @@
    <table class="table table-condensed">
       <thead><tr>
          <th style="width: 40px"></th>
-         <th>{{_('livestate name')}}</th>
+         <th>{{_('Livestate element')}}</th>
          <th>{{_('Business impact')}}</th>
-         <th>{{_('Check command')}}</th>
+         <th>{{_('Commands')}}</th>
       </tr></thead>
       <tbody>
          %livestates = sorted(livestates, key=lambda k: k['business_impact'], reverse=True)
@@ -34,16 +38,18 @@
             </td>
 
             <td>
-               <small>{{!livestate.get_html_link()}}</small>
+               <small>{{!livestate.get_html_link(links) if links else livestate.alias}}</small>
             </td>
 
             <td>
                <small>{{! Helper.get_html_business_impact(livestate.business_impact)}}</small>
             </td>
 
+            %if current_user.is_power():
             <td>
                {{! Helper.get_html_commands_buttons(livestate, title='')}}
             </td>
+            %end
          </tr>
        %end
       </tbody>

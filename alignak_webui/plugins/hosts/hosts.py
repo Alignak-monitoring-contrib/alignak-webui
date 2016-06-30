@@ -116,7 +116,8 @@ schema['check_command'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Check command'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
         'resource': 'command',
@@ -134,7 +135,8 @@ schema['check_period'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Check period'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -180,7 +182,8 @@ schema['parents'] = {
     'type': 'list',
     'ui': {
         'title': _('Parents'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
         'resource': 'host',
@@ -191,7 +194,8 @@ schema['hostgroups'] = {
     'type': 'list',
     'ui': {
         'title': _('Hosts groups'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
         'resource': 'hostgroup',
@@ -205,25 +209,27 @@ schema['business_impact'] = {
         'visible': True
     },
 }
-schema['contacts'] = {
+schema['users'] = {
     'type': 'list',
     'ui': {
         'title': _('Users'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
-        'resource': 'contact',
+        'resource': 'user',
         'embeddable': True
     }
 }
-schema['contact_groups'] = {
+schema['usergroups'] = {
     'type': 'list',
     'ui': {
         'title': _('Users groups'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
-        'resource': 'contactgroup',
+        'resource': 'usergroup',
         'embeddable': True
     }
 }
@@ -528,8 +534,9 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
         title = _('%s (%s)') % (title, name_filter)
 
     # Use required template to render the widget
-    return template(widget_template, {
+    return template('_widget', {
         'widget_id': widget_id,
+        'widget_name': widget_template,
         'widget_place': widget_place,
         'widget_template': widget_template,
         'widget_uri': request.urlparts.path,
