@@ -366,7 +366,7 @@ table.dataTable tbody>tr>.selected {
             // Get table stored state from the server ...
             var o;
             $.ajax( {
-               "url": "/preference/user",
+               "url": "{{links}}{{'/external/table/' + identifier if embedded else ''}}/preference/user",
                "dataType": "json",
                "type": "GET",
                "data": {
@@ -387,7 +387,7 @@ table.dataTable tbody>tr>.selected {
 
             // Post table data to the server ...
             $.ajax({
-               "url": "/preference/user",
+               "url": "{{links}}{{'/external/table/' + identifier if embedded else ''}}/preference/user",
                "dataType": "json",
                "type": "POST",
                "data": {

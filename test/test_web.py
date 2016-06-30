@@ -237,13 +237,27 @@ class tests_0_external(unittest2.TestCase):
 
         # Allowed - default widgets parameters: widget_id
         # No parameter page: only the widget
-        # With links
+        # With links, but empty, so no links!
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
             '/external/widget/hosts_table?links&widget_id=hosts_table'
         )
         response.mustcontain(
             '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
+            'Graphite on VM</small>',
+            'check_host_alive</small>'
+        )
+
+        # Allowed - default widgets parameters: widget_id
+        # No parameter page: only the widget
+        # With links, not empty so URL are prefixed ...
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/hosts_table?links=http://test&widget_id=hosts_table'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
+            '<a href="http://test/host/',
             'Graphite on VM</a></small>',
             'check_host_alive</a></small>'
         )
@@ -298,7 +312,7 @@ class tests_0_external(unittest2.TestCase):
 
         # Allowed - default table parameters: none
         # No parameter page: only the widget
-        # With links
+        # With links, but empty
         print "Only div with links..."
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -310,6 +324,48 @@ class tests_0_external(unittest2.TestCase):
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>'
+        )
+
+        # Allowed - default table parameters: none
+        # No parameter page: only the widget
+        # With links, not empty so URL are prefixed ...
+        print "Only div with links..."
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/table/hosts_table?links=http://test'
+        )
+        response.mustcontain(
+            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<th data-name="#" data-type="string"></th>',
+            '<th data-name="name" data-type="string">Host name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Host alias</th>',
+            ' "url": "http://test/external/table/hosts_table/host_table_data",',
+        )
+
+    def test_2_widgets(self):
+        print ''
+        print 'allowed widgets'
+
+        # Hosts table
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/hosts_table?widget_id=hosts_table'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
+            '<small>Graphite on VM</small>',
+            '<small>check_host_alive</small>'
+        )
+
+        # Hosts graph
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/hosts_graph?widget_id=hosts_graph'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_hosts_graph" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="pie-graph-hosts">'
         )
 
 
