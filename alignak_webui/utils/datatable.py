@@ -298,6 +298,11 @@ class Datatable(object):
         Request parameters are Json formatted
 
         Request Parameters:
+        - object_type: object type managed by the datatable
+        - links: urel prefix to be used by the links in the table
+        - embedded: true / false whether the table is embedded by an external application
+            **Note**: those three first parameters are not datatable specific parameters :)
+
         - draw, index parameter to be returned in the response
 
             Pagination:
@@ -517,7 +522,7 @@ class Datatable(object):
                             continue
 
                         if field['data'] == self.name_property:
-                            item[key] = bo_object.get_html_link()
+                            item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
 
                         if field['data'] == self.status_property:
                             # if self.commands
@@ -547,7 +552,9 @@ class Datatable(object):
                                    globals()[k]._type == field['format']:
                                     linked_object = globals()[k](item[key])
                                     logger.debug("created: %s", linked_object)
-                                    item[key] = linked_object.get_html_link()
+                                    item[key] = linked_object.get_html_link(
+                                        prefix=request.params.get('links')
+                                    )
                                     break
 
                 # Very specific fields...
