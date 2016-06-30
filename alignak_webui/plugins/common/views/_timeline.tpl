@@ -136,9 +136,9 @@
                   <p>
                      <small>
                      %if timeline_host:
-                     {{! item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %else:
-                     {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.host.get_html_link()}}{{! ' / '+item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %end
                      </small>
                   </p>
@@ -156,9 +156,9 @@
                   <p>
                      <small>
                      %if timeline_host:
-                     {{! item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %else:
-                     {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.host.get_html_link()}}{{! ' / '+item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %end
                      </small>
                   </p>
@@ -171,9 +171,9 @@
                   <p>
                      <small>
                      %if timeline_host:
-                     {{! item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %else:
-                     {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.host.get_html_link()}}{{! ' / '+item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %end
                      </small>
                   </p>
@@ -187,9 +187,9 @@
                   <p>
                      <small>
                      %if timeline_host:
-                     {{! item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %else:
-                     {{! item.host.html_link}}{{! ' / '+item.service.html_link if item.service and item.service!='service' else ''}}
+                     {{! item.host.get_html_link()}}{{! ' / '+item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      %end
                      </small>
                   </p>

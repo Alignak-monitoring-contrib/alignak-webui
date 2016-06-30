@@ -533,7 +533,7 @@ pages = {
                 'template': 'livestate_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
-                    '<h4>Hosts livestat chart widget</h4>Display a pie chart with the monitored'
+                    '<h4>Hosts livestate chart widget</h4>Display a pie chart with the monitored'
                     'system hosts states.'
                 ),
                 'picture': 'htdocs/img/hosts_chart_widget.png',

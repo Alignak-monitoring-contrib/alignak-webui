@@ -1,11 +1,12 @@
 <!-- Hosts table widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
-%setdefault('links', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%rebase("_widget", js=[], css=[])
+%rebase("_widget", js=[], css=[], options=options, links=links)
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Command
@@ -36,7 +37,7 @@
             </td>
 
             <td>
-               <small>{{! host.html_link if links else host.alias}}</small>
+               <small>{{! host.get_html_link(links) if links else host.alias}}</small>
             </td>
 
             <td>
@@ -44,7 +45,7 @@
             </td>
 
             <td>
-               <small>{{! host.check_command.html_link if links else host.check_command.alias}}</small>
+               <small>{{! host.check_command.get_html_link(links) if links else host.check_command.alias}}</small>
             </td>
          </tr>
        %end

@@ -2,7 +2,8 @@
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
-%setdefault('links', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
@@ -272,7 +273,7 @@ table.dataTable tbody>tr>.selected {
          // Server side processing: request new data
          "serverSide": true,
          "ajax": {
-            "url": "{{'/external/table/' + identifier if embedded else ''}}/{{object_type}}_table_data",
+            "url": "{{links}}{{'/external/table/' + identifier if embedded else ''}}/{{object_type}}_table_data",
             "type": "POST",
             //"dataSrc": "data",
             "data": function ( d ) {

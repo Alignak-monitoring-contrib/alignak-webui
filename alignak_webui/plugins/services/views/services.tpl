@@ -68,15 +68,15 @@
                   </td>
 
                   <td>
-                     <small>{{! service.host.html_link}}</small>
+                     <small>{{! service.host.get_html_link()}}</small>
                   </td>
 
                   <td>
-                     <small>{{! service.html_link}}</small>
+                     <small>{{! service.get_html_link()}}</small>
                   </td>
 
                   <td>
-                     <small>{{! service.check_command.html_link}}</small>
+                     <small>{{! service.check_command.get_html_link()}}</small>
                   </td>
 
                   <td>

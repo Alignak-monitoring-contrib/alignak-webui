@@ -65,7 +65,7 @@
                   </td>
 
                   <td>
-                     <small>{{!host.html_link}}</small>
+                     <small>{{!host.get_html_link()}}</small>
                   </td>
 
                   <td>
@@ -73,7 +73,7 @@
                   </td>
 
                   <td>
-                     <small>{{! host.check_command.html_state_link}}</small>
+                     <small>{{! host.check_command.get_html_state_link()}}</small>
                   </td>
 
                   <td>

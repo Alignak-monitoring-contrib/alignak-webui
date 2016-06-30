@@ -351,22 +351,20 @@
                            <tr>
                               <td><strong>{{_('Status:')}}</strong></td>
                               <td>
-                                 %extra=None
+                                 %extra=''
                                  %if livestate.acknowledged:
-                                 %extra = _(' and acknowledged')
+                                 %extra += _(' and acknowledged')
+                                 %end
+                                 %if livestate.acknowledged:
+                                 %extra += _(' and in scheduled downtime')
                                  %end
                                  {{! livestate.get_html_state(extra=extra)}}
                               </td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Since:')}}</strong></td>
-                              <td class="popover-dismiss"
-                                    data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                    data-title="{{host.name}}{{_('}} last state change date')}}"
-                                    data-content="{{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}"
-                                    >
+                              <td>
                                  {{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}
-                                 {{livestate.last_state_changed}}
                               </td>
                            </tr>
                         </tbody>
@@ -397,7 +395,8 @@
                            <tr>
                               <td><strong>{{_('Last check:')}}</strong></td>
                               <td>
-                                 <span class="popover-dismiss" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="{{_('Last check was at %s') % Helper.print_duration(livestate.last_check)}}">was {{Helper.print_duration(livestate.last_check)}}</span></td>
+                                 {{_('was ')}}{{Helper.print_duration(livestate.last_check, duration_only=False, x_elts=0)}}
+                              </td>
                            </tr>
                            <tr>
                               <td><strong>{{_('Output:')}}</strong></td>
@@ -422,7 +421,7 @@
                            <tr>
                               <td><strong>{{_('Check duration (latency):')}}</strong></td>
                               <td>
-                                 {{_('%.2f (%.2f) seconds') % (livestate.execution_time, livestate.latency) }}
+                                 {{_('%.2f seconds (%.2f)') % (livestate.execution_time, livestate.latency) }}
                               </td>
                            </tr>
 
@@ -483,7 +482,7 @@
                                     data-title='{{host.check_period}}'
                                     data-content='{{host.check_period}}'
                                     >
-                                 {{! host.check_period.html_state_link}}
+                                 {{! host.check_period.get_html_state_link()}}
                               </td>
                            </tr>
 
@@ -495,7 +494,7 @@
                                     data-title='{{host.maintenance_period}}'
                                     data-content='{{host.maintenance_period}}'
                                     >
-                                 {{! host.maintenance_period.html_state_link}}
+                                 {{! host.maintenance_period.get_html_state_link()}}
                               </td>
                            </tr>
                            %end
@@ -503,7 +502,7 @@
                            <tr>
                               <td><strong>{{_('Check command:')}}</strong></td>
                               <td>
-                                 {{! host.check_command.html_state_link}}
+                                 {{! host.check_command.get_html_state_link()}}
                               </td>
                               <td>
                               </td>
@@ -650,45 +649,7 @@
          <div class="tab-pane fade" id="metrics">
             <div class="panel panel-default">
                <div class="panel-body">
-                  %if host.perfdatas:
-                  <table class="table table-condensed">
-                     <thead>
-                        <tr>
-                           <th>{{_('Service')}}</th>
-                           <th>{{_('Metric')}}</th>
-                           <th>{{_('Value')}}</th>
-                           <th>{{_('Warning')}}</th>
-                           <th>{{_('Critical')}}</th>
-                           <th>{{_('Min')}}</th>
-                           <th>{{_('Max')}}</th>
-                           <th>{{_('UOM')}}</th>
-                           <th></th>
-                        </tr>
-                     </thead>
-                     <tbody style="font-size:x-small;">
-                        %host_line = True
-                        %for metric in sorted(host.perfdatas, key=lambda metric: metric.name):
-                        %if metric.name:
-                        <tr>
-                           <td><strong>{{'Host check' if host_line else ''}}</strong></td>
-                           %host_line = False
-                           <td><strong>{{metric.name}}</strong></td>
-                           <td>{{metric.value}}</td>
-                           <td>{{metric.warning if metric.warning!=None else ''}}</td>
-                           <td>{{metric.critical if metric.critical!=None else ''}}</td>
-                           <td>{{metric.min if metric.min!=None else ''}}</td>
-                           <td>{{metric.max if metric.max!=None else ''}}</td>
-                           <td>{{metric.uom if metric.uom else ''}}</td>
-                        </tr>
-                        %end
-                        %end
-                     </tbody>
-                  </table>
-                  %else:
-                  <div class="alert alert-info">
-                     <p class="font-blue">{{_('No metrics are available.')}}</p>
-                  </div>
-                  %end
+                  %include("host_metrics_widget.tpl", perf_data=livestate.perf_data, options=None)
                </div>
             </div>
          </div>
@@ -772,8 +733,35 @@
  </div>
 
  <script>
+   function bootstrap_tab_bookmark (selector) {
+      if (selector == undefined) {
+         selector = "";
+      }
+
+      var bookmark_switch = function () {
+         url = document.location.href.split('#');
+         if (url[1] != undefined) {
+            $(selector + '[href="#'+url[1]+'"]').tab('show');
+         }
+      }
+
+      /* Automagically jump on good tab based on anchor */
+      $(document).ready(bookmark_switch);
+      $(window).bind('hashchange', bookmark_switch);
+
+      var update_location = function (event) {
+         document.location.hash = this.getAttribute("href");
+      }
+
+      /* Update hash based on tab */
+      $(selector + "[data-toggle=pill]").click(update_location);
+      $(selector + "[data-toggle=tab]").click(update_location);
+   }
+
    $(function () {
       // Activate the popover for the notes and actions urls
       $('[data-toggle="popover urls"]').popover()
+
+      bootstrap_tab_bookmark();
    })
  </script>

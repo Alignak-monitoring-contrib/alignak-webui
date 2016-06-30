@@ -157,7 +157,7 @@ class Helper(object):
         if in_future:
             return _('in ') + ' '.join(duration)
         else:
-            return _('') + ' '.join(duration) + _(' ago')
+            return _(' ') + ' '.join(duration) + _(' ago')
 
     @staticmethod
     def get_on_off(status=False, title=None, message=''):
@@ -556,7 +556,7 @@ class Helper(object):
             content += \
                 '<li class="list-group-item">'\
                 '<span class="fa fa-check">&nbsp;%s</li>' % (
-                    item.html_link if isinstance(item, type) else item
+                    item.get_html_link() if isinstance(item, type) else item
                 )
         content += '</ul>'
         content += '</div></div>'

@@ -538,8 +538,7 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
         'title': title,
         'embedded': embedded,
         'identifier': identifier,
-        'credentials': credentials,
-        'links': (request.params.get('links', 'no') != 'no')
+        'credentials': credentials
     })
 
 
@@ -569,8 +568,7 @@ def get_hosts_table(embedded=False, identifier=None, credentials=None):
         'title': request.query.get('title', title),
         'embedded': embedded,
         'identifier': identifier,
-        'credentials': credentials,
-        'links': (request.params.get('links', 'no') != 'no')
+        'credentials': credentials
     }
 
 
@@ -710,7 +708,7 @@ pages = {
         'widgets': [
             {
                 'id': 'hosts_table',
-                'for': ['dashboard'],
+                'for': ['external', 'dashboard'],
                 'name': _('Hosts table widget'),
                 'template': 'hosts_table_widget',
                 'icon': 'table',
@@ -740,7 +738,7 @@ pages = {
             },
             {
                 'id': 'hosts_graph',
-                'for': ['dashboard'],
+                'for': ['external', 'dashboard'],
                 'name': _('Hosts chart widget'),
                 'template': 'hosts_chart_widget',
                 'icon': 'pie-chart',

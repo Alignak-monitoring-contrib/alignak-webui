@@ -517,7 +517,7 @@ class Datatable(object):
                             continue
 
                         if field['data'] == self.name_property:
-                            item[key] = bo_object.html_link
+                            item[key] = bo_object.get_html_link()
 
                         if field['data'] == self.status_property:
                             # if self.commands
@@ -547,7 +547,7 @@ class Datatable(object):
                                    globals()[k]._type == field['format']:
                                     linked_object = globals()[k](item[key])
                                     logger.debug("created: %s", linked_object)
-                                    item[key] = linked_object.html_link
+                                    item[key] = linked_object.get_html_link()
                                     break
 
                 # Very specific fields...

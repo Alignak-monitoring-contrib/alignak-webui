@@ -891,14 +891,32 @@ class Item(object):
         """
         return '<a href="%s">%s</a>' % (self.endpoint, self.alias)
 
+    def get_html_link(self, prefix=None):
+        """
+        Get Item html link with an optional prefix
+        """
+        if prefix:
+            return '<a href="%s%s">%s</a>' % (prefix, self.endpoint, self.alias)
+        return self.html_link
+
     @property
     def html_state_link(self):
         """
-        Get Item html link
+        Get Item html link with state
         """
         return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(
             text=self.alias, title=self.alias
         ))
+
+    def get_html_state_link(self, prefix=None):
+        """
+        Get Item html link with state and an optional prefix
+        """
+        if prefix:
+            return '<a href="%s%s">%s</a>' % (prefix, self.endpoint, self.get_html_state(
+                text=self.alias, title=self.alias
+            ))
+        return self.html_state_link
 
     @name.setter
     def name(self, name):

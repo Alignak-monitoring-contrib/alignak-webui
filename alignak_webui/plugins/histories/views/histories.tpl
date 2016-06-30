@@ -69,15 +69,15 @@
                   </td>
 
                   <td>
-                     <small>{{! lcr.host.html_link}}</small>
+                     <small>{{! lcr.host.get_html_link()}}</small>
                   </td>
 
                   <td>
-                     <small>{{! lcr.service.html_link if lcr.service and lcr.service!='service' else ''}}</small>
+                     <small>{{! lcr.service.get_html_link() if lcr.service and lcr.service!='service' else ''}}</small>
                   </td>
 
                   <td>
-                     <small>{{! lcr.user.html_link if lcr.user and lcr.user!='user' else ''}}</small>
+                     <small>{{! lcr.user.get_html_link() if lcr.user and lcr.user!='user' else ''}}</small>
                   </td>
 
                   <td>

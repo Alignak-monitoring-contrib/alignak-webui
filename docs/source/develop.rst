@@ -49,12 +49,21 @@ Datatables
 
 User's preferences
 ------------------
- `application.js` declares functions for managing user's preferences, but the `_object_list.html` declares its own functions for the datatables because the saved parameters must be loaded synchronously ...
+
 
  TO BE EXPLAINED !
 
 Templates
 ---------
+
+Debug mode
+~~~~~~~~~~~~~~
+Many templates declare a local `debug` variable that will allow to display extra information. Simply declare this variable as True (eg. `%setdefault('debug', True)`). Debug information panels have a *bug* icon ;)
+
+Some specific templates for debug mode:
+
+    * layout.tpl, will display all the HTTP request information
+    * _actionbar.tpl will display all the widgets available for dashboard and external access
 
 Good practices
 ~~~~~~~~~~~~~~

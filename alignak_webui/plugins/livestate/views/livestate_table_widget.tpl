@@ -34,7 +34,7 @@
             </td>
 
             <td>
-               <small>{{!livestate.html_link}}</small>
+               <small>{{!livestate.get_html_link()}}</small>
             </td>
 
             <td>

@@ -197,7 +197,9 @@ def external(type, identifier, action=None):
     Use internal authentication (if a user is logged-in) or external basic authentication provided
     by the requiring application.
 
-    Search in the known 'type' (widget or table) to find the element 'identifier'
+    Search in the known 'type' (widget or table) to find the element 'identifier'.
+
+    Use the 'links' parameter to prefix the navigation URLs.
     """
     credentials = None
     session = request.environ['beaker.session']
@@ -262,7 +264,7 @@ def external(type, identifier, action=None):
 
     if type =='widget':
         found_widget = None
-        for widget in get_app_webui().get_widgets_for('dashboard'):
+        for widget in get_app_webui().get_widgets_for('external'):
             if identifier == widget['id']:
                 found_widget = widget
                 break

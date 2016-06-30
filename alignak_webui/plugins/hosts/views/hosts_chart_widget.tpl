@@ -1,7 +1,7 @@
 <!-- Hosts chart widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
-%setdefault('links', False)
+%setdefault('links', '')
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 

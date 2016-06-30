@@ -17,7 +17,7 @@ API
 
 URL syntax::
 
-    GET <alignak_webui>/external/<type>/<identifier>
+    GET <alignak_webui>/external/<type>/<identifier>/<action>
 
     where:
         <alignak_webui> is the base url of your Alignak WebUI (eg. http://127.0.0.1:8868)
@@ -25,6 +25,13 @@ URL syntax::
         <type> = table for a table
 
         <identifier> is the identifier of the widget or table
+
+        <action> is an optinoal required action (used only for the tables)
+
+    URL parameters (GET or POST):
+        **page** provides a full HTML page including necessary Css and Js. Suitable for embedding the widget or table in an iframe (see hereunder, Embedding mode)
+
+        **links** provides an URL prefix to be used for the WebUI links. As of it, the links will be prefixed with this value to allow a *redirected* navigation rather than the internal one.
 
 The application response content type is always displayable HTML (eg. `text/html`). Even when an error message is provided. As of it the content can always be included in an HTML page or an iframe HTML element. The HTTP status code is :
 
