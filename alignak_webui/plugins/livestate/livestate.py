@@ -388,7 +388,7 @@ def get_livestate(livestate_id):
         redirect('/host/' + livestate.host.id + '#services')
 
 
-def get_livestate_widget():
+def get_livestate_widget(embedded=False, identifier=None, credentials=None):
     # Because there are many locals needed :)
     # pylint: disable=too-many-locals
     """
@@ -461,14 +461,18 @@ def get_livestate_widget():
         title = _('%s (%s)') % (title, name_filter)
 
     # Use required template to render the widget
-    return template(widget_template, {
+    return template('_widget', {
         'widget_id': widget_id,
+        'widget_name': widget_template,
         'widget_place': widget_place,
         'widget_template': widget_template,
         'widget_uri': request.urlparts.path,
         'livestates': livestates,
         'options': options,
-        'title': title
+        'title': title,
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     })
 
 
@@ -480,7 +484,22 @@ pages = {
     get_livestate_table: {
         'name': 'Livestate table',
         'route': '/livestate_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'livestate_table',
+                'for': ['external'],
+                'name': _('Livestate table widget'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Livestate table</h4>Displays a datatable for the monitored system livestate.<br>'
+                ),
+                'actions': {
+                    'livestate_table_data': get_livestate_table_data
+                }
+            }
+        ]
     },
 
     get_livestate_table_data: {
@@ -497,7 +516,7 @@ pages = {
         'widgets': [
             {
                 'id': 'livestate_table',
-                'for': ['dashboard'],
+                'for': ['external', 'dashboard'],
                 'name': _('Livestate table widget'),
                 'template': 'livestate_table_widget',
                 'icon': 'table',
@@ -528,7 +547,7 @@ pages = {
             },
             {
                 'id': 'livestate_graph',
-                'for': ['dashboard'],
+                'for': ['external', 'dashboard'],
                 'name': _('Livestate chart widget'),
                 'template': 'livestate_chart_widget',
                 'icon': 'pie-chart',

@@ -37,6 +37,7 @@ table.dataTable tbody>tr>.selected {
 %if dt.editable:
 %include("_edition.tpl")
 %end
+%server = request.urlparts.scheme + '://' + request.urlparts.netloc + request.urlparts.path.replace('/external/table/'+identifier, '')
 
 <!-- Table display -->
 <div id="{{object_type}}_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
@@ -273,7 +274,7 @@ table.dataTable tbody>tr>.selected {
          // Server side processing: request new data
          "serverSide": true,
          "ajax": {
-            "url": "{{links}}{{'/external/table/' + identifier if embedded else ''}}/{{object_type}}_table_data",
+            "url": "{{server + '/external/table/' + identifier if embedded else ''}}/{{object_type}}_table_data",
             "type": "POST",
             //"dataSrc": "data",
             "data": function ( d ) {
@@ -366,7 +367,7 @@ table.dataTable tbody>tr>.selected {
             // Get table stored state from the server ...
             var o;
             $.ajax( {
-               "url": "{{links}}{{'/external/table/' + identifier if embedded else ''}}/preference/user",
+               "url": "{{server + '/external/table/' + identifier if embedded else ''}}/preference/user",
                "dataType": "json",
                "type": "GET",
                "data": {
@@ -387,7 +388,7 @@ table.dataTable tbody>tr>.selected {
 
             // Post table data to the server ...
             $.ajax({
-               "url": "{{links}}{{'/external/table/' + identifier if embedded else ''}}/preference/user",
+               "url": "{{server + '/external/table/' + identifier if embedded else ''}}/preference/user",
                "dataType": "json",
                "type": "POST",
                "data": {
