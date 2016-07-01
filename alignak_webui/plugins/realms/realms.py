@@ -218,7 +218,7 @@ schema['ui'] = {
 }
 
 
-def get_realm_table():
+def get_realm_table(embedded=False, identifier=None, credentials=None):
     """
     Get the realm list and transform it as a table
     """
@@ -241,7 +241,10 @@ def get_realm_table():
         'object_type': 'realm',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -362,7 +365,22 @@ pages = {
     get_realm_table: {
         'name': 'Realms table',
         'route': '/realm_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'realms_table',
+                'for': ['external'],
+                'name': _('Realms table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Realms table</h4>Displays a datatable for the system realms.<br>'
+                ),
+                'actions': {
+                    'realm_table_data': get_realm_table_data
+                }
+            }
+        ]
     },
 
     get_realm_table_data: {

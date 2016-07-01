@@ -41,9 +41,9 @@ Tables
 ---------------
 All the elements have a table to display them. The table name is build with this simple rule: name_table. As examples:
 
-    * host_table
+    * hosts_table
     * livestate_table
-    * logcheckresult_table
+    * logcheckresults_table
     * ...
 
 Depending upon the element table configuration in its plugin, the table is searchable, orderable, ...

@@ -37,8 +37,15 @@ table.dataTable tbody>tr>.selected {
 %if dt.editable:
 %include("_edition.tpl")
 %end
-%server = request.urlparts.scheme + '://' + request.urlparts.netloc + request.urlparts.path.replace('/external/table/'+identifier, '')
-
+%if embedded and identifier:
+%scheme = request.urlparts.scheme
+%location = request.urlparts.netloc
+%path = request.urlparts.path
+%path = path.replace('/external/table/'+identifier, '')
+%server_url = scheme + '://' + location + path
+%else:
+%server_url = ''
+%end
 <!-- Table display -->
 <div id="{{object_type}}_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
    <!-- Bootstrap responsive table
@@ -274,7 +281,7 @@ table.dataTable tbody>tr>.selected {
          // Server side processing: request new data
          "serverSide": true,
          "ajax": {
-            "url": "{{server + '/external/table/' + identifier if embedded else ''}}/{{object_type}}_table_data",
+            "url": "{{server_url}}/{{object_type}}_table_data",
             "type": "POST",
             //"dataSrc": "data",
             "data": function ( d ) {
@@ -367,7 +374,7 @@ table.dataTable tbody>tr>.selected {
             // Get table stored state from the server ...
             var o;
             $.ajax( {
-               "url": "{{server + '/external/table/' + identifier if embedded else ''}}/preference/user",
+               "url": "{{server_url}}/preference/user",
                "dataType": "json",
                "type": "GET",
                "data": {
@@ -388,7 +395,7 @@ table.dataTable tbody>tr>.selected {
 
             // Post table data to the server ...
             $.ajax({
-               "url": "{{server + '/external/table/' + identifier if embedded else ''}}/preference/user",
+               "url": "{{server_url}}/preference/user",
                "dataType": "json",
                "type": "POST",
                "data": {
@@ -493,7 +500,6 @@ table.dataTable tbody>tr>.selected {
                      footer: false,
                      fieldBoundary: '"',
                      fieldSeparator: ";",
-                     title: table,
                      extension: ".csv",
                      exportOptions: {
                         columns: ':visible',
@@ -507,7 +513,6 @@ table.dataTable tbody>tr>.selected {
                      extend: 'excel',
                      header: true,
                      footer: false,
-                     title: table,
                      extension: ".xlsx",
                      exportOptions: {
                         columns: ':visible',
@@ -521,7 +526,6 @@ table.dataTable tbody>tr>.selected {
                      extend: 'pdf',
                      header: true,
                      footer: false,
-                     title: table,
                      extension: ".pdf",
                      orientation: 'landscape',
                      pageSize: 'A4',
@@ -578,9 +582,11 @@ table.dataTable tbody>tr>.selected {
             */
             ,{
                extend: 'selectAll',
+               titleAttr: "{{_('Select all the table rows')}}",
             }
             ,{
                extend: 'selectNone',
+               titleAttr: "{{_('Unselect all rows')}}",
             }
             /*
             ,{
@@ -603,6 +609,7 @@ table.dataTable tbody>tr>.selected {
                   {
                      extend: 'selected',
                      text: "{{_('Re-check')}}",
+                     titleAttr: "{{_('Force a re-check for selected items')}}",
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
@@ -631,6 +638,7 @@ table.dataTable tbody>tr>.selected {
                   {
                      extend: 'selected',
                      text: "{{_('Acknowledge')}}",
+                     titleAttr: "{{_('Acknowledge selected items')}}",
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
@@ -659,6 +667,7 @@ table.dataTable tbody>tr>.selected {
                   {
                      extend: 'selected',
                      text: "{{_('Downtime')}}",
+                     titleAttr: "{{_('Schedule a downtime for selected items')}}",
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
