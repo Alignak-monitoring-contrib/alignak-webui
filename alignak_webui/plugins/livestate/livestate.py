@@ -530,7 +530,7 @@ pages = {
                 'template': 'livestate_table_widget',
                 'icon': 'table',
                 'description': _(
-                    '<h4>Livestate table widget</h4>Display a list of the live state of the'
+                    '<h4>Livestate table widget</h4>Displays a list of the live state of the'
                     'monitored system hosts.<br>'
                     'The number of hosts in this list can be defined in the widget options.'
                     'The list of hosts can be filtered thanks to regex on the host name'
@@ -561,10 +561,10 @@ pages = {
                 'template': 'livestate_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
-                    '<h4>Hosts livestate chart widget</h4>Display a pie chart with the monitored'
+                    '<h4>Hosts livestate chart widget</h4>Displays a pie chart with the monitored'
                     'system hosts states.'
                 ),
-                'picture': 'htdocs/img/hosts_chart_widget.png',
+                'picture': 'htdocs/img/livestate_chart_widget.png',
                 'options': {}
             }
         ]
