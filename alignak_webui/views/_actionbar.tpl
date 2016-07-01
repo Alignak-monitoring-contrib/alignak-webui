@@ -1,4 +1,4 @@
-%setdefault('debug', False)
+%setdefault('debug', True)
 %setdefault('in_sidebar', False)
 
 <!-- Dashboard actions bar -->
@@ -40,7 +40,7 @@
       </li>
 
 %if debug:
-      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Add a new widget')}}">
+      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('External widgets')}}">
          <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
             <span class="fa fa-bug"></span>
@@ -50,23 +50,27 @@
          <ul class="dropdown-menu" role="menu" aria-labelledby="Widgets bar menu">
             %for widget in webui.get_widgets_for('external'):
             <li>
-               <a href="#"
-                  class="dashboard-widget"
-                  data-widget-title="
-                      <button href='#' role='button'
-                          data-action='add-widget'
-                          data-widget-id='{{widget['id']}}'
-                          data-widget-name='{{widget['name']}}'
-                          data-widget-template='{{widget['template']}}'
-                          data-widget-uri='{{widget['base_uri']}}'
-                          class='btn btn-sm btn-success'>
-                          <span class='fa fa-plus'></span>
-                          {{_('Add this widget to your dashboard')}}
-                      </button>"
-                  data-widget-description='{{!widget["description"]}} <hr/> <div class="center-block"><img class="text-center" src="{{widget["picture"]}}"/></div>'
-                  >
+               <a href="/external/widget/{{widget['id']}}?page&widget_id={{widget['id']}}&widget_template={{widget['template']}}">
                   <span class="fa fa-{{widget['icon']}}"></span>
                   {{widget['name']}}
+               </a>
+            </li>
+            %end
+         </ul>
+      </li>
+      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('External tables')}}">
+         <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="fa fa-bug"></span>
+            <span class="hidden-sm hidden-xs">{{_('External tables')}}</span>
+         </a>
+
+         <ul class="dropdown-menu" role="menu" aria-labelledby="Widgets bar menu">
+            %for table in webui.get_tables_for('external'):
+            <li>
+               <a href="/external/table/{{table['id']}}?page&table_id={{table['id']}}">
+                  <span class="fa fa-{{table['icon']}}"></span>
+                  {{table['name']}}
                </a>
             </li>
             %end

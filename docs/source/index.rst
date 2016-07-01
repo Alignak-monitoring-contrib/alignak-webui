@@ -18,6 +18,8 @@ Contents:
 
    api
 
+   widgets
+
    develop
 
 

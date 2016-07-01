@@ -79,3 +79,5 @@ Embedding options
 Use the URL parameter **links** to have the navigable links in the embedded page. Else, the links are replaced with their text counterpart.
 
 .. image:: images/api-3.png
+
+The **links** parameter must contain the prefix URL used to navigate to the right page for the corresponding link. All links in the widgets are relative from the Web UI home page...

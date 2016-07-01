@@ -240,7 +240,7 @@ def get_history(host_id):
     }
 
 
-def get_history_table():
+def get_history_table(embedded=False, identifier=None, credentials=None):
     """
     Get the history list and transform it as a table
     """
@@ -263,7 +263,10 @@ def get_history_table():
         'object_type': 'history',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -293,7 +296,22 @@ pages = {
     get_history_table: {
         'name': 'History table',
         'route': '/history_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'history_table',
+                'for': ['external'],
+                'name': _('History table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>History table</h4>Displays a datatable for the system history.<br>'
+                ),
+                'actions': {
+                    'history_table_data': get_history_table_data
+                }
+            }
+        ]
     },
 
     get_history_table_data: {

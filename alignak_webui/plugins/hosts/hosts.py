@@ -518,7 +518,7 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
         if widget_id.startswith(widget['id']):
             options = widget['options']
             widget_template = widget['template']
-            logger.info("Widget found, template: %s, options: %s", options, widget_template)
+            logger.info("Widget found, template: %s, options: %s", widget_template, options)
             break
     else:
         logger.info("Widget identifier not found: using default template and no options")
@@ -688,7 +688,7 @@ pages = {
             {
                 'id': 'hosts_table',
                 'for': ['external'],
-                'name': _('Hosts table widget'),
+                'name': _('Hosts table'),
                 'template': '_table',
                 'icon': 'table',
                 'description': _(

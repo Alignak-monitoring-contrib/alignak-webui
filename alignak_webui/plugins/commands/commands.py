@@ -177,7 +177,7 @@ def get_commands():
     }
 
 
-def get_commands_table():
+def get_commands_table(embedded=False, identifier=None, credentials=None):
     """
     Get the commands list and transform it as a table
     """
@@ -200,7 +200,10 @@ def get_commands_table():
         'object_type': 'command',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -229,7 +232,22 @@ pages = {
     get_commands_table: {
         'name': 'Commands table',
         'route': '/commands_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'commands_table',
+                'for': ['external'],
+                'name': _('Commands table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Commands table</h4>Displays a datatable for the system commands.<br>'
+                ),
+                'actions': {
+                    'command_table_data': get_commands_table_data
+                }
+            }
+        ]
     },
 
     get_commands_table_data: {

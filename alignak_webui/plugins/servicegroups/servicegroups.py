@@ -164,7 +164,7 @@ schema['ui'] = {
 }
 
 
-def get_servicegroup_table():
+def get_servicegroup_table(embedded=False, identifier=None, credentials=None):
     """
     Get the servicegroup list and transform it as a table
     """
@@ -187,7 +187,10 @@ def get_servicegroup_table():
         'object_type': 'servicegroup',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -307,7 +310,22 @@ pages = {
     get_servicegroup_table: {
         'name': 'Services groups table',
         'route': '/servicegroup_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'servicegroups_table',
+                'for': ['external'],
+                'name': _('Services groups table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Services groups table</h4>Displays a datatable for the system services groups.<br>'
+                ),
+                'actions': {
+                    'servicegroup_table_data': get_servicegroup_table_data
+                }
+            }
+        ]
     },
 
     get_servicegroup_table_data: {

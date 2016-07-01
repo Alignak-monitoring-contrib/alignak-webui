@@ -1,3 +1,4 @@
+%setdefault('debug', False)
 %setdefault('action_bar', False)
 %setdefault('in_sidebar', False)
 

@@ -330,7 +330,7 @@ schema['ui'] = {
 }
 
 
-def get_livestate_table():
+def get_livestate_table(embedded=False, identifier=None, credentials=None):
     """
     Get the livestate list and transform it as a table
     """
@@ -353,7 +353,10 @@ def get_livestate_table():
         'object_type': 'livestate',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -412,9 +415,9 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
     elts_per_page = elts_per_page['value']
 
     # Pagination and search
-    start = int(request.forms.get('start', '0'))
-    count = int(request.forms.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.forms.get('search', ''))
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
         'page': start // count + 1,
         'max_results': count,
@@ -424,7 +427,7 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
             'host': 1, 'service': 1
         }
     }
-    name_filter = request.forms.get('filter', '')
+    name_filter = request.params.get('filter', '')
     if name_filter:
         search['where'].update({'name': {"$regex": ".*" + name_filter + ".*"}})
 
@@ -435,32 +438,38 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
     count = min(count, total)
 
     # Widget options
-    widget_id = request.forms.get('widget_id', '')
+    widget_id = request.params.get('widget_id', '')
     if widget_id == '':
+        logger.error("Missing widget identifier")
         return webui.response_invalid_parameters(_('Missing widget identifier'))
-    widget_template = request.forms.get('widget_template', '')
-    if widget_template == '':
-        return webui.response_invalid_parameters(_('Missing widget template'))
 
-    widget_place = request.forms.get('widget_place', 'dashboard')
+    widget_place = 'dashboard'
+    if embedded:
+        widget_place = 'external'
+    widget_template = request.params.get('widget_template', 'livestate_table_widget')
     # Search in the application widgets (all plugins widgets)
     options = {}
-    for widget in webui.widgets[widget_place]:
+    for widget in webui.get_widgets_for(widget_place):
         if widget_id.startswith(widget['id']):
             options = widget['options']
+            widget_template = widget['template']
+            logger.info("Widget found, template: %s, options: %s", widget_template, options)
+            break
+    else:
+        logger.info("Widget identifier not found: using default template and no options")
 
-    if options.get('search') and options.get('search.value'):
-        search.options.value = request.forms.get('search', '')
-    if options.get('count') and options.get('count.value'):
-        search['options']['value'] = count
-    if options.get('filter') and options.get('filter.value'):
-        search['options']['filter'] = name_filter
+    if options:
+        options['search']['value'] = request.params.get('search', '')
+        options['count']['value'] = count
+        options['filter']['value'] = name_filter
+    logger.info("Widget options: %s", options)
 
-    title = request.forms.get('title', _('Livestate'))
+    title = request.params.get('title', _('Livestate'))
     if name_filter:
         title = _('%s (%s)') % (title, name_filter)
 
     # Use required template to render the widget
+    logger.warning("Widget: %s", widget_template)
     return template('_widget', {
         'widget_id': widget_id,
         'widget_name': widget_template,
@@ -489,7 +498,7 @@ pages = {
             {
                 'id': 'livestate_table',
                 'for': ['external'],
-                'name': _('Livestate table widget'),
+                'name': _('Livestate table'),
                 'template': '_table',
                 'icon': 'table',
                 'description': _(

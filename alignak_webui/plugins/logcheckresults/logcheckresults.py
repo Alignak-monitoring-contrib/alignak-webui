@@ -225,7 +225,7 @@ schema['ui'] = {
 }
 
 
-def get_logcheckresult_table():
+def get_logcheckresult_table(embedded=False, identifier=None, credentials=None):
     """
     Get the logcheckresult list and transform it as a table
     """
@@ -248,7 +248,10 @@ def get_logcheckresult_table():
         'object_type': 'logcheckresult',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -268,7 +271,22 @@ pages = {
     get_logcheckresult_table: {
         'name': 'Log check result table',
         'route': '/logcheckresult_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'logcheckresults_table',
+                'for': ['external'],
+                'name': _('Checks results table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Checks results table</h4>Displays a datatable for the system logged checks results.<br>'
+                ),
+                'actions': {
+                    'logcheckresult_table_data': get_logcheckresult_table_data
+                }
+            }
+        ]
     },
 
     get_logcheckresult_table_data: {

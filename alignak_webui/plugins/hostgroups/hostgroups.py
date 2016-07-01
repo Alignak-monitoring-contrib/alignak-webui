@@ -164,7 +164,7 @@ schema['ui'] = {
 }
 
 
-def get_hostgroup_table():
+def get_hostgroup_table(embedded=False, identifier=None, credentials=None):
     """
     Get the hostgroup list and transform it as a table
     """
@@ -187,7 +187,10 @@ def get_hostgroup_table():
         'object_type': 'hostgroup',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
@@ -307,7 +310,22 @@ pages = {
     get_hostgroup_table: {
         'name': 'Hosts groups table',
         'route': '/hostgroup_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'hostgroups_table',
+                'for': ['external'],
+                'name': _('Hosts groups table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Hosts groups table</h4>Displays a datatable for the system hosts groups.<br>'
+                ),
+                'actions': {
+                    'hostgroup_table_data': get_hostgroup_table_data
+                }
+            }
+        ]
     },
 
     get_hostgroup_table_data: {

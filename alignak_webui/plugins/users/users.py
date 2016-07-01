@@ -245,7 +245,7 @@ def get_users():
     }
 
 
-def get_users_table():
+def get_users_table(embedded=False, identifier=None, credentials=None):
     """
     Get the users list and transform it as a table
     """
@@ -268,11 +268,14 @@ def get_users_table():
         'object_type': 'user',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title)
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
     }
 
 
-def get_users_table_data():
+def get_user_table_data():
     """
     Get the users list and provide table data
     """
@@ -324,9 +327,24 @@ pages = {
     get_users_table: {
         'name': 'Users table',
         'route': '/users_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'users_table',
+                'for': ['external'],
+                'name': _('Users table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Users table</h4>Displays a datatable for the system users.<br>'
+                ),
+                'actions': {
+                    'user_table_data': get_user_table_data
+                }
+            }
+        ]
     },
-    get_users_table_data: {
+    get_user_table_data: {
         'name': 'Users table data',
         'route': '/user_table_data',
         'method': 'POST'
