@@ -180,7 +180,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                     return self.get_icon_states(object_type)[s]
 
         def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
-                           title='', disabled=False):
+                           title='', disabled=False, size=''):
             # pylint: disable=too-many-arguments
             # Yes, but it is needed ;)
             # pylint: disable=too-many-locals, too-many-return-statements
@@ -278,6 +278,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             res_icon = res_icon.replace("##back##", res_icon_back)
             res_icon = res_icon.replace("##front##", res_icon_front)
             res_icon = res_icon.replace("##status##", status.lower())
+            res_icon = res_icon.replace("##size##", size)
             if not disabled:
                 res_icon = res_icon.replace("##class##", res_icon_class)
             else:
@@ -314,13 +315,14 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False,
-                       object_type='', object_item=None):  # pragma: no cover
+                       object_type='', object_item=None,
+                       size=''):  # pragma: no cover
         # pylint: disable=too-many-arguments
         """
         Base function used by Item objects
         """
         return self.instance.get_html_state(object_type, object_item,
-                                            extra, icon, text, title, disabled)
+                                            extra, icon, text, title, disabled, size)
 
 
 class Item(object):
@@ -1010,7 +1012,8 @@ class Item(object):
         return item_state.get_icon_states()
 
     def get_html_state(self, extra='', icon=True, text='',
-                       title='', disabled=False, object_type=None, object_item=None):
+                       title='', disabled=False, object_type=None, object_item=None,
+                       size=''):
         # pylint: disable=too-many-arguments
         """
         Uses the ItemState singleton to display HTML state for an item
@@ -1022,7 +1025,7 @@ class Item(object):
             object_item = self
 
         return ItemState().get_html_state(object_type, object_item,
-                                          extra, icon, text, title, disabled)
+                                          extra, icon, text, title, disabled, size)
 
     def get_date(self, _date, fmt=None, duration=False):
         """

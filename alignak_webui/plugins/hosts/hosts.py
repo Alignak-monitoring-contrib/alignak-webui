@@ -435,9 +435,9 @@ def get_hosts():
     elts_per_page = elts_per_page['value']
 
     # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
         'page': start // count + 1,
         'max_results': count,
@@ -453,7 +453,7 @@ def get_hosts():
     return {
         'hosts': hosts,
         'pagination': Helper.get_pagination_control('/hosts', total, start, count),
-        'title': request.query.get('title', _('All hosts'))
+        'title': request.params.get('title', _('All hosts'))
     }
 
 
@@ -556,7 +556,7 @@ def get_hosts_table(embedded=False, identifier=None, credentials=None):
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
+    where = Helper.decode_search(request.params.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count('host', search=where)
@@ -572,7 +572,7 @@ def get_hosts_table(embedded=False, identifier=None, credentials=None):
         'object_type': 'host',
         'dt': dt,
         'where': where,
-        'title': request.query.get('title', title),
+        'title': request.params.get('title', title),
         'embedded': embedded,
         'identifier': identifier,
         'credentials': credentials
@@ -605,23 +605,34 @@ def get_host(host_id):
     if not target_user.is_anonymous():
         username = target_user.get_username()
 
+    # Get host
     host = datamgr.get_host(host_id)
     if not host:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('Host does not exist'))
 
+    # Get host services
     services = datamgr.get_services(search={'where': {'host': host_id}})
-    livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name': '%s' % host.name}})
+
+    # Get host livestate
+    livestate = datamgr.get_livestate(
+        search={'where': {'type': 'host', 'name': '%s' % host.name}}
+    )
     if livestate:
         livestate = livestate[0]
+
+    # Get host services livestate
+    livestate_services = datamgr.get_livestate(
+        search={'where': {'type': 'service', 'host': host.id}}
+    )
 
     # Fetch elements per page preference for user, default is 25
     elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
     elts_per_page = elts_per_page['value']
 
     # Host history pagination and search parameters
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
         'where': {'host': host_id}
     }
@@ -630,17 +641,17 @@ def get_host(host_id):
     selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
     selected_types = selected_types['value']
     for selected_type in history_schema['type']['allowed']:
-        if request.query.get(selected_type) == 'true':
+        if request.params.get(selected_type) == 'true':
             if selected_type not in selected_types:
                 selected_types.append(selected_type)
-        elif request.query.get(selected_type) == 'false':
+        elif request.params.get(selected_type) == 'false':
             if selected_type in selected_types:
                 selected_types.remove(selected_type)
 
+    datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
     if selected_types:
-        datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
         search['where'].update({'type': {'$in': selected_types}})
-    logger.debug("History selected types: %s", selected_types)
+    logger.warning("History selected types: %s", selected_types)
 
     history = datamgr.get_history(search=search)
     if history is None:
@@ -653,16 +664,201 @@ def get_host(host_id):
         'host': host,
         'services': services,
         'livestate': livestate,
+        'livestate_services': livestate_services,
         'history': history,
         'timeline_pagination': Helper.get_pagination_control('/host/' + host_id,
                                                              total, start, count),
         'types': history_schema['type']['allowed'],
         'selected_types': selected_types,
-        'title': request.query.get('title', _('Host view'))
+        'title': request.params.get('title', _('Host view'))
     }
 
 
+def get_host_widget(host_id, widget_id, embedded=False, identifier=None, credentials=None):
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
+    """
+    Display an host
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Get host
+    host = datamgr.get_host(host_id)
+    if not host:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Host does not exist'))
+
+    # Get host services
+    services = datamgr.get_services(search={'where': {'host': host_id}})
+
+    # Get host livestate
+    livestate = datamgr.get_livestate(
+        search={'where': {'type': 'host', 'name': '%s' % host.name}}
+    )
+    if livestate:
+        livestate = livestate[0]
+
+    # Get host services livestate
+    livestate_services = datamgr.get_livestate(
+        search={'where': {'type': 'service', 'host': host.id}}
+    )
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Host history pagination and search parameters
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
+    search = {
+        'where': {'host': host_id}
+    }
+
+    # Fetch timeline filters preference for user, default is []
+    selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+    selected_types = selected_types['value']
+    for selected_type in history_schema['type']['allowed']:
+        if request.params.get(selected_type) == 'true':
+            if selected_type not in selected_types:
+                selected_types.append(selected_type)
+        elif request.params.get(selected_type) == 'false':
+            if selected_type in selected_types:
+                selected_types.remove(selected_type)
+
+    if selected_types:
+        datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+        search['where'].update({'type': {'$in': selected_types}})
+    logger.warning("History selected types: %s", selected_types)
+
+    history = datamgr.get_history(search=search)
+    if history is None:
+        history = []
+
+    # Get last total elements count
+    total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+    widget_place = request.params.get('widget_place', 'host')
+    widget_template = request.params.get('widget_template', 'host_widget')
+    # Search in the application widgets (all plugins widgets)
+    for widget in webui.widgets[widget_place]:
+        if widget_id.startswith(widget['id']):
+            widget_template = widget['template']
+            logger.info("Widget found, template: %s", widget_template)
+            break
+    else:
+        logger.info("Widget identifier not found: using default template and no options")
+
+    title = request.params.get('title', _('Host: %s') % host.name)
+
+    # Use required template to render the widget
+    return template('_widget', {
+        'widget_id': widget_id,
+        'widget_name': widget_template,
+        'widget_place': 'host',
+        'widget_template': widget_template,
+        'widget_uri': request.urlparts.path,
+        'options': {},
+
+        'host': host,
+        'services': services,
+        'livestate': livestate,
+        'livestate_services': livestate_services,
+        'history': history,
+        'timeline_pagination': Helper.get_pagination_control('/host/' + host_id,
+                                                             total, start, count),
+        'types': history_schema['type']['allowed'],
+        'selected_types': selected_types,
+
+        'title': title,
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
+    })
+
+
 pages = {
+    get_host_widget: {
+        'name': 'Host widget',
+        'route': '/host_widget/<host_id>/<widget_id>',
+        'view': 'host',
+        'widgets': [
+            {
+                'id': 'host_information',
+                'for': ['host'],
+                'name': _('Information'),
+                'template': 'host_information_widget',
+                'icon': 'info',
+                'description': _(
+                    'Host information: displays host general information.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'host_configuration',
+                'for': ['host'],
+                'name': _('Configuration'),
+                'template': 'host_configuration_widget',
+                'icon': 'gear',
+                'read_only': True,
+                'description': _(
+                    'Host configuration: displays host customs configuration variables.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'host_services',
+                'for': ['host'],
+                'name': _('Services'),
+                'template': 'host_services_widget',
+                'icon': 'cubes',
+                'description': _(
+                    '<h4>Host service widget</h4>Displays host services.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'host_timeline',
+                'for': ['host'],
+                'name': _('Timeline'),
+                'template': 'host_timeline_widget',
+                'icon': 'clock-o',
+                'description': _(
+                    '<h4>Host timeline widget</h4>Displays host timeline.'
+                ),
+                'picture': 'htdocs/img/host_timeline_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'host_metrics',
+                'for': ['host'],
+                'name': _('Metrics'),
+                'template': 'host_metrics_widget',
+                'icon': 'line-chart',
+                'description': _(
+                    '<h4>Host metrics widget</h4>Displays host (and its services) last received metrics.'
+                ),
+                'picture': 'htdocs/img/host_metrics_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'host_history',
+                'for': ['host'],
+                'name': _('History'),
+                'template': 'host_history_widget',
+                'icon': 'history',
+                'description': _(
+                    '<h4>Host history widget</h4>Displays host history.'
+                ),
+                'options': {}
+            }
+        ]
+    },
     get_host: {
         'name': 'Host',
         'route': '/host/<host_id>',

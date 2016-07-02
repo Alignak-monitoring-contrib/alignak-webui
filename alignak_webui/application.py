@@ -837,6 +837,7 @@ class WebUI(object):
                                         'description': widget['description'],
                                         'template': widget['template'],
                                         'icon': widget.get('icon', 'leaf'),
+                                        'read_only': widget.get('read_only', False),
                                         'options': widget.get('options', None),
                                         'picture': os.path.join(
                                             os.path.join('/static/plugins/', plugin_name),
@@ -846,7 +847,7 @@ class WebUI(object):
                                         'function': f
                                     })
                                     logger.info(
-                                        "Found widget (%s): %s", place, self.widgets[place]
+                                        "Found widget '%s' for %s", widget['id'], place
                                     )
 
                         # It's a valid widget entry if it got all data, and at least one route

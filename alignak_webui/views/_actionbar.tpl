@@ -9,7 +9,7 @@
       <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Add a new widget')}}">
          <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
-            <span class="fa fa-leaf"></span>
+            <span class="fa fa-plug"></span>
             <span class="hidden-sm hidden-xs">{{_('Add a new widget')}}</span>
          </a>
 
