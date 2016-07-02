@@ -301,26 +301,17 @@
    <!-- Fifth row : host information -->
    <div>
       <ul class="nav nav-tabs">
-         %_active = 'active'
-         %for cvname in host.custom_views:
-            %cvconf = 'default'
-            %if '/' in cvname:
-               %cvconf = cvname.split('/')[1]
-               %cvname = cvname.split('/')[0]
-            %end
-            <li class="{{_active}} cv_pane"
-                data-name="{{cvname}}" data-conf="{{cvconf}}" data-element='{{host.name}}'
-                id='tab-cv-{{cvname}}-{{cvconf}}'>
-               <a href="#cv{{cvname}}_{{cvconf}}" data-toggle="tab">
-                  <span class="fa fa-newspaper-o"></span>
-                  {{cvname.capitalize()}}{{'/'+cvconf.capitalize() if cvconf!='default' else ''}}
-               </a>
-            </li>
-            %_active = ''
-         %end
+         <li class="active">
+            <a href="#host_view" data-toggle="tab"
+               title="{{_('Host synthesis view')}}"
+               >
+               <span class="fa fa-server"></span>
+               {{_('Host view')}}
+            </a>
+         </li>
 
          %for widget in webui.widgets['host']:
-            <li class="{{_active}}">
+            <li>
                <a href="#{{widget['id']}}" data-toggle="tab"
                   title="{{widget['description']}}"
                   >
@@ -332,33 +323,12 @@
       </ul>
 
       <div class="tab-content">
-         <!-- Tab custom views -->
-         %_active = 'active'
-         %_fade_in = 'in'
-         %for cvname in host.custom_views:
-            %cvconf = 'default'
-            %if '/' in cvname:
-               %cvconf = cvname.split('/')[1]
-               %cvname = cvname.split('/')[0]
-            %end
-            <div class="tab-pane fade {{_active}} {{_fade_in}}"
-                 data-name="{{cvname}}" data-conf="{{cvconf}}" data-element="{{host.name}}"
-                 id="cv{{cvname}}_{{cvconf}}">
-               %include("_widget.tpl", widget_name='host_custom_'+cvname+'_'+cvconf, options=None, embedded=True, title=None)
-
-               <div class="panel panel-default">
-                  <div class="panel-body">
-                     <!--<span class="alert alert-error">Sorry, I cannot load the {{cvname}}/{{cvconf}} view!</span>-->
-                  </div>
-               </div>
-            </div>
-            %_active = ''
-            %_fade_in = ''
-         %end
-         <!-- Tab custom views end -->
+         <div class="tab-pane fade active in" id="host_view">
+            %include("_widget.tpl", widget_name='host_custom_host_default', options=None, embedded=True, title=None)
+         </div>
 
          %for widget in webui.widgets['host']:
-            <div class="tab-pane fade {{_active}} {{_fade_in}}" id="{{widget['id']}}">
+            <div class="tab-pane fade" id="{{widget['id']}}">
                %include("_widget.tpl", widget_name=widget['template'], options=None, embedded=True, title=None)
             </div>
          %end
