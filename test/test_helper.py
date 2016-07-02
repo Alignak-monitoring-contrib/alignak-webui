@@ -115,7 +115,7 @@ class test_helper(unittest2.TestCase):
         # 4s ago
         s = helper.print_duration(now - 4)
         print "Result:", s
-        self.assert_(s == '4s ago')
+        self.assertEqual(s, ' 4s ago')
 
         # Only the duration string
         s = helper.print_duration(now - 4, duration_only=True)
@@ -125,57 +125,57 @@ class test_helper(unittest2.TestCase):
         # Got 2minutes
         s = helper.print_duration(now - 120)
         print "Result:", s
-        self.assert_(s == '2m ago')
+        self.assert_(s == ' 2m ago')
 
         # Go 2hours ago
         s = helper.print_duration(now - 3600*2)
         print "Result:", s
-        self.assert_(s == '2h ago')
+        self.assert_(s == ' 2h ago')
 
         # Go 2 days ago
         s = helper.print_duration(now - 3600*24*2)
         print "Result:", s
-        self.assert_(s == '2d ago')
+        self.assert_(s == ' 2d ago')
 
         # Go 2 weeks ago
         s = helper.print_duration(now - 86400*14)
         print "Result:", s
-        self.assert_(s == '2w ago')
+        self.assert_(s == ' 2w ago')
 
         # Go 2 months ago
         s = helper.print_duration(now - 86400*56)
         print "Result:", s
-        self.assert_(s == '2M ago')
+        self.assert_(s == ' 2M ago')
 
         # Go 1 year ago
         s = helper.print_duration(now - 86400*365*2)
         print "Result:", s
-        self.assert_(s == '2y ago')
+        self.assert_(s == ' 2y ago')
 
         # Now a mix of all of this :)
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56)
         print "Result:", s
-        self.assert_(s == '2M 2w 2d 2h 2m 2s ago')
+        self.assert_(s == ' 2M 2w 2d 2h 2m 2s ago')
 
         # Now with a limit, because here it's just a nightmare to read
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=2)
         print "Result:", s
-        self.assert_(s == '2M 2w ago')
+        self.assert_(s == ' 2M 2w ago')
 
         # Now with another limit
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=3)
         print "Result:", s
-        self.assert_(s == '2M 2w 2d ago')
+        self.assert_(s == ' 2M 2w 2d ago')
 
         # Now with another limit
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=4)
         print "Result:", s
-        self.assert_(s == '2M 2w 2d 2h ago')
+        self.assert_(s == ' 2M 2w 2d 2h ago')
 
         # Now with another limit
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=5)
         print "Result:", s
-        self.assert_(s == '2M 2w 2d 2h 2m ago')
+        self.assert_(s == ' 2M 2w 2d 2h 2m ago')
 
         # Not a timestamp but a duration !
         s = helper.print_duration(2 + 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56, x_elts=2, duration_only=True, ts_is_duration=True)

@@ -31,9 +31,9 @@ from nose import with_setup
 from nose.tools import *
 
 # Do not set test mode ... application is tested in production mode!
-# os.environ['TEST_ALIGNAK_WEBUI'] = '1'
-# os.environ['TEST_ALIGNAK_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-# print "Configuration file", os.environ['TEST_ALIGNAK_WEBUI_CFG']
+os.environ['TEST_ALIGNAK_WEBUI'] = '1'
+os.environ['TEST_ALIGNAK_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print "Configuration file", os.environ['TEST_ALIGNAK_WEBUI_CFG']
 
 import bottle
 import alignak_webui.app

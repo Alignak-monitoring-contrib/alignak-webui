@@ -487,14 +487,14 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
         self.assertEqual(self.dmg.count_objects('user'), 4+1)    #Because a new user is created during the tests
         self.assertEqual(self.dmg.count_objects('host'), 13)
-        self.assertEqual(self.dmg.count_objects('service'), 89)
-        self.assertEqual(self.dmg.count_objects('livestate'), 13+89)
+        self.assertEqual(self.dmg.count_objects('service'), 94)
+        self.assertEqual(self.dmg.count_objects('livestate'), 13+94)
         self.assertEqual(self.dmg.count_objects('servicegroup'), 6)
         self.assertEqual(self.dmg.count_objects('hostgroup'), 9)
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 339)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 349)
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 5)
@@ -513,8 +513,8 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
         self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4+1)
         self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
-        self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 89)
-        self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13+89)
+        self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 94)
+        self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13+94)
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
 
     def test_5_3_livesynthesis(self):

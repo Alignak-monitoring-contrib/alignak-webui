@@ -221,5 +221,5 @@ class test_3_get(unittest2.TestCase):
         print "%s services: " % len(result)
         for service in result:
             print " - %s" % service['name']
-        assert len(result) == 89
+        self.assertEqual(len(result), 94)
 

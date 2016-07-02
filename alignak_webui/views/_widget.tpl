@@ -5,7 +5,8 @@
 
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
-%setdefault('links', '')
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 

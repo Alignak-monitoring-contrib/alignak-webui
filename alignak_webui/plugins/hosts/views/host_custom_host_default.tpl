@@ -48,11 +48,6 @@
       <div class="graph">
          <canvas></canvas>
       </div>
-      <div class="title">
-         <div class="text-center">
-            <h4>{{svc}}</h4>
-         </div>
-      </div>
    </div>
 </div>
 %end
@@ -101,7 +96,12 @@
          var myBarChart = new Chart(ctx, {
             type: 'horizontalBar',
             data: data,
-            options: {}
+            options: {
+               title: {
+                  display: true,
+                  text: '{{svc_name}}'
+               }
+            }
          });
          %end
       %end
@@ -133,7 +133,12 @@
          var myBarChart = new Chart(ctx, {
             type: 'horizontalBar',
             data: data,
-            options: {}
+            options: {
+               title: {
+                  display: true,
+                  text: '{{svc_name}}'
+               }
+            }
          });
          %end
       %end

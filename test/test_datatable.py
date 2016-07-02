@@ -141,7 +141,7 @@ class test_00_datatable(unittest2.TestCase):
         print 'get page /commands_table'
         response = self.app.get('/commands_table')
         response.mustcontain(
-            '<div id="command_table">',
+            '<div id="command_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" class="table ',
             '<th data-name="name" data-type="string">Command name</th>',
@@ -480,7 +480,7 @@ class test_01_datatable_commands(unittest2.TestCase):
         print 'get page /commands_table'
         response = self.app.get('/commands_table')
         response.mustcontain(
-            '<div id="command_table">',
+            '<div id="command_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" class="table ',
             '<th data-name="name" data-type="string">Command name</th>',
@@ -549,7 +549,7 @@ class test_02_datatable_realms(unittest2.TestCase):
         print 'get page /realm_table'
         response = self.app.get('/realm_table')
         response.mustcontain(
-            '<div id="realm_table">',
+            '<div id="realm_table" class="alignak_webui_table ">',
             "$('#tbl_realm').DataTable( {",
             '<table id="tbl_realm" class="table ',
             '<th data-name="#" data-type="string">#</th>',
@@ -619,7 +619,7 @@ class test_03_datatable_hosts(unittest2.TestCase):
         print 'get page /hosts_table'
         response = self.app.get('/hosts_table')
         response.mustcontain(
-            '<div id="host_table">',
+            '<div id="host_table" class="alignak_webui_table ">',
             "$('#tbl_host').DataTable( {",
             '<table id="tbl_host" class="table ',
             '<th data-name="name" data-type="string">Host name</th>',
@@ -683,7 +683,7 @@ class test_03_datatable_services(unittest2.TestCase):
         print 'get page /services_table'
         response = self.app.get('/services_table')
         response.mustcontain(
-            '<div id="service_table">',
+            '<div id="service_table" class="alignak_webui_table ">',
             "$('#tbl_service').DataTable( {",
             '<table id="tbl_service" class="table ',
             '<th data-name="#" data-type="string"></th>',
@@ -769,7 +769,7 @@ class test_04_datatable_hostgroups(unittest2.TestCase):
         print 'get page /hostgroup_table'
         response = self.app.get('/hostgroup_table')
         response.mustcontain(
-            '<div id="hostgroup_table">',
+            '<div id="hostgroup_table" class="alignak_webui_table ">',
             "$('#tbl_hostgroup').DataTable( {",
             '<table id="tbl_hostgroup" class="table ',
             '<th data-name="#" data-type="string"></th>',
@@ -833,7 +833,7 @@ class test_05_datatable_servicegroups(unittest2.TestCase):
         print 'get page /servicegroup_table'
         response = self.app.get('/servicegroup_table')
         response.mustcontain(
-            '<div id="servicegroup_table">',
+            '<div id="servicegroup_table" class="alignak_webui_table ">',
             "$('#tbl_servicegroup').DataTable( {",
             '<table id="tbl_servicegroup" class="table ',
             '<th data-name="#" data-type="string"></th>',
@@ -895,7 +895,7 @@ class test_06_datatable_users(unittest2.TestCase):
         print 'get page /users_table'
         response = self.app.get('/users_table')
         response.mustcontain(
-            '<div id="user_table">',
+            '<div id="user_table" class="alignak_webui_table ">',
             "$('#tbl_user').DataTable( {",
             '<table id="tbl_user" class="table ',
             '<th data-name="name" data-type="string">User name</th>',
@@ -950,7 +950,7 @@ class test_07_datatable_livestate(unittest2.TestCase):
         print 'get page /livestate_table'
         response = self.app.get('/livestate_table')
         response.mustcontain(
-            '<div id="livestate_table">',
+            '<div id="livestate_table" class="alignak_webui_table ">',
             "$('#tbl_livestate').DataTable( {",
             '<table id="tbl_livestate" class="table ',
             '<th data-name="#" data-type="string">#</th>',
@@ -1038,7 +1038,7 @@ class test_08_datatable_timeperiod(unittest2.TestCase):
         print 'get page /timeperiods_table'
         response = self.app.get('/timeperiods_table')
         response.mustcontain(
-            '<div id="timeperiod_table">',
+            '<div id="timeperiod_table" class="alignak_webui_table ">',
             "$('#tbl_timeperiod').DataTable( {",
             '<table id="tbl_timeperiod" class="table ',
             '<th data-name="#" data-type="string"></th>',
@@ -1102,7 +1102,7 @@ class test_09_datatable_log(unittest2.TestCase):
         print 'get page /logcheckresult_table'
         response = self.app.get('/logcheckresult_table')
         response.mustcontain(
-            '<div id="logcheckresult_table">',
+            '<div id="logcheckresult_table" class="alignak_webui_table ">',
             "$('#tbl_logcheckresult').DataTable( {",
             '<table id="tbl_logcheckresult" class="table ',
             '<th data-name="#" data-type="string"></th>',
@@ -1163,7 +1163,7 @@ class test_10_datatable_history(unittest2.TestCase):
         print 'get page /historys_table'
         response = self.app.get('/history_table')
         response.mustcontain(
-            '<div id="history_table">',
+            '<div id="history_table" class="alignak_webui_table ">',
             "$('#tbl_history').DataTable( {",
             '<table id="tbl_history" class="table ',
             '<th data-name="#" data-type="string"></th>',

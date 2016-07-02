@@ -152,223 +152,6 @@ class tests_0_no_login(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class tests_0_external(unittest2.TestCase):
-
-    def setUp(self):
-        print ""
-        print "setting up ..."
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-    def tearDown(self):
-        print ""
-        print "tearing down ..."
-
-    def test_1_1_refused(self):
-        print ''
-        print 'refused external access'
-
-        # Refused - no credentials
-        response = self.app.get(
-            '/external/widget/hosts_table?widget_id=test',
-            status=401
-        )
-        print response
-        response.mustcontain('<div><h1>External access denied.</h1><p>To embed an Alignak WebUI widget or table, you must provide credentials.<br>Log into the Alignak WebUI with your credentials, or make a request with a Basic-Authentication allowing access to Alignak backend.</p></div>')
-
-        # Refused - bad credentials
-        self.app.authorization = ('Basic', ('admin', 'fake'))
-        response = self.app.get(
-            '/external/widget/hosts_table?widget_id=test',
-            status=401
-        )
-        response.mustcontain('<div><h1>External access denied.</h1><p>The provided credentials do not grant you access to Alignak WebUI.<br>Please provide proper credentials.</p></div>')
-
-        # Refused - bad type
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/unknown/hosts_table?widget_id=test',
-            status=409
-        )
-        response.mustcontain('<div><h1>Unknown required type: unknown.</h1><p>The required type is unknwown</p></div>')
-
-        # Refused - unknown widget
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/unknown?widget_id=test',
-            status=409
-        )
-        response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
-
-    def test_1_2_allowed_widgets(self):
-        print ''
-        print 'allowed widgets external access'
-
-        # Allowed - default widgets parameters: widget_id and widget_template
-        # Add parameter page to get a whole page: js, css, ...
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_table?page&widget_id=hosts_table'
-        )
-        response.mustcontain(
-            '<!DOCTYPE html>',
-            '<html lang="en">',
-            '<body>',
-            '<section>',
-            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            '</section>',
-            '</body>'
-        )
-
-        # Allowed - default widgets parameters: widget_id
-        # No parameter page: only the widget
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_table?widget_id=hosts_table'
-        )
-        response.mustcontain(
-            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            '<small>Graphite on VM</small>',
-            '<small>check_host_alive</small>'
-        )
-
-        # Allowed - default widgets parameters: widget_id
-        # No parameter page: only the widget
-        # With links, but empty, so no links!
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_table?links&widget_id=hosts_table'
-        )
-        response.mustcontain(
-            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            'Graphite on VM</small>',
-            'check_host_alive</small>'
-        )
-
-        # Allowed - default widgets parameters: widget_id
-        # No parameter page: only the widget
-        # With links, not empty so URL are prefixed ...
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_table?links=http://test&widget_id=hosts_table'
-        )
-        response.mustcontain(
-            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            '<a href="http://test/host/',
-            'Graphite on VM</a></small>',
-            'check_host_alive</a></small>'
-        )
-
-        # Allowed - default widgets parameters: widget_id
-        # No parameter page: only the widget
-        # With links
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_graph?links&widget_id=hosts_graph'
-        )
-        response.mustcontain(
-            '<div id="wd_panel_hosts_graph" class="panel panel-default alignak_webui_widget embedded">',
-            '<div id="pie-graph-hosts">'
-        )
-
-    def test_1_3_allowed_tables(self):
-        print ''
-        print 'allowed tables external access'
-
-        # Allowed - default table parameters: none
-        # Add parameter page to get a whole page: js, css, ...
-        print "Whole page..."
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/table/hosts_table?page'
-        )
-        response.mustcontain(
-            '<!DOCTYPE html>',
-            '<html lang="en">',
-            '<body>',
-            '<section>',
-            '<div id="host_table" class="alignak_webui_table embedded">',
-            '</section>',
-            '</body>'
-        )
-
-        # Allowed - default table parameters: none
-        # No parameter page: only the widget
-        print "Only div..."
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/table/hosts_table'
-        )
-        response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table embedded">',
-            '<th data-name="#" data-type="string"></th>',
-            '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Host alias</th>'
-        )
-
-        # Allowed - default table parameters: none
-        # No parameter page: only the widget
-        # With links, but empty
-        print "Only div with links..."
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/table/hosts_table?links'
-        )
-        response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table embedded">',
-            '<th data-name="#" data-type="string"></th>',
-            '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Host alias</th>'
-        )
-
-        # Allowed - default table parameters: none
-        # No parameter page: only the widget
-        # With links, not empty so URL are prefixed ...
-        print "Only div with links..."
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/table/hosts_table?links=http://test'
-        )
-        response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table embedded">',
-            '<th data-name="#" data-type="string"></th>',
-            '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Host alias</th>',
-            ' "url": "http://test/external/table/hosts_table/host_table_data",',
-        )
-
-    def test_2_widgets(self):
-        print ''
-        print 'allowed widgets'
-
-        # Hosts table
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_table?widget_id=hosts_table'
-        )
-        response.mustcontain(
-            '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            '<small>Graphite on VM</small>',
-            '<small>check_host_alive</small>'
-        )
-
-        # Hosts graph
-        self.app.authorization = ('Basic', ('admin', 'admin'))
-        response = self.app.get(
-            '/external/widget/hosts_graph?widget_id=hosts_graph'
-        )
-        response.mustcontain(
-            '<div id="wd_panel_hosts_graph" class="panel panel-default alignak_webui_widget embedded">',
-            '<div id="pie-graph-hosts">'
-        )
-
-
 class tests_1_login(unittest2.TestCase):
 
     def setUp(self):
@@ -719,14 +502,20 @@ class tests_3(unittest2.TestCase):
 
         print 'get page /hosts/widget'
         response = self.app.post('/hosts/widget', status=204)
-        response = self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=204)
+        response = self.app.post('/hosts/widget', {
+            'widget_id': 'test_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+        )
         response = self.app.post('/hosts/widget', {
             'widget_id': 'test_widget',
             'widget_template': 'hosts_table_widget'
         })
         print response
         response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default">'
+            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
         )
         response = self.app.post('/hosts/widget', {
             'widget_id': 'test_widget',
@@ -734,7 +523,7 @@ class tests_3(unittest2.TestCase):
         })
         print response
         response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default">'
+            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
         )
 
     def test_3_5_services(self):
@@ -745,7 +534,7 @@ class tests_3(unittest2.TestCase):
         response = self.app.get('/services')
         response.mustcontain(
             '<div id="services">',
-            '25 elements out of 89',
+            '25 elements out of 94',
         )
 
     def test_3_6_timeperiods(self):
@@ -1367,7 +1156,7 @@ class tests_4_target_user(unittest2.TestCase):
         response = self.app.get('/services')
         response.mustcontain(
             '<div id="services">',
-            '25 elements out of 89',
+            '25 elements out of 94',
         )
 
 if __name__ == '__main__':
