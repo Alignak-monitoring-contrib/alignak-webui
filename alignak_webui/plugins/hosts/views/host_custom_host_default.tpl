@@ -14,6 +14,7 @@
    <div>
       <strong>{{host.alias}}</strong>
    </div>
+   %if livestate_services:
    <div>
       <table class="table table-condensed">
          <thead><tr>
@@ -37,8 +38,10 @@
          </tbody>
       </table>
    </div>
+   %end
 </div>
 <div class="col-lg-8 col-sm-9">
+%if services:
 %for svc in ['load', 'cpu', 'mem', 'disk', 'net']:
 <div id="bc_{{svc}}" class="well well-sm">
    <div>
@@ -53,8 +56,14 @@
    </div>
 </div>
 %end
+%else:
+   <center>
+      <h3>{{_('No services defined for this host.')}}</h3>
+   </center>
+%end
 </div>
 
+%if services:
 <script>
    var state_colors = [
       '#ddffcc', '#ffd9b3', '#ffb3b3', '#b3d9ff', '#dddddd', '#666666'
@@ -130,3 +139,4 @@
       %end
    });
 </script>
+%end

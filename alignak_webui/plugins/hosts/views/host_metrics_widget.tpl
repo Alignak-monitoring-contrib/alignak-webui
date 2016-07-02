@@ -9,6 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
+%if services:
 <table class="table table-condensed">
    <thead>
       <tr>
@@ -88,3 +89,8 @@
    %end
    </tbody>
 </table>
+%else:
+   <center>
+      <h3>{{_('No services defined for this host.')}}</h3>
+   </center>
+%end
