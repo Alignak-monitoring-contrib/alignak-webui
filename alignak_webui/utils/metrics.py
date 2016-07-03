@@ -1,35 +1,35 @@
 #!/usr/bin/python
-
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2009-2012:
-#    Gabes Jean, naparuba@gmail.com
-#    Gerhard Lausser, Gerhard.Lausser@consol.de
-#    Gregory Starck, g.starck@gmail.com
-#    Hartmut Goebel, h.goebel@goebel-consult.de
-#    Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2016:
+#   Frederic Mohier, frederic.mohier@gmail.com
 #
-# This file is part of Shinken.
+# This file is part of (WebUI).
 #
-# Shinken is free software: you can redistribute it and/or modify
+# (WebUI) is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Shinken is distributed in the hope that it will be useful,
+# (WebUI) is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with Shinken.  If not, see <http://www.gnu.org/licenses/>.
+# along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+    This module contains functions used to compute values from performance data metrics.
+
+    Those functions are mainly used in the Host view panel.
+"""
 import os
 import sys
 import re
 
-from alignak_webui.utils.perfdata import PerfDatas
 from logging import getLogger
+from alignak_webui.utils.perfdata import PerfDatas
 
 logger = getLogger(__name__)
 
@@ -50,7 +50,8 @@ class HostMetrics(object):
             },
             'cpu': {
                 'name': 'cpu|CPU|Linux procstat',
-                'metrics': '^percent$|cpu_all_idle|cpu_all_iowait|cpu_all_usr|cpu_all_nice|cpu_idle|cpu_iowait|cpu_usr|cpu_nice|total 30s|total 1m|total 5m',
+                'metrics': '^percent$|cpu_all_idle|cpu_all_iowait|cpu_all_usr|cpu_all_nice|'
+                           'cpu_idle|cpu_iowait|cpu_usr|cpu_nice|total 30s|total 1m|total 5m',
                 'uom': '%'
             },
             'disk': {
@@ -65,7 +66,9 @@ class HostMetrics(object):
             },
             'net': {
                 'name': 'network|NET Stat|Network',
-                'metrics': 'eth0_rx_by_sec|eth0_tx_by_sec|eth0_rxErrs_by_sec|eth0_txErrs_by_sec|eth0_in_Bps|eth0_out_Bps|BytesReceived|BytesSent|eth0_in_prct|eth0_out_prct',
+                'metrics': 'eth0_rx_by_sec|eth0_tx_by_sec|eth0_rxErrs_by_sec|eth0_txErrs_by_sec|'
+                           'eth0_in_Bps|eth0_out_Bps|BytesReceived|BytesSent|eth0_in_prct|'
+                           'eth0_out_prct',
                 'uom': 'p/s|(.*)'
             }
         }
@@ -74,6 +77,9 @@ class HostMetrics(object):
         self.services = services
 
     def _findServiceByName(self, searched):
+        """
+        Find a service by its name with regex
+        """
         for service in self.services:
             if re.search(searched['name'], service.name):
                 return service
@@ -81,7 +87,10 @@ class HostMetrics(object):
         return None
 
     def get_service_metric(self, service):
-        all = {}
+        """
+        Get a specific service state and metrics
+        """
+        data = {}
         state = 3
         name = 'Unknown'
 
@@ -108,16 +117,18 @@ class HostMetrics(object):
                             logger.critical(
                                 "metrics, service: %s, got '%s' = %s", service, m.name, m.value
                             )
-                            all[m.name] = m.value
+                            data[m.name] = m.value
             except Exception, exp:
                 logger.warning("metrics get_service_metric, exception: %s", str(exp))
 
-        logger.critical("metrics, get_service_metric %s", all)
-        return state, name, all
+        logger.critical("metrics, get_service_metric %s", data)
+        return state, name, data
 
     def get_services(self):
-        # all = []
-        all = {}
+        """
+        Get the host services global state
+        """
+        data = {}
         state = 0
 
         # Get host's services list
@@ -128,17 +139,8 @@ class HostMetrics(object):
             if s.downtime:
                 s_state = 5
 
-            all[s.name] = s_state
+            data[s.name] = s_state
             state = max(state, s_state)
 
-        logger.critical("metrics, get_services %d, %s", state, all)
-        return state, all
-
-    def compute_worst_state(self, all_states):
-        _ref = {'OK':0, 'UP':0, 'DOWN':3, 'UNREACHABLE':1, 'UNKNOWN':1, 'CRITICAL':3, 'WARNING':2, 'PENDING' :1, 'ACK' :1, 'DOWNTIME' :1}
-        cur_level = 0
-        for (k,v) in all_states.iteritems():
-            logger.critical("metrics, self.compute_worst_state: %s/%s", k, v)
-            # level = _ref[v]
-            cur_level = max(cur_level, v)
-        return cur_level
+        logger.critical("metrics, get_services %d, %s", state, data)
+        return state, data

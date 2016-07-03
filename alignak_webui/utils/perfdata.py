@@ -54,6 +54,7 @@ import re
 # from alignak.util import to_best_int_float
 
 PERFDATA_SPLIT_PATTERN = re.compile(r'([^=]+=\S+)')
+# pylint: disable=fixme
 # TODO: Improve this regex to not match strings like this:
 # 'metric=45+e-456.56unit;50;80;0;45+-e45e-'
 METRIC_PATTERN = \
@@ -104,7 +105,7 @@ def guess_int_or_float(val):
         return None
 
 
-class Metric:  # pylint: disable=R0903
+class Metric:  # pylint: disable=old-style-class, too-few-public-methods, fixme
     """
     Class providing a small abstraction for one metric of a Perfdatas class
     """
@@ -140,7 +141,7 @@ class Metric:  # pylint: disable=R0903
         return string
 
 
-class PerfDatas:  # pylint: disable=R0903
+class PerfDatas:  # pylint: disable=old-style-class, too-few-public-methods
     """
     Class providing performance data extracted from a check output
     """

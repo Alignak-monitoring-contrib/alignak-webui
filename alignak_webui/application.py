@@ -171,6 +171,11 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 # CORS decorator
 def enable_cors(fn):
+    """
+    CORS decorator
+
+    Send the CORS headers for ajax request
+    """
     def _enable_cors(*args, **kwargs):
         # set CORS headers
         response.headers['Access-Control-Allow-Origin'] = \
@@ -187,17 +192,19 @@ def enable_cors(fn):
     return _enable_cors
 
 
-@route('/external/<type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
-@route('/external/<type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
+@route('/external/<widget_type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
+@route('/external/<widget_type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
 @enable_cors
-def external(type, identifier, action=None):
+def external(widget_type, identifier, action=None):
+    # pylint: disable=too-many-return-statements, unsupported-membership-test
+    # pylint: disable=unsubscriptable-object
     """
     Application external identifier
 
     Use internal authentication (if a user is logged-in) or external basic authentication provided
     by the requiring application.
 
-    Search in the known 'type' (widget or table) to find the element 'identifier'.
+    Search in the known 'widget_type' (widget or table) to find the element 'identifier'.
 
     Use the 'links' parameter to prefix the navigation URLs.
     """
@@ -253,16 +260,16 @@ def external(type, identifier, action=None):
         BaseTemplate.defaults['target_user'] = session['target_user']
         BaseTemplate.defaults['datamgr'] = session['datamanager']
 
-    if type not in ['widget', 'table']:
-        logger.warning("External application requested unknown type: %s", type)
+    if widget_type not in ['widget', 'table']:
+        logger.warning("External application requested unknown type: %s", widget_type)
         response.status = 409
         response.content_type = 'text/html'
         return _(
             '<div><h1>Unknown required type: %s.</h1>'
-            '<p>The required type is unknwown</p></div>' % type
+            '<p>The required type is unknwown</p></div>' % widget_type
         )
 
-    if type =='widget':
+    if widget_type == 'widget':
         found_widget = None
         for widget in get_app_webui().get_widgets_for('external'):
             if identifier == widget['id']:
@@ -290,7 +297,7 @@ def external(type, identifier, action=None):
             'embedded_element': embedded_element
         })
 
-    if type =='table':
+    if widget_type == 'table':
         found_table = None
         for table in get_app_webui().get_tables_for('external'):
             if identifier == table['id']:

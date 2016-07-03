@@ -280,7 +280,8 @@ pages = {
                 'template': '_table',
                 'icon': 'table',
                 'description': _(
-                    '<h4>Checks results table</h4>Displays a datatable for the system logged checks results.<br>'
+                    '<h4>Checks results table</h4>Displays a datatable for the system '
+                    'logged checks results.<br>'
                 ),
                 'actions': {
                     'logcheckresult_table_data': get_logcheckresult_table_data

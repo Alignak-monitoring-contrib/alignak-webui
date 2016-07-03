@@ -502,7 +502,8 @@ pages = {
                 'template': '_table',
                 'icon': 'table',
                 'description': _(
-                    '<h4>Livestate table</h4>Displays a datatable for the monitored system livestate.<br>'
+                    '<h4>Livestate table</h4>Displays a datatable for the monitored '
+                    'system livestate.<br>'
                 ),
                 'actions': {
                     'livestate_table_data': get_livestate_table_data

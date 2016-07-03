@@ -1958,7 +1958,8 @@ class History(Item):
         return self._linked_logcheckresult
 
     def get_html_state(self, extra='', icon=True, text='',
-                       title='', disabled=False, object_type=None, object_item=None):
+                       title='', disabled=False, object_type=None, object_item=None,
+                       size=''):
         # pylint: disable=too-many-arguments
         """
         Uses the ItemState singleton to display HTML state for an item
@@ -1969,7 +1970,7 @@ class History(Item):
 
         return super(History, self).get_html_state(object_type=self.getType(), object_item=self,
                                                    extra=extra, icon=icon, text=text,
-                                                   title=title, disabled=disabled)
+                                                   title=title, disabled=disabled, size=size)
 
     def get_check_date(self, timestamp=False, fmt=None, duration=False):
         """

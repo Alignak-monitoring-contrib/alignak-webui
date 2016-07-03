@@ -319,7 +319,8 @@ pages = {
                 'template': '_table',
                 'icon': 'table',
                 'description': _(
-                    '<h4>Hosts groups table</h4>Displays a datatable for the system hosts groups.<br>'
+                    '<h4>Hosts groups table</h4>Displays a datatable for the system '
+                    'hosts groups.<br>'
                 ),
                 'actions': {
                     'hostgroup_table_data': get_hostgroup_table_data

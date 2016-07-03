@@ -319,7 +319,8 @@ pages = {
                 'template': '_table',
                 'icon': 'table',
                 'description': _(
-                    '<h4>Services groups table</h4>Displays a datatable for the system services groups.<br>'
+                    '<h4>Services groups table</h4>Displays a datatable for the system '
+                    'services groups.<br>'
                 ),
                 'actions': {
                     'servicegroup_table_data': get_servicegroup_table_data

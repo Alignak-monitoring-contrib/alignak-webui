@@ -841,7 +841,8 @@ pages = {
                 'template': 'host_metrics_widget',
                 'icon': 'line-chart',
                 'description': _(
-                    '<h4>Host metrics widget</h4>Displays host (and its services) last received metrics.'
+                    '<h4>Host metrics widget</h4>Displays host (and its services) last '
+                    'received metrics.'
                 ),
                 'picture': 'htdocs/img/host_metrics_widget.png',
                 'options': {}
