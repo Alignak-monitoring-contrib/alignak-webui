@@ -41,7 +41,8 @@ table.dataTable tbody>tr>.selected {
 %scheme = request.urlparts.scheme
 %location = request.urlparts.netloc
 %path = request.urlparts.path
-%path = path.replace('/external/table/'+identifier, '')
+%#Do not change path ...
+%#path = path.replace('/external/table/'+identifier, '')
 %server_url = scheme + '://' + location + path
 %else:
 %server_url = ''
