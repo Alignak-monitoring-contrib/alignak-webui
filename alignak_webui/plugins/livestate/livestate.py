@@ -608,7 +608,33 @@ pages = {
                 ),
                 'picture': 'htdocs/img/livestate_services_counters_widget.png',
                 'options': {}
-            }
+            },
+            {
+                'id': 'livestate_hosts_sla',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate hosts SLA widget'),
+                'template': 'livestate_hosts_sla_widget',
+                'icon': 'life-saver',
+                'description': _(
+                    '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level about the '
+                    'monitored system hosts states.'
+                ),
+                'picture': 'htdocs/img/livestate_hosts_sla_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'livestate_services_sla',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate services SLA widget'),
+                'template': 'livestate_services_sla_widget',
+                'icon': 'life-saver',
+                'description': _(
+                    '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level about the '
+                    'monitored system services states.'
+                ),
+                'picture': 'htdocs/img/livestate_services_sla_widget.png',
+                'options': {}
+            },
         ]
     },
 }
