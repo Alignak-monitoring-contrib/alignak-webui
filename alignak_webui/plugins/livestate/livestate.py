@@ -383,7 +383,7 @@ def get_livestate(livestate_id):
         return webui.response_invalid_parameters(_('Livestate element does not exist'))
 
     livestate = livestate[0]
-    if livestate.getType() == 'host':
+    if livestate.type == 'host':
         logger.debug("Livestate: %s %s %s", livestate, livestate.host.id, livestate.__dict__)
         redirect('/host/' + livestate.host.id)
     else:

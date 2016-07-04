@@ -574,6 +574,32 @@ class tests_3(unittest2.TestCase):
             '<div id="host">',
         )
 
+        print 'get page /livestates/widget'
+        response = self.app.post('/livestate/widget', status=204)
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'test_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+        )
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'test_widget',
+            'widget_template': 'livestate_table_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+        )
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'test_widget',
+            'widget_template': 'livestate_chart_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+        )
+
     def test_3_8_worldmap(self):
         print ''
         print 'test worldmap'
@@ -626,304 +652,6 @@ class tests_3(unittest2.TestCase):
             '<div id="realm_tree_view">',
             # '5 elements out of 5'
         )
-
-
-class tests_actions(unittest2.TestCase):
-
-    def setUp(self):
-        print ""
-        print "setting up ..."
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.get('/login')
-        response.mustcontain('<form role="form" method="post" action="/login">')
-
-        print 'login accepted - go to home page'
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
-        # A host cookie now exists
-        assert self.app.cookies['Alignak-WebUI']
-
-    def tearDown(self):
-        print ""
-        print "tearing down ..."
-
-        response = self.app.get('/logout')
-        redirected_response = response.follow()
-        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
-
-    def test_acknowledge(self):
-        print ''
-        print 'test actions'
-
-        print 'get page /acknowledge/form/add'
-        response = self.app.get('/acknowledge/form/add')
-        response.mustcontain(
-            '<form data-item="acknowledge" data-action="add"'
-        )
-
-        # Current user is admin
-        session = response.request.environ['beaker.session']
-        assert 'current_user' in session and session['current_user']
-        assert session['current_user'].get_username() == 'admin'
-
-        # Data manager
-        datamgr = session['datamanager']
-
-        # Get host, user and realm in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
-        user = datamgr.get_user({'where': {'name': 'admin'}})
-        livestate = datamgr.get_livestate({'where': {'name': 'webui'}})
-
-        # -------------------------------------------
-        # Add an acknowledge
-        # Missing livestate_id!
-        data = {
-            "action": "add",
-            "host": host.id,
-            "service": None,
-            "sticky": True,
-            "persistent": True,
-            "notify": True,
-            "comment": "User comment",
-        }
-        response = self.app.post('/acknowledge/add', data, status=204)
-
-        # Acknowledge an host
-        data = {
-            "action": "add",
-            "livestate_id": livestate[0].id,
-            "sticky": True,
-            "persistent": True,
-            "notify": True,
-            "comment": "User comment",
-        }
-        response = self.app.post('/acknowledge/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Acknowledge sent for webui."
-
-        # Acknowledge a service
-        livestate = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
-        data = {
-            "action": "add",
-            "livestate_id": livestate[0].id,
-            "sticky": True,
-            "persistent": True,
-            "notify": True,
-            "comment": "User comment",
-        }
-        response = self.app.post('/acknowledge/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter."
-
-        # Acknowledge several services
-        livestate1 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
-        livestate2 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-reactionner'}})
-        data = {
-            "action": "add",
-            "livestate_id": [livestate1[0].id, livestate2[0].id],
-            "sticky": True,
-            "persistent": True,
-            "notify": True,
-            "comment": "User comment",
-        }
-        response = self.app.post('/acknowledge/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter.Acknowledge sent for webui/Shinken2-reactionner."
-
-        print 'get page /downtime/form/add'
-        response = self.app.get('/downtime/form/add')
-        response.mustcontain(
-            '<form data-item="downtime" data-action="add"'
-        )
-
-        print 'get page /recheck/form/add'
-        response = self.app.get('/recheck/form/add')
-        response.mustcontain(
-            '<form data-item="recheck" data-action="recheck" '
-        )
-
-    def test_downtime(self):
-        print ''
-        print 'test actions'
-
-        print 'get page /downtime/form/add'
-        response = self.app.get('/downtime/form/add')
-        response.mustcontain(
-            '<form data-item="downtime" data-action="add"'
-        )
-
-        # Current user is admin
-        session = response.request.environ['beaker.session']
-        assert 'current_user' in session and session['current_user']
-        assert session['current_user'].get_username() == 'admin'
-
-        # Data manager
-        datamgr = session['datamanager']
-
-        # Get host, user and realm in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
-        user = datamgr.get_user({'where': {'name': 'admin'}})
-        livestate = datamgr.get_livestate({'where': {'name': 'webui'}})
-
-        now = datetime.utcnow()
-        later = now + timedelta(days=2, hours=4, minutes=3, seconds=12)
-        now = timegm(now.timetuple())
-        later = timegm(later.timetuple())
-
-        # -------------------------------------------
-        # Add an downtime
-        # Missing livestate_id!
-        data = {
-            "action": "add",
-            "host": host.id,
-            "service": None,
-            "start_time": now,
-            "end_time": later,
-            "fixed": False,
-            'duration': 86400,
-            "comment": "User comment",
-        }
-        response = self.app.post('/downtime/add', data, status=204)
-
-        # downtime an host
-        data = {
-            "action": "add",
-            "livestate_id": livestate[0].id,
-            "start_time": now,
-            "end_time": later,
-            "fixed": False,
-            'duration': 86400,
-            "comment": "User comment",
-        }
-        response = self.app.post('/downtime/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "downtime sent for webui."
-
-        # downtime a service
-        livestate = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
-        data = {
-            "action": "add",
-            "livestate_id": livestate[0].id,
-            "start_time": now,
-            "end_time": later,
-            "fixed": False,
-            'duration': 86400,
-            "comment": "User comment",
-        }
-        response = self.app.post('/downtime/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "downtime sent for webui/Shinken2-arbiter."
-
-        # downtime several services
-        livestate1 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
-        livestate2 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-reactionner'}})
-        data = {
-            "action": "add",
-            "livestate_id": [livestate1[0].id, livestate2[0].id],
-            "start_time": now,
-            "end_time": later,
-            "fixed": False,
-            'duration': 86400,
-            "comment": "User comment",
-        }
-        response = self.app.post('/downtime/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "downtime sent for webui/Shinken2-arbiter.downtime sent for webui/Shinken2-reactionner."
-
-        print 'get page /downtime/form/add'
-        response = self.app.get('/downtime/form/add')
-        response.mustcontain(
-            '<form data-item="downtime" data-action="add"'
-        )
-
-        print 'get page /recheck/form/add'
-        response = self.app.get('/recheck/form/add')
-        response.mustcontain(
-            '<form data-item="recheck" data-action="recheck" '
-        )
-
-    def test_recheck(self):
-        print ''
-        print 'test recheck'
-
-        print 'get page /recheck/form/add'
-        response = self.app.get('/recheck/form/add')
-        response.mustcontain(
-            '<form data-item="recheck" data-action="recheck" '
-        )
-
-        # Current user is admin
-        session = response.request.environ['beaker.session']
-        assert 'current_user' in session and session['current_user']
-        assert session['current_user'].get_username() == 'admin'
-
-        # Data manager
-        datamgr = session['datamanager']
-
-        # Get host, user and realm in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
-        user = datamgr.get_user({'where': {'name': 'admin'}})
-        livestate = datamgr.get_livestate({'where': {'name': 'webui'}})
-
-        # -------------------------------------------
-        # Add a recheck
-        # Missing livestate_id!
-        data = {
-            "host": host.id,
-            "service": None,
-            "sticky": True,
-            "persistent": True,
-            "notify": True,
-            "comment": "User comment",
-        }
-        response = self.app.post('/recheck/add', data, status=204)
-
-        # Recheck an host
-        data = {
-            "livestate_id": livestate[0].id,
-            "comment": "User comment",
-        }
-        response = self.app.post('/recheck/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui."
-
-        # Recheck a service
-        livestate = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
-        data = {
-            "livestate_id": livestate[0].id,
-            "comment": "User comment",
-        }
-        response = self.app.post('/recheck/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter."
-
-        # Recheck several services
-        livestate1 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-arbiter'}})
-        livestate2 = datamgr.get_livestate({'where': {'name': 'webui/Shinken2-reactionner'}})
-        data = {
-            "livestate_id": [livestate1[0].id, livestate2[0].id],
-            "comment": "User comment",
-        }
-        response = self.app.post('/recheck/add', data)
-        print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter.Check request sent for webui/Shinken2-reactionner."
 
 
 class tests_4_target_user(unittest2.TestCase):
