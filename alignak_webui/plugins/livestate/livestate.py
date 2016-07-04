@@ -469,7 +469,6 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
         title = _('%s (%s)') % (title, name_filter)
 
     # Use required template to render the widget
-    logger.warning("Widget: %s", widget_template)
     return template('_widget', {
         'widget_id': widget_id,
         'widget_name': widget_template,

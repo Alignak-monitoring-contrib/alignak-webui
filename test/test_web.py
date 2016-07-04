@@ -34,7 +34,7 @@ from nose.tools import *
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '1'
+os.environ['WEBUI_DEBUG'] = '0'
 os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print "Configuration file", os.environ['TEST_WEBUI_CFG']
 
@@ -548,7 +548,7 @@ class tests_3(unittest2.TestCase):
             '4 elements out of 4',
         )
 
-    def test_3_7_livestate(self):
+    def test_3_0_livestate(self):
         print ''
         print 'test livestate'
 

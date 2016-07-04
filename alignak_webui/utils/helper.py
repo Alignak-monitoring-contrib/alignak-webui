@@ -28,9 +28,11 @@
 import re
 import time
 import math
+import traceback
 
 from logging import getLogger
 
+from alignak_webui import _
 from alignak_webui import get_app_config
 
 logger = getLogger(__name__)
@@ -571,51 +573,56 @@ class Helper(object):
         if not bo_object:
             return ''
 
-        # Get global configuration
-        app_config = get_app_config()
+        try:
+            # Get global configuration
+            app_config = get_app_config()
 
-        buttons = []
-        button = app_config.get('buttons.livestate_command')
-        button = button.replace("##id##", bo_object.id)
-        button = button.replace("##name##", bo_object.name)
-        button = button.replace("##action##", 'acknowledge')
-        button = button.replace("##title##", _('Acknowledge this problem'))
-        button = button.replace("##icon##", 'check')
-        if getattr(bo_object, 'state_id', 0) in [1, 2]:
-            if getattr(bo_object, 'acknowledged', False):
-                button = button.replace("##disabled##", 'disabled="disabled"')
+            buttons = []
+            button = app_config.get('buttons.livestate_command')
+            button = button.replace("##id##", bo_object.id)
+            button = button.replace("##name##", bo_object.name)
+            button = button.replace("##action##", 'acknowledge')
+            button = button.replace("##title##", _('Acknowledge this problem'))
+            button = button.replace("##icon##", 'check')
+            if getattr(bo_object, 'state_id', 0) in [1, 2]:
+                if getattr(bo_object, 'acknowledged', False):
+                    button = button.replace("##disabled##", 'disabled="disabled"')
+                else:
+                    button = button.replace("##disabled##", '')
             else:
-                button = button.replace("##disabled##", '')
-        else:
-            button = button.replace("##disabled##", 'disabled="disabled"')
-        buttons.append(button)
-
-        button = app_config.get('buttons.livestate_command')
-        button = button.replace("##id##", bo_object.id)
-        button = button.replace("##name##", bo_object.name)
-        button = button.replace("##action##", 'recheck')
-        button = button.replace("##title##", _('Re-check this host/service'))
-        button = button.replace("##icon##", 'refresh')
-        buttons.append(button)
-
-        button = app_config.get('buttons.livestate_command')
-        button = button.replace("##id##", bo_object.id)
-        button = button.replace("##name##", bo_object.name)
-        button = button.replace("##action##", 'downtime')
-        button = button.replace("##title##", _('Schedule a downtime'))
-        button = button.replace("##icon##", 'ambulance')
-        if getattr(bo_object, 'state_id', 0) in [1, 2]:
-            if getattr(bo_object, 'in_downtime', False):
                 button = button.replace("##disabled##", 'disabled="disabled"')
-            else:
-                button = button.replace("##disabled##", '')
-        else:
-            button = button.replace("##disabled##", 'disabled="disabled"')
-        buttons.append(button)
+            buttons.append(button)
 
-        content = app_config.get('buttons.livestate_commands')
-        content = content.replace("##title##", title)
-        content = content.replace("##commands##", ''.join(buttons))
-        logger.debug("Content: %s", content)
+            button = app_config.get('buttons.livestate_command')
+            button = button.replace("##id##", bo_object.id)
+            button = button.replace("##name##", bo_object.name)
+            button = button.replace("##action##", 'recheck')
+            button = button.replace("##title##", _('Re-check this host/service'))
+            button = button.replace("##icon##", 'refresh')
+            buttons.append(button)
+
+            button = app_config.get('buttons.livestate_command')
+            button = button.replace("##id##", bo_object.id)
+            button = button.replace("##name##", bo_object.name)
+            button = button.replace("##action##", 'downtime')
+            button = button.replace("##title##", _('Schedule a downtime'))
+            button = button.replace("##icon##", 'ambulance')
+            if getattr(bo_object, 'state_id', 0) in [1, 2]:
+                if getattr(bo_object, 'in_downtime', False):
+                    button = button.replace("##disabled##", 'disabled="disabled"')
+                else:
+                    button = button.replace("##disabled##", '')
+            else:
+                button = button.replace("##disabled##", 'disabled="disabled"')
+            buttons.append(button)
+
+            content = app_config.get('buttons.livestate_commands')
+            content = content.replace("##title##", title)
+            content = content.replace("##commands##", ''.join(buttons))
+            logger.debug("Content: %s", content)
+            logger.debug("get_html_commands_buttons, content: %s", content)
+        except Exception as e:
+            logger.error("get_html_commands_buttons, exception: %s", str(e))
+            logger.error("traceback: %s", traceback.format_exc())
 
         return content
