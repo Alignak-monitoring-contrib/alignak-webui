@@ -789,7 +789,7 @@ pages = {
         'view': 'host',
         'widgets': [
             {
-                'id': 'host_information',
+                'id': 'information',
                 'for': ['host'],
                 'name': _('Information'),
                 'template': 'host_information_widget',
@@ -800,7 +800,7 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'host_configuration',
+                'id': 'configuration',
                 'for': ['host'],
                 'name': _('Configuration'),
                 'template': 'host_configuration_widget',
@@ -812,7 +812,7 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'host_services',
+                'id': 'services',
                 'for': ['host'],
                 'name': _('Services'),
                 'template': 'host_services_widget',
@@ -823,7 +823,7 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'host_timeline',
+                'id': 'timeline',
                 'for': ['host'],
                 'name': _('Timeline'),
                 'template': 'host_timeline_widget',
@@ -835,7 +835,7 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'host_metrics',
+                'id': 'metrics',
                 'for': ['host'],
                 'name': _('Metrics'),
                 'template': 'host_metrics_widget',
@@ -848,7 +848,7 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'host_history',
+                'id': 'history',
                 'for': ['host'],
                 'name': _('History'),
                 'template': 'host_history_widget',

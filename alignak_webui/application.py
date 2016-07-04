@@ -260,7 +260,7 @@ def external(widget_type, identifier, action=None):
         BaseTemplate.defaults['target_user'] = session['target_user']
         BaseTemplate.defaults['datamgr'] = session['datamanager']
 
-    if widget_type not in ['widget', 'table']:
+    if widget_type not in ['widget', 'table', 'host']:
         logger.warning("External application requested unknown type: %s", widget_type)
         response.status = 409
         response.content_type = 'text/html'
@@ -324,6 +324,45 @@ def external(widget_type, identifier, action=None):
 
         return template('external_table', {
             'embedded_element': found_table['function'](
+                embedded=True, identifier=identifier, credentials=credentials
+            )
+        })
+
+    if widget_type == 'host':
+        if not action:
+            logger.warning("External application requested host widget without widget name")
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Missing host widget name.</h1>'
+                '<p>You must provide a widget name</p></div>'
+            )
+
+        # Identifier is the host identifier, not the widget one !
+        found_widget = None
+        for widget in get_app_webui().get_widgets_for('host'):
+            if action == widget['id']:
+                found_widget = widget
+                break
+        else:
+            logger.warning("External application requested unknown widget: %s", action)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required widget: %s.</h1>'
+                '<p>The required widget is not available.</p></div>' % action
+            )
+        logger.info("Found widget: %s", found_widget)
+
+        if request.params.get('page', 'no') == 'no':
+            return found_widget['function'](
+                host_id=identifier, widget_id=found_widget['id'],
+                embedded=True, identifier=identifier, credentials=credentials
+            )
+
+        return template('external_widget', {
+            'embedded_element': found_widget['function'](
+                host_id=identifier, widget_id=found_widget['id'],
                 embedded=True, identifier=identifier, credentials=credentials
             )
         })

@@ -139,12 +139,10 @@ class tests_actions(unittest2.TestCase):
             '<form data-item="acknowledge" data-action="add"'
         )
 
-        # Current user is admin
+        # Get Data manager in the session
         session = response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].get_username() == 'admin'
-
-        # Data manager
         datamgr = session['datamanager']
 
         # Get host, user and realm in the backend

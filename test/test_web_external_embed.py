@@ -289,6 +289,207 @@ class tests_0_external(unittest2.TestCase):
             '"url": "http://localhost:80/host_table_data",'
         )
 
+    def test_0_1_4_host_widgets(self):
+        print ''
+        print 'allowed host widgets external access'
+
+        # Log in to get Data manager in the session
+        response = self.app.get('/login')
+        response.mustcontain('<form role="form" method="post" action="/login">')
+
+        print 'login accepted - go to home page'
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+        redirected_response.mustcontain('<div id="dashboard">')
+
+        session = redirected_response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+        datamgr = session['datamanager']
+
+        # Get host, user and realm in the backend
+        host = datamgr.get_host({'where': {'name': 'webui'}})
+
+        # Get external host widget - no widget identifier
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s' % host.id,
+            status=409
+        )
+        response.mustcontain('<div><h1>Missing host widget name.</h1><p>You must provide a widget name</p></div>')
+
+        # Get external host widget - unknown widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/unknown' % host.id,
+            status=409
+        )
+        response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
+
+        ## Host information
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/information?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_information" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts information widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/information' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_information" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts information widget -->',
+        )
+
+        ## Host configuration
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/configuration?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_configuration" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts configuration widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/configuration' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_configuration" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts configuration widget -->',
+        )
+
+        ## Host metrics
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/metrics?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_metrics" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts metrics widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/metrics' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_metrics" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts metrics widget -->',
+        )
+
+        ## Host timeline
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/timeline?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_timeline" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts timeline widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/timeline' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_timeline" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts timeline widget -->',
+        )
+
+        ## Host services
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/services?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_services" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts services widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/services' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_services" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts services widget -->',
+        )
+
+        ## Host history
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/history?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_history" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts history widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/history' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_history" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts history widget -->',
+        )
+
     def test_2_widgets(self):
         print ''
         print 'allowed widgets'

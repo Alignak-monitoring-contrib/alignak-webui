@@ -47,17 +47,38 @@
             <span class="hidden-sm hidden-xs">{{_('External widgets')}}</span>
          </a>
 
-         <ul class="dropdown-menu" role="menu" aria-labelledby="Widgets bar menu">
+         <ul class="dropdown-menu" role="menu">
             %for widget in webui.get_widgets_for('external'):
             <li>
-               <a href="/external/widget/{{widget['id']}}?page&widget_id={{widget['id']}}&widget_template={{widget['template']}}">
-                  <span class="fa fa-{{widget['icon']}}"></span>
+               <a href="/external/widget/{{widget['id']}}?page&widget_id={{widget['id']}}">
+                  <span class="fa fa-fw fa-{{widget['icon']}}"></span>
                   {{widget['name']}}
                </a>
             </li>
             %end
          </ul>
       </li>
+      %debug_host = datamgr.get_host({'name': 'webui'})
+      %if debug_host:
+      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Hosts widgets')}}">
+         <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="fa fa-bug"></span>
+            <span class="hidden-sm hidden-xs">{{_('Hosts widgets')}}</span>
+         </a>
+
+         <ul class="dropdown-menu" role="menu">
+            %for widget in webui.get_widgets_for('host'):
+            <li>
+               <a href="/external/host/{{debug_host.id}}/{{widget['id']}}?page">
+                  <span class="fa fa-fw fa-{{widget['icon']}}"></span>
+                  {{widget['name']}}
+               </a>
+            </li>
+            %end
+         </ul>
+      </li>
+      %end
       <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('External tables')}}">
          <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
@@ -65,11 +86,11 @@
             <span class="hidden-sm hidden-xs">{{_('External tables')}}</span>
          </a>
 
-         <ul class="dropdown-menu" role="menu" aria-labelledby="Widgets bar menu">
+         <ul class="dropdown-menu" role="menu">
             %for table in webui.get_tables_for('external'):
             <li>
                <a href="/external/table/{{table['id']}}?page&table_id={{table['id']}}">
-                  <span class="fa fa-{{table['icon']}}"></span>
+                  <span class="fa fa-fw fa-{{table['icon']}}"></span>
                   {{table['name']}}
                </a>
             </li>
