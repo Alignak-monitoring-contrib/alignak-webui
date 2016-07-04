@@ -13,6 +13,7 @@
 %setdefault('options', None)
 
 %setdefault('widget_id', 'widget')
+%setdefault('widget_icon', 'leaf')
 
 %# only use typeahead if not embedded
 %setdefault('bloodhound', not embedded)
@@ -20,7 +21,7 @@
 <div id="wd_panel_{{widget_id}}" class="panel panel-default alignak_webui_widget {{'embedded' if embedded else ''}}">
    %if title is not None:
    <div class="panel-heading">
-      <i class="fa fa-leaf"></i>
+      <i class="fa fa-{{widget_icon}}"></i>
       <span>
          {{title}}
       </span>

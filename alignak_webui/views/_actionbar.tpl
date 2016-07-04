@@ -52,7 +52,7 @@
             <li>
                <a href="/external/widget/{{widget['id']}}?page&widget_id={{widget['id']}}">
                   <span class="fa fa-fw fa-{{widget['icon']}}"></span>
-                  {{widget['name']}}
+                  {{widget['name']}} <em>(id: {{widget['id']}})</em>
                </a>
             </li>
             %end
@@ -72,7 +72,7 @@
             <li>
                <a href="/external/host/{{debug_host.id}}/{{widget['id']}}?page">
                   <span class="fa fa-fw fa-{{widget['icon']}}"></span>
-                  {{widget['name']}}
+                  {{widget['name']}} <em>(id: {{widget['id']}})</em>
                </a>
             </li>
             %end
@@ -91,7 +91,7 @@
             <li>
                <a href="/external/table/{{table['id']}}?page&table_id={{table['id']}}">
                   <span class="fa fa-fw fa-{{table['icon']}}"></span>
-                  {{table['name']}}
+                  {{table['name']}} <em>(id: {{widget['id']}})</em>
                </a>
             </li>
             %end

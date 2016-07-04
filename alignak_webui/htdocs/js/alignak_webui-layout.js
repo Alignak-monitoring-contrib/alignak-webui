@@ -22,7 +22,7 @@ var log_layout=false;
 
 /*
  * For IE missing window.console ...
-*/
+ */
 (function () {
     var f = function () {};
     if (!window.console) {
@@ -32,6 +32,64 @@ var log_layout=false;
     }
 }());
 
+
+/*
+ * Global variables for host/service states
+ */
+var g_hosts_states = {
+   'up': {
+      'color': '#27ae60',
+      'label': 'Up'
+   },
+   'unreachable': {
+      'color': '#e67e22',
+      'label': 'Unreachable'
+   },
+   'down': {
+      'color': '#e74c3c',
+      'label': 'Down'
+   },
+   'unknown': {
+      'color': '#2980b9',
+      'label': 'Unknown'
+   },
+   'acknowledged': {
+      'color': '#95a5a6',
+      'label': 'Ack'
+   },
+   'in_downtime': {
+      'color': '#9b59b6',
+      'label': 'Downtime'
+   }
+};
+var g_services_states = {
+   'ok': {
+      'color': '#27ae60',
+      'label': 'Ok'
+   },
+   'warning': {
+      'color': '#e67e22',
+      'label': 'Warning'
+   },
+   'critical': {
+      'color': '#e74c3c',
+      'label': 'Critical'
+   },
+   'unknown': {
+      'color': '#2980b9',
+      'label': 'Unknown'
+   },
+   'acknowledged': {
+      'color': '#95a5a6',
+      'label': 'Ack'
+   },
+   'in_downtime': {
+      'color': '#9b59b6',
+      'label': 'Downtime'
+   }
+};
+var g_hoverBackgroundColor = "rgba(255,99,132,0.4)";
+var g_hoverBorderColor = "rgba(255,99,132,1)";
 
 /*
  * Play alerting sound ...

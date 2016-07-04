@@ -447,12 +447,14 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
     if embedded:
         widget_place = 'external'
     widget_template = request.params.get('widget_template', 'livestate_table_widget')
+    widget_icon = request.params.get('widget_icon', 'plug')
     # Search in the application widgets (all plugins widgets)
     options = {}
     for widget in webui.get_widgets_for(widget_place):
         if widget_id.startswith(widget['id']):
             options = widget['options']
             widget_template = widget['template']
+            widget_icon = widget['icon']
             logger.info("Widget found, template: %s, options: %s", widget_template, options)
             break
     else:
@@ -474,6 +476,7 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
         'widget_name': widget_template,
         'widget_place': widget_place,
         'widget_template': widget_template,
+        'widget_icon': widget_icon,
         'widget_uri': request.urlparts.path,
         'livestates': livestates,
         'options': options,
@@ -524,10 +527,10 @@ pages = {
         'view': 'livestate_widget',
         'widgets': [
             {
-                'id': 'livestate_table',
+                'id': 'livestate_hosts_table',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate table widget'),
-                'template': 'livestate_table_widget',
+                'name': _('Livestate hosts table widget'),
+                'template': 'livestate_hosts_table_widget',
                 'icon': 'table',
                 'description': _(
                     '<h4>Livestate table widget</h4>Displays a list of the live state of the'
@@ -535,7 +538,7 @@ pages = {
                     'The number of hosts in this list can be defined in the widget options.'
                     'The list of hosts can be filtered thanks to regex on the host name'
                 ),
-                'picture': 'htdocs/img/livestate_table_widget.png',
+                'picture': 'htdocs/img/livestate_hosts_table_widget.png',
                 'options': {
                     'search': {
                         'value': '',
@@ -555,16 +558,55 @@ pages = {
                 }
             },
             {
-                'id': 'livestate_graph',
+                'id': 'livestate_hosts_graph',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate chart widget'),
-                'template': 'livestate_chart_widget',
+                'name': _('Livestate hosts chart widget'),
+                'template': 'livestate_hosts_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
                     '<h4>Hosts livestate chart widget</h4>Displays a pie chart with the monitored'
                     'system hosts states.'
                 ),
-                'picture': 'htdocs/img/livestate_chart_widget.png',
+                'picture': 'htdocs/img/livestate_hosts_chart_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'livestate_services_graph',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate services chart widget'),
+                'template': 'livestate_services_chart_widget',
+                'icon': 'pie-chart',
+                'description': _(
+                    '<h4>Services livestate chart widget</h4>Displays a pie chart with the '
+                    'monitored system services states.'
+                ),
+                'picture': 'htdocs/img/livestate_services_chart_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'livestate_hosts_counters',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate hosts counters widget'),
+                'template': 'livestate_hosts_counters_widget',
+                'icon': 'plus-square',
+                'description': _(
+                    '<h4>Hosts livestate counters widget</h4>Displays counters about the '
+                    'monitored system hosts states.'
+                ),
+                'picture': 'htdocs/img/livestate_hosts_counters_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'livestate_services_counters',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate services counters widget'),
+                'template': 'livestate_services_counters_widget',
+                'icon': 'plus-square',
+                'description': _(
+                    '<h4>Services livestate counters widget</h4>Displays counters about the '
+                    'monitored system services states.'
+                ),
+                'picture': 'htdocs/img/livestate_services_counters_widget.png',
                 'options': {}
             }
         ]

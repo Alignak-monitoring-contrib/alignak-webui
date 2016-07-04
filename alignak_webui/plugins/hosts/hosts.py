@@ -512,12 +512,14 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
 
     widget_place = request.params.get('widget_place', 'dashboard')
     widget_template = request.params.get('widget_template', 'hosts_table_widget')
+    widget_icon = request.params.get('widget_icon', 'plug')
     # Search in the application widgets (all plugins widgets)
     options = {}
     for widget in webui.widgets[widget_place]:
         if widget_id.startswith(widget['id']):
             options = widget['options']
             widget_template = widget['template']
+            widget_icon = widget['icon']
             logger.info("Widget found, template: %s, options: %s", widget_template, options)
             break
     else:
@@ -539,6 +541,7 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
         'widget_name': widget_template,
         'widget_place': widget_place,
         'widget_template': widget_template,
+        'widget_icon': widget_icon,
         'widget_uri': request.urlparts.path,
         'hosts': hosts,
         'options': options,

@@ -1,4 +1,4 @@
-<!-- Hosts chart widget -->
+<!-- livestates chart widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -6,16 +6,16 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%if not hosts:
+%if not livestates:
    <center>
-      <h3>{{_('No hosts matching the filter...')}}</h3>
+      <h3>{{_('No livestate hosts matching the filter...')}}</h3>
    </center>
 %else:
    %hs = datamgr.get_livesynthesis()['hosts_synthesis']
    %if hs:
    <div class="well">
       <!-- Chart -->
-      <div id="pc_hosts_{{widget_id}}">
+      <div id="pc_lv_hosts_{{widget_id}}">
          <canvas></canvas>
       </div>
    </div>
@@ -41,7 +41,7 @@
             }
          ]
       };
-      var ctx = $("#pc_hosts_{{widget_id}} canvas");
+      var ctx = $("#pc_lv_hosts_{{widget_id}} canvas");
 
       // Create chart
       var myBarChart = new Chart(ctx, {
