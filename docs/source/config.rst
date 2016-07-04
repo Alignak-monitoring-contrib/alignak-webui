@@ -9,15 +9,16 @@ The application can be configured thanks to a configuration file. When installed
 
 Configuration file location
 ---------------------------
- The application searches in several location for a configuration file:
- - /usr/local/etc/alignak_webui/settings.cfg
- - /etc/alignak_webui/settings.cfg
- - ~/alignak_webui/settings.cfg
- - */etc/settings.cfg
- - */alignak_webui/etc/settings.cfg
- - ./settings.cfg
+The application searches in several location for a configuration file:
 
- Each file found takes precedence over the previous files.
+    - /usr/local/etc/alignak_webui/settings.cfg
+    - /etc/alignak_webui/settings.cfg
+    - ~/alignak_webui/settings.cfg
+    - */etc/settings.cfg
+    - */alignak_webui/etc/settings.cfg
+    - ./settings.cfg
+
+Each file found takes precedence over the previous files. As of it, for the same parameter with different values in */usr/local/etc/alignak_webui/settings.cfg* and *./settings.cfg*, the retained value will be the one configured in *./settings.cfg*.
 
 
 Configuration file format
@@ -82,6 +83,8 @@ This section contains parameters to configure the application.
     * **timezone**, preferred timezone for dates (default: *Europe/Paris*).
 
     * **timeformat**, default date format (default: *%Y-%m-%d %H:%M:%S*).
+
+    * **cors_acao**, CORS Access Control Allow Origin for external application access (default: *127.0.0.1*).
 
 
 [logs] section

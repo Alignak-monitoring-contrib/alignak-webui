@@ -21,12 +21,13 @@ URL syntax::
 
     where:
         <alignak_webui> is the base url of your Alignak WebUI (eg. http://127.0.0.1:8868)
-        <type> = widget for a widget
-        <type> = table for a table
+        <type> = `widget` for a widget, <identifier> is the identifier of the widget
+        <type> = `table` for a table, <identifier> is the identifier of the table
+        <type> = `host` for an host widget, <identifier> is the identifier of the host
 
-        <identifier> is the identifier of the widget or table
+        <action> is an optional required action (used internally for the tables)
 
-        <action> is an optinoal required action (used only for the tables)
+        <action> is the host widget identifier if <type> = `host`
 
     URL parameters (GET or POST):
         **page** provides a full HTML page including necessary Css and Js. Suitable for embedding the widget or table in an iframe (see hereunder, Embedding mode)

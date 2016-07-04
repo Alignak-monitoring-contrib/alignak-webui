@@ -47,3 +47,18 @@ All the elements have a table to display them. The table name is build with this
     * ...
 
 Depending upon the element table configuration in its plugin, the table is searchable, orderable, ...
+
+Host widgets
+---------------
+
+The host information page is built with *host widgets* declared in the hosts plugin. Each host widget is included in a tab of the host page navigation tab control.
+
+Available host widgets are:
+
+    * information
+    * configuration
+    * services
+    * timeline
+    * history
+    * metrics
+
