@@ -1,5 +1,25 @@
-%rebase("widget", css=['worldmap/css/worldmap.css', 'worldmap/css/leaflet.css', 'worldmap/css/MarkerCluster.css', 'worldmap/css/MarkerCluster.Default.css', 'worldmap/css/leaflet.label.css'])
+<!-- Hosts chart widget -->
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
 
+%from alignak_webui.utils.helper import Helper
+
+%setdefault('mapId', 'hosts_worldmap')
+%setdefault('params', {'default_zoom': 16, 'default_lng': 5.080625, 'default_lat': 45.054148, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
+
+%hosts = elements
+<script>
+   var cssfiles=['/static/plugins/worldmap/htdocs/css/worldmap.css', '/static/plugins/worldmap/htdocs/css/leaflet.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.Default.css', '/static/plugins/worldmap/htdocs/css/leaflet.label.css'];
+
+   $.getCssFiles(cssfiles, function(){
+       // do something, e.g.
+       // console.log('Loaded all CSS files!');
+   });
+</script>
 <!-- HTML map container -->
 <div class="map_container_widget">
    %if not hosts:

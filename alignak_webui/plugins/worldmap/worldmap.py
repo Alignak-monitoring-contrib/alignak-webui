@@ -32,6 +32,7 @@ from logging import getLogger
 from bottle import request
 
 from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget
 
 logger = getLogger(__name__)
 
@@ -49,7 +50,7 @@ plugin_parameters = {
 }
 
 
-def show_worldmap():
+def get_worldmap():
     """
     Get the hosts list to build a worldmap
     """
@@ -117,11 +118,93 @@ def show_worldmap():
     }
 
 
+def get_valid_elements(search):
+    """
+    Get hosts valid for a map:
+    - must have custom variables with GPS coordinates
+    - must have a business_impact that match the one defined in this plugin parameters
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    hosts = datamgr.get_hosts(search)
+
+    valid_hosts = []
+    for host in hosts:
+        logger.debug("worldmap, found host '%s'", host.name)
+
+        if host.business_impact not in plugin_parameters['hosts_level']:
+            continue
+
+        try:
+            _lat = float(host.customs.get('_LOC_LAT', None))
+            _lng = float(host.customs.get('_LOC_LNG', None))
+            # lat/long must be between -180/180
+            if not (-180 <= _lat <= 180 and -180 <= _lng <= 180):
+                raise Exception()
+        except Exception:
+            logger.debug("worldmap, host '%s' has invalid GPS coordinates", host.name)
+            continue
+
+        logger.debug("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
+        valid_hosts.append(host)
+
+    return valid_hosts
+
+
+def get_worldmap_widget(embedded=False, identifier=None, credentials=None):
+    """
+    Get the worldmap widget
+
+    """
+    return get_widget(get_valid_elements, 'host', embedded, identifier, credentials)
+
+
 # We export our properties to the webui
 pages = {
-    show_worldmap: {
+    get_worldmap: {
         'name': 'Worldmap',
         'route': '/worldmap',
         'view': 'worldmap'
+    },
+
+    get_worldmap_widget: {
+        'name': 'Worlmap widget',
+        'route': '/worldmap/widget',
+        'method': 'POST',
+        'view': 'worldmap_widget',
+        'widgets': [
+            {
+                'id': 'worldmap_table',
+                'for': ['external', 'dashboard'],
+                'name': _('Worldmap widget'),
+                'template': 'worldmap_widget',
+                'icon': 'globe',
+                'description': _(
+                    '<h4>Worldmap widget</h4>Displays a world map of the monitored system '
+                    'hosts.<br>The number of hosts on the map can be defined in the widget '
+                    'options. The list of hosts can be filtered thanks to regex on the '
+                    'host name.'
+                ),
+                'picture': 'htdocs/img/worldmap_widget.png',
+                'options': {
+                    'search': {
+                        'value': '',
+                        'type': 'text',
+                        'label': _('Filter (ex. status:ok)')
+                    },
+                    'count': {
+                        'value': -1,
+                        'type': 'int',
+                        'label': _('Number of elements')
+                    },
+                    'filter': {
+                        'value': '',
+                        'type': 'hst_srv',
+                        'label': _('Host/service name search')
+                    }
+                }
+            }
+        ]
     }
 }

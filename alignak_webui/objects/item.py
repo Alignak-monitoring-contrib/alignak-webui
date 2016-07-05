@@ -1499,6 +1499,31 @@ class LiveState(Item):
         """ Return linked object """
         return self._linked_service
 
+    @property
+    def is_problem(self):
+        """
+        An element is_problem if not ok / unknwown and hard state type
+        """
+        if self.state_id in [1, 2] and self.state_type == "HARD":
+            return True
+        return False
+
+    @property
+    def status(self):
+        """
+        Get livestate status
+        """
+        if self.is_problem and self.acknowledged:
+            return 'acknowledged'
+        if self.is_problem and self.downtime:
+            return 'in_downtime'
+        return super(LiveState, self).status
+
+    @Item.status.setter
+    def status(self, status):
+        """
+        """
+        Item.status.fset(self, status)
 
 class Host(Item):
     """

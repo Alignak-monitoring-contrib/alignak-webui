@@ -108,6 +108,22 @@ function playAlertSound() {
  * To load on run some additional js or css files.
  * (Widgets template uses this function)
  */
+$.extend({
+   getCssFiles: function(urls, callback, nocache){
+      if (typeof nocache=='undefined') nocache=false; // default don't refresh
+      $.when(
+         $.each(urls, function(i, url){
+            if (nocache) url += '?_ts=' + new Date().getTime(); // refresh?
+            $.get(url, function(){
+               $('<link>', {rel:'stylesheet', type:'text/css', 'href':url}).appendTo('head');
+            });
+         })
+      ).then(function(){
+         if (typeof callback=='function') callback();
+      });
+   },
+});
+
 function loadjscssfile(filename, filetype){
    if (log_layout) console.debug("loadjscssfile: ", filename, filetype)
    if (filetype=="js") {
