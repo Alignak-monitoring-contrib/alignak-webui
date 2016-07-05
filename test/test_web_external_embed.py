@@ -213,11 +213,11 @@ class tests_0_external(unittest2.TestCase):
         # With links
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/widget/hosts_graph?links&widget_id=hosts_graph'
+            '/external/widget/hosts_chart?links&widget_id=hosts_chart'
         )
         response.mustcontain(
-            '<div id="wd_panel_hosts_graph" class="panel panel-default alignak_webui_widget embedded">',
-            '<div id="pc_hosts_hosts_graph">'
+            '<div id="wd_panel_hosts_chart" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="pc_hosts_hosts_chart">'
         )
 
     def test_1_3_allowed_tables(self):
@@ -508,11 +508,31 @@ class tests_0_external(unittest2.TestCase):
         # Hosts graph
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
-            '/external/widget/hosts_graph?widget_id=hosts_graph'
+            '/external/widget/hosts_chart?widget_id=hosts_chart'
         )
         response.mustcontain(
-            '<div id="wd_panel_hosts_graph" class="panel panel-default alignak_webui_widget embedded">',
-            '<div id="pc_hosts_hosts_graph">'
+            '<div id="wd_panel_hosts_chart" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="pc_hosts_hosts_chart">'
+        )
+
+        # Services table
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/services_table?widget_id=services_table'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_services_table" class="panel panel-default alignak_webui_widget embedded">',
+            '<small>BigProcesses</small>'
+        )
+
+        # Services graph
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/services_chart?widget_id=services_chart'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_services_chart" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="pc_services_services_chart">'
         )
 
 
