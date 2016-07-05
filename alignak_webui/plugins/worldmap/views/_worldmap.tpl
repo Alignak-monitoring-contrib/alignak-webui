@@ -58,10 +58,13 @@
       if (this.isProblem) {
          text += '<div>';
          if (this.isAcknowledged) {
-            text += '<span class="fa fa-check"></span>' + "{{_('Host problem has been acknowledged.')}}";
+            text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
          } else {
-            //text += '<span class="fa fa-exclamation"></span>' + "{{_('Host problem should be acknowledged.')}}";
+            %if current_user.is_power():
             text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.lvId+'"><i class="fa fa-check"></i></button>';
+            %else:
+            text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
+            %end
          }
          text += '</div>';
       }
@@ -82,7 +85,7 @@
    }
 
    function markerIcon() {
-      return imagesDir + '/glyph-marker-icon-' + this.hostState().toLowerCase() + '.png';
+      return "/static/plugins/worldmap/htdocs/img/" + '/glyph-marker-icon-' + this.hostState().toLowerCase() + '.png';
    }
 
    function hostState() {
@@ -163,10 +166,13 @@
       if (this.isProblem) {
          text += '<div>';
          if (this.isAcknowledged) {
-            text += '<span class="fa fa-check"></span>' + "{{_('Service problem has been acknowledged.')}}";
+            text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
          } else {
-            //text += '<span class="fa fa-exclamation"></span>' + "{{_('Service problem should be acknowledged.')}}";
+            %if current_user.is_power():
             text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.lvId+'"><i class="fa fa-check"></i></button>';
+            %else:
+            text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
+            %end
          }
          text += '</div>';
       }
@@ -191,10 +197,6 @@
    }
 
    var map_{{mapId}};
-   var infoWindow_{{mapId}};
-
-   // Images dir
-   var imagesDir = "/static/plugins/worldmap/htdocs/img/";
 
    //------------------------------------------------------------------------------
    // Sequentially load necessary scripts to create map with markers
