@@ -458,7 +458,8 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
             logger.info("Widget found, template: %s, options: %s", widget_template, options)
             break
     else:
-        logger.info("Widget identifier not found: using default template and no options")
+        logger.warning("Widget identifier not found: %s", widget_id)
+        return webui.response_invalid_parameters(_('Unknown widget identifier'))
 
     if options:
         options['search']['value'] = request.params.get('search', '')
@@ -527,18 +528,19 @@ pages = {
         'view': 'livestate_widget',
         'widgets': [
             {
-                'id': 'livestate_hosts_table',
+                'id': 'livestate_table',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts table widget'),
-                'template': 'livestate_hosts_table_widget',
+                'name': _('Livestate table widget'),
+                'template': 'livestate_table_widget',
                 'icon': 'table',
                 'description': _(
                     '<h4>Livestate table widget</h4>Displays a list of the live state of the'
-                    'monitored system hosts.<br>'
-                    'The number of hosts in this list can be defined in the widget options.'
-                    'The list of hosts can be filtered thanks to regex on the host name'
+                    'monitored system hosts and services.<br>'
+                    'The number of hosts/services in this list can be defined in the widget '
+                    'options. The list of hosts/services can be filtered thanks to regex on the '
+                    'host/service name.'
                 ),
-                'picture': 'htdocs/img/livestate_hosts_table_widget.png',
+                'picture': 'htdocs/img/livestate_table_widget.png',
                 'options': {
                     'search': {
                         'value': '',
@@ -553,12 +555,12 @@ pages = {
                     'filter': {
                         'value': '',
                         'type': 'hst_srv',
-                        'label': _('Host name search')
+                        'label': _('Host/service name search')
                     }
                 }
             },
             {
-                'id': 'livestate_hosts_graph',
+                'id': 'livestate_hosts_chart',
                 'for': ['external', 'dashboard'],
                 'name': _('Livestate hosts chart widget'),
                 'template': 'livestate_hosts_chart_widget',
@@ -571,7 +573,7 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'livestate_services_graph',
+                'id': 'livestate_services_chart',
                 'for': ['external', 'dashboard'],
                 'name': _('Livestate services chart widget'),
                 'template': 'livestate_services_chart_widget',

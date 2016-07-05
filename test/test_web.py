@@ -502,28 +502,25 @@ class tests_3(unittest2.TestCase):
 
         print 'get page /hosts/widget'
         response = self.app.post('/hosts/widget', status=204)
+        response = self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=204)
+
+        # Hosts table
         response = self.app.post('/hosts/widget', {
-            'widget_id': 'test_widget'
-        })
-        print response
-        response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
-        )
-        response = self.app.post('/hosts/widget', {
-            'widget_id': 'test_widget',
+            'widget_id': 'hosts_table_1',
             'widget_template': 'hosts_table_widget'
         })
         print response
         response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+            '<div id="wd_panel_hosts_table_1" class="panel panel-default alignak_webui_widget ">'
         )
+        # Hosts chart
         response = self.app.post('/hosts/widget', {
-            'widget_id': 'test_widget',
+            'widget_id': 'hosts_chart_1',
             'widget_template': 'hosts_chart_widget'
         })
         print response
         response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+            '<div id="wd_panel_hosts_chart_1" class="panel panel-default alignak_webui_widget ">'
         )
 
     def test_3_5_services(self):
@@ -537,6 +534,29 @@ class tests_3(unittest2.TestCase):
             '25 elements out of 94',
         )
 
+        print 'get page /services/widget'
+        response = self.app.post('/services/widget', status=204)
+        response = self.app.post('/services/widget', {'widget_id': 'test_widget'}, status=204)
+
+        # Hosts table
+        response = self.app.post('/services/widget', {
+            'widget_id': 'services_table_1',
+            'widget_template': 'services_table_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_services_table_1" class="panel panel-default alignak_webui_widget ">'
+        )
+        # Hosts chart
+        response = self.app.post('/services/widget', {
+            'widget_id': 'services_chart_1',
+            'widget_template': 'services_chart_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_services_chart_1" class="panel panel-default alignak_webui_widget ">'
+        )
+
     def test_3_6_timeperiods(self):
         print ''
         print 'test timeperiods'
@@ -548,7 +568,7 @@ class tests_3(unittest2.TestCase):
             '4 elements out of 4',
         )
 
-    def test_3_0_livestate(self):
+    def test_3_7_livestate(self):
         print ''
         print 'test livestate'
 
@@ -575,29 +595,69 @@ class tests_3(unittest2.TestCase):
         )
 
         print 'get page /livestates/widget'
+        # Errors
         response = self.app.post('/livestate/widget', status=204)
+        response = self.app.post('/livestate/widget', {'widget_id': 'test_widget'}, status=204)
+
+        # Hosts/services table
         response = self.app.post('/livestate/widget', {
-            'widget_id': 'test_widget'
-        })
-        print response
-        response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
-        )
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'test_widget',
+            'widget_id': 'livestate_table_1',
             'widget_template': 'livestate_table_widget'
         })
-        print response
         response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+            '<div id="wd_panel_livestate_table_1" class="panel panel-default alignak_webui_widget ">'
         )
+
+        # Hosts chart
         response = self.app.post('/livestate/widget', {
-            'widget_id': 'test_widget',
-            'widget_template': 'livestate_chart_widget'
+            'widget_id': 'livestate_hosts_chart_1',
+            'widget_template': 'livestate_hosts_chart_widget'
         })
         print response
         response.mustcontain(
-            '<div id="wd_panel_test_widget" class="panel panel-default alignak_webui_widget ">'
+            '<div id="wd_panel_livestate_hosts_chart_1" class="panel panel-default alignak_webui_widget ">'
+        )
+        # Hosts counters
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'livestate_hosts_counters_1',
+            'widget_template': 'livestate_hosts_counters_widget'
+        })
+        response.mustcontain(
+            '<div id="wd_panel_livestate_hosts_counters_1" class="panel panel-default alignak_webui_widget ">'
+        )
+        # Hosts SLA
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'livestate_hosts_sla_1',
+            'widget_template': 'livestate_hosts_sla_widget'
+        })
+        response.mustcontain(
+            '<div id="wd_panel_livestate_hosts_sla_1" class="panel panel-default alignak_webui_widget ">'
+        )
+
+        # Services chart
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'livestate_services_chart_1',
+            'widget_template': 'livestate_services_chart_widget'
+        })
+        print response
+        response.mustcontain(
+            '<div id="wd_panel_livestate_services_chart_1" class="panel panel-default alignak_webui_widget ">'
+        )
+        # Services counters
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'livestate_services_counters_1',
+            'widget_template': 'livestate_services_counters_widget'
+        })
+        response.mustcontain(
+            '<div id="wd_panel_livestate_services_counters_1" class="panel panel-default alignak_webui_widget ">'
+        )
+        # Services SLA
+        response = self.app.post('/livestate/widget', {
+            'widget_id': 'livestate_services_sla_1',
+            'widget_template': 'livestate_services_sla_widget'
+        })
+        response.mustcontain(
+            '<div id="wd_panel_livestate_services_sla_1" class="panel panel-default alignak_webui_widget ">'
         )
 
     def test_3_8_worldmap(self):

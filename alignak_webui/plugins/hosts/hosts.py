@@ -523,7 +523,8 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
             logger.info("Widget found, template: %s, options: %s", widget_template, options)
             break
     else:
-        logger.info("Widget identifier not found: using default template and no options")
+        logger.warning("Widget identifier not found: %s", widget_id)
+        return webui.response_invalid_parameters(_('Unknown widget identifier'))
 
     if options:
         options['search']['value'] = request.params.get('search', '')
@@ -944,7 +945,7 @@ pages = {
                 }
             },
             {
-                'id': 'hosts_graph',
+                'id': 'hosts_chart',
                 'for': ['external', 'dashboard'],
                 'name': _('Hosts chart widget'),
                 'template': 'hosts_chart_widget',
