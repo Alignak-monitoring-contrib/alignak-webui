@@ -638,6 +638,8 @@ def get_host(host_id):
     count = int(request.params.get('count', elts_per_page))
     where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
+        'page': start // count + 1,
+        'max_results': count,
         'where': {'host': host_id}
     }
 
