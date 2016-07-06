@@ -77,9 +77,7 @@ def get_worldmap():
         'where': where
     }
 
-    # Get elements from the data manager
-    # hosts = datamgr.get_hosts(search)
-
+    # Get valid hosts
     valid_hosts = get_valid_elements(search)
 
     # Get last total elements count

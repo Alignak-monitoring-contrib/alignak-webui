@@ -819,8 +819,6 @@ class WebUI(object):
         Register the plugin 'views' directory in the Bottle views
 
         If the plugin has a 'load_config' function, call it
-
-        If the plugin has a 'get_user_preferences' function, it is a user preferences module
         """
         logger.info("load plugins from: %s", plugins_dir)
 
