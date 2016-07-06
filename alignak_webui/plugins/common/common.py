@@ -28,6 +28,9 @@ from bottle import request, response, template
 
 logger = getLogger(__name__)
 
+# Will be populated by the UI with it's own value
+webui = None
+
 
 def get_widget(get_method, object_type, embedded=False, identifier=None, credentials=None):
     # Because there are many locals needed :)

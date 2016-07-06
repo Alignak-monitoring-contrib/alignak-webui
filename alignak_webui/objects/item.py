@@ -1519,11 +1519,11 @@ class LiveState(Item):
             return 'in_downtime'
         return super(LiveState, self).status
 
-    @Item.status.setter
-    def status(self, status):
-        """
-        """
-        Item.status.fset(self, status)
+    # @Item.status.setter
+    # def status(self, status):
+    # """
+    # """
+    # Item.status.fset(self, status)
 
 
 class Host(Item):
