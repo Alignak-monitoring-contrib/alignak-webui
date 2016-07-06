@@ -82,7 +82,7 @@
       <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
       <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
       <script type="text/javascript" src="/static/js/bootstrap-tab-bookmark.js"></script>
-      <script type="text/javascript" src="/static/js/moment.min.js"></script>
+      <script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
       <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jTruncate.js"></script>
