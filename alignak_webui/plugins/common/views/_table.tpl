@@ -7,6 +7,8 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
+%setdefault('where', {})
+
 %setdefault('commands', False)
 %setdefault('object_type', 'unknown')
 

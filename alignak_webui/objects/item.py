@@ -1519,11 +1519,13 @@ class LiveState(Item):
             return 'in_downtime'
         return super(LiveState, self).status
 
-    # @Item.status.setter
-    # def status(self, status):
-    # """
-    # """
-    # Item.status.fset(self, status)
+    @Item.status.setter
+    def status(self, status):
+        # pylint: disable=function-redefined
+        """
+        Must redefine status setter here ! Else some errors occur when setting LiveState status
+        """
+        Item.status.fset(self, status)
 
 
 class Host(Item):
