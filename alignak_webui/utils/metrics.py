@@ -105,7 +105,7 @@ class HostMetrics(object):
             if s.downtime:
                 state = 5
 
-            try:
+            try:  # pragma: no cover - no livestate data when testing :(
                 p = PerfDatas(s.perf_data)
                 for m in p:
                     if m.name and m.value is not None:

@@ -74,39 +74,16 @@ def get_worldmap():
         'page': start // count + 1,
         'max_results': count,
         'sort': '-_id',
-        'where': where,
-        'embedded': {
-            'check_command': 1, 'event_handler': 1,
-            'check_period': 1, 'notification_period': 1,
-            # 'parents': 1, 'hostgroups': 1, 'contacts': 1, 'contact_groups': 1
-        }
+        'where': where
     }
 
     # Get elements from the data manager
-    hosts = datamgr.get_hosts(search)
+    # hosts = datamgr.get_hosts(search)
 
-    valid_hosts = []
-    for host in hosts:
-        logger.debug("worldmap, found host '%s'", host.name)
-
-        if host.business_impact not in plugin_parameters['hosts_level']:
-            continue
-
-        try:
-            _lat = float(host.customs.get('_LOC_LAT', None))
-            _lng = float(host.customs.get('_LOC_LNG', None))
-            # lat/long must be between -180/180
-            if not (-180 <= _lat <= 180 and -180 <= _lng <= 180):
-                raise Exception()
-        except Exception:
-            logger.debug("worldmap, host '%s' has invalid GPS coordinates", host.name)
-            continue
-
-        logger.debug("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
-        valid_hosts.append(host)
+    valid_hosts = get_valid_elements(search)
 
     # Get last total elements count
-    total = datamgr.get_objects_count('host', search=where, refresh=True)
+    total = len(valid_hosts)
     count = min(len(valid_hosts), total)
 
     return {
