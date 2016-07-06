@@ -530,7 +530,7 @@ pages = {
             {
                 'id': 'livestate_table',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate table widget'),
+                'name': _('Livestate table'),
                 'template': 'livestate_table_widget',
                 'icon': 'table',
                 'description': _(
@@ -562,7 +562,7 @@ pages = {
             {
                 'id': 'livestate_hosts_chart',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts chart widget'),
+                'name': _('Livestate hosts chart'),
                 'template': 'livestate_hosts_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
@@ -575,7 +575,7 @@ pages = {
             {
                 'id': 'livestate_services_chart',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate services chart widget'),
+                'name': _('Livestate services chart'),
                 'template': 'livestate_services_chart_widget',
                 'icon': 'pie-chart',
                 'description': _(
@@ -586,9 +586,35 @@ pages = {
                 'options': {}
             },
             {
+                'id': 'livestate_hosts_history_chart',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate hosts history chart'),
+                'template': 'livestate_hosts_history_chart_widget',
+                'icon': 'pie-chart',
+                'description': _(
+                    '<h4>Hosts livestate history chart widget</h4>Displays a line chart with '
+                    'the monitored system hosts states on a recent period of time.'
+                ),
+                'picture': 'htdocs/img/livestate_hosts_history_chart_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'livestate_services_history_chart',
+                'for': ['external', 'dashboard'],
+                'name': _('Livestate services history chart'),
+                'template': 'livestate_services_history_chart_widget',
+                'icon': 'pie-chart',
+                'description': _(
+                    '<h4>Services livestate history chart widget</h4>Displays a line chart with '
+                    'the monitored system sevices states on a recent period of time.'
+                ),
+                'picture': 'htdocs/img/livestate_services_history_chart_widget.png',
+                'options': {}
+            },
+            {
                 'id': 'livestate_hosts_counters',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts counters widget'),
+                'name': _('Livestate hosts counters'),
                 'template': 'livestate_hosts_counters_widget',
                 'icon': 'plus-square',
                 'description': _(
@@ -601,7 +627,7 @@ pages = {
             {
                 'id': 'livestate_services_counters',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate services counters widget'),
+                'name': _('Livestate services counters'),
                 'template': 'livestate_services_counters_widget',
                 'icon': 'plus-square',
                 'description': _(
@@ -614,7 +640,7 @@ pages = {
             {
                 'id': 'livestate_hosts_sla',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts SLA widget'),
+                'name': _('Livestate hosts SLA'),
                 'template': 'livestate_hosts_sla_widget',
                 'icon': 'life-saver',
                 'description': _(
@@ -627,7 +653,7 @@ pages = {
             {
                 'id': 'livestate_services_sla',
                 'for': ['external', 'dashboard'],
-                'name': _('Livestate services SLA widget'),
+                'name': _('Livestate services SLA'),
                 'template': 'livestate_services_sla_widget',
                 'icon': 'life-saver',
                 'description': _(

@@ -38,53 +38,65 @@ var log_layout=false;
  */
 var g_hosts_states = {
    'up': {
-      'color': '#27ae60',
+      'color': 'rgba(39, 174, 96, 1)',
+      'background': 'rgba(39, 174, 96, 0.2)',
       'label': 'Up'
    },
    'unreachable': {
-      'color': '#e67e22',
+      'color': 'rgba(230, 126, 34, 1)',
+      'background': 'rgba(230, 126, 34, 0.2)',
       'label': 'Unreachable'
    },
    'down': {
-      'color': '#e74c3c',
+      'color': 'rgba(231, 76, 60, 1)',
+      'background': 'rgba(231, 76, 60, 0.2)',
       'label': 'Down'
    },
    'unknown': {
-      'color': '#2980b9',
+      'color': 'rgba(41, 128, 185, 1)',
+      'background': 'rgba(41, 128, 185, 0.2)',
       'label': 'Unknown'
    },
    'acknowledged': {
-      'color': '#95a5a6',
+      'color': 'rgba(149, 165, 166, 1)',
+      'background': 'rgba(149, 165, 166, 0.2)',
       'label': 'Ack'
    },
    'in_downtime': {
-      'color': '#9b59b6',
+      'color': 'rgba(155, 89, 182, 1)',
+      'background': 'rgba(155, 89, 182, 0.2)',
       'label': 'Downtime'
    }
 };
 var g_services_states = {
    'ok': {
-      'color': '#27ae60',
+      'color': 'rgba(39, 174, 96, 1)',
+      'background': 'rgba(39, 174, 96, 0.2)',
       'label': 'Ok'
    },
    'warning': {
-      'color': '#e67e22',
+      'color': 'rgba(230, 126, 34, 1)',
+      'background': 'rgba(230, 126, 34, 0.2)',
       'label': 'Warning'
    },
    'critical': {
-      'color': '#e74c3c',
+      'color': 'rgba(231, 76, 60, 1)',
+      'background': 'rgba(231, 76, 60, 0.2)',
       'label': 'Critical'
    },
    'unknown': {
-      'color': '#2980b9',
+      'color': 'rgba(41, 128, 185, 1)',
+      'background': 'rgba(41, 128, 185, 0.2)',
       'label': 'Unknown'
    },
    'acknowledged': {
-      'color': '#95a5a6',
+      'color': 'rgba(149, 165, 166, 1)',
+      'background': 'rgba(149, 165, 166, 0.2)',
       'label': 'Ack'
    },
    'in_downtime': {
-      'color': '#9b59b6',
+      'color': 'rgba(155, 89, 182, 1)',
+      'background': 'rgba(155, 89, 182, 0.2)',
       'label': 'Downtime'
    }
 };

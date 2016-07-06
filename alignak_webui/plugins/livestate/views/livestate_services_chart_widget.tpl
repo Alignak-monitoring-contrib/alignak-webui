@@ -24,11 +24,12 @@
 <script>
    // Note: g_ prefixed variables are defined in the global alignak_layout.js file.
    $(document).ready(function() {
-      var data=[], labels=[], colors=[], hover_colors=[];
-      %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
+      var data=[], labels=[], colors=[], backColors=[], hover_colors=[];
+      %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
          labels.push(g_services_states["{{state.lower()}}"]['label']);
          data.push({{ss["nb_" + state]}});
          colors.push(g_services_states["{{state.lower()}}"]['color'])
+         backColors.push(g_services_states["{{state.lower()}}"]['background'])
          hover_colors.push(g_hoverBackgroundColor)
       %end
       var data = {
@@ -37,7 +38,7 @@
             {
                data: data,
                backgroundColor: colors,
-               hoverBackgroundColor: hover_colors
+               hoverBackgroundColor: backColors
             }
          ]
       };
