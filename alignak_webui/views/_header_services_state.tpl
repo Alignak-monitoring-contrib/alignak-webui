@@ -1,15 +1,24 @@
 %setdefault('datamgr', None)
 
 %if datamgr:
+%import time
 %from alignak_webui.objects.item import Service
 
 %ss = datamgr.get_livesynthesis()['services_synthesis']
 %if ss:
+%# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
+%services_states_queue = datamgr.get_user_preferences(current_user.name, 'services_states_queue', [])
+%services_states_queue = services_states_queue['value']
+%services_states_queue.append({'date': time.time(), 'ss': ss})
+%if len(services_states_queue) > 40:
+%services_states_queue.pop(0)
+%end
+%datamgr.set_user_preferences(current_user.name, 'services_states_queue', services_states_queue)
 <div id="services-states-popover-content" class="hidden">
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
-            %for state in "ok", "warning", "critical", "unknown":
+            %for state in ['ok', 'warning', 'critical', 'unknown']:
             <td>
               %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
               %label = "%s" % (ss["nb_" + state])

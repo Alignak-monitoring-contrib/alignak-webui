@@ -1,15 +1,24 @@
 %setdefault('datamgr', None)
 
 %if datamgr:
+%import time
 %from alignak_webui.objects.item import Host
 
 %hs = datamgr.get_livesynthesis()['hosts_synthesis']
 %if hs:
+%# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
+%hosts_states_queue = datamgr.get_user_preferences(current_user.name, 'hosts_states_queue', [])
+%hosts_states_queue = hosts_states_queue['value']
+%hosts_states_queue.append({'date': time.time(), 'hs': hs})
+%if len(hosts_states_queue) > 40:
+%hosts_states_queue.pop(0)
+%end
+%datamgr.set_user_preferences(current_user.name, 'hosts_states_queue', hosts_states_queue)
 <div id="hosts-states-popover-content" class="hidden">
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
-            %for state in 'up', 'unreachable', 'down':
+            %for state in ['up', 'unreachable', 'down']:
            <td>
               %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
               %label = "%s%%" % (hs["pct_" + state])
