@@ -298,7 +298,7 @@
      </div>
    </div>
 
-   <!-- Fifth row : host information -->
+   <!-- Fifth row : host widgets -->
    <div>
       <ul class="nav nav-tabs">
          <li class="active">
@@ -332,23 +332,6 @@
                %include("_widget.tpl", widget_name=widget['template'], options=None, embedded=True, title=None)
             </div>
          %end
-
-         <!-- Tab Graph start -->
-         <div class="tab-pane fade" id="graphs">
-            <div class="panel panel-default">
-               <div class="panel-body">
-                  %grafana = False
-                  %if grafana:
-                  <iframe src="http://94.76.229.155:92/dashboard-solo/db/my-dashboard?panelId=2&from=1466373600000&to=1466414828717" width="100%" height="200" frameborder="0"></iframe>
-                  %else:
-                  <div class="alert alert-info">
-                      <div class="font-blue"><strong>{{_('No graphs are available.')}}</strong></div>
-                  </div>
-                  %end
-               </div>
-            </div>
-         </div>
-         <!-- Tab Graph end -->
       </div>
    </div>
  </div>

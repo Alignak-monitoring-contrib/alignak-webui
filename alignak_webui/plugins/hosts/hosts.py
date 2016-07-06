@@ -863,6 +863,17 @@ pages = {
                     '<h4>Host history widget</h4>Displays host history.'
                 ),
                 'options': {}
+            },
+            {
+                'id': 'grafana',
+                'for': ['host'],
+                'name': _('Grafana'),
+                'template': 'host_grafana_widget',
+                'icon': 'area-chart',
+                'description': _(
+                    '<h4>Host grafana widget</h4>Displays host Grafana panel.'
+                ),
+                'options': {}
             }
         ]
     },
