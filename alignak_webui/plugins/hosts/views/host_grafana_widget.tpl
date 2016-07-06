@@ -19,7 +19,7 @@
    </center>
 %else:
    %if livestate.grafana and livestate.grafana_panelid:
-   <iframe src="{{grafana_url}}/dashboard-solo/db/my-dashboard?panelId={{livestate.grafana_panelid}}&from=1467756000000&to=1467812182220&theme=light" width="450" height="200" frameborder="0"></iframe>
+   <iframe src="{{grafana_url}}/dashboard-solo/db/host_{{livestate.name}}?panelId={{livestate.grafana_panelid}}" width="100%" height="320" frameborder="0"></iframe>
    %else:
    <div class="alert alert-info">
       <p class="font-blue">{{_('No Grafana panel available for this element.')}}</p>
