@@ -10,7 +10,7 @@
 %hosts_states_queue = datamgr.get_user_preferences(current_user.name, 'hosts_states_queue', [])
 %hosts_states_queue = hosts_states_queue['value']
 %hosts_states_queue.append({'date': time.time(), 'hs': hs})
-%if len(hosts_states_queue) > 40:
+%if len(hosts_states_queue) > 120:
 %hosts_states_queue.pop(0)
 %end
 %datamgr.set_user_preferences(current_user.name, 'hosts_states_queue', hosts_states_queue)

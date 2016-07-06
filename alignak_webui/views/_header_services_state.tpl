@@ -10,7 +10,7 @@
 %services_states_queue = datamgr.get_user_preferences(current_user.name, 'services_states_queue', [])
 %services_states_queue = services_states_queue['value']
 %services_states_queue.append({'date': time.time(), 'ss': ss})
-%if len(services_states_queue) > 40:
+%if len(services_states_queue) > 120:
 %services_states_queue.pop(0)
 %end
 %datamgr.set_user_preferences(current_user.name, 'services_states_queue', services_states_queue)
