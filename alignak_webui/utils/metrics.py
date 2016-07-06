@@ -49,8 +49,9 @@ class HostMetrics(object):
                 'uom': ''
             },
             'cpu': {
-                'name': 'cpu|CPU|Linux procstat',
+                'name': 'cpu|Cpu|CPU|Linux procstat',
                 'metrics': '^percent$|cpu_all_idle|cpu_all_iowait|cpu_all_usr|cpu_all_nice|'
+                           'cpu_prct_used|'
                            'cpu_idle|cpu_iowait|cpu_usr|cpu_nice|total 30s|total 1m|total 5m',
                 'uom': '%'
             },
