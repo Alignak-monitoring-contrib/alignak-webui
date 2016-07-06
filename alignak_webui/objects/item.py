@@ -1525,6 +1525,7 @@ class LiveState(Item):
         """
         Item.status.fset(self, status)
 
+
 class Host(Item):
     """
     Object representing an host

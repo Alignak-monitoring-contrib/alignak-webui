@@ -126,5 +126,3 @@ def get_widget(get_method, object_type, embedded=False, identifier=None, credent
         'identifier': identifier,
         'credentials': credentials
     })
-
-
