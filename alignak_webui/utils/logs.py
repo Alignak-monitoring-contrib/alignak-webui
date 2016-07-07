@@ -75,10 +75,11 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
     Configure handler for file logging ...
     """
     # Log file directory
-    try:
-        os.makedirs(path)
-    except Exception:
-        path = '.'
+    if not os.path.isdir(path):
+        try:
+            os.makedirs(path)
+        except Exception:
+            path = '.'
 
     # logger = getLogger(__pkg_name__)
 
