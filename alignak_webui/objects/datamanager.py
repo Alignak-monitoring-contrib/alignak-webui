@@ -1025,12 +1025,16 @@ class DataManager(object):
     ##
     # Hosts
     ##
-    def get_hosts(self, search=None):
+    def get_hosts(self, search=None, template=False):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'where' not in search:
+            search.update({'where': {'_is_template': template}})
+        elif '_is_template' not in search['where']:
+            search['where'].update({'_is_template': template})
         if 'embedded' not in search:
             search.update({
                 'embedded': {
@@ -1095,12 +1099,16 @@ class DataManager(object):
     ##
     # Services
     ##
-    def get_services(self, search=None):
+    def get_services(self, search=None, template=False):
         """ Get a list of all services. """
         if search is None:
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'where' not in search:
+            search.update({'where': {'_is_template': template}})
+        elif '_is_template' not in search['where']:
+            search['where'].update({'_is_template': template})
         if 'embedded' not in search:
             search.update({
                 'embedded': {
