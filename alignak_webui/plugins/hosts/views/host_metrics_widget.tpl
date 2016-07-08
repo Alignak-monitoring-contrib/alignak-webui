@@ -90,7 +90,7 @@
    </tbody>
 </table>
 %else:
-   <center>
-      <h3>{{_('No services defined for this host.')}}</h3>
-   </center>
+   <div class="alert alert-info">
+      <p class="font-blue">{{_('No metrics available.')}}</p>
+   </div>
 %end

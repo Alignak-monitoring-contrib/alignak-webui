@@ -130,7 +130,6 @@ def get_valid_elements(search):
 def get_worldmap_widget(embedded=False, identifier=None, credentials=None):
     """
     Get the worldmap widget
-
     """
     return get_widget(get_valid_elements, 'host', embedded, identifier, credentials)
 

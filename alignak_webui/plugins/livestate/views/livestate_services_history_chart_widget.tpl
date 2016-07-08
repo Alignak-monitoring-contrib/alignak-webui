@@ -1,4 +1,4 @@
-<!-- Services states history chart widget -->
+<!-- Livestate services states history chart widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -47,6 +47,7 @@
                borderColor: g_services_states["{{state.lower()}}"]['color'],
                backgroundColor: g_services_states["{{state.lower()}}"]['background'],
                pointBorderWidth: 1,
+               pointRadius: 2,
                pointBorderColor: g_services_states["{{state.lower()}}"]['color'],
                pointBackgroundColor: g_services_states["{{state.lower()}}"]['background'],
                data: data_{{state}}

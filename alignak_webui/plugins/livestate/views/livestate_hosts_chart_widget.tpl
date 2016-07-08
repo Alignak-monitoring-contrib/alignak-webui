@@ -1,4 +1,4 @@
-<!-- livestates chart widget -->
+<!-- Livestate hosts chart widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -6,9 +6,9 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%if not livestates:
+%if not elements:
    <center>
-      <h3>{{_('No livestate hosts matching the filter...')}}</h3>
+      <h3>{{_('No elements matching the filter...')}}</h3>
    </center>
 %else:
    %hs = datamgr.get_livesynthesis()['hosts_synthesis']

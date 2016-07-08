@@ -1,4 +1,4 @@
-<!-- Hosts states history chart widget -->
+<!-- Livestate hosts states history chart widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -47,6 +47,7 @@
                borderColor: g_hosts_states["{{state.lower()}}"]['color'],
                backgroundColor: g_hosts_states["{{state.lower()}}"]['background'],
                pointBorderWidth: 1,
+               pointRadius: 1,
                pointBorderColor: g_hosts_states["{{state.lower()}}"]['color'],
                pointBackgroundColor: g_hosts_states["{{state.lower()}}"]['background'],
                data: data_{{state}}

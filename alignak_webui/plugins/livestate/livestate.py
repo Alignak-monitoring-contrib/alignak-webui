@@ -32,6 +32,7 @@ from logging import getLogger
 from bottle import request, response, redirect, template
 
 from alignak_webui.objects.item import Item
+from alignak_webui.plugins.common.common import get_widget
 
 from alignak_webui.utils.datatable import Datatable
 from alignak_webui.utils.helper import Helper
@@ -402,90 +403,8 @@ def get_livestate_widget(embedded=False, identifier=None, credentials=None):
     - search for specific elements search
 
     """
-    user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.params.get('start', '0'))
-    count = int(request.params.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.params.get('search', ''))
-    search = {
-        'page': start // count + 1,
-        'max_results': count,
-        'sort': '-_id',
-        'where': where,
-        'embedded': {
-            'host': 1, 'service': 1
-        }
-    }
-    name_filter = request.params.get('filter', '')
-    if name_filter:
-        search['where'].update({'name': {"$regex": ".*" + name_filter + ".*"}})
-
-    # Get elements from the data manager
-    livestates = datamgr.get_livestate(search)
-    # Get last total elements count
-    total = datamgr.get_objects_count('livestate', search=where, refresh=True)
-    count = min(count, total)
-
-    # Widget options
-    widget_id = request.params.get('widget_id', '')
-    if widget_id == '':
-        logger.error("Missing widget identifier")
-        return webui.response_invalid_parameters(_('Missing widget identifier'))
-
-    widget_place = 'dashboard'
-    if embedded:
-        widget_place = 'external'
-    widget_template = request.params.get('widget_template', 'livestate_table_widget')
-    widget_icon = request.params.get('widget_icon', 'plug')
-    # Search in the application widgets (all plugins widgets)
-    options = {}
-    for widget in webui.get_widgets_for(widget_place):
-        if widget_id.startswith(widget['id']):
-            options = widget['options']
-            widget_template = widget['template']
-            widget_icon = widget['icon']
-            logger.info("Widget found, template: %s, options: %s", widget_template, options)
-            break
-    else:
-        logger.warning("Widget identifier not found: %s", widget_id)
-        return webui.response_invalid_parameters(_('Unknown widget identifier'))
-
-    if options:
-        options['search']['value'] = request.params.get('search', '')
-        options['count']['value'] = count
-        options['filter']['value'] = name_filter
-    logger.info("Widget options: %s", options)
-
-    title = request.params.get('title', _('Livestate'))
-    if name_filter:
-        title = _('%s (%s)') % (title, name_filter)
-
-    # Use required template to render the widget
-    return template('_widget', {
-        'widget_id': widget_id,
-        'widget_name': widget_template,
-        'widget_place': widget_place,
-        'widget_template': widget_template,
-        'widget_icon': widget_icon,
-        'widget_uri': request.urlparts.path,
-        'livestates': livestates,
-        'options': options,
-        'title': title,
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    })
+    return get_widget(datamgr.get_livestate, 'livestate', embedded, identifier, credentials)
 
 
 pages = {
