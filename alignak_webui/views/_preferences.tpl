@@ -1,6 +1,6 @@
 %import json
 
-%rebase("layout", css=['user/htdocs/css/user.css'], breadcrumb=[ ['User preferences', '/user/pref'] ], title='User preferences')
+%rebase("layout", css=['user/htdocs/css/user.css'], title=_('User preferences'))
 
 <div id="user-preferences">
    <div class="col-sm-12">
@@ -31,7 +31,7 @@
                   </thead>
                   <tbody style="font-size:x-small;">
                      <tr>
-                        <td><strong>{{_('User identification:')</strong></td>
+                        <td><strong>{{_('User identification:')}}</strong></td>
                         <td>{{"%s (%s)" % (current_user.name, current_user.get_username()) if current_user.name != 'none' else current_user.get_username()}}</td>
                      </tr>
                      <tr>
@@ -74,16 +74,15 @@
                      </tr>
                   </thead>
                   <tbody style="font-size:x-small;">
-                  %if webui.prefs_module:
-                     %preferences = webui.prefs_module.get_ui_user_preference(current_user.get_username())
+                     %preferences = datamgr.get_user_preferences(current_user.get_username(), None)
                      %if preferences:
-                     %for preference in sorted(preferences.keys()):
+                     %for preference in sorted(preferences):
                         %if preference in ['_id']:
                         %continue
                         %end
                         <tr>
                            <td>{{preference}}</td>
-                           <td>{{webui.prefs_module.get_ui_user_preference(current_user.get_username(), preference)}}</td>
+                           <td>{{datamgr.get_user_preferences(current_user.get_username(), preference)}}</td>
                         </tr>
                      %end
                      %else:
@@ -91,16 +90,15 @@
                            <td colspan="2">{{_('No user preferences')}}</td>
                         </tr>
                      %end
-                  %else:
+
                      <tr>
                         <td>bookmarks</td>
-                        <td>{{webui.prefs_module.get_ui_user_preference(current_user.get_username(), 'bookmarks')}}</td>
+                        <td>{{datamgr.get_user_preferences(current_user.get_username(), 'bookmarks')}}</td>
                      </tr>
                      <tr>
                         <td>elts_per_page</td>
-                        <td>{{webui.prefs_module.get_ui_user_preference(current_user.get_username(), 'elts_per_page')}}</td>
+                        <td>{{datamgr.get_user_preferences(current_user.get_username(), 'elts_per_page')}}</td>
                      </tr>
-                  %end
                   </tbody>
                </table>
             </div>
