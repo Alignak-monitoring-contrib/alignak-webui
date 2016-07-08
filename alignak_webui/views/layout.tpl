@@ -119,6 +119,7 @@
       <script src="/static/js/alignak_webui-refresh.js"></script>
       %end
 
+      <script src="/static/js/alignak_webui-external.js"></script>
       <script src="/static/js/alignak_webui-layout.js"></script>
       <script src="/static/js/alignak_webui-actions.js"></script>
       <script src="/static/js/alignak_webui-bookmarks.js"></script>
