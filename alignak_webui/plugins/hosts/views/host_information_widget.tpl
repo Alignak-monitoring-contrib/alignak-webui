@@ -290,18 +290,32 @@
             </td>
          </tr>
          %if host.flap_detection_enabled:
-         <tr>
-            <td><strong>Options:</strong></td>
-            <td>{{', '.join(host.flap_detection_options)}}</td>
-         </tr>
-         <tr>
-            <td><strong>Low threshold:</strong></td>
-            <td>{{host.low_flap_threshold}}</td>
-         </tr>
-         <tr>
-            <td><strong>High threshold:</strong></td>
-            <td>{{host.high_flap_threshold}}</td>
-         </tr>
+            %message = {}
+            %message['o'] = {'title': _('Flapping enabled on Up state'), 'message': _('UP')}
+            %message['d'] = {'title': _('Flapping enabled on Down state'), 'message': _('DOWN')}
+            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+            %first=True
+            %for m in message:
+               <tr>
+                  %if first:
+                     <td><strong>{{_('Options:')}}</strong></td>
+                     %first=False
+                  %else:
+                     <td></td>
+                  %end
+                  <td>
+                     {{! Helper.get_on_off(m in host.flap_detection_options, message[m]['title'], '&nbsp;' + message[m]['message'])}}
+                  </td>
+               </tr>
+            %end
+            <tr>
+               <td><strong>Low threshold:</strong></td>
+               <td>{{host.low_flap_threshold}}</td>
+            </tr>
+            <tr>
+               <td><strong>High threshold:</strong></td>
+               <td>{{host.high_flap_threshold}}</td>
+            </tr>
          %end
       </tbody>
    </table>
@@ -347,60 +361,61 @@
          </tr>
 
          %if host.notifications_enabled and host.notification_period is not None:
-            <td><strong>{{_('Notification period:')}}</strong></td>
-            <td name="notification_period" class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                  data-title='{{host.notification_period}}'
-                  data-content='{{host.notification_period}}'
-                  >
-               {{! host.notification_period.get_html_state_link()}}
-            </td>
-         </tr>
-         %message = {}
-         %message['d'] = 'Down'
-         %message['u'] = 'Unreachable'
-         %message['r'] = 'Recovery'
-         %message['f'] = 'Flapping'
-         %message['s'] = 'Downtimes'
-         %message['n'] = 'None'
-         %first=True
-         %for m in message:
             <tr>
-               %if first:
-                  <td><strong>{{_('Notification options:')}}</strong></td>
-                  %first=False
-               %else:
-                  <td></td>
-               %end
-               <td>
-                  {{! Helper.get_on_off(m in host.notification_options, '', message[m]+'&nbsp;')}}
+               <td><strong>{{_('Notification period:')}}</strong></td>
+               <td name="notification_period" class="popover-dismiss"
+                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
+                     data-title='{{host.notification_period}}'
+                     data-content='{{host.notification_period}}'
+                     >
+                  {{! host.notification_period.get_html_state_link()}}
                </td>
             </tr>
-         %end
-         <tr class="bg-danger">
-            <td><strong>{{_('Last notification:')}}</strong></td>
-            <td class="text-danger">Information not available!</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Notification interval:')}}</strong></td>
-            <td>{{host.notification_interval}} {{_('minutes')}}</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Contacts:')}}</strong></td>
-            <td>
-              %for user in host.users:
-              <a href="{{user.get_html_link()}}">{{ ! user.get_html_state_link() }}</a>,
-              %end
-            </td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Contacts groups:')}}</strong></td>
-            <td>
-              %for group in host.usergroups:
-              <a href="{{group.get_html_link()}}">{{ ! group.get_html_state_link() }}</a>,
-              %end
-            </td>
-         </tr>
+            %message = {}
+            %message['d'] = {'title': _('Notifications enabled on Down state'), 'message': _('DOWN')}
+            %message['u'] = {'title': _('Notifications enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+            %message['r'] = {'title': _('Notifications enabled on Recovery'), 'message': _('RECOVERY')}
+            %message['f'] = {'title': _('Notifications enabled on Flapping'), 'message': _('FLAPPING')}
+            %message['s'] = {'title': _('Notifications enabled on Downtime'), 'message': _('DOWNTIME')}
+            %message['n'] = {'title': _('Notifications disabled'), 'message': _('NONE')}
+            %first=True
+            %for m in message:
+               <tr>
+                  %if first:
+                     <td><strong>{{_('Options:')}}</strong></td>
+                     %first=False
+                  %else:
+                     <td></td>
+                  %end
+                  <td>
+                     {{! Helper.get_on_off(m in host.notification_options, message[m]['title'], '&nbsp;' + message[m]['message'])}}
+                  </td>
+               </tr>
+            %end
+            <tr class="bg-danger">
+               <td><strong>{{_('Last notification:')}}</strong></td>
+               <td class="text-danger">Information not available!</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Notification interval:')}}</strong></td>
+               <td>{{host.notification_interval}} {{_('minutes')}}</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Contacts:')}}</strong></td>
+               <td>
+                 %for user in host.users:
+                 <a href="{{user.get_html_link()}}">{{ ! user.get_html_state_link() }}</a>,
+                 %end
+               </td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Contacts groups:')}}</strong></td>
+               <td>
+                 %for group in host.usergroups:
+                 <a href="{{group.get_html_link()}}">{{ ! group.get_html_state_link() }}</a>,
+                 %end
+               </td>
+            </tr>
          %end
       </tbody>
    </table>
