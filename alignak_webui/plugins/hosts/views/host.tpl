@@ -336,7 +336,7 @@
    </div>
  </div>
 
- <script>
+<script>
    function bootstrap_tab_bookmark (selector) {
       if (selector == undefined) {
          selector = "";

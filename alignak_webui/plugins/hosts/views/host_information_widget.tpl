@@ -9,7 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
-<div class="col-lg-6">
+<div class="col-md-6">
    <table class="table table-condensed">
       <colgroup>
          <col style="width: 40%" />
@@ -47,7 +47,7 @@
          <tr>
             <td><strong>{{_('Status:')}}</strong></td>
             <td class="alert alert-danger">
-               {{_('Livestate not found for this host!')}}
+               {{_('No livestate data for this host!')}}
             </td>
          </tr>
       </tbody>
@@ -131,7 +131,7 @@
          <tr>
             <td><strong>{{_('Status:')}}</strong></td>
             <td class="alert alert-danger">
-               {{_('Livestate not found for this host!')}}
+               {{_('No livestate data for this host!')}}
             </td>
          </tr>
       </tbody>
@@ -261,6 +261,145 @@
          <tr>
             <td></td>
             <td><strong>{{_('No event handler defined.')}}</strong></td>
+         </tr>
+         %end
+      </tbody>
+   </table>
+</div>
+
+<div class="col-md-6">
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Flapping detection:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Flapping detection:')}}</strong></td>
+            <td>
+               <input type="checkbox" {{'checked' if host.flap_detection_enabled else ''}}
+                     class="switch" data-size="mini" data-on-color="success" data-off-color="danger"
+                     data-type="action" action="toggle-flap-detection"
+                     data-element="{{host.name}}" data-value="{{host.flap_detection_enabled}}"
+                     >
+            </td>
+         </tr>
+         %if host.flap_detection_enabled:
+         <tr>
+            <td><strong>Options:</strong></td>
+            <td>{{', '.join(host.flap_detection_options)}}</td>
+         </tr>
+         <tr>
+            <td><strong>Low threshold:</strong></td>
+            <td>{{host.low_flap_threshold}}</td>
+         </tr>
+         <tr>
+            <td><strong>High threshold:</strong></td>
+            <td>{{host.high_flap_threshold}}</td>
+         </tr>
+         %end
+      </tbody>
+   </table>
+
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Stalking options:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Stalking options:')}}</strong></td>
+            <td>{{', '.join(host.stalking_options)}}</td>
+         </tr>
+      </tbody>
+   </table>
+
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Notifications:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Notifications:')}}</strong></td>
+            <td>
+               <input type="checkbox" {{'checked' if host.notifications_enabled else ''}}
+                     class="switch" data-size="mini" data-on-color="success" data-off-color="danger"
+                     data-type="action" action="toggle-notifications"
+                     data-element="{{host.name}}" data-value="{{host.notifications_enabled}}"
+                     >
+            </td>
+         </tr>
+
+         %if host.notifications_enabled and host.notification_period is not None:
+            <td><strong>{{_('Notification period:')}}</strong></td>
+            <td name="notification_period" class="popover-dismiss"
+                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
+                  data-title='{{host.notification_period}}'
+                  data-content='{{host.notification_period}}'
+                  >
+               {{! host.notification_period.get_html_state_link()}}
+            </td>
+         </tr>
+         %message = {}
+         %message['d'] = 'Down'
+         %message['u'] = 'Unreachable'
+         %message['r'] = 'Recovery'
+         %message['f'] = 'Flapping'
+         %message['s'] = 'Downtimes'
+         %message['n'] = 'None'
+         %first=True
+         %for m in message:
+            <tr>
+               %if first:
+                  <td><strong>{{_('Notification options:')}}</strong></td>
+                  %first=False
+               %else:
+                  <td></td>
+               %end
+               <td>
+                  {{! Helper.get_on_off(m in host.notification_options, '', message[m]+'&nbsp;')}}
+               </td>
+            </tr>
+         %end
+         <tr class="bg-danger">
+            <td><strong>{{_('Last notification:')}}</strong></td>
+            <td class="text-danger">Information not available!</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Notification interval:')}}</strong></td>
+            <td>{{host.notification_interval}} {{_('minutes')}}</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Contacts:')}}</strong></td>
+            <td>
+              %for user in host.users:
+              <a href="{{user.get_html_link()}}">{{ ! user.get_html_state_link() }}</a>,
+              %end
+            </td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Contacts groups:')}}</strong></td>
+            <td>
+              %for group in host.usergroups:
+              <a href="{{group.get_html_link()}}">{{ ! group.get_html_state_link() }}</a>,
+              %end
+            </td>
          </tr>
          %end
       </tbody>
