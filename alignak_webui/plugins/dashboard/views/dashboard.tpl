@@ -15,6 +15,28 @@
 </style>
 
 <div id="dashboard">
+%if debug:
+   <div class="panel-group">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4 class="panel-title">
+               <a data-toggle="collapse" href="#collapse_widgets"><i class="fa fa-bug"></i> Dashboard installed widgets</a>
+            </h4>
+         </div>
+         <div id="collapse_widgets" class="panel-collapse collapse">
+            %for widget in dashboard_widgets:
+            <h4>{{widget['name']}}</h4>
+            <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+               %for k,v in sorted(widget.items()):
+                  <dt>{{k}}</dt>
+                  <dd>{{v}}</dd>
+               %end
+            </dl>
+            %end
+         </div>
+      </div>
+   </div>
+%end
    <table class="table table-invisible table-condensed">
       <tbody>
          <tr>
@@ -116,31 +138,29 @@
       <!-- Widgets loading indicator -->
       <div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>
 
-      <div>
-         <div class="grid-stack">
-            %for widget in dashboard_widgets:
-               <div class="grid-stack-item"
-                     id="{{widget['id']}}"
-                     data-uri="{{widget['uri']}}"
-                     data-name="{{widget['name']}}"
-                     data-icon="{{widget['icon']}}"
-                     data-template="{{widget['template']}}"
+      <div class="grid-stack">
+         %for widget in dashboard_widgets:
+            <div class="grid-stack-item"
+                  id="{{widget['id']}}"
+                  data-uri="{{widget['uri']}}"
+                  data-name="{{widget['name']}}"
+                  data-icon="{{widget['icon']}}"
+                  data-template="{{widget['template']}}"
 
-                     data-gs-id="{{widget['id']}}"
-                     data-gs-x="{{widget['x']}}"
-                     data-gs-y="{{widget['y']}}"
-                     data-gs-width="{{widget['width']}}"
-                     data-gs-min-width="{{widget['minWidth']}}"
-                     data-gs-max-width="{{widget['maxWidth']}}"
-                     data-gs-height="{{widget['height']}}"
-                     data-gs-min-height="{{widget['minHeight']}}"
-                     data-gs-max-height="{{widget['maxHeight']}}"
-                     >
-                  <div class="grid-stack-item-content">
-                  </div>
+                  data-gs-id="{{widget['id']}}"
+                  data-gs-x="{{widget['x']}}"
+                  data-gs-y="{{widget['y']}}"
+                  data-gs-width="{{widget['width']}}"
+                  data-gs-min-width="{{widget['minWidth']}}"
+                  data-gs-max-width="{{widget['maxWidth']}}"
+                  data-gs-height="{{widget['height']}}"
+                  data-gs-min-height="{{widget['minHeight']}}"
+                  data-gs-max-height="{{widget['maxHeight']}}"
+                  >
+               <div class="grid-stack-item-content">
                </div>
-            %end
-         </div>
+            </div>
+         %end
       </div>
    </div>
 </div>
