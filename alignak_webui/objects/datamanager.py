@@ -604,9 +604,6 @@ class DataManager(object):
         except Exception as e:  # pragma: no cover - should not happen
             logger.error("set_user_preferences, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
-            if "_issues" in e.response:
-                for issue in e.response["_issues"]:
-                    logger.error(" - issue: %s: %s", issue, e.response['_issues'][issue])
             return False
 
         return True
