@@ -26,9 +26,9 @@ Usage:
 Options:
     -h, --help                  Show this screen.
     -v, --version               Show application version.
-    -b, --backend url           Specify backend URL [default: http://94.76.229.155:90]
+    -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
     -n, --hostname host         Specify WebUI host (or ip address) [default: 127.0.0.1]
-    -p, --port port             Specify WebUI port [default: 8868]
+    -p, --port port             Specify WebUI port [default: 5001]
     -d, --debug                 Run in debug mode (more info to display) [default: False]
     -x, --exit                  Start application but do not run server [default: False]
 
@@ -44,8 +44,8 @@ Use cases:
     Run application in normal mode (open outside):
         {command} -b=backend -n=0.0.0.0
 
-    Run application in debug mode:
-        {command} -d -b=backend -n=0.0.0.0 -p=8868
+    Run application in debug mode and listen on all interfaces:
+        {command} -d -b=backend -n=0.0.0.0 -p=5001
 
     Exit code:
         0 if all is ok
@@ -204,7 +204,7 @@ def main():  # pragma: no cover, not mesured by coverage!
             app_config.get('debug', '0') == '1'
         )
         logger.info(
-            "%s, using applications backend on %s",
+            "%s, using alignak backend on %s",
             app_config.get('name', 'Test'),
             app_config['alignak_backend']
         )
