@@ -15,6 +15,8 @@
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
 
+%setdefault('edition_mode', False)
+
 %username = current_user.get_username()
 %if not target_user.is_anonymous():
 %username = target_user.get_username()

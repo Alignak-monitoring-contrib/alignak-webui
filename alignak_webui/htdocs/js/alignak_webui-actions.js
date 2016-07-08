@@ -125,36 +125,6 @@ function raise_message_ko(text){
 
 
 /*
- * Launch the request
- */
-function launch(url, response_message){
-   if (actions_logs) console.debug('Launch external command: ', url);
-
-   $.ajax({
-      url: url,
-      dataType: "jsonp",
-      method: "GET",
-      data: { response_text: response_message }
-   })
-   .done(function( data, textStatus, jqXHR ) {
-      if (actions_logs) console.debug('Done: ', url, data, textStatus, jqXHR);
-      raise_message_ok(data.text)
-   })
-   .fail(function( jqXHR, textStatus, errorThrown ) {
-      if (actions_logs) console.error('Error: ', url, jqXHR, textStatus, errorThrown);
-      raise_message_ko(textStatus);
-   })
-   .always(function(  ) {
-      /*
-      window.setTimeout(function() {
-         // Refresh the current page after a short delay
-         do_refresh();
-      }, refresh_delay_after_action);
-      */
-   });
-}
-
-/*
  * Overload jQuery serialize to include checkboxes
  */
 (function ($) {
@@ -265,6 +235,29 @@ $(document).ready(function() {
    $('body').on("click", '[data-action="about-box"]', function () {
       if (actions_logs) console.debug("Application about")
       display_modal("/modal/about");
+   });
+   // Switch to edition mode
+   $('body').on("click", '[data-action="edition-mode"]', function () {
+      if (actions_logs) console.debug("Request edition mode")
+      var current_state = $(this).data('state');
+
+      $.ajax({
+         url: '/edition_mode',
+         method: "POST",
+         data: { 'state' : current_state }
+      })
+      .done(function( data, textStatus, jqXHR ) {
+         if (actions_logs) console.debug('Edition mode!');
+         raise_message_ok(data);
+      })
+      .fail(function( jqXHR, textStatus, errorThrown ) {
+         console.error('Edition mode request, error: ', jqXHR, textStatus, errorThrown);
+         raise_message_ko('Access to edition mode failed');
+      })
+      .always(function() {
+         // Page refresh
+         window.location.href = "/";
+      });
    });
 
 

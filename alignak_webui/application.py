@@ -79,9 +79,13 @@ def before_request():
         return
 
     # Get the server session (if it exists ...)
-    session = None
-    if 'beaker.session' in request.environ:
-        session = request.environ['beaker.session']
+    session = request.environ['beaker.session']
+
+    if 'edition_mode' in session:
+        # Make session edition mode available in the templates
+        BaseTemplate.defaults['edition_mode'] = session['edition_mode']
+    else:
+        session['edition_mode'] = False
 
     if 'current_user' in session:
         # Make session current user available in the templates
@@ -129,6 +133,8 @@ def before_request():
 
     # Make session current user available in the templates
     BaseTemplate.defaults['current_user'] = session['current_user']
+    # Make session edition mode available in the templates
+    BaseTemplate.defaults['edition_mode'] = session['edition_mode']
     # Make session datamanager available in the templates
     BaseTemplate.defaults['datamgr'] = session['datamanager']
 
@@ -625,6 +631,34 @@ def user_authentication(username, password):
     session['current_user'] = session['datamanager'].get_logged_user()
     logger.debug("user_authentication, current user authenticated")
     return True
+
+
+# --------------------------------------------------------------------------------------------------
+# WebUI edition mode
+# --------------------------------------------------------------------------------------------------
+@route('/edition_mode', 'POST')
+# User preferences page ...
+def edition_mode():
+    """
+        Set edition mode on / off
+    """
+    # Session...
+    session = request.environ['beaker.session']
+    logger.debug("edition_mode, session: %s", session)
+
+    current_state = request.params.get('state', 'on')
+    logger.debug("edition_mode, current state: %s", current_state)
+
+    session['edition_mode'] = (current_state == 'off')
+
+    # Make session edition mode available in the templates
+    BaseTemplate.defaults['edition_mode'] = session['edition_mode']
+    logger.debug("edition_mode, session: %s", session)
+
+    if session['edition_mode']:
+        return(_('Edition mode enabled'))
+    else:
+        return(_('Edition mode disabled'))
 
 
 # --------------------------------------------------------------------------------------------------
