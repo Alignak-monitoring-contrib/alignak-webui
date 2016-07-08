@@ -517,7 +517,7 @@ class DataManager(object):
                 'uipref',
                 params={'where': {"type": prefs_type, "user": user}}
             )
-            logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
+            logger.debug("delete_user_preferences, '%s' result: %s", prefs_type, result)
             if result:
                 item = result[0]
                 logger.debug(
@@ -558,10 +558,10 @@ class DataManager(object):
         try:
             response = None
 
-            logger.debug(
-                "set_user_preferences, type: %s, for: %s, value: %s",
-                prefs_type, user, value
-            )
+            # logger.debug(
+                # "set_user_preferences, type: %s, for: %s, value: %s",
+                # prefs_type, user, value
+            # )
 
             # Saved parameter must be a dictionary. Create a fake dictionary
             if not isinstance(value, dict):
@@ -589,8 +589,8 @@ class DataManager(object):
             else:
                 # Create new record ...
                 logger.debug(
-                    "set_user_preferences, create new record: %s / %s: %s",
-                    prefs_type, user, value
+                    "set_user_preferences, create new record: %s / %s",
+                    prefs_type, user
                 )
                 data = {
                     "user": user,
@@ -649,9 +649,9 @@ class DataManager(object):
                 'uipref',
                 params={'where': {"type": prefs_type, "user": user}}
             )
-            logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
+            # logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
             if result:
-                logger.debug("get_user_preferences, found: %s", result)
+                # logger.debug("get_user_preferences, found: %s", result)
                 return result[0]['data']
 
         except Exception as e:  # pragma: no cover - should never happen

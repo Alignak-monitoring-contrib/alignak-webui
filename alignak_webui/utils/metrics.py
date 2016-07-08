@@ -95,10 +95,10 @@ class HostMetrics(object):
         state = 3
         name = 'Unknown'
 
-        logger.critical("metrics, get_service_metric for %s", service)
+        logger.debug("metrics, get_service_metric for %s", service)
         s = self._findServiceByName(self.params[service])
         if s:
-            logger.critical("metrics, found %s", s.name)
+            logger.debug("metrics, found %s", s.name)
             name = s.name
             state = s.state_id
             if s.acknowledged:
@@ -110,19 +110,19 @@ class HostMetrics(object):
                 p = PerfDatas(s.perf_data)
                 for m in p:
                     if m.name and m.value is not None:
-                        logger.critical(
+                        logger.debug(
                             "metrics, metric '%s' = %s, uom: %s", m.name, m.value, m.uom
                         )
                         if re.search(self.params[service]['metrics'], m.name) and \
                            re.match(self.params[service]['uom'], m.uom):
-                            logger.critical(
+                            logger.debug(
                                 "metrics, service: %s, got '%s' = %s", service, m.name, m.value
                             )
                             data[m.name] = m.value
             except Exception, exp:
                 logger.warning("metrics get_service_metric, exception: %s", str(exp))
 
-        logger.critical("metrics, get_service_metric %s", data)
+        logger.debug("metrics, get_service_metric %s", data)
         return state, name, data
 
     def get_services(self):
@@ -143,5 +143,5 @@ class HostMetrics(object):
             data[s.name] = s_state
             state = max(state, s_state)
 
-        logger.critical("metrics, get_services %d, %s", state, data)
+        logger.debug("metrics, get_services %d, %s", state, data)
         return state, data

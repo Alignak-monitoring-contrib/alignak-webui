@@ -29,14 +29,14 @@
 
 import json
 import traceback
-from logging import getLogger, DEBUG, INFO
+from logging import getLogger, DEBUG, INFO, WARNING
 
 from alignak_backend_client.client import Backend, BackendException
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
-logger.setLevel(INFO)
+logger.setLevel(WARNING)
 
 
 class BackendConnection(object):    # pylint: disable=too-few-public-methods
