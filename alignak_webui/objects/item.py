@@ -624,7 +624,8 @@ class Item(object):
                             objects_list.append(object_class(element))
                         else:
                             logger.critical(
-                                "_create, list element %s is not a string nor a dict: %s", key, element
+                                "_create, list element %s is not a string nor a dict: %s",
+                                key, element
                             )
 
                     setattr(self, '_linked_' + key, objects_list)
@@ -710,7 +711,8 @@ class Item(object):
                 params = params.__dict__
             else:
                 logger.critical(
-                    "_update, cannot update an object (%s) with: %s (%s)", self.__class__, params, params.__class__
+                    "_update, cannot update an object (%s) with: %s (%s)",
+                    self.__class__, params, params.__class__
                 )
                 return
 

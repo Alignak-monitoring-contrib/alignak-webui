@@ -283,7 +283,7 @@ def get_servicegroups_list():
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    hosts = datamgr.get_servicegroups(search, all_elements=True)
+    servicegroups = datamgr.get_servicegroups(search, all_elements=True)
 
     items = []
     for servicegroup in servicegroups:

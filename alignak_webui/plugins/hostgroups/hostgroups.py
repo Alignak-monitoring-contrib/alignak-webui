@@ -283,7 +283,7 @@ def get_hostgroups_list():
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    hosts = datamgr.get_hostgroups(search, all_elements=True)
+    hostgroups = datamgr.get_hostgroups(search, all_elements=True)
 
     items = []
     for hostgroup in hostgroups:

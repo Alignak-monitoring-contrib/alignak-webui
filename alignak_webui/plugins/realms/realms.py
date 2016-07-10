@@ -337,7 +337,7 @@ def get_realms_list():
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    hosts = datamgr.get_realms(search, all_elements=True)
+    realms = datamgr.get_realms(search, all_elements=True)
 
     items = []
     for realm in realms:

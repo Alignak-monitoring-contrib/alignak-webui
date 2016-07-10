@@ -253,7 +253,7 @@ def get_users_list():
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    hosts = datamgr.get_users(search, all_elements=True)
+    users = datamgr.get_users(search, all_elements=True)
 
     items = []
     for user in users:

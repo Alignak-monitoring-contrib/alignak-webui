@@ -558,10 +558,10 @@ class DataManager(object):
         try:
             response = None
 
-            # logger.debug(
-                # "set_user_preferences, type: %s, for: %s, value: %s",
-                # prefs_type, user, value
-            # )
+            logger.debug(
+                "set_user_preferences, type: %s, for: %s",
+                prefs_type, user
+            )
 
             # Saved parameter must be a dictionary. Create a fake dictionary
             if not isinstance(value, dict):

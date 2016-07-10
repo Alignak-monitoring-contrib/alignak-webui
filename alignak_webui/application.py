@@ -656,9 +656,9 @@ def edition_mode():
     logger.debug("edition_mode, session: %s", session)
 
     if session['edition_mode']:
-        return(_('Edition mode enabled'))
+        return _('Edition mode enabled')
     else:
-        return(_('Edition mode disabled'))
+        return _('Edition mode disabled')
 
 
 # --------------------------------------------------------------------------------------------------
@@ -896,9 +896,9 @@ class WebUI(object):
                         # Routes are an array of tuples [(route, name), ...]
                         if not isinstance(page_route, list):
                             page_route = [(page_route, page_name)]
-                        for route, name in page_route:
+                        for route_url, name in page_route:
                             f = app.route(
-                                route, callback=f, method=methods, name=name,
+                                route_url, callback=f, method=methods, name=name,
                                 search_engine=entry.get('search_engine', False),
                                 search_prefix=entry.get('search_prefix', ''),
                                 search_filters=entry.get('search_filters', {})
