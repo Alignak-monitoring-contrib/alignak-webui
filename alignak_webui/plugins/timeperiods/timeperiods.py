@@ -139,7 +139,7 @@ schema['ui'] = {
 }
 
 
-def get_timeperiods():
+def get_timeperiods(list=False):
     """
     Get the timeperiods list
     """
@@ -164,10 +164,6 @@ def get_timeperiods():
         'max_results': count,
         'sort': '-_id',
         'where': where,
-        'embedded': {
-            'userservice': 1, 'userservice_session': 1,
-            'user_creator': 1, 'user_participant': 1
-        }
     }
 
     # Get elements from the data manager
@@ -175,6 +171,15 @@ def get_timeperiods():
     # Get last total elements count
     total = datamgr.get_objects_count('timeperiod', search=where, refresh=True)
     count = min(count, total)
+
+    if list:
+        tps = []
+        for timeperiod in timeperiods:
+            tps.append({'id': timeperiod.id, 'name': timeperiod.alias})
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(tps)
 
     return {
         'timeperiods': timeperiods,
@@ -226,13 +231,17 @@ def get_timeperiods_table_data():
 pages = {
     get_timeperiods: {
         'name': 'Timeperiods',
-        'route': '/timeperiods',
+        'route': [
+            ('/timeperiods', 'Timeperiods'),
+            ('/timeperiods/<list>', 'Timeperiods list')
+        ],
         'view': 'timeperiods',
         'search_engine': False,
         'search_prefix': '',
         'search_filters': {
         }
     },
+
     get_timeperiods_table: {
         'name': 'Timeperiods table',
         'route': '/timeperiods_table',

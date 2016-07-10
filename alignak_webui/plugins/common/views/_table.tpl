@@ -105,7 +105,10 @@ table.dataTable tbody>tr>.selected {
             return;
          }
 
-         if ($(this).data('format')=='select') {
+         if ($(this).data('type')=='objectid') {
+            var html = '<select><option value=""></option></select>';
+            $(this).html( html );
+         } else if ($(this).data('format')=='select') {
             var html = '<select><option value=""></option>';
             var allowed = $(this).data('allowed').split(',');
             $.each(allowed, function(idx){
@@ -120,32 +123,43 @@ table.dataTable tbody>tr>.selected {
                html = '<input size="'+$(this).data('size')+'" type="number" placeholder="'+title+'" />';
             } else if ($(this).data('type')=='email') {
                html = '<input size="'+$(this).data('size')+'" type="email" placeholder="'+title+'" />';
+            } else if ($(this).data('type')=='boolean') {
+               html = '<input type="checkbox" placeholder="'+title+'" />';
             }
             $(this).html( html );
          }
       });
+
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
-         if (debugTable) console.debug('Datatable event, text column search ...');
+         var column = $(this).parent().index()+':visible'
+         var value = $(this).val();
+         if ($(this).attr('type') == 'checkbox') {
+            value = $(this).is(':checked');
+         }
+         if (debugTable) console.debug('Datatable event, search column '+column+' for '+value);
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
-            .column( $(this).parent().index()+':visible' )
-               .search($(this).val(), $(this).data('regex')=='True', false)
+            .column(column)
+               .search(value, $(this).data('regex')=='True', false)
                .draw();
 
          // Enable the clear filter button
          table.buttons('clearFilter:name').enable();
       });
 
-      // Apply the search filter for selectable fields
+      // Apply the search filter for select fields
       $("#tbl_{{object_type}} thead select").on('change', function () {
-         if (debugTable) console.debug('Datatable event, selectable column search ...', table);
+         var column = $(this).parent().index()+':visible'
+         var value = $(this).find(':selected').val();
+
+         if (debugTable) console.debug('Datatable event, search column '+column+' for ', value);
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
-            .column( $(this).parent().index() )
-              .search($(this).val(), false, false)
+            .column(column)
+              .search(value, false, false)
               .draw();
 
          // Enable the clear filter button
@@ -156,12 +170,7 @@ table.dataTable tbody>tr>.selected {
       $('#tbl_{{object_type}}').on( 'xhr.dt', function () {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          var json = table.ajax.json();
-         /*
-         if (debugTable) console.debug('Datatable event, xhr, url: ' + table.ajax.url());
-         if (debugTable) console.debug('Datatable event, xhr, json: ' + table.ajax.json());
-         if (debugTable) console.debug('Datatable event, xhr, data: ' + json.data);
-         */
-         if (debugTable) console.debug('Datatable event, xhr, ' + json);
+         if (debugTable) console.debug('Datatable event, xhr, ', json);
          if (debugTable) console.debug('Datatable event, xhr, ' + json.data.length +' row(s) loaded');
       });
 
@@ -190,6 +199,35 @@ table.dataTable tbody>tr>.selected {
              $('[data-reaction="selection-empty"]').prop('disabled', false);
          }
          %end
+
+         // Populate select for object links fields ...
+         $('#tbl_{{object_type}} thead tr#filterrow th[data-type="objectid"][data-searchable="True"]').each( function () {
+            var field_name = $(this).data('name');
+            var objects_type = $(this).data('format');
+            var select = $(this).find('select');
+            if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_type);
+
+            $.ajax( {
+               "url": objects_type+"s/list",
+               "dataType": "json",
+               "type": "GET",
+               "success": function (data) {
+                  if (debugTable) console.debug("Got data for '"+objects_type+"' ...", data);
+
+                  $.each(data, function (index, object) {
+                     if (debugTable) console.debug('List item: ', object);
+                     select.append($('<option>', {
+                        value: object.id,
+                        text : object.name
+                     }));
+                  });
+
+               },
+               "error": function (jqXHR, textStatus, errorThrown) {
+                  console.error("Get list error: ", textStatus, jqXHR);
+               }
+            });
+         });
       });
 
       %if dt.selectable:
@@ -282,12 +320,12 @@ table.dataTable tbody>tr>.selected {
          "fixedHeader": true, */
 
          // Server side processing: request new data
+         "processing": true,
          "serverSide": true,
          "ajax": {
-            "url": "{{server_url}}/{{object_type}}_table_data",
-            "type": "POST",
-            //"dataSrc": "data",
-            "data": function ( d ) {
+            url: "{{server_url}}/{{object_type}}_table_data",
+            method: "POST",
+            data: function ( d ) {
                // Add an extra field
                d = $.extend({}, d, {
                   "object_type": '{{object_type}}',
@@ -394,7 +432,7 @@ table.dataTable tbody>tr>.selected {
          },
          // Save table configuration
          stateSaveCallback: function (settings, data) {
-            if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings, data);
+            if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);
 
             // Post table data to the server ...
             $.ajax({
@@ -407,7 +445,7 @@ table.dataTable tbody>tr>.selected {
                   "value": JSON.stringify( data )
                },
                "success": function () {
-                  if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings, data);
+                  if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings);
                }
             });
          },

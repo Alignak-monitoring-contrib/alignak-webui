@@ -99,8 +99,15 @@ class Datatable(object):
             If the data model specifies that the element is managed in the UI,
             all the fields for this element are provided
 
-            Returns a dictionary containing:
+            type and format:
+            - type is the type of the field (default: string)
+            - format is the representation and filtering format (default: string)
+                - if the field is an object relation, type is 'objectid' and format is the name
+                of the linked object
+                - if the field contains 'allowed' values, format is set to 'select'
 
+
+            Returns a dictionary containing:
             - element_type: element type
             - uid: unique identifier for the element type. Contains the field that is to be used as
                 a unique identifier field
@@ -114,7 +121,7 @@ class Datatable(object):
             :return: list of fields name/title
             :rtype: list
             :return: dictionary
-            :rtype: list
+            :rtype: dict
         """
         self.table_columns = []
 
@@ -170,7 +177,7 @@ class Datatable(object):
                 'regex': model['ui'].get('regex', True),
                 'title': model['ui'].get('title', field),
                 'format': model['ui'].get('format', 'string'),
-                'width': model['ui'].get('width', '50px'),
+                # 'width': model['ui'].get('width', '50px'),
                 'size': model['ui'].get('size', 10),
                 'visible': not model['ui'].get('hidden', False),
                 'orderable': model['ui'].get('orderable', True),
@@ -311,7 +318,7 @@ class Datatable(object):
             Searching:
             - search (value or regexp)
             search[value]: Global search value. To be applied to all columns which are searchable
-            search[regex]: true if searh[value] is a regex
+            search[regex]: true if search[value] is a regex
 
             Sorting:
             - order[i][column] / order[i][dir]
@@ -404,21 +411,35 @@ class Datatable(object):
                     column['data'], column['search']['value']
                 )
 
-                # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...
-                # Only take care of 'regex'
-                if 'regex' in column['search']:
-                    if column['search']['regex']:
+                for field in self.table_columns:
+                    if field['data'] != column['data']:
+                        continue
+
+                    # Some specific types...
+                    if field['type'] == 'boolean':
                         searched_columns.append(
-                            {
-                                column['data']: {
-                                    "$regex": ".*" + column['search']['value'] + ".*"
-                                }
-                            }
+                            {column['data']: column['search']['value'] == 'true'}
                         )
+                    elif field['type'] == 'integer':
+                        searched_columns.append(
+                            {column['data']: int(column['search']['value'])}
+                        )
+                    # ... the other fields :)
                     else:
-                        searched_columns.append(
-                            {column['data']: column['search']['value']}
-                        )
+                        # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...
+                        if column['search']['regex']:
+                            searched_columns.append(
+                                {
+                                    column['data']: {
+                                        "$regex": ".*" + column['search']['value'] + ".*"
+                                    }
+                                }
+                            )
+                        else:
+                            searched_columns.append(
+                                {column['data']: column['search']['value']}
+                            )
+                    break
 
             logger.info("backend search columns parameters: %s", searched_columns)
 
