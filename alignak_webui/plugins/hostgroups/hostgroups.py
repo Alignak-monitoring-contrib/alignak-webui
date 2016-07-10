@@ -275,6 +275,25 @@ def get_hostgroups():
     }
 
 
+def get_hostgroups_list():
+    """
+    Get the hostgroups list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_hostgroups(search, all_elements=True)
+
+    items = []
+    for hostgroup in hostgroups:
+        items.append({'id': hostgroup.id, 'name': hostgroup.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
 def get_hostgroup(hostgroup_id):
     """
     Display the element linked to a hostgroup item
@@ -305,6 +324,11 @@ pages = {
         'search_prefix': '',
         'search_filters': {
         }
+    },
+    get_hostgroups_list: {
+        'routes': [
+            ('/hostgroups_list', 'Hosts groups list'),
+        ]
     },
 
     get_hostgroup_table: {

@@ -245,6 +245,25 @@ def get_users():
     }
 
 
+def get_users_list():
+    """
+    Get the users list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_users(search, all_elements=True)
+
+    items = []
+    for user in users:
+        items.append({'id': user.id, 'name': user.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
 def get_users_table(embedded=False, identifier=None, credentials=None):
     """
     Get the users list and transform it as a table
@@ -322,6 +341,12 @@ pages = {
             _('User'): 'role:user',
             _('Guest'): 'name:anonymous'
         }
+    },
+
+    get_users_list: {
+        'routes': [
+            ('/users_list', 'Users list'),
+        ]
     },
 
     get_users_table: {

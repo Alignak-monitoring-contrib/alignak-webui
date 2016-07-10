@@ -85,7 +85,7 @@ schema['name'] = {
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {
-        'title': _('Is an host template'),
+        'title': _('Host template'),
         'visible': True,
         'hidden': True
     },
@@ -125,7 +125,7 @@ schema['check_command'] = {
     'ui': {
         'title': _('Check command'),
         'visible': True,
-        'searchable': False
+        'searchable': True
     },
     'data_relation': {
         'resource': 'command',
@@ -484,6 +484,9 @@ def get_hosts(templates=False):
     total = datamgr.get_objects_count('host', search=where, refresh=True)
     count = min(count, total)
 
+    if request.params.get('list', None):
+        return get_hosts_list()
+
     return {
         'hosts': hosts,
         'pagination': Helper.get_pagination_control(
@@ -491,6 +494,25 @@ def get_hosts(templates=False):
         ),
         'title': request.params.get('title', _('All hosts'))
     }
+
+
+def get_hosts_list():
+    """
+    Get the hosts list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_hosts(search, all_elements=True)
+
+    items = []
+    for host in hosts:
+        items.append({'id': host.id, 'name': host.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
 
 
 def get_hosts_templates():
@@ -937,9 +959,15 @@ pages = {
             _('Hosts unreachable'): 'state:unreachable',
         }
     },
+    get_hosts_list: {
+        'routes': [
+            ('/hosts_list', 'Hosts list'),
+        ]
+    },
     get_hosts_templates: {
-        'name': 'Hosts templates',
-        'route': '/hosts_templates'
+        'routes': [
+            ('/hosts_templates', 'Hosts templates'),
+        ]
     },
 
     get_hosts_table: {

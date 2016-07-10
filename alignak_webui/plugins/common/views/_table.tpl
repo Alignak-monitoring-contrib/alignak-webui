@@ -156,6 +156,8 @@ table.dataTable tbody>tr>.selected {
 
          if (debugTable) console.debug('Datatable event, search column '+column+' for ', value);
 
+         if (! value) return;
+
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
             .column(column)
@@ -208,7 +210,7 @@ table.dataTable tbody>tr>.selected {
             if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_type);
 
             $.ajax( {
-               "url": objects_type+"s/list",
+               "url": objects_type+"s_list",
                "dataType": "json",
                "type": "GET",
                "success": function (data) {

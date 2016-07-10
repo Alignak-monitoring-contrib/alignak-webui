@@ -329,6 +329,25 @@ def get_realms():
     }
 
 
+def get_realms_list():
+    """
+    Get the realms list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_realms(search, all_elements=True)
+
+    items = []
+    for realm in realms:
+        items.append({'id': realm.id, 'name': realm.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
 def get_realm(realm_id):
     """
     Display the element linked to a realm item
@@ -360,6 +379,11 @@ pages = {
         'search_prefix': '',
         'search_filters': {
         }
+    },
+    get_realms_list: {
+        'routes': [
+            ('/realms_list', 'Realms list'),
+        ]
     },
 
     get_realm_table: {

@@ -995,7 +995,7 @@ class DataManager(object):
     ##
     # hostgroups
     ##
-    def get_hostgroups(self, search=None):
+    def get_hostgroups(self, search=None, all_elements=False):
         """ Get a list of all hostgroups. """
         if search is None:
             search = {}
@@ -1004,7 +1004,7 @@ class DataManager(object):
 
         try:
             logger.info("get_hostgroups, search: %s", search)
-            items = self.find_object('hostgroup', search)
+            items = self.find_object('hostgroup', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hostgroups, none found")
@@ -1025,7 +1025,7 @@ class DataManager(object):
     ##
     # Hosts
     ##
-    def get_hosts(self, search=None, template=False):
+    def get_hosts(self, search=None, template=False, all_elements=False):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
@@ -1038,7 +1038,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    'check_command': 1, 'event_handler': 1,
+                    'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
                     'snapshot_period': 1, 'maintenance_period': 1,
                     'parents': 1, 'hostgroups': 1, 'users': 1, 'usergroups': 1
@@ -1047,7 +1047,7 @@ class DataManager(object):
 
         try:
             logger.info("get_hosts, search: %s", search)
-            items = self.find_object('host', search)
+            items = self.find_object('host', search, all_elements)
             logger.info("get_hosts, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1069,7 +1069,7 @@ class DataManager(object):
     ##
     # servicegroups
     ##
-    def get_servicegroups(self, search=None):
+    def get_servicegroups(self, search=None, all_elements=False):
         """ Get a list of all servicegroups. """
         if search is None:
             search = {}
@@ -1078,7 +1078,7 @@ class DataManager(object):
 
         try:
             logger.info("get_servicegroups, search: %s", search)
-            items = self.find_object('servicegroup', search)
+            items = self.find_object('servicegroup', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_servicegroups, none found")
@@ -1099,7 +1099,7 @@ class DataManager(object):
     ##
     # Services
     ##
-    def get_services(self, search=None, template=False):
+    def get_services(self, search=None, template=False, all_elements=False):
         """ Get a list of all services. """
         if search is None:
             search = {}
@@ -1113,15 +1113,16 @@ class DataManager(object):
             search.update({
                 'embedded': {
                     'host': 1,
-                    'check_command': 1, 'event_handler': 1,
+                    'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
-                    # 'servicegroups': 1, 'users': 1, 'contact_groups': 1
+                    'snapshot_period': 1, 'maintenance_period': 1,
+                    'service_dependencies': 1, 'servicegroups': 1, 'users': 1, 'usergroups': 1
                 }
             })
 
         try:
             logger.info("get_services, search: %s", search)
-            items = self.find_object('service', search)
+            items = self.find_object('service', search, all_elements)
             logger.info("get_services, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1226,7 +1227,7 @@ class DataManager(object):
     ##
     # Commands
     ##
-    def get_commands(self, search=None):
+    def get_commands(self, search=None, all_elements=False):
         """ Get a list of all commands. """
         if search is None:
             search = {}
@@ -1235,7 +1236,7 @@ class DataManager(object):
 
         try:
             logger.info("get_commands, search: %s", search)
-            items = self.find_object('command', search)
+            items = self.find_object('command', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_commands, none found")
@@ -1256,7 +1257,7 @@ class DataManager(object):
     ##
     # Users
     ##
-    def get_users(self, search=None):
+    def get_users(self, search=None, all_elements=False):
         """ Get a list of known users """
         if not self.get_logged_user().is_administrator():
             return [self.get_logged_user()]
@@ -1268,7 +1269,7 @@ class DataManager(object):
 
         try:
             logger.info("get_users, search: %s", search)
-            items = self.find_object('user', search)
+            items = self.find_object('user', search, all_elements)
             # logger.info("get_users, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1326,7 +1327,7 @@ class DataManager(object):
     ##
     # realms
     ##
-    def get_realms(self, search=None):
+    def get_realms(self, search=None, all_elements=False):
         """ Get a list of all realms. """
         if search is None:
             search = {}
@@ -1335,7 +1336,7 @@ class DataManager(object):
 
         try:
             logger.info("get_realms, search: %s", search)
-            items = self.find_object('realm', search)
+            items = self.find_object('realm', search, all_elements)
             # logger.info("get_realms, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1357,7 +1358,7 @@ class DataManager(object):
     ##
     # timeperiods
     ##
-    def get_timeperiods(self, search=None):
+    def get_timeperiods(self, search=None, all_elements=False):
         """ Get a list of all timeperiods. """
         if search is None:
             search = {}
@@ -1366,7 +1367,7 @@ class DataManager(object):
 
         try:
             logger.info("get_timeperiods, search: %s", search)
-            items = self.find_object('timeperiod', search)
+            items = self.find_object('timeperiod', search, all_elements)
             # logger.info("get_timeperiods, got: %d elements, %s", len(items), items)
             return items
         except ValueError:

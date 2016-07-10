@@ -80,6 +80,14 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_is_template'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Service template'),
+        'visible': True,
+        'hidden': True
+    },
+}
 schema['definition_order'] = {
     'type': 'integer',
     'ui': {
@@ -413,7 +421,7 @@ schema['ui'] = {
 }
 
 
-def get_services():
+def get_services(templates=False):
     """
     Get the services list
     """
@@ -436,27 +444,49 @@ def get_services():
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-_id',
-        'where': where,
-        'embedded': {
-            'host': 1,
-            'check_command': 1, 'event_handler': 1,
-            'check_period': 1, 'notification_period': 1,
-            'servicegroups': 1, 'contacts': 1, 'contact_groups': 1
-        }
+        'where': where
     }
 
     # Get elements from the data manager
-    services = datamgr.get_services(search)
+    services = datamgr.get_services(search, template=templates)
     # Get last total elements count
     total = datamgr.get_objects_count('service', search=where, refresh=True)
     count = min(count, total)
+
+    if request.params.get('list', None):
+        return get_services_list()
 
     return {
         'services': services,
         'pagination': Helper.get_pagination_control('/services', total, start, count),
         'title': request.query.get('title', _('All services'))
     }
+
+
+def get_services_list():
+    """
+    Get the services list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    services = datamgr.get_services(search, all_elements=True)
+
+    items = []
+    for service in services:
+        items.append({'id': service.id, 'name': service.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
+def get_services_templates():
+    """
+    Get the services templates list
+    """
+    return get_services(templates=True)
 
 
 def get_services_widget(embedded=False, identifier=None, credentials=None):
@@ -596,8 +626,9 @@ def get_services_table_data():
 
 pages = {
     get_services: {
-        'name': 'Services',
-        'route': '/services',
+        'routes': [
+            ('/services', 'Services'),
+        ],
         'view': 'services',
         'search_engine': True,
         'search_prefix': '',
@@ -607,21 +638,34 @@ pages = {
             _('Services critical'): 'state:critical',
         }
     },
+    get_services_list: {
+        'routes': [
+            ('/services_list', 'Services list'),
+        ]
+    },
+    get_services_templates: {
+        'routes': [
+            ('/services_templates', 'Services templates'),
+        ]
+    },
     get_services_table: {
-        'name': 'Services table',
-        'route': '/services_table',
+        'routes': [
+            ('/services_table', 'Services table')
+        ],
         'view': '_table'
     },
 
     get_services_table_data: {
-        'name': 'Services table data',
-        'route': '/service_table_data',
+        'routes': [
+            ('/service_table_data', 'Services table data')
+        ],
         'method': 'POST'
     },
 
     get_services_widget: {
-        'name': 'Services widget',
-        'route': '/services/widget',
+        'routes': [
+            ('/services/widget', 'Services widget')
+        ],
         'method': 'POST',
         'view': 'services_widget',
         'widgets': [

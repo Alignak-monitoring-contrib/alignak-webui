@@ -139,9 +139,9 @@ schema['ui'] = {
 }
 
 
-def get_timeperiods(list=False):
+def get_timeperiods():
     """
-    Get the timeperiods list
+    Get the timeperiods
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -162,7 +162,6 @@ def get_timeperiods(list=False):
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-_id',
         'where': where,
     }
 
@@ -172,14 +171,8 @@ def get_timeperiods(list=False):
     total = datamgr.get_objects_count('timeperiod', search=where, refresh=True)
     count = min(count, total)
 
-    if list:
-        tps = []
-        for timeperiod in timeperiods:
-            tps.append({'id': timeperiod.id, 'name': timeperiod.alias})
-
-        response.status = 200
-        response.content_type = 'application/json'
-        return json.dumps(tps)
+    if request.params.get('list', None):
+        return get_timeperiods_list()
 
     return {
         'timeperiods': timeperiods,
@@ -187,6 +180,25 @@ def get_timeperiods(list=False):
         'title': request.query.get('title', _('All timeperiods')),
         'elts_per_page': elts_per_page
     }
+
+
+def get_timeperiods_list():
+    """
+    Get the timeperiods list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    timeperiods = datamgr.get_timeperiods(search, all_elements=True)
+
+    items = []
+    for timeperiod in timeperiods:
+        items.append({'id': timeperiod.id, 'name': timeperiod.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
 
 
 def get_timeperiods_table():
@@ -230,16 +242,20 @@ def get_timeperiods_table_data():
 
 pages = {
     get_timeperiods: {
-        'name': 'Timeperiods',
-        'route': [
+        'routes': [
             ('/timeperiods', 'Timeperiods'),
-            ('/timeperiods/<list>', 'Timeperiods list')
         ],
         'view': 'timeperiods',
         'search_engine': False,
         'search_prefix': '',
         'search_filters': {
         }
+    },
+
+    get_timeperiods_list: {
+        'routes': [
+            ('/timeperiods_list', 'Timeperiods list'),
+        ]
     },
 
     get_timeperiods_table: {

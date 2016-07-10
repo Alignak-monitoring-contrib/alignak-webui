@@ -9,31 +9,34 @@
 
    %# List hosts and their services
    var hosts = [
-   %for host in hosts:
-      %services = datamgr.get_services(search={'where': {'host':host.id}})
-      %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name':'%s' % host.name}})
+   %for item in hosts:
+      %lat = item.customs["_LOC_LAT"]
+      %lng = item.customs["_LOC_LNG"]
+      %services = datamgr.get_services(search={'where': {'host':item.id}})
+      %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name': item.name}})
       %livestate = livestate[0] if livestate else None
       %if not livestate:
       %continue
       %end
       new Host(
-         '{{ host.id }}', '{{ host.name }}',
+         '{{ item.id }}', '{{ item.name }}',
          '{{ livestate.status }}', '{{ ! livestate.get_html_state(text=None)}}',
-         '{{ host.business_impact }}', '{{ ! Helper.get_html_business_impact(host.business_impact) }}',
-         {{ float(host.customs.get('_LOC_LAT')) }}, {{ float(host.customs.get('_LOC_LNG')) }},
+         '{{ item.business_impact }}',
+         '{{ ! Helper.get_html_business_impact(item.business_impact) }}',
+         {{ lat }}, {{ lng }},
          '{{ livestate.id }}',
          {{ str(livestate.is_problem).lower() }},
          {{ str(livestate.is_problem).lower() }} && {{ str(livestate.acknowledged).lower() }},
          {{ str(livestate.downtime).lower() }},
          [
             %for service in services:
-            %livestate = datamgr.get_livestate(search={'where': {'type': 'service', 'name':'%s/%s' % (host.name, service.name)}})
+            %livestate = datamgr.get_livestate(search={'where': {'type': 'service', 'name':'%s/%s' % (item.name, service.name)}})
             %livestate = livestate[0] if livestate else None
             %if not livestate:
             %continue
             %end
             new Service(
-               '{{ livestate.id }}', '{{ host.name }}',
+               '{{ livestate.id }}', '{{ item.name }}',
                '{{ service.id }}', '{{ service.name }}',
                '{{ livestate.status }}', '{{ ! livestate.get_html_state(text=None)}}',
                '{{ service.business_impact }}', '{{ ! Helper.get_html_business_impact(service.business_impact) }}',

@@ -156,12 +156,7 @@ def get_commands():
     search = {
         'page': start // count + 1,
         'max_results': count,
-        'sort': '-_id',
-        'where': where,
-        'embedded': {
-            'userservice': 1, 'userservice_session': 1,
-            'user_creator': 1, 'user_participant': 1
-        }
+        'where': where
     }
 
     # Get elements from the data manager
@@ -170,11 +165,43 @@ def get_commands():
     total = datamgr.get_objects_count('command', search=where, refresh=True)
     count = min(count, total)
 
+    if request.params.get('list', None):
+        return get_commands_list()
+
     return {
         'commands': commands,
         'pagination': Helper.get_pagination_control('/commands', total, start, count),
         'title': request.query.get('title', _('All commands'))
     }
+
+
+def get_commands_list():
+    """
+    Get the commands list
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    commands = datamgr.get_commands(search, all_elements=True)
+
+    items = []
+    for command in commands:
+        items.append({'id': command.id, 'name': command.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
 
 
 def get_commands_table(embedded=False, identifier=None, credentials=None):
@@ -228,6 +255,10 @@ pages = {
         'search_prefix': '',
         'search_filters': {
         }
+    },
+    get_commands_list: {
+        'name': 'Commands list',
+        'route': '/commands_list'
     },
     get_commands_table: {
         'name': 'Commands table',

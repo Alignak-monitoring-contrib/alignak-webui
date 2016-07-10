@@ -275,6 +275,25 @@ def get_servicegroups():
     }
 
 
+def get_servicegroups_list():
+    """
+    Get the servicegroups list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_servicegroups(search, all_elements=True)
+
+    items = []
+    for servicegroup in servicegroups:
+        items.append({'id': servicegroup.id, 'name': servicegroup.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
 def get_servicegroup(servicegroup_id):
     """
     Display the element linked to a servicegroup item
@@ -305,6 +324,11 @@ pages = {
         'search_prefix': '',
         'search_filters': {
         }
+    },
+    get_servicegroups_list: {
+        'routes': [
+            ('/servicegroups_list', 'Services groups list'),
+        ]
     },
 
     get_servicegroup_table: {

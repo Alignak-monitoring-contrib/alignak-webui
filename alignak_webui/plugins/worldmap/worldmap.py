@@ -119,7 +119,16 @@ def get_valid_elements(search):
                 raise Exception()
         except Exception:
             logger.debug("worldmap, host '%s' has invalid GPS coordinates", host.name)
-            continue
+
+            logger.debug("worldmap, host position: '%s'", host.location)
+            _lat = float(host.location['coordinates'][0])
+            _lng = float(host.location['coordinates'][1])
+            # lat/long must be between -180/180
+            if not (-180 <= _lat <= 180 and -180 <= _lng <= 180):
+                continue
+
+            host.customs.update({'_LOC_LAT': str(_lat)})
+            host.customs.update({'_LOC_LNG': str(_lng)})
 
         logger.debug("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
         valid_hosts.append(host)

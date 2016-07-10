@@ -884,6 +884,8 @@ class WebUI(object):
                             f = view(page_view)(f)
 
                         page_route = entry.get('route', None)
+                        if not page_route:
+                            page_route = entry.get('routes', None)
                         page_name = entry.get('name', None)
                         # Maybe there is no route to link, so pass
                         if not page_route:
