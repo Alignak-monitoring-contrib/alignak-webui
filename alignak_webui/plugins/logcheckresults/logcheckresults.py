@@ -220,7 +220,9 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': False
+        'responsive': False,
+
+        'initial_sort': [[1, 'desc']]
     }
 }
 
