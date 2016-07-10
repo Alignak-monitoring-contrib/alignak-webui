@@ -555,11 +555,24 @@ class Helper(object):
 
         content += '<ul class="list-group">'
         for item in objects_list:
-            content += \
-                '<li class="list-group-item">'\
-                '<span class="fa fa-check">&nbsp;%s</li>' % (
-                    item if isinstance(item, basestring) else item.get_html_state_link()
-                )
+            if isinstance(item, basestring):
+                content += \
+                    '<li class="list-group-item">'\
+                    '<span class="fa fa-check">&nbsp;%s</li>' % (
+                        item
+                    )
+            elif isinstance(item, dict):
+                content += \
+                    '<li class="list-group-item">'\
+                    '<span class="fa fa-check">&nbsp;%s</li>' % (
+                        item
+                    )
+            else:
+                content += \
+                    '<li class="list-group-item">'\
+                    '<span class="fa fa-check">&nbsp;%s</li>' % (
+                        item.get_html_state_link()
+                    )
         content += '</ul>'
         content += '</div></div>'
 

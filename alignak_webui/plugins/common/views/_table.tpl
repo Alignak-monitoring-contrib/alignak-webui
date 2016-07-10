@@ -325,9 +325,9 @@ table.dataTable tbody>tr>.selected {
          "processing": true,
          "serverSide": true,
          "ajax": {
-            url: "{{server_url}}/{{object_type}}_table_data",
-            method: "POST",
-            data: function ( d ) {
+            "url": "{{server_url}}/{{object_type}}_table_data",
+            "method": "POST",
+            "data": function ( d ) {
                // Add an extra field
                d = $.extend({}, d, {
                   "object_type": '{{object_type}}',

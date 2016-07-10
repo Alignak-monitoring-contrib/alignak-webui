@@ -929,7 +929,7 @@ class WebUI(object):
                                             os.path.join('/static/plugins/', plugin_name),
                                             widget.get('picture', '')
                                         ),
-                                        'base_uri': page_route,
+                                        'base_uri': route_url,
                                         'function': f
                                     })
                                     logger.debug(
