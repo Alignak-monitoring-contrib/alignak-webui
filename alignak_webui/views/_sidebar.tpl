@@ -149,10 +149,19 @@
 
       %if action_bar and in_sidebar and current_user.can_change_dashboard():
          <li role="separator" class="divider"></li>
+         %include("_templatebar.tpl", in_sidebar=in_sidebar)
+      %end
+
+      %if action_bar and in_sidebar and current_user.can_change_dashboard():
+         <li role="separator" class="divider"></li>
          %include("_actionbar.tpl", in_sidebar=in_sidebar)
       %end
    </ul>
 </nav>
+
+%if edition_mode and not in_sidebar:
+   %include("_templatebar.tpl", in_sidebar=in_sidebar)
+%end
 
 %if action_bar and not in_sidebar and current_user.can_change_dashboard():
    %include("_actionbar.tpl", in_sidebar=in_sidebar)

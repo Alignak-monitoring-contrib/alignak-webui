@@ -558,7 +558,7 @@ class Helper(object):
             content += \
                 '<li class="list-group-item">'\
                 '<span class="fa fa-check">&nbsp;%s</li>' % (
-                    item.get_html_link() if isinstance(item, type) else item
+                    item if isinstance(item, basestring) else item.get_html_state_link()
                 )
         content += '</ul>'
         content += '</div></div>'

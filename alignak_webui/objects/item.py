@@ -619,9 +619,12 @@ class Item(object):
 
                             # Create a new object
                             objects_list.append(object_class(result))
+                        elif isinstance(element, dict):
+                            # Create a new object from a dict
+                            objects_list.append(object_class(element))
                         else:
                             logger.critical(
-                                "_create, list element %s is not a string: %s", key, element
+                                "_create, list element %s is not a string nor a dict: %s", key, element
                             )
 
                     setattr(self, '_linked_' + key, objects_list)
@@ -707,7 +710,7 @@ class Item(object):
                 params = params.__dict__
             else:
                 logger.critical(
-                    "_update, cannot update an object with: %s (%s)", params, params.__class__
+                    "_update, cannot update an object (%s) with: %s (%s)", self.__class__, params, params.__class__
                 )
                 return
 
@@ -718,10 +721,10 @@ class Item(object):
                     "link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
                 )
                 object_type = getattr(self, '_linked_' + key, None)
-                if not isinstance(object_type, basestring):
+                if isinstance(object_type, Item):
                     # Already contains an object, so update object ...
                     logger.debug("_update, update object: %s = %s", key, params[key])
-                    # object_type._update(params[key])
+                    object_type._update(params[key])
                     continue
 
                 # Linked resource type
@@ -778,6 +781,7 @@ class Item(object):
                             # Create a new object
                             objects_list.append(object_class(result))
                         elif isinstance(element, dict):
+                            # Create a new object from a dict
                             objects_list.append(object_class(element))
                         else:
                             logger.critical(

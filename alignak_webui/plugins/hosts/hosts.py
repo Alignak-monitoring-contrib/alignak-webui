@@ -82,6 +82,14 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_is_template'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Is an host template'),
+        'visible': True,
+        'hidden': True
+    },
+}
 schema['definition_order'] = {
     'type': 'integer',
     'ui': {
@@ -128,7 +136,8 @@ schema['check_command_args'] = {
     'type': 'string',
     'ui': {
         'title': _('Check command arguments'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
 }
 schema['check_period'] = {
@@ -136,7 +145,7 @@ schema['check_period'] = {
     'ui': {
         'title': _('Check period'),
         'visible': True,
-        'searchable': False
+        # 'searchable': False
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -285,6 +294,30 @@ schema['notification_options'] = {
         }
     },
 }
+schema['maintenance_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Maintenance period'),
+        'visible': True,
+        'hidden': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['snapshot_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Snapshot period'),
+        'visible': True,
+        'hidden': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
 schema['location'] = {
     'type': 'point',
     'ui': {
@@ -383,7 +416,8 @@ schema['event_handler'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Event handler command'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
         'resource': 'command',
@@ -418,7 +452,7 @@ schema['ui'] = {
 }
 
 
-def get_hosts():
+def get_hosts(templates=False):
     """
     Get the hosts list
     """
@@ -445,16 +479,25 @@ def get_hosts():
     }
 
     # Get elements from the data manager
-    hosts = datamgr.get_hosts(search)
+    hosts = datamgr.get_hosts(search, template=templates)
     # Get last total elements count
     total = datamgr.get_objects_count('host', search=where, refresh=True)
     count = min(count, total)
 
     return {
         'hosts': hosts,
-        'pagination': Helper.get_pagination_control('/hosts', total, start, count),
+        'pagination': Helper.get_pagination_control(
+            '/hosts_templates' if templates else '/hosts', total, start, count
+        ),
         'title': request.params.get('title', _('All hosts'))
     }
+
+
+def get_hosts_templates():
+    """
+    Get the hosts templates list
+    """
+    return get_hosts(templates=True)
 
 
 def get_hosts_widget(embedded=False, identifier=None, credentials=None):
@@ -894,6 +937,11 @@ pages = {
             _('Hosts unreachable'): 'state:unreachable',
         }
     },
+    get_hosts_templates: {
+        'name': 'Hosts templates',
+        'route': '/hosts_templates'
+    },
+
     get_hosts_table: {
         'name': 'Hosts table',
         'route': '/hosts_table',

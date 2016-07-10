@@ -886,11 +886,17 @@ class WebUI(object):
                         page_route = entry.get('route', None)
                         page_name = entry.get('name', None)
                         # Maybe there is no route to link, so pass
-                        if page_route:
-                            method = entry.get('method', 'GET')
+                        if not page_route:
+                            continue
 
+                        methods = entry.get('method', 'GET')
+
+                        # Routes are an array of tuples [(route, name), ...]
+                        if not isinstance(page_route, list):
+                            page_route = [(page_route, page_name)]
+                        for route, name in page_route:
                             f = app.route(
-                                page_route, callback=f, method=method, name=page_name,
+                                route, callback=f, method=methods, name=name,
                                 search_engine=entry.get('search_engine', False),
                                 search_prefix=entry.get('search_prefix', ''),
                                 search_filters=entry.get('search_filters', {})
@@ -924,7 +930,7 @@ class WebUI(object):
                                         'base_uri': page_route,
                                         'function': f
                                     })
-                                    logger.info(
+                                    logger.debug(
                                         "Found widget '%s' for %s", widget['id'], place
                                     )
 
@@ -951,8 +957,8 @@ class WebUI(object):
                                         'function': f,
                                         'actions': table.get('actions', {})
                                     })
-                                    logger.info(
-                                        "Found table (%s): %s", place, self.tables[place]
+                                    logger.debug(
+                                        "Found table '%s' for %s", table['id'], place
                                     )
 
                 # Add the views sub-directory of the plugin in the Bottle templates path

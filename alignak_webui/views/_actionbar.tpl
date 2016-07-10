@@ -13,7 +13,7 @@
             <span class="hidden-sm hidden-xs">{{_('Add a new widget')}}</span>
          </a>
 
-         <ul class="dropdown-menu" role="menu" aria-labelledby="Widgets bar menu">
+         <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Widgets menu')}}">
             %for widget in webui.get_widgets_for('dashboard'):
             <li>
                <a href="#"

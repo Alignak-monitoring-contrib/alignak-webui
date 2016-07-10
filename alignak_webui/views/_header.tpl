@@ -47,21 +47,12 @@
 
          <!-- Right part ... -->
          <div id="navbar-collapsible-part" class="collapse navbar-collapse">
-            <div class="hidden-xs">
+            <div id="header-search">
                <!-- Page filtering ... -->
                %include("_filters.tpl")
             </div>
 
             <ul class="nav navbar-nav">
-               %if edition_mode:
-               <li>
-                  <a href="#"
-                     data-action="edition-mode" data-state="{{'on' if edition_mode else 'off'}}" data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Exit edition mode')}}">
-                     <span class="fa fa-edit"></span>
-                  </a>
-               </li>
-               %end
                <li class="hidden-xs" id="loading" style="display: none;">
                   <a href="#">
                      <span class="fa fa-spinner fa-pulse fa-1x"></span>
@@ -80,14 +71,20 @@
                </li>
 
                <li>
-                  <a data-action="display-currently" data-toggle="tooltip" data-placement="bottom" title="{{_('Display fullscreen one-eye view.')}}" href="/currently">
+                  <a data-action="display-currently"
+                     data-toggle="tooltip" data-placement="bottom"
+                     title="{{_('Display fullscreen one-eye view.')}}"
+                     href="/currently">
                      <span class="fa fa-eye"></span>
                   </a>
                </li>
 
                %if request.app.config.get('play_sound', 'no') == 'yes':
                <li class="hidden-xs">
-                  <a data-action="toggle-sound-alert" data-toggle="tooltip" data-placement="bottom" title="{{_('Sound alert on/off')}}" href="#">
+                  <a data-action="toggle-sound-alert"
+                     data-toggle="tooltip" data-placement="bottom"
+                     title="{{_('Sound alert on/off')}}"
+                     href="#">
                      <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
                        <i class="fa fa-music fa-stack-1x"></i>
                        <i class="fa fa-ban fa-stack-2x text-danger"></i>
@@ -98,7 +95,10 @@
 
                %if refresh:
                <li>
-                  <a data-action="toggle-page-refresh" data-toggle="tooltip" data-placement="bottom" title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}" href="#">
+                  <a data-action="toggle-page-refresh"
+                     data-toggle="tooltip" data-placement="bottom"
+                     title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
+                     href="#">
                      <span id="header_loading" class="fa fa-refresh"></span>
                   </a>
                </li>
@@ -106,9 +106,10 @@
 
                %include("_header_user.tpl")
 
-               <li class="col-xs-1 hidden-sm hidden-md hidden-lg">
+               <li class="hidden-sm hidden-md hidden-lg">
                   <a data-action="logout"
-                     data-toggle="tooltip" data-placement="bottom" title="{{_('Sign out')}}"
+                     data-toggle="tooltip" data-placement="bottom"
+                     title="{{_('Disconnect from the application')}}"
                      href="/logout">
                      <i class="fa fa-sign-out"></i>
                   </a>

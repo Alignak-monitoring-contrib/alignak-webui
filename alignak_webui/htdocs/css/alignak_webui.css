@@ -128,7 +128,7 @@ html, body {
  * - do not float left the menu items.
  * - min and max width
  */
-#sidebar-menu, #actionbar-menu  {
+#sidebar-menu, #actionbar-menu, #templatebar-menu {
     min-width: 100px;
     max-width: 200px;
 }
@@ -137,17 +137,25 @@ html, body {
 }
 
 #actionbar-menu  {
-    position: absolute;
+    position: fixed;
     bottom: 10px;
+}
+#templatebar-menu  {
+    position: fixed;
+    bottom: 60px;
 }
 
 /*
- * Side bar menu - for extra small devices, menu items are floating and
+ * Side bar menu - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.
  */
 @media (max-width: 992px) {
     #topbar-menu ul.navbar-right > li {
-        float:right;
+        float:left;
+    }
+
+    #header-search {
+        float:left;
     }
 
     #sidebar-menu > ul > li  {
@@ -159,23 +167,6 @@ html, body {
     }
 }
 
-
-/*
- * Side bar menu - for small devices, menu items are floating and
- * the menu is positionned under the header navigation bar.
- */
-@media (max-width: 992px) {
-    #topbar-menu ul.navbar-right > li {
-        float:right;
-    }
-
-    #sidebar-menu > ul > li  {
-        float:left;
-    }
-    #sidebar-menu {
-        height: 50px;
-    }
-}
 
 /*
  * Navigation bar, company logo
@@ -195,6 +186,11 @@ html, body {
  */
 input#search {
     width: 160px;
+}
+@media (max-width: 768px) {
+    input#search {
+        width: 100px;
+    }
 }
 
 /*
@@ -231,7 +227,6 @@ input#search {
 
 /*
  * Actions bar
- */
 .actionbar .actionbar-nav.navbar-collapse {
    padding-right: 0;
    padding-left: 0;
@@ -279,6 +274,7 @@ input#search {
       bottom: 15px;
    }
 }
+ */
 
 
 
