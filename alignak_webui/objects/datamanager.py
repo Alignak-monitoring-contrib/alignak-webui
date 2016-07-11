@@ -307,7 +307,7 @@ class DataManager(object):
         new_objects_count = self.get_objects_count()
         logger.debug("Load, end, objects in cache: %d", new_objects_count)
 
-        logger.warning(
+        logger.info(
             "Data manager load (%s), new objects: %d,  duration: %s",
             refresh, new_objects_count - objects_count, (time.time() - start)
         )
@@ -1155,7 +1155,7 @@ class DataManager(object):
         synthesis['nb_elts'] = len(services)
         synthesis['nb_problem'] = 0
         if services:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = sum(
                     1 for service in services if service.status.lower() == state
                 )
@@ -1163,7 +1163,7 @@ class DataManager(object):
                     100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
                 )
         else:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = 0
                 synthesis['pct_' + state] = 0
 

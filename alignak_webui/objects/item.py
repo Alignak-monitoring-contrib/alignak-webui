@@ -710,7 +710,7 @@ class Item(object):
             elif self.getKnownClasses() and params.__class__ in self.getKnownClasses():
                 params = params.__dict__
             else:
-                logger.critical(
+                logger.error(
                     "_update, cannot update an object (%s) with: %s (%s)",
                     self.__class__, params, params.__class__
                 )
