@@ -29,13 +29,7 @@ import os
 import json
 
 from importlib import import_module
-
 from logging import getLogger
-
-# import gettext
-
-import setproctitle
-
 import pytz
 
 # Bottle import
