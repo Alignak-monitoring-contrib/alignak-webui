@@ -3,7 +3,10 @@
 %setdefault('in_sidebar', False)
 
 %action_bar = (len(webui.get_widgets_for('dashboard')) != 0)
-
+%if action_bar:
+%from bottle import request
+%action_bar = request.route.name == 'Dashboard'
+%end
 %if target_user.is_anonymous() or target_user.get_username() == current_user.get_username():
 %target_user = None
 %end
