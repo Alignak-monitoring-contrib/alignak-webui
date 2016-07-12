@@ -9,9 +9,9 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item import Command
 
-%if not livestates:
+%if not elements:
    <center>
-      <h3>{{_('No livestates matching the filter...')}}</h3>
+      <h3>{{_('No elements matching the filter...')}}</h3>
    </center>
 %else:
    <table class="table table-condensed">
@@ -22,8 +22,8 @@
          <th>{{_('Commands')}}</th>
       </tr></thead>
       <tbody>
-         %livestates = sorted(livestates, key=lambda k: k['business_impact'], reverse=True)
-         %for livestate in livestates:
+         %elements = sorted(elements, key=lambda k: k['business_impact'], reverse=True)
+         %for livestate in elements:
          <tr id="#{{livestate.id}}">
             <td title="{{livestate.alias}}">
                %label = "%s - %s (%s)" % (livestate.status, Helper.print_duration(livestate.last_check, duration_only=True, x_elts=0), livestate.output)

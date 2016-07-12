@@ -99,6 +99,8 @@
 
    <!-- First row : tags and actions ... -->
    %groups = [ {'_id':'1', 'name':'g1', 'level': 1}, {'_id':'2', 'name':'g2', 'level': 2} ]
+   %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
+   {{groups}}
    %tags = ['t1', 't2']
    %if host.action_url or tags or groups:
    <div>
@@ -279,7 +281,7 @@
                </a>
              </td>
 
-             %for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
+             %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
              <td>
                %if synthesis['nb_' + state]>0:
                <a role="menuitem" href="/all?search=type:service is:{{state}} {{host.name}}">
@@ -329,7 +331,7 @@
 
          %for widget in webui.widgets['host']:
             <div class="tab-pane fade" id="{{widget['id']}}">
-               %include("_widget.tpl", widget_name=widget['template'], options=None, embedded=True, title=None)
+               %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
             </div>
          %end
       </div>

@@ -120,120 +120,120 @@ class test_helper(unittest2.TestCase):
         # Only the duration string
         s = helper.print_duration(now - 4, duration_only=True)
         print "Result:", s
-        self.assert_(s == '4s')
+        self.assertEqual(s, '4s')
 
         # Got 2minutes
         s = helper.print_duration(now - 120)
         print "Result:", s
-        self.assert_(s == ' 2m ago')
+        self.assertEqual(s, ' 2m ago')
 
         # Go 2hours ago
         s = helper.print_duration(now - 3600*2)
         print "Result:", s
-        self.assert_(s == ' 2h ago')
+        self.assertEqual(s, ' 2h ago')
 
         # Go 2 days ago
         s = helper.print_duration(now - 3600*24*2)
         print "Result:", s
-        self.assert_(s == ' 2d ago')
+        self.assertEqual(s, ' 2d ago')
 
         # Go 2 weeks ago
         s = helper.print_duration(now - 86400*14)
         print "Result:", s
-        self.assert_(s == ' 2w ago')
+        self.assertEqual(s, ' 2w ago')
 
         # Go 2 months ago
         s = helper.print_duration(now - 86400*56)
         print "Result:", s
-        self.assert_(s == ' 2M ago')
+        self.assertEqual(s, ' 2M ago')
 
         # Go 1 year ago
         s = helper.print_duration(now - 86400*365*2)
         print "Result:", s
-        self.assert_(s == ' 2y ago')
+        self.assertEqual(s, ' 2y ago')
 
         # Now a mix of all of this :)
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56)
         print "Result:", s
-        self.assert_(s == ' 2M 2w 2d 2h 2m 2s ago')
+        self.assertEqual(s, ' 2M 2w 2d 2h 2m 2s ago')
 
         # Now with a limit, because here it's just a nightmare to read
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=2)
         print "Result:", s
-        self.assert_(s == ' 2M 2w ago')
+        self.assertEqual(s, ' 2M 2w ago')
 
         # Now with another limit
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=3)
         print "Result:", s
-        self.assert_(s == ' 2M 2w 2d ago')
+        self.assertEqual(s, ' 2M 2w 2d ago')
 
         # Now with another limit
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=4)
         print "Result:", s
-        self.assert_(s == ' 2M 2w 2d 2h ago')
+        self.assertEqual(s, ' 2M 2w 2d 2h ago')
 
         # Now with another limit
         s = helper.print_duration(now - 2 - 120 - 3600*2 - 3600*24*2 - 86400*14 - 86400*56, x_elts=5)
         print "Result:", s
-        self.assert_(s == ' 2M 2w 2d 2h 2m ago')
+        self.assertEqual(s, ' 2M 2w 2d 2h 2m ago')
 
         # Not a timestamp but a duration !
         s = helper.print_duration(2 + 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56, x_elts=2, duration_only=True, ts_is_duration=True)
         print "Result:", s
-        self.assert_(s == '2M 2w')
+        self.assertEqual(s, '2M 2w')
         s = helper.print_duration(2 + 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56, x_elts=6, duration_only=True, ts_is_duration=True)
         print "Result:", s
-        self.assert_(s == '2M 2w 2d 2h 2m 2s')
+        self.assertEqual(s, '2M 2w 2d 2h 2m 2s')
 
         # Return to the future
         # Get the 2s ago
         s = helper.print_duration(now + 2)
         print "Result:", s
-        self.assert_(s == 'Very soon')
+        self.assertEqual(s, 'Very soon')
 
         s = helper.print_duration(now + 4)
         print "Result:", s
-        self.assert_(s == 'in 4s')
+        self.assertEqual(s, 'in 4s')
 
         # Go 2 minutes
         s = helper.print_duration(now + 120)
         print "Result:", s
-        self.assert_(s == 'in 2m')
+        self.assertEqual(s, 'in 2m')
 
         # Go 2 hours ago
         s = helper.print_duration(now + 3600*2)
         print "Result:", s
-        self.assert_(s == 'in 2h')
+        self.assertEqual(s, 'in 2h')
 
         # Go 2 days ago
         s = helper.print_duration(now + 3600*24*2)
         print "Result:", s
-        self.assert_(s == 'in 2d')
+        self.assertEqual(s, 'in 2d')
 
         # Go 2 weeks ago
         s = helper.print_duration(now + 86400*14)
         print "Result:", s
-        self.assert_(s == 'in 2w')
+        self.assertEqual(s, 'in 2w')
 
         # Go 2 months ago
         s = helper.print_duration(now + 86400*56)
         print "Result:", s
-        self.assert_(s == 'in 2M')
+        self.assertEqual(s, 'in 2M')
 
         # Go 1 year ago
         s = helper.print_duration(now + 86400*365*2)
         print "Result:", s
-        self.assert_(s == 'in 2y')
+        self.assertEqual(s, 'in 2y')
 
         # Now a mix of all of this :)
         s = helper.print_duration(now + 2 + 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56)
         print "Result:", s
-        self.assert_(s == 'in 2M 2w 2d 2h 2m 2s')
+        self.assertEqual(s, 'in 2M 2w 2d 2h 2m 2s')
 
         # Now with a limit, because here it's just a nightmare to read
         s = helper.print_duration(now + 2 - 120 + 3600*2 + 3600*24*2 + 86400*14 + 86400*56, x_elts=2)
         print "Result:", s
-        self.assert_(s == 'in 2M 2w')
+        self.assertEqual(s, 'in 2M 2w')
 
     def test_03_print_on_off(self):
         print "---"
@@ -241,48 +241,48 @@ class test_helper(unittest2.TestCase):
         # Call errors
         s = helper.get_on_off()
         print "Result:", s
-        self.assert_(s == '<i title="Disabled" class="fa fa-fw fa-close text-danger"></i>')
+        self.assertEqual(s, '<i title="Disabled" class="fa fa-fw fa-close text-danger"></i>')
 
         # Status only
         s = helper.get_on_off(False)
         print "Result:", s
-        self.assert_(s == '<i title="Disabled" class="fa fa-fw fa-close text-danger"></i>')
+        self.assertEqual(s, '<i title="Disabled" class="fa fa-fw fa-close text-danger"></i>')
 
         s = helper.get_on_off(True)
         print "Result:", s
-        self.assert_(s == '<i title="Enabled" class="fa fa-fw fa-check text-success"></i>')
+        self.assertEqual(s, '<i title="Enabled" class="fa fa-fw fa-check text-success"></i>')
 
         # Title
         s = helper.get_on_off(False, 'Title')
         print "Result:", s
-        self.assert_(s == '<i title="Title" class="fa fa-fw fa-close text-danger"></i>')
+        self.assertEqual(s, '<i title="Title" class="fa fa-fw fa-close text-danger"></i>')
 
         s = helper.get_on_off(True, 'Title')
         print "Result:", s
-        self.assert_(s == '<i title="Title" class="fa fa-fw fa-check text-success"></i>')
+        self.assertEqual(s, '<i title="Title" class="fa fa-fw fa-check text-success"></i>')
 
         # Message
         s = helper.get_on_off(False, message='Message')
         print "Result:", s
-        self.assert_(s == '<i title="Disabled" class="fa fa-fw fa-close text-danger">Message</i>')
+        self.assertEqual(s, '<i title="Disabled" class="fa fa-fw fa-close text-danger">Message</i>')
 
         s = helper.get_on_off(True, message='Message')
         print "Result:", s
-        self.assert_(s == '<i title="Enabled" class="fa fa-fw fa-check text-success">Message</i>')
+        self.assertEqual(s, '<i title="Enabled" class="fa fa-fw fa-check text-success">Message</i>')
 
         # Title and message
         s = helper.get_on_off(True, title='Title', message='Message')
         print "Result:", s
-        self.assert_(s == '<i title="Title" class="fa fa-fw fa-check text-success">Message</i>')
+        self.assertEqual(s, '<i title="Title" class="fa fa-fw fa-check text-success">Message</i>')
 
         # Title as array
         s = helper.get_on_off(True, title=['on', 'off'], message='Message')
         print "Result:", s
-        self.assert_(s == '<i title="on" class="fa fa-fw fa-check text-success">Message</i>')
+        self.assertEqual(s, '<i title="on" class="fa fa-fw fa-check text-success">Message</i>')
 
         s = helper.get_on_off(False, title=['on', 'off'], message='Message')
         print "Result:", s
-        self.assert_(s == '<i title="off" class="fa fa-fw fa-close text-danger">Message</i>')
+        self.assertEqual(s, '<i title="off" class="fa fa-fw fa-close text-danger">Message</i>')
 
     def test_04_navigation_control(self):
         print "---"

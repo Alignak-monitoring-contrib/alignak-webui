@@ -178,10 +178,16 @@
       var start = {{start}};
 
       // Set ajaxready status
-      $(window).data('ajaxready', true);
+      win.data('ajaxready', true);
 
       // Each time the user scrolls
       win.scroll(function() {
+         // Request new data only if timeline tab is active...
+         url = document.location.href.split('#');
+         if ((url[1] != undefined) && (url[1] != 'timeline')) {
+            return;
+         }
+
          // If a request is still in progress, return...
          if ($(window).data('ajaxready') == false) return;
 
@@ -195,8 +201,6 @@
             start += {{elts_per_page}};
             var url = '{{'/' + object_type + '/' + host.id}}' + '?infiniteScroll=true&start=' + start + '&count={{count}}';
             $.get(url, function(data) {
-               //var content = $(data).find('#included_timeline li').html();
-
                $(data).find('#included_timeline li').each(function(idx, li){
                   var elt = '<li/>';
                   if ($(li).hasClass("timeline-inverted")) {
@@ -212,7 +216,7 @@
 
                $('#loading').hide();
                // Unset ajaxready because request is finished...
-               $(window).data('ajaxready', true);
+               win.data('ajaxready', true);
             });
          }
       });

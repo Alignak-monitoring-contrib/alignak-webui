@@ -17,6 +17,32 @@
       </colgroup>
       <thead>
          <tr>
+            <th colspan="2">{{_('Overview:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Name:')}}</strong></td>
+            <td>{{host.name}} ({{host.address}})</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Alias:')}}</strong></td>
+            <td>{{host.alias}} {{! ("<em>(%s)</em>" % host.display_name) if host.display_name else ''}}</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Importance:')}}</strong></td>
+            <td>{{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}</td>
+         </tr>
+      </tbody>
+   </table>
+
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
             <th colspan="2">{{_('Status:')}}</th>
          </tr>
       </thead>
@@ -231,113 +257,9 @@
          %end
       </tbody>
    </table>
-
-   <table class="table table-condensed">
-      <colgroup>
-         <col style="width: 40%" />
-         <col style="width: 60%" />
-      </colgroup>
-      <thead>
-         <tr>
-            <th colspan="2">{{_('Event handler:')}}</th>
-         </tr>
-      </thead>
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Event handler enabled:')}}</strong></td>
-            <td>
-               {{! Helper.get_on_off(host.event_handler_enabled)}}
-            </td>
-         </tr>
-         %if host.event_handler_enabled and host.event_handler:
-         <tr>
-            <td><strong>{{_('Event handler:')}}</strong></td>
-            <td>
-               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name() }}</a>
-            </td>
-         </tr>
-         %end
-         %if host.event_handler_enabled and not host.event_handler:
-         <tr>
-            <td></td>
-            <td><strong>{{_('No event handler defined.')}}</strong></td>
-         </tr>
-         %end
-      </tbody>
-   </table>
 </div>
 
 <div class="col-md-6">
-   <table class="table table-condensed">
-      <colgroup>
-         <col style="width: 40%" />
-         <col style="width: 60%" />
-      </colgroup>
-      <thead>
-         <tr>
-            <th colspan="2">{{_('Flapping detection:')}}</th>
-         </tr>
-      </thead>
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Flapping detection:')}}</strong></td>
-            <td>
-               <input type="checkbox" {{'checked' if host.flap_detection_enabled else ''}}
-                     class="switch" data-size="mini" data-on-color="success" data-off-color="danger"
-                     data-type="action" action="toggle-flap-detection"
-                     data-element="{{host.name}}" data-value="{{host.flap_detection_enabled}}"
-                     >
-            </td>
-         </tr>
-         %if host.flap_detection_enabled:
-            %message = {}
-            %message['o'] = {'title': _('Flapping enabled on Up state'), 'message': _('UP')}
-            %message['d'] = {'title': _('Flapping enabled on Down state'), 'message': _('DOWN')}
-            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
-            %first=True
-            %for m in message:
-               <tr>
-                  %if first:
-                     <td><strong>{{_('Options:')}}</strong></td>
-                     %first=False
-                  %else:
-                     <td></td>
-                  %end
-                  <td>
-                     {{! Helper.get_on_off(m in host.flap_detection_options, message[m]['title'], '&nbsp;' + message[m]['message'])}}
-                  </td>
-               </tr>
-            %end
-            <tr>
-               <td><strong>Low threshold:</strong></td>
-               <td>{{host.low_flap_threshold}}</td>
-            </tr>
-            <tr>
-               <td><strong>High threshold:</strong></td>
-               <td>{{host.high_flap_threshold}}</td>
-            </tr>
-         %end
-      </tbody>
-   </table>
-
-   <table class="table table-condensed">
-      <colgroup>
-         <col style="width: 40%" />
-         <col style="width: 60%" />
-      </colgroup>
-      <thead>
-         <tr>
-            <th colspan="2">{{_('Stalking options:')}}</th>
-         </tr>
-      </thead>
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Stalking options:')}}</strong></td>
-            <td>{{', '.join(host.stalking_options)}}</td>
-         </tr>
-      </tbody>
-   </table>
-
    <table class="table table-condensed">
       <colgroup>
          <col style="width: 40%" />
@@ -417,6 +339,110 @@
                </td>
             </tr>
          %end
+      </tbody>
+   </table>
+
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Event handler:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Event handler enabled:')}}</strong></td>
+            <td>
+               {{! Helper.get_on_off(host.event_handler_enabled)}}
+            </td>
+         </tr>
+         %if host.event_handler_enabled and host.event_handler:
+         <tr>
+            <td><strong>{{_('Event handler:')}}</strong></td>
+            <td>
+               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name() }}</a>
+            </td>
+         </tr>
+         %end
+         %if host.event_handler_enabled and not host.event_handler:
+         <tr>
+            <td></td>
+            <td><strong>{{_('No event handler defined.')}}</strong></td>
+         </tr>
+         %end
+      </tbody>
+   </table>
+
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Flapping detection:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Flapping detection:')}}</strong></td>
+            <td>
+               <input type="checkbox" {{'checked' if host.flap_detection_enabled else ''}}
+                     class="switch" data-size="mini" data-on-color="success" data-off-color="danger"
+                     data-type="action" action="toggle-flap-detection"
+                     data-element="{{host.name}}" data-value="{{host.flap_detection_enabled}}"
+                     >
+            </td>
+         </tr>
+         %if host.flap_detection_enabled:
+            %message = {}
+            %message['o'] = {'title': _('Flapping enabled on Up state'), 'message': _('UP')}
+            %message['d'] = {'title': _('Flapping enabled on Down state'), 'message': _('DOWN')}
+            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+            %first=True
+            %for m in message:
+               <tr>
+                  %if first:
+                     <td><strong>{{_('Options:')}}</strong></td>
+                     %first=False
+                  %else:
+                     <td></td>
+                  %end
+                  <td>
+                     {{! Helper.get_on_off(m in host.flap_detection_options, message[m]['title'], '&nbsp;' + message[m]['message'])}}
+                  </td>
+               </tr>
+            %end
+            <tr>
+               <td><strong>Low threshold:</strong></td>
+               <td>{{host.low_flap_threshold}}</td>
+            </tr>
+            <tr>
+               <td><strong>High threshold:</strong></td>
+               <td>{{host.high_flap_threshold}}</td>
+            </tr>
+         %end
+      </tbody>
+   </table>
+
+   <table class="table table-condensed">
+      <colgroup>
+         <col style="width: 40%" />
+         <col style="width: 60%" />
+      </colgroup>
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Stalking options:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Stalking options:')}}</strong></td>
+            <td>{{', '.join(host.stalking_options)}}</td>
+         </tr>
       </tbody>
    </table>
 </div>

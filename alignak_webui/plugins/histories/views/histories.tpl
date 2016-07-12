@@ -56,6 +56,9 @@
 
             <tbody>
                %for lcr in histories:
+               %if filter and lcr.type not in filter:
+               %continue
+               %end
                %css = 'success' if lcr.status == 'OK' else ''
                <tr id="#{{lcr.id}}" class="{{css}}">
                   <td title="{{lcr.alias}}">
@@ -86,12 +89,6 @@
                      %message = "%s - %s" % (lcr.logcheckresult.get_html_state(text=None), lcr.logcheckresult.output)
                      %end
                      <small>{{! message}}</small>
-                  </td>
-
-                  <td>
-                     <small>
-                        <a href="{{ webui.get_url('Log check result table') }}?search=host:{{lcr.host.name}}"> {{_('View checks results log')}} </a>
-                     </small>
                   </td>
                </tr>
              %end

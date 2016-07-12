@@ -694,6 +694,7 @@ def get_host(host_id):
         search={'where': {'type': 'service', 'host': host.id}}
     )
 
+    # Get host history (timeline)
     # Fetch elements per page preference for user, default is 25
     elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
     elts_per_page = elts_per_page['value']
@@ -724,12 +725,25 @@ def get_host(host_id):
         search['where'].update({'type': {'$in': selected_types}})
     logger.warning("History selected types: %s", selected_types)
 
+    # Get host history
     history = datamgr.get_history(search=search)
     if history is None:
         history = []
-
     # Get last total elements count
     total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+    # Get host events (all history except the events concerning the checks)
+    excluded = [t for t in history_schema['type']['allowed'] if t.startswith('check.')]
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'where': {'host': host_id, 'type': {'$nin': excluded}}
+    }
+
+    # Get host events
+    events = datamgr.get_history(search=search)
+    if events is None:
+        events = []
 
     return {
         'host': host,
@@ -737,6 +751,7 @@ def get_host(host_id):
         'livestate': livestate,
         'livestate_services': livestate_services,
         'history': history,
+        'events': events,
         'timeline_pagination': Helper.get_pagination_control('/host/' + host_id,
                                                              total, start, count),
         'types': history_schema['type']['allowed'],
@@ -894,18 +909,6 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'timeline',
-                'for': ['host'],
-                'name': _('Timeline'),
-                'template': 'host_timeline_widget',
-                'icon': 'clock-o',
-                'description': _(
-                    '<h4>Host timeline widget</h4>Displays host timeline.'
-                ),
-                'picture': 'htdocs/img/host_timeline_widget.png',
-                'options': {}
-            },
-            {
                 'id': 'metrics',
                 'for': ['host'],
                 'name': _('Metrics'),
@@ -919,6 +922,18 @@ pages = {
                 'options': {}
             },
             {
+                'id': 'timeline',
+                'for': ['host'],
+                'name': _('Timeline'),
+                'template': 'host_timeline_widget',
+                'icon': 'clock-o',
+                'description': _(
+                    '<h4>Host timeline widget</h4>Displays host timeline.'
+                ),
+                'picture': 'htdocs/img/host_timeline_widget.png',
+                'options': {}
+            },
+            {
                 'id': 'history',
                 'for': ['host'],
                 'name': _('History'),
@@ -926,6 +941,18 @@ pages = {
                 'icon': 'history',
                 'description': _(
                     '<h4>Host history widget</h4>Displays host history.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'events',
+                'for': ['host'],
+                'name': _('Events'),
+                'template': 'host_events_widget',
+                'icon': 'history',
+                'description': _(
+                    '<h4>Host events widget</h4>Displays host events: '
+                    'comments, acknowledges, downtimes,...'
                 ),
                 'options': {}
             },
