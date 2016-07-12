@@ -842,7 +842,7 @@ class WebUI(object):
         )
 
     def load_plugins(self, app, plugins_dir):
-        # pylint: disable=too-many-locals, too-many-nested-blocks
+        # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
         """
         Load plugins from the provided directory
 

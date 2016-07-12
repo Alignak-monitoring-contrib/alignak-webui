@@ -35,7 +35,7 @@
 %# First element for global data
 %# page_url start, count and total
 %page_url, start, count, total, active = pagination[0]
-<div id="pagination_{{page_url.replace('/', '_')}}" class="btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
+<div id="pagination_{{page_url.replace('/', '_')}}" class="elts_per_page btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
    %if pagination and len(pagination) > 1:
       %if display_steps_form and elts_per_page is not None:
       <form id="elts_per_page" class="form-inline">

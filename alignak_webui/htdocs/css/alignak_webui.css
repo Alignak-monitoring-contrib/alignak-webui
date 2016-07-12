@@ -74,13 +74,11 @@ html, body {
 /*
  * Pagination control elements
  */
-#page-content > section.content-header div.btn-toolbar {
+.elts_per_page {
     margin-left: 5px;
 }
-#page-content > section.content-header .input-group input {
+.elts_per_page input {
     max-width: 70px;
-}
-#page-content > section.content-header ul {
 }
 
 /*
