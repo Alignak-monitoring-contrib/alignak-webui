@@ -63,16 +63,12 @@ from logging import DEBUG, INFO
 from logging import Formatter, StreamHandler, getLogger
 from logging.handlers import TimedRotatingFileHandler
 
-# Color logs when in console mode ...
-# from sys import stdout
-# from termcolor import cprint
+# Bottle import
+from bottle import run, BaseTemplate
 
 # Command line interpreter
 from docopt import docopt
 from docopt import DocoptExit
-
-# Bottle import
-from bottle import run, BaseTemplate
 
 # Settings
 from alignak_webui.utils.settings import Settings
