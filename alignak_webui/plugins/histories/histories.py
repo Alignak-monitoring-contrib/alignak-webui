@@ -33,8 +33,7 @@ from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -234,52 +233,25 @@ def get_history(host_id):
         'types': schema['type']['allowed'],
         'selected_types': selected_types,
         'items': history,
-        'timeline_pagination': Helper.get_pagination_control('/history/' + host_id,
-                                                             total, start, count),
+        'timeline_pagination': webui.helper.get_pagination_control(
+            '/history/' + host_id, total, start, count
+        ),
         'title': request.query.get('title', _('History for %s') % host.alias)
     }
 
 
 def get_history_table(embedded=False, identifier=None, credentials=None):
     """
-    Get the history list and transform it as a table
+    Get the elements to build a table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('history', search=where)
-
-    # Build table structure
-    dt = Datatable('history', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'history',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
+    return get_table('history', schema, embedded, identifier, credentials)
 
 
 def get_history_table_data():
     """
-    Get the history list and provide table data
+    Get the elements required by the table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('history', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    return get_table_data('history', schema)
 
 
 pages = {

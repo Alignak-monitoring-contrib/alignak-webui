@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-locals
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -21,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin Timeperiods
+    Plugin users groups
 """
 
 import time
@@ -30,7 +29,7 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response
+from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
 
@@ -86,7 +85,7 @@ schema['definition_order'] = {
         'title': _('Definition order'),
         'visible': True,
         'hidden': True,
-        'orderable': True,
+        'orderable': False,
     },
 }
 schema['alias'] = {
@@ -96,37 +95,51 @@ schema['alias'] = {
         'visible': True
     },
 }
-schema['is_active'] = {
-    'type': 'boolean',
+schema['notes'] = {
+    'type': 'string',
     'ui': {
-        'title': _('Currently active'),
-        'visible': True
+        'title': _('Notes')
+    }
+}
+schema['_level'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Level'),
+        'visible': True,
     },
 }
-schema['dateranges'] = {
-    'type': 'list',
+schema['_parent'] = {
+    'type': 'objectid',
     'ui': {
-        'title': _('Date ranges'),
+        'title': _('Parent'),
         'visible': True
     },
+    'data_relation': {
+        'resource': 'usergroup',
+        'embeddable': True
+    }
 }
-schema['exclude'] = {
+schema['usergroups'] = {
     'type': 'list',
     'ui': {
-        'title': _('Excluded'),
+        'title': _('Users groups members'),
         'visible': True
     },
+    'data_relation': {
+        'resource': 'usergroup',
+        'embeddable': True
+    }
 }
 
 
-# This to define if the object in this model are to be used in the UI
+# This to define the global information for the table
 schema['ui'] = {
     'type': 'boolean',
     'default': True,
 
     # UI parameters for the objects
     'ui': {
-        'page_title': _('Timeperiods table (%d items)'),
+        'page_title': _('Users groups table (%d items)'),
         'uid': '_id',
         'visible': True,
         'orderable': True,
@@ -138,9 +151,9 @@ schema['ui'] = {
 }
 
 
-def get_timeperiods():
+def get_usergroups():
     """
-    Get the timeperiods
+    Get the usergroups list
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -161,86 +174,147 @@ def get_timeperiods():
     search = {
         'page': start // count + 1,
         'max_results': count,
+        'sort': '-_id',
         'where': where,
+        'embedded': {
+        }
     }
 
     # Get elements from the data manager
-    timeperiods = datamgr.get_timeperiods(search)
+    items = datamgr.get_usergroups(search)
     # Get last total elements count
-    total = datamgr.get_objects_count('timeperiod', search=where, refresh=True)
+    total = datamgr.get_objects_count('usergroup', search=where, refresh=True)
     count = min(count, total)
 
-    if request.params.get('list', None):
-        return get_timeperiods_list()
+    # Define contextual menu
+    context_menu = {
+        'actions': {
+            'action1': {
+                "label": "Cueillir des fraises...",
+                "icon": "ion-monitor",
+                "separator_before": False,
+                "separator_after": True,
+                "action": '''function (obj) {
+                   console.log('Miam!');
+                }'''
+            },
+            'action2': {
+                "label": "... et encore des fraises!",
+                "icon": "ion-monitor",
+                "separator_before": False,
+                "separator_after": False,
+                "action": '''function (obj) {
+                   console.log('Et que ça saute !');
+                }'''
+            }
+        }
+    }
 
     return {
-        'timeperiods': timeperiods,
-        'pagination': webui.helper.get_pagination_control('/timeperiods', total, start, count),
-        'title': request.query.get('title', _('All timeperiods')),
-        'elts_per_page': elts_per_page
+        'object_type': 'usergroup',
+        'items': items,
+        'selectable': False,
+        'context_menu': context_menu,
+        'pagination': webui.helper.get_pagination_control('/usergroups', total, start, count),
+        'title': request.query.get('title', _('All usergroups'))
     }
 
 
-def get_timeperiods_list():
+def get_usergroups_list():
     """
-    Get the timeperiods list
+    Get the usergroups list
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    timeperiods = datamgr.get_timeperiods(search, all_elements=True)
+    usergroups = datamgr.get_usergroups(search, all_elements=True)
 
     items = []
-    for timeperiod in timeperiods:
-        items.append({'id': timeperiod.id, 'name': timeperiod.alias})
+    for usergroup in usergroups:
+        items.append({'id': usergroup.id, 'name': usergroup.alias})
 
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps(items)
 
 
-def get_timeperiods_table(embedded=False, identifier=None, credentials=None):
+def get_usergroups_table(embedded=False, identifier=None, credentials=None):
     """
     Get the elements to build a table
     """
-    return get_table('timeperiod', schema, embedded, identifier, credentials)
+    return get_table('usergroup', schema, embedded, identifier, credentials)
 
 
-def get_timeperiods_table_data():
+def get_usergroups_table_data():
     """
     Get the elements required by the table
     """
-    return get_table_data('timeperiod', schema)
+    return get_table_data('usergroup', schema)
+
+
+def get_usergroup(usergroup_id):
+    """
+    Display the element linked to a usergroup item
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    usergroup = datamgr.get_usergroup(usergroup_id)
+    if not usergroup:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Users group element does not exist'))
+
+    return {
+        'usergroup_id': usergroup_id,
+        'usergroup': usergroup,
+        'title': request.query.get('title', _('Users group view'))
+    }
 
 
 pages = {
-    get_timeperiods: {
-        'routes': [
-            ('/timeperiods', 'Timeperiods'),
-        ],
-        'view': 'timeperiods',
+    get_usergroup: {
+        'name': 'Users group',
+        'route': '/usergroup/<usergroup_id>'
+    },
+    get_usergroups: {
+        'name': 'Users groups',
+        'route': '/usergroups',
+        'view': '_tree',
         'search_engine': False,
         'search_prefix': '',
         'search_filters': {
         }
     },
-
-    get_timeperiods_list: {
+    get_usergroups_list: {
         'routes': [
-            ('/timeperiods_list', 'Timeperiods list'),
+            ('/usergroups_list', 'Users groups list'),
         ]
     },
 
-    get_timeperiods_table: {
-        'name': 'Timeperiods table',
-        'route': '/timeperiods_table',
-        'view': '_table'
+    get_usergroups_table: {
+        'name': 'Users groups table',
+        'route': '/usergroup_table',
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'usergroups_table',
+                'for': ['external'],
+                'name': _('Users groups table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Users groups table</h4>Displays a datatable for the system '
+                    'users groups.<br>'
+                ),
+                'actions': {
+                    'usergroup_table_data': get_usergroups_table_data
+                }
+            }
+        ]
     },
 
-    get_timeperiods_table_data: {
-        'name': 'Timeperiods table data',
-        'route': '/timeperiod_table_data',
+    get_usergroups_table_data: {
+        'name': 'Users groups table data',
+        'route': '/usergroup_table_data',
         'method': 'POST'
     },
 }

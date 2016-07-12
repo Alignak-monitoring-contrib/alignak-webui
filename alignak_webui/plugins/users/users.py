@@ -240,7 +240,7 @@ def get_users():
 
     return {
         'users': users,
-        'pagination': Helper.get_pagination_control('/users', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/users', total, start, count),
         'title': request.query.get('title', _('All users'))
     }
 

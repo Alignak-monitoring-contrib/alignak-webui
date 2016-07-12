@@ -65,6 +65,19 @@
                </a>
             </li>
 
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Users table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Users table')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users tree')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Users') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Users tree')}}</span>
+               </a>
+            </li>
+
             <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts groups table')}}">
                <a class="navbar-link" href="{{ webui.get_url('Hosts groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-w fa-sitemap"></span>

@@ -33,8 +33,7 @@ from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -218,48 +217,6 @@ schema['ui'] = {
 }
 
 
-def get_realm_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the realm list and transform it as a table
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('realm', search=where)
-
-    # Build table structure
-    dt = Datatable('realm', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'realm',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
-
-
-def get_realm_table_data():
-    """
-    Get the realm list and provide table data
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('realm', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
-
-
 def get_realms():
     """
     Get the realms list
@@ -324,7 +281,7 @@ def get_realms():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('/realms', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/realms', total, start, count),
         'title': request.query.get('title', _('All realms'))
     }
 
@@ -346,6 +303,20 @@ def get_realms_list():
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps(items)
+
+
+def get_realms_table(embedded=False, identifier=None, credentials=None):
+    """
+    Get the elements to build a table
+    """
+    return get_table('realm', schema, embedded, identifier, credentials)
+
+
+def get_realms_table_data():
+    """
+    Get the elements required by the table
+    """
+    return get_table_data('realm', schema)
 
 
 def get_realm(realm_id):
@@ -386,7 +357,7 @@ pages = {
         ]
     },
 
-    get_realm_table: {
+    get_realms_table: {
         'name': 'Realms table',
         'route': '/realm_table',
         'view': '_table',
@@ -401,13 +372,13 @@ pages = {
                     '<h4>Realms table</h4>Displays a datatable for the system realms.<br>'
                 ),
                 'actions': {
-                    'realm_table_data': get_realm_table_data
+                    'realm_table_data': get_realms_table_data
                 }
             }
         ]
     },
 
-    get_realm_table_data: {
+    get_realms_table_data: {
         'name': 'Realms table data',
         'route': '/realm_table_data',
         'method': 'POST'

@@ -33,8 +33,7 @@ from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -164,48 +163,6 @@ schema['ui'] = {
 }
 
 
-def get_hostgroup_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the hostgroup list and transform it as a table
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('hostgroup', search=where)
-
-    # Build table structure
-    dt = Datatable('hostgroup', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'hostgroup',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
-
-
-def get_hostgroup_table_data():
-    """
-    Get the hostgroup list and provide table data
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('hostgroup', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
-
-
 def get_hostgroups():
     """
     Get the hostgroups list
@@ -270,7 +227,7 @@ def get_hostgroups():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('/hostgroups', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/hostgroups', total, start, count),
         'title': request.query.get('title', _('All hostgroups'))
     }
 
@@ -292,6 +249,20 @@ def get_hostgroups_list():
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps(items)
+
+
+def get_hostgroups_table(embedded=False, identifier=None, credentials=None):
+    """
+    Get the elements to build a table
+    """
+    return get_table('hostgroup', schema, embedded, identifier, credentials)
+
+
+def get_hostgroups_table_data():
+    """
+    Get the elements required by the table
+    """
+    return get_table_data('hostgroup', schema)
 
 
 def get_hostgroup(hostgroup_id):
@@ -331,7 +302,7 @@ pages = {
         ]
     },
 
-    get_hostgroup_table: {
+    get_hostgroups_table: {
         'name': 'Hosts groups table',
         'route': '/hostgroup_table',
         'view': '_table',
@@ -347,13 +318,13 @@ pages = {
                     'hosts groups.<br>'
                 ),
                 'actions': {
-                    'hostgroup_table_data': get_hostgroup_table_data
+                    'hostgroup_table_data': get_hostgroups_table_data
                 }
             }
         ]
     },
 
-    get_hostgroup_table_data: {
+    get_hostgroups_table_data: {
         'name': 'Hosts groups table data',
         'route': '/hostgroup_table_data',
         'method': 'POST'

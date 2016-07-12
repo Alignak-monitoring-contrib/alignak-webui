@@ -88,7 +88,7 @@ def get_worldmap():
         'mapId': 'hostsMap',
         'params': plugin_parameters,
         'hosts': valid_hosts,
-        'pagination': Helper.get_pagination_control('/worldmap', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/worldmap', total, start, count),
         'title': request.query.get('title', _('Hosts worldmap'))
     }
 
