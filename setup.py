@@ -59,6 +59,10 @@ install_requires = [
     'alignak_backend_client'
 ]
 
+data_files = [
+    (paths['etc'], ['etc/settings.cfg'])
+]
+
 # Define paths
 if 'linux' in sys.platform or 'sunos5' in sys.platform:
     paths = {
@@ -84,6 +88,11 @@ else:
     print "Unsupported platform, sorry!"
     exit(1)
 
+# Specific for Read the docs build process
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    data_files = []
+
 setup(
     name=__pkg_name__,
     version=__version__,
@@ -105,9 +114,7 @@ setup(
     # package_data={
         # 'sample': ['package_data.dat'],
     # },
-    data_files = [
-        (paths['etc'], ['etc/settings.cfg'])
-    ],
+    data_files=data_files,
 
     install_requires=install_requires,
 
