@@ -754,7 +754,6 @@ class Item(object):
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
 
-
                 # String - object id
                 if isinstance(params[key], basestring) and self.getBackend():
                     # Object link is a string, so it contains the object type
