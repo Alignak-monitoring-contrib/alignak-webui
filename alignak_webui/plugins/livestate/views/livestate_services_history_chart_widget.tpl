@@ -79,7 +79,7 @@
                   ticks: {
                      fontSize: 10,
                      fontFamily: 'HelveticaNeue, HelveticaNeue, Roboto, ArialRounded',
-                     autoSkip: false
+                     autoSkip: true
                   },
                   time: {
                      parser: 'X',
