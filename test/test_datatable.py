@@ -71,11 +71,11 @@ def setup_module(module):
     if backend_address == "http://127.0.0.1:5000/":
         # Set test mode for applications backend
         os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['TEST_ALIGNAK_BACKEND_DB'] = 'alignak-backend'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['TEST_ALIGNAK_BACKEND_DB'])
+            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 
@@ -144,7 +144,7 @@ class test_00_datatable(unittest2.TestCase):
             '<div id="command_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" class="table ',
-            '<th data-name="name" data-type="string">Command name</th>',
+            '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
             '<th data-name="module_type" data-type="string">Module type</th>',
@@ -483,7 +483,7 @@ class test_01_datatable_commands(unittest2.TestCase):
             '<div id="command_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" class="table ',
-            '<th data-name="name" data-type="string">Command name</th>',
+            '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
             '<th data-name="module_type" data-type="string">Module type</th>',

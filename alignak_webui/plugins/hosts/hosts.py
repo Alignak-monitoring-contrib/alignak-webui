@@ -35,8 +35,7 @@ from alignak_webui.objects.item import Item
 
 from alignak_webui.plugins.histories.histories import schema as history_schema
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -441,7 +440,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Hosts table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -489,7 +488,7 @@ def get_hosts(templates=False):
 
     return {
         'hosts': hosts,
-        'pagination': Helper.get_pagination_control(
+        'pagination': webui.helper.get_pagination_control(
             '/hosts_templates' if templates else '/hosts', total, start, count
         ),
         'title': request.params.get('title', _('All hosts'))
@@ -620,44 +619,16 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
 
 def get_hosts_table(embedded=False, identifier=None, credentials=None):
     """
-    Get the hosts list and transform it as a table
+    Get the elements to build a table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.params.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('host', search=where)
-
-    # Build table structure
-    dt = Datatable('host', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'host',
-        'dt': dt,
-        'where': where,
-        'title': request.params.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
+    return get_table('host', schema, embedded, identifier, credentials)
 
 
 def get_hosts_table_data():
     """
-    Get the hosts list and provide table data
+    Get the elements required by the table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('host', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    return get_table_data('host', schema)
 
 
 def get_host(host_id):
@@ -694,6 +665,7 @@ def get_host(host_id):
         search={'where': {'type': 'service', 'host': host.id}}
     )
 
+    # Get host history (timeline)
     # Fetch elements per page preference for user, default is 25
     elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
     elts_per_page = elts_per_page['value']
@@ -724,12 +696,25 @@ def get_host(host_id):
         search['where'].update({'type': {'$in': selected_types}})
     logger.warning("History selected types: %s", selected_types)
 
+    # Get host history
     history = datamgr.get_history(search=search)
     if history is None:
         history = []
-
     # Get last total elements count
     total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+    # Get host events (all history except the events concerning the checks)
+    excluded = [t for t in history_schema['type']['allowed'] if t.startswith('check.')]
+    search = {
+        'page': start // count + 1,
+        'max_results': count,
+        'where': {'host': host_id, 'type': {'$nin': excluded}}
+    }
+
+    # Get host events
+    events = datamgr.get_history(search=search)
+    if events is None:
+        events = []
 
     return {
         'host': host,
@@ -737,8 +722,10 @@ def get_host(host_id):
         'livestate': livestate,
         'livestate_services': livestate_services,
         'history': history,
-        'timeline_pagination': Helper.get_pagination_control('/host/' + host_id,
-                                                             total, start, count),
+        'events': events,
+        'timeline_pagination': webui.helper.get_pagination_control(
+            '/host/' + host_id, total, start, count
+        ),
         'types': history_schema['type']['allowed'],
         'selected_types': selected_types,
         'title': request.params.get('title', _('Host view'))
@@ -841,8 +828,9 @@ def get_host_widget(host_id, widget_id, embedded=False, identifier=None, credent
         'livestate': livestate,
         'livestate_services': livestate_services,
         'history': history,
-        'timeline_pagination': Helper.get_pagination_control('/host/' + host_id,
-                                                             total, start, count),
+        'timeline_pagination': webui.helper.get_pagination_control(
+            '/host/' + host_id, total, start, count
+        ),
         'types': history_schema['type']['allowed'],
         'selected_types': selected_types,
 
@@ -894,18 +882,6 @@ pages = {
                 'options': {}
             },
             {
-                'id': 'timeline',
-                'for': ['host'],
-                'name': _('Timeline'),
-                'template': 'host_timeline_widget',
-                'icon': 'clock-o',
-                'description': _(
-                    '<h4>Host timeline widget</h4>Displays host timeline.'
-                ),
-                'picture': 'htdocs/img/host_timeline_widget.png',
-                'options': {}
-            },
-            {
                 'id': 'metrics',
                 'for': ['host'],
                 'name': _('Metrics'),
@@ -919,6 +895,18 @@ pages = {
                 'options': {}
             },
             {
+                'id': 'timeline',
+                'for': ['host'],
+                'name': _('Timeline'),
+                'template': 'host_timeline_widget',
+                'icon': 'clock-o',
+                'description': _(
+                    '<h4>Host timeline widget</h4>Displays host timeline.'
+                ),
+                'picture': 'htdocs/img/host_timeline_widget.png',
+                'options': {}
+            },
+            {
                 'id': 'history',
                 'for': ['host'],
                 'name': _('History'),
@@ -926,6 +914,18 @@ pages = {
                 'icon': 'history',
                 'description': _(
                     '<h4>Host history widget</h4>Displays host history.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'events',
+                'for': ['host'],
+                'name': _('Events'),
+                'template': 'host_events_widget',
+                'icon': 'history',
+                'description': _(
+                    '<h4>Host events widget</h4>Displays host events: '
+                    'comments, acknowledges, downtimes,...'
                 ),
                 'options': {}
             },

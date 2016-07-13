@@ -447,7 +447,7 @@ class test_02_items(unittest2.TestCase):
         assert item._id == 'test_id'
         assert item.foo == 'bar'
         assert item.foo_int == 1
-        assert item.name == 'anonymous'
+        self.assertEqual(item.name, 'anonymous')
 
         # Same object
         parameters = { '_id': 'test_id', 'foo': 'bar', 'foo_int': 1 }

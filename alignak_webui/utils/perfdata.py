@@ -59,8 +59,8 @@ PERFDATA_SPLIT_PATTERN = re.compile(r'([^=]+=\S+)')
 # 'metric=45+e-456.56unit;50;80;0;45+-e45e-'
 METRIC_PATTERN = \
     re.compile(
-        r'^([^=]+)=([\d\.\-\+eE]+)([\w\/%]*)'
-        r';?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE]+)?;?([\d\.\-\+eE]+)?;?\s*'
+        r"^([^=]+)=([\d\.\-\+eE]+)([\w\/%]*)"
+        r";?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE]+)?;?([\d\.\-\+eE]+)?;?\s*"
     )
 
 
@@ -72,13 +72,13 @@ def to_best_int_float(val):
     :return: int(float(val)) if int(float(val)) == float(val), else float(val)
     :rtype: int | float
 
-    >>> to_best_int_float("20.1")
+    to_best_int_float("20.1")
     20.1
 
-    >>> to_best_int_float("20.0")
+    to_best_int_float("20.0")
     20
 
-    >>> to_best_int_float("20")
+    to_best_int_float("20")
     20
     """
     integer = int(float(val))
@@ -135,9 +135,9 @@ class Metric:  # pylint: disable=old-style-class, too-few-public-methods, fixme
     def __str__(self):
         string = "%s=%s%s" % (self.name, self.value, self.uom)
         if self.warning:
-            string += ";%s" % (self.warning)
+            string += ";%s" % self.warning
         if self.critical:
-            string += ";%s" % (self.critical)
+            string += ";%s" % self.critical
         return string
 
 

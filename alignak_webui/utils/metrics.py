@@ -24,11 +24,9 @@
 
     Those functions are mainly used in the Host view panel.
 """
-import os
-import sys
 import re
-
 from logging import getLogger
+
 from alignak_webui.utils.perfdata import PerfDatas
 
 logger = getLogger(__name__)
@@ -77,7 +75,7 @@ class HostMetrics(object):
         self.host = host
         self.services = services
 
-    def _findServiceByName(self, searched):
+    def find_service_by_name(self, searched):
         """
         Find a service by its name with regex
         """
@@ -96,7 +94,7 @@ class HostMetrics(object):
         name = 'Unknown'
 
         logger.debug("metrics, get_service_metric for %s", service)
-        s = self._findServiceByName(self.params[service])
+        s = self.find_service_by_name(self.params[service])
         if s:
             logger.debug("metrics, found %s", s.name)
             name = s.name

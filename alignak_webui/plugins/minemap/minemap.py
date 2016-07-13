@@ -108,7 +108,7 @@ def show_minemap():
         'params': plugin_parameters,
         'minemap': minemap,
         'columns': columns,
-        'pagination': Helper.get_pagination_control('/minemap', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/minemap', total, start, count),
         'title': request.query.get('title', _('Hosts minemap'))
     }
 

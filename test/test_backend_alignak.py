@@ -48,11 +48,11 @@ def setup_module(module):
     if backend_address == "http://127.0.0.1:5000/":
         # Set test mode for applications backend
         os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['TEST_ALIGNAK_BACKEND_DB'] = 'alignak-backend'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['TEST_ALIGNAK_BACKEND_DB'])
+            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
         time.sleep(1)

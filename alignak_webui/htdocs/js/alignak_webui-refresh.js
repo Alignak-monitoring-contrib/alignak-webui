@@ -267,6 +267,9 @@ function start_refresh() {
    if (refresh_logs) console.debug("Start refresh");
    $('#header_loading').removeClass('font-greyed');
    sessionStorage.setItem("refresh_active", '1');
+
+   // Page refresh required
+   refresh_required = true;
 }
 
 

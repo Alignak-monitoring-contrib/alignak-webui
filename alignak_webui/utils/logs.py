@@ -23,10 +23,9 @@
     Application logs
 """
 import os
-import traceback
 
 # Logs
-from logging import getLogger, basicConfig, DEBUG, INFO, WARNING
+from logging import DEBUG
 from logging import Formatter, StreamHandler
 from logging.handlers import TimedRotatingFileHandler
 
@@ -41,6 +40,7 @@ class ColorStreamHandler(StreamHandler):  # pragma: no cover
     Color logs ...
     """
     def emit(self, record):
+        # noinspection PyBroadException
         try:
             msg = self.format(record)
             colors = {
@@ -49,9 +49,8 @@ class ColorStreamHandler(StreamHandler):  # pragma: no cover
             }
             cprint(msg, colors[record.levelname])
         except UnicodeEncodeError:  # pragma: no cover, should never happen ...
+            # noinspection PyUnboundLocalVariable
             print msg.encode('ascii', 'ignore')
-        except Exception:  # pragma: no cover, should never happen ...
-            self.handleError(record)
 
 
 def set_console_logger(logger):
@@ -70,12 +69,13 @@ def set_console_logger(logger):
 # Yes, but we need it
 # pylint: disable=too-many-arguments
 def set_file_logger(logger, path='/var/log', filename='application.log',
-                    when="D", interval=1, backupCount=6):
+                    when="D", interval=1, backup_count=6):
     """
     Configure handler for file logging ...
     """
     # Log file directory
     if not os.path.isdir(path):
+        # noinspection PyBroadException
         try:
             os.makedirs(path)
         except Exception:
@@ -87,7 +87,7 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
     fh = TimedRotatingFileHandler(
         filename=os.path.join(path, filename),
         when=when, interval=interval,
-        backupCount=backupCount
+        backupCount=backup_count
     )
 
     # create formatter and add it to the handler

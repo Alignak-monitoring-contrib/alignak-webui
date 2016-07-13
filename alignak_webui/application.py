@@ -23,20 +23,11 @@
     WebUI application
 """
 
-import traceback
-import sys
-import os
 import json
-
+import os
+import traceback
 from importlib import import_module
-
 from logging import getLogger
-
-# import gettext
-
-import setproctitle
-
-import pytz
 
 # Bottle import
 from bottle import hook, route, request, response, redirect, static_file, view, parse_auth
@@ -44,6 +35,7 @@ from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
 # Local import
+from alignak_webui import _
 from alignak_webui import get_app_webui
 from alignak_webui.objects.item import User
 from alignak_webui.objects.datamanager import DataManager
@@ -214,7 +206,7 @@ def external(widget_type, identifier, action=None):
 
     Use the 'links' parameter to prefix the navigation URLs.
     """
-    credentials = None
+
     session = request.environ['beaker.session']
     if 'current_user' in session:
         current_user = session['current_user']
@@ -768,8 +760,6 @@ def set_user_preference():
             message=_('Problem encountered while saving common preferences')
         )
 
-    return WebUI.response_invalid_parameters(_('Error when saving user preferences'))
-
 
 @route('/preference/common', 'POST')
 def set_common_preference():
@@ -797,8 +787,6 @@ def set_common_preference():
     else:
         return WebUI.response_ko(message=_('Only adaministrator user can save common preferences'))
 
-    return WebUI.response_ok(message=_('Error when saving common preferences'))
-
 
 class WebUI(object):
     """
@@ -808,14 +796,8 @@ class WebUI(object):
         """
         Application configuration
 
-        :param id: app_conf
-        :type id: dict
-
-        :param id: app
-        :type id: Bottle instance
-
-        :param id: logger
-        :type id: Python logger instance
+        :param: config
+        :type: dict
         """
 
         logger.info("Initializing...")
@@ -842,7 +824,7 @@ class WebUI(object):
         )
 
     def load_plugins(self, app, plugins_dir):
-        # pylint: disable=too-many-locals, too-many-nested-blocks
+        # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
         """
         Load plugins from the provided directory
 
@@ -929,7 +911,7 @@ class WebUI(object):
                                             os.path.join('/static/plugins/', plugin_name),
                                             widget.get('picture', '')
                                         ),
-                                        'base_uri': page_route,
+                                        'base_uri': route_url,
                                         'function': f
                                     })
                                     logger.debug(

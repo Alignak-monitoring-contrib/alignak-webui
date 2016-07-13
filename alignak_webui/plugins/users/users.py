@@ -69,7 +69,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Users table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -240,7 +240,7 @@ def get_users():
 
     return {
         'users': users,
-        'pagination': Helper.get_pagination_control('/users', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/users', total, start, count),
         'title': request.query.get('title', _('All users'))
     }
 

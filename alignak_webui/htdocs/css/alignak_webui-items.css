@@ -93,6 +93,35 @@
 .concrete { color: #95a5a6; }
 .asbestos { color: #7f8c8d; }
 
-/*  Want more? Get the full flat color palette at
- *  http://htmlcolorcodes.com/color-charts/
+
+/*
+ * Tables row background depending upon items states
  */
+.table-row-ok,
+.table-row-up {
+    background-color: #e6ffe6;
+}
+
+.table-row-warning,
+.table-row-unreachable {
+    background-color: #fff5e6;
+}
+
+.table-row-critical,
+.table-row-down {
+    background-color: #ffe6e6;
+}
+
+.table-row-unknown,
+.table-row-pending {
+    background-color: #e6f2ff;
+}
+
+.table-row-ack,
+.table-row-downtime {
+    background-color: #ffe6ff;
+}
+
+.table-row-greyed {
+    background-color: #f5f5f0;
+}

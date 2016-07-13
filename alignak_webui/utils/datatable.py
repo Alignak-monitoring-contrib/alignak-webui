@@ -32,11 +32,12 @@
 """
 import json
 from logging import getLogger
-from bottle import request, response, view
+from bottle import request
 
 # Import all objects we will need
 # pylint: disable=wildcard-import,unused-wildcard-import
 # We need all the classes defined whatever their number to use the globals() object.
+from alignak_webui import _
 from alignak_webui.objects.item import *
 
 from alignak_webui.utils.helper import Helper
@@ -59,7 +60,14 @@ class Datatable(object):
 
         self.recordsTotal = 0
 
-        self.table_uid = '_id'
+        self.id_property = '_id'
+        self.name_property = 'name'
+        self.status_property = 'status'
+
+        self.title = ""
+
+        self.table_columns = []
+        self.initial_sort = []
 
         self.visible = True
         self.orderable = True
@@ -116,8 +124,7 @@ class Datatable(object):
                 the ui in its schema. The dictionary contains all the fields defined in the 'ui'
                 property of the schema of the element.
 
-            :param element_type: element type
-            :type element_type: str
+            :param schema:
             :return: list of fields name/title
             :rtype: list
             :return: dictionary
@@ -134,7 +141,7 @@ class Datatable(object):
         ui_dm = {
             'element_type': self.object_type,
             'model': {
-                'uid': None,
+                'id_property': None,
                 'page_title': '',
                 'fields': {}
             }
@@ -142,13 +149,15 @@ class Datatable(object):
 
         for field, model in schema.iteritems():
             if field == 'ui':
-                if 'uid' not in model['ui']:  # pragma: no cover - should never happen
+                if 'id_property' not in model['ui']:  # pragma: no cover - should never happen
                     logger.error(
                         'get_data_model, UI schema is not well formed: missing uid property'
                     )
                     continue
 
-                self.table_uid = model['ui']['uid']
+                self.id_property = model['ui'].get('id_property', '_id')
+                self.name_property = model['ui'].get('name_property', 'name')
+                self.status_property = model['ui'].get('status_property', 'status')
 
                 self.title = model['ui']['page_title']
                 self.visible = model['ui']['visible']
@@ -202,7 +211,8 @@ class Datatable(object):
     ##
     # Localization
     ##
-    def get_language_strings(self):
+    @staticmethod
+    def get_language_strings():
         """
         Get DataTable language strings
         """
@@ -495,7 +505,7 @@ class Datatable(object):
             logger.info("backend embedded parameters: %s", parameters['embedded'])
 
         # Request ALL objects count from the backend
-        recordsTotal = self.get_total_records()
+        records_total = self.get_total_records()
 
         # Request objects from the backend ...
         logger.debug("table data get parameters: %s", parameters)
@@ -503,11 +513,11 @@ class Datatable(object):
         # logger.debug("table data, got: %s", items)
 
         # Total number of filtered records
-        recordsFiltered = recordsTotal
+        records_filtered = records_total
         if 'where' in parameters and parameters['where'] != {}:
             logger.debug("update filtered records: %s", parameters['where'])
-            recordsFiltered = len(items)
-        logger.info("filtered records: %d out of total: %d", recordsFiltered, recordsTotal)
+            records_filtered = len(items)
+        logger.info("filtered records: %d out of total: %d", records_filtered, records_total)
 
         # Create an object ...
         if items:
@@ -534,6 +544,7 @@ class Datatable(object):
             for item in items:
                 # _update is the method name... yes, it sounds like a protected member :/
                 # pylint: disable=protected-access
+                # noinspection PyProtectedMember
                 bo_object._update(item)
                 logger.debug("Object: %s", bo_object)
 
@@ -570,7 +581,7 @@ class Datatable(object):
                             for k in globals().keys():
                                 if isinstance(globals()[k], type) and \
                                    '_type' in globals()[k].__dict__ and \
-                                   globals()[k]._type == field['format']:
+                                   globals()[k].getType() == field['format']:
                                     linked_object = globals()[k](item[key])
                                     logger.debug("created: %s", linked_object)
                                     item[key] = linked_object.get_html_link(
@@ -586,8 +597,8 @@ class Datatable(object):
         rsp = {
             # draw is the request number ...
             "draw": int(params.get('draw', '0')),
-            "recordsTotal": recordsTotal,
-            "recordsFiltered": recordsFiltered,
+            "recordsTotal": records_total,
+            "recordsFiltered": records_filtered,
             "data": items
         }
         return json.dumps(rsp)

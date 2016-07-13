@@ -26,10 +26,58 @@
 from logging import getLogger
 from bottle import request, response, template
 
+from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.datatable import Datatable
+
 logger = getLogger(__name__)
 
 # Will be populated by the UI with it's own value
 webui = None
+
+
+def get_table(object_type, schema, embedded=False, identifier=None, credentials=None):
+    """
+    Build the object_type table and get data to populate the table
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Pagination and search
+    where = {'saved_filters': True}
+    if request.query.get('search') is not None:
+        where = Helper.decode_search(request.query.get('search', ''))
+
+    # Get total elements count
+    total = datamgr.get_objects_count(object_type, search=where, refresh=True)
+
+    # Build table structure
+    dt = Datatable(object_type, datamgr.backend, schema)
+
+    # Build page title
+    title = dt.title
+    if '%d' in title:
+        title = title % total
+
+    return {
+        'object_type': object_type,
+        'dt': dt,
+        'where': where,
+        'title': request.query.get('title', title),
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
+    }
+
+
+def get_table_data(object_type, schema):
+    """
+    Get the table data (requested from the table)
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+    dt = Datatable(object_type, datamgr.backend, schema)
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return dt.table_data()
 
 
 def get_widget(get_method, object_type, embedded=False, identifier=None, credentials=None):

@@ -32,9 +32,7 @@ from logging import getLogger
 from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
-
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -146,7 +144,7 @@ schema['state_changed'] = {
     'type': 'boolean',
     'ui': {
         'title': _('State changed'),
-        'visible': True,
+        'visible': True
     },
 }
 schema['acknowledged'] = {
@@ -154,6 +152,7 @@ schema['acknowledged'] = {
     'ui': {
         'title': _('Acknowledged'),
         'visible': True,
+        'hidden': True
     },
 }
 schema['last_state'] = {
@@ -214,7 +213,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Log check result table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -229,44 +228,16 @@ schema['ui'] = {
 
 def get_logcheckresult_table(embedded=False, identifier=None, credentials=None):
     """
-    Get the logcheckresult list and transform it as a table
+    Get the elements to build a table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('logcheckresult', search=where)
-
-    # Build table structure
-    dt = Datatable('logcheckresult', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'logcheckresult',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
+    return get_table('logcheckresult', schema, embedded, identifier, credentials)
 
 
 def get_logcheckresult_table_data():
     """
-    Get the logcheckresult list and provide table data
+    Get the elements required by the table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('logcheckresult', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    return get_table_data('logcheckresult', schema)
 
 
 pages = {

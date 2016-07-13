@@ -135,7 +135,7 @@ def set_app_config(config):
         filename=app_config.get('logs.filename', manifest['name'].lower() + '.log'),
         when=app_config.get('logs.when', 'D'),
         interval=int(app_config.get('logs.interval', '1')),
-        backupCount=int(app_config.get('logs.backupCount', '6'))
+        backup_count=int(app_config.get('logs.backupCount', '6'))
     )
 
     # Set application log level (default is INFO (20))

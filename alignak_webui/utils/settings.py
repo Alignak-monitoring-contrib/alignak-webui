@@ -66,7 +66,6 @@ class Settings(dict):
 
         :param app_name: application name (to build configuration file name)
 
-        :param default: dictionary with default values
         """
         if not app_name:
             return None

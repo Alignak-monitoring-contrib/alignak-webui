@@ -33,8 +33,7 @@ from bottle import request, response, redirect
 
 from alignak_webui.objects.item import Item
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -153,7 +152,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('services groups table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -162,48 +161,6 @@ schema['ui'] = {
         'responsive': True
     }
 }
-
-
-def get_servicegroup_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the servicegroup list and transform it as a table
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('servicegroup', search=where)
-
-    # Build table structure
-    dt = Datatable('servicegroup', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'servicegroup',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
-
-
-def get_servicegroup_table_data():
-    """
-    Get the servicegroup list and provide table data
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('servicegroup', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
 
 
 def get_servicegroups():
@@ -270,7 +227,7 @@ def get_servicegroups():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': Helper.get_pagination_control('/servicegroups', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/servicegroups', total, start, count),
         'title': request.query.get('title', _('All servicegroups'))
     }
 
@@ -292,6 +249,20 @@ def get_servicegroups_list():
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps(items)
+
+
+def get_servicegroups_table(embedded=False, identifier=None, credentials=None):
+    """
+    Get the elements to build a table
+    """
+    return get_table('servicegroup', schema, embedded, identifier, credentials)
+
+
+def get_servicegroups_table_data():
+    """
+    Get the elements required by the table
+    """
+    return get_table_data('servicegroup', schema)
 
 
 def get_servicegroup(servicegroup_id):
@@ -331,7 +302,7 @@ pages = {
         ]
     },
 
-    get_servicegroup_table: {
+    get_servicegroups_table: {
         'name': 'Services groups table',
         'route': '/servicegroup_table',
         'view': '_table',
@@ -347,13 +318,13 @@ pages = {
                     'services groups.<br>'
                 ),
                 'actions': {
-                    'servicegroup_table_data': get_servicegroup_table_data
+                    'servicegroup_table_data': get_servicegroups_table_data
                 }
             }
         ]
     },
 
-    get_servicegroup_table_data: {
+    get_servicegroups_table_data: {
         'name': 'Services groups table data',
         'route': '/servicegroup_table_data',
         'method': 'POST'

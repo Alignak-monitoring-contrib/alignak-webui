@@ -33,8 +33,7 @@ from bottle import request, template, response
 
 from alignak_webui.objects.item import Item
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -410,7 +409,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Services table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -458,7 +457,7 @@ def get_services(templates=False):
 
     return {
         'services': services,
-        'pagination': Helper.get_pagination_control('/services', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/services', total, start, count),
         'title': request.query.get('title', _('All services'))
     }
 
@@ -480,6 +479,20 @@ def get_services_list():
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps(items)
+
+
+def get_services_table(embedded=False, identifier=None, credentials=None):
+    """
+    Get the elements to build a table
+    """
+    return get_table('service', schema, embedded, identifier, credentials)
+
+
+def get_services_table_data():
+    """
+    Get the elements required by the table
+    """
+    return get_table_data('service', schema)
 
 
 def get_services_templates():
@@ -583,45 +596,6 @@ def get_services_widget(embedded=False, identifier=None, credentials=None):
         'identifier': identifier,
         'credentials': credentials
     })
-
-
-def get_services_table():
-    """
-    Get the services list and transform it as a table
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('service', search=where)
-
-    # Build table structure
-    dt = Datatable('service', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'service',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title)
-    }
-
-
-def get_services_table_data():
-    """
-    Get the services list and provide table data
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('service', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
 
 
 pages = {

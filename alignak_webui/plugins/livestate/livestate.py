@@ -32,10 +32,7 @@ from logging import getLogger
 from bottle import request, response, redirect, template
 
 from alignak_webui.objects.item import Item
-from alignak_webui.plugins.common.common import get_widget
-
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -312,12 +309,13 @@ schema['execution_time'] = {
 # This to define the global information for the table
 schema['ui'] = {
     'type': 'boolean',
-    'default': True,
 
     # UI parameters for the objects
     'ui': {
         'page_title': _('Livestate table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
+        'name_property': 'name',
+        'status_property': 'state',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -333,44 +331,16 @@ schema['ui'] = {
 
 def get_livestate_table(embedded=False, identifier=None, credentials=None):
     """
-    Get the livestate list and transform it as a table
+    Get the elements to build a table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('livestate', search=where)
-
-    # Build table structure
-    dt = Datatable('livestate', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'livestate',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
+    return get_table('livestate', schema, embedded, identifier, credentials)
 
 
 def get_livestate_table_data():
     """
-    Get the livestate list and provide table data
+    Get the elements required by the table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('livestate', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    return get_table_data('livestate', schema)
 
 
 def get_livestate(livestate_id):
@@ -416,6 +386,17 @@ pages = {
         'name': 'Livestate table',
         'route': '/livestate_table',
         'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            _('Hosts up'): 'type:host state:UP',
+            _('Hosts down'): 'type:host state:DOWN',
+            _('Hosts unreachable'): 'type:host state:UNREACHABLE',
+            _('Services ok'): 'type:service state:OK',
+            _('Services warning'): 'type:service state:WARNING',
+            _('Services critical'): 'type:service state:CRITICAL',
+            _('Services unknown'): 'type:service state:UNKNOWN',
+        },
         'tables': [
             {
                 'id': 'livestate_table',

@@ -34,8 +34,7 @@ from bottle import request, response
 
 from alignak_webui.objects.item import Item
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
+from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -48,7 +47,7 @@ schema = OrderedDict()
 schema['name'] = {
     'type': 'string',
     'ui': {
-        'title': _('Command name'),
+        'title': _('Name'),
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -67,8 +66,21 @@ schema['definition_order'] = {
         'title': _('Definition order'),
         'visible': True,
         'hidden': True,
-        'orderable': True,
+        'orderable': False,
     },
+}
+schema['alias'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Alias'),
+        'visible': True
+    },
+}
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
 }
 schema['command_line'] = {
     'type': 'string',
@@ -81,7 +93,8 @@ schema['module_type'] = {
     'type': 'string',
     'ui': {
         'title': _('Module type'),
-        'visible': True
+        'visible': True,
+        'hidden': True
     },
 }
 schema['enable_environment_macros'] = {
@@ -102,14 +115,16 @@ schema['poller_tag'] = {
     'type': 'string',
     'ui': {
         'title': _('Poller tag'),
-        'visible': True
+        'visible': True,
+        'hidden': True
     },
 }
 schema['reactionner_tag'] = {
     'type': 'string',
     'ui': {
         'title': _('Reactionner tag'),
-        'visible': True
+        'visible': True,
+        'hidden': True
     },
 }
 
@@ -122,7 +137,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Commands table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -170,7 +185,7 @@ def get_commands():
 
     return {
         'commands': commands,
-        'pagination': Helper.get_pagination_control('/commands', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/commands', total, start, count),
         'title': request.query.get('title', _('All commands'))
     }
 
@@ -206,44 +221,16 @@ def get_commands_list():
 
 def get_commands_table(embedded=False, identifier=None, credentials=None):
     """
-    Get the commands list and transform it as a table
+    Get the elements to build a table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('command', search=where)
-
-    # Build table structure
-    dt = Datatable('command', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'command',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
+    return get_table('command', schema, embedded, identifier, credentials)
 
 
 def get_commands_table_data():
     """
-    Get the commands list and provide table data
+    Get the elements required by the table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('command', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    return get_table_data('command', schema)
 
 
 pages = {

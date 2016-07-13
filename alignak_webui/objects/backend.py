@@ -29,10 +29,10 @@
 
 import json
 import traceback
-from logging import getLogger, DEBUG, INFO, WARNING
+from logging import getLogger, WARNING
 
+from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT
 from alignak_backend_client.client import Backend, BackendException
-from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -82,7 +82,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 # Backend real login
                 logger.info("Requesting backend authentication, username: %s", username)
                 self.connected = self.backend.login(username, password)
-            except BackendException as e:  # pragma: no cover, should not happen
+            except BackendException:  # pragma: no cover, should not happen
                 logger.warning("configured backend is not available!")
             except Exception as e:  # pragma: no cover, should not happen
                 logger.warning("User login exception: %s", str(e))
@@ -131,19 +131,19 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 return 0
 
             logger.debug("count, search result for %s: result=%s", object_type, result)
-            if result['_status'] != 'OK':  # pragma: no cover, should not happen
+            if not result['_status'] == 'OK':  # pragma: no cover, should not happen
                 error = []
                 if "content" in result:
-                    error.append(result["content"])
+                    error.append(result['content'])
                 if "_issues" in result:
-                    error.append(result["_issues"])
+                    error.append(result['_issues'])
                 logger.warning("count, %s: %s, not found: %s", object_type, params, error)
                 return 0
 
             # If more than one element is found, we get an _items list
             if '_items' in result:
-                logger.debug("count, found in the backend: %s: %s", object_type, result['_items'])
-                return result['_meta']['total']
+                logger.debug("count, found in the backend: %s: %s", object_type, result["_items"])
+                return result["_meta"]['total']
 
             return 0  # pragma: no cover, simple protection
 
@@ -198,12 +198,12 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             logger.debug(
                 "search, search result for %s: result=%s", object_type, result
             )
-            if result['_status'] != 'OK':  # pragma: no cover, should not happen
+            if result["_status"] != 'OK':  # pragma: no cover, should not happen
                 error = []
                 if "content" in result:
-                    error.append(result["content"])
+                    error.append(result['content'])
                 if "_issues" in result:
-                    error.append(result["_issues"])
+                    error.append(result['_issues'])
                 logger.warning("get, %s: %s, not found: %s", object_type, params, error)
                 raise ValueError(
                     '%s, search: %s was not found in the backend, error: %s' % (
@@ -220,7 +220,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 return result['_items']
 
             if '_status' in result:
-                result.pop('_status', None)
+                result.pop('_status')
             if '_meta' in result:
                 result.update({'_total': result['_meta']['total']})
             logger.debug("get, found one in the backend: %s: %s", object_type, result)
@@ -291,7 +291,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             except BackendException as e:  # pragma: no cover, should never happen
                 logger.error("delete, backend exception: %s", str(e))
                 return False
-            except ValueError as e:  # pragma: no cover, should never happen
+            except ValueError:  # pragma: no cover, should never happen
                 logger.warning("delete, not found %s: %s", object_type, element)
                 return False
 

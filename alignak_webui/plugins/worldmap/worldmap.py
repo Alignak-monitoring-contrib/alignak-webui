@@ -88,7 +88,7 @@ def get_worldmap():
         'mapId': 'hostsMap',
         'params': plugin_parameters,
         'hosts': valid_hosts,
-        'pagination': Helper.get_pagination_control('/worldmap', total, start, count),
+        'pagination': webui.helper.get_pagination_control('/worldmap', total, start, count),
         'title': request.query.get('title', _('Hosts worldmap'))
     }
 
@@ -103,6 +103,7 @@ def get_valid_elements(search):
 
     # Get elements from the data manager
     hosts = datamgr.get_hosts(search)
+    logger.info("worldmap, search valid hosts")
 
     valid_hosts = []
     for host in hosts:
@@ -130,7 +131,7 @@ def get_valid_elements(search):
             host.customs.update({'_LOC_LAT': str(_lat)})
             host.customs.update({'_LOC_LNG': str(_lng)})
 
-        logger.debug("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
+        logger.info("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
         valid_hosts.append(host)
 
     return valid_hosts

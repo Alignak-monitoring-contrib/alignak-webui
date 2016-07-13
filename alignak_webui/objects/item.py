@@ -28,23 +28,16 @@
 """
 
 import time
+from calendar import timegm
 from datetime import datetime
-
-import locale
-
-import traceback
 from logging import getLogger, INFO
 
-from calendar import timegm
 from dateutil import tz
 
 from alignak_webui import get_app_config, _
-
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
 from alignak_webui.utils.helper import Helper
-
-from alignak_backend_client.client import BackendException
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -140,7 +133,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                             app_config.get(search)
                     else:
                         self.states[object_type]['state_view'][prop] = \
-                            app_config.get("items.%s" % (prop))
+                            app_config.get("items.%s" % prop)
 
                 logger.debug(
                     " --- class configuration: %s: %s",
@@ -199,11 +192,12 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
 
             Text and icon are defined in the application configuration file.
 
+            :param size:
+            :param disabled:
+            :param title:
             :param object_type: element type
             :type object_type: string
             :param object_item: element
-            :type object: Item class based object
-
             :param extra: extra string replacing ##extra##, and set opacity to 0.5
             :type extra: string
 
@@ -360,6 +354,11 @@ class Item(object):
 
     # Dates fields: list of the attributes to be considered as dates
     _dates = ['_created', '_updated']
+
+    _name = 'anonymous'
+    _alias = ''
+    _status = 'unknown'
+    _notes = ''
 
     # Items states
     items_states = [
@@ -710,8 +709,10 @@ class Item(object):
             elif self.getKnownClasses() and params.__class__ in self.getKnownClasses():
                 params = params.__dict__
             else:
-                logger.critical(
-                    "_update, cannot update an object (%s) with: %s (%s)",
+                logger.debug(
+                    "_update, cannot update an object (%s) with: %s (%s)"
+                    "Updated object is a second level object, else "
+                    "you should try to embed this object from the backend",
                     self.__class__, params, params.__class__
                 )
                 return
@@ -723,24 +724,34 @@ class Item(object):
                     "link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
                 )
                 object_type = getattr(self, '_linked_' + key, None)
+
+                # Already contains an object, so update object ...
                 if isinstance(object_type, Item):
-                    # Already contains an object, so update object ...
                     logger.debug("_update, update object: %s = %s", key, params[key])
                     object_type._update(params[key])
                     continue
 
                 # Linked resource type
                 logger.debug(
-                    "_update, must create link for %s/%s with %s ",
+                    "_update, must create a link for %s -> %s with %s ",
                     self.object_type, key, params[key]
                 )
-                # No object yet linked...
-                if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+
+                if isinstance(object_type, list):
+                    # Some objects are linked through a list
+                    if not object_type:
+                        logger.debug("_update, empty list")
+                        continue
+                    object_class = object_type[0].__class__
+                    object_type = object_type[0].getType()
+
+                elif object_type in [kc.getType() for kc in self.getKnownClasses()]:
+                    # No object yet linked... find its class thanks to the known type
+                    object_class = [kc for kc in self.getKnownClasses()
+                                    if kc.getType() == object_type][0]
+                else:
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
-
-                object_class = [kc for kc in self.getKnownClasses()
-                                if kc.getType() == object_type][0]
 
                 # String - object id
                 if isinstance(params[key], basestring) and self.getBackend():
@@ -851,7 +862,7 @@ class Item(object):
         logger.debug(" --- initializing with %s and %s", params, date_format)
 
     def __repr__(self):
-        return ("<%s, id: %s, name: %s, status: %s>") % (
+        return "<%s, id: %s, name: %s, status: %s>" % (
             self.__class__._type, self.id, self.name, self.status
         )
 
@@ -961,7 +972,7 @@ class Item(object):
         """
         if hasattr(self.__class__, 'comment_property'):
             return getattr(self, self.__class__.comment_property, None)
-        return self._comment
+        return self._notes
 
     @notes.setter
     def notes(self, notes):
@@ -972,7 +983,7 @@ class Item(object):
         if hasattr(self.__class__, 'comment_property'):
             setattr(self, self.__class__.comment_property, notes)
         else:
-            self._comment = notes
+            self._notes = notes
 
     @property
     def status(self):
@@ -1265,10 +1276,10 @@ class User(Item):
 
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
-            return ("<Authenticated %s, id: %s, name: %s, role: %s>") % (
+            return "<Authenticated %s, id: %s, name: %s, role: %s>" % (
                 self.__class__._type, self.id, self.name, self.get_role()
             )
-        return ("<%s, id: %s, name: %s, role: %s>") % (
+        return "<%s, id: %s, name: %s, role: %s>" % (
             self.__class__._type, self.id, self.name, self.get_role()
         )
 
@@ -1383,8 +1394,8 @@ class UserGroup(Item):
         """
         Create a contactgroup (called only once when an object is newly created)
         """
-        self._linked_contactgroup_members = 'contactgroup'
-        self._linked_members = 'contact'
+        self._linked_usergroup_members = 'usergroup'
+        self._linked_members = 'user'
 
         super(UserGroup, self)._create(params, date_format)
 
@@ -1408,7 +1419,7 @@ class UserGroup(Item):
     @property
     def contactgroup_members(self):
         """ Return linked object """
-        return self._linked_contactgroup_members
+        return self._linked_usergroup_members
 
 
 class LiveSynthesis(Item):

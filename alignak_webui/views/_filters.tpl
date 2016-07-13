@@ -27,10 +27,14 @@
          <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
-         <li role="presentation"><a role="menuitem" href="{{search_action}}?search={{search_prefix}}&title={{'%s %s' % (_('All '), search_name)}}">{{_('All')}}</a></li>
+         <li role="presentation">
+            <a role="menuitem" href="{{search_action}}?search=clear">{{_('All')}}</a>
+         </li>
          <li role="presentation" class="divider"></li>
-         %for k,v in search_filters.items():
-            <li role="presentation"><a role="menuitem" href="{{search_action}}?search={{v}}">{{k}}</a></li>
+         %for k,v in sorted(search_filters.items()):
+            <li role="presentation">
+               <a role="menuitem" href="{{search_action}}?search={{v}}">{{k}}</a>
+            </li>
          %end
       </ul>
    </div>

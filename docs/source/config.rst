@@ -14,8 +14,8 @@ The application searches in several location for a configuration file:
     - /usr/local/etc/alignak_webui/settings.cfg
     - /etc/alignak_webui/settings.cfg
     - ~/alignak_webui/settings.cfg
-    - */etc/settings.cfg
-    - */alignak_webui/etc/settings.cfg
+    - ./etc/settings.cfg
+    - ./alignak_webui/etc/settings.cfg
     - ./settings.cfg
 
 Each file found takes precedence over the previous files. As of it, for the same parameter with different values in */usr/local/etc/alignak_webui/settings.cfg* and *./settings.cfg*, the retained value will be the one configured in *./settings.cfg*.

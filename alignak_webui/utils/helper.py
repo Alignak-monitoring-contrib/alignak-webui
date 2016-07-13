@@ -27,9 +27,7 @@
 """
 import re
 import time
-import math
 import traceback
-
 from logging import getLogger
 
 from alignak_webui import _
@@ -84,10 +82,11 @@ class Helper(object):
 
         Returns 1h 15m 12s if only_duration is True
 
+        :param ts_is_duration:
+        :param x_elts:
+        :param duration_only:
         :param timestamp: unix timestamp
         :type timestamp: long int
-        :param fmt: python date/time format string
-        :type fmt: sting
         :return: formatted date
         :rtype: string
         """
@@ -101,7 +100,7 @@ class Helper(object):
 
         # If it's now, say it :)
         if seconds < 3:
-            if seconds < 0 and seconds > -4:
+            if 0 > seconds > -4:
                 return _('Very soon')
             if seconds >= 0:
                 return _('Just now')
@@ -217,6 +216,7 @@ class Helper(object):
         text = "%s %s" % (bi_texts.get(business_impact, _('Unknown')), stars)
         return text.strip()
 
+    # noinspection PyBroadException
     @staticmethod
     def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
         """
@@ -330,13 +330,13 @@ class Helper(object):
             i = 0
             for item in obj.notes.split('|'):
                 if not obj.notes_url:
-                    notes.append("%s,," % (item))
+                    notes.append("%s,," % item)
                 else:
                     notes_url = obj.notes_url.split('|')
                     if len(notes_url) > i:
                         notes.append("%s,,%s" % (item, notes_url[i]))
                     else:
-                        notes.append("%s,," % (item))
+                        notes.append("%s,," % item)
                 i += 1
                 logger.debug("get_element_notes_url, note: %s", notes)
 
@@ -390,7 +390,7 @@ class Helper(object):
                 patterns.append(('name', match.group('name')))
             elif match.group('key'):
                 patterns.append((match.group('key'), match.group('value')))
-        logger.info("decode_search, search patterns: %s", patterns)
+        logger.debug("decode_search, search patterns: %s", patterns)
 
         parameters = {}
         for t, s in patterns:
@@ -403,7 +403,7 @@ class Helper(object):
 
             parameters.update({t: s})
 
-        logger.info("decode_search, parameters: %s", parameters)
+        logger.debug("decode_search, parameters: %s", parameters)
         return parameters
 
     @staticmethod
@@ -443,11 +443,8 @@ class Helper(object):
             current_page, count, max_page
         )
 
-        res = []
+        res = [(page_url, start, count, total, False)]
         # First element contains pagination global data
-        res.append(
-            (page_url, start, count, total, False)
-        )
         if current_page > (nb_max_items / 2) + 1:
             # First page
             start = 0
@@ -555,11 +552,24 @@ class Helper(object):
 
         content += '<ul class="list-group">'
         for item in objects_list:
-            content += \
-                '<li class="list-group-item">'\
-                '<span class="fa fa-check">&nbsp;%s</li>' % (
-                    item if isinstance(item, basestring) else item.get_html_state_link()
-                )
+            if isinstance(item, basestring):
+                content += \
+                    '<li class="list-group-item">'\
+                    '<span class="fa fa-check">&nbsp;%s</li>' % (
+                        item
+                    )
+            elif isinstance(item, dict):
+                content += \
+                    '<li class="list-group-item">'\
+                    '<span class="fa fa-check">&nbsp;%s</li>' % (
+                        item
+                    )
+            else:
+                content += \
+                    '<li class="list-group-item">'\
+                    '<span class="fa fa-check">&nbsp;%s</li>' % (
+                        item.get_html_state_link()
+                    )
         content += '</ul>'
         content += '</div></div>'
 
@@ -573,6 +583,7 @@ class Helper(object):
         if not bo_object:
             return ''
 
+        content = ''
         try:
             # Get global configuration
             app_config = get_app_config()

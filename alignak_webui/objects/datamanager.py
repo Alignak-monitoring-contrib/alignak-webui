@@ -25,13 +25,10 @@
     Application data manager
 """
 
-import re
-import json
 import time
 import traceback
-from urlparse import urljoin
 from datetime import datetime
-from logging import getLogger, INFO
+from logging import getLogger
 
 from alignak_backend_client.client import BackendException
 # from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
@@ -41,12 +38,7 @@ from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
 from alignak_webui.objects.item import Item
-from alignak_webui.objects.item import Command, Realm, TimePeriod
-from alignak_webui.objects.item import LiveState, LiveSynthesis, Log, History
-from alignak_webui.objects.item import UIPref, User, Host, Service
-from alignak_webui.objects.item import UserGroup, HostGroup, ServiceGroup
-from alignak_webui.objects.item import ActionAcknowledge, ActionDowntime, ActionForceCheck
-
+from alignak_webui.objects.item import User
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -101,7 +93,7 @@ class DataManager(object):
         self.updated = datetime.utcnow()
 
     def __repr__(self):
-        return ("<DM, id: %s, objects count: %d, user: %s, updated: %s>") % (
+        return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
             self.id,
             self.get_objects_count(),
             self.get_logged_user().get_username() if self.get_logged_user() else 'Not logged in',
@@ -307,7 +299,7 @@ class DataManager(object):
         new_objects_count = self.get_objects_count()
         logger.debug("Load, end, objects in cache: %d", new_objects_count)
 
-        logger.warning(
+        logger.info(
             "Data manager load (%s), new objects: %d,  duration: %s",
             refresh, new_objects_count - objects_count, (time.time() - start)
         )
@@ -526,8 +518,6 @@ class DataManager(object):
                 )
                 # Delete existing record ...
                 return self.delete_object('uipref', item['_id'])
-
-            return False
         except Exception as e:  # pragma: no cover - need specific backend tests
             logger.error("delete_user_preferences, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
@@ -556,8 +546,6 @@ class DataManager(object):
         :rtype: boolean
         """
         try:
-            response = None
-
             logger.debug(
                 "set_user_preferences, type: %s, for: %s",
                 prefs_type, user
@@ -606,8 +594,6 @@ class DataManager(object):
             logger.error("traceback: %s", traceback.format_exc())
             return False
 
-        return True
-
     def get_user_preferences(self, user, prefs_type, default=None):
         """
         Get user's preferences
@@ -622,6 +608,7 @@ class DataManager(object):
         **Note**: When a simple value is stored with set_user_preferences, it is never returned as
         a simple value but in a dictionary containing a 'value' property.
 
+        :param default:
         :param user: username
         :type user: string
         :param prefs_type: preference type
@@ -701,8 +688,6 @@ class DataManager(object):
 
             :param search: backend request search
             :type search: dic
-            :param all_elements: get all elements (True) or apply default pagination
-            :type all_elements: bool
             :return: list of hosts live states
             :rtype: list
         """
@@ -741,8 +726,6 @@ class DataManager(object):
 
             :param search: backend request search
             :type search: dic
-            :param all_elements: get all elements (True) or apply default pagination
-            :type all_elements: bool
             :return: list of services live states
             :rtype: list
         """
@@ -1155,7 +1138,7 @@ class DataManager(object):
         synthesis['nb_elts'] = len(services)
         synthesis['nb_problem'] = 0
         if services:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = sum(
                     1 for service in services if service.status.lower() == state
                 )
@@ -1163,7 +1146,7 @@ class DataManager(object):
                     100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
                 )
         else:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'ack', 'downtime':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = 0
                 synthesis['pct_' + state] = 0
 

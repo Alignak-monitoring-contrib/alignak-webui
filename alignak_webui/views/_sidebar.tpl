@@ -3,7 +3,10 @@
 %setdefault('in_sidebar', False)
 
 %action_bar = (len(webui.get_widgets_for('dashboard')) != 0)
-
+%if action_bar:
+%from bottle import request
+%action_bar = request.route.name == 'Dashboard'
+%end
 %if target_user.is_anonymous() or target_user.get_username() == current_user.get_username():
 %target_user = None
 %end
@@ -62,6 +65,19 @@
                <a class="navbar-link" href="{{ webui.get_url('Realms') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span class="hidden-xs">{{_('Realms tree')}}</span>
+               </a>
+            </li>
+
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Users table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Users table')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users tree')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Users') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Users tree')}}</span>
                </a>
             </li>
 
