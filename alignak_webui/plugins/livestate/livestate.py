@@ -309,12 +309,13 @@ schema['execution_time'] = {
 # This to define the global information for the table
 schema['ui'] = {
     'type': 'boolean',
-    'default': True,
 
     # UI parameters for the objects
     'ui': {
         'page_title': _('Livestate table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
+        'name_property': 'name',
+        'status_property': 'state',
         'visible': True,
         'orderable': True,
         'editable': False,
@@ -385,6 +386,17 @@ pages = {
         'name': 'Livestate table',
         'route': '/livestate_table',
         'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            _('Hosts up'): 'type:host state:UP',
+            _('Hosts down'): 'type:host state:DOWN',
+            _('Hosts unreachable'): 'type:host state:UNREACHABLE',
+            _('Services ok'): 'type:service state:OK',
+            _('Services warning'): 'type:service state:WARNING',
+            _('Services critical'): 'type:service state:CRITICAL',
+            _('Services unknown'): 'type:service state:UNKNOWN',
+        },
         'tables': [
             {
                 'id': 'livestate_table',

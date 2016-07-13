@@ -59,7 +59,9 @@ class Datatable(object):
 
         self.recordsTotal = 0
 
-        self.table_uid = '_id'
+        self.id_property = '_id'
+        self.name_property = 'name'
+        self.status_property = 'status'
 
         self.visible = True
         self.orderable = True
@@ -134,7 +136,7 @@ class Datatable(object):
         ui_dm = {
             'element_type': self.object_type,
             'model': {
-                'uid': None,
+                'id_property': None,
                 'page_title': '',
                 'fields': {}
             }
@@ -142,13 +144,15 @@ class Datatable(object):
 
         for field, model in schema.iteritems():
             if field == 'ui':
-                if 'uid' not in model['ui']:  # pragma: no cover - should never happen
+                if 'id_property' not in model['ui']:  # pragma: no cover - should never happen
                     logger.error(
                         'get_data_model, UI schema is not well formed: missing uid property'
                     )
                     continue
 
-                self.table_uid = model['ui']['uid']
+                self.id_property = model['ui'].get('id_property', '_id')
+                self.name_property = model['ui'].get('name_property', 'name')
+                self.status_property = model['ui'].get('status_property', 'status')
 
                 self.title = model['ui']['page_title']
                 self.visible = model['ui']['visible']

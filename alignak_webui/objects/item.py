@@ -710,8 +710,10 @@ class Item(object):
             elif self.getKnownClasses() and params.__class__ in self.getKnownClasses():
                 params = params.__dict__
             else:
-                logger.error(
-                    "_update, cannot update an object (%s) with: %s (%s)",
+                logger.debug(
+                    "_update, cannot update an object (%s) with: %s (%s)"
+                    "Updated object is a second level object, else "
+                    "you should try to embed this object from the backend",
                     self.__class__, params, params.__class__
                 )
                 return
@@ -731,7 +733,7 @@ class Item(object):
                     continue
 
                 # Linked resource type
-                logger.error(
+                logger.debug(
                     "_update, must create a link for %s -> %s with %s ",
                     self.object_type, key, params[key]
                 )
@@ -739,7 +741,7 @@ class Item(object):
                 if isinstance(object_type, list):
                     # Some objects are linked through a list
                     if not object_type:
-                        logger.error("_update, empty list")
+                        logger.debug("_update, empty list")
                         continue
                     object_class = object_type[0].__class__
                     object_type = object_type[0].getType()

@@ -7,7 +7,8 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%setdefault('where', {})
+%# Default filtering is to use the table saved state
+%setdefault('where', {'saved_filters': True})
 
 %setdefault('commands', False)
 %setdefault('object_type', 'unknown')
@@ -53,7 +54,7 @@ table.dataTable tbody>tr>.selected {
 <div id="{{object_type}}_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
    <!-- Bootstrap responsive table
    <div class="table-responsive"> -->
-      <table id="tbl_{{object_type}}" class="table table-striped table-condensed dt-responsive">
+      <table id="tbl_{{object_type}}" class="table table-condensed dt-responsive">
          <thead>
             <tr>
                %for column in dt.table_columns:
@@ -83,7 +84,7 @@ table.dataTable tbody>tr>.selected {
 </div>
 
 <script>
-   var debugTable = false;
+   var debugTable = true;
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
@@ -132,16 +133,17 @@ table.dataTable tbody>tr>.selected {
 
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
-         var column = $(this).parent().index()+':visible'
+         var column_index = $(this).parent().data('index');
+         var column_name = $(this).parent().data('name');
          var value = $(this).val();
          if ($(this).attr('type') == 'checkbox') {
             value = $(this).is(':checked');
          }
-         if (debugTable) console.debug('Datatable event, search column '+column+' for '+value);
+         if (debugTable) console.debug('Datatable event, search column '+column_name+' for '+value);
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
-            .column(column)
+            .column(column_index)
                .search(value, $(this).data('regex')=='True', false)
                .draw();
 
@@ -151,21 +153,22 @@ table.dataTable tbody>tr>.selected {
 
       // Apply the search filter for select fields
       $("#tbl_{{object_type}} thead select").on('change', function () {
-         var column = $(this).parent().index()+':visible'
+         var column_index = $(this).parent().data('index');
+         var column_name = $(this).parent().data('name');
          var value = $(this).find(':selected').val();
 
-         if (debugTable) console.debug('Datatable event, search column '+column+' for ', value);
+         if (debugTable) console.debug('Datatable event, search column '+column_name+' for ', value);
 
-         if (! value) return;
+         //if (! value) return;
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
-            .column(column)
+            .column(column_index)
               .search(value, false, false)
               .draw();
 
          // Enable the clear filter button
-         table.buttons('clearFilter:data').enable();
+         table.buttons('clearFilter:name').enable();
       });
       %end
 
@@ -268,31 +271,58 @@ table.dataTable tbody>tr>.selected {
 
       $('#tbl_{{object_type}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-         if (debugTable) console.debug('Datatable event, state loaded ...');
+         if (debugTable) console.debug('Datatable event, saved state loaded ...');
 
-         // Enable the clear filter button
-         table.buttons('clearFilter:data').disable();
+         // Disable the clear filter button
+         table.buttons('clearFilter:name').disable();
 
-         // Update each search field with the received value
-         $.each(data.columns, function(index, value) {
-            if (value['search']['search'] != "") {
-               if (debugTable) console.debug('Update column', index, value['search']['search']);
+         if (where['saved_filters']) {
+            if (debugTable) console.debug('Restoring saved filters...');
+
+            // Update each search field with the received value
+            $.each(data.columns, function(index, value) {
+               if (value['search']['search'] != "") {
+                  if (debugTable) console.debug('Update column', index, value['search']['search'], value);
+                  // Update search filter input field value
+                  $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+
+                  // Enable the clear filter button
+                  table.buttons('clearFilter:name').enable();
+               }
+            });
+         } else {
+            if (debugTable) console.debug('Erasing saved filters...');
+
+            // Clear the search fields
+            $('#filterrow th').children().val('');
+
+            // Reset table columns search
+            table
+               .columns()
+                  .search('', false, false);
+
+            // Update each search field with the filter URL parameters
+            $.each(where, function(key, value) {
+               var column_index = table.column(key+':name').index();
+               var column_regex = table.column(key+':name').data('regex');
+
+               if (debugTable) console.debug('Update column search', column_index, key, value, column_regex);
+               if (debugTable) console.debug('Update column search', table.column(key+':name'));
+
                // Update search filter input field value
-               $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+               if (debugTable) console.debug("Set new value: '" + value + "'");
+               $('#filterrow th[data-name="'+key+'"]').children().val(value);
+
+               // Configure table filtering
+               table
+                  .column(column_index)
+                     .search(value, $('#filterrow th[data-name="'+key+'"]').data('regex'), false);
 
                // Enable the clear filter button
-               table.buttons('clearFilter:data').enable();
-            }
-         });
-
-         // Update each search field with the filter URL parameters
-         $.each(where, function(key, value) {
-            var index = table.column(key+':name').index();
-            if (debugTable) console.debug('Update column search', index, key, value);
-
-            // Update search filter input field value
-            $('#filterrow th[data-index="'+index+'"]').children().val(value).trigger('change');
-         });
+               table.buttons('clearFilter:name').enable();
+               console.log('Enable clear filters 2!')
+            });
+         }
       });
 
       // Table declaration
@@ -454,50 +484,39 @@ table.dataTable tbody>tr>.selected {
 
          // Each created row ...
          createdRow: function (row, data, index) {
-            //var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-            //if (debugTable) console.debug('Datatable createdRow, table: ', table);
-            //if (debugTable) console.debug('Datatable createdRow, row: ', row);
+            /*
             if (debugTable) console.debug('Datatable createdRow, data: ', data);
-
-            if ('{{dt.id_property}}' in data) {
-               var name_node = table.cell(index, 'data:name').node();
-               if (debugTable) console.debug('Datatable createdRow, name: ', data.data);
-            }
+            if (debugTable) console.debug('Datatable createdRow, name: {{dt.name_property}}');
+            if (debugTable) console.debug('Datatable createdRow, status: {{dt.status_property}}');
+            */
 
             if ('{{dt.name_property}}' in data) {
-               var name_node = table.cell(index, 'data:name').node();
-               if (debugTable) console.debug('Datatable createdRow, name: ', data.data, name_node);
+               var name_node = table.cell(index, '{{dt.name_property}}:name').node();
                // The node descendants should contain some information about the element
-               /*
-               <a href="host/575422f64c988c217b0b1c50">
-               <div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="575422f64c988c217b0b1c50" data-item-name="webui" data-item-type="host">
-               <span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span>
-               <span>webui</span>
-               </div></a>
-                */
-               var id = $(name_node).find('[data-item-id]').data('item-id');
-               var type = $(name_node).find('[data-item-type]').data('item-type');
-               var name = $(name_node).find('[data-item-name]').data('item-name');
-               var state = $(name_node).find('[data-item-state]').data('item-state');
-               console.log(type, id, name)
+               /* eg.
+                  <a href="/livestate/5786027106fd4b0af2d51b3e">vm-win7/Cpu</a>
+               */
             }
 
             if ('{{dt.status_property}}' in data) {
-               var status_node = table.cell(index, 'data:name').node();
-               if (debugTable) console.debug('Datatable createdRow, name: ', data.data, status_node);
+               var status_node = table.cell(index, '{{dt.status_property}}:name').node();
                // The node descendants should contain some information about the element
-               /*
-               <a href="host/575422f64c988c217b0b1c50">
-               <div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="575422f64c988c217b0b1c50" data-item-name="webui" data-item-type="host">
-               <span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x fa-inverse"></i></span>
-               <span>webui</span>
-               </div></a>
+               /* eg.
+                  <div class="item-state item_livestate_ok OK" style="display: inline; font-size:0.9em;" data-item-id="5786027006fd4b0af0d51c42" data-item-name="vm-win7/Disks" data-item-type="livestate" data-item-state="OK" title="Service is ok">
+                     <span class="fa-stack ">
+                        <i class="fa fa-circle fa-stack-2x item_livestate_ok"></i>
+                        <i class="fa fa-cube fa-stack-1x fa-inverse"></i>
+                     </span>
+                     <span>Service is ok</span>
+                  </div>
                 */
                var id = $(status_node).find('[data-item-id]').data('item-id');
                var type = $(status_node).find('[data-item-type]').data('item-type');
                var name = $(status_node).find('[data-item-name]').data('item-name');
                var state = $(status_node).find('[data-item-state]').data('item-state');
-               console.log(type, id, name)
+
+               var row = table.row(index).node();
+               $(row).addClass('table-row-'+state.toLowerCase());
             }
          },
 

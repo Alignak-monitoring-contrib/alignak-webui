@@ -42,7 +42,9 @@ def get_table(object_type, schema, embedded=False, identifier=None, credentials=
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
+    where = {'saved_filters': True}
+    if request.query.get('search') is not None:
+        where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
     total = datamgr.get_objects_count(object_type, search=where, refresh=True)

@@ -440,7 +440,7 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Hosts table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
         'editable': False,
