@@ -46,15 +46,17 @@ from alignak_webui import __name__ as __pkg_name__
 package = import_module('alignak_webui')
 
 install_requires = [
+    'future',
     'configparser',
     'docopt',
     'bottle>=0.12.9,<0.13',
     'Beaker==1.8.0',
+    'CherryPy',
     'pymongo>=3.2',
     'requests>=2.9.1',
-    'setproctitle>=1.1.8',
     'python-gettext',
-    'python-dateutil',
+    'termcolor',
+    'python-dateutil==2.4.2',
     'pytz',
     'alignak_backend_client'
 ]
@@ -91,6 +93,7 @@ else:
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
+    print "RTD build, no data_files"
     data_files = []
 
 setup(
