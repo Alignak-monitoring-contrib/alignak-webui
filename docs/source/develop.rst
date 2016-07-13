@@ -44,9 +44,9 @@ Table configuration
 
 A backend object used in a plugin can be displayed as a table. For this, the plugin must declare:
 
- - a table build URL (eg. element_table)
- - a table update URL (eg. element_table_data)
- - a table schema as a global OrderedDict variable named *schema*
+    - a table build URL (eg. element_table)
+    - a table update URL (eg. element_table_data)
+    - a table schema as a global OrderedDict variable named *schema*
 
 The *schema* defines the global table configuration and the table columns configuration. Each column is declared as an item of the *schema* ordered dictionary. The declaration order will be used for the column order in the table.
 
@@ -134,61 +134,62 @@ As an example::
 Table display
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
- If a status_property is defined for the table (default is to use the `status` field in the elemnts), then each table row has an extra CSS class named as: table-row-status_property.
+If a status_property is defined for the table (default is to use the `status` field in the elemnts), then each table row has an extra CSS class named as: table-row-status_property.
 
- As an example, for the livestate table, an element with status UP will have a CSS class **table-row-up**.
+As an example, for the livestate table, an element with status UP will have a CSS class **table-row-up**.
 
- The corresponding classes can be defined in the *alignak_webui-items.css* file. Some example classes still exist in this file for the livestate states (eg. UP, OK, ...).
+The corresponding classes can be defined in the *alignak_webui-items.css* file. Some example classes still exist in this file for the livestate states (eg. UP, OK, ...).
 
 Table filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
- Table filtering is available on a column basis; each column can have its own search parameter in the table header. The filtering field is an input field, a select field, ... according to the column type/format.
+Table filtering is available on a column basis; each column can have its own search parameter in the table header. The filtering field is an input field, a select field, ... according to the column type/format.
 
  TO BE DETAILED (fields type/format)!
 
- The data backend search is made with an AND operator on all the provided values. Furthermore, each column has a *regex* parameter. This parameter indicates wether the search is an exact (False) or loose (True) match on the data value.
+The data backend search is made with an AND operator on all the provided values. Furthermore, each column has a *regex* parameter. This parameter indicates wether the search is an exact (False) or loose (True) match on the data value.
 
- The table filtering is stored in the user's preferences to be restored the next time the page is refreshed or browsed.
+The table filtering is stored in the user's preferences to be restored the next time the page is refreshed or browsed.
 
- A table button indicates if some filters are activated and also allows to clear the currently applied filters.
+A table button indicates if some filters are activated and also allows to clear the currently applied filters.
 
- Web UI pages displaying a datatable can receive an URL parameter to influence the data filtering. If the *search* query parameter is present in the URL it takes precedence over the existing column filtering. As of it, the user can request a specific table filter that will be used instead of the saved filtering.
+Web UI pages displaying a datatable can receive an URL parameter to influence the data filtering. If the *search* query parameter is present in the URL it takes precedence over the existing column filtering. As of it, the user can request a specific table filter that will be used instead of the saved filtering.
 
- On table loading, the filtering logic is as follows:
- - restore previously saved state
- - if no URL filtering is present, restore filters from saved state
- - if URL filtering is present, clear table filtering and apply URL filtering
+On table loading, the filtering logic is as follows:
+    - restore previously saved state
+    - if no URL filtering is present, restore filters from saved state
+    - if URL filtering is present, clear table filtering and apply URL filtering
 
- The URL filtering parameter *search* has a very simple syntax:
- - `?search=` to clear all the table filters
- - `?search=name:value` to search for `value` in the column `name`
- - `?search=name:value name2:value2` to search for `value` in the column `name` and `value2` in `name2`
+The URL filtering parameter *search* has a very simple syntax:
+    - `?search=` to clear all the table filters
+    - `?search=name:value` to search for `value` in the column `name`
+    - `?search=name:value name2:value2` to search for `value` in the column `name` and `value2` in `name2`
 
- Some examples:
- - livestate hosts UP: `search=type:host state:UP`
- - livestate hosts DOWN: `search=type:host state:DOWN`
- - livestate services WARNING: `search=type:service state:WARNING` or `search=type:service state_id:1`
- - livestate hosts/services OK/UP: `search=state_id:0`
- - livestate elements business impact high: `search=business_impact:5`
+Some examples:
+    - livestate hosts UP: `search=type:host state:UP`
+    - livestate hosts DOWN: `search=type:host state:DOWN`
+    - livestate services WARNING: `search=type:service state:WARNING` or `search=type:service state_id:1`
+    - livestate hosts/services OK/UP: `search=state_id:0`
+    - livestate elements business impact high: `search=business_impact:5`
 
 User's preferences
 ------------------
 
+ TO BE EXPLAINED !
+
+HTML templates
+---------------
 
  TO BE EXPLAINED !
 
-Templates
----------
-
 Debug mode
 ~~~~~~~~~~~~~~
-Many templates declare a local `debug` variable that will allow to display extra information. Simply declare this variable as True (eg. `%setdefault('debug', True)`). Debug information panels have a *bug* icon ;)
+Many templates declare a local `debug` variable that will display extra information. Simply declare this variable as True (eg. `%setdefault('debug', True)`). Debug information panels have a *bug* icon ;)
 
 Some specific templates for debug mode:
 
-    * layout.tpl, will display all the HTTP request information
-    * _actionbar.tpl will display all the widgets available for dashboard and external access
+    - layout.tpl, will display all the HTTP request information
+    - _actionbar.tpl will display all the widgets available for dashboard and external access
 
 Good practices
 ~~~~~~~~~~~~~~
