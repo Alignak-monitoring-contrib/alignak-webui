@@ -144,7 +144,7 @@ schema['state_changed'] = {
     'type': 'boolean',
     'ui': {
         'title': _('State changed'),
-        'visible': True,
+        'visible': True
     },
 }
 schema['acknowledged'] = {
@@ -152,6 +152,7 @@ schema['acknowledged'] = {
     'ui': {
         'title': _('Acknowledged'),
         'visible': True,
+        'hidden': True
     },
 }
 schema['last_state'] = {

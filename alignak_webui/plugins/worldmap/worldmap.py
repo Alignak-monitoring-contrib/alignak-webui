@@ -130,7 +130,7 @@ def get_valid_elements(search):
             host.customs.update({'_LOC_LAT': str(_lat)})
             host.customs.update({'_LOC_LNG': str(_lng)})
 
-        logger.debug("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
+        logger.info("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
         valid_hosts.append(host)
 
     return valid_hosts

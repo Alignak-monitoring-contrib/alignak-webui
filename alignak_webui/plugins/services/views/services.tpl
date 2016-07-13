@@ -48,10 +48,9 @@
                <th style="width: 40px"></th>
                <th>{{_('Host')}}</th>
                <th>{{_('Service')}}</th>
-               <th>{{_('Check command')}}</th>
-               <th>{{_('Active checks enabled')}}</th>
-               <th>{{_('Passive checks enabled')}}</th>
                <th>{{_('Business impact')}}</th>
+               <th>{{_('Check command')}}</th>
+               <th>{{_('Last check output')}}</th>
             </tr></thead>
 
             <tbody>
@@ -76,19 +75,17 @@
                   </td>
 
                   <td>
+                     <small>{{! Helper.get_html_business_impact(service.business_impact)}}</small>
+                  </td>
+
+                  <td>
                      <small>{{! service.check_command.get_html_link()}}</small>
                   </td>
 
                   <td>
-                     <small>{{! Helper.get_on_off(service.active_checks_enabled)}}</small>
-                  </td>
-
-                  <td>
-                     <small>{{! Helper.get_on_off(service.passive_checks_enabled)}}</small>
-                  </td>
-
-                  <td>
-                     <small>{{! Helper.get_html_business_impact(service.business_impact)}}</small>
+                  %if lv_service:
+                     <small>{{! lv_service.output}}</small>
+                  %end
                   </td>
                </tr>
              %end
