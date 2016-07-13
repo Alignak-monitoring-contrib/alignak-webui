@@ -723,24 +723,35 @@ class Item(object):
                     "link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
                 )
                 object_type = getattr(self, '_linked_' + key, None)
+
+                # Already contains an object, so update object ...
                 if isinstance(object_type, Item):
-                    # Already contains an object, so update object ...
                     logger.debug("_update, update object: %s = %s", key, params[key])
                     object_type._update(params[key])
                     continue
 
                 # Linked resource type
-                logger.debug(
-                    "_update, must create link for %s/%s with %s ",
+                logger.error(
+                    "_update, must create a link for %s -> %s with %s ",
                     self.object_type, key, params[key]
                 )
-                # No object yet linked...
-                if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+
+                if isinstance(object_type, list):
+                    # Some objects are linked through a list
+                    if not object_type:
+                        logger.error("_update, empty list")
+                        continue
+                    object_class = object_type[0].__class__
+                    object_type = object_type[0].getType()
+
+                elif object_type in [kc.getType() for kc in self.getKnownClasses()]:
+                    # No object yet linked... find its class thanks to the known type
+                    object_class = [kc for kc in self.getKnownClasses()
+                                    if kc.getType() == object_type][0]
+                else:
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
 
-                object_class = [kc for kc in self.getKnownClasses()
-                                if kc.getType() == object_type][0]
 
                 # String - object id
                 if isinstance(params[key], basestring) and self.getBackend():
@@ -1383,8 +1394,8 @@ class UserGroup(Item):
         """
         Create a contactgroup (called only once when an object is newly created)
         """
-        self._linked_contactgroup_members = 'contactgroup'
-        self._linked_members = 'contact'
+        self._linked_usergroup_members = 'usergroup'
+        self._linked_members = 'user'
 
         super(UserGroup, self)._create(params, date_format)
 
@@ -1408,7 +1419,7 @@ class UserGroup(Item):
     @property
     def contactgroup_members(self):
         """ Return linked object """
-        return self._linked_contactgroup_members
+        return self._linked_usergroup_members
 
 
 class LiveSynthesis(Item):
