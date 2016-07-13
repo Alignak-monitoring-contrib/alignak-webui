@@ -66,8 +66,6 @@
 
       <!-- Datatables jQuery plugin -->
       <link rel="stylesheet" href="/static/css/datatables.min.css" >
-      <!-- Datatables custom filtering jQuery plugin -->
-      <link rel="stylesheet" href="/static/css/jquery.dataTables.yadcf.css" >
 
       %# Specific CSS files
       %for f in css:
@@ -100,8 +98,6 @@
 
       <!-- Datatables jQuery plugin -->
       <script type="text/javascript" src="/static/js/datatables.min.js"></script>
-      <!-- Datatables custom filtering jQuery plugin -->
-      <script type="text/javascript" src="/static/js/jquery.dataTables.yadcf.js"></script>
 
       <!--
        Application globals ...
