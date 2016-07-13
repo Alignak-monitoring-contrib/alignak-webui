@@ -61,10 +61,6 @@ install_requires = [
     'alignak_backend_client'
 ]
 
-data_files = [
-    (paths['etc'], ['etc/settings.cfg'])
-]
-
 # Define paths
 if 'linux' in sys.platform or 'sunos5' in sys.platform:
     paths = {
@@ -89,6 +85,10 @@ elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
 else:
     print "Unsupported platform, sorry!"
     exit(1)
+
+data_files = [
+    (paths['etc'], ['etc/settings.cfg'])
+]
 
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
