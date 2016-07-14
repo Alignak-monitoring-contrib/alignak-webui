@@ -81,6 +81,7 @@ def get_table_data(object_type, schema):
     return dt.table_data()
 
 
+# noinspection PyUnusedLocal
 def get_widget(get_method, object_type, embedded=False, identifier=None, credentials=None):
     # Because there are many locals needed :)
     # pylint: disable=too-many-locals

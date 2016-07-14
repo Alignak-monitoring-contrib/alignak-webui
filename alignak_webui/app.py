@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 """
 Usage:
     {command} [-h] [-v] [-d] [-x] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
@@ -85,20 +87,20 @@ cfg_file = None
 
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
-    print "Application is in test mode"
+    print("Application is in test mode")
 else:  # pragma: no cover - tests are run in test mode...
-    print "Application is in production mode"
+    print("Application is in production mode")
 
 if os.environ.get('TEST_WEBUI_CFG'):
     cfg_file = os.environ.get('TEST_WEBUI_CFG')
-    print "Application configuration file name from environment: %s" % cfg_file
+    print("Application configuration file name from environment: %s" % cfg_file)
 
 # Read configuration file
 app_config = Settings(cfg_file)
 config_file = app_config.read(manifest['name'])
-print "Configuration read from: %s" % config_file
+print("Configuration read from: %s" % config_file)
 if not app_config:  # pragma: no cover, should never happen
-    print "Required configuration file not found."
+    print("Required configuration file not found.")
     exit(1)
 
 # Store application name in the configuration
@@ -106,7 +108,7 @@ app_config['name'] = manifest['name']
 
 # Debug mode for the application (run Bottle in debug mode)
 app_config['debug'] = (app_config.get('debug', '0') == '1')
-print "Application debug mode: %s" % app_config['debug']
+print("Application debug mode: %s" % app_config['debug'])
 
 if __name__ != "__main__":
     # Make the configuration available globally for the package
@@ -127,21 +129,20 @@ def main():  # pragma: no cover, not mesured by coverage!
 
     # ----------------------------------------------------------------------------------------------
     # Command line parameters
+    args = {
+        '--debug': False,
+        '--backend': None,
+        '--hostname': None,
+        '--port': None,
+        '--exit': False
+    }
+
     if __name__ == "__main__":  # pragma: no cover, not mesured by coverage!
         try:
             args = docopt(__doc__, version=manifest['version'])
         except DocoptExit:
-            print "Command line parsing error"
+            print("Command line parsing error")
             exit(64)
-    else:
-        args = {
-            '--debug': False,
-            '--backend': None,
-            '--hostname': None,
-            '--port': None,
-            '--exit': False
-        }
-
     # Application settings
     # ----------------------------------------------------------------------------------------------
     # Configuration file path in command line parameters
@@ -154,9 +155,9 @@ def main():  # pragma: no cover, not mesured by coverage!
         # Read configuration file
         app_config = Settings(cfg_file)
         new_config_file = app_config.read(manifest['name'])
-        print "Configuration read from: %s" % new_config_file
+        print("Configuration read from: %s" % new_config_file)
         if not app_config:  # pragma: no cover, should never happen
-            print "Required configuration file not found."
+            print("Required configuration file not found.")
             exit(1)
 
     # Store application name in the configuration
@@ -164,11 +165,11 @@ def main():  # pragma: no cover, not mesured by coverage!
 
     if '--debug' in args and args['--debug']:  # pragma: no cover, not mesured by coverage!
         app_config['debug'] = '1'
-        print "Application is in debug mode from command line"
+        print("Application is in debug mode from command line")
 
     if os.environ.get('WEBUI_DEBUG'):  # pragma: no cover, not mesured by coverage!
         app_config['debug'] = '1'
-        print "Application is in debug mode from environment"
+        print("Application is in debug mode from environment")
 
     # Applications backend URL
     if args['--backend']:  # pragma: no cover, not mesured by coverage!
@@ -206,7 +207,7 @@ def main():  # pragma: no cover, not mesured by coverage!
         )
 
         if args['--exit']:
-            print "Application exit because of command line parameter"
+            print("Application exit because of command line parameter")
             exit(99)
 
         # Run application server...

@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 """
     Application logs
 """
@@ -50,7 +52,7 @@ class ColorStreamHandler(StreamHandler):  # pragma: no cover
             cprint(msg, colors[record.levelname])
         except UnicodeEncodeError:  # pragma: no cover, should never happen ...
             # noinspection PyUnboundLocalVariable
-            print msg.encode('ascii', 'ignore')
+            print(msg.encode('ascii', 'ignore'))
 
 
 def set_console_logger(logger):

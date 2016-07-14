@@ -19,8 +19,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 """
-    Settings module
+    Application configuration and settings module
 """
 
 import os
@@ -91,6 +93,7 @@ class Settings(dict):
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
                     for option in config.options(section):
+                        # noinspection PyBroadException
                         try:
                             if app_name in section:
                                 self[option] = config.get(section, option)
@@ -99,11 +102,11 @@ class Settings(dict):
                         except Exception:  # pragma: no cover - should never happen ...
                             self[section + '.' + option] = None
             else:  # pragma: no cover - should never happen ...
-                print "No configuration file found in %s." % settings_filenames
+                print("No configuration file found in %s." % settings_filenames)
 
             return found_cfg_file
         except Exception as e:
-            print "Bad formed configuration file."
-            print "Exception: %s" % str(e)
-            print "Traceback: %s" % traceback.format_exc()
+            print("Bad formed configuration file.")
+            print("Exception: %s" % str(e))
+            print("Traceback: %s" % traceback.format_exc())
             return None

@@ -101,52 +101,52 @@ class BackendElement(object):
     ]
 
     @classmethod
-    def getKnownClasses(cls):
+    def get_known_classes(cls):
         """ Get protected member """
         return cls._known_classes
 
     @classmethod
-    def setKnownClasses(cls, known_classes):
+    def set_known_classes(cls, known_classes):
         """ Set protected member _known_classes """
         cls._known_classes = known_classes
 
     @classmethod
-    def getBackend(cls):
+    def get_backend(cls):
         """ Get protected member """
         return cls._backend
 
     @classmethod
-    def setBackend(cls, backend):
+    def set_backend(cls, backend):
         """ Set protected member _backend """
         cls._backend = backend
 
     @classmethod
-    def getType(cls):
+    def get_type(cls):
         """ Get protected member """
         return cls._type
 
     @classmethod
-    def getCount(cls):
+    def get_count(cls):
         """ Get protected member """
         return cls._count
 
     @classmethod
-    def getTotalCount(cls):
+    def get_total_count(cls):
         """ Get protected member """
         return cls._total_count
 
     @classmethod
-    def setTotalCount(cls, count):
+    def set_total_count(cls, count):
         """ Set protected member _total_count """
         cls._total_count = count
 
     @classmethod
-    def getCache(cls):
+    def get_cache(cls):
         """ Get protected member """
         return cls._cache
 
     @classmethod
-    def cleanCache(cls):
+    def clean_cache(cls):
         """
         Clean internal objects cache and reset the internal counters
         """
@@ -179,7 +179,7 @@ class BackendElement(object):
         id_property = getattr(cls, 'id_property', '_id')
         # print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
 
-        if not cls.getBackend():
+        if not cls.get_backend():
             # Get global configuration
             app_config = get_app_config()
             if not app_config:  # pragma: no cover, should not happen
@@ -215,7 +215,7 @@ class BackendElement(object):
                     params[id_property] = str(params[id_property])
                 _id = params[id_property]
             else:
-                _id = '%s_%d' % (cls.getType(), cls._next_id)
+                _id = '%s_%d' % (cls.get_type(), cls._next_id)
                 params[id_property] = _id
                 cls._next_id += 1
 
@@ -223,12 +223,12 @@ class BackendElement(object):
             if not params:
                 params = {}
             # Force _id in the parameters
-            params.update({id_property: '%s_0' % (cls.getType())})
+            params.update({id_property: '%s_0' % (cls.get_type())})
 
         if _id not in cls._cache:
             # print "Create a new %s (%s)" % (cls.getType(), _id)
             cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
-            cls._cache[_id]._type = cls.getType()
+            cls._cache[_id]._type = cls.get_type()
             cls._cache[_id]._default_date = cls._default_date
             # print " ... new: %s" % cls._cache[_id]
 
@@ -263,7 +263,7 @@ class BackendElement(object):
             cls._count -= 1
             logger.debug(
                 "Removed. Remaining in cache: %d / %d",
-                cls.getCount(), len(cls.getCache())
+                cls.get_count(), len(cls.get_cache())
             )
 
     def _create(self, params, date_format):
@@ -309,12 +309,12 @@ class BackendElement(object):
                 )
                 # Linked resource type
                 object_type = getattr(self, '_linked_' + key, None)
-                if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+                if object_type not in [kc.get_type() for kc in self.getKnownClasses()]:
                     logger.error("_create, unknown %s for %s", object_type, params[key])
                     continue
 
                 object_class = [kc for kc in self.getKnownClasses()
-                                if kc.getType() == object_type][0]
+                                if kc.get_type() == object_type][0]
 
                 # Dictionary - linked object attributes (backend embedded object)
                 if isinstance(params[key], dict):
@@ -480,12 +480,12 @@ class BackendElement(object):
                         logger.debug("_update, empty list")
                         continue
                     object_class = object_type[0].__class__
-                    object_type = object_type[0].getType()
+                    object_type = object_type[0].get_type()
 
-                elif object_type in [kc.getType() for kc in self.getKnownClasses()]:
+                elif object_type in [kc.get_type() for kc in self.getKnownClasses()]:
                     # No object yet linked... find its class thanks to the known type
                     object_class = [kc for kc in self.getKnownClasses()
-                                    if kc.getType() == object_type][0]
+                                    if kc.get_type() == object_type][0]
                 else:
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
@@ -494,12 +494,12 @@ class BackendElement(object):
                 if isinstance(params[key], basestring) and self.getBackend():
                     # Object link is a string, so it contains the object type
                     object_type = getattr(self, '_linked_' + key, None)
-                    if object_type not in [kc.getType() for kc in self.getKnownClasses()]:
+                    if object_type not in [kc.get_type() for kc in self.getKnownClasses()]:
                         logger.error("_update, unknown %s for %s", object_type, params[key])
                         continue
 
                     object_class = [kc for kc in self.getKnownClasses()
-                                    if kc.getType() == object_type][0]
+                                    if kc.get_type() == object_type][0]
 
                     # Object link is a string, so we need to load the object from the backend
                     result = self.getBackend().get(object_type + '/' + params[key])

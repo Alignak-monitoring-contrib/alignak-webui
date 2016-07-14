@@ -98,7 +98,7 @@ class History(BackendElement):
             return ElementState().get_html_state('logcheckresult', self.logcheckresult,
                                                  extra, icon, text, title, disabled)
 
-        return super(History, self).get_html_state(object_type=self.getType(), object_item=self,
+        return super(History, self).get_html_state(object_type=self.get_type(), object_item=self,
                                                    extra=extra, icon=icon, text=text,
                                                    title=title, disabled=disabled, size=size)
 

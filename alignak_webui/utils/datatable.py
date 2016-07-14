@@ -34,11 +34,12 @@ import json
 from logging import getLogger
 from bottle import request
 
+from alignak_webui import _
+
 # Import all objects we will need
 # pylint: disable=wildcard-import,unused-wildcard-import
 # We need all the classes defined whatever their number to use the globals() object.
-from alignak_webui import _
-from alignak_webui.objects.datamanager import DataManager
+# from alignak_webui.objects.datamanager import DataManager
 # from alignak_webui.objects.element import *
 
 from alignak_webui.utils.helper import Helper
@@ -524,7 +525,7 @@ class Datatable(object):
         # Create an object ...
         if items:
             object_class = [kc for kc in self.datamgr.known_classes
-                            if kc.getType() == self.object_type][0]
+                            if kc.get_type() == self.object_type][0]
             bo_object = object_class()
 
             self.id_property = '_id'
@@ -578,7 +579,7 @@ class Datatable(object):
                             for k in globals().keys():
                                 if isinstance(globals()[k], type) and \
                                    '_type' in globals()[k].__dict__ and \
-                                   globals()[k].getType() == field['format']:
+                                   globals()[k].get_type() == field['format']:
                                     linked_object = globals()[k](item[key])
                                     logger.debug("created: %s", linked_object)
                                     item[key] = linked_object.get_html_link(

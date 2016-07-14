@@ -23,6 +23,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 """
     This module contains the base class used to manage the application objects configuration:
     - representation,
@@ -56,7 +58,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             # Get global configuration
             app_config = get_app_config()
             if not app_config:  # pragma: no cover, should not happen
-                print "No application configuration!"
+                print("No application configuration!")
                 assert False
 
             self.object_types_states = {}

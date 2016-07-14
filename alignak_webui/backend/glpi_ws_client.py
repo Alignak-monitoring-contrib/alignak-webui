@@ -161,13 +161,11 @@ class Glpi(object):
 
         return True
 
-    def methodCall(self, methodName, parameters=None):
+    def method_call(self, method_name, parameters=None):
         """
 
-        :param endpoint: endpoint (API URL) relative from root endpoint
-        :type endpoint: str
-        :param params: list of parameters for the backend API
-        :type params: list
+        :param parameters: list of parameters for the backend API
+        :param method_name: RPC method name
         :return: list of properties when query item | list of items when get many items
         :rtype: list
         """
@@ -178,11 +176,11 @@ class Glpi(object):
                 "Access denied, please login before calling any method."
             )
 
-        logger.info("methodCall: %s", methodName)
+        logger.info("methodCall: %s", method_name)
 
         resp = None
         try:
-            method = getattr(self.connection, methodName)
+            method = getattr(self.connection, method_name)
             if not parameters:
                 parameters = {}
             parameters.update({
@@ -190,14 +188,14 @@ class Glpi(object):
                 "iso8859": True,
                 "id2name": True
             })
-            logger.info("methodCall: %s (%s)", methodName, parameters)
+            logger.info("methodCall: %s (%s)", method_name, parameters)
             resp = method(parameters)
-            logger.debug("methodCall: %s: %s", methodName, resp)
+            logger.debug("methodCall: %s: %s", method_name, resp)
         except xmlrpclib.Fault as err:  # pragma: no cover - should not happen
             logger.error("XMLRPC error: %d / %s", err.faultCode, err.faultString)
             if isinstance(err.faultString, unicode):
                 err.faultString = err.faultString.encode('utf-8')
-            raise GlpiException(1001, "methodCall: %s: %s" % (methodName, err.faultString))
+            raise GlpiException(1001, "methodCall: %s: %s" % (method_name, err.faultString))
         except Exception as e:  # pragma: no cover - security ...
             logger.error("Glpi connection exception, error: %s / %s", type(e), str(e))
             raise GlpiException(1000, "Glpi exception: %s / %s" % (type(e), str(e)))

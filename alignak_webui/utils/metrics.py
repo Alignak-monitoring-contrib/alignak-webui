@@ -117,7 +117,7 @@ class HostMetrics(object):
                                 "metrics, service: %s, got '%s' = %s", service, m.name, m.value
                             )
                             data[m.name] = m.value
-            except Exception, exp:
+            except Exception as exp:
                 logger.warning("metrics get_service_metric, exception: %s", str(exp))
 
         logger.debug("metrics, get_service_metric %s", data)

@@ -20,13 +20,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 """
 # Alignak-WebUI application
 """
 import os
 
 # Logs
-from logging import DEBUG, INFO
+from logging import DEBUG
 from logging import getLogger
 
 # Localization
@@ -34,17 +36,11 @@ import gettext
 from gettext import GNUTranslations, NullTranslations
 
 # Session management
-try:
-    from beaker.middleware import SessionMiddleware
-except ImportError:  # pragma: no cover - should not happen
-    print "Missing Beaker python package. Install it with: pip install Beaker==1.8.0"
+from beaker.middleware import SessionMiddleware
 
 # Bottle import
-try:
-    from bottle import BaseTemplate
-    import bottle
-except ImportError:  # pragma: no cover - should not happen
-    print "Missing Bottle python package. Install it with: pip install Bottle>=0.12.8,<0.13"
+from bottle import BaseTemplate
+import bottle
 
 # Specific application
 from alignak_webui.utils.logs import set_console_logger, set_file_logger
@@ -106,21 +102,21 @@ def set_app_config(config):
         filename = os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "res/%s.mo" % config.get('locale', 'en_US')
         )
-        print "Opening message file %s for locale %s" % (filename, config.get('locale', 'en_US'))
+        print("Opening message file %s for locale %s" % (filename, config.get('locale', 'en_US')))
         translation = GNUTranslations(open(filename, "rb"))
         translation.install()
         _ = translation.gettext
     except IOError:
-        print "Locale not found. Using default language messages (English)"
+        print("Locale not found. Using default language messages (English)")
         default = NullTranslations()
         default.install()
         _ = default.gettext
     except Exception as e:  # pragma: no cover - should not happen
-        print "Locale not found. Exception: %s" % str(e)
+        print("Locale not found. Exception: %s" % str(e))
         default = NullTranslations()
         default.install()
         _ = default.gettext
-    print _("Language is English (default)...")
+    print(_("Language is English (default)..."))
 
     app_config = config
     bottle_app.config.update(config)
@@ -139,10 +135,10 @@ def set_app_config(config):
     )
 
     # Set application log level (default is INFO (20))
-    print "Activate logs level: %d" % int(app_config.get('logs.level', '20'))
+    print("Activate logs level: %d" % int(app_config.get('logs.level', '20')))
     logger.setLevel(int(app_config.get('logs.level', '20')))
     if app_config.get('debug', '0') == '1':  # pragma: no cover - not testable easily...
-        print "Activate DEBUG logs"
+        print("Activate DEBUG logs")
         logger.setLevel(DEBUG)
 
     logger.info(

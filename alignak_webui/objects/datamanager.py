@@ -88,12 +88,12 @@ class DataManager(object):
         for k, dummy in globals().items():
             if isinstance(globals()[k], type) and \
                '_type' in globals()[k].__dict__ and \
-               globals()[k].getType() is not None and \
-               globals()[k].getType() is not 'item':
+               globals()[k].get_type() is not None and \
+               globals()[k].get_type() is not 'item':
                 self.known_classes.append(globals()[k])
                 logger.debug(
                     "Known class %s for object type: %s",
-                    globals()[k], globals()[k].getType()
+                    globals()[k], globals()[k].get_type()
                 )
 
         self.connected = False
@@ -139,8 +139,8 @@ class DataManager(object):
                 self.connection_message = _('Connection successful')
 
                 # Set the backend to use by the data manager objects
-                BackendElement.setBackend(self.backend)
-                BackendElement.setKnownClasses(self.known_classes)
+                BackendElement.set_backend(self.backend)
+                BackendElement.set_known_classes(self.known_classes)
 
                 # Fetch the logged-in user
                 if password:
@@ -228,7 +228,7 @@ class DataManager(object):
             )
 
         # Find "Backend object type" classes in file imported modules ...
-        object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
+        object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
         for item in result:
             # Create a new object
@@ -240,7 +240,7 @@ class DataManager(object):
 
             # Update class _total_count (each item got from backend has an _total field)
             if '_total' in item:
-                object_class.setTotalCount(item['_total'])
+                object_class.set_total_count(item['_total'])
 
         return items
 
@@ -334,8 +334,8 @@ class DataManager(object):
 
         # Clean internal objects cache
         for known_class in self.known_classes:
-            logger.info("Cleaning %s cache...", known_class.getType())
-            known_class.cleanCache()
+            logger.info("Cleaning %s cache...", known_class.get_type())
+            known_class.clean_cache()
 
         if logout:
             self.backend.logout()
@@ -369,16 +369,16 @@ class DataManager(object):
 
         if object_type:
             for known_class in self.known_classes:
-                if object_type == known_class.getType():
-                    objects_count = known_class.getCount()
+                if object_type == known_class.get_type():
+                    objects_count = known_class.get_count()
                     log_function(
                         "get_objects_count, currently %d cached %ss",
                         objects_count, object_type
                     )
                     if refresh:
                         if hasattr(known_class, '_total_count') and \
-                           known_class.getTotalCount() != -1:
-                            objects_count = known_class.getTotalCount()
+                           known_class.get_total_count() != -1:
+                            objects_count = known_class.get_total_count()
                             log_function(
                                 "get_objects_count, got _total_count attribute: %d",
                                 objects_count
@@ -401,22 +401,22 @@ class DataManager(object):
 
         objects_count = 0
         for known_class in self.known_classes:
-            count = known_class.getCount()
+            count = known_class.get_count()
             log_function(
                 "get_objects_count, currently %d cached %ss",
-                count, known_class.getType()
+                count, known_class.get_type()
             )
             if refresh:
-                count = self.count_objects(known_class.getType(), search=search)
+                count = self.count_objects(known_class.get_type(), search=search)
                 if search:
                     log_function(
                         "get_objects_count, currently %d total %ss for %s",
-                        count, known_class.getType(), search
+                        count, known_class.get_type(), search
                     )
                 else:
                     log_function(
                         "get_objects_count, currently %d total %ss",
-                        count, known_class.getType()
+                        count, known_class.get_type()
                     )
             objects_count += count
 
@@ -467,11 +467,11 @@ class DataManager(object):
 
         if self.backend.delete(object_type, object_id):
             # Find object type class...
-            object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
+            object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
             # Delete existing cache object
-            if object_id in object_class.getCache():
-                del object_class.getCache()[object_id]
+            if object_id in object_class.get_cache():
+                del object_class.get_cache()[object_id]
 
         return True
 
@@ -1144,7 +1144,7 @@ class DataManager(object):
         Services synthesis by status
         """
         if elts:
-            services = [item for item in elts if item.getType() == 'service']
+            services = [item for item in elts if item.get_type() == 'service']
         else:
             services = self.get_services()
         logger.debug("get_services_synthesis, %d services", len(services))

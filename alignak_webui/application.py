@@ -34,9 +34,7 @@ from bottle import hook, route, request, response, redirect, static_file, view, 
 from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
-import pytz
-
-# Local import
+# Application import
 from alignak_webui import _
 from alignak_webui import get_app_webui
 from alignak_webui.objects.item_user import User
@@ -192,6 +190,7 @@ def enable_cors(fn):
     return _enable_cors
 
 
+# noinspection PyUnusedLocal
 @route('/external/<widget_type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
 @route('/external/<widget_type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
 @enable_cors
@@ -878,6 +877,7 @@ class WebUI(object):
                         methods = entry.get('method', 'GET')
 
                         # Routes are an array of tuples [(route, name), ...]
+                        route_url = ''
                         if not isinstance(page_route, list):
                             page_route = [(page_route, page_name)]
                         for route_url, name in page_route:
@@ -963,10 +963,8 @@ class WebUI(object):
                 plugin.webui = self
 
                 # Load/set plugin configuration
-                config = True
                 f = getattr(plugin, 'load_config', None)
                 if f and callable(f):
-                    config = False
                     logger.info(
                         "plugin '%s' needs to load its configuration. Configuring...", plugin_name
                     )
@@ -991,9 +989,12 @@ class WebUI(object):
         # exit()
         return i
 
+    # noinspection PyMethodMayBeStatic
     def get_url(self, name):
         """
         Get the URL for a named route
+        :param name:
+        :return:
         """
         return bottle.default_app().get_url(name)
 

@@ -199,49 +199,49 @@ class Test0(unittest2.TestCase):
         print("--- test class cache")
 
         # Clean generic Item cache and reset counter to 0
-        BackendElement.cleanCache()
+        BackendElement.clean_cache()
 
         # Create basic object
         # Declaration without any parameter is allowed
         item = BackendElement()
         print("--- cache:")
-        print(BackendElement.getCache())
-        assert len(BackendElement.getCache()) == 1
-        assert BackendElement.getType() == 'item'
-        assert BackendElement.getCount() == 1
+        print(BackendElement.get_cache())
+        assert len(BackendElement.get_cache()) == 1
+        assert BackendElement.get_type() == 'item'
+        assert BackendElement.get_count() == 1
 
         # New declaration with _id in args
         item2 = BackendElement({'_id': 0})
         assert item == item2
         # Both objects are the same ... because _id and mandatory fields is the same!
         print("--- cache:")
-        print(BackendElement.getCache())
-        assert len(BackendElement.getCache()) == 1
-        assert BackendElement.getCount() == 1
+        print(BackendElement.get_cache())
+        assert len(BackendElement.get_cache()) == 1
+        assert BackendElement.get_count() == 1
 
         # New declaration with different parameters in kwargs
         item3 = BackendElement(params={'_id': '0', 'new_param': 1})
         assert item == item3
         print("--- cache:")
-        print(BackendElement.getCache())
-        assert len(BackendElement.getCache()) == 1
-        assert BackendElement.getCount() == 1
+        print(BackendElement.get_cache())
+        assert len(BackendElement.get_cache()) == 1
+        assert BackendElement.get_count() == 1
 
         # New object because not the same id ...
         item3 = BackendElement(params={'_id': 1, 'new_param': 1})
         assert item != item3
         # Different objects because different id !
         print("--- cache:")
-        print(BackendElement.getCache())
-        assert len(BackendElement.getCache()) == 2
-        assert BackendElement.getCount() == 2
+        print(BackendElement.get_cache())
+        assert len(BackendElement.get_cache()) == 2
+        assert BackendElement.get_count() == 2
 
         # Delete objects
         item3._delete()
         print("--- cache:")
-        print(BackendElement.getCache())
-        assert len(BackendElement.getCache()) == 1
-        assert BackendElement.getCount() == 1
+        print(BackendElement.get_cache())
+        assert len(BackendElement.get_cache()) == 1
+        assert BackendElement.get_count() == 1
 
 
 class TestElementStates(unittest2.TestCase):
@@ -453,7 +453,7 @@ class TestItems(unittest2.TestCase):
         print("--- test Item")
 
         # Clean generic Item cache and reset counter to 0
-        BackendElement.cleanCache()
+        BackendElement.clean_cache()
 
         # Base item with parameters, including identifier
         parameters = {'_id': 'test_id', 'foo': 'bar', 'foo_int': 1}
@@ -620,18 +620,18 @@ class TestItems(unittest2.TestCase):
         print("--- test User")
 
         # Global (Item) objects count
-        global_objects_count = BackendElement().getCount()
+        global_objects_count = BackendElement().get_count()
         print(global_objects_count, "objects")
         print("--- cache:")
-        print(User.getCache())
-        assert len(User.getCache()) == 0
+        print(User.get_cache())
+        assert len(User.get_cache()) == 0
 
         # Base item
         item = User()
         assert item
         print("--- cache:")
-        print(User.getCache())
-        assert len(User.getCache()) == 1
+        print(User.get_cache())
+        assert len(User.get_cache()) == 1
 
         # Specific (User) objects count and cache
         user_objects_count = item._count
@@ -639,11 +639,11 @@ class TestItems(unittest2.TestCase):
         print(item._cache)
 
         # Global objects count and cache did not changed
-        assert global_objects_count == BackendElement().getCount()
-        assert len(BackendElement().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().get_count()
+        assert len(BackendElement().get_cache()) == global_objects_count
         # Only 1 User object
         assert item._count == 1
-        assert len(User.getCache()) == 1
+        assert len(User.get_cache()) == 1
 
         print(item)
         assert "%s" % item == "<user, id: user_0, name: anonymous, role: user>"
@@ -780,30 +780,30 @@ class TestItems(unittest2.TestCase):
         print("--- test Command")
 
         # Global (Item) objects count
-        global_objects_count = BackendElement().getCount()
+        global_objects_count = BackendElement().get_count()
         print(global_objects_count, "objects")
-        print(BackendElement().getCache())
+        print(BackendElement().get_cache())
 
         # Base item
         item = Command()
         print(item.__dict__)
         print(item)
         assert item
-        assert len(Command.getCache()) == 1
+        assert len(Command.get_cache()) == 1
 
         # Specific (Command) objects count and cache
-        user_objects_count = Command.getCount()
+        user_objects_count = Command.get_count()
         print(user_objects_count, " Command objects")
         print(item._cache)
         assert user_objects_count == 1
 
         # Global objects count and cache did not changed
-        assert global_objects_count == BackendElement().getCount()
-        assert len(BackendElement().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().get_count()
+        assert len(BackendElement().get_cache()) == global_objects_count
         # Only 1 User object
         assert item._count == 1
         assert len(item._cache) == 1
-        assert len(Command.getCache()) == 1
+        assert len(Command.get_cache()) == 1
 
         print(item)
         assert "%s" % item == "<command, id: command_0, name: anonymous, status: unknown>"
@@ -821,9 +821,9 @@ class TestItems(unittest2.TestCase):
         print("--- test Host")
 
         # Global (Item) objects count
-        global_objects_count = BackendElement().getCount()
+        global_objects_count = BackendElement().get_count()
         print(global_objects_count, "objects")
-        print("Global cache: ", BackendElement().getCache())
+        print("Global cache: ", BackendElement().get_cache())
 
         # Base item
         item = Host()
@@ -837,9 +837,9 @@ class TestItems(unittest2.TestCase):
         print("Host cache: ", item._cache)
 
         # Global objects count and cache did not changed
-        assert global_objects_count == BackendElement().getCount()
-        print("Global cache: ", BackendElement().getCache())
-        assert len(BackendElement().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().get_count()
+        print("Global cache: ", BackendElement().get_cache())
+        assert len(BackendElement().get_cache()) == global_objects_count
         # Only 1 Session object
         assert item._count == 1
         assert len(item._cache) == 1
