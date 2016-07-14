@@ -1,0 +1,19 @@
+# Python requirements for unit tests
+unittest2
+webtest
+coveralls
+nose-cov
+coverage
+nose
+pylint
+pep8
+pep257
+uwsgi
+# alignak_backend_client
+-e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@develop#egg=alignak_backend_client
+# alignak
+-e git+git://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
+# alignak_backend
+-e git+git://github.com/Alignak-monitoring-contrib/alignak-backend.git@develop#egg=alignak_backend
+# alignak_backend_import
+-e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-import.git@develop#egg=alignak_backend_import

@@ -80,7 +80,7 @@ class TestSettings(unittest2.TestCase):
         assert found_cfg_files
 
         # Absolute file path - bad formed file
-        cfg_file = os.path.dirname(os.path.abspath(__file__)) + "/requirements.txt"
+        cfg_file = os.path.dirname(os.path.abspath(__file__)) + "/test_bad_settings.txt"
         print('Required configuration file:', cfg_file)
         found_cfg_files = Settings(cfg_file).read(None)
         print('Found:', found_cfg_files)

@@ -29,17 +29,16 @@ cd $BASE_PATH
 echo 'Upgrade pip ...'
 pip install --upgrade pip
 
-# install prog AND tests requirements :
 echo 'Installing application requirements ...'
 pip install -r requirements.txt
 echo 'Installing application in development mode ...'
 pip install -e .
 echo 'Installing tests requirements ...'
-pip install --upgrade -r test/requirements.txt
+pip install --upgrade -r test_requirements.txt
 
 pyversion=$(python -c "import sys; print(''.join(map(str, sys.version_info[:2])))")
-if test -e "test/requirements.py${pyversion}.txt"
+if test -e "test_requirements.py${pyversion}.txt"
 then
-    pip install -r "test/requirements.py${pyversion}.txt"
+    pip install -r "test_requirements.py${pyversion}.txt"
 fi
 
