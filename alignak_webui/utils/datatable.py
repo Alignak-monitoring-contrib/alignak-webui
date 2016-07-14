@@ -38,7 +38,7 @@ from bottle import request
 # pylint: disable=wildcard-import,unused-wildcard-import
 # We need all the classes defined whatever their number to use the globals() object.
 from alignak_webui import _
-from alignak_webui.objects.item import *
+from alignak_webui.objects.element import *
 
 from alignak_webui.utils.helper import Helper
 

@@ -23,16 +23,13 @@
     Plugin Worldmap
 """
 
-import time
-import re
-import random
-import json
-
 from logging import getLogger
+
 from bottle import request
 
-from alignak_webui.utils.helper import Helper
+from alignak_webui import _
 from alignak_webui.plugins.common.common import get_widget
+from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)
 
@@ -112,6 +109,7 @@ def get_valid_elements(search):
         if host.business_impact not in plugin_parameters['hosts_level']:
             continue
 
+        # noinspection PyBroadException
         try:
             _lat = float(host.customs.get('_LOC_LAT', None))
             _lng = float(host.customs.get('_LOC_LNG', None))

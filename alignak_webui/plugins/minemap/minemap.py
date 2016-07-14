@@ -23,15 +23,12 @@
     Plugin Worldmap
 """
 
-import time
-import re
-import random
-import json
 import collections
-
 from logging import getLogger
+
 from bottle import request
 
+from alignak_webui import _
 from alignak_webui.utils.helper import Helper
 
 logger = getLogger(__name__)

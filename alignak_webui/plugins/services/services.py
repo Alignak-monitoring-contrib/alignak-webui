@@ -23,17 +23,14 @@
     Plugin Services
 """
 
-import time
 import json
-
 from collections import OrderedDict
-
 from logging import getLogger
+
 from bottle import request, template, response
 
-from alignak_webui.objects.item import Item
-
-from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
+from alignak_webui import _
+from alignak_webui.plugins.common.common import get_table, get_table_data
 
 logger = getLogger(__name__)
 

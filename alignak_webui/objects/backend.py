@@ -142,8 +142,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             # If more than one element is found, we get an _items list
             if '_items' in result:
-                logger.debug("count, found in the backend: %s: %s", object_type, result["_items"])
-                return result["_meta"]['total']
+                logger.debug("count, found in the backend: %s: %s", object_type, result['_items'])
+                return result['_meta']['total']
 
             return 0  # pragma: no cover, simple protection
 
@@ -198,7 +198,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             logger.debug(
                 "search, search result for %s: result=%s", object_type, result
             )
-            if result["_status"] != 'OK':  # pragma: no cover, should not happen
+            if result['_status'] != 'OK':  # pragma: no cover, should not happen
                 error = []
                 if "content" in result:
                     error.append(result['content'])

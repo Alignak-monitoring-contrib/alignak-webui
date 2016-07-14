@@ -33,12 +33,25 @@ from logging import getLogger
 from alignak_backend_client.client import BackendException
 # from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
+# noinspection PyProtectedMember
+from alignak_webui import _
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
-from alignak_webui.objects.item import Item
-from alignak_webui.objects.item import User
+from alignak_webui.objects.element import *
+from alignak_webui.objects.item_user import *
+from alignak_webui.objects.item_realm import *
+from alignak_webui.objects.item_command import *
+from alignak_webui.objects.item_timeperiod import *
+from alignak_webui.objects.item_host import *
+from alignak_webui.objects.item_service import *
+from alignak_webui.objects.item_history import *
+from alignak_webui.objects.item_log import *
+from alignak_webui.objects.item_actions import *
+from alignak_webui.objects.item_livestate import *
+from alignak_webui.objects.item_uipref import *
+
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
@@ -124,8 +137,10 @@ class DataManager(object):
                 self.connection_message = _('Connection successful')
 
                 # Set the backend to use by the data manager objects
-                Item().setBackend(self.backend)
-                Item().setKnownClasses(self.known_classes)
+                element = Element()
+                print ("Element: %s" % element)
+                element.setBackend(self.backend)
+                element.setKnownClasses(self.known_classes)
 
                 # Fetch the logged-in user
                 if password:
@@ -196,7 +211,7 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.debug("find_object, %s, params: %s", object_type, params)
+        logger.info("find_object, %s, params: %s", object_type, params)
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
@@ -205,17 +220,17 @@ class DataManager(object):
         items = []
 
         result = self.backend.get(object_type, params, all_elements)
-        logger.debug("find_object, found: %s: %s", object_type, result)
+        logger.info("find_object, found: %s: %s", object_type, result)
 
         if not result:
             raise ValueError(
                 '%s, search: %s was not found in the backend' % (object_type, params)
             )
 
-        for item in result:
-            # Find "Backend object type" classes in file imported modules ...
-            object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
+        # Find "Backend object type" classes in file imported modules ...
+        object_class = [kc for kc in self.known_classes if kc.getType() == object_type][0]
 
+        for item in result:
             # Create a new object
             logger.debug("find_object, begin creation")
             bo_object = object_class(item)

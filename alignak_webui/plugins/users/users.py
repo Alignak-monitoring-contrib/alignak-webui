@@ -14,6 +14,7 @@ from collections import OrderedDict
 from logging import getLogger
 from bottle import request, response
 
+from alignak_webui import _
 from alignak_webui.utils.datatable import Datatable
 from alignak_webui.utils.helper import Helper
 

@@ -25,7 +25,8 @@
 
 import json
 from logging import getLogger
-from bottle import request, response
+
+from bottle import request
 
 logger = getLogger(__name__)
 

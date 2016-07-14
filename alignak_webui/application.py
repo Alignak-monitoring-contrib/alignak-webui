@@ -39,7 +39,7 @@ import pytz
 # Local import
 from alignak_webui import _
 from alignak_webui import get_app_webui
-from alignak_webui.objects.item import User
+from alignak_webui.objects.item_user import User
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
 

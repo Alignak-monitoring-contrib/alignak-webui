@@ -26,6 +26,7 @@
 from logging import getLogger
 from bottle import request, response, template
 
+from alignak_webui import _
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.datatable import Datatable
 

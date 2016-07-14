@@ -26,6 +26,7 @@
 import json
 from logging import getLogger
 from bottle import request
+from alignak_webui import _
 
 logger = getLogger(__name__)
 
