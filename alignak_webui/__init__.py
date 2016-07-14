@@ -19,12 +19,10 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
-
+"""
+    Alignak-WebUI application
+"""
 from __future__ import print_function
-
-"""
-# Alignak-WebUI application
-"""
 import os
 
 # Logs

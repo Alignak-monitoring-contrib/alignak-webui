@@ -18,9 +18,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
-
-from __future__ import print_function
-
 """
 Usage:
     {command} [-h] [-v] [-d] [-x] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
@@ -57,6 +54,8 @@ Use cases:
         99 application started but server not run (test application start)
 
 """
+from __future__ import print_function
+
 import os
 import traceback
 

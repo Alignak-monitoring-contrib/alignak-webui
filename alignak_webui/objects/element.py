@@ -188,7 +188,7 @@ class BackendElement(object):
             cls._backend = BackendConnection(
                 app_config.get('alignak_backend', 'http://127.0.0.1:5000')
             )
-            # print "Class backend: %s" % (cls.getBackend())
+            # print "Class backend: %s" % (cls.get_backend())
 
         _id = '0'
         if params:
@@ -226,7 +226,7 @@ class BackendElement(object):
             params.update({id_property: '%s_0' % (cls.get_type())})
 
         if _id not in cls._cache:
-            # print "Create a new %s (%s)" % (cls.getType(), _id)
+            # print "Create a new %s (%s)" % (cls.get_type(), _id)
             cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
             cls._cache[_id]._type = cls.get_type()
             cls._cache[_id]._default_date = cls._default_date
@@ -296,24 +296,24 @@ class BackendElement(object):
             raise ValueError('No %s attribute in the provided parameters' % id_property)
         logger.debug(
             " --- creating a %s (%s - %s)",
-            self.getType(), params[id_property], params['name'] if 'name' in params else ''
+            self.get_type(), params[id_property], params['name'] if 'name' in params else ''
         )
 
         for key in params:  # pylint: disable=too-many-nested-blocks
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # print(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
             # Object must have declared a _linked_ attribute ...
-            if hasattr(self, '_linked_' + key) and self.getKnownClasses():
+            if hasattr(self, '_linked_' + key) and self.get_known_classes():
                 logger.debug(
                     " link parameter: %s (%s) = %s", key, params[key].__class__, params[key]
                 )
                 # Linked resource type
                 object_type = getattr(self, '_linked_' + key, None)
-                if object_type not in [kc.get_type() for kc in self.getKnownClasses()]:
+                if object_type not in [kc.get_type() for kc in self.get_known_classes()]:
                     logger.error("_create, unknown %s for %s", object_type, params[key])
                     continue
 
-                object_class = [kc for kc in self.getKnownClasses()
+                object_class = [kc for kc in self.get_known_classes()
                                 if kc.get_type() == object_type][0]
 
                 # Dictionary - linked object attributes (backend embedded object)
@@ -324,9 +324,9 @@ class BackendElement(object):
                     continue
 
                 # String - object id
-                if isinstance(params[key], basestring) and self.getBackend():
+                if isinstance(params[key], basestring) and self.get_backend():
                     # we need to load the object from the backend
-                    result = self.getBackend().get(object_type + '/' + params[key])
+                    result = self.get_backend().get(object_type + '/' + params[key])
                     if not result:
                         logger.error(
                             "_create, item not found for %s, %s", object_type, params[key]
@@ -343,9 +343,9 @@ class BackendElement(object):
                 if isinstance(params[key], list):
                     objects_list = []
                     for element in params[key]:
-                        if isinstance(element, basestring) and self.getBackend():
+                        if isinstance(element, basestring) and self.get_backend():
                             # we need to load the object from the backend
-                            result = self.getBackend().get(object_type + '/' + element)
+                            result = self.get_backend().get(object_type + '/' + element)
                             if not result:
                                 logger.error(
                                     "_create, item not found for %s, %s", object_type, params[key]
@@ -370,7 +370,7 @@ class BackendElement(object):
                 logger.debug(
                     "Parameter: %s for %s is not a dict or a list or an object id "
                     "as it should be, instead of being: %s",
-                    key, self.getType(), params[key]
+                    key, self.get_type(), params[key]
                 )
                 continue
 
@@ -443,7 +443,7 @@ class BackendElement(object):
         if not isinstance(params, dict):
             if self.__class__ == params.__class__:
                 params = params.__dict__
-            elif self.getKnownClasses() and params.__class__ in self.getKnownClasses():
+            elif self.get_known_classes() and params.__class__ in self.get_known_classes():
                 params = params.__dict__
             else:
                 logger.debug(
@@ -482,27 +482,27 @@ class BackendElement(object):
                     object_class = object_type[0].__class__
                     object_type = object_type[0].get_type()
 
-                elif object_type in [kc.get_type() for kc in self.getKnownClasses()]:
+                elif object_type in [kc.get_type() for kc in self.get_known_classes()]:
                     # No object yet linked... find its class thanks to the known type
-                    object_class = [kc for kc in self.getKnownClasses()
+                    object_class = [kc for kc in self.get_known_classes()
                                     if kc.get_type() == object_type][0]
                 else:
                     logger.error("_update, unknown %s for %s", object_type, params[key])
                     continue
 
                 # String - object id
-                if isinstance(params[key], basestring) and self.getBackend():
+                if isinstance(params[key], basestring) and self.get_backend():
                     # Object link is a string, so it contains the object type
                     object_type = getattr(self, '_linked_' + key, None)
-                    if object_type not in [kc.get_type() for kc in self.getKnownClasses()]:
+                    if object_type not in [kc.get_type() for kc in self.get_known_classes()]:
                         logger.error("_update, unknown %s for %s", object_type, params[key])
                         continue
 
-                    object_class = [kc for kc in self.getKnownClasses()
+                    object_class = [kc for kc in self.get_known_classes()
                                     if kc.get_type() == object_type][0]
 
                     # Object link is a string, so we need to load the object from the backend
-                    result = self.getBackend().get(object_type + '/' + params[key])
+                    result = self.get_backend().get(object_type + '/' + params[key])
                     if not result:
                         logger.error(
                             "_update, item not found for %s, %s", object_type, params[key]
@@ -519,9 +519,9 @@ class BackendElement(object):
                 if isinstance(params[key], list):
                     objects_list = []
                     for element in params[key]:
-                        if isinstance(element, basestring) and self.getBackend():
+                        if isinstance(element, basestring) and self.get_backend():
                             # we need to load the object from the backend
-                            result = self.getBackend().get(object_type + '/' + element)
+                            result = self.get_backend().get(object_type + '/' + element)
                             if not result:
                                 logger.error(
                                     "_update, item not found for %s, %s", object_type, params[key]

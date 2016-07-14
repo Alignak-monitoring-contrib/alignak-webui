@@ -22,15 +22,13 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
-
-from __future__ import print_function
-
 """
     This module contains the base class used to manage the application objects configuration:
     - representation,
     - date
     -...
 """
+from __future__ import print_function
 
 from logging import getLogger, INFO
 
