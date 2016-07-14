@@ -555,7 +555,6 @@ class Datatable(object):
                             item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
 
                         if field['data'] == self.status_property:
-                            # if self.commands
                             item[key] = bo_object.get_html_state()
 
                         if field['data'] == "business_impact":
@@ -576,16 +575,13 @@ class Datatable(object):
 
                         if field['type'] == 'objectid' and \
                            key in parameters['embedded'] and item[key]:
-                            for k in globals().keys():
-                                if isinstance(globals()[k], type) and \
-                                   '_type' in globals()[k].__dict__ and \
-                                   globals()[k].get_type() == field['format']:
-                                    linked_object = globals()[k](item[key])
-                                    logger.debug("created: %s", linked_object)
-                                    item[key] = linked_object.get_html_link(
-                                        prefix=request.params.get('links')
-                                    )
-                                    break
+                            object_class = [kc for kc in self.datamgr.known_classes
+                                            if kc.get_type() == field['format']][0]
+                            linked_object = object_class(item[key])
+                            item[key] = linked_object.get_html_link(
+                                prefix=request.params.get('links')
+                            )
+                            break
 
                 # Very specific fields...
                 if self.responsive:
