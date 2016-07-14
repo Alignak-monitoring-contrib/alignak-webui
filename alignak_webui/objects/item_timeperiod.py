@@ -32,13 +32,13 @@ from logging import getLogger, INFO
 # Import the backend interface class
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
+from alignak_webui.objects.element import BackendElement
 
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class TimePeriod(Element):
+class TimePeriod(BackendElement):
     """
     Object representing a timeperiod
     """

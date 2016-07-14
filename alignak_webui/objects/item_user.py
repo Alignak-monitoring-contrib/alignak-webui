@@ -24,23 +24,22 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains the classes used to manage the application objects with the data manager.
+    This module contains the classes used to manage the user and usergroup in the backend.
 """
 
 from logging import getLogger, INFO
 
 # noinspection PyProtectedMember
 from alignak_webui import _
-# Import the backend interface class
+
+from alignak_webui.objects.element import BackendElement
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
-
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class User(Element):
+class User(BackendElement):
     """
     Object representing a user
     """
@@ -219,7 +218,7 @@ class User(Element):
             return getattr(self, 'widgets_allowed', '1') == '1'
 
 
-class UserGroup(Element):
+class UserGroup(BackendElement):
     """
     Object representing a user group
     """
@@ -267,5 +266,3 @@ class UserGroup(Element):
     def contactgroup_members(self):
         """ Return linked object """
         return self._linked_usergroup_members
-
-

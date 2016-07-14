@@ -33,29 +33,28 @@ from dateutil import tz
 
 from alignak_webui import get_app_config
 
-# Import the backend interface class
-
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class ItemState(object):    # pylint: disable=too-few-public-methods
+class ElementState(object):    # pylint: disable=too-few-public-methods
     """
     Singleton design pattern ...
     """
-    class __ItemState(object):
+    class __ElementState(object):
         """
         Base class for all objects state management (displayed icon, ...)
         """
 
         def __init__(self):
-            self.states = None
+            self.states = {}
 
             # Get global configuration
             app_config = get_app_config()
             if not app_config:  # pragma: no cover, should not happen
-                return
+                print("No application configuration!")
+                assert False
 
             self.object_types_states = {}
             self.default_states = {}
@@ -64,7 +63,7 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                 if s[0] not in ['items']:
                     continue
 
-                logger.debug("ItemState, item configuration element: %s", s)
+                logger.debug("ElementState, item configuration element: %s", s)
                 if s[1] == 'item':
                     if s[2] not in self.default_states:
                         self.default_states[s[2]] = []
@@ -77,9 +76,8 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
                     if s[2] and s[2] not in self.object_types_states[s[1]]:
                         self.object_types_states[s[1]].append(s[2])
 
-            logger.debug("ItemState, object types and states: %s", self.object_types_states)
-            # print "Objects types: ", self.object_types_states
-            logger.debug("ItemState, default states: %s", self.default_states)
+            logger.debug("ElementState, object types and states: %s", self.object_types_states)
+            logger.debug("ElementState, default states: %s", self.default_states)
 
             # Application locales, timezone, ...
             # Set timezones
@@ -98,7 +96,6 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
             self.date_format = app_config.get("timeformat", '%Y-%m-%d %H:%M:%S')
 
             # For each defined object type and object type state ...
-            self.states = {}
             for object_type in self.object_types_states:
                 self.states[object_type] = {}
                 for state in self.object_types_states[object_type]:
@@ -299,13 +296,12 @@ class ItemState(object):    # pylint: disable=too-few-public-methods
     instance = None
 
     def __new__(cls):
-        if not ItemState.instance:
-            ItemState.instance = ItemState.__ItemState()
-        return ItemState.instance
+        if not ElementState.instance:
+            ElementState.instance = ElementState.__ElementState()
+        return ElementState.instance
 
     def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
-                       title='', disabled=False,
-                       size=''):  # pragma: no cover
+                       title='', disabled=False, size=''):
         # pylint: disable=too-many-arguments
         """
         Base function used by Item objects

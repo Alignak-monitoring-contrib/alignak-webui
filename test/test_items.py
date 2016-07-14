@@ -30,10 +30,10 @@ import unittest2
 from nose.tools import *
 
 from alignak_webui import get_app_config, set_app_config
-from alignak_webui.objects.element import Element
+from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.item_host import Host
-from alignak_webui.objects.item_state import ItemState
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.item_user import User
 from alignak_webui.utils.settings import Settings
 
@@ -71,13 +71,13 @@ class Test0(unittest2.TestCase):
         # Create basic object
         # Bad parameters
         with assert_raises(ValueError) as cm:
-            item = Element(1)
+            item = BackendElement(1)
         ex = cm.exception
         print(ex)
         self.assertEqual(str(ex), "item.__new__: object parameters must be a dictionary!")
 
         # Declaration without any parameter is allowed
-        item = Element()
+        item = BackendElement()
         print(item)
         print(item.__dict__)
         print(item.__class__._cache)
@@ -90,7 +90,7 @@ class Test0(unittest2.TestCase):
         assert item.__dict__['_id'] == 'item_0'
 
         # Declaration without any parameter is allowed
-        item = Element()
+        item = BackendElement()
         print(item)
         print(item.__dict__)
         print(item.__class__._cache)
@@ -103,7 +103,7 @@ class Test0(unittest2.TestCase):
         assert item.__dict__['_id'] == 'item_0'
 
         # New declaration with _id in args
-        item2 = Element({'_id': 0})
+        item2 = BackendElement({'_id': 0})
         print("---")
         print(item2)
         print(item2.__dict__)
@@ -115,7 +115,7 @@ class Test0(unittest2.TestCase):
         # Both objects are the same ... because _id and mandatory fields is the same!
 
         # New declaration with different parameters in kwargs
-        item3 = Element(params={'_id': '0', 'new_param': 1})
+        item3 = BackendElement(params={'_id': '0', 'new_param': 1})
         print(item3.__dict__)
         assert item3.__dict__['_id'] == 'item_0'
         print(item3.__class__._cache)
@@ -129,7 +129,7 @@ class Test0(unittest2.TestCase):
         assert item == item3
 
         # New object because not the same id ...
-        item3 = Element(params={'_id': 1, 'new_param': 1})
+        item3 = BackendElement(params={'_id': 1, 'new_param': 1})
         print(item3.__class__._cache)
         print("cache ---")
         for k, v in item.__class__._cache.items():
@@ -144,9 +144,9 @@ class Test0(unittest2.TestCase):
         auto_id = item.__class__._next_id
         assert item.__class__._next_id == 1  # First auto object id is 1
         print(item.__class__._next_id)
-        item = Element()
+        item = BackendElement()
         assert item.__class__._next_id == 1  # Still the same ...
-        assert Element().__class__._next_id == 1
+        assert BackendElement().__class__._next_id == 1
         # id is not incremented because of empty parameters
         print("cache ---")
         for k, v in item.__class__._cache.items():
@@ -154,21 +154,21 @@ class Test0(unittest2.TestCase):
         print("---")
         assert len(item.__class__._cache) == 2
         assert item.__class__._count == 2
-        item = Element()
+        item = BackendElement()
         print(item.__class__._cache)
         assert len(item.__class__._cache) == 2  # No new objects because no parameters
-        assert Element().__class__._default_date == 0
-        assert Element().__class__._type == 'item'
+        assert BackendElement().__class__._default_date == 0
+        assert BackendElement().__class__._type == 'item'
         print(item.__class__._cache)
         assert len(item.__class__._cache) == 2
-        assert Element().__class__.items_states == [
+        assert BackendElement().__class__.items_states == [
             "ok", "warning", "critical", "unknown", "not_executed"
         ]
 
         # New auto id objects
         auto_id = item.__class__._next_id
         assert item.__class__._next_id == 1
-        item = Element(params={'param': '0', 'new_param': 1})
+        item = BackendElement(params={'param': '0', 'new_param': 1})
         print(item.__dict__)
         assert item.__dict__['_id'] == 'item_1'  # auto id is prefixed with item type
         assert item.__dict__['param'] == '0'  # parameter set
@@ -186,7 +186,7 @@ class Test0(unittest2.TestCase):
         assert item.__class__._count == 3
 
         # Same objects because same id ...
-        item2 = Element(params={'_id': 'item_1', 'new_param': 2})
+        item2 = BackendElement(params={'_id': 'item_1', 'new_param': 2})
         print(item2.__dict__)
         assert item2.__dict__['_id'] == 'item_1'  # auto id is prefixed with #
         assert item2.__dict__['param'] == '0'  # parameter not changed
@@ -199,52 +199,52 @@ class Test0(unittest2.TestCase):
         print("--- test class cache")
 
         # Clean generic Item cache and reset counter to 0
-        Element.cleanCache()
+        BackendElement.cleanCache()
 
         # Create basic object
         # Declaration without any parameter is allowed
-        item = Element()
+        item = BackendElement()
         print("--- cache:")
-        print(Element.getCache())
-        assert len(Element.getCache()) == 1
-        assert Element.getType() == 'item'
-        assert Element.getCount() == 1
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getType() == 'item'
+        assert BackendElement.getCount() == 1
 
         # New declaration with _id in args
-        item2 = Element({'_id': 0})
+        item2 = BackendElement({'_id': 0})
         assert item == item2
         # Both objects are the same ... because _id and mandatory fields is the same!
         print("--- cache:")
-        print(Element.getCache())
-        assert len(Element.getCache()) == 1
-        assert Element.getCount() == 1
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getCount() == 1
 
         # New declaration with different parameters in kwargs
-        item3 = Element(params={'_id': '0', 'new_param': 1})
+        item3 = BackendElement(params={'_id': '0', 'new_param': 1})
         assert item == item3
         print("--- cache:")
-        print(Element.getCache())
-        assert len(Element.getCache()) == 1
-        assert Element.getCount() == 1
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getCount() == 1
 
         # New object because not the same id ...
-        item3 = Element(params={'_id': 1, 'new_param': 1})
+        item3 = BackendElement(params={'_id': 1, 'new_param': 1})
         assert item != item3
         # Different objects because different id !
         print("--- cache:")
-        print(Element.getCache())
-        assert len(Element.getCache()) == 2
-        assert Element.getCount() == 2
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 2
+        assert BackendElement.getCount() == 2
 
         # Delete objects
         item3._delete()
         print("--- cache:")
-        print(Element.getCache())
-        assert len(Element.getCache()) == 1
-        assert Element.getCount() == 1
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getCount() == 1
 
 
-class TestItemStates(unittest2.TestCase):
+class TestElementStates(unittest2.TestCase):
     def setUp(self):
         print("")
         print("setting up ...")
@@ -259,7 +259,7 @@ class TestItemStates(unittest2.TestCase):
     def test_01_items_states(self):
         print("---")
 
-        items_states = ItemState()
+        items_states = ElementState()
         assert items_states.object_types_states
         assert items_states.default_states
         assert items_states.states
@@ -301,7 +301,7 @@ class TestItemStates(unittest2.TestCase):
     def test_02_items_states(self):
         print("---")
 
-        items_states = ItemState()
+        items_states = ElementState()
         assert items_states.object_types_states
         assert items_states.default_states
         assert items_states.states
@@ -338,7 +338,7 @@ class TestItemStates(unittest2.TestCase):
     def test_03_html_states(self):
         print("---")
 
-        items_states = ItemState()
+        items_states = ElementState()
         assert items_states.object_types_states
         assert items_states.default_states
         assert items_states.states
@@ -351,7 +351,7 @@ class TestItemStates(unittest2.TestCase):
                 if state == 'state_view':
                     continue
 
-                elt = Element({
+                elt = BackendElement({
                     '_id': '0', 'status': state
                 })
                 print("Html for:", object_type, ", object:", elt)
@@ -365,7 +365,7 @@ class TestItemStates(unittest2.TestCase):
 
         print("Html for:", save_object_type, ", state: fake")
         print("Unknown state")
-        elt = Element({
+        elt = BackendElement({
             '_id': '0', 'status': 'fake'
         })
         print(items_states.get_html_state(save_object_type, elt))
@@ -373,7 +373,7 @@ class TestItemStates(unittest2.TestCase):
 
         print("Html for: fake, state: unknown")
         print("Unknown object type")
-        elt = Element({
+        elt = BackendElement({
             '_id': '0', 'status': 'unknown'
         })
         # Unknown object_type provides a default user html state ...
@@ -453,11 +453,11 @@ class TestItems(unittest2.TestCase):
         print("--- test Item")
 
         # Clean generic Item cache and reset counter to 0
-        Element.cleanCache()
+        BackendElement.cleanCache()
 
         # Base item with parameters, including identifier
         parameters = {'_id': 'test_id', 'foo': 'bar', 'foo_int': 1}
-        item = Element(parameters)
+        item = BackendElement(parameters)
         print(item.__dict__)
         assert item._id == 'test_id'
         assert item.foo == 'bar'
@@ -466,7 +466,7 @@ class TestItems(unittest2.TestCase):
 
         # Same object
         parameters = {'_id': 'test_id', 'foo': 'bar', 'foo_int': 1}
-        item2 = Element(parameters)
+        item2 = BackendElement(parameters)
         print("item2", item2.__dict__)
         assert item2._id == 'test_id'
         assert item2.foo == 'bar'
@@ -480,7 +480,7 @@ class TestItems(unittest2.TestCase):
 
         # New object
         parameters = {'_id': 'test_id2', 'foo': 'baz', 'foo_int': 9}
-        item3 = Element(parameters)
+        item3 = BackendElement(parameters)
         print(item3.__dict__)
         assert item3._id == 'test_id2'
         assert item3.foo == 'baz'
@@ -525,7 +525,7 @@ class TestItems(unittest2.TestCase):
             '_created': 'Tue, 01 Mar 2016 14:15:38 GMT',  # Valid string format
             '_updated': 'Tue, 01 Mar 2016 14:15:38 XX'  # Invalid string format => default date
         }
-        item = Element(parameters)
+        item = BackendElement(parameters)
         print(item.__dict__)
         assert item._id == 'item_1'
         assert item.id == 'item_1'
@@ -550,7 +550,7 @@ class TestItems(unittest2.TestCase):
             '_created': None,  # Invalid string format => default date
             '_updated': 'Tue, 01 Mar 2016 14:15:38 GMT'  # Invalid string format
         }
-        item = Element(parameters, date_format='%Y-%m-%d %H:%M:%S')
+        item = BackendElement(parameters, date_format='%Y-%m-%d %H:%M:%S')
         print(item.__dict__)
         assert item._id == 'item_2'
         assert item.id == 'item_2'
@@ -597,7 +597,7 @@ class TestItems(unittest2.TestCase):
                 'param2': '2'
             }
         }
-        item = Element(parameters, date_format='%Y-%m-%d %H:%M:%S')
+        item = BackendElement(parameters, date_format='%Y-%m-%d %H:%M:%S')
         print(item.__dict__)
         assert item._id == 'item_3'  # New object
         assert item.foo == 'bar'
@@ -620,7 +620,7 @@ class TestItems(unittest2.TestCase):
         print("--- test User")
 
         # Global (Item) objects count
-        global_objects_count = Element().getCount()
+        global_objects_count = BackendElement().getCount()
         print(global_objects_count, "objects")
         print("--- cache:")
         print(User.getCache())
@@ -639,8 +639,8 @@ class TestItems(unittest2.TestCase):
         print(item._cache)
 
         # Global objects count and cache did not changed
-        assert global_objects_count == Element().getCount()
-        assert len(Element().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().getCount()
+        assert len(BackendElement().getCache()) == global_objects_count
         # Only 1 User object
         assert item._count == 1
         assert len(User.getCache()) == 1
@@ -780,9 +780,9 @@ class TestItems(unittest2.TestCase):
         print("--- test Command")
 
         # Global (Item) objects count
-        global_objects_count = Element().getCount()
+        global_objects_count = BackendElement().getCount()
         print(global_objects_count, "objects")
-        print(Element().getCache())
+        print(BackendElement().getCache())
 
         # Base item
         item = Command()
@@ -798,8 +798,8 @@ class TestItems(unittest2.TestCase):
         assert user_objects_count == 1
 
         # Global objects count and cache did not changed
-        assert global_objects_count == Element().getCount()
-        assert len(Element().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().getCount()
+        assert len(BackendElement().getCache()) == global_objects_count
         # Only 1 User object
         assert item._count == 1
         assert len(item._cache) == 1
@@ -821,9 +821,9 @@ class TestItems(unittest2.TestCase):
         print("--- test Host")
 
         # Global (Item) objects count
-        global_objects_count = Element().getCount()
+        global_objects_count = BackendElement().getCount()
         print(global_objects_count, "objects")
-        print("Global cache: ", Element().getCache())
+        print("Global cache: ", BackendElement().getCache())
 
         # Base item
         item = Host()
@@ -837,9 +837,9 @@ class TestItems(unittest2.TestCase):
         print("Host cache: ", item._cache)
 
         # Global objects count and cache did not changed
-        assert global_objects_count == Element().getCount()
-        print("Global cache: ", Element().getCache())
-        assert len(Element().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().getCount()
+        print("Global cache: ", BackendElement().getCache())
+        assert len(BackendElement().getCache()) == global_objects_count
         # Only 1 Session object
         assert item._count == 1
         assert len(item._cache) == 1

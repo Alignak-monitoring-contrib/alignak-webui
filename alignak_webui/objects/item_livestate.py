@@ -32,13 +32,13 @@ from logging import getLogger, INFO
 # Import the backend interface class
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
+from alignak_webui.objects.element import BackendElement
 
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class LiveSynthesis(Element):
+class LiveSynthesis(BackendElement):
     """
     Object representing the live synthesis of the system
     """
@@ -78,7 +78,7 @@ class LiveSynthesis(Element):
         super(LiveSynthesis, self).__init__(params)
 
 
-class LiveState(Element):
+class LiveState(BackendElement):
     """
     Object representing a livestate item (host or service)
     """
@@ -152,13 +152,11 @@ class LiveState(Element):
             return 'in_downtime'
         return super(LiveState, self).status
 
-    @Element.status.setter
+    @BackendElement.status.setter
     def status(self, status):
         # pylint: disable=function-redefined
         """
         Must redefine status setter here ! Else some errors occur when setting LiveState status
         :rtype: object
         """
-        Element.status.fset(self, status)
-
-
+        BackendElement.status.fset(self, status)

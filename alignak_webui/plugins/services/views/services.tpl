@@ -10,7 +10,8 @@
 %end
 
 %from alignak_webui.utils.helper import Helper
-%from alignak_webui.objects.item import Command, Host
+%from alignak_webui.objects.item_command import Command
+%from alignak_webui.objects.item_host import Host
 
 <!-- services filtering and display -->
 <div id="services">

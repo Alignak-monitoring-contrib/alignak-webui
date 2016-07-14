@@ -36,7 +36,7 @@ from logging import getLogger, INFO
 from alignak_webui import get_app_config, _
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
-from alignak_webui.objects.item_state import ItemState
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
@@ -44,7 +44,7 @@ logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class Element(object):
+class BackendElement(object):
     # Yes, but it is the base object and it needs those pubic methods!
     # pylint: disable=too-many-public-methods
     """
@@ -192,12 +192,20 @@ class Element(object):
         _id = '0'
         if params:
             if not isinstance(params, dict):
-                print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
-                raise ValueError(
-                    '%s.__new__: object parameters must be a dictionary!' % (
-                        cls._type
-                    )
+                logger.warning("Class %s, id_property: %s, invalid params: %s",
+                    cls, id_property, params
                 )
+                if isinstance(params, BackendElement):
+                    params = params.__dict__
+                else:
+                    logger.critical("Class %s, id_property: %s, invalid params: %s",
+                        cls, id_property, params
+                    )
+                    raise ValueError(
+                        '%s.__new__: object parameters must be a dictionary!' % (
+                            cls._type
+                        )
+                    )
 
             if id_property in params:
                 if not isinstance(params[id_property], basestring):
@@ -216,7 +224,7 @@ class Element(object):
 
         if _id not in cls._cache:
             # print "Create a new %s (%s)" % (cls.getType(), _id)
-            cls._cache[_id] = super(Element, cls).__new__(cls, params, date_format)
+            cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
             cls._cache[_id]._type = cls.getType()
             cls._cache[_id]._default_date = cls._default_date
             # print " ... new: %s" % cls._cache[_id]
@@ -452,7 +460,7 @@ class Element(object):
                 object_type = getattr(self, '_linked_' + key, None)
 
                 # Already contains an object, so update object ...
-                if isinstance(object_type, Element):
+                if isinstance(object_type, BackendElement):
                     logger.debug("_update, update object: %s = %s", key, params[key])
                     object_type._update(params[key])
                     continue
@@ -749,16 +757,16 @@ class Element(object):
 
     def get_icon_states(self):
         """
-        Uses the ItemState singleton to get configured states for an item
+        Uses the ElementState singleton to get configured states for an item
         """
-        return ItemState().get_icon_states()
+        return ElementState().get_icon_states()
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False, object_type=None, object_item=None,
                        size=''):
         # pylint: disable=too-many-arguments
         """
-        Uses the ItemState singleton to display HTML state for an item
+        Uses the ElementState singleton to display HTML state for an item
         """
         if not object_type:
             object_type = self.object_type
@@ -766,14 +774,14 @@ class Element(object):
         if not object_item:
             object_item = self
 
-        return ItemState().get_html_state(object_type, object_item,
+        return ElementState().get_html_state(object_type, object_item,
                                           extra, icon, text, title, disabled, size)
 
     def get_date(self, _date, fmt=None, duration=False):
         """
         Format the provided `_date` as a string according to the specified format.
 
-        If no date format is specified, it uses the one defined in the ItemState object that is
+        If no date format is specified, it uses the one defined in the ElementState object that is
         the date format defined in the application configuration.
 
         If duration is True, the date is displayed as a pretty date: 1 day 12 minutes ago ...
@@ -784,7 +792,7 @@ class Element(object):
         if duration:
             return Helper.print_duration(_date, duration_only=False, x_elts=0)
 
-        item_state = ItemState()
+        item_state = ElementState()
         if not fmt:
             if item_state.date_format:
                 fmt = item_state.date_format

@@ -32,15 +32,15 @@ from logging import getLogger, INFO
 # noinspection PyProtectedMember
 from alignak_webui import _
 # Import the backend interface class
-from alignak_webui.objects.element import Element
-from alignak_webui.objects.item_state import ItemState
+from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.element_state import ElementState
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class History(Element):
+class History(BackendElement):
     """
     Object representing a History item (host or service)
     """

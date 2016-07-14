@@ -99,6 +99,7 @@ def get_page():
         logger.info("Dashboard widget: %s", widget)
         widgets.append(widget)
 
+    print "Dashboard template call"
     return {
         'action_bar': len(widgets) != 0,
         'widgets_place': 'dashboard',

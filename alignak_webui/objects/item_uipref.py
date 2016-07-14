@@ -24,21 +24,19 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains the classes used to manage the application objects with the data manager.
+    This module contains the classes used to manage the user preferences in the backend
 """
 
 from logging import getLogger, INFO
 
-# Import the backend interface class
+from alignak_webui.objects.element import BackendElement
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
-
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class UIPref(Element):
+class UIPref(BackendElement):
     """
     Object representing a UIPref
     """
@@ -75,5 +73,3 @@ class UIPref(Element):
         Initialize a UIPref (called every time an object is invoked)
         """
         super(UIPref, self).__init__(params)
-
-

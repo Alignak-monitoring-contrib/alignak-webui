@@ -29,16 +29,14 @@
 
 from logging import getLogger, INFO
 
-# Import the backend interface class
+from alignak_webui.objects.element import BackendElement
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
-
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class Realm(Element):
+class Realm(BackendElement):
     """
     Object representing a realm
     """
@@ -73,5 +71,3 @@ class Realm(Element):
         Initialize a realm (called every time an object is invoked)
         """
         super(Realm, self).__init__(params)
-
-

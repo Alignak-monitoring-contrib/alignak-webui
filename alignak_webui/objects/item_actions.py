@@ -30,14 +30,14 @@
 from logging import getLogger, INFO
 
 # Import the backend interface class
-from alignak_webui.objects.element import Element
+from alignak_webui.objects.element import BackendElement
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class ActionAcknowledge(Element):
+class ActionAcknowledge(BackendElement):
     """
     Object representing an actionacknowledge
     """
@@ -50,7 +50,7 @@ class ActionAcknowledge(Element):
     _cache = {}
 
 
-class ActionDowntime(Element):
+class ActionDowntime(BackendElement):
     """
     Object representing an actiondowntime
     """
@@ -63,7 +63,7 @@ class ActionDowntime(Element):
     _cache = {}
 
 
-class ActionForceCheck(Element):
+class ActionForceCheck(BackendElement):
     """
     Object representing an actionforcecheck
     """

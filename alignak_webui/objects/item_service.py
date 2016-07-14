@@ -32,13 +32,13 @@ from logging import getLogger, INFO
 # Import the backend interface class
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
+from alignak_webui.objects.element import BackendElement
 
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class Service(Element):
+class Service(BackendElement):
     """
     Object representing a service
     """
@@ -50,11 +50,11 @@ class Service(Element):
     # _cache is a list of created objects
     _cache = {}
 
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new user
-        """
-        return super(Service, cls).__new__(cls, params, date_format)
+    # def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        # """
+        # Create a new service
+        # """
+        # return super(Service, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
         """
@@ -71,17 +71,17 @@ class Service(Element):
 
         super(Service, self)._create(params, date_format)
 
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a service (called every time an object is updated)
-        """
-        super(Service, self)._update(params, date_format)
+    # def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        # """
+        # Update a service (called every time an object is updated)
+        # """
+        # super(Service, self)._update(params, date_format)
 
-    def __init__(self, params=None):
-        """
-        Initialize a service (called every time an object is invoked)
-        """
-        super(Service, self).__init__(params)
+    # def __init__(self, params=None):
+        # """
+        # Initialize a service (called every time an object is invoked)
+        # """
+        # super(Service, self).__init__(params)
 
     @property
     def check_command(self):
@@ -109,7 +109,7 @@ class Service(Element):
         return self._linked_notification_period
 
 
-class ServiceGroup(Element):
+class ServiceGroup(BackendElement):
     """
     Object representing a servicegroup
     """
@@ -121,11 +121,11 @@ class ServiceGroup(Element):
     # _cache is a list of created objects
     _cache = {}
 
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new servicegroup
-        """
-        return super(ServiceGroup, cls).__new__(cls, params, date_format)
+    # def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        # """
+        # Create a new servicegroup
+        # """
+        # return super(ServiceGroup, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
         """
@@ -136,17 +136,17 @@ class ServiceGroup(Element):
 
         super(ServiceGroup, self)._create(params, date_format)
 
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a servicegroup (called every time an object is updated)
-        """
-        super(ServiceGroup, self)._update(params, date_format)
+    # def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        # """
+        # Update a servicegroup (called every time an object is updated)
+        # """
+        # super(ServiceGroup, self)._update(params, date_format)
 
-    def __init__(self, params=None):
-        """
-        Initialize a servicegroup (called every time an object is invoked)
-        """
-        super(ServiceGroup, self).__init__(params)
+    # def __init__(self, params=None):
+        # """
+        # Initialize a servicegroup (called every time an object is invoked)
+        # """
+        # super(ServiceGroup, self).__init__(params)
 
     @property
     def members(self):

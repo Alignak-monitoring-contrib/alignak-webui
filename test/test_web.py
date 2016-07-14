@@ -37,15 +37,12 @@ os.environ['TEST_WEBUI'] = '1'
 os.environ['WEBUI_DEBUG'] = '0'
 os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print "Configuration file", os.environ['TEST_WEBUI_CFG']
-
+# To load application configuration used by the objects
 import alignak_webui.app
+
 from alignak_webui import webapp
 from alignak_webui.objects.datamanager import DataManager
 import alignak_webui.utils.datatable
-
-# from logging import getLogger, DEBUG, INFO
-# loggerDm = getLogger('alignak_webui.objects.datamanager')
-# loggerDm.setLevel(DEBUG)
 
 import bottle
 from bottle import BaseTemplate, TEMPLATE_PATH
@@ -98,7 +95,7 @@ def teardown_module(module):
         pid.kill()
 
 
-class tests_0_no_login(unittest2.TestCase):
+class Test0NoLogin(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -152,7 +149,7 @@ class tests_0_no_login(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class tests_1_login(unittest2.TestCase):
+class Test1Login(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -200,9 +197,12 @@ class tests_1_login(unittest2.TestCase):
 
         print 'login accepted - go to home page'
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        print 'Response: %s' % response
         # Redirected twice: /login -> / -> /hosts !
         redirected_response = response.follow()
+        print 'Redirected response: %s' % redirected_response
         redirected_response = redirected_response.follow()
+        print 'Redirected response: %s' % redirected_response
         redirected_response.mustcontain('<div id="dashboard">')
         # A session cookie now exists
         print self.app.cookies
@@ -350,7 +350,7 @@ class tests_1_login(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class tests_2_static_files(unittest2.TestCase):
+class Test2StaticFiles(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -412,7 +412,7 @@ class tests_2_static_files(unittest2.TestCase):
         response = self.app.get('/modal/about')
 
 
-class tests_3(unittest2.TestCase):
+class Test3(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -714,7 +714,7 @@ class tests_3(unittest2.TestCase):
         )
 
 
-class tests_4_target_user(unittest2.TestCase):
+class Test4TargetUser(unittest2.TestCase):
 
     def setUp(self):
         print ""

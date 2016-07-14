@@ -6,7 +6,8 @@
 %rebase("layout", title=title, js=[], css=[], page="/host")
 
 %from alignak_webui.utils.helper import Helper
-%from alignak_webui.objects.item import Command, Service
+%from alignak_webui.objects.item_command import Command
+%from alignak_webui.objects.item_service import Service
 
 <!-- Host view -->
 <div id="host">

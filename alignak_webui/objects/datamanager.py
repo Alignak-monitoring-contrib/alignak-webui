@@ -39,7 +39,7 @@ from alignak_webui import _
 from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
-from alignak_webui.objects.element import *
+from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_user import *
 from alignak_webui.objects.item_realm import *
 from alignak_webui.objects.item_command import *
@@ -137,10 +137,9 @@ class DataManager(object):
                 self.connection_message = _('Connection successful')
 
                 # Set the backend to use by the data manager objects
-                element = Element()
-                print ("Element: %s" % element)
-                element.setBackend(self.backend)
-                element.setKnownClasses(self.known_classes)
+                element = BackendElement()
+                BackendElement.setBackend(self.backend)
+                BackendElement.setKnownClasses(self.known_classes)
 
                 # Fetch the logged-in user
                 if password:
@@ -232,7 +231,7 @@ class DataManager(object):
 
         for item in result:
             # Create a new object
-            logger.debug("find_object, begin creation")
+            logger.debug("find_object, begin creation: %s", object_class)
             bo_object = object_class(item)
             items.append(bo_object)
             self.updated = datetime.utcnow()
@@ -463,7 +462,7 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = element.id
+            object_id = BackendElement.id
 
         if self.backend.delete(object_type, object_id):
             # Find object type class...
@@ -486,7 +485,7 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = element.id
+            object_id = BackendElement.id
 
         if self.backend.update(object_type, object_id, data):
             items = self.find_object(object_type, object_id)

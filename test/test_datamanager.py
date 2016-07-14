@@ -14,18 +14,22 @@ os.environ['TEST_WEBUI'] = '1'
 os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             'settings.cfg')
 print "Configuration file", os.environ['TEST_WEBUI_CFG']
+# To load application configuration used by the objects
+import alignak_webui.app
 
-import alignak_webui.objects.element
+from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.item_user import User
+from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.datamanager import DataManager
 
-from logging import getLogger, INFO, WARNING
+from logging import getLogger, DEBUG, INFO, WARNING
 
 loggerDm = getLogger('alignak_webui.objects.datamanager')
 loggerDm.setLevel(INFO)
-loggerItems = getLogger('alignak_webui.objects.item')
-loggerItems.setLevel(WARNING)
-loggerItems = getLogger('alignak_webui.objects.backend')
-loggerItems.setLevel(WARNING)
+loggerItems = getLogger('alignak_webui.objects.element')
+loggerItems.setLevel(INFO)
+# loggerBackend = getLogger('alignak_webui.objects.backend')
+# loggerBackend.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -90,7 +94,6 @@ class test_1_find_and_search(unittest2.TestCase):
         assert datamanager.loaded == False
         assert datamanager.get_logged_user() is None
         # Got known managed elements classes
-        assert datamanager.known_classes is not None
         self.assertEqual(len(datamanager.known_classes), 17)
 
         # Login ...
@@ -127,7 +130,7 @@ class test_1_find_and_search(unittest2.TestCase):
 
 class test_2_creation(unittest2.TestCase):
     def test_2_1_creation_load(self):
-        print ''
+        print '------------------------------'
         print 'test creation'
 
         datamanager = DataManager()
@@ -135,6 +138,8 @@ class test_2_creation(unittest2.TestCase):
         assert datamanager.loaded == False
         assert datamanager.get_logged_user() == None
         print 'Data manager', datamanager
+        # Got known managed elements classes
+        self.assertEqual(len(datamanager.known_classes), 17)
 
         # Initialize and load fail ...
         print 'DM load failed'
@@ -176,7 +181,7 @@ class test_2_creation(unittest2.TestCase):
         print 'DM login ok'
         assert datamanager.user_login('admin', 'admin', load=False)
         assert datamanager.connection_message == 'Connection successful'
-        print datamanager.logged_in_user
+        print ("Logged user: %s" % datamanager.logged_in_user)
         assert datamanager.logged_in_user
         assert datamanager.get_logged_user() != None
         assert datamanager.get_logged_user().id != None

@@ -26,19 +26,10 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
-
-from logging import getLogger, INFO
-
-# Import the backend interface class
-
-# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-from alignak_webui.objects.element import Element
-
-logger = getLogger(__name__)
-logger.setLevel(INFO)
+from alignak_webui.objects.element import BackendElement
 
 
-class Command(Element):
+class Command(BackendElement):
     """
     Object representing a command
     """
