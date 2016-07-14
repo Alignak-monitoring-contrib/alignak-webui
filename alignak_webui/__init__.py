@@ -33,12 +33,12 @@ from logging import getLogger
 import gettext
 from gettext import GNUTranslations, NullTranslations
 
-# Session management
-from beaker.middleware import SessionMiddleware
-
 # Bottle import
 from bottle import BaseTemplate
 import bottle
+
+# Session management
+from beaker.middleware import SessionMiddleware
 
 # Specific application
 from alignak_webui.utils.logs import set_console_logger, set_file_logger
