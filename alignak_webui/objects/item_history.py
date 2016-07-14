@@ -24,20 +24,14 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains the classes used to manage the application objects with the data manager.
+    This module contains the classes used to manage the backend history elements
+    with the data manager.
 """
-
-from logging import getLogger, INFO
-
 # noinspection PyProtectedMember
 from alignak_webui import _
 # Import the backend interface class
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
-
-# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-logger = getLogger(__name__)
-logger.setLevel(INFO)
 
 
 class History(BackendElement):
@@ -55,12 +49,6 @@ class History(BackendElement):
     # Status property
     status_property = 'type'
 
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new History
-        """
-        return super(History, cls).__new__(cls, params, date_format)
-
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -73,18 +61,6 @@ class History(BackendElement):
         self._linked_logcheckresult = 'logcheckresult'
 
         super(History, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a History (called every time an object is updated)
-        """
-        super(History, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a History (called every time an object is invoked)
-        """
-        super(History, self).__init__(params)
 
     @property
     def date(self):
@@ -116,11 +92,11 @@ class History(BackendElement):
                        size=''):
         # pylint: disable=too-many-arguments
         """
-        Uses the ItemState singleton to display HTML state for an item
+        Uses the ElementState singleton to display HTML state for an item
         """
         if self.type.startswith('check.result') and self.logcheckresult != 'logcheckresult':
-            return ItemState().get_html_state('logcheckresult', self.logcheckresult,
-                                              extra, icon, text, title, disabled)
+            return ElementState().get_html_state('logcheckresult', self.logcheckresult,
+                                                 extra, icon, text, title, disabled)
 
         return super(History, self).get_html_state(object_type=self.getType(), object_item=self,
                                                    extra=extra, icon=icon, text=text,

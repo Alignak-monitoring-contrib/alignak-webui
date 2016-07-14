@@ -41,30 +41,6 @@ class Command(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new command
-        """
-        return super(Command, cls).__new__(cls, params, date_format)
-
-    def _create(self, params, date_format):
-        """
-        Create a command (called only once when an object is newly created)
-        """
-        super(Command, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a command (called every time an object is updated)
-        """
-        super(Command, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a command (called every time an object is invoked)
-        """
-        super(Command, self).__init__(params)
-
     @property
     def endpoint(self):
         """

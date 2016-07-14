@@ -24,7 +24,10 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains the classes used to manage the application objects with the data manager.
+    This module contains the base class used to manage the application objects configuration:
+    - representation,
+    - date
+    -...
 """
 
 from logging import getLogger, INFO
@@ -53,7 +56,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             # Get global configuration
             app_config = get_app_config()
             if not app_config:  # pragma: no cover, should not happen
-                print("No application configuration!")
+                print "No application configuration!"
                 assert False
 
             self.object_types_states = {}

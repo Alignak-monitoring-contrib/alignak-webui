@@ -24,7 +24,8 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains the classes used to manage the application objects with the data manager.
+    This module contains the base class used to manage the application objects
+    with the data manager.
 """
 
 import time
@@ -192,13 +193,15 @@ class BackendElement(object):
         _id = '0'
         if params:
             if not isinstance(params, dict):
-                logger.warning("Class %s, id_property: %s, invalid params: %s",
+                logger.warning(
+                    "Class %s, id_property: %s, invalid params: %s",
                     cls, id_property, params
                 )
                 if isinstance(params, BackendElement):
                     params = params.__dict__
                 else:
-                    logger.critical("Class %s, id_property: %s, invalid params: %s",
+                    logger.critical(
+                        "Class %s, id_property: %s, invalid params: %s",
                         cls, id_property, params
                     )
                     raise ValueError(
@@ -775,7 +778,7 @@ class BackendElement(object):
             object_item = self
 
         return ElementState().get_html_state(object_type, object_item,
-                                          extra, icon, text, title, disabled, size)
+                                             extra, icon, text, title, disabled, size)
 
     def get_date(self, _date, fmt=None, duration=False):
         """

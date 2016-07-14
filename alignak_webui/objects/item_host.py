@@ -47,12 +47,6 @@ class Host(BackendElement):
     # Dates fields: list of the attributes to be considered as dates
     _dates = BackendElement._dates + ['last_state_change', 'last_check', 'next_check']
 
-    # def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        # """
-        # Create a new host
-        # """
-        # return super(Host, cls).__new__(cls, params, date_format)
-
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -114,18 +108,6 @@ class Host(BackendElement):
             self.downtimes = []
         if not hasattr(self, 'perfdatas'):
             self.perfdatas = []
-
-    # def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        # """
-        # Update a host (called every time an object is updated)
-        # """
-        # super(Host, self)._update(params, date_format)
-
-    # def __init__(self, params=None):
-        # """
-        # Initialize a host (called every time an object is invoked)
-        # """
-        # super(Host, self).__init__(params)
 
     @property
     def check_command(self):
@@ -192,12 +174,6 @@ class HostGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    # def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        # """
-        # Constructor
-        # """
-        # return super(HostGroup, cls).__new__(cls, params, date_format)
-
     def _create(self, params, date_format):
         """
         Create a hostgroup (called only once when an object is newly created)
@@ -206,18 +182,6 @@ class HostGroup(BackendElement):
         self._linked_hosts = 'host'
 
         super(HostGroup, self)._create(params, date_format)
-
-    # def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        # """
-        # Update a hostgroup (called every time an object is updated)
-        # """
-        # super(HostGroup, self)._update(params, date_format)
-
-    # def __init__(self, params=None):
-        # """
-        # Initialize a hostgroup (called every time an object is invoked)
-        # """
-        # super(HostGroup, self).__init__(params)
 
     @property
     def hosts(self):

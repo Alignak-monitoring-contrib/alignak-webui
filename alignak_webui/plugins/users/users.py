@@ -15,11 +15,7 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
-
-# PLUGIN_TYPE = "prefs"
-# PLUGIN_NAME = "prefs"
+from alignak_webui.plugins.common.common import get_table, get_table_data
 
 logger = getLogger(__name__)
 

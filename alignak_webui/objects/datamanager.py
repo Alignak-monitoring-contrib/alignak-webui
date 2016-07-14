@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # Yes, but that's how it is made, and it suits ;)
 # pylint: disable=too-many-public-methods
+# Necessary to import all backend elements objects!
+# pylint: disable=wildcard-import,unused-wildcard-import
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -137,7 +139,6 @@ class DataManager(object):
                 self.connection_message = _('Connection successful')
 
                 # Set the backend to use by the data manager objects
-                element = BackendElement()
                 BackendElement.setBackend(self.backend)
                 BackendElement.setKnownClasses(self.known_classes)
 
