@@ -331,7 +331,7 @@ table.dataTable tbody>tr>.selected {
 
          // Pagination
          "paging": {{'true' if dt.paginable else 'false'}},
-         "pagingType": "full_numbers",
+         "pagingType": "simple_numbers",
 
          // Pagination
          "lengthChange": true,

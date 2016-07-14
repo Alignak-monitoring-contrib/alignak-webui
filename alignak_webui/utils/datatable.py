@@ -62,6 +62,7 @@ class Datatable(object):
         self.backend = self.datamgr.backend
 
         self.recordsTotal = 0
+        self.records_filtered = 0
 
         self.id_property = '_id'
         self.name_property = 'name'
@@ -98,7 +99,7 @@ class Datatable(object):
         Request objects from the backend to pick-up total records count
         """
         # Request objects from the backend ...
-        self.recordsTotal = self.backend.count(self.object_type)
+        self.recordsTotal = self.backend.count(self.object_type, refresh=True)
         return self.recordsTotal
 
     ##
@@ -507,92 +508,103 @@ class Datatable(object):
         if parameters['embedded']:
             logger.info("backend embedded parameters: %s", parameters['embedded'])
 
-        # Request ALL objects count from the backend
-        records_total = self.get_total_records()
-
         # Request objects from the backend ...
         logger.debug("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
-        # logger.debug("table data, got: %s", items)
+
+        if not items:
+            # Empty response
+            return json.dumps({
+                # draw is the request number ...
+                "draw": int(params.get('draw', '0')),
+                "recordsTotal": 0,
+                "recordsFiltered": 0,
+                "data": []
+            })
+
+        # Create an object ...
+        object_class = [kc for kc in self.datamgr.known_classes
+                        if kc.get_type() == self.object_type][0]
+        bo_object = object_class()
+
+        # Update inner properties
+        self.id_property = '_id'
+        if hasattr(bo_object.__class__, 'id_property'):
+            self.id_property = bo_object.__class__.id_property
+        self.name_property = 'name'
+        if hasattr(bo_object.__class__, 'name_property'):
+            self.name_property = bo_object.__class__.name_property
+        self.status_property = 'status'
+        if hasattr(bo_object.__class__, 'status_property'):
+            self.status_property = bo_object.__class__.status_property
+
+        # Change item content ...
+        for item in items:
+            # _update is the method name... yes, it sounds like a protected member :/
+            # pylint: disable=protected-access
+            # noinspection PyProtectedMember
+            bo_object._update(item)
+            logger.debug("Object: %s", bo_object)
+
+            # Update table records count, because each item has a total count field
+            self.records_total = bo_object._total
+
+            for key in item.keys():
+                for field in self.table_columns:
+                    if field['data'] != key:
+                        continue
+
+                    if field['data'] == self.name_property:
+                        item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
+
+                    if field['data'] == self.status_property:
+                        item[key] = bo_object.get_html_state()
+
+                    if field['data'] == "business_impact":
+                        item[key] = Helper.get_html_business_impact(bo_object.business_impact)
+
+                    # Specific fields type
+                    if field['type'] == 'datetime' or field['format'] == 'date':
+                        item[key] = bo_object.get_date(item[key])
+
+                    if field['type'] == 'boolean':
+                        item[key] = Helper.get_on_off(item[key])
+
+                    if field['type'] == 'list':
+                        item[key] = Helper.get_html_item_list(
+                            bo_object, field['format'],
+                            getattr(bo_object, key), title=field['title']
+                        )
+
+                    if field['type'] == 'objectid' and \
+                       key in parameters['embedded'] and item[key]:
+                        object_class = [kc for kc in self.datamgr.known_classes
+                                        if kc.get_type() == field['format']][0]
+                        linked_object = object_class(item[key])
+                        item[key] = linked_object.get_html_link(
+                            prefix=request.params.get('links')
+                        )
+                        break
+
+            # Very specific fields...
+            if self.responsive:
+                item['#'] = ''
 
         # Total number of filtered records
-        records_filtered = records_total
+        self.records_filtered = self.records_total
         if 'where' in parameters and parameters['where'] != {}:
             logger.debug("update filtered records: %s", parameters['where'])
             records_filtered = len(items)
-        logger.info("filtered records: %d out of total: %d", records_filtered, records_total)
-
-        # Create an object ...
-        if items:
-            object_class = [kc for kc in self.datamgr.known_classes
-                            if kc.get_type() == self.object_type][0]
-            bo_object = object_class()
-
-            self.id_property = '_id'
-            if hasattr(bo_object.__class__, 'id_property'):
-                self.id_property = bo_object.__class__.id_property
-            self.name_property = 'name'
-            if hasattr(bo_object.__class__, 'name_property'):
-                self.name_property = bo_object.__class__.name_property
-            self.status_property = 'status'
-            if hasattr(bo_object.__class__, 'status_property'):
-                self.status_property = bo_object.__class__.status_property
-
-            # Change item content ...
-            for item in items:
-                # _update is the method name... yes, it sounds like a protected member :/
-                # pylint: disable=protected-access
-                # noinspection PyProtectedMember
-                bo_object._update(item)
-                logger.debug("Object: %s", bo_object)
-
-                for key in item.keys():
-                    for field in self.table_columns:
-                        if field['data'] != key:
-                            continue
-
-                        if field['data'] == self.name_property:
-                            item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
-
-                        if field['data'] == self.status_property:
-                            item[key] = bo_object.get_html_state()
-
-                        if field['data'] == "business_impact":
-                            item[key] = Helper.get_html_business_impact(bo_object.business_impact)
-
-                        # Specific fields type
-                        if field['type'] == 'datetime' or field['format'] == 'date':
-                            item[key] = bo_object.get_date(item[key])
-
-                        if field['type'] == 'boolean':
-                            item[key] = Helper.get_on_off(item[key])
-
-                        if field['type'] == 'list':
-                            item[key] = Helper.get_html_item_list(
-                                bo_object, field['format'],
-                                getattr(bo_object, key), title=field['title']
-                            )
-
-                        if field['type'] == 'objectid' and \
-                           key in parameters['embedded'] and item[key]:
-                            object_class = [kc for kc in self.datamgr.known_classes
-                                            if kc.get_type() == field['format']][0]
-                            linked_object = object_class(item[key])
-                            item[key] = linked_object.get_html_link(
-                                prefix=request.params.get('links')
-                            )
-                            break
-
-                # Very specific fields...
-                if self.responsive:
-                    item['#'] = ''
+        logger.info(
+            "filtered records: %d out of total: %d", self.records_filtered, self.records_total
+        )
 
         # Prepare response
         rsp = {
             # draw is the request number ...
             "draw": int(params.get('draw', '0')),
-            "recordsTotal": records_total,
-            "recordsFiltered": records_filtered,
+            "recordsTotal": self.records_total,
+            "recordsFiltered": self.records_filtered,
             "data": items
         }
         return json.dumps(rsp)
