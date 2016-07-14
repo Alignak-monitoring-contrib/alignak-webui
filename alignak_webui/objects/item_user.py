@@ -1,0 +1,268 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Many functions need to use protected members of a base class
+# pylint: disable=protected-access
+# Attributes need to be defined in constructor before initialization
+# pylint: disable=attribute-defined-outside-init
+
+# Copyright (c) 2015-2016:
+#   Frederic Mohier, frederic.mohier@gmail.com
+#
+# This file is part of (WebUI).
+#
+# (WebUI) is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# (WebUI) is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+    This module contains the classes used to manage the user and usergroup in the backend.
+"""
+
+from logging import getLogger, INFO
+
+# noinspection PyProtectedMember
+from alignak_webui import _
+
+from alignak_webui.objects.element import BackendElement
+
+# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
+logger = getLogger(__name__)
+logger.setLevel(INFO)
+
+
+class User(BackendElement):
+    """
+    Object representing a user
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'user'
+    # _cache is a list of created objects
+    _cache = {}
+
+    # Displayable strings for the user role
+    roles = {
+        "user": _("User"),
+        "power": _("Power user"),
+        "administrator": _("Administrator")
+    }
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new user
+        """
+        return super(User, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        # Not that bad ... because _create is called from __new__
+        # pylint: disable=attribute-defined-outside-init
+        """
+        Create a user (called only once when an object is newly created)
+        """
+        super(User, self)._create(params, date_format)
+
+        self.authenticated = False
+
+        # Is an administrator ?
+        if not hasattr(self, 'is_admin'):
+            self.is_admin = False
+
+        # Can submit commands
+        if not hasattr(self, 'can_submit_commands'):
+            self.can_submit_commands = False
+            if hasattr(self, 'read_only'):
+                if isinstance(self.read_only, bool):
+                    self.can_submit_commands = not self.read_only
+                else:
+                    self.can_submit_commands = getattr(self, 'read_only', '1') == '0'
+        if self.is_admin:
+            self.can_submit_commands = True
+
+        # Can change dashboard
+        if not hasattr(self, 'widgets_allowed'):
+            self.widgets_allowed = False
+        if self.is_admin:
+            self.widgets_allowed = True
+
+        # Has a role ?
+        if not hasattr(self, 'role'):
+            self.role = self.get_role()
+
+        if not hasattr(self, 'picture'):
+            self.picture = '/static/images/user_default.png'
+            if self.name == 'anonymous':
+                self.picture = '/static/images/user_guest.png'
+            else:
+                if self.is_admin:
+                    self.picture = '/static/images/user_admin.png'
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a user (called every time an object is updated)
+        """
+        super(User, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a user (called every time an object is invoked)
+        """
+        self.role = None
+        super(User, self).__init__(params)
+
+    def __repr__(self):
+        if hasattr(self, 'authenticated') and self.authenticated:
+            return "<Authenticated %s, id: %s, name: %s, role: %s>" % (
+                self.__class__._type, self.id, self.name, self.get_role()
+            )
+        return "<%s, id: %s, name: %s, role: %s>" % (
+            self.__class__._type, self.id, self.name, self.get_role()
+        )
+
+    @property
+    def endpoint(self):
+        """
+        Overload default property. Link to the main objects page with an anchor.
+        """
+        return '/%ss#%s' % (self.object_type, self.id)
+
+    def get_username(self):
+        """
+        Get the user username (for login).
+        Returns the 'username' field if it exists, else returns  the 'name' field,
+        else returns  the 'name' field
+        """
+        return getattr(self, 'username', self.name)
+
+    def get_role(self, display=False):
+        """
+        Get the user role.
+        If user role is not defined, set the property according to the user attributes:
+        - role='administrator' if the user is an administrator
+        - role='power' if the user can submit commands
+        - role='user' else
+
+        If the display parameter is set, the function returns a displayable string else it
+        returns the defined role property
+        """
+        if self.is_administrator():
+            self.role = 'administrator'
+        elif self.is_power():
+            self.role = 'power'
+        else:
+            self.role = 'user'
+
+        if display and self.role in self.__class__.roles:
+            return self.__class__.roles[self.role]
+
+        return self.role
+
+    def is_anonymous(self):
+        """
+        An anonymous user is created when no 'name' attribute exists for the user ... 'anonymous'
+        is the default value of the Item name property.
+        """
+        return self.name == 'anonymous'
+
+    def is_super_administrator(self):
+        """
+        Is user a super administrator?
+        """
+        if getattr(self, 'back_role_super_admin', None):
+            return self.back_role_super_admin
+
+    def is_administrator(self):
+        """
+        Is user an administrator?
+        """
+        if self.is_super_administrator():
+            return True
+
+        if isinstance(self.is_admin, bool):
+            return self.is_admin
+        else:
+            return getattr(self, 'is_admin', '1') == '1'
+
+    def is_power(self):
+        """
+        Is allowed to use commands (power user)?
+        """
+        if self.is_administrator():
+            return True
+
+        if isinstance(self.can_submit_commands, bool):
+            return self.can_submit_commands
+        else:
+            return getattr(self, 'can_submit_commands', '1') == '1'
+
+    def can_change_dashboard(self):
+        """
+        Can the use change dashboard (edit widgets,...)?
+        """
+        if self.is_power():
+            return True
+
+        if isinstance(self.widgets_allowed, bool):
+            return self.widgets_allowed
+        else:
+            return getattr(self, 'widgets_allowed', '1') == '1'
+
+
+class UserGroup(BackendElement):
+    """
+    Object representing a user group
+    """
+    _count = 0
+    # Next value used for auto generated id
+    _next_id = 1
+    # _type stands for Backend Object Type
+    _type = 'usergroup'
+    # _cache is a list of created objects
+    _cache = {}
+
+    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Create a new contactgroup
+        """
+        return super(UserGroup, cls).__new__(cls, params, date_format)
+
+    def _create(self, params, date_format):
+        """
+        Create a contactgroup (called only once when an object is newly created)
+        """
+        self._linked_usergroup_members = 'usergroup'
+        self._linked_members = 'user'
+
+        super(UserGroup, self)._create(params, date_format)
+
+    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        """
+        Update a contactgroup (called every time an object is updated)
+        """
+        super(UserGroup, self)._update(params, date_format)
+
+    def __init__(self, params=None):
+        """
+        Initialize a contactgroup (called every time an object is invoked)
+        """
+        super(UserGroup, self).__init__(params)
+
+    @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_members
+
+    @property
+    def contactgroup_members(self):
+        """ Return linked object """
+        return self._linked_usergroup_members

@@ -6,7 +6,7 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%from alignak_webui.objects.item import LiveState
+%from alignak_webui.objects.item_livestate import LiveState
 
 %if not elements:
    <center>

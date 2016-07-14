@@ -26,6 +26,7 @@
 from logging import getLogger
 from bottle import request, response, template
 
+from alignak_webui import _
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.datatable import Datatable
 
@@ -50,7 +51,7 @@ def get_table(object_type, schema, embedded=False, identifier=None, credentials=
     total = datamgr.get_objects_count(object_type, search=where, refresh=True)
 
     # Build table structure
-    dt = Datatable(object_type, datamgr.backend, schema)
+    dt = Datatable(object_type, datamgr, schema)
 
     # Build page title
     title = dt.title
@@ -73,7 +74,7 @@ def get_table_data(object_type, schema):
     Get the table data (requested from the table)
     """
     datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable(object_type, datamgr.backend, schema)
+    dt = Datatable(object_type, datamgr, schema)
 
     response.status = 200
     response.content_type = 'application/json'

@@ -2,7 +2,7 @@
 
 %if datamgr:
 %import time
-%from alignak_webui.objects.item import Service
+%from alignak_webui.objects.item_service import Service
 
 %ss = datamgr.get_livesynthesis()['services_synthesis']
 %if ss:

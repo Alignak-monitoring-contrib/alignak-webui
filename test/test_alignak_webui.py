@@ -20,38 +20,37 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-import os
-import json
-import time
-import shlex
-import unittest2
-import subprocess
+from __future__ import print_function
 
-from nose import with_setup
-from nose.tools import *
+import os
+
+import unittest2
+import bottle
+import alignak_webui.app
+from alignak_webui import _
+from alignak_webui import get_app_webui
+from alignak_webui.utils.settings import Settings
+
 
 # Do not set test mode ... application is tested in production mode!
 os.environ['TEST_ALIGNAK_WEBUI'] = '1'
-os.environ['TEST_ALIGNAK_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print "Configuration file", os.environ['TEST_ALIGNAK_WEBUI_CFG']
-
-import bottle
-import alignak_webui.app
-from alignak_webui import set_app_config, set_app_webui, get_app_config, get_app_webui
-from alignak_webui.utils.settings import Settings
+os.environ['TEST_ALIGNAK_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                                    'settings.cfg')
+print("Configuration file", os.environ['TEST_ALIGNAK_WEBUI_CFG'])
 
 pid = None
 appli = None
 
-class test_0_initialization(unittest2.TestCase):
 
+class TestInitialization(unittest2.TestCase):
     def test_0(self):
-        print 'Default initialization - production mode, no test mode configuration'
+        print('Default initialization - production mode, no test mode configuration')
 
         # Application configuration is already loaded
-        # Default is to get all the possible files ... as of it, event the settings.cfg in the current directory is active!
+        # Default is to get all the possible files ... as of it, event the settings.cfg in the
+        # current directory is active!
         self.config = alignak_webui.get_app_config()
-        print self.config
+        print(self.config)
         assert self.config
         assert self.config.get('host', 'default_value') == 'default_value'
         assert self.config.get('locale', 'en_US') == 'en_US'
@@ -60,21 +59,21 @@ class test_0_initialization(unittest2.TestCase):
 
         # Alignak-WebUI object is initialized
         self.alignak_webui = get_app_webui()
-        print self.alignak_webui.__dict__
+        print(self.alignak_webui.__dict__)
         assert self.alignak_webui
         assert self.alignak_webui.widgets is not None
 
     def test_1(self):
-        print 'Settings fixed'
+        print('Settings fixed')
 
         # Get configuration from only one file ...
-        print ("read configuration")
+        print("read configuration")
         cfg = Settings(
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
         )
         found_cfg_files = cfg.read('Alignak-WebUI')
         assert found_cfg_files
-        print "Found files:", found_cfg_files
+        print("Found files:", found_cfg_files)
         alignak_webui.set_app_config(cfg)
 
         # Application configuration is loaded
@@ -90,10 +89,10 @@ class test_0_initialization(unittest2.TestCase):
         assert self.alignak_webui
 
     def test_2(self):
-        print 'Settings fixed (2)'
+        print('Settings fixed (2)')
 
         # Get configuration from only one file ...
-        print ("read configuration")
+        print("read configuration")
         cfg = Settings(
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.fr')
         )
@@ -115,32 +114,32 @@ class test_0_initialization(unittest2.TestCase):
         self.alignak_webui = get_app_webui()
         assert self.alignak_webui
 
-class test_1_methods(unittest2.TestCase):
 
+class TestMethods(unittest2.TestCase):
     def setUp(self):
-        print ""
-        print "setting up ..."
+        print("")
+        print("setting up ...")
 
         # Application configuration is loaded
         self.config = alignak_webui.get_app_config()
-        print self.config
+        print(self.config)
         assert self.config
 
         # Alignak-WebUI object is initialized
         self.alignak_webui = alignak_webui.get_app_webui()
-        print self.alignak_webui
+        print(self.alignak_webui)
         assert self.alignak_webui
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
+        print("")
+        print("tearing down ...")
 
     def test_1_1(self):
-        print ''
-        print 'test configuration'
+        print('')
+        print('test configuration')
 
         manifest = alignak_webui.manifest
-        print 'manifest:', manifest
+        print('manifest:', manifest)
         assert manifest
         assert manifest['name']
         assert manifest['version']
@@ -150,30 +149,30 @@ class test_1_methods(unittest2.TestCase):
         assert manifest['release']
         assert manifest['doc']
 
-        print _
+        print(_)
         assert _
 
-        print alignak_webui.app_config
+        print(alignak_webui.app_config)
         assert alignak_webui.app_config
 
-        print 'alignak_webui:', self.alignak_webui
+        print('alignak_webui:', self.alignak_webui)
         # assert False
 
     def test_1_2_plugins(self):
-        print ''
-        print 'test plugins'
+        print('')
+        print('test plugins')
 
-        print 'plugins count:', self.alignak_webui.plugins_count
+        print('plugins count:', self.alignak_webui.plugins_count)
         for plugin in self.alignak_webui.plugins:
-            print "Plugin:", plugin
+            print("Plugin:", plugin)
 
-        print 'get plugins routes - route name is present'
+        print('get plugins routes - route name is present')
         for s_route in [r for r in bottle.app().routes if r.name]:
-            print "Plugin route:", s_route.name, s_route.rule, s_route.callback
+            print("Plugin route:", s_route.name, s_route.rule, s_route.callback)
 
-        print 'get plugins static files routes - rule starts with /plugins'
+        print('get plugins static files routes - rule starts with /plugins')
         for s_route in [r for r in bottle.app().routes if r.rule.startswith('/plugins')]:
-            print "Plugin static files route:", s_route.rule
+            print("Plugin static files route:", s_route.rule)
 
 
 if __name__ == '__main__':

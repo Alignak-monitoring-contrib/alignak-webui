@@ -7,7 +7,7 @@
 %setdefault('credentials', None)
 
 %from alignak_webui.utils.helper import Helper
-%from alignak_webui.objects.item import Command
+%from alignak_webui.objects.item_command import Command
 
 %if not elements:
    <center>

@@ -20,33 +20,30 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-import os
-import time
-import shlex
-import json
-import unittest2
-import subprocess
+from __future__ import print_function
 
-from nose import with_setup # optional
-from nose.tools import *
+import json
+import os
+import shlex
+import subprocess
+import time
+from logging import getLogger, INFO, WARNING, ERROR
+
+import unittest2
+from webtest import TestApp
+
+from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
+
+from alignak_webui import webapp
+from alignak_webui.objects.datamanager import DataManager
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
 os.environ['WEBUI_DEBUG'] = '1'
-os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print "Configuration file", os.environ['TEST_WEBUI_CFG']
+os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                            'settings.cfg')
+print("Configuration file", os.environ['TEST_WEBUI_CFG'])
 
-from alignak_backend_client.client import Backend, BackendException
-from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
-
-import alignak_webui.app
-from alignak_webui import webapp
-
-from alignak_webui.objects.datamanager import DataManager
-from alignak_webui.utils.datatable import Datatable
-
-
-from logging import getLogger, DEBUG, INFO, WARNING, ERROR
 loggerDm = getLogger('alignak_webui.application')
 loggerDm.setLevel(WARNING)
 loggerDm = getLogger('alignak_webui.utils.datatable')
@@ -61,9 +58,12 @@ loggerDm.setLevel(INFO)
 pid = None
 backend_address = "http://127.0.0.1:5000/"
 
-def setup_module(module):
-    print ("")
-    print ("start alignak backend")
+items_count = 0
+
+
+def setup_module():
+    print("")
+    print("start alignak backend")
 
     global pid
     global backend_address
@@ -75,45 +75,43 @@ def setup_module(module):
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 
         # No console output for the applications backend ...
-        FNULL = open(os.devnull, 'w')
+        fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
             shlex.split('alignak_backend')
         )
-        print ("PID: %s" % pid)
+        print("PID: %s" % pid)
         time.sleep(1)
 
-        print ("")
-        print ("populate backend content")
-        fh = open("NUL","w")
+        print("")
+        print("populate backend content")
         q = subprocess.Popen(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'),
-            stdout=FNULL, stderr=FNULL
+            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
         )
-        (stdoutdata, stderrdata) = q.communicate() # now wait
+        (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
 
 
 def teardown_module(module):
-    print ("")
-    print ("stop applications backend")
+    print("")
+    print("stop applications backend")
 
     if backend_address == "http://127.0.0.1:5000/":
         global pid
         pid.kill()
 
 
-from webtest import TestApp
 
-class test_00_datatable(unittest2.TestCase):
+class TestDataTable(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -132,13 +130,13 @@ class test_00_datatable(unittest2.TestCase):
         self.items_count = 0
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_01_get(self):
-        print ''
-        print 'test get table'
+        print('')
+        print('test get table')
 
-        print 'get page /commands_table'
+        print('get page /commands_table')
         response = self.app.get('/commands_table')
         response.mustcontain(
             '<div id="command_table" class="alignak_webui_table ">',
@@ -154,23 +152,23 @@ class test_00_datatable(unittest2.TestCase):
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
         )
 
-
     def test_02_change(self):
-        print ''
-        print 'test get table'
+        print('')
+        print('test get table')
 
-        print 'change content with /command_table_data'
+        print('change content with /command_table_data')
         response = self.app.post('/command_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary ...
         self.items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == self.items_count
-        # assert response.json['recordsFiltered'] == self.items_count if self.items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == self.items_count
+        # if self.items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         self.assertNotEqual(response.json['data'], [])
         for x in range(0, self.items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
-                print response.json['data'][x]
+                print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
                 assert response.json['data'][x]['definition_order']
@@ -182,7 +180,6 @@ class test_00_datatable(unittest2.TestCase):
                 assert response.json['data'][x]['enable_environment_macros']
                 # No more ui in the backend
                 # self.assertTrue(response.json['data'][x]['ui'])
-
 
         # Specify count number ...
         response = self.app.post('/command_table_data', {
@@ -196,7 +193,6 @@ class test_00_datatable(unittest2.TestCase):
         self.assertNotEqual(response.json['data'], [])
         self.assertEqual(len(response.json['data']), 10)
 
-
         # Specify count number ... greater than number of elements
         response = self.app.post('/command_table_data', {
             'object_type': 'command',
@@ -209,9 +205,8 @@ class test_00_datatable(unittest2.TestCase):
         self.assertNotEqual(response.json['data'], [])
         self.assertEqual(len(response.json['data']), BACKEND_PAGINATION_LIMIT)
 
-
         # Rows 5 by 5 ...
-        print "Get rows 5 per 5"
+        print("Get rows 5 per 5")
         count = 0
         for x in range(0, self.items_count, 5):
             response = self.app.post('/command_table_data', {
@@ -232,7 +227,7 @@ class test_00_datatable(unittest2.TestCase):
 
         # Out of scope rows ...
         response = self.app.post('/command_table_data', {
-            'start': self.items_count*2,
+            'start': self.items_count * 2,
             'length': 5
         })
         response_value = response.json
@@ -241,10 +236,9 @@ class test_00_datatable(unittest2.TestCase):
         self.assertEqual(response.json['recordsFiltered'], self.items_count)
         self.assertEqual(response.json['data'], [])
 
-
     def test_03_sort(self):
-        print ''
-        print 'test sort table'
+        print('')
+        print('test sort table')
 
         # Sort ascending ...
         response = self.app.post('/command_table_data', {
@@ -252,16 +246,24 @@ class test_00_datatable(unittest2.TestCase):
             'start': 0,
             'length': 10,
             'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]) # Ascending
+            'order': json.dumps([{"column": 0, "dir": "asc"}])  # Ascending
         })
         self.assertEqual(len(response.json['data']), 10)
 
@@ -271,27 +273,34 @@ class test_00_datatable(unittest2.TestCase):
             'start': 0,
             'length': 10,
             'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"desc"}])    # Descending !
+            'order': json.dumps([{"column": 0, "dir": "desc"}])  # Descending !
         })
         self.assertEqual(len(response.json['data']), 10)
 
         # TODO : check order of element ?
 
-
     def test_04_filter(self):
-        print ''
-        print 'test filter table'
+        print('')
+        print('test filter table')
 
-        print 'change content with /command_table_data'
+        print('change content with /command_table_data')
         response = self.app.post('/command_table_data')
         response_value = response.json
         # Temporary ...
@@ -304,18 +313,26 @@ class test_00_datatable(unittest2.TestCase):
             'start': 0,
             'length': 5,
             'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            'order': json.dumps([{"column": 0, "dir": "asc"}]),
             # Search 'check_ping' in all columns without regex
-            'search': json.dumps({"value":"check_ping","regex":False})
+            'search': json.dumps({"value": "check_ping", "regex": False})
         })
         response_value = response.json
         # Found items_count records and sent 1
@@ -328,21 +345,29 @@ class test_00_datatable(unittest2.TestCase):
             'start': 0,
             'length': 5,
             'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            'order': json.dumps([{"column": 0, "dir": "asc"}]),
             # Search 'close' in all columns without regex
-            'search': json.dumps({"value":"check_test","regex":False})
+            'search': json.dumps({"value": "check_test", "regex": False})
         })
         response_value = response.json
-        print response_value
+        print(response_value)
         # Not found!
         assert response.json['recordsTotal'] == self.items_count
         assert response.json['recordsFiltered'] == 0
@@ -353,26 +378,33 @@ class test_00_datatable(unittest2.TestCase):
             'start': 0,
             'length': 5,
             'columns': json.dumps([
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            'order': json.dumps([{"column": 0, "dir": "asc"}]),
             # Search 'check' in all columns with regex
-            'search': json.dumps({"value":"check","regex":True})
+            'search': json.dumps({"value": "check", "regex": True})
         })
         response_value = response.json
-        print response_value
+        print(response_value)
         assert response.json['recordsTotal'] == self.items_count
         assert response.json['recordsFiltered'] == 5
         assert response.json['data']
         assert len(response.json['data']) == 5
-
 
         # Searching ...
         # Individual search ...
@@ -382,19 +414,27 @@ class test_00_datatable(unittest2.TestCase):
             'length': 5,
             'columns': json.dumps([
                 # Search 'check_ping' in name column ...
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check_ping","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "check_ping", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            'order': json.dumps([{"column": 0, "dir": "asc"}]),
         })
         response_value = response.json
-        print response_value
+        print(response_value)
         assert response.json['recordsTotal'] == self.items_count
         assert response.json['recordsFiltered'] == 1
         assert response.json['data']
@@ -406,19 +446,27 @@ class test_00_datatable(unittest2.TestCase):
             'length': 5,
             'columns': json.dumps([
                 # Search 'op' in status column ...
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check","regex":False}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "check", "regex": False}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            'order': json.dumps([{"column": 0, "dir": "asc"}]),
         })
         response_value = response.json
-        print response_value
+        print(response_value)
         assert response.json['recordsTotal'] == self.items_count
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
@@ -429,30 +477,38 @@ class test_00_datatable(unittest2.TestCase):
             'length': 5,
             'columns': json.dumps([
                 # Search 'check' in name column ... regex True
-                {"data":"name","name":"name","searchable":True,"orderable":True,"search":{"value":"check","regex":True}},
-                {"data":"definition_order","name":"definition_order","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"command_line","name":"command_line","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"module_type","name":"module_type","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"enable_environment_macros","name":"enable_environment_macros","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"timeout","name":"timeout","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"poller_tag","name":"poller_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
-                {"data":"reactionner_tag","name":"reactionner_tag","searchable":True,"orderable":True,"search":{"value":"","regex":False}},
+                {"data": "name", "name": "name", "searchable": True, "orderable": True,
+                 "search": {"value": "check", "regex": True}},
+                {"data": "definition_order", "name": "definition_order", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "command_line", "name": "command_line", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "module_type", "name": "module_type", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "enable_environment_macros", "name": "enable_environment_macros",
+                 "searchable": True, "orderable": True, "search": {"value": "", "regex": False}},
+                {"data": "timeout", "name": "timeout", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "poller_tag", "name": "poller_tag", "searchable": True, "orderable": True,
+                 "search": {"value": "", "regex": False}},
+                {"data": "reactionner_tag", "name": "reactionner_tag", "searchable": True,
+                 "orderable": True, "search": {"value": "", "regex": False}},
             ]),
-            'order': json.dumps([{"column":0,"dir":"asc"}]),
+            'order': json.dumps([{"column": 0, "dir": "asc"}]),
         })
         response_value = response.json
-        print response_value
+        print(response_value)
         assert response.json['recordsTotal'] == self.items_count
         assert response.json['recordsFiltered'] == 5
         assert response.json['data']
         assert len(response.json['data']) == 5
 
 
-class test_01_datatable_commands(unittest2.TestCase):
+class TestDatatableCommands(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -469,15 +525,15 @@ class test_01_datatable_commands(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_01_commands(self):
-        print ''
-        print 'test commands table'
+        print('')
+        print('test commands table')
 
         global items_count
 
-        print 'get page /commands_table'
+        print('get page /commands_table')
         response = self.app.get('/commands_table')
         response.mustcontain(
             '<div id="command_table" class="alignak_webui_table ">',
@@ -493,14 +549,15 @@ class test_01_datatable_commands(unittest2.TestCase):
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
         )
 
-        print 'change content with /command_table_data'
+        print('change content with /command_table_data')
         response = self.app.post('/command_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary ...
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
         for x in range(0, items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
@@ -517,11 +574,11 @@ class test_01_datatable_commands(unittest2.TestCase):
                 # assert response.json['data'][x]['ui'] == True
 
 
-class test_02_datatable_realms(unittest2.TestCase):
+class TestDatatableRealms(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -538,15 +595,15 @@ class test_02_datatable_realms(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_01_realms(self):
-        print ''
-        print 'test realm table'
+        print('')
+        print('test realm table')
 
         global items_count
 
-        print 'get page /realm_table'
+        print('get page /realm_table')
         response = self.app.get('/realm_table')
         response.mustcontain(
             '<div id="realm_table" class="alignak_webui_table ">',
@@ -569,16 +626,17 @@ class test_02_datatable_realms(unittest2.TestCase):
 
         response = self.app.post('/realm_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
-                print response.json['data'][x]
+                print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['definition_order'] is not None
@@ -587,11 +645,11 @@ class test_02_datatable_realms(unittest2.TestCase):
                 # assert 'realms' in response.json['data'][x] is not None
 
 
-class test_03_datatable_hosts(unittest2.TestCase):
+class TestDatatableHosts(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -608,15 +666,15 @@ class test_03_datatable_hosts(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_02_hosts(self):
-        print ''
-        print 'test hosts table'
+        print('')
+        print('test hosts table')
 
         global items_count
 
-        print 'get page /hosts_table'
+        print('get page /hosts_table')
         response = self.app.get('/hosts_table')
         response.mustcontain(
             '<div id="host_table" class="alignak_webui_table ">',
@@ -638,24 +696,25 @@ class test_03_datatable_hosts(unittest2.TestCase):
 
         response = self.app.post('/host_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x] is not None
                 assert response.json['data'][x]['name'] is not None
 
 
-class test_03_datatable_services(unittest2.TestCase):
+class TestDatatableServices(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -672,15 +731,15 @@ class test_03_datatable_services(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_02_services(self):
-        print ''
-        print 'test services table'
+        print('')
+        print('test services table')
 
         global items_count
 
-        print 'get page /services_table'
+        print('get page /services_table')
         response = self.app.get('/services_table')
         response.mustcontain(
             '<div id="service_table" class="alignak_webui_table ">',
@@ -724,24 +783,25 @@ class test_03_datatable_services(unittest2.TestCase):
 
         response = self.app.post('/service_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x] is not None
                 assert response.json['data'][x]['name'] is not None
 
 
-class test_04_datatable_hostgroups(unittest2.TestCase):
+class TestDatatableHostgroups(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -758,15 +818,15 @@ class test_04_datatable_hostgroups(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_01_hosts_groups(self):
-        print ''
-        print 'test hostgroup table'
+        print('')
+        print('test hostgroup table')
 
         global items_count
 
-        print 'get page /hostgroup_table'
+        print('get page /hostgroup_table')
         response = self.app.get('/hostgroup_table')
         response.mustcontain(
             '<div id="hostgroup_table" class="alignak_webui_table ">',
@@ -783,16 +843,17 @@ class test_04_datatable_hostgroups(unittest2.TestCase):
 
         response = self.app.post('/hostgroup_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
-                print response.json['data'][x]
+                print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['definition_order'] is not None
@@ -801,11 +862,11 @@ class test_04_datatable_hostgroups(unittest2.TestCase):
                 assert 'hostgroups' in response.json['data'][x] is not None
 
 
-class test_05_datatable_servicegroups(unittest2.TestCase):
+class TestDatatableervicegroups(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -822,15 +883,15 @@ class test_05_datatable_servicegroups(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_01_services_groups(self):
-        print ''
-        print 'test servicegroup table'
+        print('')
+        print('test servicegroup table')
 
         global items_count
 
-        print 'get page /servicegroup_table'
+        print('get page /servicegroup_table')
         response = self.app.get('/servicegroup_table')
         response.mustcontain(
             '<div id="servicegroup_table" class="alignak_webui_table ">',
@@ -847,27 +908,28 @@ class test_05_datatable_servicegroups(unittest2.TestCase):
 
         response = self.app.post('/servicegroup_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
-                print response.json['data'][x]
+                print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['definition_order'] is not None
                 assert response.json['data'][x]['alias'] is not None
 
 
-class test_06_datatable_users(unittest2.TestCase):
+class TestDatatableUsers(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -884,15 +946,15 @@ class test_06_datatable_users(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_03_users(self):
-        print ''
-        print 'test users table'
+        print('')
+        print('test users table')
 
         global items_count
 
-        print 'get page /users_table'
+        print('get page /users_table')
         response = self.app.get('/users_table')
         response.mustcontain(
             '<div id="user_table" class="alignak_webui_table ">',
@@ -905,24 +967,25 @@ class test_06_datatable_users(unittest2.TestCase):
 
         response = self.app.post('/user_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
 
 
-class test_07_datatable_livestate(unittest2.TestCase):
+class TestDatatableLivestate(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -939,15 +1002,15 @@ class test_07_datatable_livestate(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_livestate(self):
-        print ''
-        print 'test livestate table'
+        print('')
+        print('test livestate table')
 
         global items_count
 
-        print 'get page /livestate_table'
+        print('get page /livestate_table')
         response = self.app.get('/livestate_table')
         response.mustcontain(
             '<div id="livestate_table" class="alignak_webui_table ">',
@@ -982,18 +1045,19 @@ class test_07_datatable_livestate(unittest2.TestCase):
         )
 
         response = self.app.post('/livestate_table_data')
-        print response
+        print(response)
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
-                print response.json['data'][x]
+                print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['#'] is not None
                 assert response.json['data'][x]['type'] is not None
@@ -1006,11 +1070,11 @@ class test_07_datatable_livestate(unittest2.TestCase):
                     assert response.json['data'][x]['service'] is None
 
 
-class test_08_datatable_timeperiod(unittest2.TestCase):
+class TestDatatableTimeperiod(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -1027,15 +1091,15 @@ class test_08_datatable_timeperiod(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_timeperiod(self):
-        print ''
-        print 'test timeperiod table'
+        print('')
+        print('test timeperiod table')
 
         global items_count
 
-        print 'get page /timeperiods_table'
+        print('get page /timeperiods_table')
         response = self.app.get('/timeperiods_table')
         response.mustcontain(
             '<div id="timeperiod_table" class="alignak_webui_table ">',
@@ -1051,18 +1115,19 @@ class test_08_datatable_timeperiod(unittest2.TestCase):
         )
 
         response = self.app.post('/timeperiod_table_data')
-        print response
+        print(response)
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
         assert response.json['data']
-        for x in range(0, items_count+0):
+        for x in range(0, items_count + 0):
             # Only if lower than default pagination ...
             if x < BACKEND_PAGINATION_DEFAULT:
-                print response.json['data'][x]
+                print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['#'] is not None
                 assert response.json['data'][x]['name'] is not None
@@ -1070,11 +1135,11 @@ class test_08_datatable_timeperiod(unittest2.TestCase):
                 assert response.json['data'][x]['is_active'] is not None
 
 
-class test_09_datatable_log(unittest2.TestCase):
+class TestDatatableLog(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -1091,15 +1156,15 @@ class test_09_datatable_log(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_05_logcheckresult(self):
-        print ''
-        print 'test logcheckresult table'
+        print('')
+        print('test logcheckresult table')
 
         global items_count
 
-        print 'get page /logcheckresult_table'
+        print('get page /logcheckresult_table')
         response = self.app.get('/logcheckresult_table')
         response.mustcontain(
             '<div id="logcheckresult_table" class="alignak_webui_table ">',
@@ -1123,19 +1188,21 @@ class test_09_datatable_log(unittest2.TestCase):
 
         response = self.app.post('/logcheckresult_table_data')
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
 
         # No data in the test backend
 
-class test_10_datatable_history(unittest2.TestCase):
+
+class TestDatatableHistory(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -1152,15 +1219,15 @@ class test_10_datatable_history(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_history(self):
-        print ''
-        print 'test history table'
+        print('')
+        print('test history table')
 
         global items_count
 
-        print 'get page /historys_table'
+        print('get page /historys_table')
         response = self.app.get('/history_table')
         response.mustcontain(
             '<div id="history_table" class="alignak_webui_table ">',
@@ -1177,9 +1244,9 @@ class test_10_datatable_history(unittest2.TestCase):
         )
 
         response = self.app.post('/history_table_data')
-        print response
+        print(response)
         response_value = response.json
-        print response_value
+        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
 

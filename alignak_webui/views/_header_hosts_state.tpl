@@ -2,7 +2,7 @@
 
 %if datamgr:
 %import time
-%from alignak_webui.objects.item import Host
+%from alignak_webui.objects.item_host import Host
 
 %hs = datamgr.get_livesynthesis()['hosts_synthesis']
 %if hs:

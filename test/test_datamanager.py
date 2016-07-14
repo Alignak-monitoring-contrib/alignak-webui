@@ -2,43 +2,43 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
-import json
-import time
 import shlex
-import unittest2
 import subprocess
+import time
 
-from nose import with_setup
+import unittest2
 from nose.tools import *
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
-os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                            'settings.cfg')
 print "Configuration file", os.environ['TEST_WEBUI_CFG']
-
-from alignak_backend_client.client import Backend, BackendException
-from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
-
-from alignak_webui.objects.item import User, Host, Service, Command
-from alignak_webui.objects.datamanager import DataManager
-from alignak_webui import get_app_config, _
+# To load application configuration used by the objects
 import alignak_webui.app
 
+from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.item_user import User
+from alignak_webui.objects.item_command import Command
+from alignak_webui.objects.datamanager import DataManager
+
 from logging import getLogger, DEBUG, INFO, WARNING
+
 loggerDm = getLogger('alignak_webui.objects.datamanager')
 loggerDm.setLevel(INFO)
-loggerItems = getLogger('alignak_webui.objects.item')
-loggerItems.setLevel(WARNING)
-loggerItems = getLogger('alignak_webui.objects.backend')
-loggerItems.setLevel(WARNING)
+loggerItems = getLogger('alignak_webui.objects.element')
+loggerItems.setLevel(INFO)
+# loggerBackend = getLogger('alignak_webui.objects.backend')
+# loggerBackend.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
+
+
 # backend_address = "http://94.76.229.155:80"
 
 
-def setup_module(module):
+def setup_module():
     print ("")
     print ("start alignak backend")
 
@@ -52,7 +52,8 @@ def setup_module(module):
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 
@@ -69,7 +70,8 @@ def setup_module(module):
         )
         assert exit_code == 0
 
-def teardown_module(module):
+
+def teardown_module():
     print ("")
     print ("stop applications backend")
 
@@ -80,8 +82,8 @@ def teardown_module(module):
 
 datamgr = None
 
-class test_1_find_and_search(unittest2.TestCase):
 
+class test_1_find_and_search(unittest2.TestCase):
     def test_1_1_find_objects(self):
         print ''
         print 'test find_objects - no objects in cache'
@@ -91,6 +93,8 @@ class test_1_find_and_search(unittest2.TestCase):
         assert datamanager.backend
         assert datamanager.loaded == False
         assert datamanager.get_logged_user() is None
+        # Got known managed elements classes
+        self.assertEqual(len(datamanager.known_classes), 17)
 
         # Login ...
         assert datamanager.backend.login('admin', 'admin')
@@ -102,7 +106,7 @@ class test_1_find_and_search(unittest2.TestCase):
 
         # Get current user
         # 'name' is not existing!
-        parameters = {'where': {"name":"admin"}}
+        parameters = {'where': {"name": "admin"}}
         items = datamanager.backend.get('user', params=parameters)
         print items
         assert len(items) == 1
@@ -113,20 +117,20 @@ class test_1_find_and_search(unittest2.TestCase):
         print users
         assert len(users) == 1
         # New user object created in the DM cache ...
-        assert datamanager.get_objects_count('user') == 1
+        self.assertEqual(datamanager.get_objects_count('user', refresh=True), 1)
 
         # Unknown user not found
         with assert_raises(ValueError) as cm:
-            user = datamanager.find_object('user', 'fake_id')
+            datamanager.find_object('user', 'fake_id')
         ex = cm.exception
         print ex
-        assert str(ex) == """user, search: {'max_results': 50, 'where': '{"_id": "%s"}', 'page': 0} was not found in the backend""" % 'fake_id'
+        assert str(
+            ex) == """user, search: {'max_results': 50, 'where': '{"_id": "%s"}', 'page': 0} was not found in the backend""" % 'fake_id'
 
 
 class test_2_creation(unittest2.TestCase):
-
     def test_2_1_creation_load(self):
-        print ''
+        print '------------------------------'
         print 'test creation'
 
         datamanager = DataManager()
@@ -134,6 +138,8 @@ class test_2_creation(unittest2.TestCase):
         assert datamanager.loaded == False
         assert datamanager.get_logged_user() == None
         print 'Data manager', datamanager
+        # Got known managed elements classes
+        self.assertEqual(len(datamanager.known_classes), 17)
 
         # Initialize and load fail ...
         print 'DM load failed'
@@ -175,7 +181,7 @@ class test_2_creation(unittest2.TestCase):
         print 'DM login ok'
         assert datamanager.user_login('admin', 'admin', load=False)
         assert datamanager.connection_message == 'Connection successful'
-        print datamanager.logged_in_user
+        print ("Logged user: %s" % datamanager.logged_in_user)
         assert datamanager.logged_in_user
         assert datamanager.get_logged_user() != None
         assert datamanager.get_logged_user().id != None
@@ -218,7 +224,6 @@ class test_2_creation(unittest2.TestCase):
 
 
 class test_3_load_create(unittest2.TestCase):
-
     def setUp(self):
         print ""
 
@@ -270,7 +275,6 @@ class test_3_load_create(unittest2.TestCase):
 
 
 class test_4_not_admin(unittest2.TestCase):
-
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -320,7 +324,7 @@ class test_4_not_admin(unittest2.TestCase):
 
             "service_notifications_enabled": True,
             "service_notification_period": tp_all.id,
-            "service_notification_commands": [ ],
+            "service_notification_commands": [],
             "service_notification_options": [
                 "w",
                 "u",
@@ -407,7 +411,6 @@ class test_4_not_admin(unittest2.TestCase):
 
 
 class test_5_basic_tests(unittest2.TestCase):
-
     def setUp(self):
         print ""
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -434,7 +437,7 @@ class test_5_basic_tests(unittest2.TestCase):
         for item in items:
             print "Got", item
             assert item.id
-            icon_status = item.get_html_state()
+            item.get_html_state()
         self.assertEqual(len(items), 5)
 
         # Get realms
@@ -442,7 +445,7 @@ class test_5_basic_tests(unittest2.TestCase):
         for item in items:
             print "Got: ", item
             assert item.id
-            icon_status = item.get_html_state()
+            item.get_html_state()
         self.assertEqual(len(items), 5)
 
         # Get commands
@@ -451,14 +454,14 @@ class test_5_basic_tests(unittest2.TestCase):
             print "Got: ", item
             assert item.id
             icon_status = item.get_html_state()
-        self.assertEqual(len(items), 50)    # Backend pagination limit ...
+        self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
         # Get hosts
         items = self.dmg.get_hosts()
         for item in items:
             print "Got: ", item
             assert item.id
-            icon_status = item.get_html_state()
+            item.get_html_state()
         self.assertEqual(len(items), 13)
 
         # Get services
@@ -466,15 +469,15 @@ class test_5_basic_tests(unittest2.TestCase):
         for item in items:
             print "Got: ", item
             assert item.id
-            icon_status = item.get_html_state()
-        self.assertEqual(len(items), 50)    # Backend pagination limit ...
+            item.get_html_state()
+        self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
         # Get timeperiods
         items = self.dmg.get_timeperiods()
         for item in items:
             print "Got: ", item
             assert item.id
-            icon_status = item.get_html_state()
+            item.get_html_state()
         self.assertEqual(len(items), 4)
 
     def test_5_2_total_count(self):
@@ -485,10 +488,11 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('realm'), 5)
         self.assertEqual(self.dmg.count_objects('command'), 103)
         self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
-        self.assertEqual(self.dmg.count_objects('user'), 4+1)    #Because a new user is created during the tests
+        self.assertEqual(self.dmg.count_objects('user'),
+                         4 + 1)  # Because a new user is created during the tests
         self.assertEqual(self.dmg.count_objects('host'), 13)
         self.assertEqual(self.dmg.count_objects('service'), 94)
-        self.assertEqual(self.dmg.count_objects('livestate'), 13+94)
+        self.assertEqual(self.dmg.count_objects('livestate'), 13 + 94)
         self.assertEqual(self.dmg.count_objects('servicegroup'), 6)
         self.assertEqual(self.dmg.count_objects('hostgroup'), 9)
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
@@ -500,7 +504,7 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('realm'), 5)
         self.assertEqual(self.dmg.get_objects_count('command'), 50)
         self.assertEqual(self.dmg.get_objects_count('timeperiod'), 4)
-        self.assertEqual(self.dmg.get_objects_count('user'), 4+1)
+        self.assertEqual(self.dmg.get_objects_count('user'), 4 + 1)
         # Not loaded on login in the data manager ... so 0
         self.assertEqual(self.dmg.get_objects_count('host'), 0)
         self.assertEqual(self.dmg.get_objects_count('service'), 0)
@@ -511,10 +515,10 @@ class test_5_basic_tests(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 5)
         self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
         self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
-        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4+1)
+        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4 + 1)
         self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
         self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 94)
-        self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13+94)
+        self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13 + 94)
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
 
     def test_5_3_livesynthesis(self):
@@ -570,7 +574,6 @@ class test_5_basic_tests(unittest2.TestCase):
 
 
 class test_6_relations(unittest2.TestCase):
-
     def setUp(self):
         print ""
         print "setting up ..."
@@ -590,10 +593,10 @@ class test_6_relations(unittest2.TestCase):
         print "--- test Item"
 
         # Get main realm
-        realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
+        self.dmg.get_realm({'where': {'name': 'All'}})
 
         # Get main TP
-        tp_all = self.dmg.get_timeperiod({'where': {'name': '24x7'}})
+        self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
         host = self.dmg.get_host({'where': {'name': 'webui'}})
@@ -607,10 +610,10 @@ class test_6_relations(unittest2.TestCase):
         print "--- test Item"
 
         # Get main realm
-        realm_all = self.dmg.get_realm({'where': {'name': 'All'}})
+        self.dmg.get_realm({'where': {'name': 'All'}})
 
         # Get main TP
-        tp_all = self.dmg.get_timeperiod({'where': {'name': '24x7'}})
+        self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
         host = self.dmg.get_host({'where': {'name': 'webui'}})

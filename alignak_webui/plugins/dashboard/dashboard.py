@@ -26,6 +26,7 @@
 import json
 from logging import getLogger
 from bottle import request
+from alignak_webui import _
 
 logger = getLogger(__name__)
 
@@ -98,6 +99,7 @@ def get_page():
         logger.info("Dashboard widget: %s", widget)
         widgets.append(widget)
 
+    print "Dashboard template call"
     return {
         'action_bar': len(widgets) != 0,
         'widgets_place': 'dashboard',

@@ -14,11 +14,8 @@ from collections import OrderedDict
 from logging import getLogger
 from bottle import request, response
 
-from alignak_webui.utils.datatable import Datatable
-from alignak_webui.utils.helper import Helper
-
-# PLUGIN_TYPE = "prefs"
-# PLUGIN_NAME = "prefs"
+from alignak_webui import _
+from alignak_webui.plugins.common.common import get_table, get_table_data
 
 logger = getLogger(__name__)
 
@@ -268,42 +265,14 @@ def get_users_table(embedded=False, identifier=None, credentials=None):
     """
     Get the users list and transform it as a table
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Pagination and search
-    where = Helper.decode_search(request.query.get('search', ''))
-
-    # Get total elements count
-    total = datamgr.get_objects_count('user', search=where)
-
-    # Build table structure
-    dt = Datatable('user', datamgr.backend, schema)
-
-    title = dt.title
-    if '%d' in title:
-        title = title % total
-
-    return {
-        'object_type': 'user',
-        'dt': dt,
-        'where': where,
-        'title': request.query.get('title', title),
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    }
+    return get_table('user', schema, embedded, identifier, credentials)
 
 
 def get_user_table_data():
     """
     Get the users list and provide table data
     """
-    datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('user', datamgr.backend, schema)
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    return get_table_data('user', schema)
 
 
 pages = {

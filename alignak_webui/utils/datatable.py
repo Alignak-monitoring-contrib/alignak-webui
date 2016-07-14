@@ -38,7 +38,8 @@ from bottle import request
 # pylint: disable=wildcard-import,unused-wildcard-import
 # We need all the classes defined whatever their number to use the globals() object.
 from alignak_webui import _
-from alignak_webui.objects.item import *
+from alignak_webui.objects.datamanager import DataManager
+# from alignak_webui.objects.element import *
 
 from alignak_webui.utils.helper import Helper
 
@@ -48,7 +49,7 @@ logger = getLogger(__name__)
 class Datatable(object):
     """ jQuery  Datatable plugin interface for backend elements """
 
-    def __init__(self, object_type, backend, schema):
+    def __init__(self, object_type, datamgr, schema):
         """
         Create a new datatable:
         - object_type: object type in the backend
@@ -56,7 +57,8 @@ class Datatable(object):
         - schema: model dictionary (see hosts.py as an example)
         """
         self.object_type = object_type
-        self.backend = backend
+        self.datamgr = datamgr
+        self.backend = self.datamgr.backend
 
         self.recordsTotal = 0
 
@@ -521,14 +523,9 @@ class Datatable(object):
 
         # Create an object ...
         if items:
-            bo_object = None
-            for k in globals().keys():
-                if isinstance(globals()[k], type) and \
-                   '_type' in globals()[k].__dict__ and \
-                   globals()[k].getType() == self.object_type:
-                    bo_object = globals()[k]()
-                    logger.debug("created: %s", bo_object)
-                    break
+            object_class = [kc for kc in self.datamgr.known_classes
+                            if kc.getType() == self.object_type][0]
+            bo_object = object_class()
 
             self.id_property = '_id'
             if hasattr(bo_object.__class__, 'id_property'):

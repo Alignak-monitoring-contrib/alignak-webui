@@ -366,7 +366,13 @@ class tests_preferences(unittest2.TestCase):
         user_prefs = datamgr.get_user_preferences(None, None)
         for pref in user_prefs:
             print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
-        self.assertEqual(len(user_prefs), 3)
+
+        # Item: bookmarks
+        # Item: dashboard_widgets
+        # Item: bookmarks
+        # Item: hosts_states_queue
+        # Item: services_states_queue
+        self.assertEqual(len(user_prefs), 5)
 
 
 if __name__ == '__main__':

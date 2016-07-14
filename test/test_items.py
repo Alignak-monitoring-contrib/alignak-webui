@@ -20,25 +20,28 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
+from __future__ import print_function
 import os
+import logging
 import time
+from calendar import timegm
+from datetime import datetime
 import unittest2
-import subprocess
-
-from nose import with_setup # optional
 from nose.tools import *
 
-import alignak_webui
-from alignak_webui.utils.settings import Settings
 from alignak_webui import get_app_config, set_app_config
-from alignak_webui.objects.item import *
+from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.item_command import Command
+from alignak_webui.objects.item_host import Host
+from alignak_webui.objects.element_state import ElementState
+from alignak_webui.objects.item_user import User
+from alignak_webui.utils.settings import Settings
 
+loggerDm = logging.getLogger('alignak_webui.objects.element')
+loggerDm.setLevel(logging.DEBUG)
+loggerDm = logging.getLogger('alignak_webui.objects.backend')
+loggerDm.setLevel(logging.DEBUG)
 
-from logging import getLogger, DEBUG, INFO, WARNING, ERROR
-loggerDm = getLogger('alignak_webui.objects.item')
-loggerDm.setLevel(DEBUG)
-loggerDm = getLogger('alignak_webui.objects.backend')
-loggerDm.setLevel(DEBUG)
 
 def setup_module(module):
     print ("")
@@ -55,30 +58,29 @@ def teardown_module(module):
     print ("")
 
 
-class test_00_class(unittest2.TestCase):
-
+class Test0(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_00_class(self):
-        print "--- test class variables"
+        print("--- test class variables")
 
         # Create basic object
         # Bad parameters
         with assert_raises(ValueError) as cm:
-            item = Item(1)
+            item = BackendElement(1)
         ex = cm.exception
-        print ex
+        print(ex)
         self.assertEqual(str(ex), "item.__new__: object parameters must be a dictionary!")
 
         # Declaration without any parameter is allowed
-        item = Item()
-        print item
-        print item.__dict__
-        print item.__class__._cache
+        item = BackendElement()
+        print(item)
+        print(item.__dict__)
+        print(item.__class__._cache)
         assert len(item.__class__._cache) == 1
         assert item.__class__._count == 1
         # _id is created if it does not exist ...
@@ -88,10 +90,10 @@ class test_00_class(unittest2.TestCase):
         assert item.__dict__['_id'] == 'item_0'
 
         # Declaration without any parameter is allowed
-        item = Item()
-        print item
-        print item.__dict__
-        print item.__class__._cache
+        item = BackendElement()
+        print(item)
+        print(item.__dict__)
+        print(item.__class__._cache)
         assert len(item.__class__._cache) == 1
         assert item.__class__._count == 1
         # _id is created if it does not exist ...
@@ -101,38 +103,38 @@ class test_00_class(unittest2.TestCase):
         assert item.__dict__['_id'] == 'item_0'
 
         # New declaration with _id in args
-        item2 = Item({'_id': 0})
-        print "---"
-        print item2
-        print item2.__dict__
-        assert isinstance(item2.__dict__['_id'], basestring)    # Even if _id was an int!
+        item2 = BackendElement({'_id': 0})
+        print("---")
+        print(item2)
+        print(item2.__dict__)
+        assert isinstance(item2.__dict__['_id'], basestring)  # Even if _id was an int!
         assert item2.__dict__['_id'] == 'item_0'
-        print item2.__class__._cache
+        print(item2.__class__._cache)
         assert len(item.__class__._cache) == 1
         assert item == item2
         # Both objects are the same ... because _id and mandatory fields is the same!
 
         # New declaration with different parameters in kwargs
-        item3 = Item(params={'_id': '0', 'new_param': 1})
-        print item3.__dict__
+        item3 = BackendElement(params={'_id': '0', 'new_param': 1})
+        print(item3.__dict__)
         assert item3.__dict__['_id'] == 'item_0'
-        print item3.__class__._cache
-        print item.__class__._cache
+        print(item3.__class__._cache)
+        print(item.__class__._cache)
         assert item3.__class__._cache == item.__class__._cache
-        print "cache ---"
-        for k,v in item.__class__._cache.items():
-            print k, v
-        print "---"
+        print("cache ---")
+        for k, v in item.__class__._cache.items():
+            print(k, v)
+        print("---")
         assert len(item.__class__._cache) == 1
         assert item == item3
 
         # New object because not the same id ...
-        item3 = Item(params={'_id': 1, 'new_param': 1})
-        print item3.__class__._cache
-        print "cache ---"
-        for k,v in item.__class__._cache.items():
-            print k, v
-        print "---"
+        item3 = BackendElement(params={'_id': 1, 'new_param': 1})
+        print(item3.__class__._cache)
+        print("cache ---")
+        for k, v in item.__class__._cache.items():
+            print(k, v)
+        print("---")
         assert len(item.__class__._cache) == 2
         assert item.__class__._count == 2
         assert item != item3
@@ -140,130 +142,130 @@ class test_00_class(unittest2.TestCase):
 
         # Default class variables
         auto_id = item.__class__._next_id
-        assert item.__class__._next_id == 1   # First auto object id is 1
-        print item.__class__._next_id
-        item = Item()
-        assert item.__class__._next_id == 1   # Still the same ...
-        assert Item().__class__._next_id == 1 # id is not incremented because of empty parameters
-        print "cache ---"
-        for k,v in item.__class__._cache.items():
-            print k, v
-        print "---"
+        assert item.__class__._next_id == 1  # First auto object id is 1
+        print(item.__class__._next_id)
+        item = BackendElement()
+        assert item.__class__._next_id == 1  # Still the same ...
+        assert BackendElement().__class__._next_id == 1
+        # id is not incremented because of empty parameters
+        print("cache ---")
+        for k, v in item.__class__._cache.items():
+            print(k, v)
+        print("---")
         assert len(item.__class__._cache) == 2
         assert item.__class__._count == 2
-        item = Item()
-        print item.__class__._cache
+        item = BackendElement()
+        print(item.__class__._cache)
         assert len(item.__class__._cache) == 2  # No new objects because no parameters
-        assert Item().__class__._default_date == 0
-        assert Item().__class__._type == 'item'
-        print item.__class__._cache
+        assert BackendElement().__class__._default_date == 0
+        assert BackendElement().__class__._type == 'item'
+        print(item.__class__._cache)
         assert len(item.__class__._cache) == 2
-        assert Item().__class__.items_states == [
+        assert BackendElement().__class__.items_states == [
             "ok", "warning", "critical", "unknown", "not_executed"
         ]
 
         # New auto id objects
         auto_id = item.__class__._next_id
         assert item.__class__._next_id == 1
-        item = Item(params={'param': '0', 'new_param': 1})
-        print item.__dict__
-        assert item.__dict__['_id'] == 'item_1'     # auto id is prefixed with item type
-        assert item.__dict__['param'] == '0'    # parameter set
+        item = BackendElement(params={'param': '0', 'new_param': 1})
+        print(item.__dict__)
+        assert item.__dict__['_id'] == 'item_1'  # auto id is prefixed with item type
+        assert item.__dict__['param'] == '0'  # parameter set
         assert item.__dict__['new_param'] == 1  # parameter set
-        print "cache ---"
-        for k,v in item.__class__._cache.items():
-            print k, v
-        print "---"
-        print item.__class__._cache['0']
-        print item.__class__._cache['1']
-        print item.__class__._cache['item_1']
-        print "---"
-        print item.__class__._cache
+        print("cache ---")
+        for k, v in item.__class__._cache.items():
+            print(k, v)
+        print("---")
+        print(item.__class__._cache['0'])
+        print(item.__class__._cache['1'])
+        print(item.__class__._cache['item_1'])
+        print("---")
+        print(item.__class__._cache)
         assert len(item.__class__._cache) == 3
         assert item.__class__._count == 3
 
         # Same objects because same id ...
-        item2 = Item(params={'_id': 'item_1', 'new_param': 2})
-        print item2.__dict__
-        assert item2.__dict__['_id'] == 'item_1'    # auto id is prefixed with #
-        assert item2.__dict__['param'] == '0'   # parameter not changed
-        assert item2.__dict__['new_param'] == 2 # parameter changed
+        item2 = BackendElement(params={'_id': 'item_1', 'new_param': 2})
+        print(item2.__dict__)
+        assert item2.__dict__['_id'] == 'item_1'  # auto id is prefixed with #
+        assert item2.__dict__['param'] == '0'  # parameter not changed
+        assert item2.__dict__['new_param'] == 2  # parameter changed
         assert len(item.__class__._cache) == 3
         assert item.__class__._count == 3
         assert item == item2
 
     def test_01_cache(self):
-        print "--- test class cache"
+        print("--- test class cache")
 
         # Clean generic Item cache and reset counter to 0
-        Item.cleanCache()
+        BackendElement.cleanCache()
 
         # Create basic object
         # Declaration without any parameter is allowed
-        item = Item()
-        print "--- cache:"
-        print Item.getCache()
-        assert len(Item.getCache()) == 1
-        assert Item.getType() == 'item'
-        assert Item.getCount() == 1
+        item = BackendElement()
+        print("--- cache:")
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getType() == 'item'
+        assert BackendElement.getCount() == 1
 
         # New declaration with _id in args
-        item2 = Item({'_id': 0})
+        item2 = BackendElement({'_id': 0})
         assert item == item2
         # Both objects are the same ... because _id and mandatory fields is the same!
-        print "--- cache:"
-        print Item.getCache()
-        assert len(Item.getCache()) == 1
-        assert Item.getCount() == 1
+        print("--- cache:")
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getCount() == 1
 
         # New declaration with different parameters in kwargs
-        item3 = Item(params={'_id': '0', 'new_param': 1})
+        item3 = BackendElement(params={'_id': '0', 'new_param': 1})
         assert item == item3
-        print "--- cache:"
-        print Item.getCache()
-        assert len(Item.getCache()) == 1
-        assert Item.getCount() == 1
+        print("--- cache:")
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getCount() == 1
 
         # New object because not the same id ...
-        item3 = Item(params={'_id': 1, 'new_param': 1})
+        item3 = BackendElement(params={'_id': 1, 'new_param': 1})
         assert item != item3
         # Different objects because different id !
-        print "--- cache:"
-        print Item.getCache()
-        assert len(Item.getCache()) == 2
-        assert Item.getCount() == 2
+        print("--- cache:")
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 2
+        assert BackendElement.getCount() == 2
 
         # Delete objects
         item3._delete()
-        print "--- cache:"
-        print Item.getCache()
-        assert len(Item.getCache()) == 1
-        assert Item.getCount() == 1
+        print("--- cache:")
+        print(BackendElement.getCache())
+        assert len(BackendElement.getCache()) == 1
+        assert BackendElement.getCount() == 1
 
 
-class test_01_items_states(unittest2.TestCase):
-
+class TestElementStates(unittest2.TestCase):
     def setUp(self):
-        print ""
-        print "setting up ..."
+        print("")
+        print("setting up ...")
         # Application configuration is loaded
         self.config = get_app_config()
         assert self.config
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
+        print("")
+        print("tearing down ...")
 
     def test_01_items_states(self):
-        print "---"
+        print("---")
 
-        items_states = ItemState()
+        items_states = ElementState()
         assert items_states.object_types_states
         assert items_states.default_states
         assert items_states.states
-        print "Objects types and states", items_states.object_types_states
-        print "Default states", items_states.default_states
-        print "Items states", items_states.states
+        print("Objects types and states", items_states.object_types_states)
+        print("Default states", items_states.default_states)
+        print("Items states", items_states.states)
 
         for s in self.config:
             s = s.split('.')
@@ -274,7 +276,7 @@ class test_01_items_states(unittest2.TestCase):
             else:
                 if s[0] not in ['items']:
                     continue
-                print s
+                print(s)
                 if s[1] == 'item':
                     assert s[1] not in items_states.object_types_states
                     assert s[1] not in items_states.states
@@ -294,48 +296,49 @@ class test_01_items_states(unittest2.TestCase):
                     if len(s) > 2:
                         assert s[2] in items_states.object_types_states[s[1]]
                         assert s[2] in items_states.states[s[1]]
-                        print s[1], items_states.states[s[1]]
+                        print(s[1], items_states.states[s[1]])
 
     def test_02_items_states(self):
-        print "---"
+        print("---")
 
-        items_states = ItemState()
+        items_states = ElementState()
         assert items_states.object_types_states
         assert items_states.default_states
         assert items_states.states
-        print "Objects types and states", items_states.object_types_states
-        print "Default states", items_states.default_states
-        print "Items states", items_states.states
+        print("Objects types and states", items_states.object_types_states)
+        print("Default states", items_states.default_states)
+        print("Items states", items_states.states)
 
         assert items_states.get_objects_types()
-        print "All objects types : ", items_states.get_objects_types()
+        print("All objects types : ", items_states.get_objects_types())
 
         assert items_states.get_icon_states()
-        print "All objects : ", items_states.get_icon_states()
+        print("All objects : ", items_states.get_icon_states())
 
         assert items_states.get_default_states()
-        print "Default states : ", items_states.get_default_states()
+        print("Default states : ", items_states.get_default_states())
 
         # Objects known states
         for object_type in items_states.object_types_states:
             assert items_states.get_icon_states(object_type)
-            print object_type, ", all states: ", items_states.get_icon_states(object_type)
+            print(object_type, ", all states: ", items_states.get_icon_states(object_type))
             for state in items_states.get_icon_states(object_type):
                 assert items_states.get_icon_state(object_type, state)
-                print object_type, ", state: ", state, ": ", items_states.get_icon_state(object_type, state)
+                print(object_type, ", state: ", state, ": ", items_states.get_icon_state(
+                    object_type, state))
 
         assert not items_states.get_icon_state(None, None)
 
         # Default states are in all objects types
         for state in items_states.get_default_states():
-            print "Default state: ", state
+            print("Default state: ", state)
             for object_type in items_states.object_types_states:
                 assert items_states.get_icon_states(object_type)
 
     def test_03_html_states(self):
-        print "---"
+        print("---")
 
-        items_states = ItemState()
+        items_states = ElementState()
         assert items_states.object_types_states
         assert items_states.default_states
         assert items_states.states
@@ -343,116 +346,128 @@ class test_01_items_states(unittest2.TestCase):
         # Objects known states
         save_object_type = 'user'
         for object_type in items_states.object_types_states:
-            print "Html for: ", object_type
+            print("Html for: ", object_type)
             for state in items_states.get_icon_states(object_type):
                 if state == 'state_view':
                     continue
 
-                object = Item({
+                elt = BackendElement({
                     '_id': '0', 'status': state
                 })
-                print "Html for:", object_type, ", object:", object
-                assert items_states.get_html_state(object_type, object)
-                print "Html : ", items_states.get_html_state(object_type, object)
+                print("Html for:", object_type, ", object:", elt)
+                assert items_states.get_html_state(object_type, elt)
+                print("Html : ", items_states.get_html_state(object_type, elt))
 
         # Unknown states
-        print "States for: fake"
-        print items_states.get_icon_states('fake')
+        print("States for: fake")
+        print(items_states.get_icon_states('fake'))
         assert not items_states.get_icon_states('fake')
 
-        print "Html for:", save_object_type, ", state: fake"
-        print "Unknown state"
-        object = Item({
+        print("Html for:", save_object_type, ", state: fake")
+        print("Unknown state")
+        elt = BackendElement({
             '_id': '0', 'status': 'fake'
         })
-        print items_states.get_html_state(save_object_type, object)
-        assert items_states.get_html_state(save_object_type, object) == 'n/a - status: fake'
+        print(items_states.get_html_state(save_object_type, elt))
+        assert items_states.get_html_state(save_object_type, elt) == 'n/a - status: fake'
 
-        print "Html for: fake, state: unknown"
-        print "Unknown object type"
-        object = Item({
+        print("Html for: fake, state: unknown")
+        print("Unknown object type")
+        elt = BackendElement({
             '_id': '0', 'status': 'unknown'
         })
         # Unknown object_type provides a default user html state ...
-        item_state = items_states.get_html_state('fake', object)
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="fake"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % object.id)
+        item_state = items_states.get_html_state('fake', elt)
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="fake"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % elt.id)
 
         # Bad parameters
-        print "No icon/text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=False, text='')
-        print item_state
+        print("No icon/text")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=False, text='')
+        print(item_state)
         self.assertEqual(item_state, 'n/a - icon/text')
 
-        print "Default icon/text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='')
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % object.id)
+        print("Default icon/text")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True, text='')
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % elt.id)
 
         # Other parameters
-        print "Default icon/text - disabled"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='', disabled=True)
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % object.id)
+        print("Default icon/text - disabled")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True, text='',
+                                                 disabled=True)
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % elt.id)
 
-        print "Default icon/text - title and default text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, title='Test title')
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % object.id)
+        print("Default icon/text - title and default text")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True,
+                                                 title='Test title')
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % elt.id)
 
-        print "Default icon/text - title without text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text=None, title='Test title')
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span></span></div>''' % object.id)
+        print("Default icon/text - title without text")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True, text=None,
+                                                 title='Test title')
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="Test title"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span></span></div>''' % elt.id)
 
-        print "Default icon/text - not title and default text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='Test')
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>Test</span></div>''' % object.id)
+        print("Default icon/text - not title and default text")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True, text='Test')
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>Test</span></div>''' % elt.id)
 
-        print "Default icon/text - not title and text"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='Test text')
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>Test text</span></div>''' % object.id)
+        print("Default icon/text - not title and text")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True,
+                                                 text='Test text')
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>Test text</span></div>''' % elt.id)
 
-        print "Default icon/text - extra"
-        item_state = items_states.get_html_state(save_object_type, object, icon=True, text='', extra='test')
-        print item_state
-        self.assertEqual(item_state, '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack" style="opacity: 0.7" title="User default texttest"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default texttest</span></div>''' % object.id)
+        print("Default icon/text - extra")
+        item_state = items_states.get_html_state(save_object_type, elt, icon=True, text='',
+                                                 extra='test')
+        print(item_state)
+        self.assertEqual(item_state,
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack" style="opacity: 0.7" title="User default texttest"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default texttest</span></div>''' % elt.id)
 
 
-class test_02_items(unittest2.TestCase):
-
+class TestItems(unittest2.TestCase):
     def setUp(self):
-        print ""
-        print "setting up ..."
+        print("")
+        print("setting up ...")
         # Application configuration is loaded
         self.config = get_app_config()
         assert self.config
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
+        print("")
+        print("tearing down ...")
 
     def test_01_items(self):
-        print "--- test Item"
+        print("--- test Item")
 
         # Clean generic Item cache and reset counter to 0
-        Item.cleanCache()
+        BackendElement.cleanCache()
 
         # Base item with parameters, including identifier
-        parameters = { '_id': 'test_id', 'foo': 'bar', 'foo_int': 1 }
-        item = Item(parameters)
-        print item.__dict__
+        parameters = {'_id': 'test_id', 'foo': 'bar', 'foo_int': 1}
+        item = BackendElement(parameters)
+        print(item.__dict__)
         assert item._id == 'test_id'
         assert item.foo == 'bar'
         assert item.foo_int == 1
         self.assertEqual(item.name, 'anonymous')
 
         # Same object
-        parameters = { '_id': 'test_id', 'foo': 'bar', 'foo_int': 1 }
-        item2 = Item(parameters)
-        print "item2", item2.__dict__
+        parameters = {'_id': 'test_id', 'foo': 'bar', 'foo_int': 1}
+        item2 = BackendElement(parameters)
+        print("item2", item2.__dict__)
         assert item2._id == 'test_id'
         assert item2.foo == 'bar'
         assert item2.foo_int == 1
@@ -464,9 +479,9 @@ class test_02_items(unittest2.TestCase):
         assert item == item2
 
         # New object
-        parameters = { '_id': 'test_id2', 'foo': 'baz', 'foo_int': 9 }
-        item3 = Item(parameters)
-        print item3.__dict__
+        parameters = {'_id': 'test_id2', 'foo': 'baz', 'foo_int': 9}
+        item3 = BackendElement(parameters)
+        print(item3.__dict__)
         assert item3._id == 'test_id2'
         assert item3.foo == 'baz'
         assert item3.foo_int == 9
@@ -476,7 +491,7 @@ class test_02_items(unittest2.TestCase):
         assert item2 != item3
 
         # Update object from a dict
-        item._update({ 'foo': 'bar', 'foo_int': 1 })
+        item._update({'foo': 'bar', 'foo_int': 1})
         assert item.foo == 'bar'
         assert item.foo_int == 1
         # Still true ... so different
@@ -503,15 +518,15 @@ class test_02_items(unittest2.TestCase):
         now_time = time.time()
         parameters = {
             'foo': 'bar', 'foo_int': 1,
-            'foo_date': '2016-04-01',                       # Invalid string formet
-            'epoch_date': 0,                                # Valid timestamp date (integer)
-            'now_date': now,                                # Valid timestamp date (time tuple)
-            'now_time_date': now_time,                      # Valid timestamp date time (integer)
-            '_created': 'Tue, 01 Mar 2016 14:15:38 GMT',    # Valid string format
-            '_updated':'Tue, 01 Mar 2016 14:15:38 XX'       # Invalid string format => default date
+            'foo_date': '2016-04-01',  # Invalid string formet
+            'epoch_date': 0,  # Valid timestamp date (integer)
+            'now_date': now,  # Valid timestamp date (time tuple)
+            'now_time_date': now_time,  # Valid timestamp date time (integer)
+            '_created': 'Tue, 01 Mar 2016 14:15:38 GMT',  # Valid string format
+            '_updated': 'Tue, 01 Mar 2016 14:15:38 XX'  # Invalid string format => default date
         }
-        item = Item(parameters)
-        print item.__dict__
+        item = BackendElement(parameters)
+        print(item.__dict__)
         assert item._id == 'item_1'
         assert item.id == 'item_1'
         assert item.foo == 'bar'
@@ -530,13 +545,13 @@ class test_02_items(unittest2.TestCase):
         now = datetime.now()
         parameters = {
             'foo': 'bar', 'foo_int': 1,
-            'foo_date': '2016-04-01 10:58:12',              # Valid string formet
-            'now_date': now,                                # Valid timestamp date
-            '_created': None,                               # Invalid string format => default date
-            '_updated':'Tue, 01 Mar 2016 14:15:38 GMT'      # Invalid string format
+            'foo_date': '2016-04-01 10:58:12',  # Valid string formet
+            'now_date': now,  # Valid timestamp date
+            '_created': None,  # Invalid string format => default date
+            '_updated': 'Tue, 01 Mar 2016 14:15:38 GMT'  # Invalid string format
         }
-        item = Item(parameters, date_format='%Y-%m-%d %H:%M:%S')
-        print item.__dict__
+        item = BackendElement(parameters, date_format='%Y-%m-%d %H:%M:%S')
+        print(item.__dict__)
         assert item._id == 'item_2'
         assert item.id == 'item_2'
         assert item.foo == 'bar'
@@ -554,11 +569,11 @@ class test_02_items(unittest2.TestCase):
             'ts_date': 1459508293,
             'now_date': now,
             'fake_date': None,
-            '_updated':'Tue, 01 Mar 2016 14:15:38 XX'       # Invalid string format => default date
+            '_updated': 'Tue, 01 Mar 2016 14:15:38 XX'  # Invalid string format => default date
         }
         item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
-        print item.__dict__
-        self.assertEqual(item._id, 'item_2')     # Still the same object
+        print(item.__dict__)
+        self.assertEqual(item._id, 'item_2')  # Still the same object
         self.assertEqual(item.id, 'item_2')
         self.assertEqual(item.foo, 'bar2')
         self.assertEqual(item.foo_int, 2)
@@ -582,15 +597,15 @@ class test_02_items(unittest2.TestCase):
                 'param2': '2'
             }
         }
-        item = Item(parameters, date_format='%Y-%m-%d %H:%M:%S')
-        print item.__dict__
-        assert item._id == 'item_3'     # New object
+        item = BackendElement(parameters, date_format='%Y-%m-%d %H:%M:%S')
+        print(item.__dict__)
+        assert item._id == 'item_3'  # New object
         assert item.foo == 'bar'
         assert item.foo_int == 1
         assert item.foo_date == 1459508293
         assert item.now_date == timegm(now.timetuple())
         assert item.dict_param
-        print item.dict_param
+        print(item.dict_param)
         assert item.dict_param['param1'] == 1
         assert item.dict_param['param2'] == '2'
 
@@ -598,40 +613,39 @@ class test_02_items(unittest2.TestCase):
         assert item.alias == 'Item alias'
         assert item.notes == 'Item notes'
         assert item.status == 'unknown'
-        print item.get_icon_states()
+        print(item.get_icon_states())
         assert item.get_icon_states()
 
     def test_02_users(self):
-        print "--- test User"
+        print("--- test User")
 
         # Global (Item) objects count
-        global_objects_count = Item().getCount()
-        print global_objects_count, "objects"
-        print "--- cache:"
-        print User.getCache()
+        global_objects_count = BackendElement().getCount()
+        print(global_objects_count, "objects")
+        print("--- cache:")
+        print(User.getCache())
         assert len(User.getCache()) == 0
 
         # Base item
         item = User()
         assert item
-        print "--- cache:"
-        print User.getCache()
+        print("--- cache:")
+        print(User.getCache())
         assert len(User.getCache()) == 1
-
 
         # Specific (User) objects count and cache
         user_objects_count = item._count
-        print user_objects_count, " User objects"
-        print item._cache
+        print(user_objects_count, " User objects")
+        print(item._cache)
 
         # Global objects count and cache did not changed
-        assert global_objects_count == Item().getCount()
-        assert len(Item().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().getCount()
+        assert len(BackendElement().getCache()) == global_objects_count
         # Only 1 User object
         assert item._count == 1
         assert len(User.getCache()) == 1
 
-        print item
+        print(item)
         assert "%s" % item == "<user, id: user_0, name: anonymous, role: user>"
         assert item._id == 'user_0'  # Because no _id in the parameters ...
         assert item._type == 'user'
@@ -653,9 +667,9 @@ class test_02_items(unittest2.TestCase):
         assert item.can_change_dashboard() == False
         assert item.picture == '/static/images/user_guest.png'
 
-        print item.get_html_state()
-        self.assertEqual(item.get_html_state(), '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % item._id)
-
+        print(item.get_html_state())
+        self.assertEqual(item.get_html_state(),
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % item._id)
 
         item = User({
             'name': 'test',
@@ -667,7 +681,7 @@ class test_02_items(unittest2.TestCase):
             'lync': 'test@lync.com',
             'token': 'token'
         })
-        assert item._id == 'user_1' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
+        assert item._id == 'user_1'  # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.get_role() == 'power'
         assert item.get_role(display=True) == 'Power user'
@@ -678,9 +692,8 @@ class test_02_items(unittest2.TestCase):
         assert item.picture == '/static/images/user_default.png'
         assert item.token == 'token'
 
-        print item.get_html_state()
+        print(item.get_html_state())
         assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % item._id
-
 
         item = User({
             'name': 'test',
@@ -689,7 +702,7 @@ class test_02_items(unittest2.TestCase):
             'password': 'test',
             'is_admin': True
         })
-        assert item._id == 'user_2' # Not 0 because parameters are provided but auto generated because no _id in the parameters!
+        assert item._id == 'user_2'  # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.name == 'test'
         assert item.friendly_name == 'Friendly name'
@@ -701,9 +714,8 @@ class test_02_items(unittest2.TestCase):
         assert item.can_change_dashboard() == True
         assert item.picture == '/static/images/user_admin.png'
 
-        print item.get_html_state()
+        print(item.get_html_state())
         assert item.get_html_state() == '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % item.id
-
 
         item = User({
             'username': 'test_priority',
@@ -714,7 +726,7 @@ class test_02_items(unittest2.TestCase):
             'widgets_allowed': '0',
             'can_submit_commands': False
         })
-        print item.__dict__
+        print(item.__dict__)
 
         assert item.name == 'test'
         assert item.alias == 'Real name'
@@ -727,8 +739,9 @@ class test_02_items(unittest2.TestCase):
         assert item.can_change_dashboard() == False
         assert item.picture == '/static/images/user_default.png'
 
-        print "State: ", item.get_html_state()
-        self.assertEqual(item.get_html_state(), '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % item.id)
+        print("State: ", item.get_html_state())
+        self.assertEqual(item.get_html_state(),
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % item.id)
 
         item = User({
             'username': 'test_priority',
@@ -764,36 +777,35 @@ class test_02_items(unittest2.TestCase):
         assert item.can_change_dashboard() == True
 
     def test_03_commands(self):
-        print "--- test Command"
+        print("--- test Command")
 
         # Global (Item) objects count
-        global_objects_count = Item().getCount()
-        print global_objects_count, "objects"
-        print Item().getCache()
+        global_objects_count = BackendElement().getCount()
+        print(global_objects_count, "objects")
+        print(BackendElement().getCache())
 
         # Base item
         item = Command()
-        print item.__dict__
-        print item
+        print(item.__dict__)
+        print(item)
         assert item
         assert len(Command.getCache()) == 1
 
-
         # Specific (Command) objects count and cache
         user_objects_count = Command.getCount()
-        print user_objects_count, " Command objects"
-        print item._cache
+        print(user_objects_count, " Command objects")
+        print(item._cache)
         assert user_objects_count == 1
 
         # Global objects count and cache did not changed
-        assert global_objects_count == Item().getCount()
-        assert len(Item().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().getCount()
+        assert len(BackendElement().getCache()) == global_objects_count
         # Only 1 User object
         assert item._count == 1
         assert len(item._cache) == 1
         assert len(Command.getCache()) == 1
 
-        print item
+        print(item)
         assert "%s" % item == "<command, id: command_0, name: anonymous, status: unknown>"
         assert item._id == 'command_0'  # Because no _id in the parameters ...
         assert item._type == 'command'
@@ -802,38 +814,37 @@ class test_02_items(unittest2.TestCase):
 
         assert item.status == 'unknown'
 
-        print item.get_html_state()
+        print(item.get_html_state())
         assert item.get_html_state() == '''<div class="item-state item_command " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="command"><span class="fa-stack"  title=""><i class="fa fa-circle fa-stack-2x item_command"></i><i class="fa fa-bolt fa-stack-1x "></i></span><span></span></div>''' % item.id
 
     def test_04_hosts(self):
-        print "--- test Host"
+        print("--- test Host")
 
         # Global (Item) objects count
-        global_objects_count = Item().getCount()
-        print global_objects_count, "objects"
-        print "Global cache: ", Item().getCache()
+        global_objects_count = BackendElement().getCount()
+        print(global_objects_count, "objects")
+        print("Global cache: ", BackendElement().getCache())
 
         # Base item
         item = Host()
-        print item.__dict__
-        print item
+        print(item.__dict__)
+        print(item)
         assert item
-
 
         # Specific (Session) objects count and cache
         user_objects_count = item._count
-        print user_objects_count, " Host objects"
-        print "Host cache: ", item._cache
+        print(user_objects_count, " Host objects")
+        print("Host cache: ", item._cache)
 
         # Global objects count and cache did not changed
-        assert global_objects_count == Item().getCount()
-        print "Global cache: ", Item().getCache()
-        assert len(Item().getCache()) == global_objects_count
+        assert global_objects_count == BackendElement().getCount()
+        print("Global cache: ", BackendElement().getCache())
+        assert len(BackendElement().getCache()) == global_objects_count
         # Only 1 Session object
         assert item._count == 1
         assert len(item._cache) == 1
 
-        print item
+        print(item)
         assert "%s" % item == "<host, id: host_0, name: anonymous, status: unknown>"
         assert item._id == 'host_0'
         assert item._type == 'host'
@@ -841,7 +852,7 @@ class test_02_items(unittest2.TestCase):
         assert item.status == 'unknown'
 
         item = Host()
-        print item.__dict__
+        print(item.__dict__)
         assert item._id == 'host_0'
 
         # Host item with dates
@@ -850,7 +861,7 @@ class test_02_items(unittest2.TestCase):
             'name': 'test',
             'last_check': now
         })
-        print item.__dict__
+        print(item.__dict__)
         assert item._id == 'host_1'
         assert item.get_last_check(timestamp=True) == timegm(now.timetuple())
 
@@ -862,7 +873,7 @@ class test_02_items(unittest2.TestCase):
             'notes': 'Host notes'
         }
         item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
-        print item.__dict__
+        print(item.__dict__)
         assert item._id == 'host_1'
         assert item.get_last_check(timestamp=True) == timegm(now2.timetuple())
 
@@ -872,22 +883,21 @@ class test_02_items(unittest2.TestCase):
         assert item.name == 'test'
         assert item.notes == 'Host notes'
         assert item.status == 'unknown'
-        print item.get_html_state()
+        print(item.get_html_state())
         assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x "></i></span><span>Host is unknown</span></div>''' % item.id
 
 
-class test_03_relations(unittest2.TestCase):
-
+class TestRelations(unittest2.TestCase):
     def setUp(self):
-        print ""
-        print "setting up ..."
+        print("")
+        print("setting up ...")
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
+        print("")
+        print("tearing down ...")
 
     def test_01_host_command(self):
-        print "--- test Item"
+        print("--- test Item")
 
         # Base item
         cmd = Command({
@@ -898,10 +908,9 @@ class test_03_relations(unittest2.TestCase):
         host = Host({
             '_id': 'host1',
             'name': 'host 1',
-            'check_command': 'cmd1' # Command id
+            'check_command': 'cmd1'  # Command id
         })
 
-        print host.__dict__
-        print host.check_command
+        print(host.__dict__)
+        print(host.check_command)
         assert host.check_command == 'command'  # Remained the init string because no link could be done with the command ... the backend is not available to find the command !
-

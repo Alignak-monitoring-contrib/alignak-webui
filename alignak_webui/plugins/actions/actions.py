@@ -23,12 +23,11 @@
     Plugin actions
 """
 
-import json
 from logging import getLogger
-import datetime
-from time import gmtime, strftime
 
-from bottle import request, response
+from bottle import request
+
+from alignak_webui import _
 
 logger = getLogger(__name__)
 
