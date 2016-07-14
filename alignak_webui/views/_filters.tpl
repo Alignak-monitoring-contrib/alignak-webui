@@ -2,24 +2,21 @@
 %setdefault("user_bookmarks", datamgr.get_user_preferences(current_user.get_username(), 'bookmarks', []))
 
 %from bottle import request
+%# If current page defines its own search criteria...
+%search_filters = {}
 %if 'search_engine' in request.route.config and request.route.config['search_engine']:
 %search_action = request.fullpath
 %search_prefix = request.route.config['search_prefix']
 %search_filters = request.route.config['search_filters']
 %search_name = request.route.name
-%else:
-%search_action = '/all'
-%search_prefix = ''
-%search_filters = {}
-%search_name = ''
-%end
 %search_string = request.query.get('search', '')
 %if search_prefix not in search_string:
 %search_string = search_prefix + ' ' + search_string
 %end
+%end
 
+%if search_filters:
 <form class="navbar-form navbar-left" method="get" action="{{ search_action }}">
-   %if search_filters:
    <div class="dropdown form-group text-left">
       <button id="filters_menu" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
          <i class="fa fa-filter"></i>
@@ -28,7 +25,7 @@
       </button>
       <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
          <li role="presentation">
-            <a role="menuitem" href="{{search_action}}?search=clear">{{_('All')}}</a>
+            <a role="menuitem" href="{{search_action}}?search=">{{_('All')}}</a>
          </li>
          <li role="presentation" class="divider"></li>
          %for k,v in sorted(search_filters.items()):
@@ -38,7 +35,6 @@
          %end
       </ul>
    </div>
-   %end
    <div class="form-group">
       <label class="sr-only" for="search">{{_('Filter')}}</label>
       <div class="input-group">
@@ -66,3 +62,4 @@
    </div>
    %end
 </form>
+%end

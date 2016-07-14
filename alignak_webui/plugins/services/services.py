@@ -600,14 +600,7 @@ pages = {
         'routes': [
             ('/services', 'Services'),
         ],
-        'view': 'services',
-        'search_engine': True,
-        'search_prefix': '',
-        'search_filters': {
-            _('Services ok'): 'state:ok',
-            _('Services warning'): 'state:warning',
-            _('Services critical'): 'state:critical',
-        }
+        'view': 'services'
     },
     get_services_list: {
         'routes': [
@@ -623,7 +616,13 @@ pages = {
         'routes': [
             ('/services_table', 'Services table')
         ],
-        'view': '_table'
+        'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            _('Services'): '_is_template:false',
+            _('Service templates'): '_is_template:true',
+        },
     },
 
     get_services_table_data: {

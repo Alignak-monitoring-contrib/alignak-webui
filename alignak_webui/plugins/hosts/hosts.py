@@ -946,14 +946,7 @@ pages = {
     get_hosts: {
         'name': 'Hosts',
         'route': '/hosts',
-        'view': 'hosts',
-        'search_engine': True,
-        'search_prefix': '',
-        'search_filters': {
-            _('Hosts up'): 'state:up',
-            _('Hosts down'): 'state:down',
-            _('Hosts unreachable'): 'state:unreachable',
-        }
+        'view': 'hosts'
     },
     get_hosts_list: {
         'routes': [
@@ -970,6 +963,12 @@ pages = {
         'name': 'Hosts table',
         'route': '/hosts_table',
         'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            _('Hosts'): '_is_template:false',
+            _('Host templates'): '_is_template:true',
+        },
         'tables': [
             {
                 'id': 'hosts_table',

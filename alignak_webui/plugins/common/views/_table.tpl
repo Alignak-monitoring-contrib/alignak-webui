@@ -84,7 +84,7 @@ table.dataTable tbody>tr>.selected {
 </div>
 
 <script>
-   var debugTable = true;
+   var debugTable = false;
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
@@ -320,7 +320,6 @@ table.dataTable tbody>tr>.selected {
 
                // Enable the clear filter button
                table.buttons('clearFilter:name').enable();
-               console.log('Enable clear filters 2!')
             });
          }
       });
