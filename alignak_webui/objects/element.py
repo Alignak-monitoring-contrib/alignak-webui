@@ -597,14 +597,16 @@ class BackendElement(object):
                 logger.critical("_update, parameter TypeError: %s = %s", key, params[key])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+        # Yes, but it is the base object and it needs those pubic methods!
+        # pylint: disable=unused-argument
         """
         Initialize an object
 
         Beware: always called, even if the object is not newly created! Use _create function for
         initializing newly created objects.
         """
-        id_property = getattr(self.__class__, 'id_property', '_id')
-        logger.debug(" --- %s initialized: %s", self._type, self.__dict__)
+        # id_property = getattr(self.__class__, 'id_property', '_id')
+        # logger.debug(" --- %s initialized: %s", self._type, self.__dict__)
         # @mohierf: temporarily disabled... to be explained!
         # if id_property not in self.__dict__:  # pragma: no cover, should never happen
         # raise ValueError('No %s attribute in the object' % id_property)

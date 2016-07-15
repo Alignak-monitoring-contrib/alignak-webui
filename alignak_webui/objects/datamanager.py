@@ -43,6 +43,7 @@ from alignak_webui.objects.backend import BackendConnection
 # Import all objects we will need
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_user import *
+from alignak_webui.objects.item_usergroup import *
 from alignak_webui.objects.item_realm import *
 from alignak_webui.objects.item_command import *
 from alignak_webui.objects.item_timeperiod import *
@@ -54,6 +55,7 @@ from alignak_webui.objects.item_history import *
 from alignak_webui.objects.item_log import *
 from alignak_webui.objects.item_actions import *
 from alignak_webui.objects.item_livestate import *
+from alignak_webui.objects.item_livesynthesis import *
 from alignak_webui.objects.item_uipref import *
 
 

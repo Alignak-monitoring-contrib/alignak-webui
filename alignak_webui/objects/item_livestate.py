@@ -26,56 +26,10 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
+# noinspection PyProtectedMember
+from alignak_webui import _
 
-from logging import getLogger, INFO
-
-# Import the backend interface class
-
-# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 from alignak_webui.objects.element import BackendElement
-
-logger = getLogger(__name__)
-logger.setLevel(INFO)
-
-
-class LiveSynthesis(BackendElement):
-    """
-    Object representing the live synthesis of the system
-    """
-    _count = 0
-    # Next value used for auto generated id
-    _next_id = 1
-    # _type stands for Backend Object Type
-    _type = 'livesynthesis'
-    # _cache is a list of created objects
-    _cache = {}
-
-    # Status property
-    status_property = 'state'
-
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new livesynthesis
-        """
-        return super(LiveSynthesis, cls).__new__(cls, params, date_format)
-
-    def _create(self, params, date_format):
-        """
-        Create a livesynthesis (called only once when an object is newly created)
-        """
-        super(LiveSynthesis, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a livesynthesis (called every time an object is updated)
-        """
-        super(LiveSynthesis, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a livesynthesis (called every time an object is invoked)
-        """
-        super(LiveSynthesis, self).__init__(params)
 
 
 class LiveState(BackendElement):
@@ -93,12 +47,6 @@ class LiveState(BackendElement):
     # Status property
     status_property = 'state'
 
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new livestate
-        """
-        return super(LiveState, cls).__new__(cls, params, date_format)
-
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -109,18 +57,6 @@ class LiveState(BackendElement):
         self._linked_service = 'service'
 
         super(LiveState, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a livestate (called every time an object is updated)
-        """
-        super(LiveState, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a livestate (called every time an object is invoked)
-        """
-        super(LiveState, self).__init__(params)
 
     @property
     def host(self):
