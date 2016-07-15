@@ -596,7 +596,7 @@ class BackendElement(object):
             except TypeError:  # pragma: no cover, should not happen
                 logger.critical("_update, parameter TypeError: %s = %s", key, params[key])
 
-    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
+    def __init__(self):
         """
         Initialize an object
 
