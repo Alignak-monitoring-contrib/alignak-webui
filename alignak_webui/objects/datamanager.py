@@ -999,6 +999,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_parent': 1
+                }
+            })
 
         try:
             logger.info("get_hostgroups, search: %s", search)

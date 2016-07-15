@@ -184,9 +184,7 @@ def get_hostgroups():
         'page': start // count + 1,
         'max_results': count,
         'sort': '-_id',
-        'where': where,
-        'embedded': {
-        }
+        'where': where
     }
 
     # Get elements from the data manager

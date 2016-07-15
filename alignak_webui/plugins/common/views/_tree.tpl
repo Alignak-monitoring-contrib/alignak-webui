@@ -65,13 +65,13 @@
 </div>
 
 <script>
-   debugJs = true;
+   debugTree = true;
    // Build tree data...
    var jsTreeData = [];
    %for item in items:
       jsTreeData.push( {
          "id": '{{item.id}}',
-         "parent" : '{{'#' if item._level == 0 else item._tree_parents[0]}}',
+         "parent" : '{{'#' if item._level == 0 else item.parent.id}}',
          "text": '{{item.alias}}',
          "icon": '{{item.get_state()}}',
          "state": {
@@ -93,7 +93,8 @@
          },
          a_attr: {
          }
-      } );
+      });
+      console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item._level}}', '{{'#' if item._level == 0 else item.parent.id}}');
    %end
 
    $(document).ready(function(){
@@ -130,7 +131,7 @@
             %if context_menu:
             "contextmenu": {
                "items": function(node) {
-                  if (debugJs) console.debug('Calling context menu for: ', node);
+                  if (debugTree) console.debug('Calling context menu for: ', node);
 
                   // Non terminating node ...
                   if (node.children.length && !node.host_name) {
@@ -153,17 +154,17 @@
          })
          .bind('ready.jstree', function(e, data) {
             var o_{{object_type}}_tree = $("#{{object_type}}_tree").jstree(true);
-            console.debug('Ready!');
+            if (debugTree) console.debug('Ready!');
          })
 
          %if selectable:
          .bind('select_node.jstree', function(node, selectedNodes) {
-            if (debugJs) console.debug('Selection :', selectedNodes);
+            if (debugTree) console.debug('Selection :', selectedNodes);
          })
          %end
 
          .bind('changed.jstree', function(event, action) {
-            if (debugJs) console.debug('Changed :', action.action, action.node);
+            if (debugTree) console.debug('Changed :', action.action, action.node);
 
             if (action.node.children.length === 0 && action.node.host_name) {
                // Node has no child...
@@ -171,7 +172,7 @@
                // Node has children ...
                $.each(action.node.children, function (index, child) {
                   var childNode = $('#{{object_type}}_tree').jstree(true).get_node(child);
-                  if (debugJs) console.debug('Child:', childNode);
+                  if (debugTree) console.debug('Child:', childNode);
                });
             }
          });

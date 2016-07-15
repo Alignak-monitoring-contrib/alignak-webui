@@ -179,6 +179,7 @@ class HostGroup(BackendElement):
         Create a hostgroup (called only once when an object is newly created)
         """
         self._linked_hostgroups = 'hostgroup'
+        self._linked__parent = 'hostgroup'
         self._linked_hosts = 'host'
 
         super(HostGroup, self)._create(params, date_format)
@@ -187,6 +188,11 @@ class HostGroup(BackendElement):
     def hosts(self):
         """ Return linked object """
         return self._linked_hosts
+
+    @property
+    def parent(self):
+        """ Return linked object """
+        return self._linked__parent
 
     @property
     def hostgroups(self):
