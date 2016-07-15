@@ -26,17 +26,10 @@
 """
     This module contains the classes used to manage the user and usergroup in the backend.
 """
-
-from logging import getLogger, INFO
-
 # noinspection PyProtectedMember
 from alignak_webui import _
 
 from alignak_webui.objects.element import BackendElement
-
-# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-logger = getLogger(__name__)
-logger.setLevel(INFO)
 
 
 class User(BackendElement):
@@ -57,12 +50,6 @@ class User(BackendElement):
         "power": _("Power user"),
         "administrator": _("Administrator")
     }
-
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new user
-        """
-        return super(User, cls).__new__(cls, params, date_format)
 
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
@@ -106,19 +93,6 @@ class User(BackendElement):
             else:
                 if self.is_admin:
                     self.picture = '/static/images/user_admin.png'
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a user (called every time an object is updated)
-        """
-        super(User, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a user (called every time an object is invoked)
-        """
-        self.role = None
-        super(User, self).__init__(params)
 
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
@@ -216,53 +190,3 @@ class User(BackendElement):
             return self.widgets_allowed
         else:
             return getattr(self, 'widgets_allowed', '1') == '1'
-
-
-class UserGroup(BackendElement):
-    """
-    Object representing a user group
-    """
-    _count = 0
-    # Next value used for auto generated id
-    _next_id = 1
-    # _type stands for Backend Object Type
-    _type = 'usergroup'
-    # _cache is a list of created objects
-    _cache = {}
-
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new contactgroup
-        """
-        return super(UserGroup, cls).__new__(cls, params, date_format)
-
-    def _create(self, params, date_format):
-        """
-        Create a contactgroup (called only once when an object is newly created)
-        """
-        self._linked_usergroup_members = 'usergroup'
-        self._linked_members = 'user'
-
-        super(UserGroup, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a contactgroup (called every time an object is updated)
-        """
-        super(UserGroup, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a contactgroup (called every time an object is invoked)
-        """
-        super(UserGroup, self).__init__(params)
-
-    @property
-    def members(self):
-        """ Return linked object """
-        return self._linked_members
-
-    @property
-    def contactgroup_members(self):
-        """ Return linked object """
-        return self._linked_usergroup_members

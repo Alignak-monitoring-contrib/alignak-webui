@@ -71,8 +71,8 @@
    %for item in items:
       jsTreeData.push( {
          "id": '{{item.id}}',
-         "parent" : '{{'#' if item._level == 0 else item.parent.id}}',
-         "text": '{{item.alias}}',
+         "parent" : '{{'#' if item.level <= 0 else item.parent.id}}',
+         "text": '{{item.level}} - {{item.alias}}',
          "icon": '{{item.get_state()}}',
          "state": {
             "opened": true,
@@ -94,7 +94,7 @@
          a_attr: {
          }
       });
-      console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item._level}}', '{{'#' if item._level == 0 else item.parent.id}}');
+      console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item.level}}', '{{'#' if item.level <= 0 else item.parent.id}}');
    %end
 
    $(document).ready(function(){

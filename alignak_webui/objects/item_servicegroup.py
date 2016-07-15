@@ -32,59 +32,6 @@ from alignak_webui import _
 from alignak_webui.objects.element import BackendElement
 
 
-class Service(BackendElement):
-    """
-    Object representing a service
-    """
-    _count = 0
-    # Next value used for auto generated id
-    _next_id = 1
-    # _type stands for Backend Object Type
-    _type = 'service'
-    # _cache is a list of created objects
-    _cache = {}
-
-    def _create(self, params, date_format):
-        """
-        Create a service (called only once when an object is newly created)
-        """
-        self._linked_host = 'host'
-        self._linked_check_command = 'command'
-        self._linked_event_handler = 'command'
-        self._linked_check_period = 'timeperiod'
-        self._linked_notification_period = 'timeperiod'
-        self._linked_servicegroups = 'servicegroup'
-        self._linked_users = 'user'
-        self._linked_usergroups = 'usergroup'
-
-        super(Service, self)._create(params, date_format)
-
-    @property
-    def check_command(self):
-        """ Return linked object """
-        return self._linked_check_command
-
-    @property
-    def event_handler(self):
-        """ Return linked object """
-        return self._linked_event_handler
-
-    @property
-    def host(self):
-        """ Return linked object """
-        return self._linked_host
-
-    @property
-    def check_period(self):
-        """ Return linked object """
-        return self._linked_check_period
-
-    @property
-    def notification_period(self):
-        """ Return linked object """
-        return self._linked_notification_period
-
-
 class ServiceGroup(BackendElement):
     """
     Object representing a servicegroup
@@ -125,4 +72,6 @@ class ServiceGroup(BackendElement):
     @property
     def level(self):
         """ Return group level """
+        if not hasattr(self, '_level'):
+            return -1
         return self._level

@@ -596,7 +596,7 @@ class BackendElement(object):
             except TypeError:  # pragma: no cover, should not happen
                 logger.critical("_update, parameter TypeError: %s = %s", key, params[key])
 
-    def __init__(self):
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         """
         Initialize an object
 
@@ -605,9 +605,14 @@ class BackendElement(object):
         """
         id_property = getattr(self.__class__, 'id_property', '_id')
         logger.debug(" --- %s initialized: %s", self._type, self.__dict__)
-        if id_property not in self.__dict__:  # pragma: no cover, should never happen
-            raise ValueError('No %s attribute in the object' % id_property)
+        # @mohierf: temporarily disabled... to be explained!
+        # if id_property not in self.__dict__:  # pragma: no cover, should never happen
+        # raise ValueError('No %s attribute in the object' % id_property)
+        # if id_property not in params:  # pragma: no cover, should never happen
+        # raise ValueError('No %s attribute in the params' % id_property)
         logger.debug(" --- %s initialized: %s", self._type, self.__dict__)
+        # self.date_format = date_format
+        # self.__dict__ = params
 
     def __repr__(self):
         return "<%s, id: %s, name: %s, status: %s>" % (

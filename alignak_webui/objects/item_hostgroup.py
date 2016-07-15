@@ -26,28 +26,43 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
+# noinspection PyProtectedMember
+from alignak_webui import _
+
 from alignak_webui.objects.element import BackendElement
 
 
-class Realm(BackendElement):
+class HostGroup(BackendElement):
     """
-    Object representing a realm
+    Object representing a hostgroup
     """
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'realm'
+    _type = 'hostgroup'
     # _cache is a list of created objects
     _cache = {}
 
     def _create(self, params, date_format):
         """
-        Create a servicegroup (called only once when an object is newly created)
+        Create a hostgroup (called only once when an object is newly created)
         """
-        self._linked__parent = 'realm'
+        self._linked_hostgroups = 'hostgroup'
+        self._linked__parent = 'hostgroup'
+        self._linked_hosts = 'host'
 
-        super(Realm, self)._create(params, date_format)
+        super(HostGroup, self)._create(params, date_format)
+
+    @property
+    def hosts(self):
+        """ Return linked object """
+        return self._linked_hosts
+
+    @property
+    def hostgroups(self):
+        """ Return linked object """
+        return self._linked_hostgroups
 
     @property
     def parent(self):
@@ -57,4 +72,6 @@ class Realm(BackendElement):
     @property
     def level(self):
         """ Return group level """
+        if not hasattr(self, '_level'):
+            return -1
         return self._level
