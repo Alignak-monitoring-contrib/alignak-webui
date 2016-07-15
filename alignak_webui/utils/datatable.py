@@ -61,7 +61,7 @@ class Datatable(object):
         self.datamgr = datamgr
         self.backend = self.datamgr.backend
 
-        self.recordsTotal = 0
+        self.records_total = 0
         self.records_filtered = 0
 
         self.id_property = '_id'
@@ -90,17 +90,6 @@ class Datatable(object):
         self.status_property = None
 
         self.get_data_model(schema)
-
-    ##
-    # Total records
-    ##
-    def get_total_records(self):
-        """
-        Request objects from the backend to pick-up total records count
-        """
-        # Request objects from the backend ...
-        self.recordsTotal = self.backend.count(self.object_type, refresh=True)
-        return self.recordsTotal
 
     ##
     # Data model
@@ -594,7 +583,7 @@ class Datatable(object):
         self.records_filtered = self.records_total
         if 'where' in parameters and parameters['where'] != {}:
             logger.debug("update filtered records: %s", parameters['where'])
-            records_filtered = len(items)
+            self.records_filtered = len(items)
         logger.info(
             "filtered records: %d out of total: %d", self.records_filtered, self.records_total
         )
