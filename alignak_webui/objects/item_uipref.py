@@ -47,29 +47,3 @@ class UIPref(BackendElement):
     _type = 'uipref'
     # _cache is a list of created objects
     _cache = {}
-
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new UIPref
-        """
-        return super(UIPref, cls).__new__(cls, params, date_format)
-
-    def _create(self, params, date_format):
-        # Not that bad ... because _create is called from __new__
-        # pylint: disable=attribute-defined-outside-init
-        """
-        Create a UIPref (called only once when an object is newly created)
-        """
-        super(UIPref, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a UIPref (called every time an object is updated)
-        """
-        super(UIPref, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a UIPref (called every time an object is invoked)
-        """
-        super(UIPref, self).__init__(params)

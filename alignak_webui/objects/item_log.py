@@ -55,12 +55,6 @@ class Log(BackendElement):
     # Status property
     status_property = 'state'
 
-    def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Create a new log
-        """
-        return super(Log, cls).__new__(cls, params, date_format)
-
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -71,18 +65,6 @@ class Log(BackendElement):
         self._linked_service = 'service'
 
         super(Log, self)._create(params, date_format)
-
-    def _update(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
-        """
-        Update a log (called every time an object is updated)
-        """
-        super(Log, self)._update(params, date_format)
-
-    def __init__(self, params=None):
-        """
-        Initialize a log (called every time an object is invoked)
-        """
-        super(Log, self).__init__(params)
 
     @property
     def host(self):

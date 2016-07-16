@@ -32,17 +32,20 @@ from logging import getLogger, INFO, WARNING, ERROR
 import unittest2
 from webtest import TestApp
 
+# Test environment variables
+os.environ['TEST_WEBUI'] = '1'
+os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                            'settings.cfg')
+print("Configuration file: %s" % os.environ['TEST_WEBUI_CFG'])
+# To load application configuration used by the objects
+import alignak_webui.app
+
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
 from alignak_webui import webapp
+from alignak_webui.objects.backend import BackendConnection
+from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.datamanager import DataManager
-
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '1'
-os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            'settings.cfg')
-print("Configuration file", os.environ['TEST_WEBUI_CFG'])
 
 loggerDm = getLogger('alignak_webui.application')
 loggerDm.setLevel(WARNING)
@@ -118,9 +121,7 @@ class TestDataTable(unittest2.TestCase):
         result = self.dmg.load()
 
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(webapp)
 
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
@@ -159,7 +160,6 @@ class TestDataTable(unittest2.TestCase):
         print('change content with /command_table_data')
         response = self.app.post('/command_table_data')
         response_value = response.json
-        print(response_value)
         # Temporary ...
         self.items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == self.items_count
@@ -231,9 +231,9 @@ class TestDataTable(unittest2.TestCase):
             'length': 5
         })
         response_value = response.json
-        self.assertEqual(response.json['recordsTotal'], self.items_count)
-        # Because no filtering is active ... equals to total records
-        self.assertEqual(response.json['recordsFiltered'], self.items_count)
+        # No records!
+        self.assertEqual(response.json['recordsTotal'], 0)
+        self.assertEqual(response.json['recordsFiltered'], 0)
         self.assertEqual(response.json['data'], [])
 
     def test_03_sort(self):
@@ -369,7 +369,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         # Not found!
-        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsTotal'] == 0
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
@@ -467,7 +467,8 @@ class TestDataTable(unittest2.TestCase):
         })
         response_value = response.json
         print(response_value)
-        assert response.json['recordsTotal'] == self.items_count
+        # Not found!
+        assert response.json['recordsTotal'] == 0
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
@@ -699,6 +700,7 @@ class TestDatatableHosts(unittest2.TestCase):
         print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
+        print("Items count: %s" % items_count)
         # assert response.json['recordsTotal'] == items_count
         # assert response.json['recordsFiltered'] == items_count
         # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT

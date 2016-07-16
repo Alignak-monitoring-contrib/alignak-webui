@@ -1,6 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright (c) 2015:
+#   Frederic Mohier, frederic.mohier@gmail.com
+#
+# This file is part of (WebUI).
+#
+# (WebUI) is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# (WebUI) is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
+# import the unit testing module
+
+from __future__ import print_function
+
 import os
 import shlex
 import subprocess
@@ -13,7 +34,7 @@ from nose.tools import *
 os.environ['TEST_WEBUI'] = '1'
 os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             'settings.cfg')
-print "Configuration file", os.environ['TEST_WEBUI_CFG']
+print("Configuration file: %s" % os.environ['TEST_WEBUI_CFG'])
 # To load application configuration used by the objects
 import alignak_webui.app
 
@@ -33,14 +54,12 @@ loggerItems.setLevel(INFO)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
-
-
-# backend_address = "http://94.76.229.155:80"
+datamgr = None
 
 
 def setup_module():
-    print ("")
-    print ("start alignak backend")
+    print("")
+    print("start alignak backend")
 
     global pid
     global backend_address
@@ -57,14 +76,14 @@ def setup_module():
         )
         assert exit_code == 0
 
-        print ("Starting Alignak backend...")
+        print("Starting Alignak backend...")
         pid = subprocess.Popen(
             shlex.split('alignak_backend')
         )
-        print ("PID: %s" % pid)
+        print("PID: %s" % pid)
         time.sleep(1)
 
-        print ("Feeding backend...")
+        print("Feeding backend...")
         exit_code = subprocess.call(
             shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
         )
@@ -72,21 +91,17 @@ def setup_module():
 
 
 def teardown_module():
-    print ("")
-    print ("stop applications backend")
+    print("")
+    print("stop applications backend")
 
     if backend_address == "http://127.0.0.1:5000/":
         global pid
         pid.kill()
 
 
-datamgr = None
-
-
-class test_1_find_and_search(unittest2.TestCase):
+class Test1FindAndSearch(unittest2.TestCase):
     def test_1_1_find_objects(self):
-        print ''
-        print 'test find_objects - no objects in cache'
+        print('test find_objects - no objects in cache')
 
         # Create new datamanager - do not use default backend address
         datamanager = DataManager(backend_endpoint=backend_address)
@@ -100,7 +115,7 @@ class test_1_find_and_search(unittest2.TestCase):
         assert datamanager.backend.login('admin', 'admin')
         assert datamanager.loaded == False
         assert datamanager.backend.connected
-        print 'logged in as admin in the backend'
+        print('logged in as admin in the backend')
         # Datamanager is not yet aware of the user login !!!
         assert datamanager.get_logged_user() is None
 
@@ -108,13 +123,13 @@ class test_1_find_and_search(unittest2.TestCase):
         # 'name' is not existing!
         parameters = {'where': {"name": "admin"}}
         items = datamanager.backend.get('user', params=parameters)
-        print items
+        print(items)
         assert len(items) == 1
         assert items[0]["_id"]
         admin_id = items[0]["_id"]
 
         users = datamanager.find_object('user', admin_id)
-        print users
+        print(users)
         assert len(users) == 1
         # New user object created in the DM cache ...
         self.assertEqual(datamanager.get_objects_count('user', refresh=True), 1)
@@ -123,140 +138,140 @@ class test_1_find_and_search(unittest2.TestCase):
         with assert_raises(ValueError) as cm:
             datamanager.find_object('user', 'fake_id')
         ex = cm.exception
-        print ex
+        print(ex)
         assert str(
             ex) == """user, search: {'max_results': 50, 'where': '{"_id": "%s"}', 'page': 0} was not found in the backend""" % 'fake_id'
 
 
-class test_2_creation(unittest2.TestCase):
+class Test2Creation(unittest2.TestCase):
     def test_2_1_creation_load(self):
-        print '------------------------------'
-        print 'test creation'
+        print('------------------------------')
+        print('test creation')
 
         datamanager = DataManager()
         assert datamanager.backend
         assert datamanager.loaded == False
-        assert datamanager.get_logged_user() == None
-        print 'Data manager', datamanager
+        assert datamanager.get_logged_user() is None
+        print('Data manager', datamanager)
         # Got known managed elements classes
         self.assertEqual(len(datamanager.known_classes), 17)
 
         # Initialize and load fail ...
-        print 'DM load failed'
+        print('DM load failed')
         result = datamanager.load()
         # Refused because no backend logged-in user
         assert not result
 
         # Login error
-        print 'DM logging bad password'
+        print('DM logging bad password')
         assert not datamanager.user_login('admin', 'fake')
-        print datamanager.connection_message
+        print(datamanager.connection_message)
         assert datamanager.connection_message == 'Backend connection refused...'
-        print datamanager.logged_in_user
+        print(datamanager.logged_in_user)
         assert not datamanager.logged_in_user
 
         # Create new datamanager - do not use default backend address
-        print 'DM initialization'
+        print('DM initialization')
         datamanager = DataManager(backend_endpoint=backend_address)
         assert datamanager.backend
         assert datamanager.loaded == False
-        assert datamanager.get_logged_user() == None
-        print 'Data manager', datamanager
+        assert datamanager.get_logged_user() is None
+        print('Data manager', datamanager)
 
         # Initialize and load fail ...
-        print 'DM load fail'
+        print('DM load fail')
         result = datamanager.load()
         # Refused because no backend logged-in user
         assert not result
 
         # Login error
-        print 'DM logging bad password'
+        print('DM logging bad password')
         assert not datamanager.user_login('admin', 'fake')
-        print datamanager.connection_message
+        print(datamanager.connection_message)
         assert datamanager.connection_message == 'Backend connection refused...'
-        print datamanager.logged_in_user
+        print(datamanager.logged_in_user)
         assert not datamanager.logged_in_user
 
         # User login but do not load yet
-        print 'DM login ok'
+        print('DM login ok')
         assert datamanager.user_login('admin', 'admin', load=False)
         assert datamanager.connection_message == 'Connection successful'
-        print ("Logged user: %s" % datamanager.logged_in_user)
+        print("Logged user: %s" % datamanager.logged_in_user)
         assert datamanager.logged_in_user
-        assert datamanager.get_logged_user() != None
-        assert datamanager.get_logged_user().id != None
+        assert datamanager.get_logged_user() is not None
+        assert datamanager.get_logged_user().id is not None
         assert datamanager.get_logged_user().get_username() == 'admin'
         assert datamanager.get_logged_user().authenticated
         user_token = datamanager.get_logged_user().token
-        print User._cache[datamanager.get_logged_user().id].__dict__
+        print(User._cache[datamanager.get_logged_user().id].__dict__)
 
-        print 'DM reset'
+        print('DM reset')
         datamanager.reset()
         # Still logged-in...
         assert datamanager.logged_in_user
-        assert datamanager.get_logged_user() != None
+        assert datamanager.get_logged_user() is not None
 
-        print 'DM reset - logout'
+        print('DM reset - logout')
         datamanager.reset(logout=True)
         # Logged-out...
         assert not datamanager.logged_in_user
-        assert datamanager.get_logged_user() == None
+        assert datamanager.get_logged_user() is None
 
         # User login with an authentication token
-        print 'DM login - token'
+        print('DM login - token')
         assert datamanager.user_login(user_token)
         # When user authentication is made thanks to a token, DM is not loaded ... it is assumed that load already occured!
 
-        print 'DM login'
+        print('DM login')
         assert datamanager.user_login('admin', 'admin', load=False)
-        print datamanager.get_logged_user()
-        print datamanager.get_logged_user().token
+        print(datamanager.get_logged_user())
+        print(datamanager.get_logged_user().token)
         user_token = datamanager.get_logged_user().token
         assert datamanager.user_login(user_token)
         assert datamanager.connection_message == 'Connection successful'
 
         assert datamanager.logged_in_user
-        assert datamanager.get_logged_user() != None
-        assert datamanager.get_logged_user().id != None
+        assert datamanager.get_logged_user() is not None
+        assert datamanager.get_logged_user().id is not None
         assert datamanager.get_logged_user().get_username() == 'admin'
         assert datamanager.get_logged_user().authenticated
         # assert False
 
 
-class test_3_load_create(unittest2.TestCase):
+class Test3LoadCreate(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
 
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_3_1_load(self):
-        print ''
-        print 'test load as admin'
+        print("")
+        print('test load as admin')
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
         result = self.dmg.load()
-        print "Result:", result
+        print("Result:", result)
         self.assertEqual(result, 0)  # No new objects created ...
 
         # Initialize and load ... with reset
         result = self.dmg.load(reset=True)
-        print "Result:", result
+        print("Result:", result)
         # Must have loaded some objects ...
         self.assertNotEqual(result, 0)
 
     def test_3_3_get_errors(self):
-        print ''
-        print 'test get errors'
+        print("")
+        print('test get errors')
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
         result = self.dmg.load()
-        print "Result:", result
+        print("Result:", result)
         assert result == 0  # No new objects created ...
 
         # Get users error
@@ -274,23 +289,23 @@ class test_3_load_create(unittest2.TestCase):
         # ... to be completed ...
 
 
-class test_4_not_admin(unittest2.TestCase):
+class Test4NotAdmin(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
     def tearDown(self):
-        print ""
+        print("")
 
     def test_4_1_load(self):
-        print ''
-        print 'test load not admin user'
+        print("")
+        print('test load not admin user')
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
         result = self.dmg.load()
-        print "Result:", result
+        print("Result:", result)
         assert result == 0  # No new objects created ...
 
         # Get main realm
@@ -301,7 +316,7 @@ class test_4_not_admin(unittest2.TestCase):
 
         # Create a non admin user ...
         # Create a new user
-        print 'create a user'
+        print('create a user')
         data = {
             "name": "not_admin",
             "alias": "Testing user - not administrator",
@@ -348,26 +363,26 @@ class test_4_not_admin(unittest2.TestCase):
         # Logout
         self.dmg.reset(logout=True)
         assert not self.dmg.backend.connected
-        assert self.dmg.get_logged_user() == None
+        assert self.dmg.get_logged_user() is None
         assert self.dmg.loaded == False
 
         # Login as not_admin created user
         assert self.dmg.user_login('not_admin', 'NOPASSWORDSET', load=False)
         assert self.dmg.backend.connected
         assert self.dmg.get_logged_user().get_username() == 'not_admin'
-        print 'logged in as not_admin'
+        print('logged in as not_admin')
 
         # Initialize and load ...
         result = self.dmg.load()
-        print "Result:", result
-        print "Objects count:", self.dmg.get_objects_count()
+        print("Result:", result)
+        print("Objects count:", self.dmg.get_objects_count())
         # assert result == 0                          # Only the newly created user, so no new objects loaded
         # assert self.dmg.get_objects_count() == 1    # not_admin user
 
         # Initialize and load ... with reset
         result = self.dmg.load(reset=True)
-        print "Result:", result
-        print "Objects count:", self.dmg.get_objects_count()
+        print("Result:", result)
+        print("Objects count:", self.dmg.get_objects_count())
         # assert result == 3                          # not_admin user + test_service + relation
         # assert self.dmg.get_objects_count() == 3    # not_admin user + test_service + relation
 
@@ -380,62 +395,62 @@ class test_4_not_admin(unittest2.TestCase):
 
         # Get users
         items = self.dmg.get_users()
-        print "Users:", items
+        print("Users:", items)
         # assert len(items) == 1
         # 1 user only ...
 
         # Get commands
         items = self.dmg.get_commands()
-        print "Commands:", items
+        print("Commands:", items)
         # assert len(items) == 1
 
         # Get realms
         items = self.dmg.get_realms()
-        print "Commands:", items
+        print("Commands:", items)
         # assert len(items) == 1
 
         # Get timeperiods
         items = self.dmg.get_timeperiods()
-        print "Commands:", items
+        print("Commands:", items)
         # assert len(items) == 1
 
         # Get hosts
         items = self.dmg.get_hosts()
-        print "Hosts:", items
+        print("Hosts:", items)
         # assert len(items) == 1
 
         # Get services
         items = self.dmg.get_services()
-        print "Services:", items
+        print("Services:", items)
         # assert len(items) == 1
 
 
-class test_5_basic_tests(unittest2.TestCase):
+class Test5Basic(unittest2.TestCase):
     def setUp(self):
-        print ""
+        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
         result = self.dmg.load()
 
     def tearDown(self):
-        print ""
+        print("")
         # Logout
         self.dmg.reset(logout=True)
         assert not self.dmg.backend.connected
-        assert self.dmg.get_logged_user() == None
+        assert self.dmg.get_logged_user() is None
         assert self.dmg.loaded == False
 
     def test_5_1_get(self):
-        print ''
-        print 'test objects get'
+        print("")
+        print('test objects get')
 
         # Get users
         items = self.dmg.get_users()
         for item in items:
-            print "Got", item
+            print("Got", item)
             assert item.id
             item.get_html_state()
         self.assertEqual(len(items), 5)
@@ -443,7 +458,7 @@ class test_5_basic_tests(unittest2.TestCase):
         # Get realms
         items = self.dmg.get_realms()
         for item in items:
-            print "Got: ", item
+            print("Got: ", item)
             assert item.id
             item.get_html_state()
         self.assertEqual(len(items), 5)
@@ -451,7 +466,7 @@ class test_5_basic_tests(unittest2.TestCase):
         # Get commands
         items = self.dmg.get_commands()
         for item in items:
-            print "Got: ", item
+            print("Got: ", item)
             assert item.id
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
@@ -459,7 +474,7 @@ class test_5_basic_tests(unittest2.TestCase):
         # Get hosts
         items = self.dmg.get_hosts()
         for item in items:
-            print "Got: ", item
+            print("Got: ", item)
             assert item.id
             item.get_html_state()
         self.assertEqual(len(items), 13)
@@ -467,7 +482,7 @@ class test_5_basic_tests(unittest2.TestCase):
         # Get services
         items = self.dmg.get_services()
         for item in items:
-            print "Got: ", item
+            print("Got: ", item)
             assert item.id
             item.get_html_state()
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
@@ -475,14 +490,14 @@ class test_5_basic_tests(unittest2.TestCase):
         # Get timeperiods
         items = self.dmg.get_timeperiods()
         for item in items:
-            print "Got: ", item
+            print("Got: ", item)
             assert item.id
             item.get_html_state()
         self.assertEqual(len(items), 4)
 
     def test_5_2_total_count(self):
-        print ''
-        print 'test objects count'
+        print("")
+        print('test objects count')
 
         # Get each object type count
         self.assertEqual(self.dmg.count_objects('realm'), 5)
@@ -522,8 +537,8 @@ class test_5_basic_tests(unittest2.TestCase):
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
 
     def test_5_3_livesynthesis(self):
-        print ''
-        print 'test livesynthesis'
+        print("")
+        print('test livesynthesis')
 
         default_ls = {
             'hosts_synthesis': {
@@ -573,24 +588,24 @@ class test_5_basic_tests(unittest2.TestCase):
         # self.assertEqual(self.dmg.get_livesynthesis(), default_ls)
 
 
-class test_6_relations(unittest2.TestCase):
+class Test6Relations(unittest2.TestCase):
     def setUp(self):
-        print ""
-        print "setting up ..."
+        print("")
+        print("setting up ...")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print 'Data manager', self.dmg
+        print('Data manager', self.dmg)
 
         # Initialize and do not load
         assert self.dmg.user_login('admin', 'admin', load=False)
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
+        print("")
+        print("tearing down ...")
         # Logout
         self.dmg.reset(logout=True)
 
     def test_01_host_command(self):
-        print "--- test Item"
+        print("--- test Item")
 
         # Get main realm
         self.dmg.get_realm({'where': {'name': 'All'}})
@@ -601,13 +616,13 @@ class test_6_relations(unittest2.TestCase):
         # Get host
         host = self.dmg.get_host({'where': {'name': 'webui'}})
 
-        print host.__dict__
-        print host.check_period
+        print(host.__dict__)
+        print(host.check_period)
         assert isinstance(host.check_command, Command)
         assert host.check_command
 
     def test_02_host_service(self):
-        print "--- test Item"
+        print("--- test Item")
 
         # Get main realm
         self.dmg.get_realm({'where': {'name': 'All'}})
@@ -617,8 +632,8 @@ class test_6_relations(unittest2.TestCase):
 
         # Get host
         host = self.dmg.get_host({'where': {'name': 'webui'}})
-        print "Host: ", host.__dict__
+        print("Host: ", host.__dict__)
 
         # Get services of this host
         service = self.dmg.get_service({'where': {'name': 'Shinken2-broker', 'host_name': host.id}})
-        print "Services: ", service
+        print("Services: ", service)

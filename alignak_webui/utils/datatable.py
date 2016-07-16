@@ -497,6 +497,9 @@ class Datatable(object):
         if parameters['embedded']:
             logger.info("backend embedded parameters: %s", parameters['embedded'])
 
+        # Update global table records count, require total count from backend
+        self.records_total = self.backend.count(self.object_type)
+
         # Request objects from the backend ...
         logger.debug("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
@@ -529,14 +532,8 @@ class Datatable(object):
 
         # Change item content ...
         for item in items:
-            # _update is the method name... yes, it sounds like a protected member :/
-            # pylint: disable=protected-access
-            # noinspection PyProtectedMember
-            bo_object._update(item)
+            bo_object = object_class(item)
             logger.debug("Object: %s", bo_object)
-
-            # Update table records count, because each item has a total count field
-            self.records_total = bo_object._total
 
             for key in item.keys():
                 for field in self.table_columns:
