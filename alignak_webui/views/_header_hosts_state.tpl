@@ -19,7 +19,7 @@
       <tbody>
          <tr>
             %for state in ['up', 'unreachable', 'down']:
-           <td>
+            <td>
               %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
               %label = "%s%%" % (hs["pct_" + state])
               {{! Host({'status':state}).get_html_state(text=label, title=label, disabled=(not hs["nb_" + state]))}}

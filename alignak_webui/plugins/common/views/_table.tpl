@@ -539,7 +539,7 @@ table.dataTable tbody>tr>.selected {
             r - processing display element
          dom: 'Blfrtip',
          */
-         dom: "<'row'<'col-sm-8'B><'col-sm-4'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+         dom: "<'row'<'col-xs-8'B><'col-xs-4'f>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-5'i><'col-xs-7'p>>",
          // Table columns visibility button
          buttons: [
             {
