@@ -58,7 +58,9 @@ table.dataTable tbody>tr>.selected {
          <thead>
             <tr>
                %for column in dt.table_columns:
-               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
+               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">
+                  {{ column['title'] }}
+               </th>
                %end
             </tr>
             %if dt.searchable:
@@ -110,8 +112,8 @@ table.dataTable tbody>tr>.selected {
             var html = '<select><option value=""></option></select>';
             $(this).html( html );
          } else if ($(this).data('format')=='select') {
-            var html = '<select><option value=""></option>';
             var allowed = $(this).data('allowed').split(',');
+            var html = '<select multiple><option value="">{{_('*')}}</option>';
             $.each(allowed, function(idx){
                html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
             });
@@ -155,11 +157,9 @@ table.dataTable tbody>tr>.selected {
       $("#tbl_{{object_type}} thead select").on('change', function () {
          var column_index = $(this).parent().data('index');
          var column_name = $(this).parent().data('name');
-         var value = $(this).find(':selected').val();
+         var value = $(this).val() || [];
 
-         if (debugTable) console.debug('Datatable event, search column '+column_name+' for ', value);
-
-         //if (! value) return;
+         if (debugTable) console.debug("Datatable event, search column '"+column_name+"' for '" + value + "'");
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
@@ -276,6 +276,14 @@ table.dataTable tbody>tr>.selected {
          // Disable the clear filter button
          table.buttons('clearFilter:name').disable();
 
+         // Clear the search fields
+         $('#filterrow th').children().val('');
+
+         // Reset table columns search
+         table
+            .columns()
+               .search('', false, false);
+
          if (where['saved_filters']) {
             if (debugTable) console.debug('Restoring saved filters...');
 
@@ -293,19 +301,21 @@ table.dataTable tbody>tr>.selected {
          } else {
             if (debugTable) console.debug('Erasing saved filters...');
 
-            // Clear the search fields
-            $('#filterrow th').children().val('');
-
-            // Reset table columns search
-            table
-               .columns()
-                  .search('', false, false);
-
             // Update each search field with the filter URL parameters
             $.each(where, function(key, value) {
+               var special = '';
+               // Special filtering ($ne, $in, ...)
+               if (key[0] == "$") {
+                  special = key;
+                  for (k in value) {
+                     key = k;
+                     value = value[k];
+                  }
+               }
                var column_index = table.column(key+':name').index();
                var column_regex = table.column(key+':name').data('regex');
 
+               if (debugTable) console.debug('Update column search special', special);
                if (debugTable) console.debug('Update column search', column_index, key, value, column_regex);
                if (debugTable) console.debug('Update column search', table.column(key+':name'));
 

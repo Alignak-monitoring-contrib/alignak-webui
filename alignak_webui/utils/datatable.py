@@ -427,6 +427,20 @@ class Datatable(object):
                         searched_columns.append(
                             {column['data']: int(column['search']['value'])}
                         )
+                    elif field['format'] == 'select':
+                        values = column['search']['value'].split(',')
+                        if len(values) > 1:
+                            searched_columns.append(
+                                {
+                                    column['data']: {
+                                        "$in": values
+                                    }
+                                }
+                            )
+                        else:
+                            searched_columns.append(
+                                {column['data']: values[0]}
+                            )
                     # ... the other fields :)
                     else:
                         # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...

@@ -32,8 +32,9 @@
 
 %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
 <a id="services-states-popover"
-   class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}"
-   href="{{webui.get_url('Services')}}"
+   class="services-all"
+   href="{{webui.get_url('Livestate table')}}?search=type:service"
+   data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}"
    data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d problems)') % (ss['nb_elts'], ss['nb_problems'])}}" data-html="true" data-trigger="hover">
    <i class="fa fa-cubes"></i>
    <span class="label label-as-badge label-{{font}}">{{ss["nb_problems"] if ss["nb_problems"] else ''}}</span>

@@ -32,8 +32,9 @@
 
 %font='danger' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'success'
 <a id="hosts-states-popover"
-   class="hosts-all" data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}"
-   href="{{webui.get_url('Hosts')}}"
+   class="hosts-all"
+   href="{{webui.get_url('Livestate table')}}?search=type:host"
+   data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}"
    data-original-title="{{_('Hosts states')}}" data-toggle="popover popover-hosts" title="{{_('Overall hosts states: %d hosts (%d problems)') % (hs['nb_elts'], hs['nb_problems'])}}" data-html="true" data-trigger="hover">
    <i class="fa fa-server"></i>
    <span class="label label-as-badge label-{{font}}">{{hs["nb_problems"] if hs["nb_problems"] > 0 else ''}}</span>

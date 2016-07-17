@@ -45,7 +45,7 @@
             %font='critical' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'ok'
             <td>
                <center>
-                  <a href="{{ webui.get_url('Hosts') }}" class="btn btn-sm">
+                  <a href="{{ webui.get_url('Livestate table') }}?search=type:host" class="btn btn-sm">
                      <i class="fa fa-4x fa-server font-greyed"></i>
                      <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Hosts')}}</span>
                      <span class="badger-big badger-left badger-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
@@ -60,7 +60,7 @@
             %font='critical' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'ok'
             <td>
                <center>
-                  <a href="{{ webui.get_url('Services') }}" class="btn btn-sm">
+                  <a href="{{ webui.get_url('Livestate table') }}?search=type:service" class="btn btn-sm">
                      <i class="fa fa-4x fa-cubes font-greyed"></i>
                      <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Services')}}</span>
                      <div class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{ss["nb_elts"]}}</div>
@@ -77,7 +77,7 @@
             %font='critical' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'ok'
             <td>
                <center>
-                  <a href="{{ webui.get_url('Livestate table') }}" class="btn btn-sm">
+                  <a href="{{ webui.get_url('Livestate table') }}?search=state_id:1 state_id:2" class="btn btn-sm">
                      <i class="fa fa-4x fa-exclamation-triangle font-greyed"></i>
                      <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Problems')}}</span>
                      <span class="badger-big badger-left badger-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>

@@ -397,7 +397,11 @@ class Helper(object):
             t = t.lower()
             logger.debug("decode_search, searching for %s %s", t, s)
 
-            if s.startswith('!'):
+            if '|' in s:
+                s = {t: s.split('|')}
+                t = "$in"
+
+            elif s.startswith('!'):
                 s = {t: s[1:]}
                 t = "$ne"
 

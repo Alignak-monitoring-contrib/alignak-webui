@@ -383,6 +383,10 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         assert s == {'$ne': {'status': 'active'}}
 
+        s = helper.decode_search("state_id:1|2|3")
+        print("Result:", s)
+        assert s == {'$in': {'state_id': ['1', '2', '3']}}
+
     @unittest2.skip("Replaced by another test because of stars :)")
     def test_06_print_business_impact(self):
         print("---")

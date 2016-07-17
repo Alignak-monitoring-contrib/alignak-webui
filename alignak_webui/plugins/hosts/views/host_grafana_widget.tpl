@@ -24,8 +24,20 @@
    <iframe src="{{grafana_url}}/dashboard-solo/db/host_{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="320" frameborder="0"></iframe>
    %else:
    <div class="alert alert-info">
-      <p class="font-blue">{{_('No Grafana panel available for this element.')}}</p>
+      <p class="font-blue">{{_('No Grafana panel available for %s.' % livestate.host.name)}}</p>
    </div>
+   %end
+
+   %for service in livestate_services:
+      %if livestate.grafana and livestate.grafana_panelid:
+      %dashboard_name = livestate.host.name.replace('.', '-')
+      %panel_id = livestate.grafana_panelid
+      <iframe src="{{grafana_url}}/dashboard-solo/db/host_{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="240" frameborder="0"></iframe>
+      %else:
+      <div class="alert alert-info">
+         <p class="font-blue">{{_('No Grafana panel available for %s.' % livestate.host.name)}}</p>
+      </div>
+      %end
    %end
 %end
 %else:

@@ -48,7 +48,7 @@ def get_table(object_type, schema, embedded=False, identifier=None, credentials=
         where = Helper.decode_search(request.query.get('search', ''))
 
     # Get total elements count
-    total = datamgr.get_objects_count(object_type, search=where, refresh=True)
+    # total = datamgr.get_objects_count(object_type, search=where, refresh=True)
 
     # Build table structure
     dt = Datatable(object_type, datamgr, schema)
@@ -56,7 +56,7 @@ def get_table(object_type, schema, embedded=False, identifier=None, credentials=
     # Build page title
     title = dt.title
     if '%d' in title:
-        title = title % total
+        title = title % dt.records_total
 
     return {
         'object_type': object_type,
