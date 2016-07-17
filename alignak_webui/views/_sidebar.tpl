@@ -32,82 +32,6 @@
             <span class="hidden-sm hidden-xs">{{_('Log')}}</span>
          </a>
       </li>
-      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts table')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Hosts table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-            <span class="fa fa-fw fa-server"></span>
-            <span class="hidden-sm hidden-xs">{{_('Hosts')}}</span>
-         </a>
-      </li>
-      <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services table')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Services table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-            <span class="fa fa-fw fa-cubes"></span>
-            <span class="hidden-sm hidden-xs">{{_('Services')}}</span>
-         </a>
-      </li>
-
-
-      <!-- Groups -->
-      <li class="dropdown" data-toggle="tooltip" data-placement="top" title="{{_('Groups')}}">
-         <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-            <span class="fa fa-sitemap"></span>
-            <span class="hidden-sm hidden-xs">{{_('Groups')}}</span>
-         </a>
-
-         <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Groups menu')}}">
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Realms table')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Realms table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Realms table')}}</span>
-               </a>
-            </li>
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Realms tree')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Realms') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Realms tree')}}</span>
-               </a>
-            </li>
-
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users table')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Users table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Users table')}}</span>
-               </a>
-            </li>
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users tree')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Users') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Users tree')}}</span>
-               </a>
-            </li>
-
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts groups table')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Hosts groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Hosts groups table')}}</span>
-               </a>
-            </li>
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts groups tree')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Hosts groups') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Hosts groups tree')}}</span>
-               </a>
-            </li>
-
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services groups table')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Services groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Services groups table')}}</span>
-               </a>
-            </li>
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services groups tree')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Services groups') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
-                  <span class="fa fa-w fa-sitemap"></span>
-                  <span class="hidden-xs">{{_('Services groups tree')}}</span>
-               </a>
-            </li>
-         </ul>
-      </li>
 
       <!-- Items -->
       <li class="dropdown" data-toggle="tooltip" data-placement="top" title="{{_('Elements')}}">
@@ -118,22 +42,64 @@
          </a>
 
          <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Elements menu')}}">
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Users') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Hosts table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-fw fa-server"></span>
+                  <span class="hidden-xs">{{_('Hosts')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Services table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-fw fa-cubes"></span>
+                  <span class="hidden-xs">{{_('Services')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Users table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-fw fa-users"></span>
                   <span class="hidden-xs">{{_('Users')}}</span>
                </a>
             </li>
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Timeperiods')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Timeperiods') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+
+            <li class="divider"></li>
+
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Realms table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Realms table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Realms')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Timeperiods table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Timeperiods table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-fw fa-calendar"></span>
                   <span class="hidden-xs">{{_('Timeperiods')}}</span>
                </a>
             </li>
-            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Commands')}}">
-               <a class="navbar-link" href="{{ webui.get_url('Commands') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Commands table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Commands table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-fw fa-bolt"></span>
                   <span class="hidden-xs">{{_('Commands')}}</span>
+               </a>
+            </li>
+
+            <li class="divider"></li>
+
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Users groups table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Users groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Users groups')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Hosts groups table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Hosts groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Hosts groups')}}</span>
+               </a>
+            </li>
+            <li data-toggle="tooltip" data-placement="{{'bottom' if in_sidebar else 'right'}}" title="{{_('Services groups table')}}">
+               <a class="navbar-link" href="{{ webui.get_url('Services groups table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span class="hidden-xs">{{_('Services groups')}}</span>
                </a>
             </li>
          </ul>

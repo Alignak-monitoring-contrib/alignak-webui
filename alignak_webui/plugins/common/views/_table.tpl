@@ -632,25 +632,6 @@ table.dataTable tbody>tr>.selected {
             }
             %end
             %if dt.selectable:
-            /*
-            ,{
-               extend: 'selected',
-               text: 'Count selected rows',
-               action: function (e, dt, button, config) {
-                  alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected' );
-               }
-            }
-            ,{
-               extend: 'selected',
-               text: 'Count selected rows 2',
-               action: function (e, dt, button, config) {
-                  alert( dt.rows( { selected: true } ).indexes().length +' row(s) selected !' );
-               }
-            }
-            ,{
-               extend: 'selectedSingle',
-            }
-            */
             ,{
                extend: 'selectAll',
                titleAttr: "{{_('Select all the table rows')}}",
@@ -659,17 +640,6 @@ table.dataTable tbody>tr>.selected {
                extend: 'selectNone',
                titleAttr: "{{_('Unselect all rows')}}",
             }
-            /*
-            ,{
-               extend: 'selectRows',
-            }
-            ,{
-               extend: 'selectColumns',
-            }
-            ,{
-               extend: 'selectCells'
-            }
-            */
             %end
             %if dt.commands:
             // Only for tables with 'commands' attribute (eg. livestate)
@@ -764,6 +734,16 @@ table.dataTable tbody>tr>.selected {
                      }
                   }
                ]
+            }
+            %end
+            %if dt.recursive:
+            ,{
+               text: "{{! _('<span class=\'fa fa-sitemap\'></span>')}}",
+               titleAttr: "{{_('Navigate to the tree view')}}",
+               action: function (e, dt, button, config) {
+                  if (debugTable) console.log('Navigate to the tree view {{object_type}}!');
+                  window.location.href = "/{{object_type}}_tree";
+               }
             }
             %end
          ]

@@ -131,6 +131,21 @@ As an example::
             }
         }
 
+Table parameters
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each plugin table may be:
+
+    - visible, (default: True)
+    - printable, (default: True)
+    - orderable, (default: True)
+    - selectable, (default: True)
+    - searchable, (default: True)
+    - editable, (default: False)
+    - responsive, (default: True)
+    - recursive, (default: True)
+    - commands, (default: False) - only applies to the livestate table
+
 Table display
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

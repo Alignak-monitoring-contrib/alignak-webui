@@ -155,7 +155,8 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': True
+        'responsive': True,
+        'recursive': True
     }
 }
 
@@ -283,8 +284,10 @@ pages = {
         'route': '/hostgroup/<hostgroup_id>'
     },
     get_hostgroups: {
-        'name': 'Hosts groups',
-        'route': '/hostgroups',
+        'routes': [
+            ('/hostgroups', 'Hosts groups'),
+            ('/hostgroup_tree', 'Hosts groups tree')
+        ],
         'view': '_tree',
         'search_engine': False,
         'search_prefix': '',

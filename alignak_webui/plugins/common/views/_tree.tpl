@@ -47,15 +47,24 @@
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
       <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               {{title}}
-               <div class="pull-right">
-                  <span class="fa fa-search"></span>&nbsp;
-                  <input id="searchfield" type="text" placeholder="{{_('search...')}}">
-               </div>
-            </h4>
+         <div class="panel-heading clearfix">
+            <div class="pull-left">
+               <button type="button" class="btn btn-xs btn-primary"
+                  data-action="navigate-table" data-element="{{object_type}}">
+                  <span class="fa fa-table"></span>
+               </button>
+            </div>
+
+            <div class="pull-right">
+               <span class="fa fa-search"></span>&nbsp;
+               <input id="searchfield" type="text" placeholder="{{_('search...')}}">
+            </div>
+
+            <h2 class="panel-title">
+               &nbsp;{{title}}
+            </h2>
          </div>
+
          <div class="panel-body">
             <!-- Tree structure to display items -->
             <div id="{{object_type}}_tree"></div>
@@ -66,6 +75,15 @@
 
 <script>
    debugTree = true;
+
+   // Recheck
+   $('[data-action="navigate-table"][data-element="{{object_type}}"]').on("click", function () {
+      var elt_id = $(this).data('element');
+      window.setTimeout(function(){
+         window.location.href = "/{{object_type}}_table";
+      }, 50);
+   });
+
    // Build tree data...
    var jsTreeData = [];
    %for item in items:

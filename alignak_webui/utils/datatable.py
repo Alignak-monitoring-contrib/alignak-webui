@@ -74,11 +74,13 @@ class Datatable(object):
         self.initial_sort = []
 
         self.visible = True
+        self.printable = True
         self.orderable = True
         self.selectable = True
         self.searchable = True
         self.editable = False
         self.responsive = True
+        self.recursive = False
         self.commands = (object_type == 'livestate')
 
         self.paginable = True
@@ -153,12 +155,14 @@ class Datatable(object):
                 self.status_property = model['ui'].get('status_property', 'status')
 
                 self.title = model['ui']['page_title']
-                self.visible = model['ui']['visible']
-                self.orderable = model['ui']['orderable']
-                self.selectable = model['ui']['selectable']
-                self.editable = model['ui']['editable']
-                self.searchable = model['ui']['searchable']
-                self.responsive = model['ui']['responsive']
+                self.visible = model['ui'].get('visible', True)
+                self.printable = model['ui'].get('printable', True)
+                self.orderable = model['ui'].get('orderable', True)
+                self.selectable = model['ui'].get('selectable', True)
+                self.editable = model['ui'].get('editable', False)
+                self.searchable = model['ui'].get('searchable', True)
+                self.responsive = model['ui'].get('responsive', True)
+                self.responsive = model['ui'].get('recursive', False)
 
                 self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
                 continue
