@@ -41,6 +41,12 @@ import alignak_webui.app
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_user import User
 from alignak_webui.objects.item_command import Command
+from alignak_webui.objects.item_host import Host
+from alignak_webui.objects.item_service import Service
+from alignak_webui.objects.item_livestate import LiveState
+from alignak_webui.objects.item_timeperiod import TimePeriod
+from alignak_webui.objects.item_hostgroup import HostGroup
+from alignak_webui.objects.item_servicegroup import ServiceGroup
 from alignak_webui.objects.datamanager import DataManager
 
 from logging import getLogger, DEBUG, INFO, WARNING
@@ -235,7 +241,6 @@ class Test2Creation(unittest2.TestCase):
         assert datamanager.get_logged_user().id is not None
         assert datamanager.get_logged_user().get_username() == 'admin'
         assert datamanager.get_logged_user().authenticated
-        # assert False
 
 
 class Test3LoadCreate(unittest2.TestCase):
@@ -285,8 +290,6 @@ class Test3LoadCreate(unittest2.TestCase):
         assert not item
         item = self.dmg.get_command('unknown')
         assert not item
-
-        # ... to be completed ...
 
 
 class Test4NotAdmin(unittest2.TestCase):
@@ -358,7 +361,8 @@ class Test4NotAdmin(unittest2.TestCase):
             "notificationways": [],
             "_realm": realm_all.id
         }
-        assert self.dmg.add_user(data)
+        new_user_id = self.dmg.add_user(data)
+        print("New user id: %s" % new_user_id)
 
         # Logout
         self.dmg.reset(logout=True)
@@ -424,6 +428,25 @@ class Test4NotAdmin(unittest2.TestCase):
         print("Services:", items)
         # assert len(items) == 1
 
+        result = self.dmg.delete_user(new_user_id)
+        # Cannot delete the current logged-in user
+        assert not result
+
+        # Logout
+        self.dmg.reset(logout=True)
+        assert not self.dmg.backend.connected
+        assert self.dmg.get_logged_user() is None
+        assert self.dmg.loaded == False
+
+        # Login as admin
+        assert self.dmg.user_login('admin', 'admin', load=False)
+        assert self.dmg.backend.connected
+        assert self.dmg.get_logged_user().get_username() == 'admin'
+
+        result = self.dmg.delete_user(new_user_id)
+        # Can delete the former logged-in user
+        assert result
+
 
 class Test5Basic(unittest2.TestCase):
     def setUp(self):
@@ -443,17 +466,9 @@ class Test5Basic(unittest2.TestCase):
         assert self.dmg.get_logged_user() is None
         assert self.dmg.loaded == False
 
-    def test_5_1_get(self):
+    def test_5_1_get_simple(self):
         print("")
-        print('test objects get')
-
-        # Get users
-        items = self.dmg.get_users()
-        for item in items:
-            print("Got", item)
-            assert item.id
-            item.get_html_state()
-        self.assertEqual(len(items), 5)
+        print('test objects get simple objects')
 
         # Get realms
         items = self.dmg.get_realms()
@@ -471,22 +486,6 @@ class Test5Basic(unittest2.TestCase):
             icon_status = item.get_html_state()
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
-        # Get hosts
-        items = self.dmg.get_hosts()
-        for item in items:
-            print("Got: ", item)
-            assert item.id
-            item.get_html_state()
-        self.assertEqual(len(items), 13)
-
-        # Get services
-        items = self.dmg.get_services()
-        for item in items:
-            print("Got: ", item)
-            assert item.id
-            item.get_html_state()
-        self.assertEqual(len(items), 50)  # Backend pagination limit ...
-
         # Get timeperiods
         items = self.dmg.get_timeperiods()
         for item in items:
@@ -494,6 +493,62 @@ class Test5Basic(unittest2.TestCase):
             assert item.id
             item.get_html_state()
         self.assertEqual(len(items), 4)
+
+    def test_5_1_get_linked(self):
+        print("")
+        print('test objects get linked')
+
+        # Get hosts
+        items = self.dmg.get_hosts()
+        for item in items:
+            print("Got: ", item)
+            assert item.id
+            self.assertIsInstance(item.check_command, Command) # Must be an object
+            self.assertIsInstance(item.check_period, TimePeriod) # Must be an object
+        self.assertEqual(len(items), 13)
+
+        # Get services
+        items = self.dmg.get_services()
+        for item in items:
+            print("Got: ", item)
+            assert item.id
+            self.assertIsInstance(item.check_command, Command) # Must be an object
+            self.assertIsInstance(item.check_period, TimePeriod) # Must be an object
+        self.assertEqual(len(items), 50)  # Backend pagination limit ...
+
+        # Get livestate
+        items = self.dmg.get_livestate()
+        for item in items:
+            print("Got: ", item)
+            assert item.id
+            self.assertIsInstance(item.host, Host) # Must be an object
+            if item.type == 'service':
+                self.assertIsInstance(item.service, Service) # Must be an object
+            else:
+                self.assertEqual(item.service, "service") # No linked object
+        self.assertEqual(len(items), 50)  # Backend pagination limit ...
+
+    def test_5_1_get_linked_groups(self):
+        print("")
+        print('test objects get self linked')
+
+        # Get hostgroups
+        items = self.dmg.get_hostgroups()
+        for item in items:
+            print("Got: ", item)
+            assert item.id
+            if item.level != 0:
+                self.assertIsInstance(item.parent, HostGroup) # Must be an object
+        self.assertEqual(len(items), 9)
+
+        # Get servicegroups
+        items = self.dmg.get_servicegroups()
+        for item in items:
+            print("Got: ", item)
+            assert item.id
+            if item.level != 0:
+                self.assertIsInstance(item.parent, ServiceGroup) # Must be an object
+        self.assertEqual(len(items), 6)
 
     def test_5_2_total_count(self):
         print("")
@@ -503,8 +558,7 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('realm'), 5)
         self.assertEqual(self.dmg.count_objects('command'), 103)
         self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
-        self.assertEqual(self.dmg.count_objects('user'),
-                         4 + 1)  # Because a new user is created during the tests
+        self.assertEqual(self.dmg.count_objects('user'), 4)
         self.assertEqual(self.dmg.count_objects('host'), 13)
         self.assertEqual(self.dmg.count_objects('service'), 94)
         self.assertEqual(self.dmg.count_objects('livestate'), 13 + 94)
@@ -513,13 +567,13 @@ class Test5Basic(unittest2.TestCase):
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 349)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 348)
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 5)
         self.assertEqual(self.dmg.get_objects_count('command'), 50)
         self.assertEqual(self.dmg.get_objects_count('timeperiod'), 4)
-        self.assertEqual(self.dmg.get_objects_count('user'), 4 + 1)
+        self.assertEqual(self.dmg.get_objects_count('user'), 4)
         # Not loaded on login in the data manager ... so 0
         self.assertEqual(self.dmg.get_objects_count('host'), 0)
         self.assertEqual(self.dmg.get_objects_count('service'), 0)
@@ -530,7 +584,7 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 5)
         self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
         self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
-        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4 + 1)
+        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4)
         self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
         self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 94)
         self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13 + 94)

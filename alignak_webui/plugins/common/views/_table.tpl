@@ -58,9 +58,7 @@ table.dataTable tbody>tr>.selected {
          <thead>
             <tr>
                %for column in dt.table_columns:
-               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">
-                  {{ column['title'] }}
-               </th>
+               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
                %end
             </tr>
             %if dt.searchable:

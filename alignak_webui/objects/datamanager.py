@@ -467,7 +467,7 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = BackendElement.id
+            object_id = element.id
 
         if self.backend.delete(object_type, object_id):
             # Find object type class...
@@ -477,7 +477,8 @@ class DataManager(object):
             if object_id in object_class.get_cache():
                 del object_class.get_cache()[object_id]
 
-        return True
+            return True
+        return False
 
     def update_object(self, object_type, element, data):
         """

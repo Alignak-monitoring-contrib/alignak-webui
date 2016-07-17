@@ -1058,7 +1058,6 @@ class TestDatatableLivestate(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print(response.json['data'][x])
                 assert response.json['data'][x]
-                assert response.json['data'][x]['#'] is not None
                 assert response.json['data'][x]['type'] is not None
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['state'] is not None
@@ -1127,7 +1126,6 @@ class TestDatatableTimeperiod(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print(response.json['data'][x])
                 assert response.json['data'][x]
-                assert response.json['data'][x]['#'] is not None
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['alias'] is not None
                 assert response.json['data'][x]['is_active'] is not None

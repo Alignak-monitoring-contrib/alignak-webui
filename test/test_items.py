@@ -33,6 +33,8 @@ from alignak_webui import get_app_config, set_app_config
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.item_host import Host
+from alignak_webui.objects.item_service import Service
+from alignak_webui.objects.item_livestate import LiveState
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.item_user import User
 from alignak_webui.utils.settings import Settings
@@ -887,44 +889,3 @@ class TestItems(unittest2.TestCase):
         # assert item.status == 'unknown'
         # print(item.get_html_state())
         # assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x "></i></span><span>Host is unknown</span></div>''' % item.id
-
-
-class TestRelations(unittest2.TestCase):
-    def setUp(self):
-        print("")
-        print("setting up ...")
-
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
-    def test_01_host_command(self):
-        print("--- test Item")
-
-        # Initialize base class list as made by datamanager...
-        self.known_classes = []
-        for k, dummy in globals().items():
-            if isinstance(globals()[k], type) and \
-               '_type' in globals()[k].__dict__ and \
-               globals()[k].get_type() is not None and \
-               globals()[k].get_type() is not 'item':
-                self.known_classes.append(globals()[k])
-
-        BackendElement.set_known_classes(self.known_classes)
-
-
-        # Base item
-        cmd = Command({
-            '_id': 'cmd1',
-            'name': 'command 1'
-        })
-
-        host = Host({
-            '_id': 'host1',
-            'name': 'host 1',
-            'check_command': 'cmd1'  # Command id
-        })
-
-        print(host.__dict__)
-        print(host.check_command)
-        assert host.check_command == 'command'  # Remained the init string because no link could be done with the command ... the backend is not available to find the command !
