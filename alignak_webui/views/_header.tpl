@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
    // Check header refresh period (seconds)
-   var header_refresh_period = 30;
+   var header_refresh_period = 0;
 
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
@@ -23,8 +23,11 @@
 
    $(document).ready(function(){
       // Start refresh periodical check ... every header_refresh_period second
-      // header_refresh_period is defined in alignak_webui_refresh.js
-      setInterval("header_refresh();", header_refresh_period*1000);
+      if (header_refresh_period != 0) {
+         setInterval("header_refresh();", header_refresh_period*1000);
+      } else {
+         console.log('Automatic header refresh disabled.');
+      }
    });
 </script>
 

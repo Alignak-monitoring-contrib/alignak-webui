@@ -165,7 +165,7 @@
    </div>
 </div>
 <script type="text/javascript">
-   var dashboard_logs = false;
+   var dashboard_logs = true;
 
    $('.grid-stack').on('change', function (e, items) {
       if (dashboard_logs) console.log("Grid layout changed:", items);

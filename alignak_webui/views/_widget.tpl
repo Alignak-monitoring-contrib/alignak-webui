@@ -160,35 +160,27 @@
       $('#widgets_loading').show();
 
       var widget_id = $(this).data("widget");
-      console.log(widget_id, $(this).serialize());
       $.ajax({
          url: $(this).attr('action'),
          type: $(this).attr('method'),
          data: $(this).serialize()
       })
       .done(function( data, textStatus, jqXHR ) {
-         //console.log(data)
          if (jqXHR.status != 200) {
             console.error(jqXHR.status, data);
          } else {
             %if not embedded:
-            //console.log($(data))
-            console.log($('#{{widget_id}} div.grid-stack-item-content'))
             $('#wd_panel_{{widget_id}}').remove();
             var elt = $(data).find('div.alignak_webui_widget');
-            console.log('elt:', elt)
             /*$('#{{widget_id}} div.grid-stack-item-content')
                .append(elt)
                .delay(100)
                .slideDown('slow');*/
 
-            //$("#" + widget_id + " div.grid-stack-item-content").hide();
-            console.log($("#" + widget_id))
             $("#" + widget_id + " div.grid-stack-item-content").html(data);
             %else:
             $("#" + widget_id).hide();
             %end
-            console.log("{{_('Widget options saved')}}");
          }
       })
       .fail(function( jqXHR, textStatus, errorThrown ) {
@@ -201,8 +193,6 @@
 
    %if not embedded:
    $('body').on("click", 'a[data-action="remove-widget"]', function (evt) {
-      console.debug('Remove widget: ', $(this));
-
       var grid = $('.grid-stack').data('gridstack');
       grid.removeWidget('#' + $(this).data("widget"));
    });

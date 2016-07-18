@@ -212,7 +212,7 @@ class BackendElement(object):
         """
         id_property = getattr(cls, 'id_property', '_id')
         # print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
-        logger.debug("New %s, id: %s, params: %s", cls, id_property, params)
+        logger.info("New %s, id: %s, params: %s", cls, id_property, params)
 
         if not cls.get_backend():
             # Get global configuration
@@ -265,6 +265,7 @@ class BackendElement(object):
 
         if _id not in cls._cache:
             # print "Create a new %s (%s)" % (cls.get_type(), _id)
+            logger.info("New create an object")
             cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
             cls._cache[_id]._type = cls.get_type()
             cls._cache[_id]._default_date = cls._default_date
@@ -281,17 +282,17 @@ class BackendElement(object):
                 new_date = timegm(time.strptime(params['_updated'], date_format))
             # Update if more recent
             if cls._cache[_id].updated < new_date:
-                logger.debug("Update, %s (%s)", cls.get_type(), _id)
+                logger.info("New, update, %s (%s)", cls.get_type(), _id)
                 cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
 
-        logger.debug("New end, object: %s", cls._cache[_id].__dict__)
+        logger.info("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
 
     def __del__(self):
         """
         Delete an object (called only when no more reference exists for an object)
         """
-        logger.debug(" --- deleting a %s (%s)", self.__class__, self._id)
+        logger.debug(" --- deleting (__del__) a %s (%s)", self.__class__, self._id)
 
     def _delete(self):
         """
@@ -338,7 +339,7 @@ class BackendElement(object):
         id_property = getattr(self.__class__, 'id_property', '_id')
         if id_property not in params:  # pragma: no cover, should never happen
             raise ValueError('No %s attribute in the provided parameters' % id_property)
-        logger.debug(
+        logger.info(
             " --- creating a %s (%s - %s): %s",
             self.get_type(), params[id_property], params['name'] if 'name' in params else '',
             params
@@ -448,7 +449,7 @@ class BackendElement(object):
                     key, self.get_type(), value
                 )
 
-        logger.debug(" --- created %s (%s): %s", self.__class__, self[id_property], self.__dict__)
+        logger.info(" --- created %s (%s): %s", self.__class__, self[id_property], self.__dict__)
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         # Yes, but it is the base object and it needs those pubic methods!
@@ -459,6 +460,7 @@ class BackendElement(object):
         Beware: always called, even if the object is not newly created! Use _create function for
         initializing newly created objects.
         """
+        logger.info(" --- __init__ %s", self.__class__)
         if not isinstance(params, dict):
             if self.__class__ == params.__class__:
                 params = params.__dict__
@@ -474,10 +476,10 @@ class BackendElement(object):
                 return
 
         for key, value in sorted(params.items()):
-            logger.debug(" --- parameter %s = %s", key, params[key])
-            if hasattr(self, '_linked_' + key) and value:
+            if hasattr(self, '_linked_' + key):
                 # Not yet the linked objects...
                 continue
+            logger.debug(" --- parameter %s = %s", key, params[key])
 
             # If the property is a date, make it a timestamp...
             if key.endswith('date') or key in self.__class__._dates:
@@ -496,10 +498,10 @@ class BackendElement(object):
                 logger.critical("__init__, parameter TypeError: %s = %s", key, params[key])
 
         for key, value in sorted(params.items()):
-            logger.debug(" --- parameter %s = %s", key, params[key])
             if not hasattr(self, '_linked_' + key):
                 # Only the linked objects...
                 continue
+            logger.debug(" --- linked parameter %s = %s", key, params[key])
 
             logger.debug(
                 "link parameter: %s (%s) = %s", key, params[key].__class__, value
@@ -602,6 +604,8 @@ class BackendElement(object):
                 setattr(self, '_linked_' + key, objects_list)
                 logger.info("__init__, linked with %s (%s)", key, [o for o in objects_list])
                 continue
+
+        logger.info(" --- __init__ end")
 
     def __repr__(self):
         return "<%s, id: %s, name: %s, status: %s>" % (
