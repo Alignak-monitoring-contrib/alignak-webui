@@ -146,6 +146,10 @@ Each plugin table may be:
     - recursive, (default: True)
     - commands, (default: False) - only applies to the livestate table
 
+Initial (default) table sort is defined as:
+
+    - initial_sort which is an array of array: [[9, "desc"]]
+
 Table display
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

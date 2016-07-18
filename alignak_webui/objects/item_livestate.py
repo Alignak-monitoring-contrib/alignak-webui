@@ -58,6 +58,11 @@ class LiveState(BackendElement):
 
         super(LiveState, self)._create(params, date_format)
 
+    def __repr__(self):
+        return "<Livestate %s, id: %s, name: %s, status: %s>" % (
+            self.__class__.get_type(), self.id, self.name, self.status
+        )
+
     @property
     def host(self):
         """ Return linked object """

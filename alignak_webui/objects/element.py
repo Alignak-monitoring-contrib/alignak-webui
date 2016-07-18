@@ -605,7 +605,7 @@ class BackendElement(object):
 
     def __repr__(self):
         return "<%s, id: %s, name: %s, status: %s>" % (
-            self.__class__._type, self.id, self.name, self.status
+            self.__class__.get_type(), self.id, self.name, self.status
         )
 
     def __getitem__(self, key):

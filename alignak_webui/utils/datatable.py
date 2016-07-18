@@ -551,7 +551,7 @@ class Datatable(object):
         # Change item content ...
         for item in items:
             bo_object = object_class(item)
-            logger.debug("Object: %s", bo_object)
+            logger.debug("livestate object item: %s", bo_object)
 
             for key in item.keys():
                 for field in self.table_columns:
@@ -582,9 +582,9 @@ class Datatable(object):
 
                     if field['type'] == 'objectid' and \
                        key in parameters['embedded'] and item[key]:
-                        object_class = [kc for kc in self.datamgr.known_classes
+                        related_object_class = [kc for kc in self.datamgr.known_classes
                                         if kc.get_type() == field['format']][0]
-                        linked_object = object_class(item[key])
+                        linked_object = related_object_class(item[key])
                         item[key] = linked_object.get_html_link(
                             prefix=request.params.get('links')
                         )

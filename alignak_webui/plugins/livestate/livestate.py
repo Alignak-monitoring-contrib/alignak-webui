@@ -59,19 +59,6 @@ schema['#'] = {
         # 'priority': 0,
     }
 }
-# Specific field to include the commands button
-# schema['$'] = {
-# 'type': 'string',
-# 'ui': {
-# 'title': '<i class="fa fa-bolt"></i>',
-# 'visible': True,
-# 'hidden': False,
-# 'searchable': False,
-# 'selectable': True,
-# 'orderable': False,
-# 'regex': False,
-# }
-# }
 schema['type'] = {
     'type': 'string',
     'ui': {
