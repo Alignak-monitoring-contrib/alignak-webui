@@ -64,7 +64,7 @@ def show_minemap():
     count = int(request.query.get('count', elts_per_page))
     where = Helper.decode_search(request.query.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': where,
         'embedded': {}

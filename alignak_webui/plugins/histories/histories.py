@@ -190,7 +190,7 @@ def get_history(host_id):
     count = int(request.query.get('count', elts_per_page))
     where = webui.helper.decode_search(request.query.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'sort': '-_created',
         'where': where,

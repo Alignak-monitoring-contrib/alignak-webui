@@ -113,7 +113,7 @@ def get_widget(get_method, object_type, embedded=False, identifier=None, credent
     count = int(request.params.get('count', elts_per_page))
     where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': where
     }

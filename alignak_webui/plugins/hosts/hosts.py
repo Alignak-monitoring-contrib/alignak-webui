@@ -468,7 +468,7 @@ def get_hosts(templates=False):
     count = int(request.params.get('count', elts_per_page))
     where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': where,
     }
@@ -545,7 +545,7 @@ def get_hosts_widget(embedded=False, identifier=None, credentials=None):
     count = int(request.params.get('count', elts_per_page))
     where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': where
     }
@@ -671,7 +671,7 @@ def get_host(host_id):
     count = int(request.params.get('count', elts_per_page))
     where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': {'host': host_id}
     }
@@ -702,7 +702,7 @@ def get_host(host_id):
     # Get host events (all history except the events concerning the checks)
     excluded = [t for t in history_schema['type']['allowed'] if t.startswith('check.')]
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': {'host': host_id, 'type': {'$nin': excluded}}
     }

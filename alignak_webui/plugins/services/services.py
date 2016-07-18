@@ -438,7 +438,7 @@ def get_services(templates=False):
     count = int(request.query.get('count', elts_per_page))
     where = webui.helper.decode_search(request.query.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': where
     }
@@ -527,7 +527,7 @@ def get_services_widget(embedded=False, identifier=None, credentials=None):
     count = int(request.params.get('count', elts_per_page))
     where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
         'where': where
     }
