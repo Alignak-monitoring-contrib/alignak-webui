@@ -286,8 +286,10 @@ pages = {
         'route': '/servicegroup/<servicegroup_id>'
     },
     get_servicegroups: {
-        'name': 'Services groups',
-        'route': '/servicegroups',
+        'routes': [
+            ('/servicegroups', 'Servicesgroups'),
+            ('/servicegroup_tree', 'Services groups tree')
+        ],
         'view': '_tree',
         'search_engine': False,
         'search_prefix': '',

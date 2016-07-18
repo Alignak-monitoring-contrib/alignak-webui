@@ -28,12 +28,13 @@
 import re
 import time
 import traceback
-from logging import getLogger
+from logging import getLogger, INFO
 
 from alignak_webui import _
 from alignak_webui import get_app_config
 
 logger = getLogger(__name__)
+logger.setLevel(INFO)
 
 
 class Helper(object):

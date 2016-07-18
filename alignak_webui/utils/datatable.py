@@ -149,6 +149,9 @@ class Datatable(object):
                         'get_data_model, UI schema is not well formed: missing uid property'
                     )
                     continue
+                logger.debug(
+                    'get_data_model, table UI schema: %s', model['ui']
+                )
 
                 self.id_property = model['ui'].get('id_property', '_id')
                 self.name_property = model['ui'].get('name_property', 'name')
@@ -162,7 +165,7 @@ class Datatable(object):
                 self.editable = model['ui'].get('editable', False)
                 self.searchable = model['ui'].get('searchable', True)
                 self.responsive = model['ui'].get('responsive', True)
-                self.responsive = model['ui'].get('recursive', False)
+                self.recursive = model['ui'].get('recursive', False)
 
                 self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
                 continue

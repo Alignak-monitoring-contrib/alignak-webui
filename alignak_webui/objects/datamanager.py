@@ -1264,6 +1264,42 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
+    # usergroups
+    ##
+    def get_usergroups(self, search=None, all_elements=False):
+        """ Get a list of all usergroups. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': '_level'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_parent': 1
+                }
+            })
+
+        try:
+            logger.info("get_usergroups, search: %s", search)
+            items = self.find_object('usergroup', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_usergroups, none found")
+
+        return []
+
+    def get_usergroup(self, search):
+        """ Get a usergroup by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_usergroups(search=search)
+        return items[0] if items else None
+
+    ##
     # Users
     ##
     def get_users(self, search=None, all_elements=False):

@@ -274,8 +274,10 @@ pages = {
         'route': '/usergroup/<usergroup_id>'
     },
     get_usergroups: {
-        'name': 'Users groups',
-        'route': '/usergroups',
+        'routes': [
+            ('/ysergroups', 'Users groups'),
+            ('/usergroup_tree', 'Users groups tree')
+        ],
         'view': '_tree',
         'search_engine': False,
         'search_prefix': '',
