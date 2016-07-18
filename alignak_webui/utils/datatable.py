@@ -583,7 +583,7 @@ class Datatable(object):
                     if field['type'] == 'objectid' and \
                        key in parameters['embedded'] and item[key]:
                         related_object_class = [kc for kc in self.datamgr.known_classes
-                                        if kc.get_type() == field['format']][0]
+                                                if kc.get_type() == field['format']][0]
                         linked_object = related_object_class(item[key])
                         item[key] = linked_object.get_html_link(
                             prefix=request.params.get('links')
