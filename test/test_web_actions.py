@@ -35,8 +35,8 @@ from nose.tools import *
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
 os.environ['WEBUI_DEBUG'] = '1'
-os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print "Configuration file", os.environ['TEST_WEBUI_CFG']
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print "Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE']
 
 import alignak_webui.app
 from alignak_webui import webapp

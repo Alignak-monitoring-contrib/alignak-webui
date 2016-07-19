@@ -11,14 +11,19 @@ Configuration file location
 ---------------------------
 The application searches in several location for a configuration file:
 
-    - /usr/local/etc/alignak_webui/settings.cfg
-    - /etc/alignak_webui/settings.cfg
-    - ~/alignak_webui/settings.cfg
+    - /usr/local/etc/alignak-webui/settings.cfg
+    - /etc/alignak-webui/settings.cfg
+    - ~/alignak-webui/settings.cfg
     - ./etc/settings.cfg
-    - ./alignak_webui/etc/settings.cfg
+    - ./alignak-webui/etc/settings.cfg
     - ./settings.cfg
 
-Each file found takes precedence over the previous files. As of it, for the same parameter with different values in */usr/local/etc/alignak_webui/settings.cfg* and *./settings.cfg*, the retained value will be the one configured in *./settings.cfg*.
+Each file found takes precedence over the previous files. As of it, for the same parameter with different values in */usr/local/etc/alignak-webui/settings.cfg* and *./settings.cfg*, the retained value will be the one configured in *./settings.cfg*.
+
+
+Configuration file environment variable
+---------------------------------------
+If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by the application as the only configuration file name to be loaded by the application. As of it, it allows to override the default file list.
 
 
 Configuration file format
@@ -78,6 +83,8 @@ This section contains parameters to configure the application.
 
     * **refresh_period**, page refresh period in seconds (default: *60*). Use 0 to disable page refresh.
 
+    * **header_refresh_period**, page header refresh period in seconds (default: *30*). Use 0 to disable page header refresh.
+
     * **locale**, language file to use (default: *en_US*). Language files are located in *res* sub-directory.
 
     * **timezone**, preferred timezone for dates (default: *Europe/Paris*).
@@ -92,17 +99,19 @@ This section contains parameters to configure the application.
 
 This section contains parameters to configure the application logs. This section is commented to understand how the parameters may be changed.
 
-The default logging is storing INFO level logs in a file named alignak_webui.log in the /var/log/alignak_webui directory. On log file is built each day on a 6 days rotating schema.
+The default logging is storing INFO level logs in a file named *alignak-webui.log* in the */var/log/alignak-webui* directory. A log file is built each day on a 6 days rotating schema.
 
-**Note**: if the required log directory is not writable for the application, the log file is built in the current directory.
+**Note**: if the required log directory is not writable for the application, the log file is built in the current working directory.
 
 
 [buttons] section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section defines patterns used by the application to build the buttons commands toolbar.
+**TO BE COMPLETED**
 
 [items] section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section defines patterns used by the application to build the elements icons.
+**TO BE COMPLETED**

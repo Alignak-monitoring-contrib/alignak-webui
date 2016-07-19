@@ -8,9 +8,9 @@ import time
 import unittest2
 
 os.environ['TEST_WEBUI'] = '1'
-os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             'settings.cfg')
-print("Configuration file: %s" % os.environ['TEST_WEBUI_CFG'])
+print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 
 class TestStart(unittest2.TestCase):
@@ -55,16 +55,16 @@ class TestStart(unittest2.TestCase):
         assert exit_code == 0
 
         print("Launching application with bad configuration file...")
-        os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                     'settings.bad')
-        print("Configuration file", os.environ['TEST_WEBUI_CFG'])
+        print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
         exit_code = subprocess.call(
             shlex.split('python app.py settings.bad')
         )
         assert exit_code == 1
-        os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                     'settings.cfg')
-        print("Configuration file", os.environ['TEST_WEBUI_CFG'])
+        print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
         print("Launching application with CLI help...")
         exit_code = subprocess.call(

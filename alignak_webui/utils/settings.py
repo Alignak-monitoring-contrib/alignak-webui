@@ -85,6 +85,7 @@ class Settings(dict):
             ]
 
         try:
+            print("Search configuration files in %s." % settings_filenames)
             config = ConfigParser()
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:

@@ -90,8 +90,8 @@ if os.environ.get('TEST_WEBUI'):
 else:  # pragma: no cover - tests are run in test mode...
     print("Application is in production mode")
 
-if os.environ.get('TEST_WEBUI_CFG'):
-    cfg_file = os.environ.get('TEST_WEBUI_CFG')
+if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
+    cfg_file = os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE')
     print("Application configuration file name from environment: %s" % cfg_file)
 
 # Read configuration file

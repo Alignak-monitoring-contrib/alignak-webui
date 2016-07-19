@@ -34,9 +34,9 @@ from webtest import TestApp
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
-os.environ['TEST_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             'settings.cfg')
-print("Configuration file: %s" % os.environ['TEST_WEBUI_CFG'])
+print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 # To load application configuration used by the objects
 import alignak_webui.app
 
