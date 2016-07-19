@@ -37,7 +37,7 @@
       <li class="dropdown" data-toggle="tooltip" data-placement="top" title="{{_('Elements')}}">
          <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
-            <span class="fa fa-wrench"></span>
+            <span class="fa fa-cube"></span>
             <span class="hidden-sm hidden-xs">{{_('Elements')}}</span>
          </a>
 
