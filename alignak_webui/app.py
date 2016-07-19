@@ -187,24 +187,6 @@ def main():  # pragma: no cover, not mesured by coverage!
     app_webui = set_app_webui(WebUI())
 
     try:
-        logger.info(
-            "--------------------------------------------------------------------------------"
-        )
-        logger.info(
-            "%s, listening on %s:%d (debug mode: %s)",
-            app_config.get('name', 'Test'),
-            app_config.get('host', '127.0.0.1'), int(app_config.get('port', '8868')),
-            app_config.get('debug', '0') == '1'
-        )
-        logger.info(
-            "%s, using alignak backend on %s",
-            app_config.get('name', 'Test'),
-            app_config['alignak_backend']
-        )
-        logger.info(
-            "--------------------------------------------------------------------------------"
-        )
-
         if args['--exit']:
             print("Application exit because of command line parameter")
             exit(99)
@@ -213,7 +195,7 @@ def main():  # pragma: no cover, not mesured by coverage!
         run(
             app=webapp,
             host=app_config.get('host', '127.0.0.1'),
-            port=int(app_config.get('port', 8868)),
+            port=int(app_config.get('port', 5001)),
             debug=(app_config.get('debug', '0') == '1'),
             server=app_config.get('http_backend', 'cherrypy')
         )

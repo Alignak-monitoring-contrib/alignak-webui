@@ -154,6 +154,24 @@ def set_app_config(config):
         "--------------------------------------------------------------------------------"
     )
 
+    logger.info(
+        "--------------------------------------------------------------------------------"
+    )
+    logger.info(
+        "%s, listening on %s:%d (debug mode: %s)",
+        app_config.get('name', 'Test'),
+        app_config.get('host', '127.0.0.1'), int(app_config.get('port', '5001')),
+        app_config.get('debug', '0') == '1'
+    )
+    logger.info(
+        "%s, using alignak backend on %s",
+        app_config.get('name', 'Test'),
+        app_config.get('alignak_backend', 'http://127.0.0.1:5000')
+    )
+    logger.info(
+        "--------------------------------------------------------------------------------"
+    )
+
     logger.debug("Application settings: ")
     for key, value in sorted(app_config.items()):
         logger.debug(" %s = %s", key, value)
