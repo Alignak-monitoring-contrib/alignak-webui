@@ -475,7 +475,7 @@ class Test3(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '4 elements out of 4',
+            '5 elements out of 5',
         )
 
     def test_3_3_commands(self):
@@ -777,8 +777,8 @@ class Test4TargetUser(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '4 elements out of 4',
-            'admin', 'guest', 'anonymous', 'mohier'
+            '5 elements out of 5',
+            'admin', 'imported_admin', 'guest', 'anonymous', 'mohier'
         )
 
         # Current user is admin
