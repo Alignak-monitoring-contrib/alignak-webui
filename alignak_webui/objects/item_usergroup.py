@@ -49,6 +49,7 @@ class UserGroup(BackendElement):
         Create a contactgroup (called only once when an object is newly created)
         """
         self._linked_usergroups = 'usergroup'
+        self._linked__parent = 'usergroup'
         self._linked_users = 'user'
 
         super(UserGroup, self)._create(params, date_format)
