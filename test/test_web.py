@@ -855,7 +855,7 @@ class Test4TargetUser(unittest2.TestCase):
         assert response.json['message'] == "User created"
 
         users = datamgr.get_users()
-        assert len(users) == 5
+        self.assertEqual(len(users), 5)
 
         print 'get page /users'
         # Now 5 users
@@ -902,7 +902,6 @@ class Test4TargetUser(unittest2.TestCase):
         response = self.app.get('/dashboard', {'target_user': ''})
         response.mustcontain('<div id="dashboard">')
 
-    # @unittest2.skip("To be completed  test ...")
     def test_3_2_users(self):
         print ''
         print 'test users'
