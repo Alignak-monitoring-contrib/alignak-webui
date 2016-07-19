@@ -145,7 +145,7 @@ class TestGet(unittest2.TestCase):
         # Count all users
         result = self.be.count('user')
         print("Result: %s", result)
-        self.assertEqual(result, 4)
+        self.assertEqual(result, 5)
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.count('user', parameters)
@@ -177,7 +177,7 @@ class TestGet(unittest2.TestCase):
             self.assertIn('name', user)
             self.assertIn('_total', user)  # Each element has an extra _total attribute !
             print(" - %s (one out of %d)" % (user['name'], user['_total']))
-        self.assertEqual(len(result), 4)  # Default configuration has 4 users
+        self.assertEqual(len(result), 5)  # Default configuration has 5 users
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.get('user', parameters)
