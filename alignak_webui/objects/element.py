@@ -274,16 +274,6 @@ class BackendElement(object):
             # Call the new object create function
             cls._cache[_id]._create(params, date_format)
             cls._count += 1
-        elif '_updated' in params:
-            # @mohierf: compare updated dates to update ... best strategy
-            # params has an _updated field as string formatted date, get as a timestamp
-            new_date = params['_updated']
-            if isinstance(new_date, basestring) and not isinstance(new_date, (int, long, float)):
-                new_date = timegm(time.strptime(params['_updated'], date_format))
-            # Update if more recent
-            if cls._cache[_id].updated < new_date:
-                logger.info("New, update, %s (%s)", cls.get_type(), _id)
-                cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
 
         logger.info("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
@@ -356,6 +346,7 @@ class BackendElement(object):
             # If the property is a known date, make it a timestamp...
             if key.endswith('date') or key in self.__class__._dates:
                 if params[key]:
+                    # Convert date to timestamp
                     new_date = get_ts_date(params[key], date_format)
                     if new_date:
                         setattr(self, key, new_date)
@@ -484,6 +475,7 @@ class BackendElement(object):
             # If the property is a date, make it a timestamp...
             if key.endswith('date') or key in self.__class__._dates:
                 if params[key]:
+                    # Convert date to timestamp
                     new_date = get_ts_date(params[key], date_format)
                     if new_date:
                         setattr(self, key, new_date)
