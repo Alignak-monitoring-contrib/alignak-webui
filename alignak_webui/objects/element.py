@@ -457,7 +457,7 @@ class BackendElement(object):
                     key, self.get_type(), value
                 )
 
-        logger.info(" --- created %s (%s): %s", self.__class__, self[id_property], self)
+        logger.info(" --- created %s (%s)", self.__class__, self[id_property])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         # Yes, but it is the base object and it needs those pubic methods!
