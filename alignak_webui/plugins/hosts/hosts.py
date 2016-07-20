@@ -867,6 +867,18 @@ pages = {
                 'options': {}
             },
             {
+                'id': 'location',
+                'for': ['host'],
+                'name': _('Location'),
+                'template': 'host_location_widget',
+                'icon': 'globe',
+                'read_only': True,
+                'description': _(
+                    'Host location: displays host position on a map.'
+                ),
+                'options': {}
+            },
+            {
                 'id': 'services',
                 'for': ['host'],
                 'name': _('Services'),

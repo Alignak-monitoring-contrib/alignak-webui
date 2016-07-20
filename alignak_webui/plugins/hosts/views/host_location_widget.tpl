@@ -1,4 +1,4 @@
-<!-- Hosts worldmap widget -->
+<!-- Hosts location widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -6,11 +6,9 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%from alignak_webui.utils.helper import Helper
+%setdefault('mapId', 'host_location_map')
 
-%setdefault('mapId', 'hosts_worldmap')
-
-%hosts = elements
+%hosts = [host]
 <script>
    var cssfiles=['/static/plugins/worldmap/htdocs/css/worldmap.css', '/static/plugins/worldmap/htdocs/css/leaflet.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.Default.css', '/static/plugins/worldmap/htdocs/css/leaflet.label.css'];
 
@@ -22,16 +20,22 @@
 <!-- HTML map container -->
 <div class="map_container_widget">
    %if not hosts:
-      <div class="alert alert-danger">
-         <center>
-            <h3>{{_('We did not found any hosts to locate on the map.')}}</h3>
-         </center>
-      </div>
+      <center>
+         <h3>We couldn't find any hosts to locate on a map.</h3>
+      </center>
+      <hr/>
+      <p><strong>1. </strong>If you used a filter in the widget, change the filter to try a new search query.</p>
+      <p><strong>2. </strong>Only the hosts having GPS coordinates may be located on the map. If you do not have any, add hosts GPS coordinates in the configuration file: </p>
+      <code>
+      <p># GPS</p>
+      <p>_LOC_LAT             45.054700</p>
+      <p>_LOC_LNG             5.080856</p>
+      </code>
    %else:
       <div id="{{mapId}}" class="osm">
-           <div class="alert alert-info">
-              <a href="#" class="alert-link">Loading map ...</a>
-         </div>
+        <div class="alert alert-info">
+           <a href="#" class="alert-link">{{_('Loading map ...')}}</a>
+        </div>
       </div>
    %end
 </div>

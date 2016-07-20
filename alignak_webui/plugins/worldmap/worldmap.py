@@ -38,9 +38,9 @@ webui = None
 
 # Plugin's parameters
 plugin_parameters = {
-    'default_zoom': 16,
-    'default_lng': 5.080625,
-    'default_lat': 45.054148,
+    'default_zoom': 6,
+    'default_lng': 1.87528,
+    'default_lat': 46.60611,
     'hosts_level': [1, 2, 3, 4, 5],
     'services_level': [1, 2, 3, 4, 5],
     'layer': ''
@@ -109,28 +109,9 @@ def get_valid_elements(search):
         if host.business_impact not in plugin_parameters['hosts_level']:
             continue
 
-        # noinspection PyBroadException
-        try:
-            _lat = float(host.customs.get('_LOC_LAT', None))
-            _lng = float(host.customs.get('_LOC_LNG', None))
-            # lat/long must be between -180/180
-            if not (-180 <= _lat <= 180 and -180 <= _lng <= 180):
-                raise Exception()
-        except Exception:
-            logger.debug("worldmap, host '%s' has invalid GPS coordinates", host.name)
-
-            logger.debug("worldmap, host position: '%s'", host.location)
-            _lat = float(host.location['coordinates'][0])
-            _lng = float(host.location['coordinates'][1])
-            # lat/long must be between -180/180
-            if not (-180 <= _lat <= 180 and -180 <= _lng <= 180):
-                continue
-
-            host.customs.update({'_LOC_LAT': str(_lat)})
-            host.customs.update({'_LOC_LNG': str(_lng)})
-
-        logger.info("worldmap, host '%s' located on worldmap: %f - %f", host.name, _lat, _lng)
-        valid_hosts.append(host)
+        if host.position:
+            logger.info("worldmap, host '%s' located: %s", host.name, host.position)
+            valid_hosts.append(host)
 
     return valid_hosts
 

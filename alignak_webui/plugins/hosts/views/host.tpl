@@ -99,9 +99,7 @@
    %end
 
    <!-- First row : tags and actions ... -->
-   %groups = [ {'_id':'1', 'name':'g1', 'level': 1}, {'_id':'2', 'name':'g2', 'level': 2} ]
    %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
-   {{groups}}
    %tags = ['t1', 't2']
    %if host.action_url or tags or groups:
    <div>

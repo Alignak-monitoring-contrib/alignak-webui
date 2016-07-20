@@ -16,6 +16,8 @@ Contents:
    config
    run
 
+   parameters
+
    api
 
    widgets
