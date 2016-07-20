@@ -76,11 +76,12 @@ def setup_module():
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
         # Delete used mongo DBs
-        # exit_code = subprocess.call(
-            # shlex.split(
-                # 'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
-        # )
-        # assert exit_code == 0
+        print("Dropping database...")
+        exit_code = subprocess.call(
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+        )
+        assert exit_code == 0
 
         print("Starting Alignak backend...")
         pid = subprocess.Popen(
@@ -89,11 +90,11 @@ def setup_module():
         print("PID: %s" % pid)
         time.sleep(1)
 
-        # print("Feeding backend...")
-        # exit_code = subprocess.call(
-            # shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
-        # )
-        # assert exit_code == 0
+        print("Feeding backend...")
+        exit_code = subprocess.call(
+            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
+        )
+        assert exit_code == 0
 
 
 def teardown_module():

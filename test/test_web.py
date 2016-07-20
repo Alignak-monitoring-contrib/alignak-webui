@@ -855,14 +855,14 @@ class Test4TargetUser(unittest2.TestCase):
         assert response.json['message'] == "User created"
 
         users = datamgr.get_users()
-        self.assertEqual(len(users), 5)
+        self.assertEqual(len(users), 6)
 
         print 'get page /users'
         # Now 5 users
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '5 elements out of 5',
+            '6 elements out of 6',
             'admin', 'guest', 'anonymous', 'mohier',
             'not_admin'
         )
@@ -910,7 +910,7 @@ class Test4TargetUser(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '5 elements out of 5'
+            '6 elements out of 6'
         )
 
     def test_3_3_commands(self):
