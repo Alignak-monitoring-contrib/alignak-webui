@@ -111,9 +111,9 @@ class Test1FindAndSearch(unittest2.TestCase):
 
         # Create new datamanager - do not use default backend address
         datamanager = DataManager(backend_endpoint=backend_address)
-        assert datamanager.backend
-        assert datamanager.loaded == False
-        assert datamanager.get_logged_user() is None
+        self.assertIsNotNone(datamanager.backend)
+        self.assertFalse(datamanager.loaded )
+        self.assertIsNone(datamanager.get_logged_user())
         # Got known managed elements classes
         self.assertEqual(len(datamanager.known_classes), 17)
 
@@ -526,6 +526,9 @@ class Test5Basic(unittest2.TestCase):
                 self.assertIsInstance(item.service, Service) # Must be an object
             else:
                 self.assertEqual(item.service, "service") # No linked object
+            livestate = self.dmg.get_livestate({'where': {'_id': item.id}})
+            livestate = livestate[0]
+            print("Got: %s" % livestate)
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
     def test_5_1_get_linked_groups(self):
@@ -558,7 +561,7 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('realm'), 5)
         self.assertEqual(self.dmg.count_objects('command'), 103)
         self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
-        self.assertEqual(self.dmg.count_objects('user'), 4)
+        self.assertEqual(self.dmg.count_objects('user'), 5)
         self.assertEqual(self.dmg.count_objects('host'), 13)
         self.assertEqual(self.dmg.count_objects('service'), 94)
         self.assertEqual(self.dmg.count_objects('livestate'), 13 + 94)
@@ -567,13 +570,13 @@ class Test5Basic(unittest2.TestCase):
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 348)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 349)
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 5)
         self.assertEqual(self.dmg.get_objects_count('command'), 50)
         self.assertEqual(self.dmg.get_objects_count('timeperiod'), 4)
-        self.assertEqual(self.dmg.get_objects_count('user'), 4)
+        self.assertEqual(self.dmg.get_objects_count('user'), 5)
         # Not loaded on login in the data manager ... so 0
         self.assertEqual(self.dmg.get_objects_count('host'), 0)
         self.assertEqual(self.dmg.get_objects_count('service'), 0)
@@ -584,7 +587,7 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 5)
         self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
         self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
-        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 4)
+        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 5)
         self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
         self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 94)
         self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13 + 94)

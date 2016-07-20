@@ -295,7 +295,7 @@ class DataManager(object):
         self.get_realms()
 
         # -----------------------------------------------------------------------------------------
-        # Get all users if current user is an administrator
+        # Get all users
         # -----------------------------------------------------------------------------------------
         self.get_users()
 
@@ -717,7 +717,9 @@ class DataManager(object):
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
             search.update({'embedded': {'host': 1}})
-        if 'where' in search:
+        if 'where' not in search:
+            search.update({'where': {'type': 'host'}})
+        elif 'type' not in search['where']:
             search['where'].update({'type': 'host'})
 
         try:
@@ -742,7 +744,7 @@ class DataManager(object):
     def get_livestate_services(self, search=None):
         """ Get livestate for services
 
-            Elements in the livestat which service is not null (eg. services)
+            Elements in the livestate which type is 'service'
 
             :param search: backend request search
             :type search: dic
@@ -755,7 +757,9 @@ class DataManager(object):
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
             search.update({'embedded': {'service': 1}})
-        if 'where' in search:
+        if 'where' not in search:
+            search.update({'where': {'type': 'service'}})
+        elif 'type' not in search['where']:
             search['where'].update({'type': 'service'})
 
         try:

@@ -212,7 +212,6 @@ class BackendElement(object):
         """
         id_property = getattr(cls, 'id_property', '_id')
         # print "Class %s, id_property: %s, params: %s" % (cls, id_property, params)
-        logger.info("New %s, id: %s, params: %s", cls, id_property, params)
 
         if not cls.get_backend():
             # Get global configuration
@@ -232,7 +231,15 @@ class BackendElement(object):
                     cls, id_property, params
                 )
                 if isinstance(params, BackendElement):
-                    params = params.__dict__
+                    # params = params.__dict__
+                    # Do not copy, build a new object...
+                    if params.id in cls._cache:
+                        logger.info(
+                            "New %s, id: %s, cache copy of an object", cls, cls._cache[params.id]
+                        )
+                        return cls._cache[params.id]
+                    logger.info("New %s, id: %s, copy an object", cls, params)
+                    return params.deep_copy()
                 else:
                     logger.critical(
                         "Class %s, id_property: %s, invalid params: %s",
@@ -263,6 +270,13 @@ class BackendElement(object):
                 '_created': now, '_updated': now
             })
 
+        try:
+            logger.debug("New %s, id: %s, params: %s", cls, id_property, params['name'])
+        except Exception:
+            logger.debug(
+                "New %s, id: %s, params: %s (%s)", cls, id_property, params.__class__, params
+            )
+
         if _id not in cls._cache:
             # print "Create a new %s (%s)" % (cls.get_type(), _id)
             logger.info("New create an object")
@@ -275,7 +289,10 @@ class BackendElement(object):
             cls._cache[_id]._create(params, date_format)
             cls._count += 1
 
-        logger.info("New end, object: %s", cls._cache[_id].__dict__)
+        try:
+            logger.info("New end, object: %s", cls._cache[_id]['name'])
+        except Exception:
+            logger.info("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
 
     def __del__(self):
@@ -440,7 +457,7 @@ class BackendElement(object):
                     key, self.get_type(), value
                 )
 
-        logger.info(" --- created %s (%s): %s", self.__class__, self[id_property], self.__dict__)
+        logger.info(" --- created %s (%s): %s", self.__class__, self[id_property], self)
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         # Yes, but it is the base object and it needs those pubic methods!
@@ -511,12 +528,13 @@ class BackendElement(object):
                     break
 
                 logger.warning(
-                    "__init__, update object: %s = %s", key, params[key]
+                    "__init__, update with an object: %s = %s", key, object_type
                 )
-                object_class = object_type.__class__
-                linked_object = object_class(object_type.__dict__)
-                setattr(self, '_linked_' + key, linked_object)
-                logger.warning("__init__, updated with %s (%s)", key, linked_object['_id'])
+                # object_class = object_type.__class__
+                # linked_object = object_class(object_type.__dict__)
+                setattr(self, '_linked_' + key, object_type)
+                # logger.warning("__init__, updated with %s (%s)", key, linked_object['_id'])
+                logger.warning("__init__, updated with %s (%s)", key, object_type)
                 continue
 
             # Linked resource type
