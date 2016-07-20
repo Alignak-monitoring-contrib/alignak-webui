@@ -570,7 +570,7 @@ class Test5Basic(unittest2.TestCase):
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
 
         # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 349)
+        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 350)
 
         # No refresh so get current cached objects count
         self.assertEqual(self.dmg.get_objects_count('realm'), 5)
