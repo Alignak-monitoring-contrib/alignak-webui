@@ -30,6 +30,7 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.utils.helper import Helper
 from alignak_webui.plugins.common.common import get_table, get_table_data
 
 logger = getLogger(__name__)
@@ -200,28 +201,30 @@ def get_servicegroups():
     context_menu = {
         'actions': {
             'action1': {
-                "label": "Cueillir des cerises...",
+                "label": _('Fake action 1'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": True,
-                "action": '''function (obj) {
-                   console.log('Miam!');
-                }'''
+                "action": '''
+                    function (obj) {
+                        console.log('Fake action 1');
+                    }
+                '''
             },
             'action2': {
-                "label": "... et encore des cerises!",
+                "label": _('Fake action 2!'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": False,
                 "action": '''function (obj) {
-                   console.log('Et que ça saute !');
+                   console.log('Fake action 2');
                 }'''
             }
         }
     }
 
     return {
-        'object_type': 'servicegroup',
+        'tree_type': 'servicegroup',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
@@ -243,6 +246,42 @@ def get_servicegroups_list():
     items = []
     for servicegroup in servicegroups:
         items.append({'id': servicegroup.id, 'name': servicegroup.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
+def get_servicegroup_members(servicegroup_id):
+    """
+    Get the servicegroup services list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    servicegroup = datamgr.get_servicegroup(servicegroup_id)
+    if not servicegroup:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Services group element does not exist'))
+
+    # Not JSON serializable!
+    # items = servicegroup.members
+
+    items = []
+    for service in servicegroup.members:
+        lv_service = datamgr.get_livestate({'where': {'type': 'service', 'service': service.id}})
+        lv_service = lv_service[0]
+        title = "%s - %s (%s)" % (
+            lv_service.status,
+            Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0),
+            lv_service.output
+        )
+
+        items.append({
+            'id': service.id,
+            'name': service.name,
+            'alias': service.alias,
+            'icon': lv_service.get_html_state(text=None, title=title),
+            'url': lv_service.get_html_link()
+        })
 
     response.status = 200
     response.content_type = 'application/json'
@@ -284,6 +323,10 @@ pages = {
     get_servicegroup: {
         'name': 'Service group',
         'route': '/servicegroup/<servicegroup_id>'
+    },
+    get_servicegroup_members: {
+        'name': 'Services group members',
+        'route': '/servicegroup/members/<servicegroup_id>'
     },
     get_servicegroups: {
         'routes': [

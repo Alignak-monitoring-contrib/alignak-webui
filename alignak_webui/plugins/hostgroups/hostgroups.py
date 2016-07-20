@@ -30,6 +30,7 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.utils.helper import Helper
 from alignak_webui.plugins.common.common import get_table, get_table_data
 
 logger = getLogger(__name__)
@@ -198,28 +199,31 @@ def get_hostgroups():
     context_menu = {
         'actions': {
             'action1': {
-                "label": "Cueillir des fraises...",
+                "label": _('Fake action 1'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": True,
-                "action": '''function (obj) {
-                   console.log('Miam!');
-                }'''
+                "action": '''
+                    function (obj) {
+                        console.log('Fake action 1');
+                    }
+                '''
             },
             'action2': {
-                "label": "... et encore des fraises!",
+                "label": _('Fake action 2!'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": False,
                 "action": '''function (obj) {
-                   console.log('Et que ça saute !');
+                   console.log('Fake action 2');
                 }'''
             }
         }
     }
 
     return {
-        'object_type': 'hostgroup',
+        'tree_type': 'hostgroup',
+        'leaves_type': 'host',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
@@ -241,6 +245,42 @@ def get_hostgroups_list():
     items = []
     for hostgroup in hostgroups:
         items.append({'id': hostgroup.id, 'name': hostgroup.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
+def get_hostgroup_members(hostgroup_id):
+    """
+    Get the hostgroup hosts list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    hostgroup = datamgr.get_hostgroup(hostgroup_id)
+    if not hostgroup:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Hosts group element does not exist'))
+
+    # Not JSON serializable!
+    # items = hostgroup.members
+
+    items = []
+    for host in hostgroup.members:
+        lv_host = datamgr.get_livestate({'where': {'type': 'host', 'host': host.id}})
+        lv_host = lv_host[0]
+        title = "%s - %s (%s)" % (
+            lv_host.status,
+            Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0),
+            lv_host.output
+        )
+
+        items.append({
+            'id': host.id,
+            'name': host.name,
+            'alias': host.alias,
+            'icon': lv_host.get_html_state(text=None, title=title),
+            'url': lv_host.get_html_link()
+        })
 
     response.status = 200
     response.content_type = 'application/json'
@@ -282,6 +322,10 @@ pages = {
     get_hostgroup: {
         'name': 'Host group',
         'route': '/hostgroup/<hostgroup_id>'
+    },
+    get_hostgroup_members: {
+        'name': 'Host group members',
+        'route': '/hostgroup/members/<hostgroup_id>'
     },
     get_hostgroups: {
         'routes': [

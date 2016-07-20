@@ -188,28 +188,30 @@ def get_usergroups():
     context_menu = {
         'actions': {
             'action1': {
-                "label": "Cueillir des fraises...",
+                "label": _('Fake action 1'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": True,
-                "action": '''function (obj) {
-                   console.log('Miam!');
-                }'''
+                "action": '''
+                    function (obj) {
+                        console.log('Fake action 1');
+                    }
+                '''
             },
             'action2': {
-                "label": "... et encore des fraises!",
+                "label": _('Fake action 2!'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": False,
                 "action": '''function (obj) {
-                   console.log('Et que ça saute !');
+                   console.log('Fake action 2');
                 }'''
             }
         }
     }
 
     return {
-        'object_type': 'usergroup',
+        'tree_type': 'usergroup',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
@@ -231,6 +233,34 @@ def get_usergroups_list():
     items = []
     for usergroup in usergroups:
         items.append({'id': usergroup.id, 'name': usergroup.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
+def get_usergroup_members(usergroup_id):
+    """
+    Get the usergroup users list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    usergroup = datamgr.get_usergroup(usergroup_id)
+    if not usergroup:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('users group element does not exist'))
+
+    # Not JSON serializable!
+    # items = usergroup.members
+
+    items = []
+    for user in usergroup.members:
+        items.append({
+            'id': user.id,
+            'name': user.name,
+            'alias': user.alias,
+            'icon': user.get_html_state(text=None, title=user.alias),
+            'url': user.get_html_link()
+        })
 
     response.status = 200
     response.content_type = 'application/json'
@@ -272,6 +302,10 @@ pages = {
     get_usergroup: {
         'name': 'Users group',
         'route': '/usergroup/<usergroup_id>'
+    },
+    get_usergroup_members: {
+        'name': 'Users group members',
+        'route': '/usergroup/members/<usergroup_id>'
     },
     get_usergroups: {
         'routes': [

@@ -101,3 +101,11 @@ class LiveState(BackendElement):
         :rtype: object
         """
         BackendElement.status.fset(self, status)
+
+    def get_html_link(self, prefix=None, title=None):
+        """
+        Get html link with an optional prefix and an optional title
+        """
+        if not title:
+            title = "%s * %s" % (self.host.name, self.service.name)
+        return super(LiveState, self).get_html_link(title=title)

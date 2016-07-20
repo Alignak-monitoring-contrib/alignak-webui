@@ -8,7 +8,7 @@
 %search_string = request.query.get('search', '')
 
 %# jsTree js and css are included in the page layout
-%rebase("layout", title=title, page="/{{object_type}}_tree")
+%rebase("layout", title=title, page="/{{tree_type}}_tree")
 
 %from alignak_webui.utils.helper import Helper
 
@@ -20,16 +20,16 @@
 </style>
 
 <!-- Tree display -->
-<div id="{{object_type}}_tree_view">
+<div id="{{tree_type}}_tree_view">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#{{object_type}}_tree_collapse"><i class="fa fa-bug"></i> Elements as dictionaries</a>
+               <a data-toggle="collapse" href="#{{tree_type}}_tree_collapse"><i class="fa fa-bug"></i> Elements as dictionaries</a>
             </h4>
          </div>
-         <div id="{{object_type}}_tree_collapse" class="panel-collapse collapse">
+         <div id="{{tree_type}}_tree_collapse" class="panel-collapse collapse">
             <ul class="list-group">
                %for item in items:
                   <li class="list-group-item">
@@ -50,7 +50,7 @@
          <div class="panel-heading clearfix">
             <div class="pull-left">
                <button type="button" class="btn btn-xs btn-primary"
-                  data-action="navigate-table" data-element="{{object_type}}">
+                  data-action="navigate-table" data-element="{{tree_type}}">
                   <span class="fa fa-table"></span>
                </button>
             </div>
@@ -66,21 +66,30 @@
          </div>
 
          <div class="panel-body">
-            <!-- Tree structure to display items -->
-            <div id="{{object_type}}_tree"></div>
+            <div class="row">
+               <div class="col-sm-6 col-xs-12">
+                  <!-- Tree structure to display items -->
+                  <div id="{{tree_type}}_tree"></div>
+               </div>
+               <div id="members_list" class="col-sm-6 col-xs-12">
+                  <div class="alert alert-info">
+                     {{_('Select an item in the left tree to display some elements.')}}
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    %end
 </div>
 
 <script>
-   debugTree = true;
+   var debugTree = true;
 
-   // Recheck
-   $('[data-action="navigate-table"][data-element="{{object_type}}"]').on("click", function () {
+   // Navigate to the table view
+   $('[data-action="navigate-table"][data-element="{{tree_type}}"]').on("click", function () {
       var elt_id = $(this).data('element');
       window.setTimeout(function(){
-         window.location.href = "/{{object_type}}_table";
+         window.location.href = "/{{tree_type}}_table";
       }, 50);
    });
 
@@ -112,7 +121,7 @@
          a_attr: {
          }
       });
-      console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item.level}}', '{{'#' if item.level <= 0 else item.parent.id}}');
+      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item.level}}', '{{'#' if item.level <= 0 else item.parent.id}}');
    %end
 
    $(document).ready(function(){
@@ -125,11 +134,11 @@
          }
          to = setTimeout(function () {
             var v = $('#searchfield').val();
-            $("#{{object_type}}_tree").jstree(true).search(v);
+            $("#{{tree_type}}_tree").jstree(true).search(v);
          }, 250);
       });
 
-      $("#{{object_type}}_tree")
+      $("#{{tree_type}}_tree")
          .jstree({
             "core" : {
                "check_callback" : true,
@@ -149,14 +158,14 @@
             %if context_menu:
             "contextmenu": {
                "items": function(node) {
-                  if (debugTree) console.debug('Calling context menu for: ', node);
+                  if (debugTree) console.log('Calling context menu for: ', node);
 
                   // Non terminating node ...
                   if (node.children.length && !node.host_name) {
                      return;
                   }
 
-                  var tree = $("#{{object_type}}_tree").jstree(true);
+                  var tree = $("#{{tree_type}}_tree").jstree(true);
                   return ({
                   %for action in context_menu['actions']:
                      "{{action}}": {
@@ -171,26 +180,58 @@
             %end
          })
          .bind('ready.jstree', function(e, data) {
-            var o_{{object_type}}_tree = $("#{{object_type}}_tree").jstree(true);
-            if (debugTree) console.debug('Ready!');
+            var o_{{tree_type}}_tree = $("#{{tree_type}}_tree").jstree(true);
+            if (debugTree) console.log('Tree ready!');
          })
 
          %if selectable:
          .bind('select_node.jstree', function(node, selectedNodes) {
-            if (debugTree) console.debug('Selection :', selectedNodes);
+            if (debugTree) console.log('Selection :', selectedNodes);
          })
          %end
 
          .bind('changed.jstree', function(event, action) {
-            if (debugTree) console.debug('Changed :', action.action, action.node);
+            if (debugTree) console.log('Changed :', action.action, action.node);
 
+            if (action.action == 'select_node') {
+               if (debugTree) console.log('Selected :', action.node);
+
+               $.ajax( {
+                  "url": "{{tree_type}}/members/" + action.node.id,
+                  "dataType": "json",
+                  "type": "GET",
+                  "success": function (data) {
+                     if (debugTree) console.debug("Got data:", data);
+
+                     $("#members_list").slideUp('fast', function() {
+                        $(this).empty();
+
+                        $(data).each(function(idx, elt){
+                           if (debugTree) console.debug("Element:", elt);
+
+                           $('<div id="member_' + elt.id + '" />')
+                              .append(elt.icon)
+                              .append(elt.url)
+                              .appendTo('#members_list');
+                        });
+
+                        $("#members_list")
+                           .slideDown('slow');
+                     });
+
+                  },
+                  "error": function (jqXHR, textStatus, errorThrown) {
+                     console.error("Get list error: ", textStatus, jqXHR);
+                  }
+               });
+            }
             if (action.node.children.length === 0 && action.node.host_name) {
                // Node has no child...
             } else {
                // Node has children ...
                $.each(action.node.children, function (index, child) {
-                  var childNode = $('#{{object_type}}_tree').jstree(true).get_node(child);
-                  if (debugTree) console.debug('Child:', childNode);
+                  var childNode = $('#{{tree_type}}_tree').jstree(true).get_node(child);
+                  if (debugTree) console.log('Child:', childNode);
                });
             }
          });

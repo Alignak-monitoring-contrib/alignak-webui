@@ -108,9 +108,9 @@
          <button class="btn btn-primary btn-xs"><i class="fa fa-sitemap"></i>{{_('Groups')}}</button>
          <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
          <ul class="dropdown-menu pull-right">
-         %for g in groups:
+         %for group in groups:
             <li>
-            <a href="/hostgroup/{{g['_id']}}">{{g['level']}} - {{g['name']}}</a>
+            <a href="/hostgroup/{{group.id}}">{{group.level}} - {{group.name}}</a>
             </li>
          %end
          </ul>
@@ -232,10 +232,10 @@
 
             <dl class="col-sm-6 col-md-4 dl-horizontal">
                <dt>{{_('Member of:')}}</dt>
-               %if hasattr(host, 'hostgroups'):
+               %if groups:
                <dd>
-               %for hg in host.hostgroups:
-               <a href="/hosts-group/{{hg.name}}" class="link">{{hg.alias if hg.alias else hg.name}}</a>
+               %for group in groups:
+               <a href="/hostgroup/{{group.id}}">{{group.name}}</a>
                %end
                </dd>
                %else:

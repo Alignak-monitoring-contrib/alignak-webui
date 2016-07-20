@@ -684,12 +684,16 @@ class BackendElement(object):
         """
         return '<a href="%s">%s</a>' % (self.endpoint, self.alias)
 
-    def get_html_link(self, prefix=None):
+    def get_html_link(self, prefix=None, title=None):
         """
-        Get Item html link with an optional prefix
+        Get Item html link with an optional prefix and an optional title
         """
         if prefix:
-            return '<a href="%s%s">%s</a>' % (prefix, self.endpoint, self.alias)
+            return '<a href="%s%s">%s</a>' % (
+                prefix, self.endpoint, self.alias if not title else title
+            )
+        if title:
+            return '<a href="%s">%s</a>' % (self.endpoint, title)
         return self.html_link
 
     @property
