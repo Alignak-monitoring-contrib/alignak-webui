@@ -290,79 +290,79 @@ class TestHelper(unittest2.TestCase):
     def test_04_navigation_control(self):
         print("---")
 
-        # total, start, count, nb_max_items
+        # Parameters: page, total, start, count, nb_max_items
         s = helper.get_pagination_control('test', 0, 0, 0, 0)
-        assert s == [('test', 0, 0, 0, False)]
+        self.assertEqual(s, [('test', 0, 0, 0, False)])
         s = helper.get_pagination_control('test', 0, 0)
         # Default is 25 elements per page
-        assert s == [('test', 0, 25, 0, False)]
+        self.assertEqual(s, [('test', 0, 25, 0, False)])
 
         # first page, default pagination: 25 elements/page, 5 pages/sequence
         s = helper.get_pagination_control('test', 1, 0)
         print("Result:", s)
         # At least a global element and a local element ...
-        assert len(s) == 2
+        self.assertEqual(len(s), 2)
         # Still the same page
         s = helper.get_pagination_control('test', 25, 0)
         print("Result:", s)
-        assert len(s) == 2
+        self.assertEqual(len(s), 2)
         s = helper.get_pagination_control('test', 26, 0)
         print("Result:", s)
-        assert len(s) == 3
+        self.assertEqual(len(s), 3)
         s = helper.get_pagination_control('test', 51, 0)
         print("Result:", s)
-        assert len(s) == 4
+        self.assertEqual(len(s), 4)
         s = helper.get_pagination_control('test', 76, 0)
         print("Result:", s)
-        assert len(s) == 5
+        self.assertEqual(len(s), 6)
         # More than 5 pages ... must have forward controls.
         s = helper.get_pagination_control('test', 101, 0)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
 
         # first page, default pagination: 5 elements/page, 5 pages/sequence
         s = helper.get_pagination_control('test', 1, 0, 5)
         print("Result:", s)
-        assert len(s) == 2
+        self.assertEqual(len(s), 2)
         s = helper.get_pagination_control('test', 11, 0, 5)
         print("Result:", s)
-        assert len(s) == 4
+        self.assertEqual(len(s), 4)
         # More than 5 pages ... must have forward controls.
         s = helper.get_pagination_control('test', 26, 0, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
 
         # List pages, default pagination: 5 elements/page, 5 pages/sequence
         # More than 5 pages ... must have forward controls.
         s = helper.get_pagination_control('test', 40, 0, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 5, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 10, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
         # Current page no more in the page sequence ... must have also backward controls.
         s = helper.get_pagination_control('test', 40, 15, 5)
         print("Result:", s)
-        assert len(s) == 10
+        self.assertEqual(len(s), 10)
         s = helper.get_pagination_control('test', 40, 20, 5)
         print("Result:", s)
-        assert len(s) == 10
+        self.assertEqual(len(s), 10)
         # Last page is now in the page sequence ... no more forward controls.
         s = helper.get_pagination_control('test', 40, 25, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 30, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 35, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 40, 5)
         print("Result:", s)
-        assert len(s) == 8
+        self.assertEqual(len(s), 8)
 
     def test_05_search(self):
         print("---")

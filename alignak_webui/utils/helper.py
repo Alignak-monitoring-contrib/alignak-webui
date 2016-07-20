@@ -448,8 +448,8 @@ class Helper(object):
             current_page, count, max_page
         )
 
-        res = [(page_url, start, count, total, False)]
         # First element contains pagination global data
+        res = [(page_url, start, count, total, False)]
         if current_page > (nb_max_items / 2) + 1:
             # First page
             start = 0
@@ -462,7 +462,6 @@ class Helper(object):
                 (_('<i class="fa fa-backward"></i>'), start, count, total, False)
             )
 
-        # for i in xrange(current_page - (nb_max_items / 2), current_page + (nb_max_items / 2) + 1):
         start_page = max(1, current_page - (nb_max_items / 2) + 1)
         end_page = min(start_page + nb_max_items - 1, max_page)
         if end_page == max_page and (end_page - start_page) < nb_max_items:
