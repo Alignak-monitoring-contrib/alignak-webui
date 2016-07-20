@@ -155,11 +155,11 @@ class Host(BackendElement):
         _lat = float(self.customs.get('_LOC_LAT', 999))
         _lng = float(self.customs.get('_LOC_LNG', 999))
         # latitude must be between -90/90 and longitude between -180/180
-        if not (-90 <= _lat <= 90) or not (-180 <= _lng <= 180):
+        if not -90 <= _lat <= 90 or not -180 <= _lng <= 180:
             _lat = float(self.location['coordinates'][0])
             _lng = float(self.location['coordinates'][1])
             # latitude must be between -90/90 and longitude between -180/180
-            if not (-90 <= _lat <= 90) or not (-180 <= _lng <= 180):
+            if not -90 <= _lat <= 90 or not -180 <= _lng <= 180:
                 return None
 
         return {u'type': u'Point', u'coordinates': [_lat, _lng]}
