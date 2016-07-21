@@ -3,6 +3,39 @@
 API
 ===========
 
+Internal routes
+---------------
+The application, as a Web application, manages routes. Some of them are application internal routes and most of them are provided by the application plugins.
+
+Application routes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The application provided routes:
+
+    - /, to get the home page
+    - /ping, used by the page refresh process
+    - /login (GET), for the login form
+    - /login (POST), for the login form
+    - /logout, to log out the current user
+    - /static/*, to get the static pages (eg. js, css, ...)
+    - /modal/*, to display the modal dialog box with a specific content
+
+Plugins routes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each plugin defines routes that are added to the application routes when the plugin is loaded.
+
+Most plugins are dedicated to a specific backend element (eg. host, service, ...). For those plugins, some rules are commonly used for the routes:
+
+    - /elements, get the paginated elements list
+    - /elements_tree, get the element tree view (for some elements)
+    - /elements_table, get the element table view
+    - /elements_table_data, get the element table data (called by the datatable)
+    - /elements_list, get all the elements list as a json list of objects containing `id` and `name`
+    - /element/id, get the view of a specific element. *id* may be the element `id` or `name`
+
+Where `element` stands for the specific element name: host, service, user, ...
+
 External access
 ---------------
 An external application can embed some Alignak WebUI widgets and pages.

@@ -44,9 +44,11 @@ Table configuration
 
 A backend object used in a plugin can be displayed as a table. For this, the plugin must declare:
 
-    - a table build URL (eg. element_table)
-    - a table update URL (eg. element_table_data)
+    - a table build URL (eg. `/elements_table`)
+    - a table update URL (eg. `/elements_table_data`)
     - a table schema as a global OrderedDict variable named *schema*
+
+**Note**: the table URLs are formed with element endpoint (eg. host), a plural form (add an s) and `_table` for the build URL or `_table_data` for the update URL.
 
 The *schema* defines the global table configuration and the table columns configuration. Each column is declared as an item of the *schema* ordered dictionary. The declaration order will be used for the column order in the table.
 
