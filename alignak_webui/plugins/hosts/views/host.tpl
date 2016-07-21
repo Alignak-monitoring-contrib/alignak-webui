@@ -144,9 +144,12 @@
 
    <!-- Second row : host/service overview ... -->
    <div class="panel panel-default">
-      <div class="panel-heading" data-toggle="collapse" data-parent="#hostOverview">
-         <h4 class="panel-title"><span class="caret"></span>
-            {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
+      <div class="panel-heading">
+         <h4 class="panel-title">
+            <a class="collapsed" role="button" data-toggle="collapse" href="#collapseHostOverview" aria-expanded="false" aria-controls="collapseHostOverview">
+               <span class="caret"></span>
+               {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
+            </a>
          </h4>
       </div>
 
