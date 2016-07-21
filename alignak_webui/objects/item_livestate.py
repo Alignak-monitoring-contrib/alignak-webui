@@ -107,5 +107,5 @@ class LiveState(BackendElement):
         Get html link with an optional prefix and an optional title
         """
         if not title and self.host != 'host' and self.service != 'service':
-            title = "%s * %s" % (self.host.name, self.service.name)
+            title = "%s / %s" % (self.host.name, self.service.name)
         return super(LiveState, self).get_html_link(title=title)

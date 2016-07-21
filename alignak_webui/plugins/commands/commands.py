@@ -259,7 +259,7 @@ pages = {
                     '<h4>Commands table</h4>Displays a datatable for the system commands.<br>'
                 ),
                 'actions': {
-                    'command_table_data': get_commands_table_data
+                    'commands_table_data': get_commands_table_data
                 }
             }
         ]
@@ -267,7 +267,7 @@ pages = {
 
     get_commands_table_data: {
         'name': 'Commands table data',
-        'route': '/command_table_data',
+        'route': '/commands_table_data',
         'method': 'POST'
     },
 }

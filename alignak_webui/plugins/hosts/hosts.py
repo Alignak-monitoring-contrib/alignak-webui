@@ -643,8 +643,11 @@ def get_host(host_id):
 
     # Get host
     host = datamgr.get_host(host_id)
-    if not host:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Host does not exist'))
+    if not host:
+        # Test if we got a name instead of an id
+        host = datamgr.get_host(search={'name': host_id})
+        if not host:
+            return webui.response_invalid_parameters(_('Host does not exist'))
 
     # Get host services
     services = datamgr.get_services(search={'where': {'host': host_id}})
@@ -992,7 +995,7 @@ pages = {
                     '<h4>Hosts table</h4>Displays a datatable for the monitored system hosts.<br>'
                 ),
                 'actions': {
-                    'host_table_data': get_hosts_table_data
+                    'hosts_table_data': get_hosts_table_data
                 }
             }
         ]
@@ -1000,7 +1003,7 @@ pages = {
 
     get_hosts_table_data: {
         'name': 'Hosts table data',
-        'route': '/host_table_data',
+        'route': '/hosts_table_data',
         'method': 'POST'
     },
 

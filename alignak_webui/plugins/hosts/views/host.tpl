@@ -134,7 +134,7 @@
       <div class="btn-group pull-right">
          %for tag in sorted(tags):
             <a>
-               <button class="btn btn-default btn-xs"><i class="fa fa-tag"></i> {{tag.lower()}}</button>
+               <button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button>
             </a>
          %end
       </div>

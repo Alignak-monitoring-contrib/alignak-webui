@@ -263,14 +263,14 @@ def get_users_list():
 
 def get_users_table(embedded=False, identifier=None, credentials=None):
     """
-    Get the users list and transform it as a table
+    Get the elements to build a table
     """
     return get_table('user', schema, embedded, identifier, credentials)
 
 
-def get_user_table_data():
+def get_users_table_data():
     """
-    Get the users list and provide table data
+    Get the elements required by the table
     """
     return get_table_data('user', schema)
 
@@ -333,14 +333,14 @@ pages = {
                     '<h4>Users table</h4>Displays a datatable for the system users.<br>'
                 ),
                 'actions': {
-                    'user_table_data': get_user_table_data
+                    'users_table_data': get_users_table_data
                 }
             }
         ]
     },
-    get_user_table_data: {
+    get_users_table_data: {
         'name': 'Users table data',
-        'route': '/user_table_data',
+        'route': '/users_table_data',
         'method': 'POST'
     }
 }

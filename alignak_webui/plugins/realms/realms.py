@@ -357,7 +357,7 @@ pages = {
 
     get_realms_table: {
         'name': 'Realms table',
-        'route': '/realm_table',
+        'route': '/realms_table',
         'view': '_table',
         'tables': [
             {
@@ -370,7 +370,7 @@ pages = {
                     '<h4>Realms table</h4>Displays a datatable for the system realms.<br>'
                 ),
                 'actions': {
-                    'realm_table_data': get_realms_table_data
+                    'realms_table_data': get_realms_table_data
                 }
             }
         ]
@@ -378,7 +378,7 @@ pages = {
 
     get_realms_table_data: {
         'name': 'Realms table data',
-        'route': '/realm_table_data',
+        'route': '/realms_table_data',
         'method': 'POST'
     },
 }

@@ -221,14 +221,14 @@ schema['ui'] = {
 }
 
 
-def get_logcheckresult_table(embedded=False, identifier=None, credentials=None):
+def get_logcheckresults_table(embedded=False, identifier=None, credentials=None):
     """
     Get the elements to build a table
     """
     return get_table('logcheckresult', schema, embedded, identifier, credentials)
 
 
-def get_logcheckresult_table_data():
+def get_logcheckresults_table_data():
     """
     Get the elements required by the table
     """
@@ -236,9 +236,9 @@ def get_logcheckresult_table_data():
 
 
 pages = {
-    get_logcheckresult_table: {
+    get_logcheckresults_table: {
         'name': 'Log check result table',
-        'route': '/logcheckresult_table',
+        'route': '/logcheckresults_table',
         'view': '_table',
         'tables': [
             {
@@ -252,15 +252,15 @@ pages = {
                     'logged checks results.<br>'
                 ),
                 'actions': {
-                    'logcheckresult_table_data': get_logcheckresult_table_data
+                    'logcheckresults_table_data': get_logcheckresults_table_data
                 }
             }
         ]
     },
 
-    get_logcheckresult_table_data: {
+    get_logcheckresults_table_data: {
         'name': 'Log check result table data',
-        'route': '/logcheckresult_table_data',
+        'route': '/logcheckresults_table_data',
         'method': 'POST'
     },
 }

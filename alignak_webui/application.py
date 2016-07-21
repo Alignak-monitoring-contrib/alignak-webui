@@ -401,14 +401,18 @@ def ping():
 
     Else:
         - if UI refresh is needed, requires the UI client to refresh
-        - if action parameter is 'header', returns the updated header
+        - if action parameter is 'refresh', returns the required template view
         - if action parameter is 'done', the UI client did refresh the interface.
+
+    Used by the header refresh to update the hosts/services states.
     """
     session = request.environ['beaker.session']
-    if not session:  # pragma: no cover - simple security!
-        response.status = 200
+    if not session:
+        response.status = 401
         response.content_type = 'application/json'
-        return json.dumps({'status': 'ok', 'message': 'pong'})
+        return json.dumps(
+            {'status': 'ok', 'message': 'Session expired'}
+        )
 
     action = request.query.get('action', None)
     if action == 'done':

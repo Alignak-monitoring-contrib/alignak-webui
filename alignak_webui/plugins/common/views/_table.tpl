@@ -18,7 +18,7 @@
 
 %if not embedded:
 %# Datatables js and css are included in the page layout
-%rebase("layout", title=title, page="/{{object_type}}_table")
+%rebase("layout", title=title, page="/{{object_type}}s_table")
 %end
 
 <style>
@@ -51,7 +51,7 @@ table.dataTable tbody>tr>.selected {
 %server_url = ''
 %end
 <!-- Table display -->
-<div id="{{object_type}}_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
+<div id="{{object_type}}s_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
    <!-- Bootstrap responsive table
    <div class="table-responsive"> -->
       <table id="tbl_{{object_type}}" class="table table-condensed dt-responsive">
@@ -362,7 +362,7 @@ table.dataTable tbody>tr>.selected {
          "processing": true,
          "serverSide": true,
          "ajax": {
-            "url": "{{server_url}}/{{object_type}}_table_data",
+            "url": "{{server_url}}/{{object_type}}s_table_data",
             "method": "POST",
             "data": function ( d ) {
                // Add an extra field
@@ -458,7 +458,7 @@ table.dataTable tbody>tr>.selected {
                "dataType": "json",
                "type": "GET",
                "data": {
-                  "key": '{{object_type}}_table'
+                  "key": '{{object_type}}s_table'
                },
                "async": false,
                "success": function (json) {
@@ -479,7 +479,7 @@ table.dataTable tbody>tr>.selected {
                "dataType": "json",
                "type": "POST",
                "data": {
-                  "key": '{{object_type}}_table',
+                  "key": '{{object_type}}s_table',
                   // Json stringify to avoid complex array formatting ...
                   "value": JSON.stringify( data )
                },

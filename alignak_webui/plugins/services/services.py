@@ -617,17 +617,27 @@ pages = {
             ('/services_table', 'Services table')
         ],
         'view': '_table',
-        'search_engine': True,
-        'search_prefix': '',
-        'search_filters': {
-            _('Services'): '_is_template:false',
-            _('Service templates'): '_is_template:true',
-        },
+        'tables': [
+            {
+                'id': 'services_table',
+                'for': ['external'],
+                'name': _('Services table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Services table</h4>Displays a datatable for the system '
+                    'services.<br>'
+                ),
+                'actions': {
+                    'services_table_data': get_services_table_data
+                }
+            }
+        ]
     },
 
     get_services_table_data: {
         'routes': [
-            ('/service_table_data', 'Services table data')
+            ('/services_table_data', 'Services table data')
         ],
         'method': 'POST'
     },

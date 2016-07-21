@@ -347,7 +347,7 @@ pages = {
 
     get_servicegroups_table: {
         'name': 'Services groups table',
-        'route': '/servicegroup_table',
+        'route': '/servicegroups_table',
         'view': '_table',
         'tables': [
             {
@@ -361,7 +361,7 @@ pages = {
                     'services groups.<br>'
                 ),
                 'actions': {
-                    'servicegroup_table_data': get_servicegroups_table_data
+                    'servicegroups_table_data': get_servicegroups_table_data
                 }
             }
         ]
@@ -369,7 +369,7 @@ pages = {
 
     get_servicegroups_table_data: {
         'name': 'Services groups table data',
-        'route': '/servicegroup_table_data',
+        'route': '/servicegroups_table_data',
         'method': 'POST'
     },
 }

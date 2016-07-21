@@ -346,7 +346,7 @@ pages = {
 
     get_hostgroups_table: {
         'name': 'Hosts groups table',
-        'route': '/hostgroup_table',
+        'route': '/hostgroups_table',
         'view': '_table',
         'tables': [
             {
@@ -360,7 +360,7 @@ pages = {
                     'hosts groups.<br>'
                 ),
                 'actions': {
-                    'hostgroup_table_data': get_hostgroups_table_data
+                    'hostgroups_table_data': get_hostgroups_table_data
                 }
             }
         ]
@@ -368,7 +368,7 @@ pages = {
 
     get_hostgroups_table_data: {
         'name': 'Hosts groups table data',
-        'route': '/hostgroup_table_data',
+        'route': '/hostgroups_table_data',
         'method': 'POST'
     },
 }

@@ -177,6 +177,7 @@ class TestGet(unittest2.TestCase):
             self.assertIn('name', user)
             self.assertIn('_total', user)  # Each element has an extra _total attribute !
             print(" - %s (one out of %d)" % (user['name'], user['_total']))
+            self.assertEqual(user['_total'], 5)
         self.assertEqual(len(result), 5)  # Default configuration has 5 users
 
         parameters = {'where': {"name": "fake"}}
@@ -199,7 +200,7 @@ class TestGet(unittest2.TestCase):
         # Directly address object in the backend
         result = self.be.get('user/' + result[0]['_id'])
         print("--- Result: %s", result)
-        self.assertEqual(len(result), 39)  # 39 attributes in the result
+        self.assertEqual(len(result), 40)  # 40 attributes in the result
         self.assertEqual(result['_id'], admin_id)
 
     def test_get_all(self):

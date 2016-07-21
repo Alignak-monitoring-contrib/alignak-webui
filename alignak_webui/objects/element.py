@@ -524,8 +524,8 @@ class BackendElement(object):
                 object_class = object_type.__class__
                 if object_class == self.__class__:
                     logger.warning(
-                        "__init__, update same object %s (DO NOTHING!): %s = %s",
-                        self.__class__, key, params[key]
+                        "__init__, update same object %s (%s) (DO NOTHING!): %s = %s",
+                        self.__class__, self.id, key, params[key]
                     )
                     break
 

@@ -236,14 +236,14 @@ def get_history(host_id):
     }
 
 
-def get_history_table(embedded=False, identifier=None, credentials=None):
+def get_historys_table(embedded=False, identifier=None, credentials=None):
     """
     Get the elements to build a table
     """
     return get_table('history', schema, embedded, identifier, credentials)
 
 
-def get_history_table_data():
+def get_historys_table_data():
     """
     Get the elements required by the table
     """
@@ -261,9 +261,9 @@ pages = {
         }
     },
 
-    get_history_table: {
+    get_historys_table: {
         'name': 'History table',
-        'route': '/history_table',
+        'route': '/historys_table',
         'view': '_table',
         'tables': [
             {
@@ -276,15 +276,15 @@ pages = {
                     '<h4>History table</h4>Displays a datatable for the system history.<br>'
                 ),
                 'actions': {
-                    'history_table_data': get_history_table_data
+                    'historys_table_data': get_historys_table_data
                 }
             }
         ]
     },
 
-    get_history_table_data: {
+    get_historys_table_data: {
         'name': 'History table data',
-        'route': '/history_table_data',
+        'route': '/historys_table_data',
         'method': 'POST'
     },
 }

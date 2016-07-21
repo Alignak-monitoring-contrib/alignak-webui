@@ -326,7 +326,7 @@ pages = {
 
     get_usergroups_table: {
         'name': 'Users groups table',
-        'route': '/usergroup_table',
+        'route': '/usergroups_table',
         'view': '_table',
         'tables': [
             {
@@ -340,7 +340,7 @@ pages = {
                     'users groups.<br>'
                 ),
                 'actions': {
-                    'usergroup_table_data': get_usergroups_table_data
+                    'usergroups_table_data': get_usergroups_table_data
                 }
             }
         ]
@@ -348,7 +348,7 @@ pages = {
 
     get_usergroups_table_data: {
         'name': 'Users groups table data',
-        'route': '/usergroup_table_data',
+        'route': '/usergroups_table_data',
         'method': 'POST'
     },
 }

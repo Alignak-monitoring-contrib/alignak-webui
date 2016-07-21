@@ -140,7 +140,7 @@ class TestDataTable(unittest2.TestCase):
         print('get page /commands_table')
         response = self.app.get('/commands_table')
         response.mustcontain(
-            '<div id="command_table" class="alignak_webui_table ">',
+            '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" class="table ',
             '<th data-name="name" data-type="string">Name</th>',
@@ -157,8 +157,8 @@ class TestDataTable(unittest2.TestCase):
         print('')
         print('test get table')
 
-        print('change content with /command_table_data')
-        response = self.app.post('/command_table_data')
+        print('change content with /commands_table_data')
+        response = self.app.post('/commands_table_data')
         response_value = response.json
         # Temporary ...
         self.items_count = response.json['recordsTotal']
@@ -182,7 +182,7 @@ class TestDataTable(unittest2.TestCase):
                 # self.assertTrue(response.json['data'][x]['ui'])
 
         # Specify count number ...
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 10,
@@ -194,7 +194,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(len(response.json['data']), 10)
 
         # Specify count number ... greater than number of elements
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 1000,
@@ -209,7 +209,7 @@ class TestDataTable(unittest2.TestCase):
         print("Get rows 5 per 5")
         count = 0
         for x in range(0, self.items_count, 5):
-            response = self.app.post('/command_table_data', {
+            response = self.app.post('/commands_table_data', {
                 'object_type': 'command',
                 'draw': x / 5,
                 'start': x,
@@ -226,7 +226,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(count, self.items_count)
 
         # Out of scope rows ...
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'start': self.items_count * 2,
             'length': 5
         })
@@ -241,7 +241,7 @@ class TestDataTable(unittest2.TestCase):
         print('test sort table')
 
         # Sort ascending ...
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 10,
@@ -268,7 +268,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(len(response.json['data']), 10)
 
         # Sort descending ...
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 10,
@@ -300,15 +300,15 @@ class TestDataTable(unittest2.TestCase):
         print('')
         print('test filter table')
 
-        print('change content with /command_table_data')
-        response = self.app.post('/command_table_data')
+        print('change content with /commands_table_data')
+        response = self.app.post('/commands_table_data')
         response_value = response.json
         # Temporary ...
         self.items_count = response.json['recordsTotal']
 
         # Searching ...
         # Global search ...
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -340,7 +340,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(response.json['recordsFiltered'], 1)
         self.assertEqual(len(response.json['data']), 1)
 
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -373,7 +373,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -408,7 +408,7 @@ class TestDataTable(unittest2.TestCase):
 
         # Searching ...
         # Individual search ...
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -440,7 +440,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['data']
         assert len(response.json['data']) == 1
 
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -472,7 +472,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
-        response = self.app.post('/command_table_data', {
+        response = self.app.post('/commands_table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -537,7 +537,7 @@ class TestDatatableCommands(unittest2.TestCase):
         print('get page /commands_table')
         response = self.app.get('/commands_table')
         response.mustcontain(
-            '<div id="command_table" class="alignak_webui_table ">',
+            '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" class="table ',
             '<th data-name="name" data-type="string">Name</th>',
@@ -550,8 +550,8 @@ class TestDatatableCommands(unittest2.TestCase):
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
         )
 
-        print('change content with /command_table_data')
-        response = self.app.post('/command_table_data')
+        print('change content with /commands_table_data')
+        response = self.app.post('/commands_table_data')
         response_value = response.json
         print(response_value)
         # Temporary ...
@@ -604,10 +604,10 @@ class TestDatatableRealms(unittest2.TestCase):
 
         global items_count
 
-        print('get page /realm_table')
-        response = self.app.get('/realm_table')
+        print('get page /realms_table')
+        response = self.app.get('/realms_table')
         response.mustcontain(
-            '<div id="realm_table" class="alignak_webui_table ">',
+            '<div id="realms_table" class="alignak_webui_table ">',
             "$('#tbl_realm').DataTable( {",
             '<table id="tbl_realm" class="table ',
             '<th data-name="#" data-type="string">#</th>',
@@ -625,7 +625,7 @@ class TestDatatableRealms(unittest2.TestCase):
             '<th data-name="globals_warning_threshold" data-type="integer">Global warning threshold</th>'
         )
 
-        response = self.app.post('/realm_table_data')
+        response = self.app.post('/realms_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -678,7 +678,7 @@ class TestDatatableHosts(unittest2.TestCase):
         print('get page /hosts_table')
         response = self.app.get('/hosts_table')
         response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table ">',
+            '<div id="hosts_table" class="alignak_webui_table ">',
             "$('#tbl_host').DataTable( {",
             '<table id="tbl_host" class="table ',
             '<th data-name="name" data-type="string">Host name</th>',
@@ -695,7 +695,7 @@ class TestDatatableHosts(unittest2.TestCase):
             '<th data-name="business_impact" data-type="integer">Business impact</th>'
         )
 
-        response = self.app.post('/host_table_data')
+        response = self.app.post('/hosts_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -744,7 +744,7 @@ class TestDatatableServices(unittest2.TestCase):
         print('get page /services_table')
         response = self.app.get('/services_table')
         response.mustcontain(
-            '<div id="service_table" class="alignak_webui_table ">',
+            '<div id="services_table" class="alignak_webui_table ">',
             "$('#tbl_service').DataTable( {",
             '<table id="tbl_service" class="table ',
             '<th data-name="name" data-type="string">Service name</th>',
@@ -782,7 +782,7 @@ class TestDatatableServices(unittest2.TestCase):
             '<th data-name="process_perf_data" data-type="boolean">Process performance data</th>'
         )
 
-        response = self.app.post('/service_table_data')
+        response = self.app.post('/services_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -827,10 +827,10 @@ class TestDatatableHostgroups(unittest2.TestCase):
 
         global items_count
 
-        print('get page /hostgroup_table')
-        response = self.app.get('/hostgroup_table')
+        print('get page /hostgroups_table')
+        response = self.app.get('/hostgroups_table')
         response.mustcontain(
-            '<div id="hostgroup_table" class="alignak_webui_table ">',
+            '<div id="hostgroups_table" class="alignak_webui_table ">',
             "$('#tbl_hostgroup').DataTable( {",
             '<table id="tbl_hostgroup" class="table ',
             '<th data-name="name" data-type="string">Name</th>',
@@ -841,7 +841,7 @@ class TestDatatableHostgroups(unittest2.TestCase):
             '<th data-name="hostgroups" data-type="list">Hosts groups members</th>'
         )
 
-        response = self.app.post('/hostgroup_table_data')
+        response = self.app.post('/hostgroups_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -891,10 +891,10 @@ class TestDatatableervicegroups(unittest2.TestCase):
 
         global items_count
 
-        print('get page /servicegroup_table')
-        response = self.app.get('/servicegroup_table')
+        print('get page /servicegroups_table')
+        response = self.app.get('/servicegroups_table')
         response.mustcontain(
-            '<div id="servicegroup_table" class="alignak_webui_table ">',
+            '<div id="servicegroups_table" class="alignak_webui_table ">',
             "$('#tbl_servicegroup').DataTable( {",
             '<table id="tbl_servicegroup" class="table ',
             '<th data-name="name" data-type="string">Name</th>',
@@ -905,7 +905,7 @@ class TestDatatableervicegroups(unittest2.TestCase):
             '<th data-name="servicegroups" data-type="list">services groups members</th>'
         )
 
-        response = self.app.post('/servicegroup_table_data')
+        response = self.app.post('/servicegroups_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -956,7 +956,7 @@ class TestDatatableUsers(unittest2.TestCase):
         print('get page /users_table')
         response = self.app.get('/users_table')
         response.mustcontain(
-            '<div id="user_table" class="alignak_webui_table ">',
+            '<div id="users_table" class="alignak_webui_table ">',
             "$('#tbl_user').DataTable( {",
             '<table id="tbl_user" class="table ',
             '<th data-name="name" data-type="string">User name</th>',
@@ -964,7 +964,7 @@ class TestDatatableUsers(unittest2.TestCase):
             '<th data-name="alias" data-type="string">User alias</th>',
         )
 
-        response = self.app.post('/user_table_data')
+        response = self.app.post('/users_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -1009,10 +1009,10 @@ class TestDatatableLivestate(unittest2.TestCase):
 
         global items_count
 
-        print('get page /livestate_table')
-        response = self.app.get('/livestate_table')
+        print('get page /livestates_table')
+        response = self.app.get('/livestates_table')
         response.mustcontain(
-            '<div id="livestate_table" class="alignak_webui_table ">',
+            '<div id="livestates_table" class="alignak_webui_table ">',
             "$('#tbl_livestate').DataTable( {",
             '<table id="tbl_livestate" class="table ',
             '<th data-name="#" data-type="string">#</th>',
@@ -1043,7 +1043,7 @@ class TestDatatableLivestate(unittest2.TestCase):
             '<th data-name="execution_time" data-type="float">Execution time</th>'
         )
 
-        response = self.app.post('/livestate_table_data')
+        response = self.app.post('/livestates_table_data')
         print(response)
         response_value = response.json
         print(response_value)
@@ -1100,7 +1100,7 @@ class TestDatatableTimeperiod(unittest2.TestCase):
         print('get page /timeperiods_table')
         response = self.app.get('/timeperiods_table')
         response.mustcontain(
-            '<div id="timeperiod_table" class="alignak_webui_table ">',
+            '<div id="timeperiods_table" class="alignak_webui_table ">',
             "$('#tbl_timeperiod').DataTable( {",
             '<table id="tbl_timeperiod" class="table ',
             '<th data-name="name" data-type="string">Name</th>',
@@ -1111,7 +1111,7 @@ class TestDatatableTimeperiod(unittest2.TestCase):
             '<th data-name="exclude" data-type="list">Excluded</th>'
         )
 
-        response = self.app.post('/timeperiod_table_data')
+        response = self.app.post('/timeperiods_table_data')
         print(response)
         response_value = response.json
         print(response_value)
@@ -1160,10 +1160,10 @@ class TestDatatableLog(unittest2.TestCase):
 
         global items_count
 
-        print('get page /logcheckresult_table')
-        response = self.app.get('/logcheckresult_table')
+        print('get page /logcheckresults_table')
+        response = self.app.get('/logcheckresults_table')
         response.mustcontain(
-            '<div id="logcheckresult_table" class="alignak_webui_table ">',
+            '<div id="logcheckresults_table" class="alignak_webui_table ">',
             "$('#tbl_logcheckresult').DataTable( {",
             '<table id="tbl_logcheckresult" class="table ',
             '<th data-name="host" data-type="objectid">Host</th>',
@@ -1181,7 +1181,7 @@ class TestDatatableLog(unittest2.TestCase):
             '<th data-name="execution_time" data-type="float">Execution time</th>',
         )
 
-        response = self.app.post('/logcheckresult_table_data')
+        response = self.app.post('/logcheckresults_table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -1223,9 +1223,9 @@ class TestDatatableHistory(unittest2.TestCase):
         global items_count
 
         print('get page /historys_table')
-        response = self.app.get('/history_table')
+        response = self.app.get('/historys_table')
         response.mustcontain(
-            '<div id="history_table" class="alignak_webui_table ">',
+            '<div id="historys_table" class="alignak_webui_table ">',
             "$('#tbl_history').DataTable( {",
             '<table id="tbl_history" class="table ',
             '<th data-name="_created" data-type="integer">Date</th>',
@@ -1237,7 +1237,7 @@ class TestDatatableHistory(unittest2.TestCase):
             '<th data-name="check_result" data-type="objectid">Check result</th>'
         )
 
-        response = self.app.post('/history_table_data')
+        response = self.app.post('/historys_table_data')
         print(response)
         response_value = response.json
         print(response_value)

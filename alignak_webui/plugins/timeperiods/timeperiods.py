@@ -232,12 +232,28 @@ pages = {
     get_timeperiods_table: {
         'name': 'Timeperiods table',
         'route': '/timeperiods_table',
-        'view': '_table'
+        'view': '_table',
+        'tables': [
+            {
+                'id': 'timeperiods_table',
+                'for': ['external'],
+                'name': _('Timeperiods table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Timeperiods table</h4>Displays a datatable for the system '
+                    'timeperiods.<br>'
+                ),
+                'actions': {
+                    'timeperiods_table_data': get_timeperiods_table_data
+                }
+            }
+        ]
     },
 
     get_timeperiods_table_data: {
         'name': 'Timeperiods table data',
-        'route': '/timeperiod_table_data',
+        'route': '/timeperiods_table_data',
         'method': 'POST'
     },
 }

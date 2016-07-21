@@ -313,14 +313,14 @@ schema['ui'] = {
 }
 
 
-def get_livestate_table(embedded=False, identifier=None, credentials=None):
+def get_livestates_table(embedded=False, identifier=None, credentials=None):
     """
     Get the elements to build a table
     """
     return get_table('livestate', schema, embedded, identifier, credentials)
 
 
-def get_livestate_table_data():
+def get_livestates_table_data():
     """
     Get the elements required by the table
     """
@@ -339,10 +339,8 @@ def get_livestate(livestate_id):
 
     livestate = livestate[0]
     if livestate.type == 'host':
-        logger.debug("Livestate: %s %s %s", livestate, livestate.host.id, livestate.__dict__)
         redirect('/host/' + livestate.host.id)
     else:
-        logger.debug("Livestate: %s %s %s", livestate, livestate.host.id, livestate.__dict__)
         redirect('/host/' + livestate.host.id + '#services')
 
 
@@ -366,9 +364,9 @@ pages = {
         'name': 'Livestate',
         'route': '/livestate/<livestate_id>'
     },
-    get_livestate_table: {
+    get_livestates_table: {
         'name': 'Livestate table',
-        'route': '/livestate_table',
+        'route': '/livestates_table',
         'view': '_table',
         'search_engine': True,
         'search_prefix': '',
@@ -383,7 +381,7 @@ pages = {
         },
         'tables': [
             {
-                'id': 'livestate_table',
+                'id': 'livestates_table',
                 'for': ['external'],
                 'name': _('Livestate table'),
                 'template': '_table',
@@ -393,15 +391,15 @@ pages = {
                     'system livestate.<br>'
                 ),
                 'actions': {
-                    'livestate_table_data': get_livestate_table_data
+                    'livestates_table_data': get_livestates_table_data
                 }
             }
         ]
     },
 
-    get_livestate_table_data: {
+    get_livestates_table_data: {
         'name': 'Livestate table data',
-        'route': '/livestate_table_data',
+        'route': '/livestates_table_data',
         'method': 'POST'
     },
 
