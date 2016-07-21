@@ -29,6 +29,9 @@
 """
 
 import time
+
+from copy import deepcopy
+
 from calendar import timegm
 from datetime import datetime
 from logging import getLogger, INFO
@@ -239,7 +242,7 @@ class BackendElement(object):
                         )
                         return cls._cache[params.id]
                     logger.info("New %s, id: %s, copy an object", cls, params)
-                    return params.deep_copy()
+                    return deepcopy(params)
                 else:
                     logger.critical(
                         "Class %s, id_property: %s, invalid params: %s",
@@ -279,7 +282,7 @@ class BackendElement(object):
 
         if _id not in cls._cache:
             # print "Create a new %s (%s)" % (cls.get_type(), _id)
-            logger.info("New create an object")
+            logger.debug("New create an object")
             cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
             cls._cache[_id]._type = cls.get_type()
             cls._cache[_id]._default_date = cls._default_date
@@ -290,9 +293,9 @@ class BackendElement(object):
             cls._count += 1
 
         try:
-            logger.info("New end, object: %s", cls._cache[_id]['name'])
+            logger.debug("New end, object: %s", cls._cache[_id]['name'])
         except Exception:
-            logger.info("New end, object: %s", cls._cache[_id].__dict__)
+            logger.debug("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
 
     def __del__(self):
@@ -346,7 +349,7 @@ class BackendElement(object):
         id_property = getattr(self.__class__, 'id_property', '_id')
         if id_property not in params:  # pragma: no cover, should never happen
             raise ValueError('No %s attribute in the provided parameters' % id_property)
-        logger.info(
+        logger.debug(
             " --- creating a %s (%s - %s): %s",
             self.get_type(), params[id_property], params['name'] if 'name' in params else '',
             params
@@ -400,10 +403,8 @@ class BackendElement(object):
 
                 # Dictionary - linked object attributes (backend embedded object)
                 if isinstance(params[key], dict):
-                    logger.info("_create, link dict: %s = %s", key, params[key])
                     linked_object = object_class(params[key])
                     setattr(self, '_linked_' + key, linked_object)
-                    logger.info("_create, linked with %s (%s)", key, linked_object['_id'])
                     continue
 
                 # String - object id
@@ -457,7 +458,7 @@ class BackendElement(object):
                     key, self.get_type(), value
                 )
 
-        logger.info(" --- created %s (%s)", self.__class__, self[id_property])
+        logger.debug(" --- created %s (%s)", self.__class__, self[id_property])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z'):
         # Yes, but it is the base object and it needs those pubic methods!
@@ -468,7 +469,7 @@ class BackendElement(object):
         Beware: always called, even if the object is not newly created! Use _create function for
         initializing newly created objects.
         """
-        logger.info(" --- __init__ %s", self.__class__)
+        logger.debug(" --- __init__ %s", self.__class__)
         if not isinstance(params, dict):
             if self.__class__ == params.__class__:
                 params = params.__dict__
@@ -523,18 +524,16 @@ class BackendElement(object):
                 object_class = object_type.__class__
                 if object_class == self.__class__:
                     logger.warning(
-                        "__init__, update same object (DO NOTHING!): %s = %s", key, params[key]
+                        "__init__, update same object %s (DO NOTHING!): %s = %s",
+                        self.__class__, key, params[key]
                     )
                     break
 
-                logger.warning(
+                logger.debug(
                     "__init__, update with an object: %s = %s", key, object_type
                 )
-                # object_class = object_type.__class__
-                # linked_object = object_class(object_type.__dict__)
                 setattr(self, '_linked_' + key, object_type)
-                # logger.warning("__init__, updated with %s (%s)", key, linked_object['_id'])
-                logger.warning("__init__, updated with %s (%s)", key, object_type)
+                logger.debug("__init__, updated with %s (%s)", key, object_type)
                 continue
 
             # Linked resource type
@@ -564,7 +563,6 @@ class BackendElement(object):
             if isinstance(params[key], basestring) and self.get_backend():
                 # Object link is a string, so it contains the object type
                 object_type = getattr(self, '_linked_' + key, None)
-                logger.error("__init__, object_type: %s for %s", object_type, params[key])
                 if object_type not in [kc.get_type() for kc in self.get_known_classes()]:
                     logger.error("__init__, unknown %s for %s", object_type, params[key])
                     continue
@@ -583,7 +581,7 @@ class BackendElement(object):
                 # Create a new object
                 linked_object = object_class(result)
                 setattr(self, '_linked_' + key, linked_object)
-                logger.warning("__init__, linked with %s (%s)", key, linked_object['_id'])
+                logger.debug("__init__, linked with %s (%s)", key, linked_object['_id'])
                 continue
 
             # List - list of objects id
@@ -612,10 +610,10 @@ class BackendElement(object):
                         continue
 
                 setattr(self, '_linked_' + key, objects_list)
-                logger.info("__init__, linked with %s (%s)", key, [o for o in objects_list])
+                logger.debug("__init__, linked with %s (%s)", key, [o for o in objects_list])
                 continue
 
-        logger.info(" --- __init__ end")
+        logger.debug(" --- __init__ end")
 
     def __repr__(self):
         return "<%s, id: %s, name: %s, status: %s>" % (
@@ -808,12 +806,6 @@ class BackendElement(object):
             except IndexError:
                 return ''
         return state
-
-    def get_icon_states(self):
-        """
-        Uses the ElementState singleton to get configured states for an item
-        """
-        return ElementState().get_icon_states()
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False, object_type=None, object_item=None,

@@ -67,14 +67,16 @@
                   %for type in types:
                   <li style="padding:5px">
                      <label class="checkbox-inline">
-                        <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}"> {{types[type]}}
+                        <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}">
+                           {{types[type]}}
+                        </input>
                      </label>
                   </li>
                   %end
                   <li class="divider"></li>
                   <li style="padding:5px">
                      <button type="submit" class="btn btn-default btn-sm btn-block">
-                        <span class="fa fa-check"></i>
+                        <span class="fa fa-check"></span>
                         &nbsp;{{_('Apply filter')}}
                      </button>
                   </li>

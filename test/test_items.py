@@ -617,8 +617,6 @@ class TestItems(unittest2.TestCase):
         assert item.alias == 'Item alias'
         assert item.notes == 'Item notes'
         assert item.status == 'unknown'
-        print(item.get_icon_states())
-        assert item.get_icon_states()
 
     def test_02_users(self):
         print("--- test User")

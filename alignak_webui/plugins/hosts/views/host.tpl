@@ -54,10 +54,10 @@
             <div class="panel panel-default">
                <div class="panel-heading">
                   <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.id}}"><i class="fa fa-bug"></i> Service: {{service.name}}</a>
+                     <a data-toggle="collapse" href="#collapse{{service.id}}_services"><i class="fa fa-bug"></i> Service: {{service.name}}</a>
                   </h4>
                </div>
-               <div id="collapse{{service.id}}" class="panel-collapse collapse" style="height: 200px;">
+               <div id="collapse{{service.id}}_services" class="panel-collapse collapse" style="height: 200px;">
                   <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                      %for k,v in sorted(service.__dict__.items()):
                         <dt>{{k}}</dt>
@@ -80,10 +80,10 @@
             <div class="panel panel-default">
                <div class="panel-heading">
                   <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.id}}"><i class="fa fa-bug"></i> Service livestate: {{service.name}}</a>
+                     <a data-toggle="collapse" href="#collapse{{service.id}}_services_livestate"><i class="fa fa-bug"></i> Service livestate: {{service.name}}</a>
                   </h4>
                </div>
-               <div id="collapse{{service.id}}" class="panel-collapse collapse" style="height: 200px;">
+               <div id="collapse{{service.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px;">
                   <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                      %for k,v in sorted(service.__dict__.items()):
                         <dt>{{k}}</dt>
@@ -100,7 +100,7 @@
 
    <!-- First row : tags and actions ... -->
    %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
-   %tags = ['t1', 't2']
+   %tags = host.tags
    %if host.action_url or tags or groups:
    <div>
       %if groups:
@@ -144,7 +144,7 @@
 
    <!-- Second row : host/service overview ... -->
    <div class="panel panel-default">
-      <div class="panel-heading" data-toggle="collapse" data-parent="#hostOverview" href="#collapseHostOverview">
+      <div class="panel-heading" data-toggle="collapse" data-parent="#hostOverview">
          <h4 class="panel-title"><span class="caret"></span>
             {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
          </h4>
@@ -196,7 +196,7 @@
                {{!','.join(parents)}}
                </dd>
                %else:
-               <dd>{{_('Depends upon nothing')}}</d>
+               <dd>{{_('Depends upon nothing')}}</dd>
                %end
 
                <dt>{{_('Parents:')}}</dt>

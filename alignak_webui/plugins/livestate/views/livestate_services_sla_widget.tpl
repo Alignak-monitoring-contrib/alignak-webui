@@ -35,7 +35,7 @@
          %end
          %for state in ['problems']:
          <div class="col-xs-4 col-sm-4 text-center">
-            <span class='item_livestate_{{state.lower()}}'>
+            <a class='item_livestate_{{state.lower()}}'>
                <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ ss['pct_' + state] }}%</span>
                <br/>
                <span style="font-size: 1em;">{{_('Known problems')}}</span>

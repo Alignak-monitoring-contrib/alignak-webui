@@ -115,7 +115,7 @@
                   data-title="{{_('%s performance data') % livestate.output}}"
                   data-content=" {{livestate.perf_data if livestate.perf_data else '(none)'}}"
                   >
-             {{livestate.perf_data if livestate.perf_data else '(none)'}}
+                {{livestate.perf_data if livestate.perf_data else '(none)'}}
             </td>
          </tr>
          <tr>
@@ -132,7 +132,7 @@
                   data-title="{{host.name}}{{_('}} last state change date')}}"
                   data-content="{{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}"
                   >
-               {{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}
+                {{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}
             </td>
          </tr>
          <tr>
@@ -177,7 +177,7 @@
       <tbody style="font-size:x-small;">
          <tr>
             <td><strong>{{_('Check period:')}}</strong></td>
-            <td name="check_period" class="popover-dismiss"
+            <td data-name="check_period" class="popover-dismiss"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
                   data-title='{{host.check_period}}'
                   data-content='{{host.check_period}}'
@@ -189,7 +189,7 @@
          %if host.maintenance_period is not None:
          <tr>
             <td><strong>{{_('Maintenance period:')}}</strong></td>
-            <td name="maintenance_period" class="popover-dismiss"
+            <td data-name="maintenance_period" class="popover-dismiss"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
                   data-title='{{host.maintenance_period}}'
                   data-content='{{host.maintenance_period}}'
@@ -274,18 +274,18 @@
          <tr>
             <td><strong>{{_('Notifications:')}}</strong></td>
             <td>
-               <input type="checkbox" {{'checked' if host.notifications_enabled else ''}}
-                     class="switch" data-size="mini" data-on-color="success" data-off-color="danger"
-                     data-type="action" action="toggle-notifications"
-                     data-element="{{host.name}}" data-value="{{host.notifications_enabled}}"
-                     >
+               <input type="checkbox" class="switch"
+                      data-size="mini" data-on-color="success" data-off-color="danger"
+                      data-type="action" action="toggle-notifications"
+                      data-element="{{host.name}}" data-value="{{host.notifications_enabled}}"
+                      {{'checked' if host.notifications_enabled else ''}}>
             </td>
          </tr>
 
          %if host.notifications_enabled and host.notification_period is not None:
             <tr>
                <td><strong>{{_('Notification period:')}}</strong></td>
-               <td name="notification_period" class="popover-dismiss"
+               <td data-name="notification_period" class="popover-dismiss"
                      data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
                      data-title='{{host.notification_period}}'
                      data-content='{{host.notification_period}}'
@@ -390,11 +390,11 @@
          <tr>
             <td><strong>{{_('Flapping detection:')}}</strong></td>
             <td>
-               <input type="checkbox" {{'checked' if host.flap_detection_enabled else ''}}
-                     class="switch" data-size="mini" data-on-color="success" data-off-color="danger"
-                     data-type="action" action="toggle-flap-detection"
-                     data-element="{{host.name}}" data-value="{{host.flap_detection_enabled}}"
-                     >
+               <input type="checkbox" class="switch"
+                      data-size="mini" data-on-color="success" data-off-color="danger"
+                      data-type="action" action="toggle-flap-detection"
+                      data-element="{{host.name}}" data-value="{{host.flap_detection_enabled}}"
+                      {{'checked' if host.flap_detection_enabled else ''}}>
             </td>
          </tr>
          %if host.flap_detection_enabled:

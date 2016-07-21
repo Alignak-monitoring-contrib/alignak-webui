@@ -79,7 +79,7 @@
                   <li class="divider"></li>
                   <li style="padding:5px">
                      <button type="submit" class="btn btn-default btn-sm btn-block">
-                        <span class="fa fa-check"></i>
+                        <span class="fa fa-check"></span>
                         &nbsp;{{_('Apply filter')}}
                      </button>
                   </li>
