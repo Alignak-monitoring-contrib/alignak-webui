@@ -29,10 +29,20 @@
       <link href="/static/css/font-awesome.min.css" rel="stylesheet">
       <link href="/static/css/alignak_webui.css" rel="stylesheet">
 
+      <!-- Bootstrap Material Design
+      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
+      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      -->
+
       <!-- Scripts
       ================================================== -->
       <script src="/static/js/jquery-1.12.0.min.js"></script>
       <script src="/static/js/bootstrap.min.js"></script>
+
+      <!-- Bootstrap Material Design
+      <script src="/static/js/material/material.min.js"></script>
+      <script src="/static/js/material/ripples.min.js"></script>
+      -->
    </head>
 
    <body>
@@ -55,7 +65,7 @@
                            <input class="form-control" placeholder="{{_('Password')}}" name="password" type="password" value="">
                         </div>
 
-                        <button class="btn btn-lg btn-success btn-block" type="submit"><i class="fa fa-sign-in"></i> {{_('Login')}}</button>
+                        <button class="btn btn-lg btn-success btn-block btn-raised" type="submit"><i class="fa fa-sign-in"></i> {{_('Login')}}</button>
                      </fieldset>
                   </form>
                </div>
@@ -84,8 +94,6 @@
           * This event handler catches the submit event for the login form.
           */
          $('body').on("submit", 'form[action="/login"]', function (evt) {
-            console.debug('Submit login form: ', $(this));
-
             $('#login-message').hide();
          });
       });

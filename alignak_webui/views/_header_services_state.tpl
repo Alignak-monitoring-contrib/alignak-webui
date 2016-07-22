@@ -15,7 +15,7 @@
 %end
 %datamgr.set_user_preferences(current_user.name, 'services_states_queue', services_states_queue)
 <div id="services-states-popover-content" class="hidden">
-   <table class="table table-invisible table-condensed">
+   <table class="table table-invisible">
       <tbody>
          <tr>
             %for state in ['ok', 'warning', 'critical', 'unknown']:
@@ -31,12 +31,18 @@
 </div>
 
 %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
+%from alignak_webui.objects.element_state import ElementState
+%items_states = ElementState()
+%cfg_state = items_states.get_icon_state('service', 'ok')
+%icon = cfg_state['icon']
 <a id="services-states-popover"
-   class="services-all"
    href="{{webui.get_url('Livestate table')}}?search=type:service"
+   title="{{_('Overall services states: %d services (%d problems)') % (ss['nb_elts'], ss['nb_problems'])}}"
    data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}"
-   data-original-title="{{_('Services states')}}" data-toggle="popover popover-services" title="{{_('Overall services states: %d services (%d problems)') % (ss['nb_elts'], ss['nb_problems'])}}" data-html="true" data-trigger="hover">
-   <i class="fa fa-cubes"></i>
+   data-original-title="{{_('Services states')}}"
+   data-toggle="popover popover-services"
+   data-html="true" data-trigger="hover">
+   <span class="fa fa-{{icon}}"></span>
    <span class="label label-as-badge label-{{font}}">{{ss["nb_problems"] if ss["nb_problems"] else ''}}</span>
 </a>
 

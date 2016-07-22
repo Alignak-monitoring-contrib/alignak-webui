@@ -89,7 +89,7 @@
    $('[data-action="navigate-table"][data-element="{{tree_type}}"]').on("click", function () {
       var elt_id = $(this).data('element');
       window.setTimeout(function(){
-         window.location.href = "/{{tree_type}}_table";
+         window.location.href = "/{{tree_type}}s_table";
       }, 50);
    });
 

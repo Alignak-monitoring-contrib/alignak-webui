@@ -27,7 +27,7 @@
                      <col style="width: 70%" />
                   </colgroup>
                   <thead>
-                     <tr><th colspan="2"></td></tr>
+                     <tr><th colspan="2"></th></tr>
                   </thead>
                   <tbody style="font-size:x-small;">
                      <tr>
@@ -51,7 +51,7 @@
                      <col style="width: 70%" />
                   </colgroup>
                   <thead>
-                     <tr><th colspan="2"></td></tr>
+                     <tr><th colspan="2"></th></tr>
                   </thead>
                   <tbody style="font-size:x-small;">
                      %for attr, value in current_user.__dict__.iteritems():
@@ -70,7 +70,7 @@
                   </colgroup>
                   <thead>
                      <tr>
-                        <th colspan="2">Preferences:</td>
+                        <th colspan="2">Preferences:</th>
                      </tr>
                   </thead>
                   <tbody style="font-size:x-small;">

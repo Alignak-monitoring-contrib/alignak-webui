@@ -168,6 +168,8 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
                 if status == s:
                     return self.get_icon_states(object_type)[s]
 
+            return None
+
         def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
                            title='', disabled=False, size=''):
             # pylint: disable=too-many-arguments

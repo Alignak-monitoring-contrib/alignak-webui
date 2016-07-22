@@ -1,19 +1,23 @@
 /**
-* Copyright (C) 2015-2016 F. Mohier pour IPM France:
+* Copyright (C) 2015-2016 F. Mohier
 *
 **/
-
 
 html, body {
     background: #f9f9f9;
 }
 
+/*
+ * Because of the fixed footer
+ */
+body {
+    padding-bottom: 25px;
+}
 
 /*
  * ------------------------------------------------------------------------
  * Minimize table layout ...
  * ------------------------------------------------------------------------
- *
  */
 .table-invisible > thead > tr > th,
 .table-invisible > tbody > tr > th,
@@ -32,11 +36,10 @@ html, body {
  * Page layout
  * ------------------------------------------------------------------------
  */
-
 /*
  * Page content - the debug row ...
  */
-#page-wrapper > .debug {
+.debug {
     position: absolute;
     top: 70px;
     left: 10px;
@@ -44,18 +47,143 @@ html, body {
 }
 
 /*
- * Page content - the header navigation bar is fixed, page content must
- * be shifted to the bottom if the header bar is present (not present on fullscreen pages).
+ * Page content - header
  */
-#page-wrapper.header-page > div.row {
-    margin-top: 55px;
-    padding: 3px;
-    margin-bottom: 30px;
+header {
+    height: 100px;
+    z-index: 2000;
+}
+#topbar {
 }
 
 /*
- * Page content - padding for all the sections (header, page and footer).
+ * Header - company logo
  */
+.navbar-brand {
+    padding: 5px;
+}
+.navbar-brand img {
+    height: 100%;
+    background-color: rgba(255,255,255,0.7);
+    padding: 3px;
+}
+
+/*
+ * Header - Hosts and services states icons
+ */
+#hosts-states-popover,
+#services-states-popover {
+    width: 44px;
+    height: 50px;
+}
+
+header span.label {
+    position: relative;
+    left: +10px;
+    top: -30px;
+    font-size: 0.7em;
+}
+
+/*
+ * Application menu bar
+#menu-bar {
+    top: 30px;
+    height: 20px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+#menu-bar a.navbar-link {
+    padding-top: 25px;
+    padding-bottom: 5px;
+}
+ */
+/*
+@media (max-width: 1200px) {
+    top: 35px;
+}
+*/
+.navbar .divider-vertical {
+    height: 60px;
+    margin-top: 2px;
+    margin-left: 10px;
+    border-right: 1px dotted rgba(255,255,255,0.7);
+    border-left: 1px dotted rgba(231,231,231,0.7);
+}
+
+.navbar-inverse .divider-vertical {
+    border-right-color: #222222;
+    border-left-color: #111111;
+}
+
+@media (max-width: 767px) {
+    .navbar-collapse .nav > .divider-vertical {
+        display: none;
+     }
+}
+
+/*
+ * Application menu bar - for small devices, menu items are floating and
+ * the menu is positionned in the header navigation bar collapsable part.
+ */
+@media (max-width: 767px) {
+    #topbar ul.navbar-right > li {
+        float:left;
+    }
+
+    #navbar-collapsible-part ul.navbar-left,
+    #navbar-collapsible-part form {
+        float:left;
+    }
+    #navbar-collapsible-part ul.navbar-right {
+        float:right;
+    }
+    #header-search {
+        float:left;
+    }
+
+    #menu-bar > ul > li  {
+        float:left;
+    }
+    #menu-bar .dropdown-menu .open {
+        min-width: 50px;
+        background-color: #fff;
+    }
+    #menu-bar a.navbar-link {
+        padding-top: 15px;
+        padding-bottom: 5px;
+        width: 40px;
+    }
+}
+
+/*
+ * Application tables
+ */
+/* Set smaller font for table content */
+tbody > tr {
+   font-size:11px;
+}
+/* Modal opening button position adjusted */
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+   top: 3px;
+}
+/* Selected line */
+table.dataTable tbody>tr.selected {
+   background-color:#FAF3CD; color: black;
+}
+
+/*
+ * Page content - the header navigation bar is fixed, page content must
+ * be shifted to the bottom if the header bar is present (not present on fullscreen pages).
+#page-wrapper.header-page > div.row {
+    margin-top: 60px;
+    padding: 0px;
+    margin-bottom: 30px;
+}
+ */
+
+/*
+ * Page content - padding for all the sections (header, page and footer).
 #page-content > section {
 }
 
@@ -70,6 +198,7 @@ html, body {
 
 #page-content > section.content-footer {
 }
+ */
 
 /*
  * Pagination control elements
@@ -80,11 +209,18 @@ html, body {
 .elts_per_page input {
     max-width: 70px;
 }
+@media (max-width: 768px) {
+    .elts_per_page {
+        display: inline-table;
+        vertical-align: middle;
+    }
+}
 
 /*
- * Sidebar fixed width management
+ * Sidebar fixed width management - not used anymore... leave it if necessary ;)
  */
 .col-sidebar {
+    margin-left: 0;
     width:200px;
     height: 100%;
     float:left;
@@ -101,31 +237,24 @@ html, body {
  * - hide the sidebar column
  */
 @media (max-width: 992px) {
-    #page-wrapper.header-page > div.row {
+    /*
+    #page-wrapper.header-page {
         margin-top: 130px;
     }
-
-    .col-sidebar {
-        width: 0px;
-    }
-    .col-sidebar nav {
-        display: none;
-    }
-    .col-offset-sidebar{
-        width:100%;
-    }
+    */
 }
 @media (max-width: 768px) {
-    #page-wrapper.header-page > div.row {
+    /*
+    #page-wrapper.header-page {
         margin-top: 65px;
     }
+    */
 }
 
 /*
  * Side bar menu
  * - do not float left the menu items.
  * - min and max width
- */
 #sidebar-menu, #actionbar-menu, #templatebar-menu {
     min-width: 100px;
     max-width: 200px;
@@ -142,13 +271,13 @@ html, body {
     position: fixed;
     bottom: 60px;
 }
+ */
 
 /*
  * Side bar menu - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.
- */
 @media (max-width: 992px) {
-    #topbar-menu ul.navbar-right > li {
+    #topbar ul.navbar-right > li {
         float:left;
     }
 
@@ -164,24 +293,11 @@ html, body {
         max-width: none;
     }
 }
-
-
-/*
- * Navigation bar, company logo
  */
-.navbar-header .navbar-brand {
-  padding: 1px;
-}
-.navbar-header .navbar-brand img {
-  height: 48px;
-  padding: 1px;
-  margin: 0;
-}
 
 
 /*
  * Navigation bar, input field
- */
 input#search {
     max-width: 250px;
 }
@@ -190,10 +306,13 @@ input#search {
         width: 100px;
     }
 }
+ */
+#topbar form {
+padding: 0;
+}
 
 /*
  * Navigation bar, user dropdown menu
- */
 .user-menu > .dropdown-menu {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
@@ -221,17 +340,28 @@ input#search {
   background: #dddddd;
   text-align: center;
 }
-
+*/
+.user-menu > .dropdown-menu {
+    padding: 1px 0 0 0;
+    border-top-width: 0;
+    width: 320px;
+    background: #dddddd;
+    text-align: center;
+}
 
 /*
- * Footer navigation bar - set a smaller height
+ * Footer navigation bar
  */
-footer .navbar-nav > li > a, .navbar-brand {
-    padding-top:4px !important;
-    padding-bottom:0 !important;
-    height: 28px;
-}
-footer .navbar {
+footer {
+    position: fixed;
     height: 25px;
-    min-height:28px !important;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255,255,255,0.7);
+}
+footer img {
+    height: 16px;
+}
+footer span {
+    font-size: 0.8em;
 }

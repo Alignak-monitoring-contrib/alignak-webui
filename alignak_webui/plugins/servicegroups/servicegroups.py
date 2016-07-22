@@ -331,7 +331,7 @@ pages = {
     get_servicegroups: {
         'routes': [
             ('/servicegroups', 'Servicesgroups'),
-            ('/servicegroup_tree', 'Services groups tree')
+            ('/servicegroups_tree', 'Services groups tree')
         ],
         'view': '_tree',
         'search_engine': False,

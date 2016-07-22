@@ -216,6 +216,8 @@ schema['ui'] = {
         'searchable': True,
         'responsive': False,
 
+        'css': "nowrap",
+
         'initial_sort': [[1, 'desc']]
     }
 }

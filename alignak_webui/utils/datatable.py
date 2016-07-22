@@ -83,6 +83,8 @@ class Datatable(object):
         self.recursive = False
         self.commands = (object_type == 'livestate')
 
+        self.css = "compact nowrap"
+
         self.paginable = True
         self.exportable = True
         self.printable = True
@@ -166,6 +168,7 @@ class Datatable(object):
                 self.searchable = model['ui'].get('searchable', True)
                 self.responsive = model['ui'].get('responsive', True)
                 self.recursive = model['ui'].get('recursive', False)
+                self.css = model['ui'].get('css', "display")
 
                 self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
                 continue

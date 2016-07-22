@@ -307,6 +307,8 @@ schema['ui'] = {
         'searchable': True,
         'responsive': True,
 
+        'css': "compact",
+
         # Sort by descending business impact
         'initial_sort': [[9, "desc"]]
     }

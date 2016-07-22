@@ -223,7 +223,6 @@ def get_hostgroups():
 
     return {
         'tree_type': 'hostgroup',
-        'leaves_type': 'host',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
@@ -330,7 +329,7 @@ pages = {
     get_hostgroups: {
         'routes': [
             ('/hostgroups', 'Hosts groups'),
-            ('/hostgroup_tree', 'Hosts groups tree')
+            ('/hostgroups_tree', 'Hosts groups tree')
         ],
         'view': '_tree',
         'search_engine': False,

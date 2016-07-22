@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2015-2016 F. Mohier pour IPM France:
+* Copyright (C) 2015-2016 F. Mohier
 *
 **/
 
@@ -86,28 +86,6 @@
 }
 
 
-/*  Dashboard
-    ------------------------------------------------------- */
-
-ul#Navigation {
-   margin-top: 4px;
-   padding: 0.8em;
-   text-align: center;
-   background: #F4F8FA;
-   border: #5BC0DE;
-   height: 90px;
-}
-
-ul#Navigation li {
-   list-style: none;
-   display: inline;
-}
-
-.popover {
-   min-width: 640px ! important;
-}
-
-
 /*  Badger styles
     ------------------------------------------------------- */
 .badger-big {
@@ -132,7 +110,7 @@ ul#Navigation li {
   background-color: #337ABF; opacity: 0.75;
 }
 
-.badger-critical {
+.badger-danger {
   background-color: #FF2727; opacity: 0.75;
 }
 
@@ -140,7 +118,7 @@ ul#Navigation li {
   background-color: #FFA827; opacity: 0.75;
 }
 
-.badger-ok {
+.badger-success {
   background-color: #7AB317; opacity: 0.75;
 }
 
@@ -149,8 +127,5 @@ ul#Navigation li {
 
   color: #333;
   text-align: center;
-  font-family: Century Gothic, sans-serif;
   font-size: 1em;
-
-  z-index: 666;
 }
