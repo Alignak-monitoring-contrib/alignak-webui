@@ -15,7 +15,7 @@
 %end
 %datamgr.set_user_preferences(current_user.name, 'hosts_states_queue', hosts_states_queue)
 <div id="hosts-states-popover-content" class="hidden">
-   <table class="table table-invisible table-condensed">
+   <table class="table table-invisible">
       <tbody>
          <tr>
             %for state in ['up', 'unreachable', 'down']:
@@ -31,12 +31,18 @@
 </div>
 
 %font='danger' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'success'
+%from alignak_webui.objects.element_state import ElementState
+%items_states = ElementState()
+%cfg_state = items_states.get_icon_state('host', 'up')
+%icon = cfg_state['icon']
 <a id="hosts-states-popover"
-   class="hosts-all"
    href="{{webui.get_url('Livestate table')}}?search=type:host"
+   title="{{_('Overall hosts states: %d hosts (%d problems)') % (hs['nb_elts'], hs['nb_problems'])}}"
    data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}"
-   data-original-title="{{_('Hosts states')}}" data-toggle="popover popover-hosts" title="{{_('Overall hosts states: %d hosts (%d problems)') % (hs['nb_elts'], hs['nb_problems'])}}" data-html="true" data-trigger="hover">
-   <i class="fa fa-server"></i>
+   data-original-title="{{_('Hosts states')}}"
+   data-toggle="popover popover-hosts"
+   data-html="true" data-trigger="hover">
+   <span class="fa fa-{{icon}}"></span>
    <span class="label label-as-badge label-{{font}}">{{hs["nb_problems"] if hs["nb_problems"] > 0 else ''}}</span>
 </a>
 

@@ -127,6 +127,9 @@ As an example::
                 # Table is responsive (no horizontal scroll)
                 'responsive': True,
 
+                # Table CSS class
+                'css': "hover compact",
+
                 # Table initial sort
                 # Sort by descending business impact (column index 9)
                 'initial_sort': [[9, "desc"]]
@@ -147,10 +150,13 @@ Each plugin table may be:
     - responsive, (default: True)
     - recursive, (default: True)
     - commands, (default: False) - only applies to the livestate table
+    - css, (default: display)
 
 Initial (default) table sort is defined as:
 
     - initial_sort which is an array of array: [[9, "desc"]]
+
+Table css classes are defined here: https://datatables.net/manual/styling/classes
 
 Table display
 ~~~~~~~~~~~~~~~~~~~~~~~~

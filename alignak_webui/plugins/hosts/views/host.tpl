@@ -310,7 +310,7 @@
                title="{{_('Host synthesis view')}}"
                >
                <span class="fa fa-server"></span>
-               {{_('Host view')}}
+               <span class="hidden-sm hidden-xs">{{_('Host view')}}</span>
             </a>
          </li>
 
@@ -320,7 +320,7 @@
                   title="{{widget['description']}}"
                   >
                   <span class="fa fa-{{widget['icon']}}"></span>
-                  {{widget['name']}}
+                  <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
             </li>
          %end

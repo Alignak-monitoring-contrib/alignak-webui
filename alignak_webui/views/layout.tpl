@@ -11,7 +11,7 @@
 %setdefault('refresh_header', True)
 %setdefault('current_user', None)
 %setdefault('target_user', None)
-%setdefault('sidebar', True)
+%setdefault('sidebar', False)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
@@ -62,11 +62,27 @@
 
       <link rel="stylesheet" href="/static/css/timeline.css" >
 
+      <!-- Material Design fonts
+      -->
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+
+      <!-- Bootstrap Material Design
+      -->
+      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
+      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+
       <!-- jsTree jQuery plugin -->
       <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
 
-      <!-- Datatables jQuery plugin -->
+      <!-- Datatables jQuery plugin
       <link rel="stylesheet" href="/static/css/datatables.min.css" >
+      -->
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.css"/>
+      <!--
+      <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.1.0/material.min.css"/>
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/dataTables.material.min.css"/>
+      -->
 
       %# Specific CSS files
       %for f in css:
@@ -97,8 +113,19 @@
       <!-- jsTree jQuery plugin -->
       <script type="text/javascript" src="/static/js/jstree.min.js"></script>
 
-      <!-- Datatables jQuery plugin -->
+      <!-- Datatables jQuery plugin
       <script type="text/javascript" src="/static/js/datatables.min.js"></script>
+      -->
+      <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.js"></script>
+      <!--
+      <script type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/dataTables.material.min.js"></script>
+      -->
+
+
+      <!-- Bootstrap Material Design
+      -->
+      <script src="/static/js/material/material.min.js"></script>
+      <script src="/static/js/material/ripples.min.js"></script>
 
       <!--
        Application globals ...

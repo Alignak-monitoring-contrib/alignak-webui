@@ -330,6 +330,7 @@ class TestElementStates(unittest2.TestCase):
                 assert items_states.get_icon_state(object_type, state)
                 print(object_type, ", state: ", state, ": ", items_states.get_icon_state(
                     object_type, state))
+            assert False
 
         assert not items_states.get_icon_state(None, None)
 

@@ -21,22 +21,6 @@
 %rebase("layout", title=title, page="/{{object_type}}s_table")
 %end
 
-<style>
-/* Set smaller font for table content */
-tbody > tr {
-   font-size:11px;
-}
-/* Modal opening button position adjusted */
-table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
-   top: 3px;
-}
-/* Selected line */
-table.dataTable tbody>tr.selected,
-table.dataTable tbody>tr>.selected {
-   background-color:#FAF3CD; color: black;
-}
-</style>
-
 %if dt.editable:
 %include("_edition.tpl")
 %end
@@ -52,35 +36,30 @@ table.dataTable tbody>tr>.selected {
 %end
 <!-- Table display -->
 <div id="{{object_type}}s_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
-   <!-- Bootstrap responsive table
-   <div class="table-responsive"> -->
-      <table id="tbl_{{object_type}}" class="table table-condensed dt-responsive">
-         <thead>
-            <tr>
-               %for column in dt.table_columns:
-               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
-               %end
-            </tr>
-            %if dt.searchable:
-            <tr id="filterrow">
-               %idx=0
-               %for column in dt.table_columns:
-                  <th data-index="{{idx}}" data-name="{{ column['data'] }}"
-                      data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
-                      data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
-                      data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
-                  </th>
-                  %idx += 1
-               %end
-            </tr>
+   <table id="tbl_{{object_type}}" class="{{dt.css}}">
+      <thead>
+         <tr>
+            %for column in dt.table_columns:
+            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
             %end
-         </thead>
-         <tbody>
-         </tbody>
-      </table>
-   <!--
-   </div>
-    -->
+         </tr>
+         %if dt.searchable:
+         <tr id="filterrow">
+            %idx=0
+            %for column in dt.table_columns:
+               <th data-index="{{idx}}" data-name="{{ column['data'] }}"
+                   data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
+                   data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
+                   data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
+               </th>
+               %idx += 1
+            %end
+         </tr>
+         %end
+      </thead>
+      <tbody>
+      </tbody>
+   </table>
 </div>
 
 <script>
@@ -90,6 +69,8 @@ table.dataTable tbody>tr>.selected {
    var selectedRows = [];
 
    $(document).ready(function() {
+      set_current_page("{{ webui.get_url(request.route.name) }}");
+
       $.ajaxSetup({
          headers: { "Authorization": "Basic " + btoa('{{credentials}}') }
       });
@@ -415,8 +396,6 @@ table.dataTable tbody>tr>.selected {
                %elif modalDisplay:
                , display: $.fn.dataTable.Responsive.display.modal({
                   header: function ( row ) {
-                     var data = row.data();
-                     console.log(data.data)
                      return ('{{_('Details for %s') % object_type}}');
                   }
                 })
@@ -739,8 +718,8 @@ table.dataTable tbody>tr>.selected {
                text: "{{! _('<span class=\'fa fa-sitemap\'></span>')}}",
                titleAttr: "{{_('Navigate to the tree view')}}",
                action: function (e, dt, button, config) {
-                  if (debugTable) console.log('Navigate to the tree view {{object_type}}!');
-                  window.location.href = "/{{object_type}}_tree";
+                  if (debugTable) console.log('Navigate to the tree view for {{object_type}}!');
+                  window.location.href = "/{{object_type}}s_tree";
                }
             }
             %end

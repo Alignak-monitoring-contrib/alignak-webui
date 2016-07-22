@@ -310,7 +310,7 @@ pages = {
     get_usergroups: {
         'routes': [
             ('/ysergroups', 'Users groups'),
-            ('/usergroup_tree', 'Users groups tree')
+            ('/usergroups_tree', 'Users groups tree')
         ],
         'view': '_tree',
         'search_engine': False,
