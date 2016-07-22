@@ -47,11 +47,11 @@
          </a>
 
          <ul class="nav navbar-nav navbar-left">
-            <li id="overall-hosts-states">
+            <li id="overall-hosts-states" class="pull-left">
                %include("_header_hosts_state.tpl")
             </li>
 
-            <li id="overall-services-states">
+            <li id="overall-services-states" class="pull-left">
                %include("_header_services_state.tpl")
             </li>
 
