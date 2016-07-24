@@ -17,26 +17,26 @@
       <li data-toggle="tooltip" data-placement="right" title="{{_('Dashboard')}}">
          <a class="navbar-link" href="{{ webui.get_url('Dashboard') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-dashboard"></span>
-            <span class="hidden-md hidden-sm hidden-xs">{{_('Dashboard')}}</span>
+            <span class="sr-only">{{_('Dashboard')}}</span>
          </a>
       </li>
       <li data-toggle="tooltip" data-placement="right" title="{{_('Livestate table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Livestate table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-heartbeat"></span>
-            <span class="hidden-md hidden-sm hidden-xs">{{_('Livestate')}}</span>
+            <span class="sr-only">{{_('Livestate')}}</span>
          </a>
       </li>
       <li data-toggle="tooltip" data-placement="right" title="{{_('Log table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Log check result table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-history"></span>
-            <span class="hidden-md hidden-sm hidden-xs">{{_('Log')}}</span>
+            <span class="sr-only">{{_('Log')}}</span>
          </a>
       </li>
 
       <!-- Items -->
       <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Elements')}}">
-         <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="caret hidden-xs"></span>
+         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
             <span class="fa fa-cube"></span>
             <span class="sr-only">{{_('Elements')}}</span>
          </a>
@@ -107,8 +107,8 @@
 
       <!-- Tactical views -->
       <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Tactical views')}}">
-         <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="caret hidden-xs"></span>
+         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
             <span class="fa fa-bar-chart"></span>
             <span class="sr-only">{{_('Tactical views')}}</span>
          </a>
@@ -130,12 +130,10 @@
       </li>
 
       %if action_bar and in_sidebar and current_user.can_change_dashboard():
-         <li role="separator" class="divider"></li>
          %include("_templatebar.tpl", in_sidebar=in_sidebar)
       %end
 
       %if action_bar and in_sidebar and current_user.can_change_dashboard():
-         <li role="separator" class="divider"></li>
          %include("_actionbar.tpl", in_sidebar=in_sidebar)
       %end
    </ul>

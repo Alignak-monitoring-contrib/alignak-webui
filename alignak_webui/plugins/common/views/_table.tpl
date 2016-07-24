@@ -516,7 +516,7 @@
             r - processing display element
          dom: 'Blfrtip',
          */
-         dom: "<'row'<'col-xs-8'B><'col-xs-4'f>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-5'i><'col-xs-7'p>>",
+         dom: "<'row'<'col-xs-6'B><'col-xs-6'f>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-6'i><'col-xs-6'p>>",
          // Table columns visibility button
          buttons: [
             {

@@ -330,7 +330,6 @@ class TestElementStates(unittest2.TestCase):
                 assert items_states.get_icon_state(object_type, state)
                 print(object_type, ", state: ", state, ": ", items_states.get_icon_state(
                     object_type, state))
-            assert False
 
         assert not items_states.get_icon_state(None, None)
 
@@ -405,7 +404,7 @@ class TestElementStates(unittest2.TestCase):
                                                  disabled=True)
         print(item_state)
         self.assertEqual(item_state,
-                         '''<div class="item-state font-greyed " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x font-greyed"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % elt.id)
+                         '''<div class="item-state text-muted " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user"><span class="fa-stack"  title="User default text"><i class="fa fa-circle fa-stack-2x text-muted"></i><i class="fa fa-user fa-stack-1x "></i></span><span>User default text</span></div>''' % elt.id)
 
         print("Default icon/text - title and default text")
         item_state = items_states.get_html_state(save_object_type, elt, icon=True,

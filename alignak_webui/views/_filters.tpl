@@ -17,10 +17,10 @@
 
 %if search_filters:
    <li class="dropdown">
-      <a href="#" class="dropdown-toggle" data-original-title="{{_('User menu')}}" data-toggle="dropdown">
+      <a href="#" class="dropdown-toggle" data-original-title="{{_('Filters  menu')}}" data-toggle="dropdown">
+         <span class="caret"></span>
          <i class="fa fa-filter"></i>
          <span class="hidden-sm hidden-xs"> {{_('Filters')}}</span>
-         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
          <li role="presentation">
