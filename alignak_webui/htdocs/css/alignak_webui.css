@@ -50,8 +50,10 @@ body {
  * Page content - header
  */
 header {
-    height: 100px;
+    height: 60px;
+/*
     z-index: 2000;
+*/
 }
 #topbar {
 }
@@ -84,44 +86,10 @@ header span.label {
     font-size: 0.7em;
 }
 
-/*
- * Application menu bar
-#menu-bar {
-    top: 30px;
-    height: 20px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
+#navbar-collapsible-part {
+    margin-left: 15px;
+    margin-right: 5px;
 }
-#menu-bar a.navbar-link {
-    padding-top: 25px;
-    padding-bottom: 5px;
-}
- */
-/*
-@media (max-width: 1200px) {
-    top: 35px;
-}
-*/
-.navbar .divider-vertical {
-    height: 60px;
-    margin-top: 2px;
-    margin-left: 10px;
-    border-right: 1px dotted rgba(255,255,255,0.7);
-    border-left: 1px dotted rgba(231,231,231,0.7);
-}
-
-.navbar-inverse .divider-vertical {
-    border-right-color: #222222;
-    border-left-color: #111111;
-}
-
-@media (max-width: 767px) {
-    .navbar-collapse .nav > .divider-vertical {
-        display: none;
-     }
-}
-
 /*
  * Application menu bar - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.
@@ -131,6 +99,7 @@ header span.label {
         float:left;
     }
 
+    #navbar-collapsible-part nav,
     #navbar-collapsible-part ul.navbar-left,
     #navbar-collapsible-part form {
         float:left;

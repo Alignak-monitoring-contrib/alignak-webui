@@ -10,7 +10,11 @@ Application user interface layout
 Css files:
 
     - alignak_webui.css
-    - alignak_webui-items.css
+    - alignak_webui-items.css, items icons styles
+
+Javascript files:
+
+    - alignak_webui-layout.js, contains some colors definitions for the externally embedded widgets
 
 Images:
     -

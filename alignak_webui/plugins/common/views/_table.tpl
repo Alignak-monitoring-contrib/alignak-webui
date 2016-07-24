@@ -520,10 +520,12 @@
          // Table columns visibility button
          buttons: [
             {
-                 extend: 'pageLength'
+               extend: 'pageLength',
+               className: 'btn-raised btn-xs'
             }
             ,{
-                 extend: 'colvis'
+               extend: 'colvis',
+               className: 'btn-raised btn-xs'
             }
             %if dt.printable:
             ,{
@@ -535,7 +537,8 @@
                   modifier: {
                      search: 'none'
                   }
-               }
+               },
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.exportable:
@@ -554,7 +557,8 @@
                         modifier: {
                            search: 'none'
                         }
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -567,7 +571,8 @@
                         modifier: {
                            search: 'none'
                         }
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -582,9 +587,11 @@
                         modifier: {
                            search: 'none'
                         }
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
-               ]
+               ],
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.searchable:
@@ -605,17 +612,20 @@
 
                   // Disable the clear filter button
                   table.buttons('clearFilter:name').disable();
-               }
+               },
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.selectable:
             ,{
                extend: 'selectAll',
                titleAttr: "{{_('Select all the table rows')}}",
+               className: 'btn-raised btn-xs'
             }
             ,{
                extend: 'selectNone',
                titleAttr: "{{_('Unselect all rows')}}",
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.commands:
@@ -650,7 +660,8 @@
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -679,7 +690,8 @@
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -708,9 +720,11 @@
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
-               ]
+               ],
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.recursive:
@@ -720,7 +734,8 @@
                action: function (e, dt, button, config) {
                   if (debugTable) console.log('Navigate to the tree view for {{object_type}}!');
                   window.location.href = "/{{object_type}}s_tree";
-               }
+               },
+               className: 'btn-raised btn-xs'
             }
             %end
          ]

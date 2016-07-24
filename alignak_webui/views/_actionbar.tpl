@@ -25,7 +25,7 @@
                           data-widget-name='{{widget['name']}}'
                           data-widget-template='{{widget['template']}}'
                           data-widget-uri='{{widget['base_uri']}}'
-                          class='btn btn-sm btn-success'>
+                          class='btn btn-sm btn-success btn-raised'>
                           <span class='fa fa-plus'></span>
                           {{_('Add this widget to your dashboard')}}
                       </button>"

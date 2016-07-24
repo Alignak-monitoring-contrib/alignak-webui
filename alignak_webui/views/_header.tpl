@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
    // Check header refresh period (seconds)
-   var header_refresh_period = 0;
+   var header_refresh_period = {{request.app.config.get('header_refresh_period', '30')}};
 
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
@@ -34,7 +34,7 @@
 
 <!-- Page header -->
 <header>
-   <nav id="topbar" class="navbar navbar-fixed-top">
+   <nav id="topbar" class="navbar navbar-fixed-top navbar-material-blue">
       <div class="navbar-header">
          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
             <span class="sr-only">{{_('Toggle navigation')}}</span>
@@ -54,8 +54,6 @@
             <li id="overall-services-states" class="pull-left">
                %include("_header_services_state.tpl")
             </li>
-
-            <li class="divider-vertical"></li>
          </ul>
       </div>
 
@@ -86,7 +84,7 @@
             </li>
 
             %if request.app.config.get('play_sound', 'no') == 'yes':
-            <li class="hidden-xs">
+            <li>
                <a data-action="toggle-sound-alert"
                   data-toggle="tooltip" data-placement="bottom"
                   title="{{_('Sound alert on/off')}}"
@@ -105,21 +103,13 @@
                   data-toggle="tooltip" data-placement="bottom"
                   title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
                   href="#">
-                  <span id="header_loading" class="fa fa-refresh"></span>
+                  <span id="refresh_active" class="fa fa-refresh"></span>
+                  <span class="sr-only">{{_('Refresh active')}}</span>
                </a>
             </li>
             %end
 
             %include("_header_user.tpl")
-
-            <li class="hidden-sm hidden-md hidden-lg">
-               <a data-action="logout"
-                  data-toggle="tooltip" data-placement="bottom"
-                  title="{{_('Disconnect from the application')}}"
-                  href="/logout">
-                  <i class="fa fa-sign-out"></i>
-               </a>
-            </li>
          </ul>
       </div>
    </nav>

@@ -83,3 +83,13 @@
       </li>
    </ul>
 </li>
+
+<!-- Logout icon on extra-small devices -->
+<li class="hidden-sm hidden-md hidden-lg">
+   <a data-action="logout"
+      data-toggle="tooltip" data-placement="bottom"
+      title="{{_('Disconnect from the application')}}"
+      href="/logout">
+      <i class="fa fa-sign-out"></i>
+   </a>
+</li>

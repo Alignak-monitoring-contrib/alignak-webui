@@ -3,8 +3,18 @@
 *
 **/
 
-/*  Widget styles
-------------------------------------------------------- */
+/*
+ * Widget loading information
+ */
+#widgets_loading {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+/*
+ * Widget styles
+ */
 .widget_desc {
    background-color : white;
    margin : 5px;
@@ -20,7 +30,8 @@
    position:absolute;
 }
 
-/*  Widget styles informations
+/*
+ * Widget styles informations
 -------------------------------------------------------
  This is the widgets basic CSS. Note that you can change
  the classes names using the plugin settings. But you can
@@ -86,9 +97,21 @@
 }
 
 
-/*  Badger styles
-    ------------------------------------------------------- */
-.badger-big {
+/*
+ * Dashboard synthesis
+ */
+#dashboard-synthesis {
+    margin-top: 15px;
+}
+
+.icon-title {
+  display: block;
+
+  color: #666;
+  font-size: 1em;
+}
+
+.icon-badge {
   background-color: #999999;
   border-radius: 3px;
   color: #ffffff;
@@ -98,34 +121,47 @@
   width: 45%;
   position: relative;
   bottom: 6em;
+
+  opacity: 0.75;
 }
-.badger-left {
+.icon-badge-left {
   float: left;
 }
-.badger-right {
+.icon-badge-right {
   float: right;
 }
 
-.badger-info {
-  background-color: #337ABF; opacity: 0.75;
+#dashboard-synthesis a span.fa {
+    opacity: 0.6;
+}
+.icon-info {
+  color: #337ABF;
 }
 
-.badger-danger {
-  background-color: #FF2727; opacity: 0.75;
+.icon-danger {
+  color: #FF2727;
 }
 
-.badger-warning {
-  background-color: #FFA827; opacity: 0.75;
+.icon-warning {
+  color: #FFA827;
 }
 
-.badger-success {
-  background-color: #7AB317; opacity: 0.75;
+.icon-success {
+  color: #7AB317;
 }
 
-.badger-title {
-  display: block;
+.icon-badge-info {
+  background-color: #337ABF;
+}
 
-  color: #333;
-  text-align: center;
-  font-size: 1em;
+.icon-badge-danger {
+  background-color: #FF2727;
+}
+
+.icon-badge-warning {
+  background-color: #FFA827;
+}
+
+.icon-badge-success {
+  background-color: #7AB317;
 }

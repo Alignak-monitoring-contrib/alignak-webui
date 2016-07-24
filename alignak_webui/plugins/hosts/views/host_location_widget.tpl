@@ -16,6 +16,15 @@
        // do something, e.g.
        // console.log('Loaded all CSS files!');
    });
+
+   // Tabs management
+   $('a[href="#host_tab_location"]').on("shown.bs.tab", function(e) {
+      console.log("Host location show {{mapId}}...");
+      mapResize_{{mapId}}();
+   });
+   $('a[href="#host_tab_location"]').on("hidden.bs.tab", function(e) {
+      console.log("Host location hide...");
+   });
 </script>
 <!-- HTML map container -->
 <div class="map_container_widget">

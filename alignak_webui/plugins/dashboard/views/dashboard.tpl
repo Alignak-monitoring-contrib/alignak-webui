@@ -37,75 +37,75 @@
       </div>
    </div>
 %end
-   <div class="row col-sm-offset-2 col-xs-offset-1">
+   <div id="dashboard-synthesis" class="row col-sm-offset-2 col-xs-offset-1">
       <div class="col-sm-2 col-xs-5">
-            %hs = datamgr.get_livesynthesis()['hosts_synthesis']
-            %if hs:
-            %font='danger' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'success'
-            %from alignak_webui.objects.element_state import ElementState
-            %cfg_state = ElementState().get_icon_state('host', 'up')
-            %icon = cfg_state['icon']
-            <center>
-               <a class="text-{{font}}" href="{{ webui.get_url('Livestate table') }}?search=type:host">
-                  <i class="fa fa-4x fa-{{icon}}"></i>
-                  <span class="badger-title"><i class="fa fa-plus"></i>&nbsp;{{_('Hosts')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
-                  <span class="badger-big badger-right badger-{{font}}" title="{{_('Number of hosts in problem')}}">{{hs["nb_problems"]}}</span>
-               </a>
-            </center>
-            %end
+         %hs = datamgr.get_livesynthesis()['hosts_synthesis']
+         %if hs:
+         %font='danger' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'success'
+         %from alignak_webui.objects.element_state import ElementState
+         %cfg_state = ElementState().get_icon_state('host', 'up')
+         %icon = cfg_state['icon']
+         <center>
+            <a href="{{ webui.get_url('Livestate table') }}?search=type:host">
+               <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
+               <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Hosts')}}</span>
+               <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
+               <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of hosts in problem')}}">{{hs["nb_problems"]}}</span>
+            </a>
+         </center>
+         %end
       </div>
       <div class="col-sm-2 col-xs-5">
-            %ss = datamgr.get_livesynthesis()['services_synthesis']
-            %if ss:
-            %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
-            %from alignak_webui.objects.element_state import ElementState
-            %cfg_state = ElementState().get_icon_state('service', 'ok')
-            %icon = cfg_state['icon']
-            <center>
-               <a class="text-{{font}}" href="{{ webui.get_url('Livestate table') }}?search=type:service">
-                  <i class="fa fa-4x fa-{{icon}} font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Services')}}</span>
-                  <div class="badger-big badger-left badger-info" title="{{_('Number of hosts up')}}">{{ss["nb_elts"]}}</div>
-                  <div class="badger-big badger-right badger-{{font}}" title="{{_('Number of services in problems')}}">{{ss["nb_problems"]}}</div>
-               </a>
-            </center>
-            %end
+         %ss = datamgr.get_livesynthesis()['services_synthesis']
+         %if ss:
+         %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
+         %from alignak_webui.objects.element_state import ElementState
+         %cfg_state = ElementState().get_icon_state('service', 'ok')
+         %icon = cfg_state['icon']
+         <center>
+            <a class="icon-{{font}}" href="{{ webui.get_url('Livestate table') }}?search=type:service">
+               <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
+               <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Services')}}</span>
+               <div class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of hosts up')}}">{{ss["nb_elts"]}}</div>
+               <div class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of services in problems')}}">{{ss["nb_problems"]}}</div>
+            </a>
+         </center>
+         %end
       </div>
       <div class="col-sm-2 col-xs-5">
-            %if hs and ss:
-            %problems = hs['nb_problems'] + ss['nb_problems']
-            %elements = hs['nb_elts'] + ss['nb_elts']
-            %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
-            %font='danger' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'success'
-            <center>
-               <a class="text-{{font}}" href="{{ webui.get_url('Livestate table') }}?search=state_id:1 state_id:2">
-                  <i class="fa fa-4x fa-exclamation-triangle font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Problems')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
-                  <span class="badger-big badger-right badger-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
-               </a>
-            </center>
-            %end
+         %if hs and ss:
+         %problems = hs['nb_problems'] + ss['nb_problems']
+         %elements = hs['nb_elts'] + ss['nb_elts']
+         %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
+         %font='danger' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'success'
+         <center>
+            <a href="{{ webui.get_url('Livestate table') }}?search=state_id:1 state_id:2">
+               <span class="fa fa-4x fa-exclamation-triangle icon-{{font}}"></span>
+               <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Problems')}}</span>
+               <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
+               <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
+            </a>
+         </center>
+         %end
       </div>
       <div class="col-sm-2 col-xs-5">
-            %if hs and ss:
+         %if hs and ss:
 
-            %# TO BE REPLACED WITH IMPACTS DATA ...
+         %# TO BE REPLACED WITH IMPACTS DATA ...
 
-            %problems = hs['nb_problems'] + ss['nb_problems']
-            %elements = hs['nb_elts'] + ss['nb_elts']
-            %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
-            %font='danger' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'success'
-            <center>
-               <a href="{{ webui.get_url('Livestate table') }}">
-                  <i class="fa fa-4x fa-bolt font-greyed"></i>
-                  <span class="badger-title"><i class="fa fa-plus" style="color: #ccc"></i>&nbsp;{{_('Impacts')}}</span>
-                  <span class="badger-big badger-left badger-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
-                  <span class="badger-big badger-right badger-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
-               </a>
-            </center>
-            %end
+         %problems = hs['nb_problems'] + ss['nb_problems']
+         %elements = hs['nb_elts'] + ss['nb_elts']
+         %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
+         %font='info'
+         <center>
+            <a href="{{ webui.get_url('Livestate table') }}">
+               <span class="fa fa-4x fa-bolt icon-{{font}}"></span>
+               <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Impacts')}}</span>
+               <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
+               <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
+            </a>
+         </center>
+         %end
       </div>
    </div>
 
@@ -135,7 +135,7 @@
 
    <div class="container-fluid">
       <!-- Widgets loading indicator -->
-      <div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>
+      <div id="widgets_loading"></div>
 
       <div class="grid-stack">
          %for widget in dashboard_widgets:

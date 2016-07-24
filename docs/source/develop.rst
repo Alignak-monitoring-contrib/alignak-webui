@@ -6,22 +6,21 @@ Development
 Application
 -----------
 
-Web application developed with Python Bottle micro-framework. See application.py
+Web application developed with Python Bottle micro-framework. See `app.py` for the main application file and `application.py` as the Bottle application.
 
 User authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-If no session exists all the requests are redirected to the /login page. User is authenticated near Alignak bakcned with username / password. Once authenticated, a Contact representing the current user is stored in the session. This contact has an *authenticated* attribute set.
+The application install a *before_request* hook to detect if a session currently exists and an authenticated user already connected.
 
-Cookie name is the application name(Alignak-WebUI). Expiry delay is 6 hours.
+If no session exists all the requests are redirected to the */login* page. User is authenticated near Alignak bakcned with username / password. Once authenticated, a Contact representing the current user is stored in the session. This contact has an *authenticated* attribute set.
 
-Session stores the current user, the target user, the connection message and the data manager.
 
 
 Session management
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use Beaker middleware for session management. The configuration is made in `__init__.py`.
+The application uses Beaker middleware for session management. The configuration is made in `__init__.py`.
 
 The session is stored in memory, mainly for performance and also because some stored objects can not be pickled (BackendConnection) to file storage.
 
