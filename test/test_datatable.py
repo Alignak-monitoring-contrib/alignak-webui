@@ -142,7 +142,7 @@ class TestDataTable(unittest2.TestCase):
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
-            '<table id="tbl_command" class="table ',
+            '<table id="tbl_command" ',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
@@ -539,7 +539,7 @@ class TestDatatableCommands(unittest2.TestCase):
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
-            '<table id="tbl_command" class="table ',
+            '<table id="tbl_command" ',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
@@ -609,7 +609,7 @@ class TestDatatableRealms(unittest2.TestCase):
         response.mustcontain(
             '<div id="realms_table" class="alignak_webui_table ">',
             "$('#tbl_realm').DataTable( {",
-            '<table id="tbl_realm" class="table ',
+            '<table id="tbl_realm" ',
             '<th data-name="#" data-type="string">#</th>',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
@@ -680,7 +680,7 @@ class TestDatatableHosts(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
             "$('#tbl_host').DataTable( {",
-            '<table id="tbl_host" class="table ',
+            '<table id="tbl_host" ',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
@@ -746,7 +746,7 @@ class TestDatatableServices(unittest2.TestCase):
         response.mustcontain(
             '<div id="services_table" class="alignak_webui_table ">',
             "$('#tbl_service').DataTable( {",
-            '<table id="tbl_service" class="table ',
+            '<table id="tbl_service" ',
             '<th data-name="name" data-type="string">Service name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Service alias</th>',
@@ -832,7 +832,7 @@ class TestDatatableHostgroups(unittest2.TestCase):
         response.mustcontain(
             '<div id="hostgroups_table" class="alignak_webui_table ">',
             "$('#tbl_hostgroup').DataTable( {",
-            '<table id="tbl_hostgroup" class="table ',
+            '<table id="tbl_hostgroup" ',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Alias</th>',
@@ -896,7 +896,7 @@ class TestDatatableervicegroups(unittest2.TestCase):
         response.mustcontain(
             '<div id="servicegroups_table" class="alignak_webui_table ">',
             "$('#tbl_servicegroup').DataTable( {",
-            '<table id="tbl_servicegroup" class="table ',
+            '<table id="tbl_servicegroup" ',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Alias</th>',
@@ -958,7 +958,7 @@ class TestDatatableUsers(unittest2.TestCase):
         response.mustcontain(
             '<div id="users_table" class="alignak_webui_table ">',
             "$('#tbl_user').DataTable( {",
-            '<table id="tbl_user" class="table ',
+            '<table id="tbl_user" ',
             '<th data-name="name" data-type="string">User name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">User alias</th>',
@@ -1014,7 +1014,7 @@ class TestDatatableLivestate(unittest2.TestCase):
         response.mustcontain(
             '<div id="livestates_table" class="alignak_webui_table ">',
             "$('#tbl_livestate').DataTable( {",
-            '<table id="tbl_livestate" class="table ',
+            '<table id="tbl_livestate" ',
             '<th data-name="#" data-type="string">#</th>',
             '<th data-name="type" data-type="string">Type</th>',
             '<th data-name="name" data-type="string">Element name</th>',
@@ -1102,7 +1102,7 @@ class TestDatatableTimeperiod(unittest2.TestCase):
         response.mustcontain(
             '<div id="timeperiods_table" class="alignak_webui_table ">',
             "$('#tbl_timeperiod').DataTable( {",
-            '<table id="tbl_timeperiod" class="table ',
+            '<table id="tbl_timeperiod" ',
             '<th data-name="name" data-type="string">Name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Alias</th>',
@@ -1165,7 +1165,7 @@ class TestDatatableLog(unittest2.TestCase):
         response.mustcontain(
             '<div id="logcheckresults_table" class="alignak_webui_table ">',
             "$('#tbl_logcheckresult').DataTable( {",
-            '<table id="tbl_logcheckresult" class="table ',
+            '<table id="tbl_logcheckresult" ',
             '<th data-name="host" data-type="objectid">Host</th>',
             '<th data-name="service" data-type="objectid">Service</th>',
             '<th data-name="state" data-type="string">State</th>',
@@ -1227,7 +1227,7 @@ class TestDatatableHistory(unittest2.TestCase):
         response.mustcontain(
             '<div id="historys_table" class="alignak_webui_table ">',
             "$('#tbl_history').DataTable( {",
-            '<table id="tbl_history" class="table ',
+            '<table id="tbl_history" ',
             '<th data-name="_created" data-type="integer">Date</th>',
             '<th data-name="host" data-type="objectid">Host</th>',
             '<th data-name="service" data-type="objectid">Service</th>',
