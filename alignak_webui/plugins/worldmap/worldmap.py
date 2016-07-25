@@ -138,7 +138,7 @@ pages = {
         'view': 'worldmap_widget',
         'widgets': [
             {
-                'id': 'worldmap_table',
+                'id': 'worldmap',
                 'for': ['external', 'dashboard'],
                 'name': _('Worldmap widget'),
                 'template': 'worldmap_widget',

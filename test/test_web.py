@@ -746,11 +746,11 @@ class Test3Worldmap(unittest2.TestCase):
 
         # Widget
         response = self.app.post('/worldmap/widget', {
-            'widget_id': 'worldmap_widget_1',
+            'widget_id': 'worldmap_1',
             'widget_template': 'worldmap_widget'
         })
         response.mustcontain(
-            '<div id="wd_worldmap_widget_1" class="panel panel-default alignak_webui_widget ">'
+            '<div id="wd_panel_worldmap_1" class="panel panel-default alignak_webui_widget ">'
         )
 
 
