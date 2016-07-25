@@ -38,6 +38,11 @@ class Settings(dict):
     def __init__(self, filename=None):
         """
         Initialize configuration
+
+        If a filename is provided it will be used instead of the default list.
+        `filename` may be a list of files to use.
+
+        :param filename: file to use for loading configuration
         """
         super(Settings, self).__init__()
 
@@ -71,9 +76,12 @@ class Settings(dict):
             return None
 
         if self.filename:
-            settings_filenames = [
-                os.path.abspath(self.filename)
-            ]
+            if not isinstance(self.filename, list):
+                settings_filenames = [
+                    os.path.abspath(self.filename)
+                ]
+            else:
+                settings_filenames = self.filename
         else:
             settings_filenames = [
                 '/usr/local/etc/%s/settings.cfg' % app_name.lower(),
@@ -85,7 +93,6 @@ class Settings(dict):
             ]
 
         try:
-            print("Search configuration files in %s." % settings_filenames)
             config = ConfigParser()
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:
