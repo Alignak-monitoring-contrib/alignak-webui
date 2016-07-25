@@ -331,7 +331,7 @@
 
       <div class="tab-content">
          <div id="host_tab_view" class="tab-pane fade active in" role="tabpanel">
-            %include("_widget.tpl", widget_name='host_custom_host_default', options=None, embedded=True, title=None)
+            %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None)
          </div>
 
          %for widget in webui.widgets['host']:

@@ -1,4 +1,4 @@
-%setdefault('params', {'default_zoom': 6, 'default_lng': 1.87528, 'default_lat': 46.60611, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
+%setdefault('worldmap_parameters', {'default_zoom': 6, 'default_lng': 1.87528, 'default_lat': 46.60611, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
 
 <script>
     // Set true to activate javascript console logs
@@ -7,10 +7,10 @@
           alert('Your web browser does not have any console object ... you should stop using IE ;-) !');
     }
 
-    var defaultZoom = {{ params['default_zoom'] }};
-    var defaultCenter = [{{ params['default_lat'] }}, {{ params['default_lng'] }}];
-    var servicesLevel = {{ params['services_level'] }};
-    var hostsLevel = {{ params['hosts_level'] }};
+    var defaultZoom = {{ worldmap_parameters['default_zoom'] }};
+    var defaultCenter = [{{ worldmap_parameters['default_lat'] }}, {{ worldmap_parameters['default_lng'] }}];
+    var servicesLevel = {{ worldmap_parameters['services_level'] }};
+    var hostsLevel = {{ worldmap_parameters['hosts_level'] }};
 
     %# List hosts and their services
     var hosts = [

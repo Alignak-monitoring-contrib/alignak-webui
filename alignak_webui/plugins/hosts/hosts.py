@@ -450,19 +450,29 @@ schema['ui'] = {
 }
 
 
-def load_config(app, cfg_filenames):
+# Get plugin's parameters from configuration file
+hosts_parameters = None
+hosts_filenames = []
+def load_config(app=None, cfg_filenames=None):
     """
     Load plugin configuration
     """
+    global hosts_parameters, hosts_filenames
+
+    if not cfg_filenames:
+        cfg_filenames = hosts_filenames
+    else:
+        hosts_filenames = cfg_filenames
+
     logger.info("Read plugin configuration file: %s", cfg_filenames)
 
     # Read configuration file
-    config = Settings(cfg_filenames)
-    config_file = config.read('hosts')
+    hosts_parameters = Settings(cfg_filenames)
+    config_file = hosts_parameters.read('hosts')
     logger.info("Plugin configuration read from: %s", config_file)
-    if not config:
+    if not hosts_parameters:
         return False
-    logger.info("Plugin configuration: %s", config)
+    logger.info("Plugin configuration: %s", hosts_parameters)
 
 def get_hosts(templates=False):
     """
@@ -650,6 +660,8 @@ def get_host(host_id):
     """
     Display an host
     """
+    global hosts_parameters
+
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -662,12 +674,12 @@ def get_host(host_id):
     host = datamgr.get_host(host_id)
     if not host:
         # Test if we got a name instead of an id
-        host = datamgr.get_host(search={'name': host_id})
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_id}})
         if not host:
             return webui.response_invalid_parameters(_('Host does not exist'))
 
     # Get host services
-    services = datamgr.get_services(search={'where': {'host': host_id}})
+    services = datamgr.get_services(search={'where': {'host': host.id}})
 
     # Get host livestate
     livestate = datamgr.get_livestate(
@@ -734,6 +746,7 @@ def get_host(host_id):
 
     return {
         'host': host,
+        'hosts_parameters': hosts_parameters,
         'services': services,
         'livestate': livestate,
         'livestate_services': livestate_services,
@@ -858,6 +871,10 @@ def get_host_widget(host_id, widget_id, embedded=False, identifier=None, credent
 
 
 pages = {
+    load_config: {
+        'name': 'Hosts plugin config',
+        'route': '/hosts/config'
+    },
     get_host_widget: {
         'name': 'Host widget',
         'route': '/host_widget/<host_id>/<widget_id>',

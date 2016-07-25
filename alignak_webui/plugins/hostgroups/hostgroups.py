@@ -310,11 +310,7 @@ def get_hostgroup(hostgroup_id):
     if not hostgroup:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('Hosts group element does not exist'))
 
-    return {
-        'hostgroup_id': hostgroup_id,
-        'hostgroup': hostgroup,
-        'title': request.query.get('title', _('Hosts group view'))
-    }
+    return get_hostgroups_table()
 
 
 pages = {
