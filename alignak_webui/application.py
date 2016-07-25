@@ -821,6 +821,7 @@ class WebUI(object):
 
         # Application configuration
         self.app_config = config
+        logger.info("Configuration: %s", self.app_config)
 
         # Load plugins in the plugins directory ...
         self.plugins_count = self.load_plugins(
@@ -972,7 +973,13 @@ class WebUI(object):
                     logger.info(
                         "plugin '%s' needs to load its configuration. Configuring...", plugin_name
                     )
-                    config = f(app)
+                    cfg_files = [
+                        '/usr/local/etc/%s/plugin_%s.cfg' % (self.app_config['name'].lower(), plugin_name),
+                        '/etc/%s/plugin_%s.cfg' % (self.app_config['name'].lower(), plugin_name),
+                        '~/%s/plugin_%s.cfg' % (self.app_config['name'].lower(), plugin_name),
+                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
+                    ]
+                    config = f(app, cfg_files)
                     if config:
                         logger.info("plugin '%s' configured.", plugin_name)
                     else:  # pragma: no cover - if any ...

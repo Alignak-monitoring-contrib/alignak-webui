@@ -320,7 +320,7 @@
             <li>
                <a href="#host_tab_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
-                  title="{{widget['description']}}"
+                  title="{{! widget['description']}}"
                   >
                   <span class="fa fa-{{widget['icon']}}"></span>
                   <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
@@ -357,7 +357,7 @@
          }
       }
 
-      /* Automagically jump on good tab based on anchor */
+      /* Automatically jump on good tab based on anchor */
       $(document).ready(bookmark_switch);
       $(window).bind('hashchange', bookmark_switch);
 

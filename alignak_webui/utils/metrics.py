@@ -50,17 +50,19 @@ class HostMetrics(object):
                 'name': 'cpu|Cpu|CPU|Linux procstat',
                 'metrics': '^percent$|cpu_all_idle|cpu_all_iowait|cpu_all_usr|cpu_all_nice|'
                            'cpu_prct_used|'
-                           'cpu_idle|cpu_iowait|cpu_usr|cpu_nice|total 30s|total 1m|total 5m',
+                           'cpu_idle|cpu_iowait|cpu_usr|cpu_nice|total',
                 'uom': '%'
             },
             'disk': {
                 'name': '^disk|disks|Disks|Partitions$',
-                'metrics': 'used_pct|^/(?!dev|sys|proc|run?)(.*)$',
+                'metrics': 'used_pct|^/(?!dev|sys|proc|run?)(.*)$'
+                           '^(.*): \ used%$',
                 'uom': '^%|(.?)B$'
             },
             'mem': {
                 'name': 'memory|Memory',
-                'metrics': '^ram_free|ram_buffered|ram_cached|ram_total$',
+                'metrics': '^ram_free|ram_buffered|ram_cached|ram_total$'
+                           '^commited %$|^physical %$',
                 'uom': '^%|(.?)B|$'
             },
             'net': {
@@ -94,8 +96,7 @@ class HostMetrics(object):
         name = 'Unknown'
 
         logger.debug("metrics, get_service_metric for %s", service)
-        s = self.find_service_by_name(self.params[service])
-        if s:
+        if self.find_service_by_name(self.params[service]):
             logger.debug("metrics, found %s", s.name)
             name = s.name
             state = s.state_id
@@ -104,7 +105,7 @@ class HostMetrics(object):
             if s.downtime:
                 state = 5
 
-            try:  # pragma: no cover - no livestate data when testing :(
+            try:  # pragma: no cover - no existing data when testing :(
                 p = PerfDatas(s.perf_data)
                 for m in p:
                     if m.name and m.value is not None:

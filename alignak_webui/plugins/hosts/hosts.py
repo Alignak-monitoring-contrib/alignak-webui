@@ -22,7 +22,7 @@
 """
     Plugin Hosts
 """
-
+import os
 import json
 from collections import OrderedDict
 from logging import getLogger
@@ -32,6 +32,9 @@ from bottle import request, template, response
 from alignak_webui import _
 from alignak_webui.plugins.common.common import get_table, get_table_data
 from alignak_webui.plugins.histories.histories import schema as history_schema
+
+# Settings
+from alignak_webui.utils.settings import Settings
 
 logger = getLogger(__name__)
 
@@ -446,6 +449,20 @@ schema['ui'] = {
     }
 }
 
+
+def load_config(app, cfg_filenames):
+    """
+    Load plugin configuration
+    """
+    logger.info("Read plugin configuration file: %s", cfg_filenames)
+
+    # Read configuration file
+    config = Settings(cfg_filenames)
+    config_file = config.read('hosts')
+    logger.info("Plugin configuration read from: %s", config_file)
+    if not config:
+        return False
+    logger.info("Plugin configuration: %s", config)
 
 def get_hosts(templates=False):
     """
