@@ -450,11 +450,24 @@ class Test3(unittest2.TestCase):
         print 'get page /dashboard'
         redirected_response = self.app.get('/dashboard')
         redirected_response.mustcontain(
+            'This file is a part of Alignak-WebUI.',
+            '<!-- Page header -->',
+            '<header>',
+            '<nav id="menu-bar">',
+            '<!-- Templates actions bar -->',
+            '<!-- Dashboard actions bar -->',
+            '<a data-action="display-currently"',
+            '<a data-action="toggle-page-refresh"',
+            '<!-- User info -->',
+            '<div id="page-wrapper" class="container-fluid header-page">',
+
             '<div id="dashboard">',
-            '<nav id="sidebar-menu" class="navbar navbar-default">',
-            '<div id="dashboard">',
-            '<div class="panel panel-default alert-warning" id="propose-widgets" style="margin:10px; display:none">',
-            '<div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>',
+            '<div id="dashboard-synthesis"',
+            '<div id="propose-widgets" ',
+            '<!-- Widgets loading indicator -->',
+            '<div id="widgets_loading"></div>',
+            '<!-- Widgets grid -->',
+            '<!-- Page footer -->'
         )
 
         print 'get page /currently'

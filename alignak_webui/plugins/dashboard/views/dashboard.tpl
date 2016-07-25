@@ -110,7 +110,7 @@
    </div>
 
    %if current_user.can_change_dashboard() and not len(dashboard_widgets):
-   <div class="panel panel-default alert-warning" id="propose-widgets" style="margin:10px; display:none">
+   <div id="propose-widgets" class="panel panel-default alert-warning" style="margin:10px; display:none">
       <div class="panel-body" style="padding-bottom: -10">
          <center>
             <h3>{{_('You do not have any widgets yet ...')}}</h3>
@@ -137,6 +137,7 @@
       <!-- Widgets loading indicator -->
       <div id="widgets_loading"></div>
 
+      <!-- Widgets grid -->
       <div class="grid-stack">
          %for widget in dashboard_widgets:
             <div class="grid-stack-item"
@@ -164,7 +165,7 @@
    </div>
 </div>
 <script type="text/javascript">
-   var dashboard_logs = true;
+   var dashboard_logs = false;
 
    $('.grid-stack').on('change', function (e, items) {
       if (dashboard_logs) console.log("Grid layout changed:", items);

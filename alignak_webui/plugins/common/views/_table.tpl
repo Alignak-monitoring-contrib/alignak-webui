@@ -515,8 +515,9 @@
             p - pagination control
             r - processing display element
          dom: 'Blfrtip',
+         Currently, no global search...
          */
-         dom: "<'row'<'col-xs-8'B><'col-xs-4'>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-8'i><'col-xs-4'p>>",
+         dom: "<'row'<'col-xs-12'B><'col-xs-1'>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-12'i>>" + "<'row'<'col-xs-12'p>>",
          // Table columns visibility button
          buttons: [
             {
