@@ -63,7 +63,7 @@
 </div>
 
 <script>
-   var debugTable = false;
+   var debugTable = true;
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
@@ -272,8 +272,14 @@
             $.each(data.columns, function(index, value) {
                if (value['search']['search'] != "") {
                   if (debugTable) console.debug('Update column', index, value['search']['search'], value);
+
                   // Update search filter input field value
                   $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+
+                  // Configure table filtering
+                  table
+                     .column(index)
+                        .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
 
                   // Enable the clear filter button
                   table.buttons('clearFilter:name').enable();
