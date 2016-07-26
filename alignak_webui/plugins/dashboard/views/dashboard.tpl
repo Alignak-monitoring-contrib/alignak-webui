@@ -1,4 +1,4 @@
-%setdefault('debug', False)
+%setdefault('debug', True)
 
 %setdefault('action_bar', False)
 

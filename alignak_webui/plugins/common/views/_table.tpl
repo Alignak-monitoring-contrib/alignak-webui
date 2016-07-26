@@ -69,7 +69,9 @@
    var selectedRows = [];
 
    $(document).ready(function() {
+      %if not embedded:
       set_current_page("{{ webui.get_url(request.route.name) }}");
+      %end
 
       $.ajaxSetup({
          headers: { "Authorization": "Basic " + btoa('{{credentials}}') }
