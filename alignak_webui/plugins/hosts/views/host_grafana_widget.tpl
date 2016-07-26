@@ -28,7 +28,7 @@
    </div>
    %end
 
-   %for service in livestate_services:
+   %for service in livestate_services or []:
       %if livestate.grafana and livestate.grafana_panelid:
       %dashboard_name = livestate.host.name.replace('.', '-')
       %panel_id = service.grafana_panelid

@@ -181,7 +181,7 @@ class HostMetrics(object):
             state = 5
 
         # Get host's services list
-        for s in self.services:
+        for s in self.services or []:
             s_state = s.state_id
             if s.acknowledged:
                 s_state = 4
