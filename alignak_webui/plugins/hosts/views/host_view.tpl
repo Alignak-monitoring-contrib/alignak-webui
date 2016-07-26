@@ -12,7 +12,7 @@
 %host_name, host_state = services_states[0]
 %services_states = services_states[1:]
 
-<div id="host_view_information" class="col-lg-4 col-sm-3 text-center">
+<div id="host_view_information" class="col-lg-4 col-sm-4 text-center">
    {{! livestate.get_html_state(text=None, size="fa-5x")}}
    <div>
       <strong>{{host.alias}}</strong>
@@ -34,6 +34,10 @@
                </td>
 
                <td>
+                  <small>{{! Helper.get_html_business_impact(lv_service.business_impact)}}</small>
+               </td>
+
+               <td>
                   <small>{{! lv_service.get_html_link()}}</small>
                </td>
             </tr>
@@ -43,7 +47,7 @@
    </div>
    %end
 </div>
-<div id="host_view_graphes" class="col-lg-8 col-sm-9">
+<div id="host_view_graphes" class="col-lg-8 col-sm-8">
    %if not services:
    <center>
       <h3>{{_('No services defined for this host.')}}</h3>
@@ -72,6 +76,9 @@
    var bar_borderColor = "#0000b3";
    var bar_hoverBackgroundColor = "rgba(255,99,132,0.4)";
    var bar_hoverBorderColor = "rgba(255,99,132,1)";
+
+   // Fix for pie/doughnut with a percentage ...
+   Chart.controllers.doughnut.prototype.calculateTotal = function() { return 100; }
 
    $(document).ready(function() {
       %for svc in sorted(metrics.params):
@@ -105,7 +112,7 @@
                   hoverBorderColor: bar_hoverBorderColor,
                   data: data,
                }
-               %if chart_type == 'bar':
+               %if chart_type == 'bar' or chart_type == 'horizontalBar':
                %if svc_warning >= 0:
                ,{
                   label: 'Warning',
@@ -140,7 +147,7 @@
          var ctx = $("#bc_{{svc}} canvas");
          // Set color depending upon state
          ctx.css({'backgroundColor': state_colors[{{svc_state}}]});
-         var myBarChart = new Chart(ctx, {
+         var myChart = new Chart(ctx, {
             %if chart_type == 'gauge':
             type: 'doughnut',
             %else:
@@ -150,7 +157,7 @@
             options: {
                %if chart_type == 'gauge':
                   rotation: Math.PI,
-                  circumference: Math.PI * ({{sum_values}} / 100),
+                  circumference: Math.PI,
                %end
                title: {
                   display: true,

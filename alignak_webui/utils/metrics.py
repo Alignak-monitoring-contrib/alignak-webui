@@ -94,8 +94,12 @@ class HostMetrics(object):
         warning = -1
         critical = -1
 
-        logger.debug("metrics, get_service_metric for %s", service)
-        s = self.find_service_by_name(self.params[service])
+        logger.debug("metrics, get_service_metric for %s (%s)", service, self.params[service])
+        if self.params[service]['name'] == 'host_check':
+            s = self.host
+        else:
+            s = self.find_service_by_name(self.params[service])
+
         if s:
             logger.debug("metrics, matching service: %s", s.name)
             name = s.name
@@ -153,9 +157,21 @@ class HostMetrics(object):
             (service name, service state),
             ...
         ]
+
+        The state is an integer:
+        - 0: OK/UP
+        - 1: WARNING/DOWN
+        - 2: CRITICAL/UNREACHABLE
+        - 3: UNKNOWN
+        - 4: ACK
+        - 5: DOWNTIME
         """
         data = []
-        state = 0
+        state = self.host.state_id
+        if self.host.acknowledged:
+            state = 4
+        if self.host.downtime:
+            state = 5
 
         # Get host's services list
         for s in self.services:
