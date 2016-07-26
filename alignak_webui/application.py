@@ -974,9 +974,15 @@ class WebUI(object):
                         "plugin '%s' needs to load its configuration. Configuring...", plugin_name
                     )
                     cfg_files = [
-                        '/usr/local/etc/%s/plugin_%s.cfg' % (self.app_config['name'].lower(), plugin_name),
-                        '/etc/%s/plugin_%s.cfg' % (self.app_config['name'].lower(), plugin_name),
-                        '~/%s/plugin_%s.cfg' % (self.app_config['name'].lower(), plugin_name),
+                        '/usr/local/etc/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        '/etc/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        '~/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
                         os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
                     ]
                     config = f(app, cfg_files)

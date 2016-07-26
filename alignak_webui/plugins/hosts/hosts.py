@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=global-statement, global-variable-not-assigned
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -40,6 +41,10 @@ logger = getLogger(__name__)
 
 # Will be populated by the UI with it's own value
 webui = None
+
+# Globals for plugin parameters
+hosts_parameters = None
+hosts_filenames = []
 
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
@@ -451,9 +456,8 @@ schema['ui'] = {
 
 
 # Get plugin's parameters from configuration file
-hosts_parameters = None
-hosts_filenames = []
 def load_config(app=None, cfg_filenames=None):
+    # pylint: disable=unused-argument
     """
     Load plugin configuration
     """
@@ -473,6 +477,7 @@ def load_config(app=None, cfg_filenames=None):
     if not hosts_parameters:
         return False
     logger.info("Plugin configuration: %s", hosts_parameters)
+
 
 def get_hosts(templates=False):
     """
