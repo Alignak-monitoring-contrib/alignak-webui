@@ -236,7 +236,7 @@ class tests_0_external(unittest2.TestCase):
             '<html lang="en">',
             '<body>',
             '<section>',
-            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<div id="hosts_table" class="alignak_webui_table embedded">',
             '</section>',
             '</body>'
         )
@@ -249,7 +249,7 @@ class tests_0_external(unittest2.TestCase):
             '/external/table/hosts_table'
         )
         response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="#" data-type="string"></th>',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
@@ -265,7 +265,7 @@ class tests_0_external(unittest2.TestCase):
             '/external/table/hosts_table?links'
         )
         response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="#" data-type="string"></th>',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
@@ -281,12 +281,12 @@ class tests_0_external(unittest2.TestCase):
             '/external/table/hosts_table?links=http://test'
         )
         response.mustcontain(
-            '<div id="host_table" class="alignak_webui_table embedded">',
+            '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="#" data-type="string"></th>',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
-            '"url": "http://localhost:80/external/table/hosts_table/host_table_data",'
+            '"url": "http://localhost:80/external/table/hosts_table/hosts_table_data",'
         )
 
     def test_0_1_4_host_widgets(self):
