@@ -22,6 +22,9 @@ logger = getLogger(__name__)
 # Will be valued by the plugin loader
 webui = None
 
+# Declare backend element endpoint
+backend_endpoint = 'user'
+
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
@@ -242,7 +245,7 @@ def get_users():
     }
 
 
-def get_users_list():
+def get_users_list(embedded=False):
     """
     Get the users list
     """
@@ -254,7 +257,7 @@ def get_users_list():
 
     items = []
     for user in users:
-        items.append({'id': user.id, 'name': user.alias})
+        items.append({'id': user.id, 'name': user.name, 'alias': user.alias})
 
     response.status = 200
     response.content_type = 'application/json'

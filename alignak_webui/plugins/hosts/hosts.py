@@ -42,6 +42,9 @@ logger = getLogger(__name__)
 # Will be populated by the UI with it's own value
 webui = None
 
+# Declare backend element endpoint
+backend_endpoint = 'host'
+
 # Globals for plugin parameters
 hosts_parameters = None
 hosts_filenames = []
@@ -477,6 +480,7 @@ def load_config(app=None, cfg_filenames=None):
     if not hosts_parameters:
         return False
     logger.info("Plugin configuration: %s", hosts_parameters)
+    return True
 
 
 def get_hosts(templates=False):
@@ -523,7 +527,7 @@ def get_hosts(templates=False):
     }
 
 
-def get_hosts_list():
+def get_hosts_list(embedded=False):
     """
     Get the hosts list
     """
@@ -535,7 +539,7 @@ def get_hosts_list():
 
     items = []
     for host in hosts:
-        items.append({'id': host.id, 'name': host.alias})
+        items.append({'id': host.id, 'name': host.name, 'alias': host.alias})
 
     response.status = 200
     response.content_type = 'application/json'

@@ -37,6 +37,9 @@ logger = getLogger(__name__)
 # Will be populated by the UI with it's own value
 webui = None
 
+# Declare backend element endpoint
+backend_endpoint = 'service'
+
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
@@ -459,7 +462,7 @@ def get_services(templates=False):
     }
 
 
-def get_services_list():
+def get_services_list(embedded=False):
     """
     Get the services list
     """
@@ -471,7 +474,7 @@ def get_services_list():
 
     items = []
     for service in services:
-        items.append({'id': service.id, 'name': service.alias})
+        items.append({'id': service.id, 'name': service.name, 'alias': service.alias})
 
     response.status = 200
     response.content_type = 'application/json'
