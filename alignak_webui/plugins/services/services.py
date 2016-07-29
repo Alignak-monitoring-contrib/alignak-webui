@@ -79,6 +79,19 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
+}
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {

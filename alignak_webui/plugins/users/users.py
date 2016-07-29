@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015-2016 F. Mohier pour IPM France
+# Copyright (C) 2015-2016 F. Mohier
 
 """
     Plugin Users
@@ -43,6 +43,19 @@ schema['name'] = {
         # This field is orderable (default: True)
         'orderable': True,
     },
+}
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
 }
 schema['definition_order'] = {
     'type': 'integer',

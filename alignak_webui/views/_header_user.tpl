@@ -43,8 +43,8 @@
       </li>
       %end
       <li class="user-header">
-         <div class="panel panel-info" id="user_info">
-            <div class="panel-body panel-default">
+         <div class="panel panel-default">
+            <div class="panel-body">
                <!-- User image / name -->
                <p class="username">{{current_user.alias}}</p>
                <p class="usercategory">
@@ -54,25 +54,25 @@
             </div>
             <div class="panel-footer">
                <div class="btn-group" role="group">
-                  <a class="btn btn-default" href="#"
+                  <a class="btn btn-default btn-raised" href="#"
                      data-action="about-box" data-toggle="tooltip" data-placement="bottom"
                      title="{{_('Display application information')}}">
                      <span class="fa fa-question"></span>
                   </a>
                   %if current_user.is_administrator():
-                  <a class="btn btn-default" href="#"
+                  <a class="btn btn-default btn-raised" href="#"
                      data-action="edition-mode" data-state="{{'on' if edition_mode else 'off'}}" data-toggle="tooltip" data-placement="bottom"
                      title="{{_('Enter edition mode')}}">
                      <span class="text-danger fa fa-edit"></span>
                   </a>
 
-                  <a class="btn btn-default" href="/preferences/user"
+                  <a class="btn btn-default btn-raised" href="/preferences/user"
                      data-action="user-preferences" data-toggle="tooltip" data-placement="bottom"
                      title="{{_('Show all the stored user preferences')}}">
                      <span class="fa fa-pencil"></span>
                   </a>
                   %end
-                  <a class="btn btn-default" href="/logout"
+                  <a class="btn btn-default btn-raised" href="/logout"
                      data-action="logout" data-toggle="tooltip" data-placement="bottom"
                      title="{{_('Disconnect from the application')}}">
                      <span class="fa fa-sign-out"></span>

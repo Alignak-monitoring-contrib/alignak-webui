@@ -42,7 +42,7 @@ body {
 .debug {
     position: absolute;
     top: 70px;
-    left: 10px;
+    right: 10px;
     z-index: 10000;
 }
 
@@ -282,40 +282,24 @@ padding: 0;
 
 /*
  * Navigation bar, user dropdown menu
+ */
 .user-menu > .dropdown-menu {
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  padding: 1px 0 0 0;
-  border-top-width: 0;
-  width: 280px;
-}
-.user-menu > .dropdown-menu:after {
-  bottom: 100%;
-  right: 10px;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  border-color: rgba(255, 255, 255, 0);
-  border-bottom-color: #ffffff;
-  border-width: 10px;
-  margin-left: -10px;
-}
-.user-menu > .dropdown-menu > li.user-header {
-  height: auto;
-  padding: 5px;
-  background: #dddddd;
-  text-align: center;
-}
-*/
-.user-menu > .dropdown-menu {
-    padding: 1px 0 0 0;
     border-top-width: 0;
     width: 320px;
-    background: #dddddd;
     text-align: center;
+    margin-right: 5px;
+}
+.user-menu > .dropdown-menu .panel {
+    margin-bottom: 0px;
+    margin: 0; padding: 0;
+}
+.user-menu > .dropdown-menu .username {
+    color: black;
+    font-size: 1.2em;
+}
+.user-menu > .dropdown-menu .usercategory {
+    color: black;
+    font-size: 1em;
 }
 
 /*

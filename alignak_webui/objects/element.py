@@ -681,7 +681,7 @@ class BackendElement(object):
         """
         Get Item html link
         """
-        return '<a href="%s">%s</a>' % (self.endpoint, self.alias)
+        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.alias, self.name)
 
     def get_html_link(self, prefix=None, title=None):
         """

@@ -88,6 +88,19 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
+}
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {
@@ -285,7 +298,7 @@ schema['notification_options'] = {
     'default': ['o', 'd', 'u'],
     'allowed': ['o', 'd', 'u'],
     'ui': {
-        'title': _('Flapping detection options'),
+        'title': _('Notification options'),
         'visible': True,
         'format': {
             'list_type': "multichoices",
@@ -353,7 +366,7 @@ schema['stalking_options'] = {
     'default': [],
     'allowed': ['o', 'd', 'u'],
     'ui': {
-        'title': _('Flapping detection options'),
+        'title': _('Stalking options'),
         'visible': True,
         'format': {
             'list_type': "multichoices",
