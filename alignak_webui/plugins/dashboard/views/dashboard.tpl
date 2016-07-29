@@ -110,7 +110,7 @@
    </div>
 
    %if current_user.can_change_dashboard() and not len(dashboard_widgets):
-   <div id="propose-widgets" class="panel panel-default alert-warning" style="margin:10px; display:none">
+   <div id="propose-widgets" class="panel panel-warning" style="margin:10px; display:none">
       <div class="panel-body" style="padding-bottom: -10">
          <center>
             <h3>{{_('You do not have any widgets yet ...')}}</h3>
