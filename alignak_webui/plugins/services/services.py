@@ -633,6 +633,13 @@ pages = {
             ('/services_table', 'Services table')
         ],
         'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            '01': (_('Services'), '_is_template:false'),
+            '02': ('', ''),
+            '03': (_('Services templates'), '_is_template:true')
+        },
         'tables': [
             {
                 'id': 'services_table',

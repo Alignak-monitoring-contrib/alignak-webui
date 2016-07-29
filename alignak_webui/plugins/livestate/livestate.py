@@ -373,13 +373,16 @@ pages = {
         'search_engine': True,
         'search_prefix': '',
         'search_filters': {
-            _('Hosts up'): 'type:host state:UP',
-            _('Hosts down'): 'type:host state:DOWN',
-            _('Hosts unreachable'): 'type:host state:UNREACHABLE',
-            _('Services ok'): 'type:service state:OK',
-            _('Services warning'): 'type:service state:WARNING',
-            _('Services critical'): 'type:service state:CRITICAL',
-            _('Services unknown'): 'type:service state:UNKNOWN',
+            '01': (_('Hosts only'), 'type:host'),
+            '02': (_('Hosts up'), 'type:host state:UP'),
+            '03': (_('Hosts down'), 'type:host state:DOWN'),
+            '04': (_('Hosts unreachable'), 'type:host state:UNREACHABLE'),
+            '05': ('', ''),
+            '06': (_('Services only'), 'type:service'),
+            '07': (_('Services ok'), 'type:service state:OK'),
+            '08': (_('Services warning'), 'type:service state:WARNING'),
+            '09': (_('Services critical'), 'type:service state:CRITICAL'),
+            '10': (_('Services unknown'), 'type:service state:UNKNOWN'),
         },
         'tables': [
             {

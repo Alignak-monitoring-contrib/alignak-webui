@@ -154,9 +154,15 @@ Example::
             'view': '_table',
             'search_engine': True,
             'search_prefix': '',
+            # Must use this complex structure because we want ordering ... and OrderedDict are not supported.
             'search_filters': {
-                _('Hosts'): '_is_template:false',
-                _('Host templates'): '_is_template:true',
+                # 01 for sorting as first
+                # Title
+                # Filter: field name : value
+                '01': (_('Hosts'), '_is_template:false'),
+                # Create a line divider
+                '02': ('', ''),
+                '03': (_('Hosts templates'), '_is_template:true'),
             },
             'tables': [
                 {

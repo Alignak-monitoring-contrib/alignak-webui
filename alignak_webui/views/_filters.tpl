@@ -27,10 +27,15 @@
             <a role="menuitem" href="{{search_action}}?search=">{{_('All')}}</a>
          </li>
          <li role="presentation" class="divider"></li>
-         %for k,v in sorted(search_filters.items()):
+         %for k in sorted(search_filters.keys()):
+            %title,filter = search_filters[k]
+            %if not title:
+            <li class="divider"/>
+            %else:
             <li role="presentation">
-               <a role="menuitem" href="{{search_action}}?search={{v}}">{{k}}</a>
+               <a role="menuitem" href="{{search_action}}?search={{filter}}">{{title}}</a>
             </li>
+            %end
          %end
       </ul>
    </li>

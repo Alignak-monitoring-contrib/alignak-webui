@@ -1037,8 +1037,9 @@ pages = {
         'search_engine': True,
         'search_prefix': '',
         'search_filters': {
-            _('Hosts'): '_is_template:false',
-            _('Host templates'): '_is_template:true',
+            '01': (_('Hosts'), '_is_template:false'),
+            '02': ('', ''),
+            '03': (_('Hosts templates'), '_is_template:true')
         },
         'tables': [
             {
