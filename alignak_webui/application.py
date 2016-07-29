@@ -176,6 +176,14 @@ def enable_cors(fn):
     """
     def _enable_cors(*args, **kwargs):
         # set CORS headers
+        logger.debug(
+            "CORS enabled request: %s", request.method
+        )
+        for header in request.headers:
+            logger.debug(
+                " - request header: %s - %s", header, request.headers[header]
+            )
+
         response.headers['Access-Control-Allow-Origin'] = \
             request.app.config.get('cors_acao', 'http://127.0.0.1')
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
@@ -186,6 +194,8 @@ def enable_cors(fn):
         if bottle.request.method != 'OPTIONS':
             # actual request; reply with the actual response
             return fn(*args, **kwargs)
+
+        # response.status = 204
 
     return _enable_cors
 
@@ -259,7 +269,11 @@ def external(widget_type, identifier, action=None):
         BaseTemplate.defaults['target_user'] = session['target_user']
         BaseTemplate.defaults['datamgr'] = session['datamanager']
 
-    if widget_type not in ['widget', 'table', 'host']:
+    logger.debug(
+        "External request, widget type: %s", widget_type
+    )
+
+    if widget_type not in ['widget', 'table', 'list', 'host']:
         logger.warning("External application requested unknown type: %s", widget_type)
         response.status = 409
         response.content_type = 'text/html'
@@ -282,7 +296,7 @@ def external(widget_type, identifier, action=None):
                 '<div><h1>Unknown required widget: %s.</h1>'
                 '<p>The required widget is not available.</p></div>' % identifier
             )
-        logger.info("Found widget: %s", found_widget)
+        logger.debug("Found widget: %s", found_widget)
 
         embedded_element = found_widget['function'](
             embedded=True,
@@ -310,7 +324,7 @@ def external(widget_type, identifier, action=None):
                 '<div><h1>Unknown required table: %s.</h1>'
                 '<p>The required table is not available.</p></div>' % identifier
             )
-        logger.info("Found table: %s", found_table)
+        logger.debug("Found table: %s", found_table)
 
         if action and action in found_table['actions']:
             logger.info("Required action: %s", action)
@@ -326,6 +340,15 @@ def external(widget_type, identifier, action=None):
                 embedded=True, identifier=identifier, credentials=credentials
             )
         })
+
+    if widget_type == 'list':
+        if identifier in get_app_webui().lists:
+            return get_app_webui().lists[identifier]['function'](embedded=True)
+        else:
+            logger.warning("External application requested unknown list: %s", identifier)
+            return WebUI.response_ko(_('Unknown required list'))
+        logger.debug("Found list: %s", found_list)
+
 
     if widget_type == 'host':
         if not action:
@@ -351,7 +374,7 @@ def external(widget_type, identifier, action=None):
                 '<div><h1>Unknown required widget: %s.</h1>'
                 '<p>The required widget is not available.</p></div>' % action
             )
-        logger.info("Found widget: %s", found_widget)
+        logger.debug("Found host widget: %s", found_widget)
 
         if request.params.get('page', 'no') == 'no':
             return found_widget['function'](
@@ -816,6 +839,9 @@ class WebUI(object):
         # Store all the tables
         self.tables = {}
 
+        # Store all the lists
+        self.lists = {}
+
         # Helper class
         self.helper = Helper()
 
@@ -893,6 +919,18 @@ class WebUI(object):
                                 search_filters=entry.get('search_filters', {})
                             )
 
+                            # Plugin is dedicated to a backend endpoint...
+                            if hasattr(plugin, 'backend_endpoint'):
+                                if route_url == ('/%ss_list' % plugin.backend_endpoint):
+                                    self.lists['%ss_list' % plugin.backend_endpoint] = {
+                                        'id': plugin.backend_endpoint,
+                                        'base_uri': route_url,
+                                        'function': f
+                                    }
+                                    logger.info(
+                                        "Found list '%s' for %s", route_url, plugin.backend_endpoint
+                                    )
+
                         # It's a valid widget entry if it got all data, and at least one route
                         if 'widgets' in entry:
                             for widget in entry.get('widgets'):
@@ -921,7 +959,7 @@ class WebUI(object):
                                         'base_uri': route_url,
                                         'function': f
                                     })
-                                    logger.debug(
+                                    logger.info(
                                         "Found widget '%s' for %s", widget['id'], place
                                     )
 
@@ -948,7 +986,7 @@ class WebUI(object):
                                         'function': f,
                                         'actions': table.get('actions', {})
                                     })
-                                    logger.debug(
+                                    logger.info(
                                         "Found table '%s' for %s", table['id'], place
                                     )
 
@@ -1017,7 +1055,7 @@ class WebUI(object):
 
     def get_widgets_for(self, place):
         """
-        For a specific place like 'dashboard', return the application widgets list
+        For a specific place like 'dashboard' or 'external', returns the application widgets list
         """
         return self.widgets.get(place, [])
 
