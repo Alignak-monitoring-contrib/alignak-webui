@@ -1,5 +1,7 @@
 %import json
 
+%setdefault('debug', False)
+
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -63,7 +65,7 @@
 </div>
 
 <script>
-   var debugTable = true;
+   var debugTable = {{'true' if debug else 'false'}};
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
