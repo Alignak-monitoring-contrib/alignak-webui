@@ -562,7 +562,7 @@ class Helper(object):
                 content += list_item.replace("##content##", item)
             elif isinstance(item, dict):
                 list_item = app_config.get('tables.lists.item')
-                content += list_item.replace("##content##", item)
+                content += list_item.replace("##content##", str(item))
             else:
                 list_item = app_config.get('tables.lists.item')
                 content += list_item.replace("##content##", item.get_html_state_link())
