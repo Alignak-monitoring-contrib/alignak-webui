@@ -266,8 +266,8 @@ class Test3LoadCreate(unittest2.TestCase):
         # Initialize and load ... with reset
         result = self.dmg.load(reset=True)
         print("Result:", result)
-        # Must have loaded some objects ...
-        self.assertNotEqual(result, 0)
+        # Must not have loaded any objects ... behavior changed, no more objects loading on login
+        self.assertEqual(result, 0)
 
     def test_3_3_get_errors(self):
         print("")
