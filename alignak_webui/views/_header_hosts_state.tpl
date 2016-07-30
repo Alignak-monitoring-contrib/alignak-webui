@@ -40,7 +40,7 @@
    title="{{_('Overall hosts states: %d hosts (%d problems)') % (hs['nb_elts'], hs['nb_problems'])}}"
    data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}"
    data-original-title="{{_('Hosts states')}}"
-   data-toggle="popover popover-hosts"
+   data-toggle="popover"
    data-html="true" data-trigger="hover">
    <span class="fa fa-{{icon}}"></span>
    <span class="label label-as-badge label-{{font}}">{{hs["nb_problems"] if hs["nb_problems"] > 0 else ''}}</span>
@@ -51,7 +51,7 @@
    $('#hosts-states-popover').popover({
       placement: 'bottom',
       animation: true,
-      template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
+      template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
       content: function() {
          return $('#hosts-states-popover-content').html();
       }
