@@ -29,7 +29,7 @@
 from alignak_webui.objects.element import BackendElement
 
 
-class Realm(BackendElement):
+class UserRestrictRole(BackendElement):
     """
     Object representing a realm
     """
@@ -37,24 +37,15 @@ class Realm(BackendElement):
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'realm'
+    _type = 'userrestrictrole'
     # _cache is a list of created objects
     _cache = {}
 
     def _create(self, params, date_format):
         """
-        Create a realm (called only once when an object is newly created)
+        Create a userrestrictrole (called only once when an object is newly created)
         """
-        self._linked__parent = 'realm'
+        self._linked_user = 'user'
+        self._linked_realm = 'realm'
 
-        super(Realm, self)._create(params, date_format)
-
-    @property
-    def parent(self):
-        """ Return group parent """
-        return self._linked__parent
-
-    @property
-    def level(self):
-        """ Return group level """
-        return self._level
+        super(UserRestrictRole, self)._create(params, date_format)

@@ -173,13 +173,14 @@ class Datatable(object):
                 self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
                 continue
 
-            if 'ui' in model and ('visible' not in model['ui'] or not model['ui']['visible']):
-                continue
-
             # If element is considered for the UI
             if 'ui' not in model:
                 continue
-            logger.debug("get_data_model, visible field: %s = %s", field, model)
+
+            if not model['ui'].get('visible'):
+                continue
+
+            logger.warning("get_data_model, visible field: %s = %s", field, model)
 
             ui_dm['model']['fields'].update({field: {
                 'data': field,
@@ -189,7 +190,6 @@ class Datatable(object):
                 'regex': model['ui'].get('regex', True),
                 'title': model['ui'].get('title', field),
                 'format': model['ui'].get('format', 'string'),
-                # 'width': model['ui'].get('width', '50px'),
                 'size': model['ui'].get('size', 10),
                 'visible': not model['ui'].get('hidden', False),
                 'orderable': model['ui'].get('orderable', True),
@@ -582,7 +582,7 @@ class Datatable(object):
 
                     if field['type'] == 'list':
                         item[key] = Helper.get_html_item_list(
-                            bo_object, field['format'],
+                            bo_object.id, key,
                             getattr(bo_object, key), title=field['title']
                         )
 

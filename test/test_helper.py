@@ -35,25 +35,17 @@ helper = Helper()
 
 
 def setup_module():
-    print ("")
+    print("")
 
     # Get configuration from only one file ...
-    print ("read configuration")
+    print("read configuration")
     cfg = Settings("settings.cfg")
     found_cfg_files = cfg.read('Alignak-WebUI')
     assert found_cfg_files
     set_app_config(cfg)
 
 
-class TestHelper(unittest2.TestCase):
-    def setUp(self):
-        print("")
-        print("setting up ...")
-
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
+class TestDate(unittest2.TestCase):
     def test_01_print_date(self):
         print("---")
 
@@ -83,6 +75,8 @@ class TestHelper(unittest2.TestCase):
         s = helper.print_date(now, fmt=None)
         print("Result:", s)
 
+
+class TestDuration(unittest2.TestCase):
     def test_02_print_duration(self):
         print("---")
 
@@ -238,6 +232,8 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         self.assertEqual(s, 'in 2M 2w')
 
+
+class TestOnOff(unittest2.TestCase):
     def test_03_print_on_off(self):
         print("---")
 
@@ -287,6 +283,8 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         self.assertEqual(s, '<i title="off" class="fa fa-fw fa-close text-danger">Message</i>')
 
+
+class TestNavigation(unittest2.TestCase):
     def test_04_navigation_control(self):
         print("---")
 
@@ -364,6 +362,8 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         self.assertEqual(len(s), 8)
 
+
+class TestSearch(unittest2.TestCase):
     def test_05_search(self):
         print("---")
 
@@ -387,6 +387,8 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         assert s == {'$in': {'state_id': ['1', '2', '3']}}
 
+
+class TestBI1(unittest2.TestCase):
     @unittest2.skip("Replaced by another test because of stars :)")
     def test_06_print_business_impact(self):
         print("---")
@@ -466,6 +468,8 @@ class TestHelper(unittest2.TestCase):
         self.assert_(
             s == 'Business critical <i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i>')
 
+
+class TestBI(unittest2.TestCase):
     def test_06_bis_print_business_impact(self):
         print("---")
 
@@ -540,6 +544,8 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         self.assert_(s == 'Business critical ' + '<i class="fa fa-star text-primary"></i>' * 5)
 
+
+class TestTP(unittest2.TestCase):
     def test_07_bis_print_timeperiod(self):
         print("---")
 
@@ -565,3 +571,45 @@ class TestHelper(unittest2.TestCase):
         print("Result:", s)
         self.assertEqual(s,
                          '<button class="btn btn-default btn-xs btn-block" type="button"data-toggle="collapse" data-target="#html_tp_575a7dd74c988c170e857988" aria-expanded="false" aria-controls="html_tp_575a7dd74c988c170e857988">All time default 24x7</button><div class="collapse" id="html_tp_575a7dd74c988c170e857988"><div class="well"><ul class="list-group"><li class="list-group-item"><span class="fa fa-check">&nbsp;monday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;tuesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;wednesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;thursday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;friday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;saturday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;sunday - 00:00-24:00</li></ul></div></div>')
+
+
+class TestHtmlList(unittest2.TestCase):
+    def test_01_html_list(self):
+        print("---")
+
+        # Empty list
+        s = helper.get_html_item_list('id', 'type', [])
+        print("Result:", s)
+        self.assertEqual(s, '')
+
+        # Default
+        s = helper.get_html_item_list('id', 'type', ['1', '2'])
+        print("Result:", s)
+        self.assertEqual(s,
+                         '<button class="btn btn-xs btn-block btn-raised" '
+                         'data-toggle="collapse" data-target="#list_type_id" aria-expanded="false">'
+                         'type'
+                         '</button>'
+                         '<div class="collapse" id="list_type_id"><div class="well">'
+                         '<ul class="list-group">'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</li>'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</li>'
+                         '</ul>'
+                         '</div>'
+                         '</div>')
+
+        # Default
+        s = helper.get_html_item_list('id', 'type', ['1', '2'], 'title')
+        print("Result:", s)
+        self.assertEqual(s,
+                         '<button class="btn btn-xs btn-block btn-raised" '
+                         'data-toggle="collapse" data-target="#list_type_id" aria-expanded="false">'
+                         'title'
+                         '</button>'
+                         '<div class="collapse" id="list_type_id"><div class="well">'
+                         '<ul class="list-group">'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</li>'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</li>'
+                         '</ul>'
+                         '</div>'
+                         '</div>')

@@ -56,6 +56,7 @@ from alignak_webui.objects.item_log import *
 from alignak_webui.objects.item_actions import *
 from alignak_webui.objects.item_livestate import *
 from alignak_webui.objects.item_livesynthesis import *
+from alignak_webui.objects.item_userrestrictrole import *
 from alignak_webui.objects.item_uipref import *
 
 
@@ -292,27 +293,27 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get all realms
         # -----------------------------------------------------------------------------------------
-        self.get_realms()
+        # self.get_realms()
 
         # -----------------------------------------------------------------------------------------
         # Get all users
         # -----------------------------------------------------------------------------------------
-        self.get_users()
+        # self.get_users()
 
         # -----------------------------------------------------------------------------------------
         # Get all timeperiods
         # -----------------------------------------------------------------------------------------
-        self.get_timeperiods()
+        # self.get_timeperiods()
 
         # -----------------------------------------------------------------------------------------
         # Get all commands
         # -----------------------------------------------------------------------------------------
-        self.get_commands()
+        # self.get_commands()
 
         # -----------------------------------------------------------------------------------------
         # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
-        self.get_livestate()
+        # self.get_livestate()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -1313,6 +1314,13 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'host_notification_commands': 1,
+                    'service_notification_commands': 1
+                }
+            })
 
         try:
             logger.debug("get_users, search: %s", search)

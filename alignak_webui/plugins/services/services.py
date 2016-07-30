@@ -92,7 +92,7 @@ schema['_realm'] = {
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {
-        'title': _('Service template'),
+        'title': _('Template'),
         'visible': True,
         'hidden': True
     },
@@ -105,6 +105,14 @@ schema['definition_order'] = {
         'hidden': True,
         'orderable': False,
     },
+}
+schema['tags'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Tags'),
+        'visible': True,
+    }
 }
 schema['alias'] = {
     'type': 'string',
@@ -120,6 +128,12 @@ schema['display_name'] = {
         'visible': True
     },
 }
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
+}
 schema['host'] = {
     'type': 'objectid',
     'ui': {
@@ -129,6 +143,14 @@ schema['host'] = {
     'data_relation': {
         'resource': 'host',
         'embeddable': True
+    }
+}
+schema['customs'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Customs'),
+        'visible': True,
     }
 }
 schema['hostgroup_name'] = {
@@ -286,29 +308,24 @@ schema['first_notification_delay'] = {
 }
 schema['notification_options'] = {
     'type': 'list',
-    'default': ['o', 'd', 'u'],
-    'allowed': ['o', 'd', 'u'],
+    'default': ['w', 'u', 'c', 'r', 'f', 's'],
+    'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n'],
     'ui': {
         'title': _('Flapping detection options'),
         'visible': True,
         'format': {
             'list_type': "multichoices",
             'list_allowed': {
-                u"d": u"Send notifications on Down state",
-                u"r": u"Send notifications on recoveries",
-                u"u": u"Send notifications on Unreachable state",
+                u"w": u"Send notifications on Warning state",
+                u"c": u"Send notifications on Critical state",
+                u"u": u"Send notifications on Unknown state",
+                u"r": u"Send notifications on recovery",
                 u"f": u"Send notifications on flapping start/stop",
                 u"s": u"Send notifications on scheduled downtime start/stop",
                 u"n": u"Do not send notifications"
             }
         }
     },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
 }
 schema['notes_url'] = {
     'type': 'string',

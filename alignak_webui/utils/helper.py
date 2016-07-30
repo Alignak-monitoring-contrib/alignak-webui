@@ -43,7 +43,7 @@ class Helper(object):
     """
     def __init__(self):
         """ Empty ... """
-        pass
+        self.config = get_app_config()
 
     @staticmethod
     def print_date(timestamp, fmt='%Y-%m-%d %H:%M:%S'):
@@ -115,7 +115,7 @@ class Helper(object):
         # Now manage all case like in the past
         seconds = abs(seconds)
 
-        seconds = long(round(seconds))
+        seconds = int(round(seconds))
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
@@ -123,12 +123,12 @@ class Helper(object):
         months, weeks = divmod(weeks, 4)
         years, months = divmod(months, 12)
 
-        minutes = long(minutes)
-        hours = long(hours)
-        days = long(days)
-        weeks = long(weeks)
-        months = long(months)
-        years = long(years)
+        minutes = int(minutes)
+        hours = int(hours)
+        days = int(days)
+        weeks = int(weeks)
+        months = int(months)
+        years = int(years)
 
         duration = []
         if years > 0:
@@ -538,44 +538,37 @@ class Helper(object):
         return content
 
     @staticmethod
-    def get_html_item_list(bo_object, object_type, objects_list, title=None):
+    def get_html_item_list(object_id, object_type, objects_list, title=None):
         """
         Build an html definition list for the items list
         """
         if not objects_list:
             return ''
 
-        content = '<button class="btn btn-default btn-xs btn-block" type="button"' \
-                  'data-toggle="collapse" data-target="#list_%s_%s" aria-expanded="false">'\
-                  '%s</button>' \
-                  '<div class="collapse" id="list_%s_%s"><div class="well">' % (
-                      object_type, bo_object.id,
-                      object_type if not title else title,
-                      object_type, bo_object.id
-                  )
+        # Get global configuration
+        app_config = get_app_config()
 
-        content += '<ul class="list-group">'
+        button = app_config.get('tables.lists.button')
+        button = button.replace("##id##", object_id)
+        button = button.replace("##type##", object_type)
+        button = button.replace("##title##", object_type if not title else title)
+
+        items_list = app_config.get('tables.lists.list')
+
+        content = ''
         for item in objects_list:
             if isinstance(item, basestring):
-                content += \
-                    '<li class="list-group-item">'\
-                    '<span class="fa fa-check">&nbsp;%s</li>' % (
-                        item
-                    )
+                list_item = app_config.get('tables.lists.item')
+                content += list_item.replace("##content##", item)
             elif isinstance(item, dict):
-                content += \
-                    '<li class="list-group-item">'\
-                    '<span class="fa fa-check">&nbsp;%s</li>' % (
-                        item
-                    )
+                list_item = app_config.get('tables.lists.item')
+                content += list_item.replace("##content##", item)
             else:
-                content += \
-                    '<li class="list-group-item">'\
-                    '<span class="fa fa-check">&nbsp;%s</li>' % (
-                        item.get_html_state_link()
-                    )
-        content += '</ul>'
-        content += '</div></div>'
+                list_item = app_config.get('tables.lists.item')
+                content += list_item.replace("##content##", item.get_html_state_link())
+
+        content = items_list.replace("##content##", content)
+        content = button.replace("##content##", content)
 
         return content
 

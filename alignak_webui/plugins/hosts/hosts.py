@@ -101,7 +101,7 @@ schema['_realm'] = {
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {
-        'title': _('Host template'),
+        'title': _('Template'),
         'visible': True,
         'hidden': True
     },
@@ -114,6 +114,14 @@ schema['definition_order'] = {
         'hidden': True,
         'orderable': False,
     },
+}
+schema['tags'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Tags'),
+        'visible': True,
+    }
 }
 schema['alias'] = {
     'type': 'string',
@@ -129,12 +137,26 @@ schema['display_name'] = {
         'visible': True
     },
 }
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
+}
 schema['address'] = {
     'type': 'string',
     'ui': {
         'title': _('Address'),
         'visible': True
     },
+}
+schema['customs'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Customs'),
+        'visible': True,
+    }
 }
 schema['check_command'] = {
     'type': 'objectid',
@@ -293,7 +315,7 @@ schema['first_notification_delay'] = {
 schema['notification_options'] = {
     'type': 'list',
     'default': ['o', 'd', 'u'],
-    'allowed': ['o', 'd', 'u'],
+    'allowed': ['o', 'd', 'u', 'r', 'f', 's', 'n'],
     'ui': {
         'title': _('Notification options'),
         'visible': True,
@@ -301,8 +323,8 @@ schema['notification_options'] = {
             'list_type': "multichoices",
             'list_allowed': {
                 u"d": u"Send notifications on Down state",
-                u"r": u"Send notifications on recoveries",
                 u"u": u"Send notifications on Unreachable state",
+                u"r": u"Send notifications on recoveries",
                 u"f": u"Send notifications on flapping start/stop",
                 u"s": u"Send notifications on scheduled downtime start/stop",
                 u"n": u"Do not send notifications"
@@ -338,12 +360,6 @@ schema['location'] = {
     'type': 'point',
     'ui': {
         'title': _('Location')
-    }
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
     }
 }
 schema['notes_url'] = {

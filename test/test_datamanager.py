@@ -115,7 +115,7 @@ class Test1FindAndSearch(unittest2.TestCase):
         self.assertFalse(datamanager.loaded )
         self.assertIsNone(datamanager.get_logged_user())
         # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), 17)
+        self.assertEqual(len(datamanager.known_classes), 18)
 
         # Login ...
         assert datamanager.backend.login('admin', 'admin')
@@ -160,7 +160,7 @@ class Test2Creation(unittest2.TestCase):
         assert datamanager.get_logged_user() is None
         print('Data manager', datamanager)
         # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), 17)
+        self.assertEqual(len(datamanager.known_classes), 18)
 
         # Initialize and load fail ...
         print('DM load failed')

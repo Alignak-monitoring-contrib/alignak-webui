@@ -17,6 +17,12 @@
    .jstree-contextmenu {
        z-index: 1000;
    }
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    height: 40px;
+}
 </style>
 
 <!-- Tree display -->
@@ -49,20 +55,22 @@
       <div class="panel panel-default">
          <div class="panel-heading clearfix">
             <div class="pull-left">
-               <button type="button" class="btn btn-xs btn-primary"
+               <button type="button" class="btn btn-xs btn-raised"
                   data-action="navigate-table" data-element="{{tree_type}}">
                   <span class="fa fa-table"></span>
                </button>
             </div>
+               <h4 class="pull-left">
+                  &nbsp;{{title}}
+               </h4>
 
             <div class="pull-right">
-               <span class="fa fa-search"></span>&nbsp;
-               <input id="searchfield" type="text" placeholder="{{_('search...')}}">
+               <form class="hidden-xs navbar-form navbar-right" role="search">
+                  <span class="fa fa-search"></span>&nbsp;
+                  <input id="searchfield" type="text" placeholder="{{_('search...')}}">
+               </form>
             </div>
 
-            <h2 class="panel-title">
-               &nbsp;{{title}}
-            </h2>
          </div>
 
          <div class="panel-body">
@@ -99,7 +107,7 @@
       jsTreeData.push( {
          "id": '{{item.id}}',
          "parent" : '{{'#' if item.level <= 0 else item.parent.id}}',
-         "text": '{{item.level}} - {{item.alias}}',
+         "text": '{{item.alias}}',
          "icon": '{{item.get_state()}}',
          "state": {
             "opened": true,
