@@ -132,12 +132,15 @@ def get_userrestrictroles():
 
     return {
         'userrestrictroles': userrestrictroles,
-        'pagination': webui.helper.get_pagination_control('/userrestrictroles', total, start, count),
+        'pagination': webui.helper.get_pagination_control(
+            '/userrestrictroles', total, start, count
+        ),
         'title': request.query.get('title', _('All users roles'))
     }
 
 
 def get_userrestrictroles_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the users list
     """
@@ -145,11 +148,15 @@ def get_userrestrictroles_list(embedded=False):
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    users = datamgr.get_userrestrictroles(search, all_elements=True)
+    userrestrictroles = datamgr.get_userrestrictroles(search, all_elements=True)
 
     items = []
     for userrestrictrole in userrestrictroles:
-        items.append({'id': userrestrictrole.id, 'name': userrestrictrole.name, 'alias': userrestrictrole.alias})
+        items.append({
+            'id': userrestrictrole.id,
+            'name': userrestrictrole.name,
+            'alias': userrestrictrole.alias
+        })
 
     response.status = 200
     response.content_type = 'application/json'

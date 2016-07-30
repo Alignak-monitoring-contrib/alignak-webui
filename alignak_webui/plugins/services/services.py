@@ -490,6 +490,7 @@ def get_services(templates=False):
 
 
 def get_services_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the services list
     """

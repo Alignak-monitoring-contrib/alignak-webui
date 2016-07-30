@@ -376,10 +376,6 @@ class DataManager(object):
             for known_class in self.known_classes:
                 if object_type == known_class.get_type():
                     objects_count = known_class.get_count()
-                    # log_function(
-                        # "get_objects_count, currently %d cached %ss",
-                        # objects_count, object_type
-                    # )
                     if refresh:
                         if hasattr(known_class, '_total_count') and \
                            known_class.get_total_count() != -1:
@@ -407,10 +403,6 @@ class DataManager(object):
         objects_count = 0
         for known_class in self.known_classes:
             count = known_class.get_count()
-            # log_function(
-                # "get_objects_count, currently %d cached %ss",
-                # count, known_class.get_type()
-            # )
             if refresh:
                 count = self.count_objects(known_class.get_type(), search=search)
                 if search:

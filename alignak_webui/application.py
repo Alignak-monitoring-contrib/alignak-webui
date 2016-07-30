@@ -176,14 +176,6 @@ def enable_cors(fn):
     """
     def _enable_cors(*args, **kwargs):
         # set CORS headers
-        logger.debug(
-            "CORS enabled request: %s", request.method
-        )
-        for header in request.headers:
-            logger.debug(
-                " - request header: %s - %s", header, request.headers[header]
-            )
-
         response.headers['Access-Control-Allow-Origin'] = \
             request.app.config.get('cors_acao', 'http://127.0.0.1')
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
@@ -347,8 +339,6 @@ def external(widget_type, identifier, action=None):
         else:
             logger.warning("External application requested unknown list: %s", identifier)
             return WebUI.response_ko(_('Unknown required list'))
-        logger.debug("Found list: %s", found_list)
-
 
     if widget_type == 'host':
         if not action:

@@ -397,6 +397,7 @@ def get_users():
 
 
 def get_users_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the users list
     """

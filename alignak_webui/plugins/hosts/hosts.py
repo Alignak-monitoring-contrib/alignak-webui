@@ -554,6 +554,7 @@ def get_hosts(templates=False):
 
 
 def get_hosts_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the hosts list
     """
