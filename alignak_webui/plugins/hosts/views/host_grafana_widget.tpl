@@ -28,14 +28,14 @@
    </div>
    %end
 
-   %for service in livestate_services:
+   %for service in livestate_services or []:
       %if livestate.grafana and livestate.grafana_panelid:
       %dashboard_name = livestate.host.name.replace('.', '-')
-      %panel_id = livestate.grafana_panelid
-      <iframe src="{{grafana_url}}/dashboard-solo/db/host_{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="240" frameborder="0"></iframe>
+      %panel_id = service.grafana_panelid
+      <iframe class="embed-responsive-item" src="{{grafana_url}}/dashboard-solo/db/host_{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="240" frameborder="0"></iframe>
       %else:
       <div class="alert alert-info">
-         <p class="font-blue">{{_('No Grafana panel available for %s.' % livestate.host.name)}}</p>
+         <p class="font-blue">{{_('No Grafana panel available for %s.' % service.name)}}</p>
       </div>
       %end
    %end

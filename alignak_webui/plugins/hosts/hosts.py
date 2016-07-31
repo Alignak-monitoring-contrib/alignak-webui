@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=global-statement, global-variable-not-assigned
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -22,7 +23,7 @@
 """
     Plugin Hosts
 """
-
+import os
 import json
 from collections import OrderedDict
 from logging import getLogger
@@ -33,10 +34,20 @@ from alignak_webui import _
 from alignak_webui.plugins.common.common import get_table, get_table_data
 from alignak_webui.plugins.histories.histories import schema as history_schema
 
+# Settings
+from alignak_webui.utils.settings import Settings
+
 logger = getLogger(__name__)
 
 # Will be populated by the UI with it's own value
 webui = None
+
+# Declare backend element endpoint
+backend_endpoint = 'host'
+
+# Globals for plugin parameters
+hosts_parameters = None
+hosts_filenames = []
 
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
@@ -56,9 +67,6 @@ schema['#'] = {
         'orderable': False,
         # search as a regex (else strict value comparing when searching is performed)
         'regex': False,
-        # defines the priority for the responsive column hidding (0 is the most important)
-        # Default is 10000
-        # 'priority': 0,
     }
 }
 schema['name'] = {
@@ -77,10 +85,23 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
+}
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {
-        'title': _('Host template'),
+        'title': _('Template'),
         'visible': True,
         'hidden': True
     },
@@ -93,6 +114,14 @@ schema['definition_order'] = {
         'hidden': True,
         'orderable': False,
     },
+}
+schema['tags'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Tags'),
+        'visible': True,
+    }
 }
 schema['alias'] = {
     'type': 'string',
@@ -108,12 +137,26 @@ schema['display_name'] = {
         'visible': True
     },
 }
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
+}
 schema['address'] = {
     'type': 'string',
     'ui': {
         'title': _('Address'),
         'visible': True
     },
+}
+schema['customs'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Customs'),
+        'visible': True,
+    }
 }
 schema['check_command'] = {
     'type': 'objectid',
@@ -272,16 +315,16 @@ schema['first_notification_delay'] = {
 schema['notification_options'] = {
     'type': 'list',
     'default': ['o', 'd', 'u'],
-    'allowed': ['o', 'd', 'u'],
+    'allowed': ['o', 'd', 'u', 'r', 'f', 's', 'n'],
     'ui': {
-        'title': _('Flapping detection options'),
+        'title': _('Notification options'),
         'visible': True,
         'format': {
             'list_type': "multichoices",
             'list_allowed': {
                 u"d": u"Send notifications on Down state",
-                u"r": u"Send notifications on recoveries",
                 u"u": u"Send notifications on Unreachable state",
+                u"r": u"Send notifications on recoveries",
                 u"f": u"Send notifications on flapping start/stop",
                 u"s": u"Send notifications on scheduled downtime start/stop",
                 u"n": u"Do not send notifications"
@@ -319,12 +362,6 @@ schema['location'] = {
         'title': _('Location')
     }
 }
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
-}
 schema['notes_url'] = {
     'type': 'string',
     'ui': {
@@ -342,7 +379,7 @@ schema['stalking_options'] = {
     'default': [],
     'allowed': ['o', 'd', 'u'],
     'ui': {
-        'title': _('Flapping detection options'),
+        'title': _('Stalking options'),
         'visible': True,
         'format': {
             'list_type': "multichoices",
@@ -442,9 +479,34 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': True
+        'responsive': False
     }
 }
+
+
+# Get plugin's parameters from configuration file
+def load_config(app=None, cfg_filenames=None):
+    # pylint: disable=unused-argument
+    """
+    Load plugin configuration
+    """
+    global hosts_parameters, hosts_filenames
+
+    if not cfg_filenames:
+        cfg_filenames = hosts_filenames
+    else:
+        hosts_filenames = cfg_filenames
+
+    logger.info("Read plugin configuration file: %s", cfg_filenames)
+
+    # Read configuration file
+    hosts_parameters = Settings(cfg_filenames)
+    config_file = hosts_parameters.read('hosts')
+    logger.info("Plugin configuration read from: %s", config_file)
+    if not hosts_parameters:
+        return False
+    logger.info("Plugin configuration: %s", hosts_parameters)
+    return True
 
 
 def get_hosts(templates=False):
@@ -491,7 +553,8 @@ def get_hosts(templates=False):
     }
 
 
-def get_hosts_list():
+def get_hosts_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the hosts list
     """
@@ -503,7 +566,7 @@ def get_hosts_list():
 
     items = []
     for host in hosts:
-        items.append({'id': host.id, 'name': host.alias})
+        items.append({'id': host.id, 'name': host.name, 'alias': host.alias})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -633,6 +696,8 @@ def get_host(host_id):
     """
     Display an host
     """
+    global hosts_parameters
+
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -645,12 +710,12 @@ def get_host(host_id):
     host = datamgr.get_host(host_id)
     if not host:
         # Test if we got a name instead of an id
-        host = datamgr.get_host(search={'name': host_id})
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_id}})
         if not host:
             return webui.response_invalid_parameters(_('Host does not exist'))
 
     # Get host services
-    services = datamgr.get_services(search={'where': {'host': host_id}})
+    services = datamgr.get_services(search={'where': {'host': host.id}})
 
     # Get host livestate
     livestate = datamgr.get_livestate(
@@ -717,6 +782,7 @@ def get_host(host_id):
 
     return {
         'host': host,
+        'hosts_parameters': hosts_parameters,
         'services': services,
         'livestate': livestate,
         'livestate_services': livestate_services,
@@ -841,6 +907,10 @@ def get_host_widget(host_id, widget_id, embedded=False, identifier=None, credent
 
 
 pages = {
+    load_config: {
+        'name': 'Hosts plugin config',
+        'route': '/hosts/config'
+    },
     get_host_widget: {
         'name': 'Host widget',
         'route': '/host_widget/<host_id>/<widget_id>',
@@ -981,8 +1051,9 @@ pages = {
         'search_engine': True,
         'search_prefix': '',
         'search_filters': {
-            _('Hosts'): '_is_template:false',
-            _('Host templates'): '_is_template:true',
+            '01': (_('Hosts'), '_is_template:false'),
+            '02': ('', ''),
+            '03': (_('Hosts templates'), '_is_template:true')
         },
         'tables': [
             {

@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
    // Check header refresh period (seconds)
-   var header_refresh_period = 0;
+   var header_refresh_period = {{request.app.config.get('header_refresh_period', '30')}};
 
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
@@ -34,96 +34,83 @@
 
 <!-- Page header -->
 <header>
-   <nav id="topbar-menu" class="navbar navbar-default navbar-fixed-top">
-      <div class="container-fluid">
-         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
-               <span class="sr-only">{{_('Toggle navigation')}}</span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">
-               <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
-            </a>
-         </div>
+   <nav id="topbar" class="navbar navbar-fixed-top navbar-material-blue">
+      <div class="navbar-header">
+         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
+            <span class="sr-only">{{_('Toggle navigation')}}</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+         </button>
+         <a class="navbar-brand" href="/" style="float: left">
+            <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
+         </a>
 
-         <!-- Right part ... -->
-         <div id="navbar-collapsible-part" class="collapse navbar-collapse">
-            <div id="header-search">
-               <!-- Page filtering ... -->
-               %include("_filters.tpl")
-            </div>
+         <ul class="nav navbar-nav navbar-left">
+            <li id="overall-hosts-states" class="pull-left">
+               %include("_header_hosts_state.tpl")
+            </li>
 
-            <ul class="nav navbar-nav">
-               <li class="hidden-xs" id="loading" style="display: none;">
-                  <a href="#">
-                     <span class="fa fa-spinner fa-pulse fa-1x"></span>
-                     <span class="sr-only">{{_('Loading...')}}</span>
-                  </a>
-               </li>
-            </ul>
+            <li id="overall-services-states" class="pull-left">
+               %include("_header_services_state.tpl")
+            </li>
+         </ul>
+      </div>
 
-            <ul class="nav navbar-nav navbar-right">
-               <li id="overall-hosts-states">
-                  %include("_header_hosts_state.tpl")
-               </li>
+      <!-- Right part ... -->
+      <div id="navbar-collapsible-part" class="collapse navbar-collapse">
+         <ul class="nav navbar-nav navbar-left">
+            <!-- Page filtering ... -->
+            %include("_filters.tpl")
 
-               <li id="overall-services-states">
-                  %include("_header_services_state.tpl")
-               </li>
+            <li class="hidden-xs" id="loading" style="display: none;">
+               <a href="#">
+                  <span class="fa fa-spinner fa-pulse fa-1x"></span>
+                  <span class="sr-only">{{_('Loading...')}}</span>
+               </a>
+            </li>
+         </ul>
 
-               <li>
-                  <a data-action="display-currently"
-                     data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Display fullscreen one-eye view.')}}"
-                     href="/currently">
-                     <span class="fa fa-eye"></span>
-                  </a>
-               </li>
+         %include("_menubar.tpl", action_bar=True, in_sidebar=True)
 
-               %if request.app.config.get('play_sound', 'no') == 'yes':
-               <li class="hidden-xs">
-                  <a data-action="toggle-sound-alert"
-                     data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Sound alert on/off')}}"
-                     href="#">
-                     <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
-                       <i class="fa fa-music fa-stack-1x"></i>
-                       <i class="fa fa-ban fa-stack-2x text-danger"></i>
-                     </span>
-                  </a>
-               </li>
-               %end
+         <ul class="nav navbar-nav navbar-right">
+            <li>
+               <a data-action="display-currently"
+                  data-toggle="tooltip" data-placement="bottom"
+                  title="{{_('Display fullscreen one-eye view.')}}"
+                  href="/currently">
+                  <span class="fa fa-eye"></span>
+               </a>
+            </li>
 
-               %if refresh:
-               <li>
-                  <a data-action="toggle-page-refresh"
-                     data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
-                     href="#">
-                     <span id="header_loading" class="fa fa-refresh"></span>
-                  </a>
-               </li>
-               %end
+            %if request.app.config.get('play_sound', 'no') == 'yes':
+            <li>
+               <a data-action="toggle-sound-alert"
+                  data-toggle="tooltip" data-placement="bottom"
+                  title="{{_('Sound alert on/off')}}"
+                  href="#">
+                  <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
+                    <i class="fa fa-music fa-stack-1x"></i>
+                    <i class="fa fa-ban fa-stack-2x text-danger"></i>
+                  </span>
+               </a>
+            </li>
+            %end
 
-               %include("_header_user.tpl")
+            %if refresh:
+            <li>
+               <a data-action="toggle-page-refresh"
+                  data-toggle="tooltip" data-placement="bottom"
+                  title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
+                  href="#">
+                  <span id="refresh_active" class="fa fa-refresh"></span>
+                  <span class="sr-only">{{_('Refresh active')}}</span>
+               </a>
+            </li>
+            %end
 
-               <li class="hidden-sm hidden-md hidden-lg">
-                  <a data-action="logout"
-                     data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Disconnect from the application')}}"
-                     href="/logout">
-                     <i class="fa fa-sign-out"></i>
-                  </a>
-               </li>
-            </ul>
-
-            <div class="col-xs-10 col-sm-offset-1 col-sm-10 hidden-md hidden-lg">
-               <!-- Sidebar menu is included in the header for small devices -->
-               %include("_sidebar.tpl", action_bar=True, in_sidebar=True)
-            </div>
-         </div>
+            %include("_header_user.tpl")
+         </ul>
       </div>
    </nav>
 </header>

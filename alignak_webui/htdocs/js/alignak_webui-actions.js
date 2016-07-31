@@ -275,12 +275,11 @@ $(document).ready(function() {
 
       if (actions_logs) console.debug("Adding a widget: ", name)
 
-      // Get widgets grid
+      // Get widgets grid...
       grid = $('.grid-stack').data('gridstack');
-      // and add a widget to the grid
+      // ... and add a widget to the grid
       var added_widget = grid.addWidget(
-         $(
-            '<div id="'+widget.id+'" data-name="'+widget.name+'" data-template="'+widget.template+'" data-uri="'+encodeURI(widget.uri)+'" class="grid-stack-item-content" />'),
+         $('<div id="'+widget.id+'" data-name="'+widget.name+'" data-template="'+widget.template+'" data-uri="'+encodeURI(widget.uri)+'" class="grid-stack-item-content" />'),
          0, 0, 6, 6,       // x, y, width, height
          true,             // autoPosition
          3, 12, 2, 64,     // minWidth, maxWidth, minHeight, maxHeight

@@ -83,6 +83,8 @@ class Datatable(object):
         self.recursive = False
         self.commands = (object_type == 'livestate')
 
+        self.css = "compact nowrap"
+
         self.paginable = True
         self.exportable = True
         self.printable = True
@@ -166,17 +168,19 @@ class Datatable(object):
                 self.searchable = model['ui'].get('searchable', True)
                 self.responsive = model['ui'].get('responsive', True)
                 self.recursive = model['ui'].get('recursive', False)
+                self.css = model['ui'].get('css', "display")
 
                 self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
-                continue
-
-            if 'ui' in model and ('visible' not in model['ui'] or not model['ui']['visible']):
                 continue
 
             # If element is considered for the UI
             if 'ui' not in model:
                 continue
-            logger.debug("get_data_model, visible field: %s = %s", field, model)
+
+            if not model['ui'].get('visible'):
+                continue
+
+            logger.warning("get_data_model, visible field: %s = %s", field, model)
 
             ui_dm['model']['fields'].update({field: {
                 'data': field,
@@ -186,7 +190,6 @@ class Datatable(object):
                 'regex': model['ui'].get('regex', True),
                 'title': model['ui'].get('title', field),
                 'format': model['ui'].get('format', 'string'),
-                # 'width': model['ui'].get('width', '50px'),
                 'size': model['ui'].get('size', 10),
                 'visible': not model['ui'].get('hidden', False),
                 'orderable': model['ui'].get('orderable', True),
@@ -579,7 +582,7 @@ class Datatable(object):
 
                     if field['type'] == 'list':
                         item[key] = Helper.get_html_item_list(
-                            bo_object, field['format'],
+                            bo_object.id, key,
                             getattr(bo_object, key), title=field['title']
                         )
 

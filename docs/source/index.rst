@@ -20,6 +20,8 @@ Contents:
 
    api
 
+   plugins
+
    widgets
 
    develop

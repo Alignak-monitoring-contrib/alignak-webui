@@ -38,39 +38,27 @@ class HostMetrics(object):
     """
     Helper functions
     """
-    def __init__(self, host, services):
-        """ Empty ... """
-        self.params = {
-            'load': {
-                'name': 'load|Load',
-                'metrics': 'min(.*)|^load_1|^load_5|^load_15|^load1$|^load5$|^load15$',
-                'uom': ''
-            },
-            'cpu': {
-                'name': 'cpu|Cpu|CPU|Linux procstat',
-                'metrics': '^percent$|cpu_all_idle|cpu_all_iowait|cpu_all_usr|cpu_all_nice|'
-                           'cpu_prct_used|'
-                           'cpu_idle|cpu_iowait|cpu_usr|cpu_nice|total 30s|total 1m|total 5m',
-                'uom': '%'
-            },
-            'disk': {
-                'name': '^disk|disks|Disks|Partitions$',
-                'metrics': 'used_pct|^/(?!dev|sys|proc|run?)(.*)$',
-                'uom': '^%|(.?)B$'
-            },
-            'mem': {
-                'name': 'memory|Memory',
-                'metrics': '^ram_free|ram_buffered|ram_cached|ram_total$',
-                'uom': '^%|(.?)B|$'
-            },
-            'net': {
-                'name': 'network|NET Stat|Network',
-                'metrics': 'eth0_rx_by_sec|eth0_tx_by_sec|eth0_rxErrs_by_sec|eth0_txErrs_by_sec|'
-                           'eth0_in_Bps|eth0_out_Bps|BytesReceived|BytesSent|eth0_in_prct|'
-                           'eth0_out_prct',
-                'uom': 'p/s|(.*)'
-            }
-        }
+    def __init__(self, host, services, params, tags=None):
+        """
+        """
+        # Default values
+        self.params = {}
+        self.tags = []
+        if tags:
+            self.tags = tags
+        for param in params:
+            p = param.split('.')
+            if p[0] not in self.tags:
+                continue
+            if p[2] not in ['name', 'type', 'metrics', 'uom']:
+                continue
+
+            logger.debug("metrics, service match: %s=%s", param, params[param])
+            service = p[1]
+            if service not in self.params:
+                self.params[service] = {}
+            self.params[service][p[2]] = params[param]
+        logger.debug("metrics, services match configuration: %s", self.params)
 
         self.host = host
         self.services = services
@@ -86,60 +74,123 @@ class HostMetrics(object):
         return None
 
     def get_service_metric(self, service):
+        # pylint: disable=too-many-nested-blocks
         """
         Get a specific service state and metrics
+
+        Returns a tuple built with:
+        - service state
+        - service name
+        - metrics common minimum value (all metrics share the same minimum)
+        - metrics common maximum value (all metrics share the same maximum)
+        - metrics common warning value (all metrics share the same warning)
+        - metrics common critical value (all metrics share the same critical)
+        - list of metrics dict, including name, value, min, max, warning, critical, and uom)
         """
-        data = {}
-        state = 3
+        data = []
+        state = -1
         name = 'Unknown'
+        same_min = -1
+        same_max = -1
+        warning = -1
+        critical = -1
 
-        logger.debug("metrics, get_service_metric for %s", service)
-        s = self.find_service_by_name(self.params[service])
-        if s:
-            logger.debug("metrics, found %s", s.name)
-            name = s.name
-            state = s.state_id
-            if s.acknowledged:
-                state = 4
-            if s.downtime:
-                state = 5
+        logger.debug("metrics, get_service_metric for %s (%s)", service, self.params[service])
+        if self.params[service]['name'] == 'host_check':
+            s = self.host
+        else:
+            s = self.find_service_by_name(self.params[service])
 
-            try:  # pragma: no cover - no livestate data when testing :(
-                p = PerfDatas(s.perf_data)
-                for m in p:
-                    if m.name and m.value is not None:
+        if not s:
+            logger.debug("metrics, get_service_metric, nothing found")
+            return state, name, same_min, same_max, warning, critical, data
+
+        logger.debug("metrics, matching service: %s", s.name)
+        name = s.name
+        state = s.state_id
+        if s.acknowledged:
+            state = 4
+        if s.downtime:
+            state = 5
+
+        try:  # pragma: no cover - no existing data when testing :(
+            p = PerfDatas(s.perf_data)
+            logger.debug("metrics, service perfdata: %s", p.__dict__)
+            for m in sorted(p):
+                logger.debug("metrics, service perfdata metric: %s", m.__dict__)
+                if m.name and m.value is not None:
+                    if re.search(self.params[service]['metrics'], m.name) and \
+                       re.match(self.params[service]['uom'], m.uom):
                         logger.debug(
-                            "metrics, metric '%s' = %s, uom: %s", m.name, m.value, m.uom
+                            "metrics, matching metric: '%s' = %s", m.name, m.value
                         )
-                        if re.search(self.params[service]['metrics'], m.name) and \
-                           re.match(self.params[service]['uom'], m.uom):
-                            logger.debug(
-                                "metrics, service: %s, got '%s' = %s", service, m.name, m.value
-                            )
-                            data[m.name] = m.value
-            except Exception as exp:
-                logger.warning("metrics get_service_metric, exception: %s", str(exp))
+                        data.append(m)
+                        if m.same_min is not None:
+                            if same_min == -1:
+                                same_min = m.same_min
+                            if same_min != -1 and same_min != m.same_min:
+                                same_min = -2
+                        if m.same_max is not None:
+                            if same_max == -1:
+                                same_max = m.same_max
+                            if same_max != -1 and same_max != m.same_max:
+                                same_max = -2
+                        if m.warning is not None:
+                            if warning == -1:
+                                warning = m.warning
+                            if warning != -1 and warning != m.warning:
+                                warning = -2
+                        if m.critical is not None:
+                            if critical == -1:
+                                critical = m.critical
+                            if critical != -1 and critical != m.critical:
+                                critical = -2
+        except Exception as exp:
+            logger.warning("metrics get_service_metric, exception: %s", str(exp))
 
         logger.debug("metrics, get_service_metric %s", data)
-        return state, name, data
+        return state, name, same_min, same_max, warning, critical, data
 
-    def get_services(self):
+    def get_overall_state(self):
         """
-        Get the host services global state
+        Get the host and its services global state
+
+        Returns a list of tuples with first tuple as the host state:
+        [
+            (hostname, host global state),
+            (service name, service state),
+            ...
+        ]
+
+        The state is an integer:
+        - 0: OK/UP
+        - 1: WARNING/DOWN
+        - 2: CRITICAL/UNREACHABLE
+        - 3: UNKNOWN
+        - 4: ACK
+        - 5: DOWNTIME
+
+        The returned host state in the first list element is the worst state of the host state and
+        all the host services state.
         """
-        data = {}
-        state = 0
+        data = []
+        state = self.host.state_id
+        if self.host.acknowledged:
+            state = 4
+        if self.host.downtime:
+            state = 5
 
         # Get host's services list
-        for s in self.services:
+        for s in self.services or []:
             s_state = s.state_id
             if s.acknowledged:
                 s_state = 4
             if s.downtime:
                 s_state = 5
 
-            data[s.name] = s_state
+            data.append((s.name, s_state))
             state = max(state, s_state)
 
+        data = [(self.host.name, state)] + data
         logger.debug("metrics, get_services %d, %s", state, data)
-        return state, data
+        return data

@@ -43,9 +43,9 @@ if (! sessionStorage.getItem("refresh_active")) {
 }
 if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
 if (sessionStorage.getItem("refresh_active") == '1') {
-   $('#header_loading').removeClass('font-greyed');
+   $('#refresh_active').removeClass('text-muted');
 } else {
-   $('#header_loading').addClass('font-greyed');
+   $('#refresh_active').addClass('text-muted');
 }
 
 /*
@@ -82,7 +82,7 @@ function do_refresh(forced){
    if (refresh_logs) console.debug("Refreshing: ", document.URL);
 
    // Refresh starting indicator ...
-   $('#header_loading').addClass('fa-spin');
+   $('#refresh_active').addClass('fa-spin');
    processing_refresh = true;
 
    $.ajax({
@@ -132,14 +132,14 @@ function do_refresh(forced){
    .always(function() {
       // Set refresh icon ...
       if (sessionStorage.getItem("refresh_active") == '1') {
-         $('#header_loading').removeClass('font-greyed');
+         $('#refresh_active').removeClass('text-muted');
       } else {
-         $('#header_loading').addClass('font-greyed');
+         $('#refresh_active').addClass('text-muted');
       }
       if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
 
       // Refresh is finished
-      $('#header_loading').removeClass('fa-spin');
+      $('#refresh_active').removeClass('fa-spin');
       processing_refresh = false;
       refresh_required = false;
    });
@@ -258,14 +258,14 @@ function reinit_refresh(){
  */
 function stop_refresh() {
    if (refresh_logs) console.debug("Stop refresh");
-   $('#header_loading').addClass('font-greyed');
+   $('#refresh_active').addClass('text-muted');
    sessionStorage.setItem("refresh_active", '0');
 }
 
 
 function start_refresh() {
    if (refresh_logs) console.debug("Start refresh");
-   $('#header_loading').removeClass('font-greyed');
+   $('#refresh_active').removeClass('text-muted');
    sessionStorage.setItem("refresh_active", '1');
 
    // Page refresh required
@@ -290,9 +290,9 @@ $(document).ready(function(){
    setInterval("check_refresh();", check_period*1000);
 
    if (sessionStorage.getItem("refresh_active") == '1') {
-      $('#header_loading').removeClass('font-greyed');
+      $('#refresh_active').removeClass('text-muted');
    } else {
-      $('#header_loading').addClass('font-greyed');
+      $('#refresh_active').addClass('text-muted');
    }
 
    // Toggle refresh ...

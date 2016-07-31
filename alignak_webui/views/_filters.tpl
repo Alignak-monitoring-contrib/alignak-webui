@@ -16,50 +16,55 @@
 %end
 
 %if search_filters:
-<form class="navbar-form navbar-left" method="get" action="{{ search_action }}">
-   <div class="dropdown form-group text-left">
-      <button id="filters_menu" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
-         <i class="fa fa-filter"></i>
-         <span class="hidden-sm"> {{_('Filters')}}</span>
+   <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-original-title="{{_('Filters  menu')}}" data-toggle="dropdown">
          <span class="caret"></span>
-      </button>
+         <i class="fa fa-filter"></i>
+         <span class="hidden-sm hidden-xs"> {{_('Filters')}}</span>
+      </a>
       <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
          <li role="presentation">
             <a role="menuitem" href="{{search_action}}?search=">{{_('All')}}</a>
          </li>
          <li role="presentation" class="divider"></li>
-         %for k,v in sorted(search_filters.items()):
+         %for k in sorted(search_filters.keys()):
+            %title,filter = search_filters[k]
+            %if not title:
+            <li class="divider"/>
+            %else:
             <li role="presentation">
-               <a role="menuitem" href="{{search_action}}?search={{v}}">{{k}}</a>
+               <a role="menuitem" href="{{search_action}}?search={{filter}}">{{title}}</a>
             </li>
+            %end
          %end
       </ul>
-   </div>
-   <div class="form-group">
-      <label class="sr-only" for="search">{{_('Filter')}}</label>
-      <div class="input-group">
-         <span class="input-group-addon hidden-xs hidden-sm"><i class="fa fa-search"></i> {{ search_name }}</span>
-         <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}">
+   </li>
+   <form class="hidden-xs hidden-sm navbar-form navbar-left" role="search" method="get" action="{{ search_action }}">
+      <div class="form-group">
+         <label class="sr-only" for="search">{{_('Filter')}}</label>
+         <div class="input-group">
+            <span class="input-group-addon hidden-xs hidden-sm"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}" placeholder="{{_('filter...')}}">
+         </div>
       </div>
-   </div>
-   %if ('value' in user_bookmarks and user_bookmarks['value']) or ('value' in common_bookmarks and common_bookmarks['value']):
-   <div class="dropdown form-group text-left">
-      <button class="btn btn-default dropdown-toggle" type="button" id="bookmarks_menu" data-toggle="dropdown" aria-expanded="true">
-         <i class="fa fa-bookmark"></i>
-         <span class="hidden-sm hidden-xs hidden-md"> {{_('Bookmarks')}}</span>
-         <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="bookmarks_menu">
-      <script type="text/javascript">
-         %for b in user_bookmarks['value']:
-            declare_bookmark("{{!b['name']}}","{{!b['uri']}}");
-         %end
-         %for b in common_bookmarks['value']:
-            declare_bookmarksro("{{!b['name']}}","{{!b['uri']}}");
-         %end
-         </script>
-      </ul>
-   </div>
-   %end
-</form>
+      %if ('value' in user_bookmarks and user_bookmarks['value']) or ('value' in common_bookmarks and common_bookmarks['value']):
+      <div class="dropdown form-group text-left">
+         <button class="btn btn-default dropdown-toggle" type="button" id="bookmarks_menu" data-toggle="dropdown" aria-expanded="true">
+            <i class="fa fa-bookmark"></i>
+            <span class="hidden-sm hidden-xs hidden-md"> {{_('Bookmarks')}}</span>
+            <span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="bookmarks_menu">
+         <script type="text/javascript">
+            %for b in user_bookmarks['value']:
+               declare_bookmark("{{!b['name']}}","{{!b['uri']}}");
+            %end
+            %for b in common_bookmarks['value']:
+               declare_bookmarksro("{{!b['name']}}","{{!b['uri']}}");
+            %end
+            </script>
+         </ul>
+      </div>
+      %end
+   </form>
 %end

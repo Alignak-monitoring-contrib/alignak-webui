@@ -130,7 +130,7 @@ class tests_preferences(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
-    @unittest2.skip("Broken test ...")
+    # @unittest2.skip("Broken test ...")
     def test_1_1_global_preferences(self):
         print ''
         print 'test global user preferences page'

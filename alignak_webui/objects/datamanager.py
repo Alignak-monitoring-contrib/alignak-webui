@@ -56,6 +56,7 @@ from alignak_webui.objects.item_log import *
 from alignak_webui.objects.item_actions import *
 from alignak_webui.objects.item_livestate import *
 from alignak_webui.objects.item_livesynthesis import *
+from alignak_webui.objects.item_userrestrictrole import *
 from alignak_webui.objects.item_uipref import *
 
 
@@ -224,7 +225,7 @@ class DataManager(object):
         items = []
 
         result = self.backend.get(object_type, params, all_elements)
-        logger.info("find_object, found: %s: %s", object_type, result)
+        logger.debug("find_object, found: %s: %s", object_type, result)
 
         if not result:
             raise ValueError(
@@ -292,27 +293,27 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get all realms
         # -----------------------------------------------------------------------------------------
-        self.get_realms()
+        # self.get_realms()
 
         # -----------------------------------------------------------------------------------------
         # Get all users
         # -----------------------------------------------------------------------------------------
-        self.get_users()
+        # self.get_users()
 
         # -----------------------------------------------------------------------------------------
         # Get all timeperiods
         # -----------------------------------------------------------------------------------------
-        self.get_timeperiods()
+        # self.get_timeperiods()
 
         # -----------------------------------------------------------------------------------------
         # Get all commands
         # -----------------------------------------------------------------------------------------
-        self.get_commands()
+        # self.get_commands()
 
         # -----------------------------------------------------------------------------------------
         # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
-        self.get_livestate()
+        # self.get_livestate()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -375,10 +376,6 @@ class DataManager(object):
             for known_class in self.known_classes:
                 if object_type == known_class.get_type():
                     objects_count = known_class.get_count()
-                    log_function(
-                        "get_objects_count, currently %d cached %ss",
-                        objects_count, object_type
-                    )
                     if refresh:
                         if hasattr(known_class, '_total_count') and \
                            known_class.get_total_count() != -1:
@@ -406,10 +403,6 @@ class DataManager(object):
         objects_count = 0
         for known_class in self.known_classes:
             count = known_class.get_count()
-            log_function(
-                "get_objects_count, currently %d cached %ss",
-                count, known_class.get_type()
-            )
             if refresh:
                 count = self.count_objects(known_class.get_type(), search=search)
                 if search:
@@ -694,9 +687,8 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
-            logger.info("get_livestate, search: %s", search)
+            logger.debug("get_livestate, search: %s", search)
             items = self.find_object('livestate', search)
-            logger.info("get_livestate, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_livestate, none found")
@@ -723,9 +715,8 @@ class DataManager(object):
             search['where'].update({'type': 'host'})
 
         try:
-            logger.info("get_livestate_hosts, search: %s", search)
+            logger.debug("get_livestate_hosts, search: %s", search)
             items = self.find_object('livestate', search)
-            logger.info("get_livestate_hosts, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livestate_hosts, none found")
@@ -752,9 +743,8 @@ class DataManager(object):
             search['where'].update({'type': 'service'})
 
         try:
-            logger.info("get_livestate_services, search: %s", search)
+            logger.debug("get_livestate_services, search: %s", search)
             items = self.find_object('livestate', search)
-            logger.info("get_livestate_services, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_livestate_services, none found")
@@ -862,7 +852,6 @@ class DataManager(object):
         try:
             logger.debug("get_livesynthesis, search: %s", search)
             items = self.find_object('livesynthesis', search)
-            logger.debug("get_livesynthesis, got: %d elements, %s", len(items), items)
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livesynthesis, none found")
             return default_ls
@@ -994,7 +983,7 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_hostgroups, search: %s", search)
+            logger.debug("get_hostgroups, search: %s", search)
             items = self.find_object('hostgroup', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1037,9 +1026,8 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_hosts, search: %s", search)
+            logger.debug("get_hosts, search: %s", search)
             items = self.find_object('host', search, all_elements)
-            logger.info("get_hosts, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hosts, none found")
@@ -1068,7 +1056,7 @@ class DataManager(object):
             search.update({'sort': 'name'})
 
         try:
-            logger.info("get_servicegroups, search: %s", search)
+            logger.debug("get_servicegroups, search: %s", search)
             items = self.find_object('servicegroup', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1112,9 +1100,8 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_services, search: %s", search)
+            logger.debug("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements)
-            logger.info("get_services, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_services, none found")
@@ -1182,9 +1169,8 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
-            logger.info("get_logcheckresult, search: %s", search)
+            logger.debug("get_logcheckresult, search: %s", search)
             items = self.find_object('logcheckresult', search)
-            logger.info("get_logcheckresult, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_logcheckresult, none found")
@@ -1208,9 +1194,8 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1, 'logcheckresult': 1}})
 
         try:
-            logger.info("get_history, search: %s", search)
+            logger.debug("get_history, search: %s", search)
             items = self.find_object('history', search)
-            # logger.info("get_history, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_history, none found")
@@ -1226,7 +1211,7 @@ class DataManager(object):
             search.update({'sort': 'name'})
 
         try:
-            logger.info("get_commands, search: %s", search)
+            logger.debug("get_commands, search: %s", search)
             items = self.find_object('command', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1262,7 +1247,7 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_usergroups, search: %s", search)
+            logger.debug("get_usergroups, search: %s", search)
             items = self.find_object('usergroup', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1284,6 +1269,34 @@ class DataManager(object):
     ##
     # Users
     ##
+    def get_userrestrictroles(self, search=None, all_elements=False):
+        """ Get a list of known users """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'user'})
+
+        try:
+            logger.debug("get_userrestrictroles, search: %s", search)
+            items = self.find_object('userrestricrole', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_userrestrictroles, none found")
+
+        return []
+
+    def get_userrestrictrole(self, search):
+        """
+        Get a userrestricrole by its id or a search pattern
+        """
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_userrestrictroles(search=search)
+        return items[0] if items else None
+
     def get_users(self, search=None, all_elements=False):
         """ Get a list of known users """
         if not self.get_logged_user().is_administrator():
@@ -1293,11 +1306,17 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'host_notification_commands': 1,
+                    'service_notification_commands': 1
+                }
+            })
 
         try:
-            logger.info("get_users, search: %s", search)
+            logger.debug("get_users, search: %s", search)
             items = self.find_object('user', search, all_elements)
-            # logger.info("get_users, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_users, none found")
@@ -1362,9 +1381,8 @@ class DataManager(object):
             search.update({'sort': 'name'})
 
         try:
-            logger.info("get_realms, search: %s", search)
+            logger.debug("get_realms, search: %s", search)
             items = self.find_object('realm', search, all_elements)
-            # logger.info("get_realms, got: %d elements, %s", len(items), items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_realms, none found")
@@ -1393,9 +1411,8 @@ class DataManager(object):
             search.update({'sort': 'name'})
 
         try:
-            logger.info("get_timeperiods, search: %s", search)
+            logger.debug("get_timeperiods, search: %s", search)
             items = self.find_object('timeperiod', search, all_elements)
-            # logger.info("get_timeperiods, got: %d elements, %s", len(items), items)
             return items
         except ValueError:
             logger.debug("get_timeperiods, none found")

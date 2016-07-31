@@ -57,6 +57,9 @@ class User(BackendElement):
         """
         Create a user (called only once when an object is newly created)
         """
+        self._linked_host_notification_commands = 'command'
+        self._linked_service_notification_commands = 'command'
+
         super(User, self)._create(params, date_format)
 
         self.authenticated = False
@@ -109,6 +112,16 @@ class User(BackendElement):
         Overload default property. Link to the main objects page with an anchor.
         """
         return '/%ss#%s' % (self.object_type, self.id)
+
+    @property
+    def host_notification_commands(self):
+        """ Return linked object """
+        return self._linked_host_notification_commands
+
+    @property
+    def service_notification_commands(self):
+        """ Return linked object """
+        return self._linked_service_notification_commands
 
     def get_username(self):
         """

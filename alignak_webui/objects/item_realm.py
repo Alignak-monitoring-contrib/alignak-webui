@@ -43,7 +43,7 @@ class Realm(BackendElement):
 
     def _create(self, params, date_format):
         """
-        Create a servicegroup (called only once when an object is newly created)
+        Create a realm (called only once when an object is newly created)
         """
         self._linked__parent = 'realm'
 

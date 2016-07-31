@@ -1,19 +1,16 @@
-%setdefault('params', {'default_zoom': 6, 'default_lng': 1.87528, 'default_lat': 46.60611, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
+%setdefault('worldmap_parameters', {'default_zoom': 6, 'default_lng': 1.87528, 'default_lat': 46.60611, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
 
 <script>
     // Set true to activate javascript console logs
-    var debugMaps = true;
+    var debugMaps = false;
     if (debugMaps && !window.console) {
           alert('Your web browser does not have any console object ... you should stop using IE ;-) !');
     }
 
-    var defaultZoom = {{ params['default_zoom'] }};
-    var defaultCenter = [{{ params['default_lat'] }}, {{ params['default_lng'] }}];
-    var servicesLevel = {{ params['services_level'] }};
-    var hostsLevel = {{ params['hosts_level'] }};
-
-    %import json
-    console.log({{! json.dumps(params)}})
+    var defaultZoom = {{ worldmap_parameters['default_zoom'] }};
+    var defaultCenter = [{{ worldmap_parameters['default_lat'] }}, {{ worldmap_parameters['default_lng'] }}];
+    var servicesLevel = {{ worldmap_parameters['services_level'] }};
+    var hostsLevel = {{ worldmap_parameters['hosts_level'] }};
 
     %# List hosts and their services
     var hosts = [
@@ -210,8 +207,6 @@
         this.infoContent = serviceInfoContent;
     }
 
-    var map_{{mapId}};
-
     //------------------------------------------------------------------------------
     // Sequentially load necessary scripts to create map with markers
     //------------------------------------------------------------------------------
@@ -239,7 +234,7 @@
     }
 
     // ------------------------------------------------------------------------------
-    // Create a marker on specified position for specified host/state with IW content
+    // Create a marker for specified host
     // ------------------------------------------------------------------------------
     markerCreate_{{mapId}} = function(host) {
         if (debugMaps)
@@ -258,8 +253,20 @@
     }
 
     // ------------------------------------------------------------------------------
+    // Resize the map
+    // ------------------------------------------------------------------------------
+    mapResize_{{mapId}} = function(host) {
+        if (typeof L !== 'undefined') {
+            if (debugMaps)
+                console.log("Map resize...");
+            L.Util.requestAnimFrame(map_{{mapId}}.invalidateSize, map_{{mapId}}, !1, map_{{mapId}}._container);
+        }
+    }
+
+    // ------------------------------------------------------------------------------
     // Map initialization
     // ------------------------------------------------------------------------------
+    var map_{{mapId}};
     mapInit_{{mapId}} = function() {
         if (debugMaps)
             console.log('Initialization function: mapInit_{{mapId}} ...');
@@ -303,7 +310,8 @@
             }
             if (debugMaps)
                 console.log("Extended map bounds:", bounds);
-            console.log("Extended map bounds:", bounds.getNorth(), bounds.getSouth());
+            if (debugMaps)
+               console.log("Extended map bounds:", bounds.getNorth(), bounds.getSouth());
 
             // Zoom adaptation if bounds are a rectangle
             if (bounds.getNorth() != bounds.getSouth()) {

@@ -6,11 +6,11 @@
 <nav id="actionbar-menu" class="navbar navbar-default" >
    <ul class="nav navbar-nav navbar-left">
 %end
-      <li class="{{'dropdown' if in_sidebar else 'dropup'}}" data-toggle="tooltip" data-placement="right" title="{{_('Add a new widget')}}">
+      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Add a new widget')}}">
          <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
+            <span class="caret hidden-xs"></span>
             <span class="fa fa-plug"></span>
-            <span class="hidden-sm hidden-xs">{{_('Add a new widget')}}</span>
+            <span class="hidden-md hidden-sm hidden-xs">{{_('Widgets')}}</span>
          </a>
 
          <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Widgets menu')}}">
@@ -25,7 +25,7 @@
                           data-widget-name='{{widget['name']}}'
                           data-widget-template='{{widget['template']}}'
                           data-widget-uri='{{widget['base_uri']}}'
-                          class='btn btn-sm btn-success'>
+                          class='btn btn-sm btn-success btn-raised'>
                           <span class='fa fa-plus'></span>
                           {{_('Add this widget to your dashboard')}}
                       </button>"

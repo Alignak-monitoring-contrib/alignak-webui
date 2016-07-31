@@ -1,5 +1,7 @@
 %import json
 
+%setdefault('debug', False)
+
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -21,22 +23,6 @@
 %rebase("layout", title=title, page="/{{object_type}}s_table")
 %end
 
-<style>
-/* Set smaller font for table content */
-tbody > tr {
-   font-size:11px;
-}
-/* Modal opening button position adjusted */
-table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
-   top: 3px;
-}
-/* Selected line */
-table.dataTable tbody>tr.selected,
-table.dataTable tbody>tr>.selected {
-   background-color:#FAF3CD; color: black;
-}
-</style>
-
 %if dt.editable:
 %include("_edition.tpl")
 %end
@@ -52,44 +38,43 @@ table.dataTable tbody>tr>.selected {
 %end
 <!-- Table display -->
 <div id="{{object_type}}s_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
-   <!-- Bootstrap responsive table
-   <div class="table-responsive"> -->
-      <table id="tbl_{{object_type}}" class="table table-condensed dt-responsive">
-         <thead>
-            <tr>
-               %for column in dt.table_columns:
-               <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
-               %end
-            </tr>
-            %if dt.searchable:
-            <tr id="filterrow">
-               %idx=0
-               %for column in dt.table_columns:
-                  <th data-index="{{idx}}" data-name="{{ column['data'] }}"
-                      data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
-                      data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
-                      data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
-                  </th>
-                  %idx += 1
-               %end
-            </tr>
+   <table id="tbl_{{object_type}}" class="{{dt.css}}">
+      <thead>
+         <tr>
+            %for column in dt.table_columns:
+            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
             %end
-         </thead>
-         <tbody>
-         </tbody>
-      </table>
-   <!--
-   </div>
-    -->
+         </tr>
+         %if dt.searchable:
+         <tr id="filterrow">
+            %idx=0
+            %for column in dt.table_columns:
+               <th data-index="{{idx}}" data-name="{{ column['data'] }}"
+                   data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
+                   data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
+                   data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
+               </th>
+               %idx += 1
+            %end
+         </tr>
+         %end
+      </thead>
+      <tbody>
+      </tbody>
+   </table>
 </div>
 
 <script>
-   var debugTable = false;
+   var debugTable = {{'true' if debug else 'false'}};
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
 
    $(document).ready(function() {
+      %if not embedded:
+      set_current_page("{{ webui.get_url(request.route.name) }}");
+      %end
+
       $.ajaxSetup({
          headers: { "Authorization": "Basic " + btoa('{{credentials}}') }
       });
@@ -289,8 +274,14 @@ table.dataTable tbody>tr>.selected {
             $.each(data.columns, function(index, value) {
                if (value['search']['search'] != "") {
                   if (debugTable) console.debug('Update column', index, value['search']['search'], value);
+
                   // Update search filter input field value
                   $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+
+                  // Configure table filtering
+                  table
+                     .column(index)
+                        .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
 
                   // Enable the clear filter button
                   table.buttons('clearFilter:name').enable();
@@ -415,8 +406,6 @@ table.dataTable tbody>tr>.selected {
                %elif modalDisplay:
                , display: $.fn.dataTable.Responsive.display.modal({
                   header: function ( row ) {
-                     var data = row.data();
-                     console.log(data.data)
                      return ('{{_('Details for %s') % object_type}}');
                   }
                 })
@@ -536,15 +525,18 @@ table.dataTable tbody>tr>.selected {
             p - pagination control
             r - processing display element
          dom: 'Blfrtip',
+         Currently, no global search...
          */
-         dom: "<'row'<'col-xs-8'B><'col-xs-4'f>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-5'i><'col-xs-7'p>>",
+         dom: "<'row'<'col-xs-12'B><'col-xs-1'>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-12'i>>" + "<'row'<'col-xs-12'p>>",
          // Table columns visibility button
          buttons: [
             {
-                 extend: 'pageLength'
+               extend: 'pageLength',
+               className: 'btn-raised btn-xs'
             }
             ,{
-                 extend: 'colvis'
+               extend: 'colvis',
+               className: 'btn-raised btn-xs'
             }
             %if dt.printable:
             ,{
@@ -556,7 +548,8 @@ table.dataTable tbody>tr>.selected {
                   modifier: {
                      search: 'none'
                   }
-               }
+               },
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.exportable:
@@ -575,7 +568,8 @@ table.dataTable tbody>tr>.selected {
                         modifier: {
                            search: 'none'
                         }
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -588,7 +582,8 @@ table.dataTable tbody>tr>.selected {
                         modifier: {
                            search: 'none'
                         }
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -603,9 +598,11 @@ table.dataTable tbody>tr>.selected {
                         modifier: {
                            search: 'none'
                         }
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
-               ]
+               ],
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.searchable:
@@ -626,17 +623,20 @@ table.dataTable tbody>tr>.selected {
 
                   // Disable the clear filter button
                   table.buttons('clearFilter:name').disable();
-               }
+               },
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.selectable:
             ,{
                extend: 'selectAll',
                titleAttr: "{{_('Select all the table rows')}}",
+               className: 'btn-raised btn-xs'
             }
             ,{
                extend: 'selectNone',
                titleAttr: "{{_('Unselect all rows')}}",
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.commands:
@@ -671,7 +671,8 @@ table.dataTable tbody>tr>.selected {
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -700,7 +701,8 @@ table.dataTable tbody>tr>.selected {
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
@@ -729,9 +731,11 @@ table.dataTable tbody>tr>.selected {
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
-                     }
+                     },
+                     className: 'btn-raised btn-xs'
                   }
-               ]
+               ],
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.recursive:
@@ -739,9 +743,10 @@ table.dataTable tbody>tr>.selected {
                text: "{{! _('<span class=\'fa fa-sitemap\'></span>')}}",
                titleAttr: "{{_('Navigate to the tree view')}}",
                action: function (e, dt, button, config) {
-                  if (debugTable) console.log('Navigate to the tree view {{object_type}}!');
-                  window.location.href = "/{{object_type}}_tree";
-               }
+                  if (debugTable) console.log('Navigate to the tree view for {{object_type}}!');
+                  window.location.href = "/{{object_type}}s_tree";
+               },
+               className: 'btn-raised btn-xs'
             }
             %end
          ]

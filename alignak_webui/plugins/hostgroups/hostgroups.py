@@ -56,9 +56,6 @@ schema['#'] = {
         'orderable': False,
         # search as a regex (else strict value comparing when searching is performed)
         'regex': False,
-        # defines the priority for the responsive column hidding (0 is the most important)
-        # Default is 10000
-        # 'priority': 0,
     }
 }
 schema['name'] = {
@@ -156,7 +153,7 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': True,
+        'responsive': False,
         'recursive': True
     }
 }
@@ -223,7 +220,6 @@ def get_hostgroups():
 
     return {
         'tree_type': 'hostgroup',
-        'leaves_type': 'host',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
@@ -311,11 +307,7 @@ def get_hostgroup(hostgroup_id):
     if not hostgroup:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('Hosts group element does not exist'))
 
-    return {
-        'hostgroup_id': hostgroup_id,
-        'hostgroup': hostgroup,
-        'title': request.query.get('title', _('Hosts group view'))
-    }
+    return get_hostgroups_table()
 
 
 pages = {
@@ -330,7 +322,7 @@ pages = {
     get_hostgroups: {
         'routes': [
             ('/hostgroups', 'Hosts groups'),
-            ('/hostgroup_tree', 'Hosts groups tree')
+            ('/hostgroups_tree', 'Hosts groups tree')
         ],
         'view': '_tree',
         'search_engine': False,

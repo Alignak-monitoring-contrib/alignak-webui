@@ -55,9 +55,6 @@ schema['#'] = {
         'orderable': False,
         # search as a regex (else strict value comparing when searching is performed)
         'regex': False,
-        # defines the priority for the responsive column hidding (0 is the most important)
-        # Default is 10000
-        # 'priority': 0,
     }
 }
 schema['name'] = {
@@ -209,7 +206,7 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': False,
-        'responsive': True,
+        'responsive': False,
         'recursive': True
     }
 }
@@ -254,28 +251,21 @@ def get_realms():
     context_menu = {
         'actions': {
             'action1': {
-                "label": "Cueillir des fraises...",
+                "label": _('Fake action 1'),
                 "icon": "ion-monitor",
                 "separator_before": False,
                 "separator_after": True,
-                "action": '''function (obj) {
-                   console.log('Miam!');
-                }'''
-            },
-            'action2': {
-                "label": "... et encore des fraises!",
-                "icon": "ion-monitor",
-                "separator_before": False,
-                "separator_after": False,
-                "action": '''function (obj) {
-                   console.log('Et que ça saute !');
-                }'''
+                "action": '''
+                    function (obj) {
+                        console.log('Fake action 1');
+                    }
+                '''
             }
         }
     }
 
     return {
-        'object_type': 'realm',
+        'tree_type': 'realm',
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
@@ -341,8 +331,10 @@ pages = {
         'view': 'realm'
     },
     get_realms: {
-        'name': 'Realms',
-        'route': '/realms',
+        'routes': [
+            ('/realms', 'Realms'),
+            ('/realms_tree', 'Realms tree')
+        ],
         'view': '_tree',
         'search_engine': False,
         'search_prefix': '',

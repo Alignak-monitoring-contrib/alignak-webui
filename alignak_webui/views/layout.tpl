@@ -11,7 +11,7 @@
 %setdefault('refresh_header', True)
 %setdefault('current_user', None)
 %setdefault('target_user', None)
-%setdefault('sidebar', True)
+%setdefault('sidebar', False)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
@@ -41,7 +41,7 @@
 
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
       <title>{{title}}</title>
 
@@ -49,8 +49,12 @@
 
       <!-- Stylesheets
       ================================================== -->
-      <link rel="stylesheet" href="/static/css/bootstrap.min.css" >
-      <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css" >
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
+      %else:
+      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
+      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
+      %end
       <link rel="stylesheet" href="/static/css/font-awesome.min.css" >
       <link rel="stylesheet" href="/static/css/typeahead.css" >
       <link rel="stylesheet" href="/static/css/daterangepicker.css" >
@@ -62,11 +66,54 @@
 
       <link rel="stylesheet" href="/static/css/timeline.css" >
 
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Material Design fonts -->
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+
+      <!-- Bootstrap Material Design -->
+      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
+      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      -->
+      %end
+
       <!-- jsTree jQuery plugin -->
       <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
 
-      <!-- Datatables jQuery plugin -->
-      <link rel="stylesheet" href="/static/css/datatables.min.css" >
+      <!-- Datatables jQuery plugin - download builder file
+      <link rel="stylesheet" href="/static/css/datatables/all_datatables.min.css" >
+      -->
+      <!-- Datatable, CDN version:
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-flash-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.css"/>
+      -->
+      <!-- Datatables jQuery plugin - separate files -->
+      <link rel="stylesheet" href="/static/css/datatables/jquery.dataTables.min.css" >
+      %if request.app.config.get('material_design', '0') == '1':
+      <link rel="stylesheet" href="/static/css/datatables/dataTables.material.min.css" >
+      %else:
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap4.min.css" >
+      %else:
+      <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap.min.css" >
+      %end
+      %end
+
+      <link rel="stylesheet" href="/static/css/datatables/responsive.dataTables.min.css" >
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <link rel="stylesheet" href="/static/css/datatables/responsive.bootstrap4.min.css" >
+      %else:
+      <link rel="stylesheet" href="/static/css/datatables/responsive.bootstrap.min.css" >
+      %end
+
+      <link rel="stylesheet" href="/static/css/datatables/buttons.dataTables.min.css" >
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <link rel="stylesheet" href="/static/css/datatables/buttons.bootstrap4.min.css" >
+      %else:
+      <link rel="stylesheet" href="/static/css/datatables/buttons.bootstrap.min.css" >
+      %end
+
+      <link rel="stylesheet" href="/static/css/datatables/select.dataTables.min.css" >
+      <link rel="stylesheet" href="/static/css/datatables/select.bootstrap.min.css" >
 
       %# Specific CSS files
       %for f in css:
@@ -81,8 +128,14 @@
       ================================================== -->
       <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
       <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
-      <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
+      %else:
+      <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
+      %end
+      <!--
       <script type="text/javascript" src="/static/js/bootstrap-tab-bookmark.js"></script>
+      -->
       <script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
       <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
@@ -97,8 +150,39 @@
       <!-- jsTree jQuery plugin -->
       <script type="text/javascript" src="/static/js/jstree.min.js"></script>
 
-      <!-- Datatables jQuery plugin -->
-      <script type="text/javascript" src="/static/js/datatables.min.js"></script>
+      <!-- Datatables jQuery plugin - download builder file
+      <script type="text/javascript" src="/static/js/datatables/all_datatables.min.js"></script>
+      -->
+      <!-- Datatable, CDN version:
+      <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-flash-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.js"></script>
+      -->
+      <!-- Datatables jQuery plugin - separate files -->
+      <script type="text/javascript" src="/static/js/datatables/jquery.dataTables.min.js"></script>
+      %if request.app.config.get('material_design', '0') == '1':
+      <script type="text/javascript" src="/static/js/datatables/dataTables.material.min.js"></script>
+      %else:
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <script type="text/javascript" src="/static/js/datatables/dataTables.bootstrap4.min.js"></script>
+      %else:
+      <script type="text/javascript" src="/static/js/datatables/dataTables.bootstrap.min.js"></script>
+      %end
+      %end
+
+      <script type="text/javascript" src="/static/js/datatables/dataTables.responsive.min.js"></script>
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <script type="text/javascript" src="/static/js/datatables/responsive.bootstrap4.min.js"></script>
+      %else:
+      <script type="text/javascript" src="/static/js/datatables/responsive.bootstrap.min.js"></script>
+      %end
+
+      <script type="text/javascript" src="/static/js/datatables/dataTables.buttons.min.js"></script>
+      <script type="text/javascript" src="/static/js/datatables/buttons.bootstrap.min.js"></script>
+      <script type="text/javascript" src="/static/js/datatables/buttons.colVis.min.js"></script>
+      <script type="text/javascript" src="/static/js/datatables/buttons.flash.min.js"></script>
+      <script type="text/javascript" src="/static/js/datatables/buttons.html5.min.js"></script>
+      <script type="text/javascript" src="/static/js/datatables/buttons.print.min.js"></script>
+
+      <script type="text/javascript" src="/static/js/datatables/dataTables.select.min.js"></script>
 
       <!--
        Application globals ...
@@ -270,6 +354,21 @@
       %# Specific Js files ...
       %for f in js:
       <script type="text/javascript" src="/static/plugins/{{f}}"></script>
+      %end
+
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Bootstrap Material Design
+      -->
+      <script src="/static/js/material/material.min.js"></script>
+      <script src="/static/js/material/ripples.min.js"></script>
+
+      <!--
+      <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+      <script defer src="https://cdn.datatables.net/1.10.12/js/dataTables.material.min.js"></script>
+      -->
+      <script>
+      $.material.init();
+      </script>
       %end
    </body>
 </html>

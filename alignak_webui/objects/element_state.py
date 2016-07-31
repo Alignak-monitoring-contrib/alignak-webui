@@ -168,6 +168,8 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
                 if status == s:
                     return self.get_icon_states(object_type)[s]
 
+            return None
+
         def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
                            title='', disabled=False, size=''):
             # pylint: disable=too-many-arguments
@@ -180,7 +182,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             If parameters are not valid, returns 'n/a'
 
             If disabled is True, the class does not depend upon object status and is always
-            font-greyed
+            text-muted
 
             If a title is specified, it will be used instead of the default built-in text.
 
@@ -272,7 +274,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             if not disabled:
                 res_icon = res_icon.replace("##class##", res_icon_class)
             else:
-                res_icon = res_icon.replace("##class##", "font-greyed")
+                res_icon = res_icon.replace("##class##", "text-muted")
 
             res_icon = res_icon.replace("##icon##", res_icon_state)
             res_icon = res_icon.replace("##extra##", res_extra)

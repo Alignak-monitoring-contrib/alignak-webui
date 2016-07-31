@@ -376,7 +376,8 @@ class BackendElement(object):
                 continue
 
             try:
-                setattr(self, key, params[key])
+                if params[key]:
+                    setattr(self, key, params[key])
             except Exception:
                 logger.critical("_create parameter TypeError: %s = %s", key, params[key])
 
@@ -523,10 +524,10 @@ class BackendElement(object):
             if isinstance(object_type, BackendElement):
                 object_class = object_type.__class__
                 if object_class == self.__class__:
-                    logger.warning(
-                        "__init__, update same object %s (%s) (DO NOTHING!): %s = %s",
-                        self.__class__, self.id, key, params[key]
-                    )
+                    # logger.warning(
+                    # "__init__, update same object %s (%s) (DO NOTHING!): %s = %s",
+                    # self.__class__, self.id, key, params[key]
+                    # )
                     break
 
                 logger.debug(
@@ -680,7 +681,7 @@ class BackendElement(object):
         """
         Get Item html link
         """
-        return '<a href="%s">%s</a>' % (self.endpoint, self.alias)
+        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.alias, self.name)
 
     def get_html_link(self, prefix=None, title=None):
         """

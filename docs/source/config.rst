@@ -3,12 +3,28 @@
 Configuration
 =============
 
-The application can be run without any extra configuration file with default parameters. Nevertheless, the application is best used when suited to user's neeeds.
+The application runs without any extra configuration file with default parameters. Nevertheless, the application is best used when suited to user's neeeds.
 
-The application can be configured thanks to a configuration file. When installed for an end user, the configuration file ``settings.cfg`` is installed on your system in the */etc/alignak_webui* or */usr/local/etc/alignak_webui* directory according to whether your system is a Linux (Debian) or Unix (FreeBSD) distribution.
+Application user interface layout
+---------------------------------
+Css files:
+
+    - alignak_webui.css
+    - alignak_webui-items.css, items icons styles
+
+Javascript files:
+
+    - alignak_webui-layout.js, contains some colors definitions for the externally embedded widgets
+
+Images:
+    -
+    -
+    TO BE COMPLETED!
 
 Configuration file location
 ---------------------------
+The application can be configured thanks to a configuration file. When installed for an end user, the configuration file ``settings.cfg`` is installed on your system in a directory according to whether your system is a Linux (Debian) or Unix (FreeBSD) distribution.
+
 The application searches in several location for a configuration file:
 
     - /usr/local/etc/alignak-webui/settings.cfg

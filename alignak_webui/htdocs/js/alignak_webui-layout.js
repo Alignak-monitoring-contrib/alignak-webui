@@ -190,25 +190,12 @@ function display_modal(inner_url, hidden) {
 
 
 $(document).ready(function(){
-/* For a future version ... control navigation bar navigation.
-   // Manage navigation bars selection ...
-   $('body').on("click", '.nav a', function (evt) {
-      if (log_layout) console.debug('Selected a navigation bar element', $(this));
-
-      // Do not automatically navigate...
-      evt.preventDefault();
-
-      if (log_layout) console.debug('Request navigation to', $(this).attr('href'));
-
-      $(".nav").find(".active").removeClass("active");
-      $(this).parent().addClass("active");
-      $(this).css({'color':'red'});
-   });
-*/
-
    // Activate all tooltips on the page ...
-   if (log_layout) console.debug('Activate tooltips');
-   $('[data-toggle="tooltip"]').tooltip();
+   if (window.matchMedia && (window.matchMedia("(max-width: 767px)").matches)) {
+      if (log_layout) console.debug('Activate tooltips');
+      // ... except when on small devices!
+      $('[data-toggle="tooltip"]').tooltip();
+   }
 
    // When modal box is displayed ...
    $('#mainModal').on('shown.bs.modal', function () {

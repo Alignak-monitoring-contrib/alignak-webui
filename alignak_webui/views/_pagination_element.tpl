@@ -13,6 +13,11 @@
 
 %from bottle import request
 
+<style>
+.pagination {
+   margin: 0px !important;
+}
+</style>
 %if debug:
 <div class="panel-group">
    <div class="panel panel-default">
@@ -39,9 +44,9 @@
    %if pagination and len(pagination) > 1:
       %if display_steps_form and elts_per_page is not None:
       <form id="elts_per_page" class="form-inline">
-         <div class="input-group">
+         <div class="input-group input-group-sm">
             <div class="input-group-btn">
-               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+               <button type="button" class="btn btn-raised dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   #&nbsp;<span class="caret"></span>
                </button>
                <ul class="dropdown-menu" role="menu">
@@ -53,8 +58,35 @@
                   <li><a href="#" data-elts="0">{{_('All elements (%d)' % total)}}</a></li>
                </ul>
             </div>
-            <input type="number" class="form-control" aria-label="{{_('Elements per page')}}" placeholder="{{_('Elements per page')}}" value="{{elts_per_page}}">
          </div>
+         <input type="number" class="form-control"
+                aria-label="{{_('Elements per page')}}"
+                placeholder="{{_('Elements per page')}}" value="{{elts_per_page}}">
+         <ul class="pagination" >
+         %from urllib import urlencode
+         %first_element=False
+         %next_page=False
+         %for label, start, count, total, active in pagination:
+            %# Skip first element
+            %if not first_element:
+            %first_element=True
+            %continue
+            %end
+            %request.query['start'] = start
+            %request.query['count'] = count
+            <li>
+            <a class="btn btn-default btn-sm {{'active' if active else ''}} {{'next_page' if next_page else ''}}"
+               href="{{page_url}}?{{urlencode(request.query)}}">{{!label}}<span class="sr-only">{{!label}}</span></a>
+            </li>
+            %if active:
+            %next_page=True
+            %else:
+               %if next_page:
+               %next_page=False
+               %end
+            %end
+         %end
+         </ul>
       </form>
       <script>
       $("#elts_per_page li a").click(function(e){
@@ -94,29 +126,5 @@
       });
       </script>
       %end
-
-      <div class="btn-group" role="group" aria-label="{{_('Pages sequence')}}">
-      %from urllib import urlencode
-      %first_element=False
-      %next_page=False
-      %for label, start, count, total, active in pagination:
-         %# Skip first element
-         %if not first_element:
-         %first_element=True
-         %continue
-         %end
-         %request.query['start'] = start
-         %request.query['count'] = count
-         <a class="btn btn-default {{'active' if active else ''}} {{'next_page' if next_page else ''}}"
-            href="{{page_url}}?{{urlencode(request.query)}}">{{!label}}<span class="sr-only">{{!label}}</span></a>
-         %if active:
-         %next_page=True
-         %else:
-            %if next_page:
-            %next_page=False
-            %end
-         %end
-      %end
-      </div>
    %end
 </div>

@@ -105,7 +105,7 @@
    <div>
       %if groups:
       <div class="btn-group pull-right">
-         <button class="btn btn-primary btn-xs"><i class="fa fa-sitemap"></i>{{_('Groups')}}</button>
+         <button class="btn btn-primary btn-xs"><i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}</button>
          <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:
@@ -274,11 +274,11 @@
    <!-- Fourth row : services synthesis ... -->
    <div class="panel panel-default">
      <div class="panel-body">
-       <table class="table table-invisible table-condensed">
+       <table class="table table-invisible">
          <tbody>
            <tr>
              <td>
-               <a role="menuitem" href="/all?search=type:service {{host.name}}">
+               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}}">
                   <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
                </a>
              </td>
@@ -286,10 +286,11 @@
              %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
              <td>
                %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/all?search=type:service is:{{state}} {{host.name}}">
+               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}} state:{{state.upper()}}">
                %end
-                 %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-                 {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
+
+               %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
+               {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
 
                %if synthesis['nb_' + state]>0:
                </a>
@@ -306,33 +307,35 @@
    <div>
       <ul class="nav nav-tabs">
          <li class="active">
-            <a href="#host_view" data-toggle="tab"
+            <a href="#host_tab_view"
+               role="tab" data-toggle="tab" aria-controls="view"
                title="{{_('Host synthesis view')}}"
                >
                <span class="fa fa-server"></span>
-               {{_('Host view')}}
+               <span class="hidden-sm hidden-xs">{{_('Host view')}}</span>
             </a>
          </li>
 
          %for widget in webui.widgets['host']:
             <li>
-               <a href="#{{widget['id']}}" data-toggle="tab"
-                  title="{{widget['description']}}"
+               <a href="#host_tab_{{widget['id']}}"
+                  role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
+                  title="{{! widget['description']}}"
                   >
                   <span class="fa fa-{{widget['icon']}}"></span>
-                  {{widget['name']}}
+                  <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
             </li>
          %end
       </ul>
 
       <div class="tab-content">
-         <div class="tab-pane fade active in" id="host_view">
-            %include("_widget.tpl", widget_name='host_custom_host_default', options=None, embedded=True, title=None)
+         <div id="host_tab_view" class="tab-pane fade active in" role="tabpanel">
+            %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None)
          </div>
 
          %for widget in webui.widgets['host']:
-            <div class="tab-pane fade" id="{{widget['id']}}">
+            <div id="host_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
                %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
             </div>
          %end
@@ -341,7 +344,8 @@
  </div>
 
 <script>
-   function bootstrap_tab_bookmark (selector) {
+   // Automatically navigate to the desired tab if an # exists in the URL
+   function bootstrap_tab_bookmark(selector) {
       if (selector == undefined) {
          selector = "";
       }
@@ -353,7 +357,7 @@
          }
       }
 
-      /* Automagically jump on good tab based on anchor */
+      /* Automatically jump on good tab based on anchor */
       $(document).ready(bookmark_switch);
       $(window).bind('hashchange', bookmark_switch);
 
@@ -367,9 +371,16 @@
    }
 
    $(function () {
+      bootstrap_tab_bookmark();
+   })
+   $(document).ready(function() {
       // Activate the popover for the notes and actions urls
       $('[data-toggle="popover urls"]').popover()
 
-      bootstrap_tab_bookmark();
-   })
+      // Tabs management
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+         console.log(e.target); // newly activated tab
+         console.log(e.relatedTarget); // previous active tab
+      })
+   });
  </script>

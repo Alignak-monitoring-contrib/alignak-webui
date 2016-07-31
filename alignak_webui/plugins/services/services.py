@@ -37,6 +37,9 @@ logger = getLogger(__name__)
 # Will be populated by the UI with it's own value
 webui = None
 
+# Declare backend element endpoint
+backend_endpoint = 'service'
+
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
@@ -55,9 +58,6 @@ schema['#'] = {
         'orderable': False,
         # search as a regex (else strict value comparing when searching is performed)
         'regex': False,
-        # defines the priority for the responsive column hidding (0 is the most important)
-        # Default is 10000
-        # 'priority': 0,
     }
 }
 schema['name'] = {
@@ -76,10 +76,23 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
+}
 schema['_is_template'] = {
     'type': 'boolean',
     'ui': {
-        'title': _('Service template'),
+        'title': _('Template'),
         'visible': True,
         'hidden': True
     },
@@ -92,6 +105,14 @@ schema['definition_order'] = {
         'hidden': True,
         'orderable': False,
     },
+}
+schema['tags'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Tags'),
+        'visible': True,
+    }
 }
 schema['alias'] = {
     'type': 'string',
@@ -107,6 +128,12 @@ schema['display_name'] = {
         'visible': True
     },
 }
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
+}
 schema['host'] = {
     'type': 'objectid',
     'ui': {
@@ -116,6 +143,14 @@ schema['host'] = {
     'data_relation': {
         'resource': 'host',
         'embeddable': True
+    }
+}
+schema['customs'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Customs'),
+        'visible': True,
     }
 }
 schema['hostgroup_name'] = {
@@ -273,29 +308,24 @@ schema['first_notification_delay'] = {
 }
 schema['notification_options'] = {
     'type': 'list',
-    'default': ['o', 'd', 'u'],
-    'allowed': ['o', 'd', 'u'],
+    'default': ['w', 'u', 'c', 'r', 'f', 's'],
+    'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n'],
     'ui': {
         'title': _('Flapping detection options'),
         'visible': True,
         'format': {
             'list_type': "multichoices",
             'list_allowed': {
-                u"d": u"Send notifications on Down state",
-                u"r": u"Send notifications on recoveries",
-                u"u": u"Send notifications on Unreachable state",
+                u"w": u"Send notifications on Warning state",
+                u"c": u"Send notifications on Critical state",
+                u"u": u"Send notifications on Unknown state",
+                u"r": u"Send notifications on recovery",
                 u"f": u"Send notifications on flapping start/stop",
                 u"s": u"Send notifications on scheduled downtime start/stop",
                 u"n": u"Do not send notifications"
             }
         }
     },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
 }
 schema['notes_url'] = {
     'type': 'string',
@@ -412,7 +442,7 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': True
+        'responsive': False
     }
 }
 
@@ -459,7 +489,8 @@ def get_services(templates=False):
     }
 
 
-def get_services_list():
+def get_services_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the services list
     """
@@ -471,7 +502,7 @@ def get_services_list():
 
     items = []
     for service in services:
-        items.append({'id': service.id, 'name': service.alias})
+        items.append({'id': service.id, 'name': service.name, 'alias': service.alias})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -617,6 +648,13 @@ pages = {
             ('/services_table', 'Services table')
         ],
         'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            '01': (_('Services'), '_is_template:false'),
+            '02': ('', ''),
+            '03': (_('Services templates'), '_is_template:true')
+        },
         'tables': [
             {
                 'id': 'services_table',

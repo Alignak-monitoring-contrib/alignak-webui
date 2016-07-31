@@ -412,36 +412,16 @@ class Test2StaticFiles(unittest2.TestCase):
         response = self.app.get('/modal/about')
 
 
-class Test3(unittest2.TestCase):
-
+class Test3Dashboard(unittest2.TestCase):
     def setUp(self):
-        print ""
-        print "setting up ..."
-
         # Test application
         self.app = TestApp(
             webapp
         )
-
-        response = self.app.get('/login')
-        response.mustcontain('<form role="form" method="post" action="/login">')
-
-        print 'login accepted - go to home page'
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
-        # A host cookie now exists
-        assert self.app.cookies['Alignak-WebUI']
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
-
         response = self.app.get('/logout')
-        redirected_response = response.follow()
-        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
     def test_3_1_dashboard(self):
         print ''
@@ -450,11 +430,24 @@ class Test3(unittest2.TestCase):
         print 'get page /dashboard'
         redirected_response = self.app.get('/dashboard')
         redirected_response.mustcontain(
+            'This file is a part of Alignak-WebUI.',
+            '<!-- Page header -->',
+            '<header>',
+            '<nav id="menu-bar">',
+            '<!-- Templates actions bar -->',
+            '<!-- Dashboard actions bar -->',
+            '<a data-action="display-currently"',
+            '<a data-action="toggle-page-refresh"',
+            '<!-- User info -->',
+            '<div id="page-wrapper" class="container-fluid header-page">',
+
             '<div id="dashboard">',
-            '<nav id="sidebar-menu" class="navbar navbar-default">',
-            '<div id="dashboard">',
-            '<div class="panel panel-default alert-warning" id="propose-widgets" style="margin:10px; display:none">',
-            '<div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>',
+            '<div id="dashboard-synthesis"',
+            '<div id="propose-widgets" ',
+            '<!-- Widgets loading indicator -->',
+            '<div id="widgets_loading"></div>',
+            '<!-- Widgets grid -->',
+            '<!-- Page footer -->'
         )
 
         print 'get page /currently'
@@ -467,6 +460,18 @@ class Test3(unittest2.TestCase):
             '<div id="livestate-graphs" '
         )
 
+
+class Test3Users(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
     def test_3_2_users(self):
         print ''
         print 'test users'
@@ -478,6 +483,18 @@ class Test3(unittest2.TestCase):
             '5 elements out of 5',
         )
 
+
+class Test3Commands(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
     def test_3_3_commands(self):
         print ''
         print 'test commands'
@@ -488,6 +505,18 @@ class Test3(unittest2.TestCase):
             '<div id="commands">',
             '25 elements out of 103',
         )
+
+
+class Test3Hosts(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
 
     def test_3_4_hosts(self):
         print ''
@@ -523,6 +552,18 @@ class Test3(unittest2.TestCase):
             '<div id="wd_panel_hosts_chart_1" class="panel panel-default alignak_webui_widget ">'
         )
 
+
+class Test3Services(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
     def test_3_5_services(self):
         print ''
         print 'test services'
@@ -543,7 +584,6 @@ class Test3(unittest2.TestCase):
             'widget_id': 'services_table_1',
             'widget_template': 'services_table_widget'
         })
-        print response
         response.mustcontain(
             '<div id="wd_panel_services_table_1" class="panel panel-default alignak_webui_widget ">'
         )
@@ -552,10 +592,21 @@ class Test3(unittest2.TestCase):
             'widget_id': 'services_chart_1',
             'widget_template': 'services_chart_widget'
         })
-        print response
         response.mustcontain(
             '<div id="wd_panel_services_chart_1" class="panel panel-default alignak_webui_widget ">'
         )
+
+
+class Test3Timeperiods(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
 
     def test_3_6_timeperiods(self):
         print ''
@@ -567,6 +618,18 @@ class Test3(unittest2.TestCase):
             '<div id="timeperiods">',
             '4 elements out of 4',
         )
+
+
+class Test3Livestate(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
 
     def test_3_7_livestate(self):
         print ''
@@ -613,7 +676,6 @@ class Test3(unittest2.TestCase):
             'widget_id': 'livestate_hosts_chart_1',
             'widget_template': 'livestate_hosts_chart_widget'
         })
-        print response
         response.mustcontain(
             '<div id="wd_panel_livestate_hosts_chart_1" class="panel panel-default alignak_webui_widget ">'
         )
@@ -660,6 +722,18 @@ class Test3(unittest2.TestCase):
             '<div id="wd_panel_livestate_services_sla_1" class="panel panel-default alignak_webui_widget ">'
         )
 
+
+class Test3Worldmap(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
     def test_3_8_worldmap(self):
         print ''
         print 'test worldmap'
@@ -670,6 +744,27 @@ class Test3(unittest2.TestCase):
             '<div id="hostsMap" class="osm">'
         )
 
+        # Widget
+        response = self.app.post('/worldmap/widget', {
+            'widget_id': 'worldmap_1',
+            'widget_template': 'worldmap_widget'
+        })
+        response.mustcontain(
+            '<div id="wd_panel_worldmap_1" class="panel panel-default alignak_webui_widget ">'
+        )
+
+
+class Test3Minemap(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
     def test_3_9_minemap(self):
         print ''
         print 'test minemap'
@@ -679,6 +774,18 @@ class Test3(unittest2.TestCase):
         response.mustcontain(
             '<div id="minemap">'
         )
+
+
+class Test3Hostgroups(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
 
     def test_3_10_hostgroups(self):
         print ''
@@ -691,6 +798,18 @@ class Test3(unittest2.TestCase):
             # '8 elements out of 8'
         )
 
+
+class Test3Servicegroups(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
     def test_3_10_servicegroups(self):
         print ''
         print 'test servicegroups'
@@ -701,6 +820,18 @@ class Test3(unittest2.TestCase):
             '<div id="servicegroup_tree_view">',
             # '5 elements out of 5'
         )
+
+
+class Test3Realms(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
 
     def test_3_11_realms(self):
         print ''
@@ -753,12 +884,24 @@ class Test4TargetUser(unittest2.TestCase):
         print 'get page /dashboard'
         redirected_response = self.app.get('/dashboard')
         redirected_response.mustcontain(
-            '<div id="dashboard">',
-            '<nav id="sidebar-menu" class="navbar navbar-default">',
-            '<div id="dashboard">',
-            '<div class="panel panel-default alert-warning" id="propose-widgets" style="margin:10px; display:none">',
-            '<div id="widgets_loading" style="position: absolute; top: 0px; left: 0px;"></div>',
+            'This file is a part of Alignak-WebUI.',
+            '<!-- Page header -->',
+            '<header>',
+            '<nav id="menu-bar">',
+            '<!-- Templates actions bar -->',
+            '<!-- Dashboard actions bar -->',
+            '<a data-action="display-currently"',
+            '<a data-action="toggle-page-refresh"',
+            '<!-- User info -->',
+            '<div id="page-wrapper" class="container-fluid header-page">',
 
+            '<div id="dashboard">',
+            '<div id="dashboard-synthesis"',
+            '<div id="propose-widgets" ',
+            '<!-- Widgets loading indicator -->',
+            '<div id="widgets_loading"></div>',
+            '<!-- Widgets grid -->',
+            '<!-- Page footer -->'
         )
 
         print 'get home page /dashboard'

@@ -184,7 +184,7 @@ def main():  # pragma: no cover, not mesured by coverage!
     set_app_config(app_config)
 
     # Make the application available globally for the package
-    app_webui = set_app_webui(WebUI())
+    app_webui = set_app_webui(WebUI(app_config))
 
     try:
         if args['--exit']:

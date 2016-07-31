@@ -21,13 +21,13 @@
 <div id="wd_panel_{{widget_id}}" class="panel panel-default alignak_webui_widget {{'embedded' if embedded else ''}}">
    %if title is not None:
    <div class="panel-heading">
-      <i class="fa fa-{{widget_icon}}"></i>
-      <span>
-         {{title}}
-      </span>
+      <span class="fa fa-{{widget_icon}}"></span>
+      <span>{{title}}</span>
       %if not embedded:
       <div class="pull-right">
-         <a data-widget="{{widget_id}}" data-action="remove-widget" type="button" class="btn btn-xs"><i class="fa fa-close fa-fw"></i></a>
+         <button data-widget="{{widget_id}}" data-action="remove-widget" type="button" class="btn btn-xs">
+            <span class="fa fa-close fa-fw"></span>
+         </button>
       </div>
       %end
       %if options:
@@ -192,7 +192,7 @@
    });
 
    %if not embedded:
-   $('body').on("click", 'a[data-action="remove-widget"]', function (evt) {
+   $('body').on("click", '[data-action="remove-widget"]', function (evt) {
       var grid = $('.grid-stack').data('gridstack');
       grid.removeWidget('#' + $(this).data("widget"));
    });

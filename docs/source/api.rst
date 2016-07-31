@@ -56,6 +56,7 @@ URL syntax::
         <alignak_webui> is the base url of your Alignak WebUI (eg. http://127.0.0.1:8868)
         <type> = `widget` for a widget, <identifier> is the identifier of the widget
         <type> = `table` for a table, <identifier> is the identifier of the table
+        <type> = `list` for a list, <identifier> is optional
         <type> = `host` for an host widget, <identifier> is the identifier of the host
 
         <action> is an optional required action (used internally for the tables)
@@ -74,6 +75,12 @@ The application response content type is always displayable HTML (eg. `text/html
     * 200 (Success) if content is delivered
 
 The application server implements the CORS an, as of it, filters the external access. The Access Control Allow Origin can be configured in the application configuration file thanks to the **cors_acao** parameter.
+
+
+Lists
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The lists returned when using the type `list` are provided as Json.
 
 
 Embedding mode

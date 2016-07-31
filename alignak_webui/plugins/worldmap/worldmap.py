@@ -37,7 +37,7 @@ logger = getLogger(__name__)
 webui = None
 
 # Plugin's parameters
-plugin_parameters = {
+worldmap_parameters = {
     'default_zoom': 6,
     'default_lng': 1.87528,
     'default_lat': 46.60611,
@@ -83,7 +83,7 @@ def get_worldmap():
 
     return {
         'mapId': 'hostsMap',
-        'params': plugin_parameters,
+        'params': worldmap_parameters,
         'hosts': valid_hosts,
         'pagination': webui.helper.get_pagination_control('/worldmap', total, start, count),
         'title': request.query.get('title', _('Hosts worldmap'))
@@ -106,7 +106,7 @@ def get_valid_elements(search):
     for host in hosts:
         logger.debug("worldmap, found host '%s'", host.name)
 
-        if host.business_impact not in plugin_parameters['hosts_level']:
+        if host.business_impact not in worldmap_parameters['hosts_level']:
             continue
 
         if host.position:
@@ -138,7 +138,7 @@ pages = {
         'view': 'worldmap_widget',
         'widgets': [
             {
-                'id': 'worldmap_table',
+                'id': 'worldmap',
                 'for': ['external', 'dashboard'],
                 'name': _('Worldmap widget'),
                 'template': 'worldmap_widget',

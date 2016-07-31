@@ -54,9 +54,6 @@ schema['#'] = {
         'orderable': False,
         # search as a regex (else strict value comparing when searching is performed)
         'regex': False,
-        # defines the priority for the responsive column hidding (0 is the most important)
-        # Default is 10000
-        # 'priority': 0,
     }
 }
 schema['_created'] = {

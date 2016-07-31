@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015-2016 F. Mohier pour IPM France
+# Copyright (C) 2015-2016 F. Mohier
 
 """
     Plugin Users
@@ -22,6 +22,9 @@ logger = getLogger(__name__)
 # Will be valued by the plugin loader
 webui = None
 
+# Declare backend element endpoint
+backend_endpoint = 'user'
+
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
@@ -41,6 +44,27 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
+}
+schema['_is_template'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Template'),
+        'visible': True,
+        'hidden': True
+    },
+}
 schema['definition_order'] = {
     'type': 'integer',
     'ui': {
@@ -50,12 +74,142 @@ schema['definition_order'] = {
         'orderable': False,
     },
 }
+schema['tags'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Tags'),
+        'visible': True,
+    }
+}
 schema['alias'] = {
     'type': 'string',
     'ui': {
         'title': _('User alias'),
         'visible': True
     },
+}
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
+}
+schema['customs'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Customs'),
+        'visible': True,
+    }
+}
+schema['min_business_impact'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Minimum business impact'),
+        'visible': True
+    },
+}
+schema['host_notifications_enabled'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Hosts notifications enabled'),
+        'visible': True
+    },
+}
+schema['host_notification_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Host notification period'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['host_notification_options'] = {
+    'type': 'list',
+    'default': ['o', 'd', 'u'],
+    'allowed': ['o', 'd', 'u'],
+    'ui': {
+        'title': _('Host notification options'),
+        'visible': True,
+        'format': {
+            'list_type': "multichoices",
+            'list_allowed': {
+                u"d": u"Send notifications on Down state",
+                u"r": u"Send notifications on recoveries",
+                u"u": u"Send notifications on Unreachable state",
+                u"f": u"Send notifications on flapping start/stop",
+                u"s": u"Send notifications on scheduled downtime start/stop",
+                u"n": u"Do not send notifications"
+            }
+        }
+    },
+}
+schema['host_notification_commands'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Host notification commands'),
+        'visible': True,
+        'searchable': False
+    },
+    'data_relation': {
+        'resource': 'command',
+        'embeddable': True
+    }
+}
+schema['service_notifications_enabled'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Hosts notifications enabled'),
+        'visible': True
+    },
+}
+schema['service_notification_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Service notification period'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['service_notification_options'] = {
+    'type': 'list',
+    'default': ['w', 'u', 'c', 'r', 'f', 's'],
+    'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n'],
+    'ui': {
+        'title': _('Flapping detection options'),
+        'visible': True,
+        'format': {
+            'list_type': "multichoices",
+            'list_allowed': {
+                u"w": u"Send notifications on Warning state",
+                u"c": u"Send notifications on Critical state",
+                u"u": u"Send notifications on Unknown state",
+                u"r": u"Send notifications on recovery",
+                u"f": u"Send notifications on flapping start/stop",
+                u"s": u"Send notifications on scheduled downtime start/stop",
+                u"n": u"Do not send notifications"
+            }
+        }
+    },
+}
+schema['service_notification_commands'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Service notification commands'),
+        'visible': True,
+        'searchable': False
+    },
+    'data_relation': {
+        'resource': 'command',
+        'embeddable': True
+    }
 }
 
 # This to define if the object in this model are to be used in the UI
@@ -72,7 +226,7 @@ schema['ui'] = {
         'editable': False,
         'selectable': True,
         'searchable': True,
-        'responsive': True
+        'responsive': False
     }
 }
 
@@ -242,7 +396,8 @@ def get_users():
     }
 
 
-def get_users_list():
+def get_users_list(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the users list
     """
@@ -254,7 +409,7 @@ def get_users_list():
 
     items = []
     for user in users:
-        items.append({'id': user.id, 'name': user.alias})
+        items.append({'id': user.id, 'name': user.name, 'alias': user.alias})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -305,10 +460,10 @@ pages = {
         'search_engine': True,
         'search_prefix': '',
         'search_filters': {
-            _('Administrator'): 'role:administrator',
-            _('Power'): 'role:power',
-            _('User'): 'role:user',
-            _('Guest'): 'name:anonymous'
+            '01': (_('Administrator'), 'role:administrator'),
+            '02': (_('Power'), 'role:power'),
+            '03': (_('User'), 'role:user'),
+            '04': (_('Guest'), 'name:anonymous'),
         }
     },
 

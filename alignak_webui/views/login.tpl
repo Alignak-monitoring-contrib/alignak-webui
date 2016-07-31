@@ -29,10 +29,22 @@
       <link href="/static/css/font-awesome.min.css" rel="stylesheet">
       <link href="/static/css/alignak_webui.css" rel="stylesheet">
 
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Bootstrap Material Design -->
+      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
+      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      %end
+
       <!-- Scripts
       ================================================== -->
       <script src="/static/js/jquery-1.12.0.min.js"></script>
       <script src="/static/js/bootstrap.min.js"></script>
+
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Bootstrap Material Design -->
+      <script src="/static/js/material/material.min.js"></script>
+      <script src="/static/js/material/ripples.min.js"></script>
+      %end
    </head>
 
    <body>
@@ -48,27 +60,29 @@
                <div class="panel-body">
                   <form role="form" method="post" action="/login">
                      <fieldset>
-                        <div class="form-group">
-                           <input class="form-control" placeholder="{{_('Username')}}" name="username" type="text" autofocus=autofocus>
+                        <div class="form-group label-floating">
+                           <label for="username" class="control-label">{{_('Username')}}</label>
+                           <input id="username" class="form-control" name="username" type="text" autofocus=autofocus>
                         </div>
                         <div class="form-group">
-                           <input class="form-control" placeholder="{{_('Password')}}" name="password" type="password" value="">
+                           <label for="password" class="control-label">{{_('Password')}}</label>
+                           <input id="password" class="form-control" name="password" type="password">
                         </div>
 
-                        <button class="btn btn-lg btn-success btn-block" type="submit"><i class="fa fa-sign-in"></i> {{_('Login')}}</button>
+                        <button class="btn btn-lg btn-success btn-block btn-raised" type="submit"><i class="fa fa-sign-in"></i> {{_('Login')}}</button>
                      </fieldset>
                   </form>
-               </div>
-               %if message or login_text:
-               <div class="panel-footer">
-                  %if login_text:
-                  <h4>{{! login_text}}</h4>
-                  %end
                   %if message:
                   <div id="login-message" class="alert alert-danger" role="alert">
                      <strong>{{_('Warning!')}}</strong>
                      {{message}}
                   </div>
+                  %end
+               </div>
+               %if message or login_text:
+               <div class="panel-footer">
+                  %if login_text:
+                  <h4>{{! login_text}}</h4>
                   %end
                </div>
                %end
@@ -78,14 +92,21 @@
 
       %include("_footer")
 
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Bootstrap Material Design -->
+      <script src="/static/js/material/material.min.js"></script>
+      <script src="/static/js/material/ripples.min.js"></script>
+      <script>
+      $.material.init();
+      </script>
+      %end
+
       <script>
       $(document).ready(function() {
          /*
           * This event handler catches the submit event for the login form.
           */
          $('body').on("submit", 'form[action="/login"]', function (evt) {
-            console.debug('Submit login form: ', $(this));
-
             $('#login-message').hide();
          });
       });
