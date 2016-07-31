@@ -79,6 +79,12 @@ header {
     height: 50px;
 }
 
+/*
+ * Header - Hosts and services states popovers
+ * Styles declared in _header_hosts_states.tpl and _header_services_states.tpl ... because styles
+ * of the popovers are not considered when declared here!
+ */
+
 header span.label {
     position: relative;
     left: +10px;
