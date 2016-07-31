@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 %setdefault('services', None)
 %setdefault('livestate', None)
 %setdefault('history', None)

@@ -700,7 +700,7 @@ class BackendElement(object):
         """
         Get Item html link with state
         """
-        return '<a href="%s" title="%">%s</a>' % (self.endpoint, self.alias, self.get_html_state(
+        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(
             text=self.alias, title=self.alias
         ))
 
