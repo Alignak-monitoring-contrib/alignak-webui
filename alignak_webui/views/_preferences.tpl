@@ -54,7 +54,7 @@
                      <tr><th colspan="2"></th></tr>
                   </thead>
                   <tbody style="font-size:x-small;">
-                     %for attr, value in current_user.__dict__.iteritems():
+                     %for attr, value in sorted(current_user.__dict__.iteritems()):
                      <tr>
                         <td><strong>{{attr}}:</strong></td>
                         <td>{{value}}</td>
