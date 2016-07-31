@@ -105,12 +105,13 @@
    <div>
       %if groups:
       <div class="btn-group pull-right">
-         <button class="btn btn-primary btn-xs"><i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}</button>
-         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+         </button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:
             <li>
-            <a href="/hostgroup/{{group.id}}">{{group.level}} - {{group.name}}</a>
+            <a href="/hostgroup/{{group.id}}">{{group.alias}}</a>
             </li>
          %end
          </ul>
@@ -120,8 +121,9 @@
       %if host.action_url != '':
       <div class="btn-group pull-right">
          %action_urls = host.action_url.split('|')
-         <button class="btn btn-info btn-xs"><i class="fa fa-external-link"></i> {{'Action' if len(action_urls) == 1 else 'Actions'}}</button>
-         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-external-link"></i> {{_('Action') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
+         </button>
          <ul class="dropdown-menu pull-right">
             %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
             <li>{{!action_url}}</li>
@@ -132,10 +134,21 @@
       %end
       %if tags:
       <div class="btn-group pull-right">
-         %for tag in sorted(tags):
-            <a>
-               <button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button>
-            </a>
+         %if len(tags) > 2:
+            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+               <i class="fa fa-tag"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right">
+               %for tag in sorted(tags):
+               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
+               %end
+            </ul>
+         %else:
+            %for tag in sorted(tags):
+               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
+                  <span class="fa fa-tag"></span> {{tag}}
+               </a>
+            %end
          %end
       </div>
       %end
