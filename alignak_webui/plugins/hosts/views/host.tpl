@@ -1,4 +1,4 @@
-%setdefault('debug', False)
+%setdefault('debug', True)
 %setdefault('services', None)
 %setdefault('livestate', None)
 %setdefault('history', None)
@@ -95,6 +95,58 @@
             %end
          </div>
       </div>
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4 class="panel-title">
+               <a data-toggle="collapse" href="#collapse_{{host.id}}_children"><i class="fa fa-bug"></i> Host children as dictionary</a>
+            </h4>
+         </div>
+         <div id="collapse_{{host.id}}_children" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
+            %for child in children:
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h4 class="panel-title">
+                     <a data-toggle="collapse" href="#collapse{{child.id}}_children"><i class="fa fa-bug"></i> Child: {{child.name}}</a>
+                  </h4>
+               </div>
+               <div id="collapse{{child.id}}_children" class="panel-collapse collapse" style="height: 200px;">
+                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                     %for k,v in sorted(child.__dict__.items()):
+                        <dt>{{k}}</dt>
+                        <dd>{{v}}</dd>
+                     %end
+                  </dl>
+               </div>
+            </div>
+            %end
+         </div>
+      </div>
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4 class="panel-title">
+               <a data-toggle="collapse" href="#collapse_{{host.id}}_parents"><i class="fa fa-bug"></i> Host parents as dictionary</a>
+            </h4>
+         </div>
+         <div id="collapse_{{host.id}}_parents" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
+            %for parent in parents:
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h4 class="panel-title">
+                     <a data-toggle="collapse" href="#collapse{{parent.id}}_parents"><i class="fa fa-bug"></i> Parent: {{parent.name}}</a>
+                  </h4>
+               </div>
+               <div id="collapse{{parent.id}}_parents" class="panel-collapse collapse" style="height: 200px;">
+                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                     %for k,v in sorted(parent.__dict__.items()):
+                        <dt>{{k}}</dt>
+                        <dd>{{v}}</dd>
+                     %end
+                  </dl>
+               </div>
+            </div>
+            %end
+         </div>
+      </div>
    </div>
    %end
 
@@ -167,27 +219,29 @@
       </div>
 
       <div id="collapseHostOverview" class="panel-body panel-collapse collapse">
-         %if host.customs:
-         <div class="row">
-            <dl class="dl-horizontal">
-               %if '_DETAILLEDESC' in host.customs:
-               <dt>{{_('Description:')}}</dt>
-               <dd>{{host.customs['_DETAILLEDESC']}}</dd>
-               %end
-               %if '_IMPACT' in host.customs:
-               <dt>{{_('Impact:')}}</dt>
-               <dd>{{host.customs['_IMPACT']}}</dd>
-               %end
-               %if '_FIXACTIONS' in host.customs:
-               <dt>{{_('Fix actions:')}}</dt>
-               <dd>{{host.customs['_FIXACTIONS']}}</dd>
-               %end
-            </dl>
+         %if host.customs and ('_DETAILLEDESC' in host.customs or '_IMPACT' in host.customs or '_FIXACTIONS' in host.customs):
+         <div class="panel panel-default">
+            <div class="panel-body">
+               <dl class="col-sm-12 dl-horizontal">
+                  %if '_DETAILLEDESC' in host.customs:
+                  <dt>{{_('Description:')}}</dt>
+                  <dd>{{host.customs['_DETAILLEDESC']}}</dd>
+                  %end
+                  %if '_IMPACT' in host.customs:
+                  <dt>{{_('Impact:')}}</dt>
+                  <dd>{{host.customs['_IMPACT']}}</dd>
+                  %end
+                  %if '_FIXACTIONS' in host.customs:
+                  <dt>{{_('Fix actions:')}}</dt>
+                  <dd>{{host.customs['_FIXACTIONS']}}</dd>
+                  %end
+               </dl>
+            </div>
          </div>
          %end
 
          <div class="row">
-            <dl class="col-sm-6 col-md-4 dl-horizontal">
+            <dl class="col-sm-6 col-md-4">
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
@@ -204,58 +258,31 @@
                <dd>{{!Helper.get_html_business_impact(host.business_impact, icon=True, text=True)}}</dd>
             </dl>
 
-            <dl class="col-sm-6 col-md-4 dl-horizontal">
-               <dt>{{_('Depends upon:')}}</dt>
-               %if hasattr(host, 'parent_dependencies'):
-               <dd>
-               %parents=['<a href="/host/'+parent.host+'" class="link">'+parent.display_name+'</a>' for parent in sorted(host.parent_dependencies,key=lambda x:x.display_name)]
-               {{!','.join(parents)}}
-               </dd>
-               %else:
-               <dd>{{_('Depends upon nothing')}}</dd>
-               %end
-
+            <dl class="col-sm-6 col-md-4">
                <dt>{{_('Parents:')}}</dt>
                %if host.parents:
+               %for parent in parents:
+               %for parent_host in child.hosts:
                <dd>
-               %parents=['<a href="/host/'+parent.id+'" class="link">'+parent.alias+'</a>' for parent in host.parents if isinstance(parent, type)]
-               {{!','.join(parents)}}
+               {{! parent_host.html_state_link}}
                </dd>
-               %else:
-               <dd>{{_('No parents')}}</dd>
                %end
-
-               <dt>{{_('Depends upon me:')}}</dt>
-               %if hasattr(host, 'child_dependencies'):
-               <dd>
-               %children=['<a href="/host/'+child.host+'" class="link">'+child.display_name+'</a>' for child in sorted(host.child_dependencies,key=lambda x:x.display_name) if child.__class__.my_type=='host']
-               {{!','.join(children)}}
-               </dd>
+               %end
                %else:
-               <dd>{{_('Nothing depends upon me')}}</dd>
+               <dd>{{_('Do not depend upon any host')}}</dd>
                %end
 
                <dt>{{_('Children:')}}</dt>
-               %if hasattr(host, 'childs'):
+               %if children:
+               %for child in children:
+               %for dependent_host in child.dependent_hosts:
                <dd>
-               %children=['<a href="/host/'+child.host+'" class="link">'+child.display_name+'</a>' for child in sorted(host.childs,key=lambda x:x.display_name)]
-               {{!','.join(children)}}
+               {{! dependent_host.html_state_link}}
                </dd>
-               %else:
-               <dd>{{_('No children')}}</dd>
                %end
-            </dl>
-
-            <dl class="col-sm-6 col-md-4 dl-horizontal">
-               <dt>{{_('Member of:')}}</dt>
-               %if groups:
-               <dd>
-               %for group in groups:
-               <a href="/hostgroup/{{group.id}}">{{group.name}}</a>
                %end
-               </dd>
                %else:
-               <dd>{{_('Not member of any group')}}</dd>
+               <dd>{{_('No host depends upon me')}}</dd>
                %end
             </dl>
          </div>
@@ -388,7 +415,14 @@
    })
    $(document).ready(function() {
       // Activate the popover for the notes and actions urls
-      $('[data-toggle="popover urls"]').popover()
+      $('[data-toggle="popover urls"]').popover({
+         placement: 'bottom',
+         animation: true,
+         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
+         content: function() {
+            return $('#hosts-states-popover-content').html();
+         }
+      });
 
       // Tabs management
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {

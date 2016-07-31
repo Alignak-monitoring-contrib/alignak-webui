@@ -162,9 +162,9 @@ schema['ui'] = {
 }
 
 
-def get_hostdependencys():
+def get_hostdependencies():
     """
-    Get the hostdependencys list
+    Get the hostdependencies list
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
@@ -190,7 +190,7 @@ def get_hostdependencys():
     }
 
     # Get elements from the data manager
-    items = datamgr.get_hostdependencys(search)
+    items = datamgr.get_hostdependencies(search)
     # Get last total elements count
     total = datamgr.get_objects_count('hostdependency', search=where, refresh=True)
     count = min(count, total)
@@ -226,23 +226,23 @@ def get_hostdependencys():
         'items': items,
         'selectable': False,
         'context_menu': context_menu,
-        'pagination': webui.helper.get_pagination_control('/hostdependencys', total, start, count),
-        'title': request.query.get('title', _('All hostdependencys'))
+        'pagination': webui.helper.get_pagination_control('/hostdependencies', total, start, count),
+        'title': request.query.get('title', _('All hostdependencies'))
     }
 
 
-def get_hostdependencys_list():
+def get_hostdependencies_list():
     """
-    Get the hostdependencys list
+    Get the hostdependencies list
     """
     datamgr = request.environ['beaker.session']['datamanager']
 
     # Get elements from the data manager
     search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    hostdependencys = datamgr.get_hostdependencys(search, all_elements=True)
+    hostdependencies = datamgr.get_hostdependencies(search, all_elements=True)
 
     items = []
-    for hostdependency in hostdependencys:
+    for hostdependency in hostdependencies:
         items.append({'id': hostdependency.id, 'name': hostdependency.alias})
 
     response.status = 200
@@ -286,14 +286,14 @@ def get_hostdependency_members(hostdependency_id):
     return json.dumps(items)
 
 
-def get_hostdependencys_table(embedded=False, identifier=None, credentials=None):
+def get_hostdependencies_table(embedded=False, identifier=None, credentials=None):
     """
     Get the elements to build a table
     """
     return get_table('hostdependency', schema, embedded, identifier, credentials)
 
 
-def get_hostdependencys_table_data():
+def get_hostdependencies_table_data():
     """
     Get the elements required by the table
     """
@@ -310,7 +310,7 @@ def get_hostdependency(hostdependency_id):
     if not hostdependency:  # pragma: no cover, should not happen
         return webui.response_invalid_parameters(_('Hosts group element does not exist'))
 
-    return get_hostdependencys_table()
+    return get_hostdependencies_table()
 
 
 pages = {
@@ -322,10 +322,10 @@ pages = {
         'name': 'Host group members',
         'route': '/hostdependency/members/<hostdependency_id>'
     },
-    get_hostdependencys: {
+    get_hostdependencies: {
         'routes': [
-            ('/hostdependencys', 'Hosts groups'),
-            ('/hostdependencys_tree', 'Hosts groups tree')
+            ('/hostdependencies', 'Hosts groups'),
+            ('/hostdependencies_tree', 'Hosts groups tree')
         ],
         'view': '_tree',
         'search_engine': False,
@@ -333,19 +333,19 @@ pages = {
         'search_filters': {
         }
     },
-    get_hostdependencys_list: {
+    get_hostdependencies_list: {
         'routes': [
-            ('/hostdependencys_list', 'Hosts groups list'),
+            ('/hostdependencies_list', 'Hosts groups list'),
         ]
     },
 
-    get_hostdependencys_table: {
+    get_hostdependencies_table: {
         'name': 'Hosts groups table',
-        'route': '/hostdependencys_table',
+        'route': '/hostdependencies_table',
         'view': '_table',
         'tables': [
             {
-                'id': 'hostdependencys_table',
+                'id': 'hostdependencies_table',
                 'for': ['external'],
                 'name': _('Hosts groups table'),
                 'template': '_table',
@@ -355,15 +355,15 @@ pages = {
                     'hosts groups.<br>'
                 ),
                 'actions': {
-                    'hostdependencys_table_data': get_hostdependencys_table_data
+                    'hostdependencies_table_data': get_hostdependencies_table_data
                 }
             }
         ]
     },
 
-    get_hostdependencys_table_data: {
+    get_hostdependencies_table_data: {
         'name': 'Hosts groups table data',
-        'route': '/hostdependencys_table_data',
+        'route': '/hostdependencies_table_data',
         'method': 'POST'
     },
 }
