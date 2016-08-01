@@ -140,6 +140,63 @@ schema['dependent_hostgroups'] = {
         'embeddable': True
     }
 }
+schema['inherits_parent'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Inherits from parents'),
+        'visible': True,
+        'hidden': True
+    },
+}
+schema['dependency_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Dependency period'),
+        'visible': True,
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['execution_failure_criteria'] = {
+    'type': 'list',
+    'default': ['n'],
+    'allowed': ['o', 'd', 'u', 'p', 'n'],
+    'ui': {
+        'title': _('Execution failure criteria'),
+        'visible': True,
+        'format': {
+            'list_type': "multichoices",
+            'list_allowed': {
+                u"o": u"Fail on Up state",
+                u"d": u"Fail on Down state",
+                u"u": u"Fail on Unreachable state",
+                u"p": u"Fail on Pending state",
+                u"n": u"Never fail and always check"
+            }
+        }
+    },
+}
+schema['notification_failure_criteria'] = {
+    'type': 'list',
+    'default': ['n'],
+    'allowed': ['o', 'd', 'u', 'p', 'n'],
+    'ui': {
+        'title': _('Execution failure criteria'),
+        'visible': True,
+        'format': {
+            'list_type': "multichoices",
+            'list_allowed': {
+                u"o": u"Fail on Up state",
+                u"d": u"Fail on Down state",
+                u"u": u"Fail on Unreachable state",
+                u"p": u"Fail on Pending state",
+                u"n": u"Never fail and always check"
+            }
+        }
+    },
+}
 
 
 # This to define the global information for the table
