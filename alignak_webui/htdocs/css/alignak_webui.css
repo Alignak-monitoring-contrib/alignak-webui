@@ -79,6 +79,12 @@ header {
     height: 50px;
 }
 
+/*
+ * Header - Hosts and services states popovers
+ * Styles declared in _header_hosts_states.tpl and _header_services_states.tpl ... because styles
+ * of the popovers are not considered when declared here!
+ */
+
 header span.label {
     position: relative;
     left: +10px;
@@ -137,8 +143,8 @@ table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataT
    top: 3px;
 }
 /* Selected line */
-table.dataTable tbody>tr.selected {
-   background-color:#FAF3CD; color: black;
+table.dataTable tr.selected {
+   background-color:indianred !important;
 }
 
 /*

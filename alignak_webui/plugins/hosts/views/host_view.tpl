@@ -18,7 +18,7 @@
       <strong>{{host.alias}}</strong>
    </div>
    %if livestate_services:
-   <div>
+   <div class="text-left">
       <table class="table table-condensed">
          <thead><tr>
             <th style="width: 40px"></th>
@@ -31,10 +31,6 @@
                <td title="{{lv_service.alias}}">
                   %title = "%s - %s (%s)" % (lv_service.status, Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0), lv_service.output)
                   {{! lv_service.get_html_state(text=None, title=title)}}
-               </td>
-
-               <td>
-                  <small>{{! Helper.get_html_business_impact(lv_service.business_impact)}}</small>
                </td>
 
                <td>

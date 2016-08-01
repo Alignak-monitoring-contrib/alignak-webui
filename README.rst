@@ -8,9 +8,15 @@ Build status (stable release)
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=master
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
+   :alt: Code tests
+
+.. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master
+   :alt: Code Health
 
 .. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=master&service=github
   :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
+   :alt: Code coverage
 
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=latest
   :target: http://alignak-web-ui.readthedocs.io/?badge=latest
@@ -21,9 +27,15 @@ Build status (development release)
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
+   :alt: Code tests
+
+.. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop
+   :alt: Code Health
 
 .. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop&service=github
   :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
+   :alt: Code coverage
 
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
   :target: http://alignak-web-ui.readthedocs.io/?badge=develop

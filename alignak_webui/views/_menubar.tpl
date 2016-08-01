@@ -64,6 +64,15 @@
             <li class="divider"></li>
 
             <li>
+               <a href="{{ webui.get_url('Hosts dependencies table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-fw fa-arrows-v"></span>
+                  <span>{{_('Hosts dependencies')}}</span>
+               </a>
+            </li>
+
+            <li class="divider"></li>
+
+            <li>
                <a href="{{ webui.get_url('Realms table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Realms')}}</span>

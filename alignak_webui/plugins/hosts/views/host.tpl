@@ -95,6 +95,62 @@
             %end
          </div>
       </div>
+      %if children:
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4 class="panel-title">
+               <a data-toggle="collapse" href="#collapse_{{host.id}}_children"><i class="fa fa-bug"></i> Host children as dictionary</a>
+            </h4>
+         </div>
+         <div id="collapse_{{host.id}}_children" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
+            %for child in children:
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h4 class="panel-title">
+                     <a data-toggle="collapse" href="#collapse{{child.id}}_children"><i class="fa fa-bug"></i> Child: {{child.name}}</a>
+                  </h4>
+               </div>
+               <div id="collapse{{child.id}}_children" class="panel-collapse collapse" style="height: 200px;">
+                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                     %for k,v in sorted(child.__dict__.items()):
+                        <dt>{{k}}</dt>
+                        <dd>{{v}}</dd>
+                     %end
+                  </dl>
+               </div>
+            </div>
+            %end
+         </div>
+      </div>
+      %end
+      %if parents:
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4 class="panel-title">
+               <a data-toggle="collapse" href="#collapse_{{host.id}}_parents"><i class="fa fa-bug"></i> Host parents as dictionary</a>
+            </h4>
+         </div>
+         <div id="collapse_{{host.id}}_parents" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
+            %for parent in parents:
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h4 class="panel-title">
+                     <a data-toggle="collapse" href="#collapse{{parent.id}}_parents"><i class="fa fa-bug"></i> Parent: {{parent.name}}</a>
+                  </h4>
+               </div>
+               <div id="collapse{{parent.id}}_parents" class="panel-collapse collapse" style="height: 200px;">
+                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                     %for k,v in sorted(parent.__dict__.items()):
+                        <dt>{{k}}</dt>
+                        <dd>{{v}}</dd>
+                     %end
+                  </dl>
+               </div>
+            </div>
+            %end
+         </div>
+      </div>
+      %end
    </div>
    %end
 
@@ -105,12 +161,13 @@
    <div>
       %if groups:
       <div class="btn-group pull-right">
-         <button class="btn btn-primary btn-xs"><i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}</button>
-         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+         </button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:
             <li>
-            <a href="/hostgroup/{{group.id}}">{{group.level}} - {{group.name}}</a>
+            <a href="/hostgroup/{{group.id}}">{{group.alias}}</a>
             </li>
          %end
          </ul>
@@ -120,8 +177,9 @@
       %if host.action_url != '':
       <div class="btn-group pull-right">
          %action_urls = host.action_url.split('|')
-         <button class="btn btn-info btn-xs"><i class="fa fa-external-link"></i> {{'Action' if len(action_urls) == 1 else 'Actions'}}</button>
-         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-external-link"></i> {{_('Action') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
+         </button>
          <ul class="dropdown-menu pull-right">
             %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
             <li>{{!action_url}}</li>
@@ -132,10 +190,21 @@
       %end
       %if tags:
       <div class="btn-group pull-right">
-         %for tag in sorted(tags):
-            <a>
-               <button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button>
-            </a>
+         %if len(tags) > 2:
+            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+               <i class="fa fa-tag"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right">
+               %for tag in sorted(tags):
+               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
+               %end
+            </ul>
+         %else:
+            %for tag in sorted(tags):
+               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
+                  <span class="fa fa-tag"></span> {{tag}}
+               </a>
+            %end
          %end
       </div>
       %end
@@ -154,27 +223,29 @@
       </div>
 
       <div id="collapseHostOverview" class="panel-body panel-collapse collapse">
-         %if host.customs:
-         <div class="row">
-            <dl class="dl-horizontal">
-               %if '_DETAILLEDESC' in host.customs:
-               <dt>{{_('Description:')}}</dt>
-               <dd>{{host.customs['_DETAILLEDESC']}}</dd>
-               %end
-               %if '_IMPACT' in host.customs:
-               <dt>{{_('Impact:')}}</dt>
-               <dd>{{host.customs['_IMPACT']}}</dd>
-               %end
-               %if '_FIXACTIONS' in host.customs:
-               <dt>{{_('Fix actions:')}}</dt>
-               <dd>{{host.customs['_FIXACTIONS']}}</dd>
-               %end
-            </dl>
+         %if host.customs and ('_DETAILLEDESC' in host.customs or '_IMPACT' in host.customs or '_FIXACTIONS' in host.customs):
+         <div class="panel panel-default">
+            <div class="panel-body">
+               <dl class="col-sm-12 dl-horizontal">
+                  %if '_DETAILLEDESC' in host.customs:
+                  <dt>{{_('Description:')}}</dt>
+                  <dd>{{host.customs['_DETAILLEDESC']}}</dd>
+                  %end
+                  %if '_IMPACT' in host.customs:
+                  <dt>{{_('Impact:')}}</dt>
+                  <dd>{{host.customs['_IMPACT']}}</dd>
+                  %end
+                  %if '_FIXACTIONS' in host.customs:
+                  <dt>{{_('Fix actions:')}}</dt>
+                  <dd>{{host.customs['_FIXACTIONS']}}</dd>
+                  %end
+               </dl>
+            </div>
          </div>
          %end
 
          <div class="row">
-            <dl class="col-sm-6 col-md-4 dl-horizontal">
+            <dl class="col-sm-6 col-md-4">
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
@@ -191,58 +262,31 @@
                <dd>{{!Helper.get_html_business_impact(host.business_impact, icon=True, text=True)}}</dd>
             </dl>
 
-            <dl class="col-sm-6 col-md-4 dl-horizontal">
-               <dt>{{_('Depends upon:')}}</dt>
-               %if hasattr(host, 'parent_dependencies'):
-               <dd>
-               %parents=['<a href="/host/'+parent.host+'" class="link">'+parent.display_name+'</a>' for parent in sorted(host.parent_dependencies,key=lambda x:x.display_name)]
-               {{!','.join(parents)}}
-               </dd>
-               %else:
-               <dd>{{_('Depends upon nothing')}}</dd>
-               %end
-
+            <dl class="col-sm-6 col-md-4">
                <dt>{{_('Parents:')}}</dt>
-               %if host.parents:
+               %if parents:
+               %for parent in parents:
+               %for parent_host in parent.hosts:
                <dd>
-               %parents=['<a href="/host/'+parent.id+'" class="link">'+parent.alias+'</a>' for parent in host.parents if isinstance(parent, type)]
-               {{!','.join(parents)}}
+               {{! parent_host.html_state_link}}
                </dd>
-               %else:
-               <dd>{{_('No parents')}}</dd>
                %end
-
-               <dt>{{_('Depends upon me:')}}</dt>
-               %if hasattr(host, 'child_dependencies'):
-               <dd>
-               %children=['<a href="/host/'+child.host+'" class="link">'+child.display_name+'</a>' for child in sorted(host.child_dependencies,key=lambda x:x.display_name) if child.__class__.my_type=='host']
-               {{!','.join(children)}}
-               </dd>
+               %end
                %else:
-               <dd>{{_('Nothing depends upon me')}}</dd>
+               <dd>{{_('Do not depend upon any host')}}</dd>
                %end
 
                <dt>{{_('Children:')}}</dt>
-               %if hasattr(host, 'childs'):
+               %if children:
+               %for child in children:
+               %for dependent_host in child.dependent_hosts:
                <dd>
-               %children=['<a href="/host/'+child.host+'" class="link">'+child.display_name+'</a>' for child in sorted(host.childs,key=lambda x:x.display_name)]
-               {{!','.join(children)}}
+               {{! dependent_host.html_state_link}}
                </dd>
-               %else:
-               <dd>{{_('No children')}}</dd>
                %end
-            </dl>
-
-            <dl class="col-sm-6 col-md-4 dl-horizontal">
-               <dt>{{_('Member of:')}}</dt>
-               %if groups:
-               <dd>
-               %for group in groups:
-               <a href="/hostgroup/{{group.id}}">{{group.name}}</a>
                %end
-               </dd>
                %else:
-               <dd>{{_('Not member of any group')}}</dd>
+               <dd>{{_('No host depends upon me')}}</dd>
                %end
             </dl>
          </div>
@@ -375,7 +419,14 @@
    })
    $(document).ready(function() {
       // Activate the popover for the notes and actions urls
-      $('[data-toggle="popover urls"]').popover()
+      $('[data-toggle="popover urls"]').popover({
+         placement: 'bottom',
+         animation: true,
+         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
+         content: function() {
+            return $('#hosts-states-popover-content').html();
+         }
+      });
 
       // Tabs management
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {

@@ -717,6 +717,14 @@ def get_host(host_id):
     # Get host services
     services = datamgr.get_services(search={'where': {'host': host.id}})
 
+    # Get host dependencies
+    children = datamgr.get_hostdependencys(
+        search={'where': {'hosts': host.id}}
+    )
+    parents = datamgr.get_hostdependencys(
+        search={'where': {'dependent_hosts': host.id}}
+    )
+
     # Get host livestate
     livestate = datamgr.get_livestate(
         search={'where': {'type': 'host', 'name': '%s' % host.name}}
@@ -788,6 +796,8 @@ def get_host(host_id):
         'livestate_services': livestate_services,
         'history': history,
         'events': events,
+        'parents': parents,
+        'children': children,
         'timeline_pagination': webui.helper.get_pagination_control(
             '/host/' + host_id, total, start, count
         ),

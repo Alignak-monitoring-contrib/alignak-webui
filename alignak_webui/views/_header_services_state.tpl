@@ -14,15 +14,30 @@
 %services_states_queue.pop(0)
 %end
 %datamgr.set_user_preferences(current_user.name, 'services_states_queue', services_states_queue)
-<div id="services-states-popover-content" class="hidden">
+
+<!-- Declared here to make sure they are applied -->
+<style>
+.popover-services {
+   background: #eee;
+   color: #fff;
+   border-radius: 3px;
+}
+.popover-title {
+   background: #009688;
+   color: #FFF;
+}
+</style>
+<div id="services-states-popover-content" class="hidden" style="color:white !important">
    <table class="table table-invisible">
       <tbody>
          <tr>
             %for state in ['ok', 'warning', 'critical', 'unknown']:
             <td>
+              %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
               %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
-              %label = "%s" % (ss["nb_" + state])
-              {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not ss["nb_" + state]))}}
+               <a href="{{ webui.get_url('Livestate table') }}?search=type:service state:{{state.upper()}}">
+              {{! Service({'status':state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
+               </a>
             </td>
             %end
          </tr>
@@ -36,12 +51,15 @@
 %cfg_state = items_states.get_icon_state('service', 'ok')
 %icon = cfg_state['icon']
 <a id="services-states-popover"
-   href="{{webui.get_url('Livestate table')}}?search=type:service"
+   href="#"
    title="{{_('Overall services states: %d services (%d problems)') % (ss['nb_elts'], ss['nb_problems'])}}"
-   data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}"
+   data-container="body"
+   data-count="{{ ss['nb_elts'] }}"
+   data-problems="{{ ss['nb_problems'] }}"
    data-original-title="{{_('Services states')}}"
    data-toggle="popover popover-services"
-   data-html="true" data-trigger="hover">
+   data-html="true"
+   data-trigger="hover focus">
    <span class="fa fa-{{icon}}"></span>
    <span class="label label-as-badge label-{{font}}">{{ss["nb_problems"] if ss["nb_problems"] else ''}}</span>
 </a>
@@ -51,7 +69,7 @@
    $('#services-states-popover').popover({
       placement: 'bottom',
       animation: true,
-      template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
+      template: '<div class="popover popover-services"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
       content: function() {
          return $('#services-states-popover-content').html();
       }

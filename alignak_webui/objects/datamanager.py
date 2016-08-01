@@ -49,6 +49,7 @@ from alignak_webui.objects.item_command import *
 from alignak_webui.objects.item_timeperiod import *
 from alignak_webui.objects.item_host import *
 from alignak_webui.objects.item_hostgroup import *
+from alignak_webui.objects.item_hostdependency import *
 from alignak_webui.objects.item_service import *
 from alignak_webui.objects.item_servicegroup import *
 from alignak_webui.objects.item_history import *
@@ -1000,6 +1001,44 @@ class DataManager(object):
             search.update({'max_results': 1})
 
         items = self.get_hostgroups(search=search)
+        return items[0] if items else None
+
+    ##
+    # hostdependencys
+    ##
+    def get_hostdependencys(self, search=None, all_elements=False):
+        """ Get a list of all host dependencies. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'dependent_hosts': 1, 'dependent_hostgroups': 1,
+                    'hosts': 1, 'hostgroups': 1
+                }
+            })
+
+        try:
+            logger.warning("get_hostdependencys, search: %s", search)
+            items = self.find_object('hostdependency', search, all_elements)
+            logger.warning("get_hostdependencys, found: %s", items)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_hostdependencys, none found")
+
+        return []
+
+    def get_hostdependency(self, search):
+        """ Get a hostdependency by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_hostdependencys(search=search)
         return items[0] if items else None
 
     ##
