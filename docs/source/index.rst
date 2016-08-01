@@ -16,6 +16,14 @@ Contents:
    config
    run
 
+   parameters
+
+   api
+
+   plugins
+
+   widgets
+
    develop
 
 

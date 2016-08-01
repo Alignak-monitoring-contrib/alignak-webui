@@ -3,9 +3,10 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/hosts", elts_per_page=elts_per_page)
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/hosts")
 
 %from alignak_webui.utils.helper import Helper
+%from alignak_webui.objects.item_command import Command
 
 <!-- hosts filtering and display -->
 <div id="hosts">
@@ -35,14 +36,14 @@
          %include("_nothing_found.tpl", search_string=search_string)
       %else:
 
+         %# First element for global data
+         %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
 
          <table class="table table-condensed">
             <thead><tr>
-               <th width="40px"></th>
+               <th style="width: 40px"></th>
                <th>{{_('Host name')}}</th>
-               <th>{{_('Alias')}}</th>
-               <th>{{_('Display name')}}</th>
                <th>{{_('Address')}}</th>
                <th>{{_('Check command')}}</th>
                <th>{{_('Active checks enabled')}}</th>
@@ -52,43 +53,42 @@
 
             <tbody>
                %for host in hosts:
-                  <tr data-toggle="collapse" data-target="#details-{{host.get_id()}}" class="accordion-toggle">
-                     <td>
-                        {{! host.get_html_state()}}
-                     </td>
+               %lv_host = datamgr.get_livestate({'where': {'host': host.id}})
+               %lv_host = lv_host[0]
+               <tr id="#{{host.id}}">
+                  <td title="{{host.alias}}">
+                  %if lv_host:
+                     %title = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)
+                     {{! lv_host.get_html_state(text=None, title=title)}}
+                  %else:
+                     {{! host.get_html_state(text=None, title=_('No livestate for this element'))}}
+                  %end
+                  </td>
 
-                     <td>
-                        <small>{{host.name}}</small>
-                     </td>
+                  <td>
+                     <small>{{!host.get_html_link()}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.alias}}</small>
-                     </td>
+                  <td>
+                     <small>{{host.address}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.display_name}}</small>
-                     </td>
+                  <td>
+                     <small>{{! host.check_command.get_html_state_link()}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.address}}</small>
-                     </td>
+                  <td>
+                     <small>{{! Helper.get_on_off(host.active_checks_enabled)}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{host.check_command}}</small>
-                     </td>
+                  <td>
+                     <small>{{! Helper.get_on_off(host.passive_checks_enabled)}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{! Helper.get_on_off(host.active_checks_enabled)}}</small>
-                     </td>
-
-                     <td>
-                        <small>{{! Helper.get_on_off(host.passive_checks_enabled)}}</small>
-                     </td>
-
-                     <td>
-                        <small>{{host.business_impact}}</small>
-                     </td>
-                  </tr>
+                  <td>
+                     <small>{{! Helper.get_html_business_impact(host.business_impact)}}</small>
+                  </td>
+               </tr>
              %end
             </tbody>
          </table>

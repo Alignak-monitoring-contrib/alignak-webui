@@ -1,29 +1,58 @@
 Alignak Web UI
 ==============
 
+*Web User Interface for Alignak backend ...*
+
+Build status (stable release)
+----------------------------------------
+
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=master
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
+   :alt: Code tests
 
+.. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master
+   :alt: Code Health
 
 .. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=master&service=github
   :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
+   :alt: Code coverage
 
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=latest
-  :target: http://alignak-web-ui.readthedocs.org/en/latest/?badge=latest
+  :target: http://alignak-web-ui.readthedocs.io/?badge=latest
   :alt: Documentation Status
 
+Build status (development release)
+----------------------------------------
 
-*Web User Interface for Alignak backend ...*
+.. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
+    :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
+   :alt: Code tests
+
+.. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop
+   :alt: Code Health
+
+.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop&service=github
+  :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
+   :alt: Code coverage
+
+.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
+  :target: http://alignak-web-ui.readthedocs.io/?badge=develop
+  :alt: Documentation Status
+
 
 Documentation
 ----------------------------------------
 
 You can find online documentation on `Read The Docs <http://alignak-web-ui.readthedocs.org/en/latest/index.html>`_ and in the */docs* directory.
 
+
 Bugs, issues and contributing
 ----------------------------------------
 
 Contributions to this project are welcome and encouraged, but please have a look to the `contributing guidelines <./CONTRIBUTING.md/>`_  before raising an issue, or writing code for the project.
+
 
 License
 ----------------------------------------

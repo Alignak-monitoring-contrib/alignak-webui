@@ -3,7 +3,7 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/commands", elts_per_page=elts_per_page)
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/commands")
 
 <!-- commands filtering and display -->
 <div id="commands">
@@ -33,11 +33,13 @@
          %include("_nothing_found.tpl", search_string=search_string)
       %else:
 
+         %# First element for global data
+         %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
 
          <table class="table table-condensed">
             <thead><tr>
-               <th width="40px"></th>
+               <th style="width: 40px"></th>
                <th>{{_('Command name')}}</th>
                <th>{{_('Command line')}}</th>
                <th>{{_('Timeout')}}</th>
@@ -49,39 +51,39 @@
 
             <tbody>
                %for command in commands:
-                  <tr data-toggle="collapse" data-target="#details-{{command.get_id()}}" class="accordion-toggle">
-                     <td>
-                        {{! command.get_html_state()}}
-                     </td>
+               <tr id="#{{command.id}}">
+                  <td>
+                     {{! command.get_html_state()}}
+                  </td>
 
-                     <td>
-                        <small>{{command.get_name()}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.name}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.command_line}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.command_line}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.timeout}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.timeout}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.module_type}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.module_type}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.enable_environment_macros}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.enable_environment_macros}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.poller_tag}}</small>
-                     </td>
+                  <td>
+                     <small>{{command.poller_tag}}</small>
+                  </td>
 
-                     <td>
-                        <small>{{command.reactionner_tag}}</small>
-                     </td>
-                  </tr>
+                  <td>
+                     <small>{{command.reactionner_tag}}</small>
+                  </td>
+               </tr>
              %end
             </tbody>
          </table>

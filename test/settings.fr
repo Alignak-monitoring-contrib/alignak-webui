@@ -27,22 +27,11 @@ glpi_ws_login = test
 glpi_ws_password = test
 
 
-; Mongodb parameters for internal Web UI modules
-; ------------------------------------------------------------------------------------------
-; Database URI
-; uri = mongodb://localhost
-; Database name where to store the user's preferences
-; database = WebUI
-; User authentication for database access
-; username=
-; password=
-
-
 ; # Web server configuration
 ; ------------------------------------------------------------------------------------------
-; Default is listening on 5000 port on local loop interface
+; Default is listening on TCP port 8868 on local loop interface
 ; host=127.0.0.1
-; port=5000
+; port=8868
 
 
 ; # WebUI information (about application modal)
@@ -263,7 +252,7 @@ class: command
 text:
 icon: bolt
 
-; User states: unknown only! Needs refactoring user/contact ...
+; User states: unknown only! Needs refactoring user/user ...
 [items.user.unknown]
 class: user
 text:

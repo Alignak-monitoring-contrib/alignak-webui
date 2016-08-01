@@ -25,6 +25,20 @@
 # make html
 # cd ..
 
+test=1
+while [ "$1" != "" ]; do
+    case $1 in
+        -t | --test )           test=
+                                ;;
+    esac
+    shift
+done
+if [ "$test" = "1" ]; then
+	echo "Run tests"
+else
+	echo "Do not run tests"
+fi
+
 echo 'pep8 ...'
 pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log, *.log.*' --ignore='E402' alignak_webui/*
 if [ $? -ne 0 ]; then
@@ -37,8 +51,12 @@ if [ $? -ne 0 ]; then
     echo "pylint not compliant"
     exit
 fi
-# echo 'pep257 ...'
-# pep257 --select=D300 alignak_webui
+echo 'pep257 ...'
+pep257 --select=D300 alignak_webui
+if [ $? -ne 0 ]; then
+    echo "pep257 not compliant"
+    exit
+fi
 
 echo 'tests ...'
 cd test
@@ -48,7 +66,7 @@ if [ $? -ne 0 ]; then
     echo "main tests not compliant"
     exit
 fi
-nosetests -xvv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_datamanager.py test_datatable.py test_backend_glpi.py
+nosetests -xvv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_backend_alignak.py test_datamanager.py test_datatable.py
 if [ $? -ne 0 ]; then
     echo "data tests not compliant"
     exit

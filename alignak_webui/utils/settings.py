@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-nested-blocks
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -19,10 +18,10 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
-
 """
-    Settings module
+    Application configuration and settings module
 """
+from __future__ import print_function
 
 import os
 import traceback
@@ -39,6 +38,11 @@ class Settings(dict):
     def __init__(self, filename=None):
         """
         Initialize configuration
+
+        If a filename is provided it will be used instead of the default list.
+        `filename` may be a list of files to use.
+
+        :param filename: file to use for loading configuration
         """
         super(Settings, self).__init__()
 
@@ -67,15 +71,17 @@ class Settings(dict):
 
         :param app_name: application name (to build configuration file name)
 
-        :param default: dictionary with default values
         """
         if not app_name:
             return None
 
         if self.filename:
-            settings_filenames = [
-                os.path.abspath(self.filename)
-            ]
+            if not isinstance(self.filename, list):
+                settings_filenames = [
+                    os.path.abspath(self.filename)
+                ]
+            else:
+                settings_filenames = self.filename
         else:
             settings_filenames = [
                 '/usr/local/etc/%s/settings.cfg' % app_name.lower(),
@@ -92,24 +98,21 @@ class Settings(dict):
             if found_cfg_file:
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
-                    if app_name in section:
-                        for option in config.options(section):
-                            try:
-                                self[option] = config.get(section, option)
-                            except Exception:  # pragma: no cover - should never happen ...
-                                self[option] = None
-                        continue
                     for option in config.options(section):
+                        # noinspection PyBroadException
                         try:
-                            self[section + '.' + option] = config.get(section, option)
+                            if app_name in section:
+                                self[option] = config.get(section, option)
+                            else:
+                                self[section + '.' + option] = config.get(section, option)
                         except Exception:  # pragma: no cover - should never happen ...
                             self[section + '.' + option] = None
-            else:  # pragma: no cover - should never occur!
-                print "No configuration file found in %s." % settings_filenames
+            else:  # pragma: no cover - should never happen ...
+                print("No configuration file found in %s." % settings_filenames)
 
             return found_cfg_file
         except Exception as e:
-            print "Bad formed configuration file."
-            print "Exception: %s" % str(e)
-            print "Traceback: %s" % traceback.format_exc()
+            print("Bad formed configuration file.")
+            print("Exception: %s" % str(e))
+            print("Traceback: %s" % traceback.format_exc())
             return None

@@ -19,13 +19,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Dashboard
-'''
+"""
 
 import json
 from logging import getLogger
 from bottle import request
+from alignak_webui import _
 
 logger = getLogger(__name__)
 
@@ -35,50 +36,100 @@ webui = None
 
 # Our page
 def get_page():
-    '''
+    """
     Display dashboard page
-    '''
+    """
     user = request.environ['beaker.session']['current_user']
     target_user = request.environ['beaker.session']['target_user']
-    # datamgr = request.environ['beaker.session']['datamanager']
+    datamgr = request.environ['beaker.session']['datamanager']
 
     username = user.get_username()
     if not target_user.is_anonymous():
         username = target_user.get_username()
 
-    # Look for the widgets as the json entry
-    widget_ids = webui.prefs_module.get_ui_user_preference(username, 'widgets')
-    # If void, create an empty one
-    if not widget_ids:  # pragma: no cover - widgets may exist or not ...
-        webui.prefs_module.set_ui_user_preference(username, 'widgets', '[]')
-        widget_ids = []
+    # Search for the dashboard widgets
+    saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'widgets': []})
+    if not saved_widgets:
+        saved_widgets = {'widgets': []}
+        datamgr.set_user_preferences(username, 'dashboard_widgets', saved_widgets)
 
     widgets = []
-    for w in widget_ids:  # pragma: no cover - TOTEST widgets are not tested
-        if 'id' not in w or 'position' not in w:
+    for widget in saved_widgets['widgets']:
+        if 'id' not in widget:
             continue
 
+        logger.warning("Dashboard widget, got: %s", widget)
+
+        # Widget data:
+        # - for: widget page (default: dashboard)
+        # - id: unique identifier
+        # - x, y: position (default: 0, 0)
+        # - width, height: size (default: 1, 1)
+        # - base_url
+        # - options_json
+
         # by default the widget is for /dashboard
-        w['for'] = w.get('for', 'dashboard')
-        if not w['for'] == 'dashboard':  # pragma: no cover - not testable yet
+        widget['for'] = widget.get('for', 'dashboard')
+        if not widget['for'] == 'dashboard':  # pragma: no cover - not testable yet
             # Not a dashboard widget? I don't want it so
             continue
 
-        options = w.get('options', {})
-        collapsed = w.get('collapsed', '0')
+        widget['x'] = widget.get('x', 0)
+        widget['y'] = widget.get('x', 0)
+        widget['width'] = widget.get('width', 1)
+        widget['minWidth'] = widget.get('minWidth', 1)
+        widget['maxWidth'] = widget.get('maxWidth', 12)
+        widget['height'] = widget.get('height', 1)
+        widget['minHeight'] = widget.get('minHeight', 1)
+        widget['maxHeight'] = widget.get('maxHeight', 6)
 
-        options["wid"] = w["id"]
-        options["collapsed"] = collapsed
-        w['options'] = options
-        w['options_json'] = json.dumps(options)
-        args = {'wid': w['id'], 'collapsed': collapsed}
+        widget['id'] = widget.get('id', None)
+        widget['uri'] = widget.get('uri', '/')
+        widget['name'] = widget.get('name', None)
+        widget['icon'] = widget.get('icon', 'leaf')
+        widget['template'] = widget.get('template', None)
+
+        options = widget.get('options', {})
+
+        widget['options'] = options
+        widget['options_json'] = json.dumps(options)
+        args = {'id': widget['id']}
         args.update(options)
-        w['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
-        widgets.append(w)
+        widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
+        logger.info("Dashboard widget: %s", widget)
+        widgets.append(widget)
+
+    print "Dashboard template call"
+    return {
+        'action_bar': len(widgets) != 0,
+        'widgets_place': 'dashboard',
+        'dashboard_widgets': widgets,
+        'title': request.query.get('title', _('Dashboard'))
+    }
+
+
+def get_currently():
+    """
+    Display currently page
+    """
+    user = request.environ['beaker.session']['current_user']
+    target_user = request.environ['beaker.session']['target_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Get the stored panels
+    panels = datamgr.get_user_preferences(username, 'panels', {'panels': {}})
+
+    # Get the stored graphs
+    graphs = datamgr.get_user_preferences(username, 'graphs', {'graphs': {}})
 
     return {
-        'action_bar': True,
-        'dashboard_widgets': widgets
+        'panels': panels,
+        'graphs': graphs,
+        'title': request.query.get('title', _('Dashboard'))
     }
 
 
@@ -87,5 +138,10 @@ pages = {
         'name': 'Dashboard',
         'route': '/dashboard',
         'view': 'dashboard'
+    },
+    get_currently: {
+        'name': 'Currently',
+        'route': '/currently',
+        'view': 'currently'
     }
 }

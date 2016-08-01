@@ -1,187 +1,116 @@
-% debug=False
-
-%from alignak_webui.objects.item import UserService,Session
-
+%setdefault('debug', False)
 
 <script type="text/javascript">
+   // Check header refresh period (seconds)
+   var header_refresh_period = {{request.app.config.get('header_refresh_period', '30')}};
+
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
       $.ajax({
-         url: "/ping?action=header",
-         method: "get",
-         dataType: "html"
+         url: "/ping?action=refresh&template=_header_hosts_state"
       })
-      .done(function(html, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Update header sessions state");
-         $('#overall-sessions-states').html(html);
-         // Activate the popover ...
-         $('#sessions-states-popover').popover({
-            placement: 'bottom',
-            animation: true,
-            template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
-            content: function() {
-               return $('#sessions-states-popover-content').html();
-            }
-         });
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error('header_refresh, sessions failed: ', jqXHR, textStatus, errorThrown);
+      .done(function(content, textStatus, jqXHR) {
+         $('#overall-hosts-states').html(content);
       });
 
-      /*
       $.ajax({
-         url: "/header_services",
-         method: "get",
-         dataType: "html"
+         url: "/ping?action=refresh&template=_header_services_state"
       })
-      .done(function(html, textStatus, jqXHR) {
-         if (refresh_logs) console.debug("Update header services state");
-         $('#overall-services-states').html(html);
-         // Activate the popover ...
-         $('#sessions-services-popover').popover({
-            placement: 'bottom',
-            animation: true,
-            template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>',
-            content: function() {
-               return $('#sessions-services-popover-content').html();
-            }
-         });
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error('header_refresh, services failed: ', jqXHR, textStatus, errorThrown);
+      .done(function(content, textStatus, jqXHR) {
+         $('#overall-services-states').html(content);
       });
-      */
    }
 
    $(document).ready(function(){
-      header_refresh();
+      // Start refresh periodical check ... every header_refresh_period second
+      if (header_refresh_period != 0) {
+         setInterval("header_refresh();", header_refresh_period*1000);
+      } else {
+         console.log('Automatic header refresh disabled.');
+      }
    });
-
 </script>
 
 
 <!-- Page header -->
 <header>
-   <nav id="topbar-menu" class="navbar navbar-default navbar-fixed-top">
-      <div class="container-fluid">
-         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
-               <span class="sr-only">{{_('Toggle navigation')}}</span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand">
-               <img src="/static/logo/{{request.app.config.get('company_logo', 'default_company')}}" alt="{{_('Company logo')}}" />
-            </a>
-         </div>
+   <nav id="topbar" class="navbar navbar-fixed-top navbar-material-blue">
+      <div class="navbar-header">
+         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
+            <span class="sr-only">{{_('Toggle navigation')}}</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+         </button>
+         <a class="navbar-brand" href="/" style="float: left">
+            <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
+         </a>
 
-         <!-- Right part ... -->
-         <div id="navbar-collapsible-part" class="collapse navbar-collapse">
-            <div class="hidden-xs">
-               <!-- Page filtering ... -->
-               %include("_filters.tpl")
-            </div>
+         <ul class="nav navbar-nav navbar-left">
+            <li id="overall-hosts-states" class="pull-left">
+               %include("_header_hosts_state.tpl")
+            </li>
 
-            <ul class="nav navbar-nav navbar-right">
-               <li id="overall-sessions-states">
-                  %include("_header_hosts_state.tpl")
-               </li>
+            <li id="overall-services-states" class="pull-left">
+               %include("_header_services_state.tpl")
+            </li>
+         </ul>
+      </div>
 
-               %if request.app.config.get('play_sound', 'no') == 'yes':
-               <li class="hidden-sm hidden-xs hidden-md">
-                  <a data-action="toggle-sound-alert" data-original-title="{{_('Sound alerting')}}" href="#">
-                     <span id="sound_alerting" class="fa-stack">
-                       <i class="fa fa-music fa-stack-1x"></i>
-                       <i class="fa fa-ban fa-stack-2x text-danger"></i>
-                     </span>
-                  </a>
-               </li>
-               %end
+      <!-- Right part ... -->
+      <div id="navbar-collapsible-part" class="collapse navbar-collapse">
+         <ul class="nav navbar-nav navbar-left">
+            <!-- Page filtering ... -->
+            %include("_filters.tpl")
 
-               %if refresh:
-               <li>
-                  <a data-action="toggle-page-refresh" data-toggle="tooltip" data-placement="bottom" title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}" href="#">
-                     <i id="header_loading" class="fa fa-refresh"></i>
-                  </a>
-               </li>
-               %end
+            <li class="hidden-xs" id="loading" style="display: none;">
+               <a href="#">
+                  <span class="fa fa-spinner fa-pulse fa-1x"></span>
+                  <span class="sr-only">{{_('Loading...')}}</span>
+               </a>
+            </li>
+         </ul>
 
-               %if debug:
-               <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-original-title="Debug" data-toggle="dropdown">
-                     <i class="fa fa-bug"></i>
-                     <i class="caret"></i>
-                  </a>
-                  <ul class="dropdown-menu">
-                     <li>
-                        <div class="panel panel-default">
-                           <div class="panel-body">
-                              <ul class="list-group">
-                                 <li class="list-group-item"><small>Current user: {{current_user}}</small></li>
-                                 <li class="list-group-item"><small>Target user: {{target_user}}</small></li>
-                              </ul>
-                              <div class="panel-footer">Total: {{datamgr.get_objects_count('user')}} users</div>
-                           </div>
-                        </div>
-                     </li>
-                  </ul>
-               </li>
-               %end
+         %include("_menubar.tpl", action_bar=True, in_sidebar=True)
 
-               <!-- User info -->
-               <li class="dropdown user user-menu hidden-xs">
-                  <a href="#" class="dropdown-toggle" data-original-title="{{_('User menu')}}" data-toggle="dropdown">
-                     <i class="fa fa-user"></i>
-                        %if not target_user.is_anonymous() and current_user.get_username() != target_user.get_username():
-                        <span class="label label-warning" style="position:relative; left: 0px">{{target_user.get_username()}}</span>
-                        %end
-                        <span class="username hidden-sm hidden-xs hidden-md">{{current_user.get_name()}}</span>
-                        <i class="caret"></i>
-                  </a>
+         <ul class="nav navbar-nav navbar-right">
+            <li>
+               <a data-action="display-currently"
+                  data-toggle="tooltip" data-placement="bottom"
+                  title="{{_('Display fullscreen one-eye view.')}}"
+                  href="/currently">
+                  <span class="fa fa-eye"></span>
+               </a>
+            </li>
 
-                  <ul class="dropdown-menu">
-                     <li class="user-header">
-                        %include("_select_target_user")
-                     </li>
-                     <li class="user-header">
-                        <div class="panel panel-info" id="user_info">
-                           <div class="panel-body panel-default">
-                              <!-- User image / name -->
-                              <p class="username">{{current_user.get_name()}}</p>
-                              <p class="usercategory">
-                                 <small>{{current_user.get_role(display=True)}}</small>
-                              </p>
-                              <img src="{{current_user.get_picture()}}" photo="{{current_user.get_picture()}}" class="img-circle user-logo" alt="Photo: {{current_user.get_name()}}" title="Photo: {{current_user.get_name()}}">
-                           </div>
-                           <div class="panel-footer">
-                              %if current_user.is_administrator():
-                              <div class="btn-group" role="group">
-                                 <a href="/user/preferences" class="btn btn-default"><span class="fa fa-pencil"></span> </a>
-                              </div>
-                              %end
-                              <div class="btn-group" role="group">
-                                 <a href="/logout" class="btn btn-default btn-flat"><span class="fa fa-sign-out"></span> </a>
-                              </div>
-                           </div>
-                        </div>
-                     </li>
-                  </ul>
-               </li>
-               <li class="col-xs-1 hidden-sm hidden-md hidden-lg">
-                  <a data-action="logout"
-                     data-toggle="tooltip" data-placement="bottom" title="{{_('Sign out')}}"
-                     href="/logout">
-                     <i class="fa fa-sign-out"></i>
-                  </a>
-               </li>
-            </ul>
+            %if request.app.config.get('play_sound', 'no') == 'yes':
+            <li>
+               <a data-action="toggle-sound-alert"
+                  data-toggle="tooltip" data-placement="bottom"
+                  title="{{_('Sound alert on/off')}}"
+                  href="#">
+                  <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
+                    <i class="fa fa-music fa-stack-1x"></i>
+                    <i class="fa fa-ban fa-stack-2x text-danger"></i>
+                  </span>
+               </a>
+            </li>
+            %end
 
-            <div class="col-xs-10 col-sm-offset-1 col-sm-10 hidden-md hidden-lg">
-               <!-- Sidebar menu is included in the header for small devices -->
-               %include("_sidebar.tpl", action_bar=True, in_sidebar=True)
-            </div>
-         </div>
+            %if refresh:
+            <li>
+               <a data-action="toggle-page-refresh"
+                  data-toggle="tooltip" data-placement="bottom"
+                  title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
+                  href="#">
+                  <span id="refresh_active" class="fa fa-refresh"></span>
+                  <span class="sr-only">{{_('Refresh active')}}</span>
+               </a>
+            </li>
+            %end
+
+            %include("_header_user.tpl")
+         </ul>
       </div>
    </nav>
 </header>
@@ -195,26 +124,31 @@
    </audio>
 
    <script type="text/javascript">
-      // Set alerting sound icon ...
-      if (! sessionStorage.getItem("sound_play")) {
-         // Default is to play ...
-         sessionStorage.setItem("sound_play", '1');
-      }
-
-      // Toggle sound ...
-      if (sessionStorage.getItem("sound_play") == '1') {
-         $('#sound_alerting i.fa-ban').addClass('hidden');
-      } else {
-         $('#sound_alerting i.fa-ban').removeClass('hidden');
-      }
-      $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
-         if (sessionStorage.getItem("sound_play") == '1') {
-            sessionStorage.setItem("sound_play", "0");
-            $('#sound_alerting i.fa-ban').removeClass('hidden');
-         } else {
-            playAlertSound();
+      get_user_preference('sound', function(data) {
+         // Toggle sound icon...
+         if (data.value == 'no') {
+            sound_activated = false;
             $('#sound_alerting i.fa-ban').addClass('hidden');
+         } else {
+            sound_activated = true;
+            $('#sound_alerting i.fa-ban').removeClass('hidden');
          }
-      });
+         $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
+            get_user_preference('sound', function(data) {
+               if (data.value == 'no') {
+                  save_user_preference('sound', JSON.stringify('yes'), function(){
+                     sound_activated = false;
+                     $('#sound_alerting i.fa-ban').removeClass('hidden');
+                  });
+               } else {
+                  save_user_preference('sound', JSON.stringify('no'), function() {
+                     sound_activated = true;
+                     playAlertSound();
+                     $('#sound_alerting i.fa-ban').addClass('hidden');
+                  });
+               }
+            });
+         });
+      }, 'yes');
    </script>
 %end

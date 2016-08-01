@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-arguments
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -19,15 +18,15 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
-
 """
     Application logs
 """
+from __future__ import print_function
+
 import os
-import traceback
 
 # Logs
-from logging import getLogger, basicConfig, DEBUG, INFO, WARNING
+from logging import DEBUG
 from logging import Formatter, StreamHandler
 from logging.handlers import TimedRotatingFileHandler
 
@@ -38,10 +37,11 @@ from alignak_webui.utils.termcolor import cprint
 
 # Declare a coloured stream handler for console mode ...
 class ColorStreamHandler(StreamHandler):  # pragma: no cover
-    '''
+    """
     Color logs ...
-    '''
+    """
     def emit(self, record):
+        # noinspection PyBroadException
         try:
             msg = self.format(record)
             colors = {
@@ -50,9 +50,8 @@ class ColorStreamHandler(StreamHandler):  # pragma: no cover
             }
             cprint(msg, colors[record.levelname])
         except UnicodeEncodeError:  # pragma: no cover, should never happen ...
-            print msg.encode('ascii', 'ignore')
-        except Exception:  # pragma: no cover, should never happen ...
-            self.handleError(record)
+            # noinspection PyUnboundLocalVariable
+            print(msg.encode('ascii', 'ignore'))
 
 
 def set_console_logger(logger):
@@ -68,16 +67,20 @@ def set_console_logger(logger):
         logger.addHandler(ch)
 
 
+# Yes, but we need it
+# pylint: disable=too-many-arguments
 def set_file_logger(logger, path='/var/log', filename='application.log',
-                    when="D", interval=1, backupCount=6):
+                    when="D", interval=1, backup_count=6):
     """
     Configure handler for file logging ...
     """
     # Log file directory
-    try:
-        os.makedirs(path)
-    except Exception:
-        path = '.'
+    if not os.path.isdir(path):
+        # noinspection PyBroadException
+        try:
+            os.makedirs(path)
+        except Exception:
+            path = '.'
 
     # logger = getLogger(__pkg_name__)
 
@@ -85,7 +88,7 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
     fh = TimedRotatingFileHandler(
         filename=os.path.join(path, filename),
         when=when, interval=interval,
-        backupCount=backupCount
+        backupCount=backup_count
     )
 
     # create formatter and add it to the handler

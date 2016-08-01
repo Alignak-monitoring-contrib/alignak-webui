@@ -19,7 +19,7 @@
       </div>
 
       <div class="form-group">
-         <textarea {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}"></textarea>
+         <textarea {{'readonly' if read_only else ''}} class="form-control" name="notes" id="notes" rows="3" placeholder="{{notes}}"></textarea>
       </div>
 
       <button type="submit" class="btn btn-danger btn-lg btn-block"> <i class="fa fa-close"></i>{{_('Confirm deletion')}}</button>

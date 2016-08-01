@@ -1,10 +1,20 @@
 /**
-* Copyright (C) 2015-2016 F. Mohier pour IPM France:
+* Copyright (C) 2015-2016 F. Mohier
 *
 **/
 
-/*  Widget styles
-------------------------------------------------------- */
+/*
+ * Widget loading information
+ */
+#widgets_loading {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+/*
+ * Widget styles
+ */
 .widget_desc {
    background-color : white;
    margin : 5px;
@@ -20,7 +30,8 @@
    position:absolute;
 }
 
-/*  Widget styles informations
+/*
+ * Widget styles informations
 -------------------------------------------------------
  This is the widgets basic CSS. Note that you can change
  the classes names using the plugin settings. But you can
@@ -86,72 +97,71 @@
 }
 
 
-/*  Dashboard
-    ------------------------------------------------------- */
-
-ul#Navigation {
-   margin-top: 4px;
-   padding: 0.8em;
-   text-align: center;
-   background: #F4F8FA;
-   border: #5BC0DE;
-   height: 90px;
+/*
+ * Dashboard synthesis
+ */
+#dashboard-synthesis {
+    margin-top: 15px;
 }
 
-ul#Navigation li {
-   list-style: none;
-   display: inline;
-}
-
-.popover {
-   min-width: 640px ! important;
-}
-
-
-/*  Badger styles
-    ------------------------------------------------------- */
-.badger-big {
-  background-color: #999999;
-  border-radius: 3px;
-  color: #FFFFFF;
-  font-size: 1.3em;
-  font-weight: bold;
-  padding: 1px 3px 2px;
-  text-transform: uppercase;
-
-  position: relative;
-  bottom: 4.8em;
-}
-.badger-left {
-  left: -10px;
-}
-.badger-right {
-  right: -10px;
-}
-
-.badger-info {
-  background-color: #337ABF; opacity: 0.85;
-}
-
-.badger-critical {
-  background-color: #FF2727; opacity: 0.85;
-}
-
-.badger-warning {
-  background-color: #FFA827; opacity: 0.85;
-}
-
-.badger-ok {
-  background-color: #7AB317;
-}
-
-.badger-title {
+.icon-title {
   display: block;
 
-  color: #333;
-  text-align: center;
-  font-family: Century Gothic, sans-serif;
+  color: #666;
   font-size: 1em;
+}
 
-  z-index: 666;
+.icon-badge {
+  background-color: #999999;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 1em;
+  text-transform: uppercase;
+
+  width: 45%;
+  position: relative;
+  bottom: 6em;
+
+  opacity: 0.75;
+}
+.icon-badge-left {
+  float: left;
+}
+.icon-badge-right {
+  float: right;
+}
+
+#dashboard-synthesis a span.fa {
+    opacity: 0.6;
+}
+.icon-info {
+  color: #337ABF;
+}
+
+.icon-danger {
+  color: #FF2727;
+}
+
+.icon-warning {
+  color: #FFA827;
+}
+
+.icon-success {
+  color: #7AB317;
+}
+
+.icon-badge-info {
+  background-color: #337ABF;
+}
+
+.icon-badge-danger {
+  background-color: #FF2727;
+}
+
+.icon-badge-warning {
+  background-color: #FFA827;
+}
+
+.icon-badge-success {
+  background-color: #7AB317;
 }

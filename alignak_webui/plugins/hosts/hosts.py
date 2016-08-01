@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-locals
+# pylint: disable=global-statement, global-variable-not-assigned
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -20,31 +20,55 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Hosts
-'''
-
-import time
+"""
+import os
 import json
-
 from collections import OrderedDict
-
 from logging import getLogger
-from bottle import request, response
 
-from alignak_webui.objects.item import Item
-from alignak_webui.objects.item import sort_items_most_recent_first
+from bottle import request, template, response
 
-from alignak_webui.utils.datatable import Datatable
+from alignak_webui import _
+from alignak_webui.plugins.common.common import get_table, get_table_data
+from alignak_webui.plugins.histories.histories import schema as history_schema
+
+# Settings
+from alignak_webui.utils.settings import Settings
 
 logger = getLogger(__name__)
 
 # Will be populated by the UI with it's own value
 webui = None
 
+# Declare backend element endpoint
+backend_endpoint = 'host'
+
+# Globals for plugin parameters
+hosts_parameters = None
+hosts_filenames = []
+
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
+# Specific field to include the responsive + button used to display hidden columns on small devices
+schema['#'] = {
+    'type': 'string',
+    'ui': {
+        'title': '',
+        # This field is visible (default: False)
+        'visible': True,
+        # This field is initially hidden (default: False)
+        'hidden': False,
+        # This field is searchable (default: True)
+        'searchable': False,
+        # This field is orderable (default: True)
+        'orderable': False,
+        # search as a regex (else strict value comparing when searching is performed)
+        'regex': False,
+    }
+}
 schema['name'] = {
     'type': 'string',
     'ui': {
@@ -61,6 +85,27 @@ schema['name'] = {
         'orderable': True,
     },
 }
+schema['_realm'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Realm'),
+        'visible': True,
+        'hidden': True,
+        'searchable': True
+    },
+    'data_relation': {
+        'resource': 'realm',
+        'embeddable': True
+    }
+}
+schema['_is_template'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Template'),
+        'visible': True,
+        'hidden': True
+    },
+}
 schema['definition_order'] = {
     'type': 'integer',
     'ui': {
@@ -69,6 +114,14 @@ schema['definition_order'] = {
         'hidden': True,
         'orderable': False,
     },
+}
+schema['tags'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Tags'),
+        'visible': True,
+    }
 }
 schema['alias'] = {
     'type': 'string',
@@ -84,6 +137,12 @@ schema['display_name'] = {
         'visible': True
     },
 }
+schema['notes'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes')
+    }
+}
 schema['address'] = {
     'type': 'string',
     'ui': {
@@ -91,21 +150,64 @@ schema['address'] = {
         'visible': True
     },
 }
+schema['customs'] = {
+    'type': 'list',
+    'default': [],
+    'ui': {
+        'title': _('Customs'),
+        'visible': True,
+    }
+}
 schema['check_command'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Check command'),
-        'visible': True
+        'visible': True,
+        'searchable': True
     },
     'data_relation': {
         'resource': 'command',
-        'embeddable': True,
+        'embeddable': True
     }
 }
 schema['check_command_args'] = {
     'type': 'string',
     'ui': {
         'title': _('Check command arguments'),
+        'visible': True,
+        'searchable': False
+    },
+}
+schema['check_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Check period'),
+        'visible': True,
+        # 'searchable': False
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['check_interval'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Check interval'),
+        'visible': True
+    },
+}
+schema['retry_interval'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Retry interval'),
+        'visible': True
+    },
+}
+schema['max_check_attempts'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Maximum check attempts'),
         'visible': True
     },
 }
@@ -127,26 +229,25 @@ schema['parents'] = {
     'type': 'list',
     'ui': {
         'title': _('Parents'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
     'data_relation': {
         'resource': 'host',
-        'embeddable': True,
+        'embeddable': True
     }
 }
 schema['hostgroups'] = {
     'type': 'list',
     'ui': {
         'title': _('Hosts groups'),
-        'visible': True
+        'visible': True,
+        'searchable': False
     },
-    'schema': {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'hostgroup',
-            'embeddable': True,
-        }
-    },
+    'data_relation': {
+        'resource': 'hostgroup',
+        'embeddable': True
+    }
 }
 schema['business_impact'] = {
     'type': 'integer',
@@ -155,9 +256,216 @@ schema['business_impact'] = {
         'visible': True
     },
 }
+schema['users'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Users'),
+        'visible': True,
+        'searchable': False
+    },
+    'data_relation': {
+        'resource': 'user',
+        'embeddable': True
+    }
+}
+schema['usergroups'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Users groups'),
+        'visible': True,
+        'searchable': False
+    },
+    'data_relation': {
+        'resource': 'usergroup',
+        'embeddable': True
+    }
+}
+schema['notifications_enabled'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Notifications enabled'),
+        'visible': True
+    },
+}
+schema['notification_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Notification period'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['notification_interval'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Notification interval'),
+        'visible': True
+    },
+}
+schema['first_notification_delay'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('First notification delay'),
+        'visible': True
+    },
+}
+schema['notification_options'] = {
+    'type': 'list',
+    'default': ['o', 'd', 'u'],
+    'allowed': ['o', 'd', 'u', 'r', 'f', 's', 'n'],
+    'ui': {
+        'title': _('Notification options'),
+        'visible': True,
+        'format': {
+            'list_type': "multichoices",
+            'list_allowed': {
+                u"d": u"Send notifications on Down state",
+                u"u": u"Send notifications on Unreachable state",
+                u"r": u"Send notifications on recoveries",
+                u"f": u"Send notifications on flapping start/stop",
+                u"s": u"Send notifications on scheduled downtime start/stop",
+                u"n": u"Do not send notifications"
+            }
+        }
+    },
+}
+schema['maintenance_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Maintenance period'),
+        'visible': True,
+        'hidden': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['snapshot_period'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Snapshot period'),
+        'visible': True,
+        'hidden': True
+    },
+    'data_relation': {
+        'resource': 'timeperiod',
+        'embeddable': True
+    }
+}
+schema['location'] = {
+    'type': 'point',
+    'ui': {
+        'title': _('Location')
+    }
+}
+schema['notes_url'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Notes URL')
+    }
+}
+schema['action_url'] = {
+    'type': 'string',
+    'ui': {
+        'title': _('Action URL')
+    }
+}
+schema['stalking_options'] = {
+    'type': 'list',
+    'default': [],
+    'allowed': ['o', 'd', 'u'],
+    'ui': {
+        'title': _('Stalking options'),
+        'visible': True,
+        'format': {
+            'list_type': "multichoices",
+            'list_allowed': {
+                u"d": u"Down",
+                u"o": u"Up",
+                u"u": u"Unreachable"
+            }
+        }
+    },
+}
+schema['check_freshness'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Freshness check enabled'),
+        'visible': True
+    },
+}
+schema['freshness_threshold'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Freshness threshold'),
+        'visible': True
+    },
+}
+schema['flap_detection_enabled'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Flapping detection enabled'),
+        'visible': True
+    },
+}
+schema['flap_detection_options'] = {
+    'type': 'list',
+    'default': ['o', 'd', 'u'],
+    'allowed': ['o', 'd', 'u'],
+    'ui': {
+        'title': _('Flapping detection options'),
+        'visible': True
+    },
+}
+schema['low_flap_threshold'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('Low flapping threshold'),
+        'visible': True,
+        'hidden': True,
+    },
+}
+schema['high_flap_threshold'] = {
+    'type': 'integer',
+    'ui': {
+        'title': _('High flapping threshold'),
+        'visible': True,
+        'hidden': True,
+    },
+}
+schema['event_handler_enabled'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Event handler enabled'),
+        'visible': True
+    },
+}
+schema['event_handler'] = {
+    'type': 'objectid',
+    'ui': {
+        'title': _('Event handler command'),
+        'visible': True,
+        'searchable': False
+    },
+    'data_relation': {
+        'resource': 'command',
+        'embeddable': True
+    }
+}
+schema['process_perf_data'] = {
+    'type': 'boolean',
+    'ui': {
+        'title': _('Process performance data'),
+        'visible': True
+    },
+}
 
 
-# This to define if the object in this model are to be used in the UI
+# This to define the global information for the table
 schema['ui'] = {
     'type': 'boolean',
     'default': True,
@@ -165,18 +473,46 @@ schema['ui'] = {
     # UI parameters for the objects
     'ui': {
         'page_title': _('Hosts table (%d items)'),
-        'uid': '_id',
+        'id_property': '_id',
         'visible': True,
         'orderable': True,
-        'searchable': True
+        'editable': False,
+        'selectable': True,
+        'searchable': True,
+        'responsive': False
     }
 }
 
 
-def get_hosts():
-    '''
+# Get plugin's parameters from configuration file
+def load_config(app=None, cfg_filenames=None):
+    # pylint: disable=unused-argument
+    """
+    Load plugin configuration
+    """
+    global hosts_parameters, hosts_filenames
+
+    if not cfg_filenames:
+        cfg_filenames = hosts_filenames
+    else:
+        hosts_filenames = cfg_filenames
+
+    logger.info("Read plugin configuration file: %s", cfg_filenames)
+
+    # Read configuration file
+    hosts_parameters = Settings(cfg_filenames)
+    config_file = hosts_parameters.read('hosts')
+    logger.info("Plugin configuration read from: %s", config_file)
+    if not hosts_parameters:
+        return False
+    logger.info("Plugin configuration: %s", hosts_parameters)
+    return True
+
+
+def get_hosts(templates=False):
+    """
     Get the hosts list
-    '''
+    """
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -186,31 +522,105 @@ def get_hosts():
         username = target_user.get_username()
 
     # Fetch elements per page preference for user, default is 25
-    elts_per_page = webui.prefs_module.get_ui_user_preference(username, 'elts_per_page', 25)
-
-    # Fetch sound preference for user, default is 'no'
-    sound_pref = webui.prefs_module.get_ui_user_preference(
-        username, 'sound', request.app.config.get('play_sound', 'no')
-    )
-    sound = request.query.get('sound', '')
-    if sound != sound_pref and sound in ['yes', 'no']:  # pragma: no cover - RFU sound
-        webui.prefs_module.set_ui_user_preference(user.get_username(), 'sound', sound)
-        sound_pref = sound
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
 
     # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
     search = {
-        'page': start // count + 1,
+        'page': start // (count + 1),
         'max_results': count,
-        'sort': '-opening_date',
         'where': where,
-        'embedded': {
-            'userservice': 1, 'userservice_session': 1,
-            'user_creator': 1, 'user_participant': 1
-        }
     }
+
+    # Get elements from the data manager
+    hosts = datamgr.get_hosts(search, template=templates)
+    # Get last total elements count
+    total = datamgr.get_objects_count('host', search=where, refresh=True)
+    count = min(count, total)
+
+    if request.params.get('list', None):
+        return get_hosts_list()
+
+    return {
+        'hosts': hosts,
+        'pagination': webui.helper.get_pagination_control(
+            '/hosts_templates' if templates else '/hosts', total, start, count
+        ),
+        'title': request.params.get('title', _('All hosts'))
+    }
+
+
+def get_hosts_list(embedded=False):
+    # pylint: disable=unused-argument
+    """
+    Get the hosts list
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_hosts(search, all_elements=True)
+
+    items = []
+    for host in hosts:
+        items.append({'id': host.id, 'name': host.name, 'alias': host.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
+
+
+def get_hosts_templates():
+    """
+    Get the hosts templates list
+    """
+    return get_hosts(templates=True)
+
+
+def get_hosts_widget(embedded=False, identifier=None, credentials=None):
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
+    """
+    Get the hosts list as a widget
+    - widget_id: widget identifier
+
+    - start and count for pagination
+    - search for specific elements search
+
+    """
+    user = request.environ['beaker.session']['current_user']
+    datamgr = request.environ['beaker.session']['datamanager']
+    target_user = request.environ['beaker.session']['target_user']
+
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Pagination and search
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
+    search = {
+        'page': start // (count + 1),
+        'max_results': count,
+        'where': where
+    }
+    name_filter = request.params.get('filter', '')
+    if name_filter:
+        search['where'].update({
+            '$or': [
+                {'name': {'$regex': ".*%s.*" % name_filter}},
+                {'alias': {'$regex': ".*%s.*" % name_filter}}
+            ]
+        })
+    logger.info("Search parameters: %s", search)
 
     # Get elements from the data manager
     hosts = datamgr.get_hosts(search)
@@ -218,22 +628,76 @@ def get_hosts():
     total = datamgr.get_objects_count('host', search=where, refresh=True)
     count = min(count, total)
 
-    return {
+    # Widget options
+    widget_id = request.params.get('widget_id', '')
+    if widget_id == '':
+        return webui.response_invalid_parameters(_('Missing widget identifier'))
+
+    widget_place = request.params.get('widget_place', 'dashboard')
+    widget_template = request.params.get('widget_template', 'hosts_table_widget')
+    widget_icon = request.params.get('widget_icon', 'plug')
+    # Search in the application widgets (all plugins widgets)
+    options = {}
+    for widget in webui.widgets[widget_place]:
+        if widget_id.startswith(widget['id']):
+            options = widget['options']
+            widget_template = widget['template']
+            widget_icon = widget['icon']
+            logger.info("Widget found, template: %s, options: %s", widget_template, options)
+            break
+    else:
+        logger.warning("Widget identifier not found: %s", widget_id)
+        return webui.response_invalid_parameters(_('Unknown widget identifier'))
+
+    if options:
+        options['search']['value'] = request.params.get('search', '')
+        options['count']['value'] = count
+        options['filter']['value'] = name_filter
+    logger.info("Widget options: %s", options)
+
+    title = request.params.get('title', _('Hosts'))
+    if name_filter:
+        title = _('%s (%s)') % (title, name_filter)
+
+    # Use required template to render the widget
+    return template('_widget', {
+        'widget_id': widget_id,
+        'widget_name': widget_template,
+        'widget_place': widget_place,
+        'widget_template': widget_template,
+        'widget_icon': widget_icon,
+        'widget_uri': request.urlparts.path,
         'hosts': hosts,
-        'start': start, 'count': count, 'total': total,
-        'pagination': webui.helper.get_pagination_control(total, start, count),
-        'title': request.query.get('title', _('All hosts')),
-        'bookmarks': webui.prefs_module.get_user_bookmarks(user.get_username()),
-        'bookmarksro': webui.prefs_module.get_common_bookmarks(),
-        'sound': sound_pref,
-        'elts_per_page': elts_per_page
-    }
+        'options': options,
+        'title': title,
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
+    })
 
 
-def get_hosts_table():
-    '''
-    Get the hosts list and transform it as a table
-    '''
+def get_hosts_table(embedded=False, identifier=None, credentials=None):
+    """
+    Get the elements to build a table
+    """
+    return get_table('host', schema, embedded, identifier, credentials)
+
+
+def get_hosts_table_data():
+    """
+    Get the elements required by the table
+    """
+    return get_table_data('host', schema)
+
+
+def get_host(host_id):
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
+    """
+    Display an host
+    """
+    global hosts_parameters
+
     user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
     target_user = request.environ['beaker.session']['target_user']
@@ -242,75 +706,436 @@ def get_hosts_table():
     if not target_user.is_anonymous():
         username = target_user.get_username()
 
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = webui.prefs_module.get_ui_user_preference(username, 'elts_per_page', 25)
+    # Get host
+    host = datamgr.get_host(host_id)
+    if not host:
+        # Test if we got a name instead of an id
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_id}})
+        if not host:
+            return webui.response_invalid_parameters(_('Host does not exist'))
 
-    # Fetch sound preference for user, default is 'no'
-    sound_pref = webui.prefs_module.get_ui_user_preference(
-        username, 'sound', request.app.config.get('play_sound', 'no')
+    # Get host services
+    services = datamgr.get_services(search={'where': {'host': host.id}})
+
+    # Get host dependencies
+    children = datamgr.get_hostdependencys(
+        search={'where': {'hosts': host.id}}
     )
-    sound = request.query.get('sound', '')
-    if sound != sound_pref and sound in ['yes', 'no']:  # pragma: no cover - RFU sound
-        webui.prefs_module.set_ui_user_preference(username, 'sound', sound)
-        sound_pref = sound
+    parents = datamgr.get_hostdependencys(
+        search={'where': {'dependent_hosts': host.id}}
+    )
 
-    # Pagination and search
-    where = webui.helper.decode_search(request.query.get('search', ''))
+    # Get host livestate
+    livestate = datamgr.get_livestate(
+        search={'where': {'type': 'host', 'name': '%s' % host.name}}
+    )
+    if livestate:
+        livestate = livestate[0]
 
-    # Get total elements count
-    total = datamgr.get_objects_count('host', search=where)
+    # Get host services livestate
+    livestate_services = datamgr.get_livestate(
+        search={'where': {'type': 'service', 'host': host.id}}
+    )
 
-    # Build table structure
-    dt = Datatable('host', datamgr.backend, schema)
+    # Get host history (timeline)
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
 
-    title = dt.title
-    if '%d' in title:
-        title = title % total
+    # Host history pagination and search parameters
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
+    search = {
+        'page': start // (count + 1),
+        'max_results': count,
+        'where': {'host': host_id}
+    }
+
+    # Fetch timeline filters preference for user, default is []
+    selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+    selected_types = selected_types['value']
+    for selected_type in history_schema['type']['allowed']:
+        if request.params.get(selected_type) == 'true':
+            if selected_type not in selected_types:
+                selected_types.append(selected_type)
+        elif request.params.get(selected_type) == 'false':
+            if selected_type in selected_types:
+                selected_types.remove(selected_type)
+
+    datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+    if selected_types:
+        search['where'].update({'type': {'$in': selected_types}})
+    logger.warning("History selected types: %s", selected_types)
+
+    # Get host history
+    history = datamgr.get_history(search=search)
+    if history is None:
+        history = []
+    # Get last total elements count
+    total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+    # Get host events (all history except the events concerning the checks)
+    excluded = [t for t in history_schema['type']['allowed'] if t.startswith('check.')]
+    search = {
+        'page': start // (count + 1),
+        'max_results': count,
+        'where': {'host': host_id, 'type': {'$nin': excluded}}
+    }
+
+    # Get host events
+    events = datamgr.get_history(search=search)
+    if events is None:
+        events = []
 
     return {
-        'dt': dt,
-        'title': request.query.get('title', title),
-        'bookmarks': webui.prefs_module.get_user_bookmarks(user.get_username()),
-        'bookmarksro': webui.prefs_module.get_common_bookmarks(),
-        'sound': sound_pref,
-        'elts_per_page': elts_per_page
+        'host': host,
+        'hosts_parameters': hosts_parameters,
+        'services': services,
+        'livestate': livestate,
+        'livestate_services': livestate_services,
+        'history': history,
+        'events': events,
+        'parents': parents,
+        'children': children,
+        'timeline_pagination': webui.helper.get_pagination_control(
+            '/host/' + host_id, total, start, count
+        ),
+        'types': history_schema['type']['allowed'],
+        'selected_types': selected_types,
+        'title': request.params.get('title', _('Host view'))
     }
 
 
-def get_hosts_table_data():
-    '''
-    Get the hosts list and provide table data
-    '''
+def get_host_widget(host_id, widget_id, embedded=False, identifier=None, credentials=None):
+    # Because there are many locals needed :)
+    # pylint: disable=too-many-locals
+    """
+    Display an host
+    """
+    user = request.environ['beaker.session']['current_user']
     datamgr = request.environ['beaker.session']['datamanager']
-    dt = Datatable('host', datamgr.backend, schema)
+    target_user = request.environ['beaker.session']['target_user']
 
-    response.status = 200
-    response.content_type = 'application/json'
-    return dt.table_data()
+    username = user.get_username()
+    if not target_user.is_anonymous():
+        username = target_user.get_username()
+
+    # Get host
+    host = datamgr.get_host(host_id)
+    if not host:  # pragma: no cover, should not happen
+        return webui.response_invalid_parameters(_('Host does not exist'))
+
+    # Get host services
+    services = datamgr.get_services(search={'where': {'host': host_id}})
+
+    # Get host livestate
+    livestate = datamgr.get_livestate(
+        search={'where': {'type': 'host', 'name': '%s' % host.name}}
+    )
+    if livestate:
+        livestate = livestate[0]
+
+    # Get host services livestate
+    livestate_services = datamgr.get_livestate(
+        search={'where': {'type': 'service', 'host': host.id}}
+    )
+
+    # Fetch elements per page preference for user, default is 25
+    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+    elts_per_page = elts_per_page['value']
+
+    # Host history pagination and search parameters
+    start = int(request.params.get('start', '0'))
+    count = int(request.params.get('count', elts_per_page))
+    where = webui.helper.decode_search(request.params.get('search', ''))
+    search = {
+        'where': {'host': host_id}
+    }
+
+    # Fetch timeline filters preference for user, default is []
+    selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+    selected_types = selected_types['value']
+    for selected_type in history_schema['type']['allowed']:
+        if request.params.get(selected_type) == 'true':
+            if selected_type not in selected_types:
+                selected_types.append(selected_type)
+        elif request.params.get(selected_type) == 'false':
+            if selected_type in selected_types:
+                selected_types.remove(selected_type)
+
+    if selected_types:
+        datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+        search['where'].update({'type': {'$in': selected_types}})
+    logger.warning("History selected types: %s", selected_types)
+
+    history = datamgr.get_history(search=search)
+    if history is None:
+        history = []
+
+    # Get last total elements count
+    total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+    widget_place = request.params.get('widget_place', 'host')
+    widget_template = request.params.get('widget_template', 'host_widget')
+    # Search in the application widgets (all plugins widgets)
+    for widget in webui.widgets[widget_place]:
+        if widget_id.startswith(widget['id']):
+            widget_template = widget['template']
+            logger.info("Widget found, template: %s", widget_template)
+            break
+    else:
+        logger.info("Widget identifier not found: using default template and no options")
+
+    title = request.params.get('title', _('Host: %s') % host.name)
+
+    # Use required template to render the widget
+    return template('_widget', {
+        'widget_id': widget_id,
+        'widget_name': widget_template,
+        'widget_place': 'host',
+        'widget_template': widget_template,
+        'widget_uri': request.urlparts.path,
+        'options': {},
+
+        'host': host,
+        'services': services,
+        'livestate': livestate,
+        'livestate_services': livestate_services,
+        'history': history,
+        'timeline_pagination': webui.helper.get_pagination_control(
+            '/host/' + host_id, total, start, count
+        ),
+        'types': history_schema['type']['allowed'],
+        'selected_types': selected_types,
+
+        'title': title,
+        'embedded': embedded,
+        'identifier': identifier,
+        'credentials': credentials
+    })
 
 
 pages = {
+    load_config: {
+        'name': 'Hosts plugin config',
+        'route': '/hosts/config'
+    },
+    get_host_widget: {
+        'name': 'Host widget',
+        'route': '/host_widget/<host_id>/<widget_id>',
+        'view': 'host',
+        'widgets': [
+            {
+                'id': 'information',
+                'for': ['host'],
+                'name': _('Information'),
+                'template': 'host_information_widget',
+                'icon': 'info',
+                'description': _(
+                    'Host information: displays host general information.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'configuration',
+                'for': ['host'],
+                'name': _('Configuration'),
+                'template': 'host_configuration_widget',
+                'icon': 'gear',
+                'read_only': True,
+                'description': _(
+                    'Host configuration: displays host customs configuration variables.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'location',
+                'for': ['host'],
+                'name': _('Location'),
+                'template': 'host_location_widget',
+                'icon': 'globe',
+                'read_only': True,
+                'description': _(
+                    'Host location: displays host position on a map.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'services',
+                'for': ['host'],
+                'name': _('Services'),
+                'template': 'host_services_widget',
+                'icon': 'cubes',
+                'description': _(
+                    '<h4>Host service widget</h4>Displays host services.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'metrics',
+                'for': ['host'],
+                'name': _('Metrics'),
+                'template': 'host_metrics_widget',
+                'icon': 'line-chart',
+                'description': _(
+                    '<h4>Host metrics widget</h4>Displays host (and its services) last '
+                    'received metrics.'
+                ),
+                'picture': 'htdocs/img/host_metrics_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'timeline',
+                'for': ['host'],
+                'name': _('Timeline'),
+                'template': 'host_timeline_widget',
+                'icon': 'clock-o',
+                'description': _(
+                    '<h4>Host timeline widget</h4>Displays host timeline.'
+                ),
+                'picture': 'htdocs/img/host_timeline_widget.png',
+                'options': {}
+            },
+            {
+                'id': 'history',
+                'for': ['host'],
+                'name': _('History'),
+                'template': 'host_history_widget',
+                'icon': 'history',
+                'description': _(
+                    '<h4>Host history widget</h4>Displays host history.'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'events',
+                'for': ['host'],
+                'name': _('Events'),
+                'template': 'host_events_widget',
+                'icon': 'history',
+                'description': _(
+                    '<h4>Host events widget</h4>Displays host events: '
+                    'comments, acknowledges, downtimes,...'
+                ),
+                'options': {}
+            },
+            {
+                'id': 'grafana',
+                'for': ['host'],
+                'name': _('Grafana'),
+                'template': 'host_grafana_widget',
+                'icon': 'area-chart',
+                'description': _(
+                    '<h4>Host grafana widget</h4>Displays host Grafana panel.'
+                ),
+                'options': {}
+            }
+        ]
+    },
+    get_host: {
+        'name': 'Host',
+        'route': '/host/<host_id>',
+        'view': 'host'
+    },
     get_hosts: {
         'name': 'Hosts',
         'route': '/hosts',
-        'view': 'hosts',
-        'search_engine': True,
-        'search_prefix': '',
-        'search_filters': {
-            _('Hosts up'): 'state:up',
-            _('Hosts down'): 'state:down',
-            _('Hosts unreachable'): 'state:unreachable',
-        }
+        'view': 'hosts'
     },
+    get_hosts_list: {
+        'routes': [
+            ('/hosts_list', 'Hosts list'),
+        ]
+    },
+    get_hosts_templates: {
+        'routes': [
+            ('/hosts_templates', 'Hosts templates'),
+        ]
+    },
+
     get_hosts_table: {
         'name': 'Hosts table',
         'route': '/hosts_table',
-        'view': 'hosts_table'
+        'view': '_table',
+        'search_engine': True,
+        'search_prefix': '',
+        'search_filters': {
+            '01': (_('Hosts'), '_is_template:false'),
+            '02': ('', ''),
+            '03': (_('Hosts templates'), '_is_template:true')
+        },
+        'tables': [
+            {
+                'id': 'hosts_table',
+                'for': ['external'],
+                'name': _('Hosts table'),
+                'template': '_table',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Hosts table</h4>Displays a datatable for the monitored system hosts.<br>'
+                ),
+                'actions': {
+                    'hosts_table_data': get_hosts_table_data
+                }
+            }
+        ]
     },
 
     get_hosts_table_data: {
         'name': 'Hosts table data',
         'route': '/hosts_table_data',
         'method': 'POST'
+    },
+
+    get_hosts_widget: {
+        'name': 'Hosts widget',
+        'route': '/hosts/widget',
+        'method': 'POST',
+        'view': 'hosts_widget',
+        'widgets': [
+            {
+                'id': 'hosts_table',
+                'for': ['external', 'dashboard'],
+                'name': _('Hosts table widget'),
+                'template': 'hosts_table_widget',
+                'icon': 'table',
+                'description': _(
+                    '<h4>Hosts table widget</h4>Displays a list of the monitored system hosts.<br>'
+                    'The number of hosts in this list can be defined in the widget options.'
+                    'The list of hosts can be filtered thanks to regex on the host name'
+                ),
+                'picture': 'htdocs/img/hosts_table_widget.png',
+                'options': {
+                    'search': {
+                        'value': '',
+                        'type': 'text',
+                        'label': _('Filter (ex. status:up)')
+                    },
+                    'count': {
+                        'value': -1,
+                        'type': 'int',
+                        'label': _('Number of elements')
+                    },
+                    'filter': {
+                        'value': '',
+                        'type': 'hst_srv',
+                        'label': _('Host name search')
+                    }
+                }
+            },
+            {
+                'id': 'hosts_chart',
+                'for': ['external', 'dashboard'],
+                'name': _('Hosts chart widget'),
+                'template': 'hosts_chart_widget',
+                'icon': 'pie-chart',
+                'description': _(
+                    '<h4>Hosts chart widget</h4>Displays a pie chart with the system hosts states.'
+                ),
+                'picture': 'htdocs/img/hosts_chart_widget.png',
+                'options': {}
+            }
+        ]
     },
 }

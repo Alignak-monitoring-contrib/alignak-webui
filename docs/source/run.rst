@@ -8,11 +8,21 @@ Developer mode
 
 To run in developper mode (single threaded Web server with few connections), you can start the application with::
 
-   alignak_webui
+    alignak_webui
 
 The default configuration parameter make the application start on your localhost, port 8868, so you can point your Web browser to::
 
-   http://localhost:8090/
+    http://localhost:8090/
+
+
+To gain more control on the application start::
+
+    cd alignak_webui
+    ./app.py -n 0.0.0.0 -b http://127.0.0.1:5000 -d ../etc/settings.cfg
+
+All the command line options::
+
+    ./app.py -h
 
 
 Production mode

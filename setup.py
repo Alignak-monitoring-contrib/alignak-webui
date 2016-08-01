@@ -46,15 +46,17 @@ from alignak_webui import __name__ as __pkg_name__
 package = import_module('alignak_webui')
 
 install_requires = [
+    'future',
     'configparser',
     'docopt',
     'bottle>=0.12.9,<0.13',
     'Beaker==1.8.0',
+    'CherryPy',
     'pymongo>=3.2',
     'requests>=2.9.1',
-    'setproctitle>=1.1.8',
     'python-gettext',
-    'python-dateutil',
+    'termcolor',
+    'python-dateutil==2.4.2',
     'pytz',
     'alignak_backend_client'
 ]
@@ -84,6 +86,16 @@ else:
     print "Unsupported platform, sorry!"
     exit(1)
 
+data_files = [
+    (paths['etc'], ['etc/settings.cfg'])
+]
+
+# Specific for Read the docs build process
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    print "RTD build, no data_files"
+    data_files = []
+
 setup(
     name=__pkg_name__,
     version=__version__,
@@ -93,7 +105,7 @@ setup(
     # metadata for upload to PyPI
     author="Frédéric MOHIER",
     author_email="frederic.mohier@gmail.com",
-    keywords="alignak REST backend web ui",
+    keywords="alignak web ui",
     url="https://github.com/Alignak-monitoring-contrib/alignak-webui",
     description=package.__doc__.strip(),
     long_description=open('README.rst').read(),
@@ -105,7 +117,7 @@ setup(
     # package_data={
         # 'sample': ['package_data.dat'],
     # },
-    data_files = [(paths['etc'], ['etc/settings.cfg'])],
+    data_files=data_files,
 
     install_requires=install_requires,
 

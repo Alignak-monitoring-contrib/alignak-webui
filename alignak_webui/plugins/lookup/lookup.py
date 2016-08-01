@@ -19,13 +19,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
     Plugin Lookup
-'''
+"""
 
 import json
 from logging import getLogger
-from bottle import request, response
+
+from bottle import request
 
 logger = getLogger(__name__)
 
@@ -33,25 +34,21 @@ logger = getLogger(__name__)
 webui = None
 
 
-def lookup():  # pragma: no cover - not yet implemented!
-    '''
-    TODO:
-    Empty ... not yet implemented!
-    '''
-    response.content_type = 'application/json'
-
-    query = request.GET.get('q', '')
-    name = query
-    user = request.environ['beaker.session']['current_user']
-
-    logger.debug("[WebUI] lookup: %s", name)
-
+def lookup():
+    """
+    Search in the livestate for an element name
+    """
     datamgr = request.environ['beaker.session']['datamanager']
-    filtered_elements = datamgr.get_elements(user)
-    hnames = (h.host_name for h in filtered_elements)
-    r = [n for n in hnames if name in n]
 
-    return json.dumps(r)
+    query = request.query.get('query', '')
+
+    logger.warning("lookup: %s", query)
+
+    elements = datamgr.get_livestate(search={'where': {'name': {"$regex": ".*" + query + ".*"}}})
+    names = [e.name for e in elements]
+    logger.warning("lookup: %s", names)
+
+    return json.dumps(names)
 
 
 pages = {

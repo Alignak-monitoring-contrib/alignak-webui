@@ -8,8 +8,8 @@
                <!-- List existing users, except current and target users -->
                <select id="users_list" class="form-control" >
                %for user in datamgr.get_users():
-                  %if user.get_id() != current_user.get_id() and user.get_id() != target_user.get_id():
-                  <option value="{{user.get_username()}}" selected={{'selected' if target_user and target_user.get_username() == user.get_username() else ''}}>{{user.get_name()}}&nbsp;({{user.get_username()}})</option>
+                  %if user.id != current_user.id and user.id != target_user.id:
+                  <option value="{{user.get_username()}}" selected={{'selected' if target_user and target_user.get_username() == user.get_username() else ''}}>{{user.name}}&nbsp;({{user.get_username()}})</option>
                   %end
                %end
                </select>

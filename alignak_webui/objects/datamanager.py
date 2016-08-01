@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-locals,too-many-arguments,too-many-public-methods
-# pylint: disable=fixme, unused-variable, pointless-string-statement
-# pylint: disable=too-many-nested-blocks, useless-else-on-loop, protected-access
+# Yes, but that's how it is made, and it suits ;)
+# pylint: disable=too-many-public-methods
+# Necessary to import all backend elements objects!
+# pylint: disable=wildcard-import,unused-wildcard-import
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -26,21 +27,38 @@
     Application data manager
 """
 
-import re
-import json
 import time
 import traceback
-from urlparse import urljoin
 from datetime import datetime
-from logging import getLogger, INFO
+from logging import getLogger
 
-from alignak_backend_client.client import Backend, BackendException
-from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
+from alignak_backend_client.client import BackendException
+# from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
+
+# noinspection PyProtectedMember
+from alignak_webui import _
+# Import the backend interface class
+from alignak_webui.objects.backend import BackendConnection
 
 # Import all objects we will need
-from alignak_webui.objects.item import User, Command, Host
-from alignak_webui.backend.glpi_ws_client import Glpi, GlpiException
-from alignak_webui.backend.glpi_ws_client import GLPI_PAGINATION_LIMIT, GLPI_PAGINATION_DEFAULT
+from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.item_user import *
+from alignak_webui.objects.item_usergroup import *
+from alignak_webui.objects.item_realm import *
+from alignak_webui.objects.item_command import *
+from alignak_webui.objects.item_timeperiod import *
+from alignak_webui.objects.item_host import *
+from alignak_webui.objects.item_hostgroup import *
+from alignak_webui.objects.item_hostdependency import *
+from alignak_webui.objects.item_service import *
+from alignak_webui.objects.item_servicegroup import *
+from alignak_webui.objects.item_history import *
+from alignak_webui.objects.item_log import *
+from alignak_webui.objects.item_actions import *
+from alignak_webui.objects.item_livestate import *
+from alignak_webui.objects.item_livesynthesis import *
+from alignak_webui.objects.item_userrestrictrole import *
+from alignak_webui.objects.item_uipref import *
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
@@ -49,16 +67,16 @@ logger = getLogger(__name__)
 
 
 class DataManager(object):
-    '''
+    """
     Base class for all data manager objects
-    '''
+    """
     id = 1
 
     """
         Application data manager object
     """
 
-    def __init__(self, backend_endpoint='http://127.0.0.1:5000', glpi=None):
+    def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
         """
         Create an instance
         """
@@ -67,27 +85,21 @@ class DataManager(object):
 
         # Associated backend object
         self.backend_endpoint = backend_endpoint
-        self.backend = Backend(backend_endpoint)
-
-        # Associated Glpi backend object
-        self.glpi = None
-        if glpi:
-            self.glpi = Glpi(glpi.get('glpi_ws_backend', None))
-            self.glpi_ws_login = glpi.get('glpi_ws_login', None)
-            self.glpi_ws_password = glpi.get('glpi_ws_password', None)
-
-        # Backend available objects (filled with objects received from backend)
-        # self.backend_available_objets = []
+        # self.backend = Backend(backend_endpoint)
+        self.backend = BackendConnection(backend_endpoint)
 
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
         self.known_classes = []
-        for k, v in globals().items():
-            if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
+        for k, dummy in globals().items():
+            if isinstance(globals()[k], type) and \
+               '_type' in globals()[k].__dict__ and \
+               globals()[k].get_type() is not None and \
+               globals()[k].get_type() is not 'item':
                 self.known_classes.append(globals()[k])
                 logger.debug(
                     "Known class %s for object type: %s",
-                    globals()[k], globals()[k].getType()
+                    globals()[k], globals()[k].get_type()
                 )
 
         self.connected = False
@@ -102,7 +114,7 @@ class DataManager(object):
         self.updated = datetime.utcnow()
 
     def __repr__(self):
-        return ("<DM, id: %s, objects count: %d, user: %s, updated: %s>") % (
+        return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
             self.id,
             self.get_objects_count(),
             self.get_logged_user().get_username() if self.get_logged_user() else 'Not logged in',
@@ -123,36 +135,35 @@ class DataManager(object):
         """
         logger.info("user_login, connection requested: %s, load: %s", username, load)
 
+        self.connected = False
         self.connection_message = _('Backend connecting...')
-        if not password:
-            # Set backend token (no login request).
-            # Do not include the token in the application logs !
-            logger.debug("Update backend token")
-            self.backend.token = username
-            self.connected = True
-            self.connection_message = _('Backend connected')
-            # Load data if load required...
-            if load:
-                self.load(reset=True)
-            return self.connected
-
         try:
-            # Backend real login
+            # Backend login
             logger.info("Requesting backend authentication, username: %s", username)
             self.connected = self.backend.login(username, password)
             if self.connected:
                 self.connection_message = _('Connection successful')
 
+                # Set the backend to use by the data manager objects
+                BackendElement.set_backend(self.backend)
+                BackendElement.set_known_classes(self.known_classes)
+
                 # Fetch the logged-in user
-                users = self.find_object(
-                    'contact', {'where': {'token': self.backend.token}}
-                )
+                if password:
+                    users = self.backend.get(
+                        'user', {'max_results': 1, 'where': {'name': username}}
+                    )
+                else:
+                    users = self.backend.get(
+                        'user', {'max_results': 1, 'where': {'token': username}}
+                    )
+                self.logged_in_user = User(users[0])
                 # Tag user as authenticated
-                users[0].authenticated = True
-                self.logged_in_user = users[0]
+                self.logged_in_user.authenticated = True
+                logger.info("Logged-in user: %s", self.logged_in_user)
 
                 # Get total objects count from the backend
-                objects_count = self.get_objects_count(refresh=True, log=True)
+                self.get_objects_count(refresh=True, log=False)
 
                 # Load data if load required...
                 if load:
@@ -160,9 +171,8 @@ class DataManager(object):
             else:
                 self.connection_message = _('Backend connection refused...')
         except BackendException as e:  # pragma: no cover, should not happen
-            logger.warning("configured applications backend is not available!")
+            logger.warning("configured backend is not available!")
             self.connection_message = e.message
-            self.connected = False
         except Exception as e:  # pragma: no cover, should not happen
             logger.warning("User login exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
@@ -207,98 +217,36 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.debug("find_object, self: %s, updated:%s", self, self.updated)
-        logger.debug("find_object, %s, params: %s", object_type, params)
+        logger.info("find_object, %s, params: %s", object_type, params)
 
-        # -----------------------------------------------------------------------------------------
-        # TODO: manage parameters like:
-        # {'sort': '-opening_date', 'where': u'{"service_name": "userservice_1"}'}
-        # -> ignore sort, ... but take car of 'where' to search in the cache!
-        # -----------------------------------------------------------------------------------------
-        # if params is None:
-        # params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
-
-        unique_element = False
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
-            unique_element = True
             logger.debug("find_object, %s, params: %s", object_type, params)
 
         items = []
 
-        # Update backend search parameters
-        if params is None:
-            params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
-        if 'where' in params:
-            params['where'] = json.dumps(params['where'])
-        if 'embedded' in params:
-            params['embedded'] = json.dumps(params['embedded'])
-        if 'where' not in params:
-            params['where'] = {}
-        if 'page' not in params:
-            params['page'] = 0
-        if 'max_results' not in params:
-            params['max_results'] = BACKEND_PAGINATION_LIMIT
-        logger.debug(
-            "find_object, search in the backend for %s: parameters=%s", object_type, params
-        )
+        result = self.backend.get(object_type, params, all_elements)
+        logger.debug("find_object, found: %s: %s", object_type, result)
 
-        try:
-            if all_elements:
-                result = self.backend.get_all(object_type, params=params)
-            else:
-                result = self.backend.get(object_type, params=params)
-        except BackendException as e:  # pragma: no cover, simple protection
-            logger.warning("find_object, backend exception: %s", str(e))
-            return items
-
-        logger.debug(
-            "find_object, search result for %s: result=%s", object_type, result
-        )
-        if result['_status'] != 'OK':  # pragma: no cover, should not happen
-            error = []
-            if "content" in result:
-                error.append(result["content"])
-            if "_issues" in result:
-                error.append(result["_issues"])
-            logger.warning("find_object, %s: %s, not found: %s", object_type, params, error)
+        if not result:
             raise ValueError(
-                '%s, where %s was not found in the backend, error: %s' % (
-                    object_type, params, error
-                )
+                '%s, search: %s was not found in the backend' % (object_type, params)
             )
 
-        if not result['_items']:  # pragma: no cover, should occur rarely
-            if items:
-                logger.debug(
-                    "find_object, no data in backend, found in the cache: %s: %s",
-                    object_type, items
-                )
-                return items
-            logger.debug(
-                "find_object, %s: %s: not found: %s", object_type, params, result
-            )
-            raise ValueError(
-                '%s, %s was not found in the cache nor in the backend' % (
-                    object_type, params['where']
-                )
-            )
+        # Find "Backend object type" classes in file imported modules ...
+        object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
-        logger.debug("find_object, found in the backend: %s: %s", object_type, result['_items'])
-        for item in result['_items']:
-            # Find "Backend object type" classes in file imported modules ...
-            for k, v in globals().items():
-                if isinstance(globals()[k], type) and '_type' in globals()[k].__dict__:
-                    if globals()[k].getType() == object_type:
-                        # Create a new object
-                        bo_object = globals()[k](item)
-                        items.append(bo_object)
-                        self.updated = datetime.utcnow()
-                        logger.debug("find_object, created: %s", bo_object)
-                        break
-            else:  # pragma: no cover, should not happen
-                # No break, so not found a relative class!
-                logger.error("find_object, %s class not found for: %s", object_type, item)
+        for item in result:
+            # Create a new object
+            logger.debug("find_object, begin creation: %s", object_class)
+            bo_object = object_class(item)
+            items.append(bo_object)
+            self.updated = datetime.utcnow()
+            logger.debug("find_object, created: %s", bo_object)
+
+            # Update class _total_count (each item got from backend has an _total field)
+            if '_total' in item:
+                object_class.set_total_count(item['_total'])
 
         return items
 
@@ -311,9 +259,6 @@ class DataManager(object):
             created.
 
             Get all the users (related to current logged-in user)
-            Get all the user services (related to current logged-in user)
-            Get all the relations between users and services
-            Get the most recent sessions for each user service
 
             :returns: the number of newly created objects
         """
@@ -347,25 +292,35 @@ class DataManager(object):
         logger.debug("Load, start, objects in cache: %d", objects_count)
 
         # -----------------------------------------------------------------------------------------
-        # Get all users if current user is an administrator
+        # Get all realms
         # -----------------------------------------------------------------------------------------
-        self.get_users()
+        # self.get_realms()
+
+        # -----------------------------------------------------------------------------------------
+        # Get all users
+        # -----------------------------------------------------------------------------------------
+        # self.get_users()
+
+        # -----------------------------------------------------------------------------------------
+        # Get all timeperiods
+        # -----------------------------------------------------------------------------------------
+        # self.get_timeperiods()
 
         # -----------------------------------------------------------------------------------------
         # Get all commands
         # -----------------------------------------------------------------------------------------
-        commands = self.get_commands()
+        # self.get_commands()
 
         # -----------------------------------------------------------------------------------------
-        # Get all hosts
+        # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
-        hosts = self.get_hosts()
+        # self.get_livestate()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
         logger.debug("Load, end, objects in cache: %d", new_objects_count)
 
-        logger.warning(
+        logger.info(
             "Data manager load (%s), new objects: %d,  duration: %s",
             refresh, new_objects_count - objects_count, (time.time() - start)
         )
@@ -385,8 +340,8 @@ class DataManager(object):
 
         # Clean internal objects cache
         for known_class in self.known_classes:
-            logger.info("Cleaning %s cache...", known_class.getType())
-            known_class.cleanCache()
+            logger.info("Cleaning %s cache...", known_class.get_type())
+            known_class.clean_cache()
 
         if logout:
             self.backend.logout()
@@ -397,14 +352,14 @@ class DataManager(object):
         self.refresh_required = True
 
     def require_refresh(self):
-        '''
+        """
         Require an immediate refresh
-        '''
+        """
         self.refresh_required = True
         self.refresh_done = False
 
     def get_objects_count(self, object_type=None, refresh=False, log=False, search=None):
-        '''
+        """
         Get the count of the objects stored in the data manager cache
 
         If an object_type is specified, only returns the count for this object type
@@ -413,28 +368,28 @@ class DataManager(object):
         count is required...
 
         If log is set, an information log is made
-        '''
+        """
         log_function = logger.debug
         if log:
             log_function = logger.info
 
         if object_type:
             for known_class in self.known_classes:
-                if object_type == known_class.getType():
-                    objects_count = known_class.getCount()
-                    log_function(
-                        "get_objects_count, currently %d cached %ss",
-                        objects_count, object_type
-                    )
+                if object_type == known_class.get_type():
+                    objects_count = known_class.get_count()
                     if refresh:
-                        if hasattr(known_class, '_total_count'):
-                            objects_count = known_class.getTotalCount()
+                        if hasattr(known_class, '_total_count') and \
+                           known_class.get_total_count() != -1:
+                            objects_count = known_class.get_total_count()
                             log_function(
                                 "get_objects_count, got _total_count attribute: %d",
                                 objects_count
                             )
                         else:
                             objects_count = self.count_objects(object_type, search=search)
+                            # _total_count is a property ... should make it a method?
+                            # pylint: disable=protected-access
+                            known_class._total_count = objects_count
 
                         log_function(
                             "get_objects_count, currently %d total %ss for %s",
@@ -442,22 +397,25 @@ class DataManager(object):
                         )
                     return objects_count
             else:  # pragma: no cover, should not happen
+                # pylint: disable=useless-else-on-loop
                 logger.warning("count_objects, unknown object type: %s", object_type)
                 return 0
 
         objects_count = 0
         for known_class in self.known_classes:
-            count = known_class.getCount()
-            log_function(
-                "get_objects_count, currently %d cached %ss",
-                count, known_class.getType()
-            )
+            count = known_class.get_count()
             if refresh:
-                count = self.count_objects(known_class.getType(), search=search)
-                log_function(
-                    "get_objects_count, currently %d total %ss for %s",
-                    count, known_class.getType(), search
-                )
+                count = self.count_objects(known_class.get_type(), search=search)
+                if search:
+                    log_function(
+                        "get_objects_count, currently %d total %ss for %s",
+                        count, known_class.get_type(), search
+                    )
+                else:
+                    log_function(
+                        "get_objects_count, currently %d total %ss",
+                        count, known_class.get_type()
+                    )
             objects_count += count
 
         log_function("get_objects_count, currently %d elements", objects_count)
@@ -473,62 +431,24 @@ class DataManager(object):
         Make a simple request for 1 element and we will get back the total count of elements
 
         search is a dictionary of key / value to search for
-
-        If log is set, an information log is made
         """
-        total = 0
-
         params = {
             'page': 0, 'max_results': 1
         }
         if search is not None:
-            params['where'] = json.dumps(search)
+            params['where'] = search
 
-        # Request objects from the backend ...
-        try:
-            resp = self.backend.get(object_type, params)
-            logger.debug("count_objects %s: %s", object_type, resp)
-
-            # Total number of records
-            if '_meta' in resp:
-                total = int(resp['_meta']['total'])
-        except BackendException as e:
-            logger.warning(
-                "count_objects exception for object type: %s: %s",
-                object_type, e.message
-            )
-
-        return total
+        return self.backend.count(object_type, params)
 
     def add_object(self, object_type, data=None, files=None):
         """ Add an element """
         logger.info("add_object, request to add a %s: data: %s", object_type, data)
 
-        # Do not set header to use the client default behavior:
-        # - set headers as {'Content-Type': 'application/json'}
-        # - encode provided data to JSON
-        headers = None
-        if files:
-            logger.info("add_object, request to add a %s with files: %s", object_type, files)
-            # Set header to disable client default behavior
-            headers = {'Content-type': 'multipart/form-data'}
-
-        try:
-            result = self.backend.post(object_type, data=data, files=files, headers=headers)
-            logger.debug("add_object, response: %s", result)
-            if result['_status'] != 'OK':
-                logger.warning("add_object, error: %s", result)
-                return None
-
-            self.find_object(object_type, result['_id'])
-        except BackendException as e:
-            logger.error("add_object, backend exception: %s", str(e))
-            return None
-        except ValueError as e:  # pragma: no cover, should never happen
-            logger.warning("add_object, error: %s", str(e))
-            return None
-
-        return result['_id']
+        object_id = self.backend.post(object_type, data=data, files=files)
+        if object_id:
+            items = self.find_object(object_type, object_id)
+            return items[0]['_id']
+        return None
 
     def delete_object(self, object_type, element):
         """
@@ -541,49 +461,18 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = element.get_id()
+            object_id = element.id
 
-        try:
-            # Get most recent version of the element
-            items = self.find_object(object_type, object_id)
-            element = items[0]
-        except ValueError:  # pragma: no cover, should never happen
-            logger.warning("delete_object, object %s, _id=%s not found", object_type, object_id)
-            return False
+        if self.backend.delete(object_type, object_id):
+            # Find object type class...
+            object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
-        try:
-            # Request deletion
-            headers = {'If-Match': element['_etag']}
-            endpoint = '/'.join([object_type, object_id])
-            logger.info("delete_object, endpoint: %s", endpoint)
-            result = self.backend.delete(endpoint, headers)
-            logger.debug("delete_object, response: %s", result)
-            if result['_status'] != 'OK':  # pragma: no cover, should never happen
-                error = []
-                if "content" in result:
-                    error.append(result["content"])
-                if "_issues" in result:
-                    error.append(result["_issues"])
-                    for issue in result["_issues"]:
-                        error.append(result["_issues"][issue])
-                logger.warning("delete_object, error: %s", error)
-                return False
-        except BackendException as e:  # pragma: no cover, should never happen
-            logger.error("delete_object, backend exception: %s", str(e))
-            return False
-        except ValueError as e:  # pragma: no cover, should never happen
-            logger.warning("delete_object, not found %s: %s", object_type, element)
-            return False
+            # Delete existing cache object
+            if object_id in object_class.get_cache():
+                del object_class.get_cache()[object_id]
 
-        try:
-            # Try to get most recent version of the element
-            items = self.find_object(object_type, object_id)
-        except ValueError:
-            logger.info("delete_object, object deleted: %s, _id=%s", object_type, object_id)
-            # Object deletion
-            element._delete()
-
-        return True
+            return True
+        return False
 
     def update_object(self, object_type, element, data):
         """
@@ -596,61 +485,590 @@ class DataManager(object):
         if isinstance(element, basestring):
             object_id = element
         else:
-            object_id = element.get_id()
+            object_id = BackendElement.id
 
-        try:
-            # Get most recent version of the element
-            items = self.find_object(object_type, object_id)
-            element = items[0]
-        except ValueError:
-            logger.warning("update_object, object %s, _id=%s not found", object_type, object_id)
-            return False
-
-        try:
-            # Request update
-            headers = {'If-Match': element['_etag']}
-            endpoint = '/'.join([object_type, object_id])
-            logger.info("update_object, endpoint: %s, data: %s", endpoint, data)
-            result = self.backend.patch(endpoint, data, headers)
-            logger.debug("update_object, response: %s", result)
-            if result['_status'] != 'OK':  # pragma: no cover, should never happen
-                error = []
-                if "content" in result:
-                    error.append(result["content"])
-                if "_issues" in result:
-                    error.append(result["_issues"])
-                    for issue in result["_issues"]:
-                        error.append(result["_issues"][issue])
-                logger.warning("update_object, error: %s", error)
-                return False
-
+        if self.backend.update(object_type, object_id, data):
             items = self.find_object(object_type, object_id)
             logger.info("update_object, updated: %s", items[0])
-        except BackendException as e:  # pragma: no cover, should never happen
-            logger.error("update_object, backend exception: %s", str(e))
-            return False
-        except ValueError:  # pragma: no cover, should never happen
-            logger.warning("update_object, not found %s: %s", object_type, element)
+            return True
+
+        return False
+
+    ##
+    # User's preferences
+    ##
+    def delete_user_preferences(self, user, prefs_type):
+        """
+        Delete user's preferences
+
+        If the data are not found, returns None else return the backend response.
+
+        An exception is raised if an error occurs, else returns the backend response
+
+        :param user: username
+        :type user: string
+        :param prefs_type: preference type
+        :type prefs_type: string
+        :return: server's response
+        :rtype: dict
+        """
+        try:
+            logger.debug(
+                "delete_user_preferences, type: %s, for: %s",
+                prefs_type, user
+            )
+
+            # Still existing ...
+            result = self.backend.get(
+                'uipref',
+                params={'where': {"type": prefs_type, "user": user}}
+            )
+            logger.debug("delete_user_preferences, '%s' result: %s", prefs_type, result)
+            if result:
+                item = result[0]
+                logger.debug(
+                    "delete_user_preferences, delete an exising record: %s / %s (%s)",
+                    prefs_type, user, item['_id']
+                )
+                # Delete existing record ...
+                return self.delete_object('uipref', item['_id'])
+        except Exception as e:  # pragma: no cover - need specific backend tests
+            logger.error("delete_user_preferences, exception: %s", str(e))
+            logger.error("traceback: %s", traceback.format_exc())
+            raise e
+
+        return False
+
+    def set_user_preferences(self, user, prefs_type, value):
+        """
+        Set user's preferences
+
+        If an exception occurs, it is raised to the caller.
+
+        This function returns True if the data were stored, else False if a problem was encountered.
+
+        **Note**: When a simple value is stored (value parameter is not a dictionary), it is
+        it is stored in a dictionary containing a 'value' property.
+
+        :param user: username
+        :type user: string
+        :param prefs_type: preference type
+        :type prefs_type: string
+        :param value: value of the parameter to store
+        :type value: dict
+        :return: True / False
+        :rtype: boolean
+        """
+        try:
+            logger.debug(
+                "set_user_preferences, type: %s, for: %s",
+                prefs_type, user
+            )
+
+            # Saved parameter must be a dictionary. Create a fake dictionary
+            if not isinstance(value, dict):
+                value = {'value': value}
+
+            # First, get to check if it exists
+            result = self.backend.get(
+                'uipref',
+                params={'where': {"type": prefs_type, "user": user}}
+            )
+            if result:
+                object_id = result[0]['_id']
+
+                # Update existing record ...
+                logger.debug(
+                    "set_user_preferences, update existing record: %s / %s (_id=%s)",
+                    prefs_type, user, object_id
+                )
+                data = {
+                    "user": user,
+                    "type": prefs_type,
+                    "data": value
+                }
+                response = self.backend.update('uipref', object_id, data=data)
+            else:
+                # Create new record ...
+                logger.debug(
+                    "set_user_preferences, create new record: %s / %s",
+                    prefs_type, user
+                )
+                data = {
+                    "user": user,
+                    "type": prefs_type,
+                    "data": value
+                }
+                response = self.backend.post('uipref', data=data)
+            logger.debug("set_user_preferences, response: %s", response)
+            return response
+
+        except Exception as e:  # pragma: no cover - should not happen
+            logger.error("set_user_preferences, exception: %s", str(e))
+            logger.error("traceback: %s", traceback.format_exc())
             return False
 
-        return True
+    def get_user_preferences(self, user, prefs_type, default=None):
+        """
+        Get user's preferences
+
+        If the data are not found, and no default value is provided, this function returns None. If
+        a default value is provided then this function returns the defaut value after having stored
+        it in the user's preferendes.
+
+        If prefs_type is None then this function returns all the user stored preferences.
+        If user is None then all the preferences are returned.
+
+        **Note**: When a simple value is stored with set_user_preferences, it is never returned as
+        a simple value but in a dictionary containing a 'value' property.
+
+        :param default:
+        :param user: username
+        :type user: string
+        :param prefs_type: preference type
+        :type prefs_type: string
+        :return: found data, or None
+        :rtype: dict
+        """
+        try:
+            logger.debug("get_user_preferences, type: %s, for: %s", prefs_type, user)
+
+            # All the preferences
+            if user is None:
+                return self.backend.get(
+                    'uipref', params={}, all_elements=True
+                )
+
+            # All the user preferences
+            if prefs_type is None:
+                return self.backend.get(
+                    'uipref', params={'where': {"user": user}}, all_elements=True
+                )
+
+            # Get required preference
+            result = self.backend.get(
+                'uipref',
+                params={'where': {"type": prefs_type, "user": user}}
+            )
+            # logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
+            if result:
+                # logger.debug("get_user_preferences, found: %s", result)
+                return result[0]['data']
+
+        except Exception as e:  # pragma: no cover - should never happen
+            logger.error("get_user_preferences, exception: %s", str(e))
+            logger.error("traceback: %s", traceback.format_exc())
+            return None
+
+        logger.debug("get_user_preferences, not found, default value: %s", default)
+        if default is not None and self.set_user_preferences(user, prefs_type, default):
+            # No default value...
+            return self.get_user_preferences(user, prefs_type)
+
+        return None
+
+    ##
+    # Livestate
+    ##
+    def get_livestate(self, search=None):
+        """ Get livestate for all elements
+
+            Elements in the livestate which type is 'host' or 'service'
+
+            :param search: backend request search
+            :type search: dic
+            :return: list of hosts/services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1, 'service': 1}})
+
+        try:
+            logger.debug("get_livestate, search: %s", search)
+            items = self.find_object('livestate', search)
+            return items
+        except ValueError:
+            logger.debug("get_livestate, none found")
+
+    def get_livestate_hosts(self, search=None):
+        """ Get livestate for hosts
+
+            Elements in the livestate which type is 'host'
+
+            :param search: backend request search
+            :type search: dic
+            :return: list of hosts live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1}})
+        if 'where' not in search:
+            search.update({'where': {'type': 'host'}})
+        elif 'type' not in search['where']:
+            search['where'].update({'type': 'host'})
+
+        try:
+            logger.debug("get_livestate_hosts, search: %s", search)
+            items = self.find_object('livestate', search)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_livestate_hosts, none found")
+
+    def get_livestate_services(self, search=None):
+        """ Get livestate for services
+
+            Elements in the livestate which type is 'service'
+
+            :param search: backend request search
+            :type search: dic
+            :return: list of services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'service': 1}})
+        if 'where' not in search:
+            search.update({'where': {'type': 'service'}})
+        elif 'type' not in search['where']:
+            search['where'].update({'type': 'service'})
+
+        try:
+            logger.debug("get_livestate_services, search: %s", search)
+            items = self.find_object('livestate', search)
+            return items
+        except ValueError:
+            logger.debug("get_livestate_services, none found")
+
+    def get_livesynthesis(self, search=None):
+        """ Get livestate synthesis for hosts and services
+
+            Example backend response::
+
+                {
+                    'services_total': 89,
+                    'services_business_impact': 0,
+                    'services_ok_hard': 8,
+                    'services_ok_soft': 0,
+                    'services_warning_hard': 0,
+                    'services_warning_soft': 0,
+                    'services_critical_hard': 83,
+                    'services_critical_soft': -23,
+                    'services_unknown_hard': 24,
+                    'services_unknown_soft': -3,
+                    'services_acknowledged': 0,
+                    'services_flapping': 0,
+                    'services_in_downtime': 0,
+
+                    'hosts_total': 13,
+                    'hosts_business_impact': 0,
+                    'hosts_up_hard': 3,
+                    'hosts_up_soft': 0,
+                    'hosts_down_hard': 14,
+                    'hosts_down_soft': -4,
+                    'hosts_unreachable_hard': 0,
+                    'hosts_unreachable_soft': 0,
+                    'hosts_acknowledged': 0,
+                    'hosts_flapping': 0,
+                    'hosts_in_downtime': 0,
+
+                    ... / ...
+                }
+
+            Returns an hosts_synthesis dictionary containing:
+            - number of elements
+            - business impact
+            - count for each state (hard and soft)
+            - percentage for each state (hard and soft)
+            - number of problems (down and unreachable, only hard state)
+            - percentage of problems
+
+            Returns a services_synthesis dictionary containing:
+            - number of elements
+            - business impact
+            - count for each state (hard and soft)
+            - percentage for each state (hard and soft)
+            - number of problems (down and unreachable, only hard state)
+            - percentage of problems
+
+            :return: hosts and services live state synthesis in a dictionary
+            :rtype: dict
+        """
+        if not search:
+            search = {}
+
+        default_ls = {
+            'hosts_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_up': 0, 'pct_up': 100.0,
+                'nb_up_hard': 0, 'nb_up_soft': 0,
+                'nb_down': 0, 'pct_down': 0.0,
+                'nb_down_hard': 0, 'nb_down_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
+            },
+            'services_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_ok': 0, 'pct_ok': 100.0,
+                'nb_ok_hard': 0, 'nb_ok_soft': 0,
+                'nb_warning': 0, 'pct_warning': 0.0,
+                'nb_warning_hard': 0, 'nb_warning_soft': 0,
+                'nb_critical': 0, 'pct_critical': 0.0,
+                'nb_critical_hard': 0, 'nb_critical_soft': 0,
+                'nb_unknown': 0, 'pct_unknown': 0.0,
+                'nb_unknown_hard': 0, 'nb_unknown_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0
+            }
+        }
+
+        try:
+            logger.debug("get_livesynthesis, search: %s", search)
+            items = self.find_object('livesynthesis', search)
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_livesynthesis, none found")
+            return default_ls
+
+        if not items:
+            return default_ls
+        ls = items[0]
+
+        # Services synthesis
+        hosts_synthesis = {
+            'nb_elts': ls["hosts_total"],
+            'business_impact': ls["hosts_business_impact"],
+            'critical_threshold': 5.0,
+            'warning_threshold': 2.0,
+            'global_critical_threshold': 5.0,
+            'global_warning_threshold': 2.0,
+        }
+        for state in 'up', 'down', 'unreachable':
+            hosts_synthesis.update({
+                "nb_%s_hard" % state: ls["hosts_%s_hard" % state]
+            })
+            hosts_synthesis.update({
+                "nb_%s_soft" % state: ls["hosts_%s_soft" % state]
+            })
+            hosts_synthesis.update({
+                "nb_" + state: ls["hosts_%s_hard" % state] + ls["hosts_%s_soft" % state]
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping':
+            hosts_synthesis.update({
+                "nb_" + state: ls["hosts_%s" % state]
+            })
+        hosts_synthesis.update({
+            "nb_problems": ls["hosts_down_hard"] + ls["hosts_unreachable_hard"]
+        })
+        for state in 'up', 'down', 'unreachable':
+            hosts_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                ) if hosts_synthesis['nb_elts'] else 0.0
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+            hosts_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                ) if hosts_synthesis['nb_elts'] else 0.0
+            })
+
+        # Services synthesis
+        services_synthesis = {
+            'nb_elts': ls["services_total"],
+            'business_impact': ls["services_business_impact"],
+            'critical_threshold': 5.0,
+            'warning_threshold': 2.0,
+            'global_critical_threshold': 5.0,
+            'global_warning_threshold': 2.0,
+        }
+        for state in 'ok', 'warning', 'critical', 'unknown':
+            services_synthesis.update({
+                "nb_%s_hard" % state: ls["services_%s_hard" % state]
+            })
+            services_synthesis.update({
+                "nb_%s_soft" % state: ls["services_%s_soft" % state]
+            })
+            services_synthesis.update({
+                "nb_" + state: ls["services_%s_hard" % state] + ls["services_%s_soft" % state]
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping':
+            services_synthesis.update({
+                "nb_" + state: ls["services_%s" % state]
+            })
+        services_synthesis.update({
+            "nb_problems": ls["services_warning_hard"] + ls["services_critical_hard"]
+        })
+        for state in 'ok', 'warning', 'critical', 'unknown':
+            services_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                ) if services_synthesis['nb_elts'] else 0.0
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+            services_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                ) if services_synthesis['nb_elts'] else 0.0
+            })
+
+        synthesis = {
+            'hosts_synthesis': hosts_synthesis,
+            'services_synthesis': services_synthesis
+        }
+        logger.debug("live synthesis, %s", synthesis)
+        return synthesis
+
+    ##
+    # Actions
+    ##
+    def add_acknowledge(self, data):
+        """ Request to acknowledge a problem. """
+
+        logger.info("add_acknowledge, request an acknowledge, data: %s", data)
+        return self.add_object('actionacknowledge', data)
+
+    def add_recheck(self, data):
+        """ Request to re-check an host/service. """
+
+        logger.info("add_recheck, request a recheck, data: %s", data)
+        return self.add_object('actionforcecheck', data)
+
+    def add_downtime(self, data):
+        """ Request to schedule a downtime. """
+
+        logger.info("add_downtime, request a downtime, data: %s", data)
+        return self.add_object('actiondowntime', data)
+
+    ##
+    # hostgroups
+    ##
+    def get_hostgroups(self, search=None, all_elements=False):
+        """ Get a list of all hostgroups. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': '_level'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_parent': 1
+                }
+            })
+
+        try:
+            logger.debug("get_hostgroups, search: %s", search)
+            items = self.find_object('hostgroup', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_hostgroups, none found")
+
+        return []
+
+    def get_hostgroup(self, search):
+        """ Get a hostgroup by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_hostgroups(search=search)
+        return items[0] if items else None
+
+    ##
+    # hostdependencys
+    ##
+    def get_hostdependencys(self, search=None, all_elements=False):
+        """ Get a list of all host dependencies. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'dependent_hosts': 1, 'dependent_hostgroups': 1,
+                    'hosts': 1, 'hostgroups': 1
+                }
+            })
+
+        try:
+            logger.warning("get_hostdependencys, search: %s", search)
+            items = self.find_object('hostdependency', search, all_elements)
+            logger.warning("get_hostdependencys, found: %s", items)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_hostdependencys, none found")
+
+        return []
+
+    def get_hostdependency(self, search):
+        """ Get a hostdependency by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_hostdependencys(search=search)
+        return items[0] if items else None
 
     ##
     # Hosts
     ##
-    def get_hosts(self, search=None):
+    def get_hosts(self, search=None, template=False, all_elements=False):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'where' not in search:
+            search.update({'where': {'_is_template': template}})
+        elif '_is_template' not in search['where']:
+            search['where'].update({'_is_template': template})
         if 'embedded' not in search:
-            search.update({'embedded': {'userservice_session': 1, 'user': 1}})
+            search.update({
+                'embedded': {
+                    'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
+                    'check_period': 1, 'notification_period': 1,
+                    'snapshot_period': 1, 'maintenance_period': 1,
+                    'parents': 1, 'hostgroups': 1, 'users': 1, 'usergroups': 1
+                }
+            })
 
         try:
-            logger.info("get_hosts, search: %s", search)
-            items = self.find_object('host', search)
-            logger.info("get_hosts, got: %d elements, %s", len(items), items)
+            logger.debug("get_hosts, search: %s", search)
+            items = self.find_object('host', search, all_elements)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hosts, none found")
 
         return []
@@ -666,59 +1084,176 @@ class DataManager(object):
         items = self.get_hosts(search=search)
         return items[0] if items else None
 
-    def get_hosts_synthesis(self, elts=None):
+    ##
+    # servicegroups
+    ##
+    def get_servicegroups(self, search=None, all_elements=False):
+        """ Get a list of all servicegroups. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+
+        try:
+            logger.debug("get_servicegroups, search: %s", search)
+            items = self.find_object('servicegroup', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_servicegroups, none found")
+
+        return []
+
+    def get_servicegroup(self, search):
+        """ Get a servicegroup by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_servicegroups(search=search)
+        return items[0] if items else None
+
+    ##
+    # Services
+    ##
+    def get_services(self, search=None, template=False, all_elements=False):
+        """ Get a list of all services. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'where' not in search:
+            search.update({'where': {'_is_template': template}})
+        elif '_is_template' not in search['where']:
+            search['where'].update({'_is_template': template})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'host': 1,
+                    'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
+                    'check_period': 1, 'notification_period': 1,
+                    'snapshot_period': 1, 'maintenance_period': 1,
+                    'service_dependencies': 1, 'servicegroups': 1, 'users': 1, 'usergroups': 1
+                }
+            })
+
+        try:
+            logger.debug("get_services, search: %s", search)
+            items = self.find_object('service', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_services, none found")
+
+        return []
+
+    def get_service(self, search):
+        """ Get a service by its id (default). """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_services(search=search)
+        return items[0] if items else None
+
+    def get_services_synthesis(self, elts=None):
         """
-        Hosts synthesis by status
+        Services synthesis by status
         """
         if elts:
-            hosts = [item for item in elts if item.getType() == 'host']
+            services = [item for item in elts if item.get_type() == 'service']
         else:
-            # Use internal object list ...
-            hosts = [item for _id, item in Host.getCache().items()]
-        logger.debug("get_hosts_synthesis, %d hosts", len(hosts))
+            services = self.get_services()
+        logger.debug("get_services_synthesis, %d services", len(services))
 
         synthesis = dict()
-        synthesis['nb_elts'] = len(hosts)
+        synthesis['nb_elts'] = len(services)
         synthesis['nb_problem'] = 0
-        if hosts:
-            for state in 'up', 'unreachable', 'down', 'unknown':
+        if services:
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = sum(
-                    1 for host in hosts if host.get_status().lower() == state
+                    1 for service in services if service.status.lower() == state
                 )
                 synthesis['pct_' + state] = round(
                     100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
                 )
         else:
-            for state in 'up', 'unreachable', 'down', 'unknown':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = 0
                 synthesis['pct_' + state] = 0
 
-        logger.debug("get_hosts_synthesis: %s", synthesis)
+        logger.debug("get_services_synthesis: %s", synthesis)
         return synthesis
 
-    def add_host(self, data, files):
-        """
-        Add a host.
-        Update the concerned session internal objects.
-        """
+    ##
+    # Logs
+    ##
+    def get_logcheckresult(self, search=None):
+        """ Get log for all elements
 
-        return self.add_object('host', data, files)
+            Elements in the log which type is 'host' or 'service'
+
+            :param search: backend request search
+            :type search: dic
+            :return: list of hosts/services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-business_impact,-state_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1, 'service': 1}})
+
+        try:
+            logger.debug("get_logcheckresult, search: %s", search)
+            items = self.find_object('logcheckresult', search)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_logcheckresult, none found")
+
+    ##
+    # History
+    ##
+    def get_history(self, search=None):
+        """ Get history
+
+            :param search: backend request search
+            :type search: dic
+            :return: list of hosts/services live states
+            :rtype: list
+        """
+        if not search:
+            search = {}
+        if "sort" not in search:
+            search.update({'sort': '-_id'})
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1, 'service': 1, 'logcheckresult': 1}})
+
+        try:
+            logger.debug("get_history, search: %s", search)
+            items = self.find_object('history', search)
+            return items
+        except ValueError:
+            logger.debug("get_history, none found")
 
     ##
     # Commands
     ##
-    def get_commands(self, search=None):
+    def get_commands(self, search=None, all_elements=False):
         """ Get a list of all commands. """
         if search is None:
             search = {}
-        if 'embedded' not in search:
-            search.update({'embedded': {'userservice_session': 1, 'user': 1}})
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
 
         try:
-            logger.info("get_commands, search: %s", search)
-            items = self.find_object('command', search)
+            logger.debug("get_commands, search: %s", search)
+            items = self.find_object('command', search, all_elements)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_commands, none found")
 
         return []
@@ -734,56 +1269,95 @@ class DataManager(object):
         items = self.get_commands(search=search)
         return items[0] if items else None
 
-    def get_commands_synthesis(self, elts=None):
-        """
-        Documents synthesis by status
-        """
-        if elts:
-            commands = [item for item in elts if item.getType() == 'command']
-        else:
-            # Use internal object list ...
-            commands = [item for _id, item in Command.getCache().items()]
-        logger.debug("get_commands_synthesis, %d commands", len(commands))
+    ##
+    # usergroups
+    ##
+    def get_usergroups(self, search=None, all_elements=False):
+        """ Get a list of all usergroups. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': '_level'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_parent': 1
+                }
+            })
 
-        synthesis = dict()
-        synthesis['nb_elts'] = len(commands)
-        if commands:
-            for state in 'attached', 'empty', 'problem', 'unknown':
-                synthesis['nb_' + state] = sum(
-                    1 for command in commands if command.get_status().lower() == state
-                )
-                synthesis['pct_' + state] = round(
-                    100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
-                )
-        else:
-            for state in 'attached', 'empty', 'problem', 'unknown':
-                synthesis['nb_' + state] = 0
-                synthesis['pct_' + state] = 0
+        try:
+            logger.debug("get_usergroups, search: %s", search)
+            items = self.find_object('usergroup', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_usergroups, none found")
 
-        logger.debug("get_commands_synthesis: %s", synthesis)
-        return synthesis
+        return []
 
-    def add_command(self, data):  # pragma: no cover, not yet implemented!
-        """
-        Add a command.
-        Update the concerned session internal objects.
-        """
+    def get_usergroup(self, search):
+        """ Get a usergroup by its id. """
 
-        return self.add_object('command', data)
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_usergroups(search=search)
+        return items[0] if items else None
 
     ##
     # Users
     ##
-    def get_users(self, search=None):
+    def get_userrestrictroles(self, search=None, all_elements=False):
+        """ Get a list of known users """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'user'})
+
+        try:
+            logger.debug("get_userrestrictroles, search: %s", search)
+            items = self.find_object('userrestricrole', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_userrestrictroles, none found")
+
+        return []
+
+    def get_userrestrictrole(self, search):
+        """
+        Get a userrestricrole by its id or a search pattern
+        """
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_userrestrictroles(search=search)
+        return items[0] if items else None
+
+    def get_users(self, search=None, all_elements=False):
         """ Get a list of known users """
         if not self.get_logged_user().is_administrator():
             return [self.get_logged_user()]
 
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    'host_notification_commands': 1,
+                    'service_notification_commands': 1
+                }
+            })
+
         try:
-            logger.info("get_users, search: %s", search)
-            items = self.find_object('contact', search)
+            logger.debug("get_users, search: %s", search)
+            items = self.find_object('user', search, all_elements)
             return items
-        except ValueError:
+        except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_users, none found")
 
         return []
@@ -810,13 +1384,13 @@ class DataManager(object):
 
         Cannot delete the currently logged in user ...
 
-        If user is a string it is assumed to be the User object id to be searched in the objects
-        cache.
+        If user is a string it is assumed to be the User object id to be searched in
+        the objects cache.
 
         :param user: User object instance
         :type user: User (or string)
 
-        Returns True/False depending if user closed
+        Returns True/False depending if user has been deleted
         """
         logger.info("delete_user, request to delete the user: %s", user)
 
@@ -825,9 +1399,72 @@ class DataManager(object):
             if not user:
                 return False
 
-        user_id = user.get_id()
-        if user_id == self.get_logged_user().get_id():
-            logger.warning("delete_user, request to delete the current logged-in user: %s", user_id)
+        user_id = user.id
+        if user_id == self.get_logged_user().id:
+            logger.warning(
+                "unauthorized request to delete the current logged-in user: %s",
+                user_id
+            )
             return False
 
         return self.delete_object('user', user)
+
+    ##
+    # realms
+    ##
+    def get_realms(self, search=None, all_elements=False):
+        """ Get a list of all realms. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+
+        try:
+            logger.debug("get_realms, search: %s", search)
+            items = self.find_object('realm', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_realms, none found")
+
+        return []
+
+    def get_realm(self, search):
+        """ Get a realm by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_realms(search=search)
+        return items[0] if items else None
+
+    ##
+    # timeperiods
+    ##
+    def get_timeperiods(self, search=None, all_elements=False):
+        """ Get a list of all timeperiods. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+
+        try:
+            logger.debug("get_timeperiods, search: %s", search)
+            items = self.find_object('timeperiod', search, all_elements)
+            return items
+        except ValueError:
+            logger.debug("get_timeperiods, none found")
+
+        return []
+
+    def get_timeperiod(self, search):
+        """ Get a timeperiod by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_timeperiods(search=search)
+        return items[0] if items else None

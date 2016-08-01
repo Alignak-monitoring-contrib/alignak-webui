@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=redefined-variable-type, global-statement
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -19,7 +18,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
-
 """
 Usage:
     {command} [-h] [-v] [-d] [-x] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
@@ -27,9 +25,9 @@ Usage:
 Options:
     -h, --help                  Show this screen.
     -v, --version               Show application version.
-    -b, --backend url           Specify backend URL [default: http://94.76.229.155:90]
+    -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
     -n, --hostname host         Specify WebUI host (or ip address) [default: 127.0.0.1]
-    -p, --port port             Specify WebUI port [default: 8868]
+    -p, --port port             Specify WebUI port [default: 5001]
     -d, --debug                 Run in debug mode (more info to display) [default: False]
     -x, --exit                  Start application but do not run server [default: False]
 
@@ -45,8 +43,8 @@ Use cases:
     Run application in normal mode (open outside):
         {command} -b=backend -n=0.0.0.0
 
-    Run application in debug mode:
-        {command} -d -b=backend -n=0.0.0.0 -p=8868
+    Run application in debug mode and listen on all interfaces:
+        {command} -d -b=backend -n=0.0.0.0 -p=5001
 
     Exit code:
         0 if all is ok
@@ -56,28 +54,23 @@ Use cases:
         99 application started but server not run (test application start)
 
 """
+from __future__ import print_function
+
 import os
 import traceback
 
 # Logs
-from logging import DEBUG, INFO
-from logging import Formatter, StreamHandler, getLogger
-from logging.handlers import TimedRotatingFileHandler
+from logging import getLogger
 
-# Color logs when in console mode ...
-# from sys import stdout
-# from termcolor import cprint
+# Bottle import
+from bottle import run
 
 # Command line interpreter
 from docopt import docopt
 from docopt import DocoptExit
 
-# Bottle import
-from bottle import run, BaseTemplate
-
 # Settings
 from alignak_webui.utils.settings import Settings
-from alignak_webui.utils.logs import set_console_logger, set_file_logger
 
 # Application
 from alignak_webui import manifest, webapp
@@ -93,20 +86,20 @@ cfg_file = None
 
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
-    print "Application is in test mode"
-else:
-    print "Application is in production mode"
+    print("Application is in test mode")
+else:  # pragma: no cover - tests are run in test mode...
+    print("Application is in production mode")
 
-if os.environ.get('TEST_WEBUI_CFG'):
-    cfg_file = os.environ.get('TEST_WEBUI_CFG')
-    print "Application configuration file name from environment: %s" % cfg_file
+if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
+    cfg_file = os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE')
+    print("Application configuration file name from environment: %s" % cfg_file)
 
 # Read configuration file
 app_config = Settings(cfg_file)
 config_file = app_config.read(manifest['name'])
-print "Configuration read from: %s" % config_file
+print("Configuration read from: %s" % config_file)
 if not app_config:  # pragma: no cover, should never happen
-    print "Required configuration file not found."
+    print("Required configuration file not found.")
     exit(1)
 
 # Store application name in the configuration
@@ -114,19 +107,20 @@ app_config['name'] = manifest['name']
 
 # Debug mode for the application (run Bottle in debug mode)
 app_config['debug'] = (app_config.get('debug', '0') == '1')
-print "Application debug mode: %s" % app_config['debug']
+print("Application debug mode: %s" % app_config['debug'])
 
 if __name__ != "__main__":
     # Make the configuration available globally for the package
     set_app_config(app_config)
 
     # Make the application available globally for the package
-    app_webui = set_app_webui(WebUI())
+    app_webui = set_app_webui(WebUI(app_config))
 
 
 # --------------------------------------------------------------------------------------------------
 # Main function
 def main():  # pragma: no cover, not mesured by coverage!
+    # pylint: disable=redefined-variable-type, global-statement
     """
         Called when this module is started from shell
     """
@@ -134,21 +128,20 @@ def main():  # pragma: no cover, not mesured by coverage!
 
     # ----------------------------------------------------------------------------------------------
     # Command line parameters
+    args = {
+        '--debug': False,
+        '--backend': None,
+        '--hostname': None,
+        '--port': None,
+        '--exit': False
+    }
+
     if __name__ == "__main__":  # pragma: no cover, not mesured by coverage!
         try:
             args = docopt(__doc__, version=manifest['version'])
         except DocoptExit:
-            print "Command line parsing error"
+            print("Command line parsing error")
             exit(64)
-    else:
-        args = {
-            '--debug': False,
-            '--backend': None,
-            '--hostname': None,
-            '--port': None,
-            '--exit': False
-        }
-
     # Application settings
     # ----------------------------------------------------------------------------------------------
     # Configuration file path in command line parameters
@@ -161,9 +154,9 @@ def main():  # pragma: no cover, not mesured by coverage!
         # Read configuration file
         app_config = Settings(cfg_file)
         new_config_file = app_config.read(manifest['name'])
-        print "Configuration read from: %s" % new_config_file
+        print("Configuration read from: %s" % new_config_file)
         if not app_config:  # pragma: no cover, should never happen
-            print "Required configuration file not found."
+            print("Required configuration file not found.")
             exit(1)
 
     # Store application name in the configuration
@@ -171,11 +164,11 @@ def main():  # pragma: no cover, not mesured by coverage!
 
     if '--debug' in args and args['--debug']:  # pragma: no cover, not mesured by coverage!
         app_config['debug'] = '1'
-        print "Application is in debug mode from command line"
+        print("Application is in debug mode from command line")
 
     if os.environ.get('WEBUI_DEBUG'):  # pragma: no cover, not mesured by coverage!
         app_config['debug'] = '1'
-        print "Application is in debug mode from environment"
+        print("Application is in debug mode from environment")
 
     # Applications backend URL
     if args['--backend']:  # pragma: no cover, not mesured by coverage!
@@ -191,36 +184,18 @@ def main():  # pragma: no cover, not mesured by coverage!
     set_app_config(app_config)
 
     # Make the application available globally for the package
-    app_webui = set_app_webui(WebUI())
+    app_webui = set_app_webui(WebUI(app_config))
 
     try:
-        logger.info(
-            "--------------------------------------------------------------------------------"
-        )
-        logger.info(
-            "%s, listening on %s:%d (debug mode: %s)",
-            app_config.get('name', 'Test'),
-            app_config.get('host', '127.0.0.1'), int(app_config.get('port', '8868')),
-            app_config.get('debug', '0') == '1'
-        )
-        logger.info(
-            "%s, using applications backend on %s",
-            app_config.get('name', 'Test'),
-            app_config['alignak_backend']
-        )
-        logger.info(
-            "--------------------------------------------------------------------------------"
-        )
-
         if args['--exit']:
-            print "Application exit because of command line parameter"
+            print("Application exit because of command line parameter")
             exit(99)
 
         # Run application server...
         run(
             app=webapp,
             host=app_config.get('host', '127.0.0.1'),
-            port=int(app_config.get('port', 8868)),
+            port=int(app_config.get('port', 5001)),
             debug=(app_config.get('debug', '0') == '1'),
             server=app_config.get('http_backend', 'cherrypy')
         )
