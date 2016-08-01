@@ -45,9 +45,9 @@ Development release (develop branch)
 Releases
 ========
 
-Version 0.50.5
---------------
- First released version
+ - Version 0.50.5
+
+    First released version
 
 
 Documentation
