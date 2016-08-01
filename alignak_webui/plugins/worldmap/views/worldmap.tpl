@@ -8,20 +8,31 @@
 
 %from alignak_webui.utils.helper import Helper
 
+<script>
+   $(document).ready(function() {
+      // Map height to be scaled inside the window
+      var mapOffset = $('#{{mapId}}').offset().top;
+      var footerOffset = $('footer').offset().top;
+      $('#{{mapId}}').height(footerOffset - mapOffset - 35)
+
+      mapResize_{{mapId}}();
+   });
+</script>
+
 <!-- HTML map container -->
 <div class="map_container">
    %if not hosts:
    <div class="panel-heading">
       <center class="alert-warning">
-         <h3>We couldn't find any hosts to locate on a map.</h3>
+         <h3>{{_('We could not find any hosts to locate on a map.')}}</h3>
       </center>
    </div>
    %else:
-     <div id="{{mapId}}" class="osm">
-       <div class="alert alert-info">
-          <a href="#" class="alert-link">Loading map ...</a>
-       </div>
-     </div>
+      <div id="{{mapId}}">
+         <div class="alert alert-info">
+            <a href="#" class="alert-link">Loading map ...</a>
+         </div>
+      </div>
    %end
 
    %include("_worldmap")

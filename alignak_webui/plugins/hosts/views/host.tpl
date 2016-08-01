@@ -430,8 +430,7 @@
 
       // Tabs management
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-         console.log(e.target); // newly activated tab
-         console.log(e.relatedTarget); // previous active tab
+         // Changed tab
       })
    });
  </script>

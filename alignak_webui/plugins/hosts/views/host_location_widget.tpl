@@ -13,30 +13,33 @@
    var cssfiles=['/static/plugins/worldmap/htdocs/css/worldmap.css', '/static/plugins/worldmap/htdocs/css/leaflet.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.Default.css', '/static/plugins/worldmap/htdocs/css/leaflet.label.css'];
 
    $.getCssFiles(cssfiles, function(){
-       // do something, e.g.
-       // console.log('Loaded all CSS files!');
+      // do something, e.g.
+      // console.log('Loaded all CSS files!');
    });
 
    // Tabs management
    $('a[href="#host_tab_location"]').on("shown.bs.tab", function(e) {
-      console.log("Host location show {{mapId}}...");
+      // Map height to be scaled inside the window
+      var mapOffset = $('#{{mapId}}').offset().top;
+      var footerOffset = $('footer').offset().top;
+      $('#{{mapId}}').height(footerOffset - mapOffset - 35)
+
       mapResize_{{mapId}}();
    });
    $('a[href="#host_tab_location"]').on("hidden.bs.tab", function(e) {
-      console.log("Host location hide...");
    });
 </script>
 <!-- HTML map container -->
-<div class="map_container_widget">
+<div class="map_container">
    %if not hosts:
       <center>
-         <h3>We couldn't find any hosts to locate on a map.</h3>
+         <h3>{{_('We could not find any hosts to locate on a map.')}}</h3>
       </center>
    %else:
-      <div id="{{mapId}}" class="osm">
-        <div class="alert alert-info">
+      <div id="{{mapId}}">
+         <div class="alert alert-info">
            <a href="#" class="alert-link">{{_('Loading map ...')}}</a>
-        </div>
+         </div>
       </div>
    %end
 </div>

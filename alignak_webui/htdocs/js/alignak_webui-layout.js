@@ -125,10 +125,12 @@ $.extend({
       if (typeof nocache=='undefined') nocache=false; // default don't refresh
       $.when(
          $.each(urls, function(i, url){
-            if (nocache) url += '?_ts=' + new Date().getTime(); // refresh?
-            $.get(url, function(){
-               $('<link>', {rel:'stylesheet', type:'text/css', 'href':url}).appendTo('head');
-            });
+            if (! $('link[href="' + url + '"]').length) {
+               if (nocache) url += '?_ts=' + new Date().getTime(); // refresh?
+               $.get(url, function(){
+                  $('<link>', {rel:'stylesheet', type:'text/css', 'href':url}).appendTo('head');
+               });
+            }
          })
       ).then(function(){
          if (typeof callback=='function') callback();
