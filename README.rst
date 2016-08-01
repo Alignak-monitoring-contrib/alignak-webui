@@ -1,10 +1,13 @@
 Alignak Web UI
-==============
+##############
 
 *Web User Interface for Alignak monitoring framework ...*
 
-Build status (stable release)
-----------------------------------------
+Build status
+============
+
+Stable release (master branch)
+-----------------------------
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=master
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
@@ -21,8 +24,8 @@ Build status (stable release)
   :target: http://alignak-web-ui.readthedocs.io/?badge=latest
   :alt: Documentation Status
 
-Build status (development release)
-----------------------------------------
+Development release (develop branch)
+------------------------------------
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
@@ -39,28 +42,28 @@ Build status (development release)
   :target: http://alignak-web-ui.readthedocs.io/?badge=develop
   :alt: Documentation Status
 
-Release notes
--------------
+Releases
+========
 
 Version 0.50.5
-~~~~~~~~~~~~~~
+--------------
  First released version
 
 
 Documentation
-----------------------------------------
+=============
 
 You can find online documentation on `Read The Docs <http://alignak-web-ui.readthedocs.org/en/latest/index.html>`_ and in the */docs* directory.
 
 
 Bugs, issues and contributing
-----------------------------------------
+=============================
 
 Contributions to this project are welcome and encouraged, but please have a look to the `contributing guidelines <./CONTRIBUTING.md/>`_  before raising an issue, or writing code for the project.
 
 
 License
-----------------------------------------
+=======
 
 Alignak WebUI is available under the `GPL version 3 <http://opensource.org/licenses/GPL-3.0>`_.
 
