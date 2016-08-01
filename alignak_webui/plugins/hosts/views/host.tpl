@@ -95,6 +95,7 @@
             %end
          </div>
       </div>
+      %if children:
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
@@ -121,6 +122,8 @@
             %end
          </div>
       </div>
+      %end
+      %if parents:
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
@@ -147,6 +150,7 @@
             %end
          </div>
       </div>
+      %end
    </div>
    %end
 
@@ -260,9 +264,9 @@
 
             <dl class="col-sm-6 col-md-4">
                <dt>{{_('Parents:')}}</dt>
-               %if host.parents:
+               %if parents:
                %for parent in parents:
-               %for parent_host in child.hosts:
+               %for parent_host in parent.hosts:
                <dd>
                {{! parent_host.html_state_link}}
                </dd>
