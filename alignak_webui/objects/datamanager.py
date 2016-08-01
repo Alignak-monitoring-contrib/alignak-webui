@@ -1011,7 +1011,7 @@ class DataManager(object):
         if search is None:
             search = {}
         if 'sort' not in search:
-            search.update({'sort': '_level'})
+            search.update({'sort': 'name'})
         if 'embedded' not in search:
             search.update({
                 'embedded': {
