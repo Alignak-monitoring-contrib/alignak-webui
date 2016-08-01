@@ -1,14 +1,13 @@
 Alignak Web UI
 ==============
 
-*Web User Interface for Alignak backend ...*
+*Web User Interface for Alignak monitoring framework ...*
 
 Build status (stable release)
 ----------------------------------------
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=master
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
-   :alt: Code tests
 
 .. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master/landscape.svg?style=flat
    :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master
@@ -27,7 +26,6 @@ Build status (development release)
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
-   :alt: Code tests
 
 .. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop/landscape.svg?style=flat
    :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop
@@ -40,6 +38,13 @@ Build status (development release)
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
   :target: http://alignak-web-ui.readthedocs.io/?badge=develop
   :alt: Documentation Status
+
+Release notes
+-------------
+
+Version 0.50.5
+==============
+ First released version
 
 
 Documentation
