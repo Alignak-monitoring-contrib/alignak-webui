@@ -718,10 +718,10 @@ def get_host(host_id):
     services = datamgr.get_services(search={'where': {'host': host.id}})
 
     # Get host dependencies
-    children = datamgr.get_hostdependencies(
+    children = datamgr.get_hostdependencys(
         search={'where': {'hosts': host.id}}
     )
-    parents = datamgr.get_hostdependencies(
+    parents = datamgr.get_hostdependencys(
         search={'where': {'dependent_hosts': host.id}}
     )
 

@@ -8,3 +8,7 @@ requirements:
   - test_requirements.txt
 python-targets:
   - 2
+ignore-paths:
+  - bin
+  - docs
+  - etc

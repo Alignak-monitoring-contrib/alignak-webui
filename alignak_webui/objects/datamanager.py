@@ -1004,9 +1004,9 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
-    # hostdependencies
+    # hostdependencys
     ##
-    def get_hostdependencies(self, search=None, all_elements=False):
+    def get_hostdependencys(self, search=None, all_elements=False):
         """ Get a list of all host dependencies. """
         if search is None:
             search = {}
@@ -1021,11 +1021,12 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_hostdependencies, search: %s", search)
+            logger.warning("get_hostdependencys, search: %s", search)
             items = self.find_object('hostdependency', search, all_elements)
+            logger.warning("get_hostdependencys, found: %s", items)
             return items
         except ValueError:  # pragma: no cover - should not happen
-            logger.debug("get_hostdependencies, none found")
+            logger.debug("get_hostdependencys, none found")
 
         return []
 
@@ -1037,7 +1038,7 @@ class DataManager(object):
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
-        items = self.get_hostdependencies(search=search)
+        items = self.get_hostdependencys(search=search)
         return items[0] if items else None
 
     ##
