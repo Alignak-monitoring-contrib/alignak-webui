@@ -93,7 +93,7 @@
          }
 
          if ($(this).data('format')=='select') {
-            var html = '<select class="sel_'+ $(this).data('type') +'"><option value=""></option>';
+            var html = '<select class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
             var allowed = $(this).data('allowed').split(',');
             $.each(allowed, function(idx){
                html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
