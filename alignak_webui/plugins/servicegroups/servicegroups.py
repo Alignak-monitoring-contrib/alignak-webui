@@ -244,7 +244,9 @@ def get_servicegroups_list():
 
     items = []
     for servicegroup in servicegroups:
-        items.append({'id': servicegroup.id, 'name': servicegroup.name, 'alias': servicegroup.alias})
+        items.append({
+            'id': servicegroup.id, 'name': servicegroup.name, 'alias': servicegroup.alias
+        })
 
     response.status = 200
     response.content_type = 'application/json'
