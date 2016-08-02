@@ -231,7 +231,7 @@ def get_usergroups_list():
 
     items = []
     for usergroup in usergroups:
-        items.append({'id': usergroup.id, 'name': usergroup.alias})
+        items.append({'id': usergroup.id, 'name': usergroup.name, 'alias': usergroup.alias})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -308,7 +308,7 @@ pages = {
     },
     get_usergroups: {
         'routes': [
-            ('/ysergroups', 'Users groups'),
+            ('/usergroups', 'Users groups'),
             ('/usergroups_tree', 'Users groups tree')
         ],
         'view': '_tree',

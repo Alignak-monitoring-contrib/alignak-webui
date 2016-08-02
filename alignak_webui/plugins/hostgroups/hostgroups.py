@@ -242,7 +242,7 @@ def get_hostgroups_list():
 
     items = []
     for hostgroup in hostgroups:
-        items.append({'id': hostgroup.id, 'name': hostgroup.alias})
+        items.append({'id': hostgroup.id, 'name': hostgroup.name, 'alias': hostgroup.alias})
 
     response.status = 200
     response.content_type = 'application/json'

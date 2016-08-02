@@ -712,6 +712,72 @@ class TestDatatableHosts(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
 
 
+class TestDatatableHostgroups(unittest2.TestCase):
+    def setUp(self):
+        print("")
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print('Data manager', self.dmg)
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print("")
+
+    def test_01_hosts_groups(self):
+        print('')
+        print('test hostgroup table')
+
+        global items_count
+
+        print('get page /hostgroups_table')
+        response = self.app.get('/hostgroups_table')
+        response.mustcontain(
+            '<div id="hostgroups_table" class="alignak_webui_table ">',
+            "$('#tbl_hostgroup').DataTable( {",
+            '<table id="tbl_hostgroup" ',
+            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="_level" data-type="integer">Level</th>',
+            '<th data-name="_parent" data-type="objectid">Parent</th>',
+            '<th data-name="hostgroups" data-type="list">Hosts groups members</th>'
+        )
+
+        response = self.app.post('/hostgroups_table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print(response.json['data'][x])
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
+                # assert 'hosts' in response.json['data'][x]
+                assert '_level' in response.json['data'][x] is not None
+                assert '_parent' in response.json['data'][x] is not None
+                assert 'hostgroups' in response.json['data'][x] is not None
+
+
 class TestDatatableServices(unittest2.TestCase):
     def setUp(self):
         print("")
@@ -798,70 +864,6 @@ class TestDatatableServices(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
 
 
-class TestDatatableHostgroups(unittest2.TestCase):
-    def setUp(self):
-        print("")
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def tearDown(self):
-        print("")
-
-    def test_01_hosts_groups(self):
-        print('')
-        print('test hostgroup table')
-
-        global items_count
-
-        print('get page /hostgroups_table')
-        response = self.app.get('/hostgroups_table')
-        response.mustcontain(
-            '<div id="hostgroups_table" class="alignak_webui_table ">',
-            "$('#tbl_hostgroup').DataTable( {",
-            '<table id="tbl_hostgroup" ',
-            '<th data-name="name" data-type="string">Name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Alias</th>',
-            '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="hostgroups" data-type="list">Hosts groups members</th>'
-        )
-
-        response = self.app.post('/hostgroups_table_data')
-        response_value = response.json
-        print(response_value)
-        # Temporary
-        items_count = response.json['recordsTotal']
-        # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count
-        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
-        assert response.json['data']
-        for x in range(0, items_count + 0):
-            # Only if lower than default pagination ...
-            if x < BACKEND_PAGINATION_DEFAULT:
-                print(response.json['data'][x])
-                assert response.json['data'][x]
-                assert response.json['data'][x]['name'] is not None
-                assert response.json['data'][x]['definition_order'] is not None
-                assert response.json['data'][x]['alias'] is not None
-                # assert 'hosts' in response.json['data'][x]
-                assert 'hostgroups' in response.json['data'][x] is not None
-
-
 class TestDatatableervicegroups(unittest2.TestCase):
     def setUp(self):
         print("")
@@ -922,6 +924,9 @@ class TestDatatableervicegroups(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['definition_order'] is not None
                 assert response.json['data'][x]['alias'] is not None
+                assert '_level' in response.json['data'][x] is not None
+                assert '_parent' in response.json['data'][x] is not None
+                assert 'servicegroups' in response.json['data'][x] is not None
 
 
 class TestDatatableUsers(unittest2.TestCase):
@@ -978,6 +983,71 @@ class TestDatatableUsers(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
+
+
+class TestDatatableUserGroups(unittest2.TestCase):
+    def setUp(self):
+        print("")
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print('Data manager', self.dmg)
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print("")
+
+    def test_usergroups(self):
+        print('')
+        print('test usergroup table')
+
+        global items_count
+
+        print('get page /usergroups_table')
+        response = self.app.get('/usergroups_table')
+        response.mustcontain(
+            '<div id="usergroups_table" class="alignak_webui_table ">',
+            "$('#tbl_usergroup').DataTable( {",
+            '<table id="tbl_usergroup" ',
+            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="_level" data-type="integer">Level</th>',
+            '<th data-name="_parent" data-type="objectid">Parent</th>',
+            '<th data-name="usergroups" data-type="list">Users groups members</th>'
+        )
+
+        response = self.app.post('/usergroups_table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print(response.json['data'][x])
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
+                assert '_level' in response.json['data'][x] is not None
+                assert '_parent' in response.json['data'][x] is not None
+                assert 'usergroups' in response.json['data'][x] is not None
 
 
 class TestDatatableLivestate(unittest2.TestCase):

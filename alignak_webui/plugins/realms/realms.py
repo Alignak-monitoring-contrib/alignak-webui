@@ -288,7 +288,7 @@ def get_realms_list():
 
     items = []
     for realm in realms:
-        items.append({'id': realm.id, 'name': realm.alias})
+        items.append({'id': realm.id, 'name': realm.name, 'alias': realm.alias})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -309,29 +309,7 @@ def get_realms_table_data():
     return get_table_data('realm', schema)
 
 
-def get_realm(realm_id):
-    """
-    Display the element linked to a realm item
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    realm = datamgr.get_realm({'where': {'_id': realm_id}})
-    if not realm:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Realm element does not exist'))
-
-    return {
-        'realm_id': realm_id,
-        'realm': realm,
-        'title': request.query.get('title', _('Realm view'))
-    }
-
-
 pages = {
-    get_realm: {
-        'name': 'Realm',
-        'route': '/realm/<realm_id>',
-        'view': 'realm'
-    },
     get_realms: {
         'routes': [
             ('/realms', 'Realms'),

@@ -783,11 +783,13 @@ class Test3Hostgroups(unittest2.TestCase):
             webapp
         )
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.session = response.request.environ['beaker.session']
+        self.datamgr = self.session['datamanager']
 
     def tearDown(self):
         response = self.app.get('/logout')
 
-    def test_3_10_hostgroups(self):
+    def test_1_hostgroups(self):
         print ''
         print 'test hostgroups'
 
@@ -798,6 +800,36 @@ class Test3Hostgroups(unittest2.TestCase):
             # '8 elements out of 8'
         )
 
+    def test_1_hostgroups_list(self):
+        print ''
+        print 'test hostgroups'
+
+        print 'get page /hostgroups_list'
+        response = self.app.get('/hostgroups_list')
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+
+    def test_1_hostgroups_members(self):
+        print ''
+        print 'test hostgroups members'
+
+        # Get a hostgroup
+        ug = self.datamgr.get_hostgroup({'where': {'alias': 'Servers'}})
+        self.assertEqual(ug.name, 'servers')
+
+        print 'get page /hostgroup/members'
+        response = self.app.get('/hostgroup/members/' + ug.id)
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+            assert 'icon' in item
+            assert 'url' in item
+
 
 class Test3Servicegroups(unittest2.TestCase):
     def setUp(self):
@@ -806,11 +838,13 @@ class Test3Servicegroups(unittest2.TestCase):
             webapp
         )
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.session = response.request.environ['beaker.session']
+        self.datamgr = self.session['datamanager']
 
     def tearDown(self):
         response = self.app.get('/logout')
 
-    def test_3_10_servicegroups(self):
+    def test_1_servicegroups(self):
         print ''
         print 'test servicegroups'
 
@@ -820,6 +854,91 @@ class Test3Servicegroups(unittest2.TestCase):
             '<div id="servicegroup_tree_view">',
             # '5 elements out of 5'
         )
+
+    def test_1_servicegroups_list(self):
+        print ''
+        print 'test servicegroups'
+
+        print 'get page /servicegroups_list'
+        response = self.app.get('/servicegroups_list')
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+
+    def test_1_servicegroups_members(self):
+        print ''
+        print 'test servicegroups members'
+
+        # Get a servicegroup
+        ug = self.datamgr.get_servicegroup({'where': {'alias': 'dev services group'}})
+        self.assertEqual(ug.name, 'dev')
+
+        print 'get page /servicegroup/members'
+        response = self.app.get('/servicegroup/members/' + ug.id)
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+            assert 'icon' in item
+            assert 'url' in item
+
+
+class Test3Usergroups(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.session = response.request.environ['beaker.session']
+        self.datamgr = self.session['datamanager']
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
+    def test_1_usergroups(self):
+        print ''
+        print 'test usergroups'
+
+        print 'get page /usergroups'
+        response = self.app.get('/usergroups')
+        response.mustcontain(
+            '<div id="usergroup_tree_view">',
+            # '5 elements out of 5'
+        )
+
+    def test_1_usergroups_list(self):
+        print ''
+        print 'test usergroups'
+
+        print 'get page /usergroups_list'
+        response = self.app.get('/usergroups_list')
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+
+    def test_1_usergroups_members(self):
+        print ''
+        print 'test usergroups members'
+
+        # Get a usergroup
+        ug = self.datamgr.get_usergroup({'where': {'alias': 'Administrators'}})
+        self.assertEqual(ug.name, 'admins')
+
+        print 'get page /usergroup/members'
+        response = self.app.get('/usergroup/members/' + ug.id)
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+            assert 'icon' in item
+            assert 'url' in item
 
 
 class Test3Realms(unittest2.TestCase):
@@ -833,7 +952,7 @@ class Test3Realms(unittest2.TestCase):
     def tearDown(self):
         response = self.app.get('/logout')
 
-    def test_3_11_realms(self):
+    def test_1_realms(self):
         print ''
         print 'test realms'
 
@@ -843,6 +962,19 @@ class Test3Realms(unittest2.TestCase):
             '<div id="realm_tree_view">',
             # '5 elements out of 5'
         )
+
+    def test_1_realms_list(self):
+        print ''
+        print 'test realms'
+
+        print 'get page /realms_list'
+        response = self.app.get('/realms_list')
+        print response.json
+        for item in response.json:
+            assert 'id' in item
+            assert 'name' in item
+            assert 'alias' in item
+
 
 
 class Test4TargetUser(unittest2.TestCase):
