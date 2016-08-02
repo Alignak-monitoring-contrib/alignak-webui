@@ -24,21 +24,34 @@
 
       <!-- Stylesheets
       ================================================== -->
-      <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-      <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
+      %else:
+      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
+      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
+      %end
       <link href="/static/css/font-awesome.min.css" rel="stylesheet">
       <link href="/static/css/alignak_webui.css" rel="stylesheet">
 
       %if request.app.config.get('material_design', '0') == '1':
+      <!-- Material Design fonts -->
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+
       <!-- Bootstrap Material Design -->
       <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
       <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      -->
       %end
 
       <!-- Scripts
       ================================================== -->
       <script src="/static/js/jquery-1.12.0.min.js"></script>
-      <script src="/static/js/bootstrap.min.js"></script>
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
+      %else:
+      <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
+      %end
 
       %if request.app.config.get('material_design', '0') == '1':
       <!-- Bootstrap Material Design -->

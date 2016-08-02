@@ -58,8 +58,14 @@
       <link rel="stylesheet" href="/static/css/font-awesome.min.css" >
       <link rel="stylesheet" href="/static/css/typeahead.css" >
       <link rel="stylesheet" href="/static/css/daterangepicker.css" >
+
+      <!-- alertify.js dialog boxes -->
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
+
+      <!-- selectize -->
+      <link rel="stylesheet" href="/static/css/selectize.css" >
+      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >
 
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
@@ -151,6 +157,9 @@
       alertify.defaults.theme.cancel = "btn btn-danger";
       alertify.defaults.theme.input = "form-control";
       </script>
+
+      <!-- selectize -->
+      <script type="text/javascript" src="/static/js/selectize.js"></script>
 
       <!-- jQuery Chart -->
       <script type="text/javascript" src="/static/js/Chart.min.js"></script>

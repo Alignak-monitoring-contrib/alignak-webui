@@ -46,9 +46,15 @@
 
       <!-- Stylesheets
       ================================================== -->
-      <link rel="stylesheet"href="/static/css/bootstrap.min.css" >
-      <link rel="stylesheet"href="/static/css/bootstrap-theme.min.css" >
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
+      %else:
+      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
+      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
+      %end
       <link rel="stylesheet"href="/static/css/font-awesome.min.css" >
+
+      <!-- alertify.js dialog boxes -->
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
@@ -63,13 +69,28 @@
       <!-- Scripts
       ================================================== -->
       <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
+      <!--
       <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
-      <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+      -->
+      %if request.app.config.get('bootstrap4', '0') == '1':
+      <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
+      %else:
+      <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
+      %end
 
-      <script type="text/javascript" src="/static/js/moment.min.js"></script>
+      <script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
 
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
+
+      <!-- alertify.js dialog boxes -->
       <script type="text/javascript" src="/static/js/alertify.min.js"></script>
+      <script type="text/javascript">
+      alertify.defaults.transition = "slide";
+      alertify.defaults.theme.ok = "btn btn-primary";
+      alertify.defaults.theme.cancel = "btn btn-danger";
+      alertify.defaults.theme.input = "form-control";
+      </script>
+
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
 
       <!-- jQuery Chart -->
