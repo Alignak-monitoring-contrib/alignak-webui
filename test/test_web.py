@@ -741,7 +741,7 @@ class Test3Worldmap(unittest2.TestCase):
         print 'get page /worldmap'
         response = self.app.get('/worldmap')
         response.mustcontain(
-            '<div id="hostsMap" class="osm">'
+            '<div id="hostsMap">'
         )
 
         # Widget
