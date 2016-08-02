@@ -169,6 +169,7 @@ function set_current_page(url){
 
 /**
  * Display the layout modal form
+ * - load its content from the inner_url parameter
  */
 function display_modal(inner_url, hidden) {
    var show = true;

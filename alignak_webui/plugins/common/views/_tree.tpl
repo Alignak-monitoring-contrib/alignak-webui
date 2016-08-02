@@ -60,9 +60,9 @@
                   <span class="fa fa-table"></span>
                </button>
             </div>
-               <h4 class="pull-left">
-                  &nbsp;{{title}}
-               </h4>
+            <h4 class="pull-left">
+               &nbsp;{{title}}
+            </h4>
 
             <div class="pull-right">
                <form class="hidden-xs navbar-form navbar-right" role="search">
@@ -70,7 +70,6 @@
                   <input id="searchfield" type="text" placeholder="{{_('search...')}}">
                </form>
             </div>
-
          </div>
 
          <div class="panel-body">

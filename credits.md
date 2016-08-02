@@ -13,6 +13,8 @@ jQuery jsTree: https://www.jstree.com/
 
 jQuery / Bootstrap daterangepicker: http://www.daterangepicker.com/
 
+alertify: http://alertifyjs.com/
+
 screenfull.js: https://sindresorhus.com/screenfull.js/
 
 Contributors

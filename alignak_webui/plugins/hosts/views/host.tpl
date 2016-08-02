@@ -162,7 +162,7 @@
       %if groups:
       <div class="btn-group pull-right">
          <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+            <span class="fa fa-sitemap"></span>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:

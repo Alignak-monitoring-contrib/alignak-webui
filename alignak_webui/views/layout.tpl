@@ -140,9 +140,17 @@
       <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jTruncate.js"></script>
-      <script type="text/javascript" src="/static/js/alertify.min.js"></script>
       <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
+
+      <!-- alertify.js dialog boxes -->
+      <script type="text/javascript" src="/static/js/alertify.min.js"></script>
+      <script type="text/javascript">
+      alertify.defaults.transition = "slide";
+      alertify.defaults.theme.ok = "btn btn-primary";
+      alertify.defaults.theme.cancel = "btn btn-danger";
+      alertify.defaults.theme.input = "form-control";
+      </script>
 
       <!-- jQuery Chart -->
       <script type="text/javascript" src="/static/js/Chart.min.js"></script>
