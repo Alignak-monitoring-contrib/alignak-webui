@@ -2,6 +2,7 @@
 %setdefault('auto_post', False)
 
 %# Acknowledge attributes
+%setdefault('element', 'acknowledge')
 %setdefault('action', 'add')
 %setdefault('livestate_id', '-1')
 %setdefault('sticky', True)
@@ -17,7 +18,7 @@
 </div>
 
 <div class="modal-body">
-   <form data-item="acknowledge" data-action="{{action}}" class="form-horizontal" method="post" action="/acknowledge/add" role="form">
+   <form data-item="{{element}}" data-action="{{action}}" method="post" action="/{{element}}/{{action}}" role="form">
       <div class="form-group" style="display: none">
          %for id in livestate_id:
          <input type="text" readonly id="livestate_id" name="livestate_id" value="{{id}}">
@@ -27,23 +28,45 @@
          %end
       </div>
 
+      <fieldset>
+      <legend>Legend</legend>
+<div class="form-group">
+  <label class="col-lg-2 control-label">Radios</label>
+
+  <div class="col-lg-10">
+    <div class="radio radio-primary">
+      <label>
+        <input type="radio" name="optionsRadios" checked="">
+        Option one
+      </label>
+    </div>
+    <div class="radio radio-primary">
+      <label>
+        <input type="radio" name="optionsRadios">
+        Option two
+      </label>
+    </div>
+  </div>
+</div>
+
+
       <div class="form-group">
-         <label class="col-sm-offset-1 control-label">{{_('Acknowledge options')}}</label>
-         <div class="col-sm-offset-3 col-sm-9">
+         <label class="col-sm-2 control-label">{{_('Acknowledge options')}}</label>
+         <div class="col-offset-sm-2 col-sm-10">
             <div class="checkbox">
                <label>
                   <input type="checkbox" name="sticky" {{'checked' if sticky else ''}} value="{{sticky}}"> {{_('Sticky')}}
                </label>
             </div>
          </div>
-         <div class="col-sm-offset-3 col-sm-9">
-            <div class="checkbox">
+         <div class="col-offset-sm-2 col-sm-10">
+            <div class="togglebutton">
                <label>
                   <input type="checkbox" name="notify" {{'checked' if notify else ''}} value="{{notify}}"> {{_('Notify')}}
                </label>
             </div>
          </div>
-         <div class="col-sm-offset-3 col-sm-9">
+         <div class="col-offset-sm-2 col-sm-10">
             <div class="checkbox">
                <label>
                   <input type="checkbox" name="persistent" {{'checked' if persistent else ''}} value="{{persistent}}"> {{_('Persistent')}}
@@ -57,6 +80,7 @@
             <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
          </div>
       </div>
+      </fieldset>
 
       <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request acknowledge')}}</button>
    </form>
@@ -66,7 +90,7 @@
 $(document).ready(function(){
    %if auto_post:
       // Submit form
-      $('form[data-item="acknowledge"]').submit();
+      $('form[data-item="{{element}}"]').trigger('submit');
    %end
 });
 </script>

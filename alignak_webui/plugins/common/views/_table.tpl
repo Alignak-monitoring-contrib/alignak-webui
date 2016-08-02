@@ -1,6 +1,6 @@
 %import json
 
-%setdefault('debug', False)
+%setdefault('debug', True)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -52,6 +52,7 @@
                <th data-index="{{idx}}" data-name="{{ column['data'] }}"
                    data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
                    data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
+                   data-format-parameters="{{ column['format_parameters'] }}"
                    data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
                </th>
                %idx += 1
@@ -91,17 +92,24 @@
             return;
          }
 
-         if ($(this).data('type')=='objectid') {
-            var html = '<select><option value=""></option></select>';
-            $(this).html( html );
-         } else if ($(this).data('format')=='select') {
+         if ($(this).data('format')=='select') {
+            var html = '<select class="sel_'+ $(this).data('type') +'"><option value=""></option>';
             var allowed = $(this).data('allowed').split(',');
-            var html = '<select multiple><option value="">{{_('*')}}</option>';
             $.each(allowed, function(idx){
                html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
             });
             html += '</select>';
             $(this).html( html );
+
+         } else if ($(this).data('format')=='multiselect') {
+            var html = '<select multiple class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
+            var allowed = $(this).data('allowed').split(',');
+            $.each(allowed, function(idx){
+               html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
+            });
+            html += '</select>';
+            $(this).html( html );
+
          } else {
             // Simple input field
             var html = '<input size="'+$(this).data('size')+'" type="text" data-regex="'+$(this).data('regex')+'" placeholder="'+title+'" />';
@@ -188,10 +196,16 @@
          }
          %end
 
+         %if dt.searchable:
          // Populate select for object links fields ...
-         $('#tbl_{{object_type}} thead tr#filterrow th[data-type="objectid"][data-searchable="True"]').each( function () {
+         $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type="objectid"][data-searchable="True"]').each( function () {
             var field_name = $(this).data('name');
-            var objects_type = $(this).data('format');
+            var objects_type = $(this).data('format-parameters');
+            if (! objects_type) {
+               console.error("Probably a missing format_parameters for field: ", field_name, objects_type);
+               return true;
+            }
+
             var select = $(this).find('select');
             if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_type);
 
@@ -203,19 +217,33 @@
                   if (debugTable) console.debug("Got data for '"+objects_type+"' ...", data);
 
                   $.each(data, function (index, object) {
-                     if (debugTable) console.debug('List item: ', object);
+                     //if (debugTable) console.debug('List item: ', object);
                      select.append($('<option>', {
                         value: object.id,
                         text : object.name
                      }));
                   });
 
+                  select.select2({
+                     maximumSelectionLength: 2,
+                     minimumResultsForSearch: Infinity,
+                     tags: true
+                  });
                },
                "error": function (jqXHR, textStatus, errorThrown) {
-                  console.error("Get list error: ", textStatus, jqXHR);
+                  console.error("Get list error: ", objects_type+"s_list",errorThrown, jqXHR);
                }
             });
          });
+
+         console.log('selectize')
+         $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type!="objectid"][data-searchable="True"]').each( function () {
+            var select = $(this).find('select');
+            select.select2({
+               tags: true
+            });
+         });
+         %end
       });
 
       %if dt.selectable:

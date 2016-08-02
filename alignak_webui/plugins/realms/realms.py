@@ -117,7 +117,9 @@ schema['_parent'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Parent'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'realm'
     },
     'data_relation': {
         'resource': 'realm',

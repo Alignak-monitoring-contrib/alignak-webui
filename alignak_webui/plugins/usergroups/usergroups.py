@@ -106,7 +106,9 @@ schema['_parent'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Parent'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'usergroup'
     },
     'data_relation': {
         'resource': 'usergroup',

@@ -31,9 +31,11 @@ schema = OrderedDict()
 schema['user'] = {
     'type': 'objectid',
     'ui': {
-        'title': _('Realm'),
+        'title': _('User'),
         'visible': True,
-        'searchable': True
+        'searchable': True,
+        'format': 'select',
+        'format_parameters': 'user'
     },
     'data_relation': {
         'resource': 'user',
@@ -45,7 +47,9 @@ schema['realm'] = {
     'ui': {
         'title': _('Realm'),
         'visible': True,
-        'searchable': True
+        'searchable': True,
+        'format': 'select',
+        'format_parameters': 'realm'
     },
     'data_relation': {
         'resource': 'realm',

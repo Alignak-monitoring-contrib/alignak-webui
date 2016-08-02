@@ -91,7 +91,9 @@ schema['_realm'] = {
         'title': _('Realm'),
         'visible': True,
         'hidden': True,
-        'searchable': True
+        'searchable': True,
+        'format': 'select',
+        'format_parameters': 'realm'
     },
     'data_relation': {
         'resource': 'realm',
@@ -163,7 +165,9 @@ schema['check_command'] = {
     'ui': {
         'title': _('Check command'),
         'visible': True,
-        'searchable': True
+        'searchable': True,
+        'format': 'select',
+        'format_parameters': 'command'
     },
     'data_relation': {
         'resource': 'command',
@@ -183,7 +187,8 @@ schema['check_period'] = {
     'ui': {
         'title': _('Check period'),
         'visible': True,
-        # 'searchable': False
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -230,7 +235,9 @@ schema['parents'] = {
     'ui': {
         'title': _('Parents'),
         'visible': True,
-        'searchable': False
+        'searchable': False,
+        'format': 'select',
+        'format_parameters': 'host'
     },
     'data_relation': {
         'resource': 'host',
@@ -242,7 +249,9 @@ schema['hostgroups'] = {
     'ui': {
         'title': _('Hosts groups'),
         'visible': True,
-        'searchable': False
+        'searchable': False,
+        'format': 'select',
+        'format_parameters': 'hostgroup'
     },
     'data_relation': {
         'resource': 'hostgroup',
@@ -261,7 +270,9 @@ schema['users'] = {
     'ui': {
         'title': _('Users'),
         'visible': True,
-        'searchable': False
+        'searchable': False,
+        'format': 'select',
+        'format_parameters': 'user'
     },
     'data_relation': {
         'resource': 'user',
@@ -273,7 +284,9 @@ schema['usergroups'] = {
     'ui': {
         'title': _('Users groups'),
         'visible': True,
-        'searchable': False
+        'searchable': False,
+        'format': 'select',
+        'format_parameters': 'usergroup'
     },
     'data_relation': {
         'resource': 'usergroup',
@@ -291,7 +304,9 @@ schema['notification_period'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Notification period'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -319,7 +334,8 @@ schema['notification_options'] = {
     'ui': {
         'title': _('Notification options'),
         'visible': True,
-        'format': {
+        'format': 'multiselect',
+        'format2': {
             'list_type': "multichoices",
             'list_allowed': {
                 u"d": u"Send notifications on Down state",
@@ -337,7 +353,9 @@ schema['maintenance_period'] = {
     'ui': {
         'title': _('Maintenance period'),
         'visible': True,
-        'hidden': True
+        'hidden': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -349,7 +367,9 @@ schema['snapshot_period'] = {
     'ui': {
         'title': _('Snapshot period'),
         'visible': True,
-        'hidden': True
+        'hidden': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -449,7 +469,9 @@ schema['event_handler'] = {
     'ui': {
         'title': _('Event handler command'),
         'visible': True,
-        'searchable': False
+        'searchable': False,
+        'format': 'select',
+        'format_parameters': 'command'
     },
     'data_relation': {
         'resource': 'command',

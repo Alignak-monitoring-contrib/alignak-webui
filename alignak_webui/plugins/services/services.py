@@ -82,7 +82,9 @@ schema['_realm'] = {
         'title': _('Realm'),
         'visible': True,
         'hidden': True,
-        'searchable': True
+        'searchable': True,
+        'format': 'select',
+        'format_parameters': 'realm'
     },
     'data_relation': {
         'resource': 'realm',
@@ -138,7 +140,9 @@ schema['host'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Host'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'host'
     },
     'data_relation': {
         'resource': 'host',
@@ -164,7 +168,9 @@ schema['check_command'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Check command'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'command'
     },
     'data_relation': {
         'resource': 'command',
@@ -182,7 +188,9 @@ schema['check_period'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Check period'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -228,7 +236,9 @@ schema['servicegroups'] = {
     'type': 'list',
     'ui': {
         'title': _('Services groups'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'servicegroup'
     },
     'schema': {
         'type': 'objectid',
@@ -285,7 +295,9 @@ schema['notification_period'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Notification period'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -413,7 +425,9 @@ schema['event_handler'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Event handler command'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'command'
     },
     'data_relation': {
         'resource': 'command',

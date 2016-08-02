@@ -69,6 +69,8 @@ schema['host'] = {
         'width': '10',
         'visible': True,
         'hidden': False,
+        'format': 'select',
+        'format_parameters': 'host'
     },
     'data_relation': {
         'resource': 'host',
@@ -82,6 +84,8 @@ schema['service'] = {
         'width': '10px',
         'visible': True,
         'hidden': False,
+        'format': 'select',
+        'format_parameters': 'service'
     },
     'data_relation': {
         'resource': 'service',

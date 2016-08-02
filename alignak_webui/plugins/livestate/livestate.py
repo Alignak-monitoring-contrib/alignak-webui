@@ -61,9 +61,9 @@ schema['#'] = {
 }
 schema['type'] = {
     'type': 'string',
+    'allowed': ["host", "service"],
     'ui': {
         'title': _('Type'),
-        'width': '10px',
         # This field is visible (default: False)
         'visible': True,
         # This field is initially hidden (default: False)
@@ -75,14 +75,12 @@ schema['type'] = {
         # This field is orderable (default: True)
         'orderable': True,
         # 'priority': 0,
-    },
-    'allowed': ["host", "service"]
+    }
 }
 schema['name'] = {
     'type': 'string',
     'ui': {
         'title': _('Element name'),
-        'width': '50px',
         'visible': True,
         # 'priority': 0,
     }
@@ -91,9 +89,10 @@ schema['host'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Host'),
-        'width': '10',
         'visible': True,
         'hidden': True,
+        'format': 'select',
+        'format_parameters': 'host'
     },
     'data_relation': {
         'resource': 'host',
@@ -104,7 +103,6 @@ schema['display_name_host'] = {
     'type': 'string',
     'ui': {
         'title': _('Host display name'),
-        'width': '10',
         'visible': True,
         'hidden': True,
     },
@@ -113,9 +111,10 @@ schema['service'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Service'),
-        'width': '10px',
         'visible': True,
         'hidden': True,
+        'format': 'select',
+        'format_parameters': 'service'
     },
     'data_relation': {
         'resource': 'service',
@@ -198,7 +197,6 @@ schema['downtime'] = {
     'ui': {
         'title': _('In scheduled downtime'),
         'visible': True,
-        'width': '20px',
     },
 }
 schema['output'] = {

@@ -1131,6 +1131,70 @@ class TestDatatableTimeperiod(unittest2.TestCase):
                 assert response.json['data'][x]['is_active'] is not None
 
 
+class TestDatatableUserRestrictRole(unittest2.TestCase):
+    def setUp(self):
+        print("")
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print('Data manager', self.dmg)
+
+        # Initialize and load ... no reset
+        assert self.dmg.user_login('admin', 'admin')
+        result = self.dmg.load()
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+
+    def tearDown(self):
+        print("")
+
+    def test_userrestrictrole(self):
+        print('')
+        print('test userrestrictrole table')
+
+        global items_count
+
+        print('get page /userrestrictroles_table')
+        response = self.app.get('/userrestrictroles_table')
+        response.mustcontain(
+            '<div id="userrestrictroles_table" class="alignak_webui_table ">',
+            "$('#tbl_userrestrictrole').DataTable( {",
+            '<table id="tbl_userrestrictrole" ',
+            '<th data-name="user" data-type="objectid">User</th>',
+            '<th data-name="realm" data-type="objectid">Realm</th>',
+            '<th data-name="sub_realm" data-type="boolean">Sub realm</th>',
+            '<th data-name="resource" data-type="string">Resource type</th>',
+            '<th data-name="crud" data-type="list">CRUD</th>'
+        )
+
+        response = self.app.post('/userrestrictroles_table_data')
+        print(response)
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                print(response.json['data'][x])
+                assert response.json['data'][x]
+                assert response.json['data'][x]['user'] is not None
+                assert response.json['data'][x]['realm'] is not None
+                assert response.json['data'][x]['sub_realm'] is not None
+                assert response.json['data'][x]['resource'] is not None
+                assert response.json['data'][x]['crud'] is not None
+
+
 class TestDatatableLog(unittest2.TestCase):
     def setUp(self):
         print("")
@@ -1186,9 +1250,6 @@ class TestDatatableLog(unittest2.TestCase):
         print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
-        # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count
-        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
 
         # No data in the test backend
 

@@ -157,6 +157,7 @@ Initial (default) table sort is defined as:
 
 Table css classes are defined here: https://datatables.net/manual/styling/classes
 
+
 Table display
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -166,12 +167,33 @@ As an example, for the livestate table, an element with status UP will have a CS
 
 The corresponding classes can be defined in the *alignak_webui-items.css* file. Some example classes still exist in this file for the livestate states (eg. UP, OK, ...).
 
+
 Table filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Table filtering is available on a column basis; each column can have its own search parameter in the table header. The filtering field is an input field, a select field, ... according to the column type/format.
 
- TO BE DETAILED (fields type/format)!
+
+As much as possible, the table column format is determined by the application thanks to the columne *type* parameter.
+
+The column format is used to choose the filtering input method. In some cases, it may be useful to specify the format.
+
+The following rules apply:
+
+    - as a default, *format* is **string** which means that the filtering input method is an input field
+
+    - when *type* is **list**, the format method will automatically be a *select*. The *allowed* parameter defines the content of the allowed values in the select options.
+    - *format* can be specified as a *select* (unique value) or *multiselect* (multiple select) input method
+    - when *type* is **objectid**, the format method will automatically be a *select* that wil be populated with the related object names list
+
+Available formats:
+
+    - `date`:
+    - `on_off`:
+    - `select`:
+    - `multiselect`:
+
+
 
 The data backend search is made with an AND operator on all the provided values. Furthermore, each column has a *regex* parameter. This parameter indicates wether the search is an exact (False) or loose (True) match on the data value.
 
@@ -197,6 +219,7 @@ Some examples:
     - livestate services WARNING: `search=type:service state:WARNING` or `search=type:service state_id:1`
     - livestate hosts/services OK/UP: `search=state_id:0`
     - livestate elements business impact high: `search=business_impact:5`
+
 
 User's preferences
 ------------------

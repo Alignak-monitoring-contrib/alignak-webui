@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 # Define service/perfdata name for each element in graph
 class HostMetrics(object):
     """
-    Helper functions
+    Host metrics functions
     """
     def __init__(self, host, services, params, tags=None):
         """

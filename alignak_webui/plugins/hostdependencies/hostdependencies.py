@@ -153,6 +153,8 @@ schema['dependency_period'] = {
     'ui': {
         'title': _('Dependency period'),
         'visible': True,
+        'format': 'select',
+        'format_parameters': 'hostdependency'
     },
     'data_relation': {
         'resource': 'timeperiod',

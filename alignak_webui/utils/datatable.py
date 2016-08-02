@@ -180,7 +180,7 @@ class Datatable(object):
             if not model['ui'].get('visible'):
                 continue
 
-            logger.warning("get_data_model, visible field: %s = %s", field, model)
+            logger.debug("get_data_model, visible field: %s = %s", field, model)
 
             ui_dm['model']['fields'].update({field: {
                 'data': field,
@@ -190,6 +190,7 @@ class Datatable(object):
                 'regex': model['ui'].get('regex', True),
                 'title': model['ui'].get('title', field),
                 'format': model['ui'].get('format', 'string'),
+                'format_parameters': model['ui'].get('format_parameters', field),
                 'size': model['ui'].get('size', 10),
                 'visible': not model['ui'].get('hidden', False),
                 'orderable': model['ui'].get('orderable', True),
@@ -199,14 +200,9 @@ class Datatable(object):
 
             # Specific format fields
             if 'allowed' in model:
-                ui_dm['model']['fields'][field].update(
-                    {'format': 'select'}
-                )
-            if 'data_relation' in model and model['data_relation']['embeddable']:
-                ui_dm['model']['fields'][field].update(
-                    {'format': model['data_relation']['resource']}
-                )
-            logger.debug("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
+                ui_dm['model']['fields'][field].update({'format': 'select'})
+
+            logger.warning("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
 
             # Convert data model format to datatables' one ...
             self.table_columns.append(ui_dm['model']['fields'][field])
@@ -564,6 +560,7 @@ class Datatable(object):
                     if field['data'] != key:
                         continue
 
+                    # Specific fields
                     if field['data'] == self.name_property:
                         item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
 
@@ -574,7 +571,7 @@ class Datatable(object):
                         item[key] = Helper.get_html_business_impact(bo_object.business_impact)
 
                     # Specific fields type
-                    if field['type'] == 'datetime' or field['format'] == 'date':
+                    if field['type'] == 'datetime':
                         item[key] = bo_object.get_date(item[key])
 
                     if field['type'] == 'boolean':
@@ -589,11 +586,13 @@ class Datatable(object):
                     if field['type'] == 'objectid' and \
                        key in parameters['embedded'] and item[key]:
                         related_object_class = [kc for kc in self.datamgr.known_classes
-                                                if kc.get_type() == field['format']][0]
-                        linked_object = related_object_class(item[key])
-                        item[key] = linked_object.get_html_link(
-                            prefix=request.params.get('links')
-                        )
+                                                if kc.get_type() == field['format_parameters']]
+                        if related_object_class:
+                            related_object_class = related_object_class[0]
+                            linked_object = related_object_class(item[key])
+                            item[key] = linked_object.get_html_link(
+                                prefix=request.params.get('links')
+                            )
                         break
 
             # Very specific fields...

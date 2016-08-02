@@ -63,9 +63,12 @@
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
-      <!-- selectize -->
+      <!-- select2 -->
+      <link rel="stylesheet" href="/static/css/select2.min.css" >
+
+      <!-- selectize
       <link rel="stylesheet" href="/static/css/selectize.css" >
-      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >
+      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >-->
 
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
@@ -158,8 +161,8 @@
       alertify.defaults.theme.input = "form-control";
       </script>
 
-      <!-- selectize -->
-      <script type="text/javascript" src="/static/js/selectize.js"></script>
+      <!-- select2 -->
+      <script type="text/javascript" src="/static/js/select2.full.min.js"></script>
 
       <!-- jQuery Chart -->
       <script type="text/javascript" src="/static/js/Chart.min.js"></script>

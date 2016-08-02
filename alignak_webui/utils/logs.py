@@ -77,7 +77,7 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
     # Log file directory
     if not os.path.isdir(path):
         # noinspection PyBroadException
-        try:
+        try:  # pragma: no cover - not testable
             os.makedirs(path)
         except Exception:
             path = '.'

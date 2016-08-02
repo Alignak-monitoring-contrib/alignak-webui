@@ -50,7 +50,9 @@ schema['_realm'] = {
         'title': _('Realm'),
         'visible': True,
         'hidden': True,
-        'searchable': True
+        'searchable': True,
+        'format': 'select',
+        'format_parameters': 'realm'
     },
     'data_relation': {
         'resource': 'realm',
@@ -121,7 +123,9 @@ schema['host_notification_period'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Host notification period'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
@@ -171,7 +175,9 @@ schema['service_notification_period'] = {
     'type': 'objectid',
     'ui': {
         'title': _('Service notification period'),
-        'visible': True
+        'visible': True,
+        'format': 'select',
+        'format_parameters': 'timeperiod'
     },
     'data_relation': {
         'resource': 'timeperiod',
