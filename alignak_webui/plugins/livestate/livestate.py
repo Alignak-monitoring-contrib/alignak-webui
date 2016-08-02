@@ -124,7 +124,7 @@ schema['service'] = {
 schema['display_name_service'] = {
     'type': 'string',
     'ui': {
-        'title': _('Host display service'),
+        'title': _('Service display name'),
         'visible': True,
         'hidden': True,
     },
