@@ -9,7 +9,7 @@ Using issues
 
 The issue tracker is the preferred channel for reporting bugs, requesting new features and submitting pull requests.
 
-If you're suggesting a new feature, please take a look at **writing a new .
+If you're suggesting a new feature, we will discuss this feature together.
 
 
 Reporting bugs
@@ -41,4 +41,4 @@ Guidelines:
 License
 -------
 
-By contributing your code, you agree to license your contribution under the GPL version 3.
+By contributing your code, you agree to license your contribution under the `GPL version 3 <http://opensource.org/licenses/GPL-3.0>`_ license terms.
