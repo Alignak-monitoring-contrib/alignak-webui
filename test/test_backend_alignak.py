@@ -200,7 +200,7 @@ class TestGet(unittest2.TestCase):
         # Directly address object in the backend
         result = self.be.get('user/' + result[0]['_id'])
         print("--- Result: %s", result)
-        self.assertEqual(len(result), 41)  # 41 attributes in the result
+        self.assertEqual(len(result), 40)  # 40 attributes in the result
         self.assertEqual(result['_id'], admin_id)
 
     def test_get_all(self):
