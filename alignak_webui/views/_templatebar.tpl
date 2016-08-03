@@ -1,4 +1,3 @@
-%setdefault('debug', True)
 %setdefault('in_sidebar', False)
 
 <!-- Templates actions bar -->

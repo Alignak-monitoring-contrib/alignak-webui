@@ -14,19 +14,19 @@
 <!-- Application menu -->
 <nav id="menu-bar">
    <ul class="nav navbar-nav">
-      <li data-toggle="tooltip" data-placement="right" title="{{_('Dashboard')}}">
+      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Dashboard')}}">
          <a class="navbar-link" href="{{ webui.get_url('Dashboard') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-dashboard"></span>
             <span class="sr-only">{{_('Dashboard')}}</span>
          </a>
       </li>
-      <li data-toggle="tooltip" data-placement="right" title="{{_('Livestate table')}}">
+      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Livestate table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Livestate table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-heartbeat"></span>
             <span class="sr-only">{{_('Livestate')}}</span>
          </a>
       </li>
-      <li data-toggle="tooltip" data-placement="right" title="{{_('Log table')}}">
+      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Log table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Log check result table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-history"></span>
             <span class="sr-only">{{_('Log')}}</span>
@@ -34,7 +34,7 @@
       </li>
 
       <!-- Items -->
-      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Elements')}}">
+      <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Elements')}}">
          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
             <span class="fa fa-cube"></span>
@@ -115,7 +115,7 @@
       </li>
 
       <!-- Tactical views -->
-      <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Tactical views')}}">
+      <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Tactical views')}}">
          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
             <span class="fa fa-bar-chart"></span>

@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 %setdefault('in_sidebar', False)
 
 <!-- Dashboard actions bar -->

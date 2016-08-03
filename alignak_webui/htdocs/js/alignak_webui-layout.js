@@ -112,7 +112,8 @@ function playAlertSound() {
    if (canPlay) {
       audio.play();
       sessionStorage.setItem("sound_play", "1");
-      $('#sound_alerting i.fa-ban').addClass('hidden');
+      //$('#sound_alerting i.fa-ban').addClass('hidden');
+      $('#sound_alerting').removeClass('disabled text-muted');
    }
 }
 
@@ -194,7 +195,7 @@ function display_modal(inner_url, hidden) {
 
 $(document).ready(function(){
    // Activate all tooltips on the page ...
-   if (window.matchMedia && (window.matchMedia("(max-width: 767px)").matches)) {
+   if (window.matchMedia && (window.matchMedia("(min-width: 768px)").matches)) {
       if (log_layout) console.debug('Activate tooltips');
       // ... except when on small devices!
       $('[data-toggle="tooltip"]').tooltip();

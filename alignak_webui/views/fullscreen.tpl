@@ -58,6 +58,18 @@
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Material Design fonts -->
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+
+      <!-- Bootstrap Material Design -->
+      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
+      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      -->
+      %end
+
+      <!-- Alignak Web UI -->
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
 
@@ -127,7 +139,7 @@
    <body>
       <div id="page-wrapper" class="container-fluid">
          <div class="row">
-            <div id="page-content" class="col-lg-12">
+            <div id="page-content" class="col-xs-12">
 
                <!-- Page content -->
                <section class="content">
@@ -137,5 +149,16 @@
          </div>
       </div>
       %include("_footer", commands=True)
+
+      %if request.app.config.get('material_design', '0') == '1':
+      <!-- Bootstrap Material Design
+      -->
+      <script src="/static/js/material/material.min.js"></script>
+      <script src="/static/js/material/ripples.min.js"></script>
+
+      <script>
+      $.material.init();
+      </script>
+      %end
    </body>
 </html>

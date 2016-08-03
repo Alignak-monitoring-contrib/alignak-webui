@@ -70,9 +70,6 @@
       <link rel="stylesheet" href="/static/css/selectize.css" >
       <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >-->
 
-      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
-      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
-
       <link rel="stylesheet" href="/static/css/timeline.css" >
 
       %if request.app.config.get('material_design', '0') == '1':
@@ -123,6 +120,10 @@
 
       <link rel="stylesheet" href="/static/css/datatables/select.dataTables.min.css" >
       <link rel="stylesheet" href="/static/css/datatables/select.bootstrap.min.css" >
+
+      <!-- Alignak Web UI -->
+      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
+      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
 
       %# Specific CSS files
       %for f in css:
@@ -328,7 +329,7 @@
             %end
 
             <!-- All the content of #page-content is updated when the page refreshes. -->
-            <div id="page-content" class="{{'col-offset-sidebar' if sidebar else 'col-md-12'}}">
+            <div id="page-content" class="{{'col-offset-sidebar' if sidebar else 'col-xs-12'}}">
                <!-- Page content header -->
                <section class="content-header">
                   %if pagination:
@@ -382,10 +383,6 @@
       <script src="/static/js/material/material.min.js"></script>
       <script src="/static/js/material/ripples.min.js"></script>
 
-      <!--
-      <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
-      <script defer src="https://cdn.datatables.net/1.10.12/js/dataTables.material.min.js"></script>
-      -->
       <script>
       $.material.init();
       </script>

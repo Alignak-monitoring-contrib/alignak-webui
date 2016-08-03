@@ -1,6 +1,6 @@
 %import json
 
-%setdefault('debug', True)
+%setdefault('debug', False)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)

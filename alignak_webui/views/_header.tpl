@@ -34,7 +34,7 @@
 
 <!-- Page header -->
 <header>
-   <nav id="topbar" class="navbar navbar-fixed-top navbar-material-blue">
+   <nav id="topbar" class="navbar navbar-fixed-top">
       <div class="navbar-header">
          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
             <span class="sr-only">{{_('Toggle navigation')}}</span>
@@ -84,27 +84,25 @@
             </li>
 
             %if request.app.config.get('play_sound', 'no') == 'yes':
-            <li>
+            <li id="sound_alerting">
                <a data-action="toggle-sound-alert"
                   data-toggle="tooltip" data-placement="bottom"
                   title="{{_('Sound alert on/off')}}"
                   href="#">
-                  <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
-                    <i class="fa fa-music fa-stack-1x"></i>
-                    <i class="fa fa-ban fa-stack-2x text-danger"></i>
-                  </span>
+                  <span class="fa fa-music"></span>
+                  <span class="sr-only">{{_('Change sound playing state')}}</span>
                </a>
             </li>
             %end
 
             %if refresh:
-            <li>
+            <li id="refresh_active">
                <a data-action="toggle-page-refresh"
                   data-toggle="tooltip" data-placement="bottom"
                   title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
                   href="#">
-                  <span id="refresh_active" class="fa fa-refresh"></span>
-                  <span class="sr-only">{{_('Refresh active')}}</span>
+                  <span class="fa fa-refresh"></span>
+                  <span class="sr-only">{{_('Change page refresh state')}}</span>
                </a>
             </li>
             %end
@@ -115,40 +113,6 @@
    </nav>
 </header>
 
-
 %if request.app.config.get('play_sound', 'no') == 'yes':
-   <audio id="alert-sound" volume="1.0">
-      <source src="/static/sound/alert.wav" type="audio/wav">
-      Your browser does not support the <code>HTML5 Audio</code> element.
-      <EMBED src="/static/sound/alert.wav" autostart=true loop=false volume=100 >
-   </audio>
-
-   <script type="text/javascript">
-      get_user_preference('sound', function(data) {
-         // Toggle sound icon...
-         if (data.value == 'no') {
-            sound_activated = false;
-            $('#sound_alerting i.fa-ban').addClass('hidden');
-         } else {
-            sound_activated = true;
-            $('#sound_alerting i.fa-ban').removeClass('hidden');
-         }
-         $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
-            get_user_preference('sound', function(data) {
-               if (data.value == 'no') {
-                  save_user_preference('sound', JSON.stringify('yes'), function(){
-                     sound_activated = false;
-                     $('#sound_alerting i.fa-ban').removeClass('hidden');
-                  });
-               } else {
-                  save_user_preference('sound', JSON.stringify('no'), function() {
-                     sound_activated = true;
-                     playAlertSound();
-                     $('#sound_alerting i.fa-ban').addClass('hidden');
-                  });
-               }
-            });
-         });
-      }, 'yes');
-   </script>
+   %include("_sound_play.tpl")
 %end
