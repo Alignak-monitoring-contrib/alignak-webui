@@ -144,7 +144,8 @@ table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataT
 }
 /* Selected line */
 table.dataTable tr.selected {
-   background-color:indianred !important;
+   color: #aaa !important;
+   background-color:lightyellow !important;
 }
 
 /*
