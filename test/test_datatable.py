@@ -1091,7 +1091,7 @@ class TestDatatableLivestate(unittest2.TestCase):
             '<th data-name="host" data-type="objectid">Host</th>',
             '<th data-name="display_name_host" data-type="string">Host display name</th>',
             '<th data-name="service" data-type="objectid">Service</th>',
-            '<th data-name="display_name_service" data-type="string">Host display service</th>',
+            '<th data-name="display_name_service" data-type="string">Service display name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="last_check" data-type="integer">Last check</th>',
             '<th data-name="business_impact" data-type="integer">Business impact</th>',
