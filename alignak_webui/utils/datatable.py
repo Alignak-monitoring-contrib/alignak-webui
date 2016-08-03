@@ -315,7 +315,7 @@ class Datatable(object):
 
         Request Parameters:
         - object_type: object type managed by the datatable
-        - links: urel prefix to be used by the links in the table
+        - links: url prefix to be used by the links in the table
         - embedded: true / false whether the table is embedded by an external application
             **Note**: those three first parameters are not datatable specific parameters :)
 

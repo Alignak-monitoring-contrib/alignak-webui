@@ -687,7 +687,7 @@ class BackendElement(object):
         """
         Get Item html link with an optional prefix and an optional title
         """
-        if prefix:
+        if prefix is not None:
             return '<a href="%s%s">%s</a>' % (
                 prefix, self.endpoint, self.alias if not title else title
             )

@@ -345,8 +345,6 @@ def get_livestate(livestate_id):
 
 
 def get_livestate_widget(embedded=False, identifier=None, credentials=None):
-    # Because there are many locals needed :)
-    # pylint: disable=too-many-locals
     """
     Get the livestate as a widget
     - widget_id: widget identifier

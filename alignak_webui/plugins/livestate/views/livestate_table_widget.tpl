@@ -2,7 +2,7 @@
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
-%setdefault('links', request.params.get('links', ''))
+%setdefault('links', request.params.get('links', 'yes'))
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
@@ -19,10 +19,11 @@
          <th style="width: 40px"></th>
          <th>{{_('Livestate element')}}</th>
          <th>{{_('Business impact')}}</th>
+         %if current_user.is_power():
          <th>{{_('Commands')}}</th>
+         %end
       </tr></thead>
       <tbody>
-         %elements = sorted(elements, key=lambda k: k['business_impact'], reverse=True)
          %for livestate in elements:
          <tr id="#{{livestate.id}}">
             <td title="{{livestate.alias}}">
@@ -38,7 +39,7 @@
             </td>
 
             <td>
-               <small>{{!livestate.get_html_link(links) if links else livestate.alias}}</small>
+               <small>{{!livestate.get_html_link(prefix=request.params.get('links'))}}</small>
             </td>
 
             <td>
