@@ -1,12 +1,12 @@
 %setdefault('debug', False)
-%setdefault('action_bar', False)
-%setdefault('in_sidebar', False)
+%setdefault('edition_bar', False)
+%setdefault('widgets_bar', False)
 
-%action_bar = (len(webui.get_widgets_for('dashboard')) != 0)
-%if action_bar:
+%if widgets_bar:
 %from bottle import request
-%action_bar = (request.route.name == 'Dashboard')
+%widgets_bar = (request.route.name == 'Dashboard')
 %end
+
 %if target_user.is_anonymous() or target_user.get_username() == current_user.get_username():
 %target_user = None
 %end
@@ -138,12 +138,12 @@
          </ul>
       </li>
 
-      %if action_bar and in_sidebar and current_user.can_change_dashboard():
-         %include("_templatebar.tpl", in_sidebar=in_sidebar)
+      %if edition_bar:
+         %include("_templatebar.tpl")
       %end
 
-      %if action_bar and in_sidebar and current_user.can_change_dashboard():
-         %include("_actionbar.tpl", in_sidebar=in_sidebar)
+      %if widgets_bar and current_user.can_change_dashboard():
+         %include("_widgetsbar.tpl")
       %end
    </ul>
 </nav>

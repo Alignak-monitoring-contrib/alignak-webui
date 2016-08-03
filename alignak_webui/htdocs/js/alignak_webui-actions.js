@@ -286,6 +286,14 @@ $(document).ready(function() {
          widget.id
       );
       if (actions_logs) console.debug("Added a widget:", added_widget)
+
+      window.setTimeout(function() {
+         // Hide modal popup
+         $('#mainModal').modal('hide');
+
+         // Page refresh required
+         refresh_required = true;
+      }, refresh_delay_after_action);
    });
 
    $('body').on("click", '.dashboard-widget', function () {

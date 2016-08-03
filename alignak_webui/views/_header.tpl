@@ -71,7 +71,7 @@
             </li>
          </ul>
 
-         %include("_menubar.tpl", action_bar=True, in_sidebar=True)
+         %include("_menubar.tpl")
 
          <ul class="nav navbar-nav navbar-right">
             <li>

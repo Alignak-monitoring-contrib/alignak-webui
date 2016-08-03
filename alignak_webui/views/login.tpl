@@ -41,7 +41,6 @@
       <!-- Bootstrap Material Design -->
       <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
       <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
-      -->
       %end
 
       <!-- Scripts

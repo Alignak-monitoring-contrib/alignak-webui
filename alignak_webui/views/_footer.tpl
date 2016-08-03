@@ -1,8 +1,6 @@
 %from bottle import request
 %from alignak_webui import manifest
 
-%setdefault('action_bar', False)
-
 <!-- Page footer -->
 <footer class="navbar-default navbar-fixed-bottom">
    <div class="container-fluid">
