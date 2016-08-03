@@ -31,7 +31,7 @@ from logging import getLogger
 from bottle import request, template, response
 
 from alignak_webui import _
-from alignak_webui.plugins.common.common import get_table, get_table_data
+from alignak_webui.plugins.common.common import get_table, get_table_data, get_form
 from alignak_webui.plugins.histories.histories import schema as history_schema
 
 # Settings
@@ -67,10 +67,15 @@ schema['#'] = {
         'orderable': False,
         # search as a regex (else strict value comparing when searching is performed)
         'regex': False,
+        # Field is not editable (default: True)
+        'editable': False,
     }
 }
 schema['name'] = {
     'type': 'string',
+    'required': True,
+    'empty': False,
+    'unique': True,
     'ui': {
         'title': _('Host name'),
         # This field is visible (default: False)
@@ -83,6 +88,8 @@ schema['name'] = {
         'regex': True,
         # This field is orderable (default: True)
         'orderable': True,
+        # Edition hint message
+        'hint': _('This field must be unique'),
     },
 }
 schema['_realm'] = {
@@ -120,6 +127,7 @@ schema['definition_order'] = {
 schema['tags'] = {
     'type': 'list',
     'default': [],
+    'allowed': ['inner://hosts_templates'],
     'ui': {
         'title': _('Tags'),
         'visible': True,
@@ -158,10 +166,13 @@ schema['customs'] = {
     'ui': {
         'title': _('Customs'),
         'visible': True,
+        'format': 'single_select',
+        'format_parameters': ''
     }
 }
 schema['check_command'] = {
     'type': 'objectid',
+    'allowed': ['inner://commands_list'],
     'ui': {
         'title': _('Check command'),
         'visible': True,
@@ -241,20 +252,6 @@ schema['parents'] = {
     },
     'data_relation': {
         'resource': 'host',
-        'embeddable': True
-    }
-}
-schema['hostgroups'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Hosts groups'),
-        'visible': True,
-        'searchable': False,
-        'format': 'select',
-        'format_parameters': 'hostgroup'
-    },
-    'data_relation': {
-        'resource': 'hostgroup',
         'embeddable': True
     }
 }
@@ -506,7 +503,6 @@ schema['ui'] = {
 }
 
 
-# Get plugin's parameters from configuration file
 def load_config(app=None, cfg_filenames=None):
     # pylint: disable=unused-argument
     """
@@ -710,6 +706,23 @@ def get_hosts_table_data():
     Get the elements required by the table
     """
     return get_table_data('host', schema)
+
+
+def get_host_form(host_id):
+    """
+    View an host edition form
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get host
+    host = datamgr.get_host(host_id)
+    if not host:
+        # Test if we got a name instead of an id
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_id}})
+        if not host:
+            return webui.response_invalid_parameters(_('Host does not exist'))
+
+    return get_form('host', schema, host)
 
 
 def get_host(host_id):
@@ -1074,6 +1087,12 @@ pages = {
         'routes': [
             ('/hosts_templates', 'Hosts templates'),
         ]
+    },
+
+    get_host_form: {
+        'name': 'Host form',
+        'route': '/host/edit/<host_id>',
+        'view': '_form'
     },
 
     get_hosts_table: {

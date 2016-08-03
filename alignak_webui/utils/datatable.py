@@ -78,7 +78,7 @@ class Datatable(object):
         self.orderable = True
         self.selectable = True
         self.searchable = True
-        self.editable = False
+        self.editable = True
         self.responsive = True
         self.recursive = False
         self.commands = (object_type == 'livestate')
@@ -164,7 +164,7 @@ class Datatable(object):
                 self.printable = model['ui'].get('printable', True)
                 self.orderable = model['ui'].get('orderable', True)
                 self.selectable = model['ui'].get('selectable', True)
-                self.editable = model['ui'].get('editable', False)
+                self.editable = model['ui'].get('editable', True)
                 self.searchable = model['ui'].get('searchable', True)
                 self.responsive = model['ui'].get('responsive', True)
                 self.recursive = model['ui'].get('recursive', False)
@@ -187,14 +187,19 @@ class Datatable(object):
                 'type': model.get('type', 'string'),
                 'allowed': ','.join(model.get('allowed', [])),
                 'defaultContent': model.get('default', ''),
+                'required': model.get('required', False),
+                'empty': model.get('empty', False),
+                'unique': model.get('unique', False),
+
                 'regex': model['ui'].get('regex', True),
                 'title': model['ui'].get('title', field),
+                'hint': model['ui'].get('hint'),
                 'format': model['ui'].get('format', 'string'),
                 'format_parameters': model['ui'].get('format_parameters', field),
                 'size': model['ui'].get('size', 10),
                 'visible': not model['ui'].get('hidden', False),
                 'orderable': model['ui'].get('orderable', True),
-                'editable': model['ui'].get('editable', False),
+                'editable': model['ui'].get('editable', True),
                 'searchable': model['ui'].get('searchable', True),
             }})
 

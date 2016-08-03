@@ -162,6 +162,9 @@
       alertify.defaults.theme.input = "form-control";
       </script>
 
+      <!-- selectize -->
+      <script type="text/javascript" src="/static/js/selectize.min.js"></script>
+
       <!-- select2 -->
       <script type="text/javascript" src="/static/js/select2.full.min.js"></script>
 

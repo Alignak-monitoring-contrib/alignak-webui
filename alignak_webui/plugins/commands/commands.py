@@ -209,7 +209,7 @@ def get_commands_list():
 
     items = []
     for command in commands:
-        items.append({'id': command.id, 'name': command.alias})
+        items.append({'id': command.id, 'name': command.name, 'alias': command.alias})
 
     response.status = 200
     response.content_type = 'application/json'

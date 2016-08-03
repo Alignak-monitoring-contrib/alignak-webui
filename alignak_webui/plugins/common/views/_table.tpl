@@ -92,7 +92,7 @@
             return;
          }
 
-         if ($(this).data('format')=='select') {
+         if (($(this).data('format')=='select') || ($(this).data('format')=='single_select')) {
             var html = '<select class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
             var allowed = $(this).data('allowed').split(',');
             $.each(allowed, function(idx){
@@ -101,7 +101,7 @@
             html += '</select>';
             $(this).html( html );
 
-         } else if ($(this).data('format')=='multiselect') {
+         } else if (($(this).data('format')=='multiselect') || ($(this).data('format')=='multiple_select')) {
             var html = '<select multiple class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
             var allowed = $(this).data('allowed').split(',');
             $.each(allowed, function(idx){
@@ -200,21 +200,22 @@
          // Populate select for object links fields ...
          $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type="objectid"][data-searchable="True"]').each( function () {
             var field_name = $(this).data('name');
-            var objects_type = $(this).data('format-parameters');
-            if (! objects_type) {
-               console.error("Probably a missing format_parameters for field: ", field_name, objects_type);
+            var objects_list_url = $(this).data('allowed');
+            objects_list_url = objects_list_url[0];
+            if (! objects_list_url) {
+               console.error("Probably a missing format_parameters for field: ", field_name, objects_list_url);
                return true;
             }
 
             var select = $(this).find('select');
-            if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_type);
+            if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_list_url);
 
             $.ajax( {
-               "url": objects_type+"s_list",
+               "url": objects_list_url,
                "dataType": "json",
                "type": "GET",
                "success": function (data) {
-                  if (debugTable) console.debug("Got data for '"+objects_type+"' ...", data);
+                  if (debugTable) console.debug("Got data for '"+objects_list_url+"' ...", data);
 
                   $.each(data, function (index, object) {
                      //if (debugTable) console.debug('List item: ', object);
@@ -231,7 +232,7 @@
                   });
                },
                "error": function (jqXHR, textStatus, errorThrown) {
-                  console.error("Get list error: ", objects_type+"s_list",errorThrown, jqXHR);
+                  console.error("Get list error: ", objects_list_url,errorThrown, jqXHR);
                }
             });
          });

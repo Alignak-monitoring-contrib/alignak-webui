@@ -59,7 +59,6 @@ class Host(BackendElement):
         self._linked_notification_period = 'timeperiod'
         self._linked_snapshot_period = 'timeperiod'
         self._linked_maintenance_period = 'timeperiod'
-        self._linked_hostgroups = 'hostgroup'
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 

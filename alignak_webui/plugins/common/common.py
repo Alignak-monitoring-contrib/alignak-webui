@@ -36,6 +36,22 @@ logger = getLogger(__name__)
 webui = None
 
 
+def get_form(object_type, schema, element=None):
+    """
+    Build the object_type table and get data to populate the table
+    """
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Build table structure and data model
+    dt = Datatable(object_type, datamgr, schema)
+
+    return {
+        'object_type': object_type,
+        'dt': dt,
+        'element': element
+    }
+
+
 def get_table(object_type, schema, embedded=False, identifier=None, credentials=None):
     """
     Build the object_type table and get data to populate the table
@@ -81,7 +97,6 @@ def get_table_data(object_type, schema):
     return dt.table_data()
 
 
-# noinspection PyUnusedLocal
 def get_widget(get_method, object_type, embedded=False, identifier=None, credentials=None):
     # Because there are many locals needed :)
     # pylint: disable=too-many-locals
