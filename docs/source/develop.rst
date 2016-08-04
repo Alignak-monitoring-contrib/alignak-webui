@@ -168,6 +168,61 @@ As an example, for the livestate table, an element with status UP will have a CS
 The corresponding classes can be defined in the *alignak_webui-items.css* file. Some example classes still exist in this file for the livestate states (eg. UP, OK, ...).
 
 
+Table edition
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Table edition is available on a column basis; each column can have its own edition parameter.
+
+The table must be **editable**.::
+
+
+        # This to define the global information for the table
+        schema['ui'] = {
+
+            'ui': {
+                'page_title': _('Livestate table (%d items)'),
+                ...
+                # Table is editable
+                'editable': True,
+                ...
+
+
+Field attributes:
+
+    - `type`: is the field type (see the known types list hereunder)
+    - `content_type`: is the list items content type (eg. same as type) if the field is a *list*
+    - `hint`: is a descrption of the field used as an help in the edition form
+    - `required`: to indicate if the field must contain a value or may be empty
+    - `allowed`: the list of the allowed values in the field (see hereafter for more explanations)
+
+Field types:
+
+    - `objectid`
+    - `string`
+    - `integer`
+    - `boolean`
+
+Field content types:
+
+    - objectid
+    - string
+    - integer
+    - boolean
+
+Available formats:
+
+    - `date`:
+    - `on_off`:
+    - `select` or `single_select`: only one value is allowed in the field
+    - `multiselect`:
+
+When the field `type` is a list, the `content_type` field may specify which type is to be used for the list items (eg. string, integer, ...).
+If the `allowed` field contains a value, it may be:
+
+    - inner://url
+    - an array of the allowed values
+
+
 Table filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

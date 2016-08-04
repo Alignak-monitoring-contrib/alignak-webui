@@ -39,23 +39,6 @@ webui = None
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-    }
-}
 schema['_created'] = {
     'type': 'integer',
     'ui': {

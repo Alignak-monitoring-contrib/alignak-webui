@@ -52,25 +52,6 @@ hosts_filenames = []
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-        # Field is not editable (default: True)
-        'editable': False,
-    }
-}
 schema['name'] = {
     'type': 'string',
     'required': True,
@@ -90,6 +71,8 @@ schema['name'] = {
         'orderable': True,
         # Edition hint message
         'hint': _('This field must be unique'),
+        # Field is not editable (default: True)
+        'editable': False,
     },
 }
 schema['_realm'] = {
@@ -162,16 +145,18 @@ schema['address'] = {
 }
 schema['customs'] = {
     'type': 'list',
+    'content_type': 'dict',
     'default': [],
     'ui': {
         'title': _('Customs'),
         'visible': True,
-        'format': 'single_select',
+        'format': 'multiselect',
         'format_parameters': ''
     }
 }
 schema['check_command'] = {
     'type': 'objectid',
+    'required': True,
     'allowed': ['inner://commands_list'],
     'ui': {
         'title': _('Check command'),
@@ -195,6 +180,8 @@ schema['check_command_args'] = {
 }
 schema['check_period'] = {
     'type': 'objectid',
+    'required': True,
+    'allowed': ['inner://timeperiods_list'],
     'ui': {
         'title': _('Check period'),
         'visible': True,
@@ -243,11 +230,14 @@ schema['passive_checks_enabled'] = {
 }
 schema['parents'] = {
     'type': 'list',
+    'required': True,
+    'content_type': 'objectid',
+    'allowed': ['inner://hosts_list'],
     'ui': {
         'title': _('Parents'),
         'visible': True,
         'searchable': False,
-        'format': 'select',
+        'format': 'multiselect',
         'format_parameters': 'host'
     },
     'data_relation': {
@@ -486,8 +476,6 @@ schema['process_perf_data'] = {
 
 # This to define the global information for the table
 schema['ui'] = {
-    'type': 'boolean',
-    'default': True,
 
     # UI parameters for the objects
     'ui': {
@@ -591,11 +579,24 @@ def get_hosts_list(embedded=False):
     return json.dumps(items)
 
 
-def get_hosts_templates():
+def get_hosts_templates(embedded=False):
+    # pylint: disable=unused-argument
     """
     Get the hosts templates list
     """
-    return get_hosts(templates=True)
+    datamgr = request.environ['beaker.session']['datamanager']
+
+    # Get elements from the data manager
+    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
+    hosts = datamgr.get_hosts(search, template=True, all_elements=True)
+
+    items = []
+    for host in hosts:
+        items.append({'id': host.id, 'name': host.name, 'alias': host.alias})
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(items)
 
 
 def get_hosts_widget(embedded=False, identifier=None, credentials=None):

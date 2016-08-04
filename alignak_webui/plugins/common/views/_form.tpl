@@ -1,3 +1,5 @@
+%import json
+
 %# Default values
 %setdefault('debug', False)
 %setdefault('edition', True)
@@ -6,7 +8,11 @@
 %rebase("layout", title=title, page="/{{object_type}}/edit/{{element.id}}")
 
 <div id="form_{{object_type}}">
-   <form role="form" data-widget="{{element.id}}" data-action="save-options" method="post" action="/{{object_type}}/edit/{{element.id}}">
+   <form role="form"
+         data-widget="{{element.id}}" data-action="save-options"
+         method="post" action="/{{object_type}}/edit/{{element.id}}"
+         style="padding: 20px;">
+
       <input type="hidden" name='element.id' value='{{element.id}}'/>
 
       <fieldset>
@@ -26,55 +32,108 @@
          %end
 
          %value = element[name]
+         %field_id=element.id
+         %field_value=value
+
+         %from alignak_webui.objects.element import BackendElement
+         %# Field value is a list
+         %if isinstance(value, list):
+         %  list_value = []
+         %  for v in value:
+         %     if isinstance(v, BackendElement):
+         %        list_value.append(v.name)
+         %     elif isinstance(v, basestring):
+         %        list_value.append(v)
+         %     elif isinstance(v, tuple):
+         %        list_value.append(v)
+         %     else:
+         %        list_value.append(v._id)
+         %     end
+         %  end
+         %  field_value=','.join(list_value)
+         %end
+
+         %# Field value is a dict
+         %if isinstance(value, dict):
+         %  list_value = []
+         %  for k,v in value.items():
+         %     list_value.append('%s=%s' % (k, v))
+         %  end
+         %  field_value=','.join(list_value)
+         %end
+
          %label = field.get('title', '')
          %field_type = field.get('type', 'string')
+         %content_type = field.get('content_type', 'string')
          %placeholder = field.get('placeholder', label)
          %allowed = field.get('allowed').split(',')
+         %format = field.get('format')
+         %format_parameters = field.get('format_parameters')
+         %required = field.get('required')
 
-         %if field_type == 'objectid':
+         %is_list = False
+         %if field_type=='list':
+         %  is_list = True
+         %  field_type = content_type
+         %end
+
+         %if field_type.startswith('objectid'):
          %# ----------------------------------------------------------------------------------------
          %# Fred's awful hack for Bottle issue #869: https://github.com/bottlepy/bottle/issues/869
          %# ----------------------------------------------------------------------------------------
-         %linked_object = element[name]
-         %methods = [method for method in dir(linked_object) if callable(getattr(linked_object, method))]
-         %attributes = [method for method in dir(linked_object) if not callable(getattr(linked_object, method))]
-         %#get_link = linked_object.get_html_link()
-
-         %for method in dir(linked_object):
-         %if callable(getattr(linked_object, method)) and method=='get_html_link':
-         %get_link = getattr(linked_object, method)
-         %end
-         %end
-
-         %for method in dir(linked_object):
-         %if not callable(getattr(linked_object, method)) and method=='__dict__':
-         %get_dict = getattr(linked_object, method)
-         %end
+         %if not is_list:
+         %  linked_object = element[name]
+         %  for method in dir(linked_object):
+         %     if not callable(getattr(linked_object, method)) and method=='__dict__':
+         %        get_dict = getattr(linked_object, method)
+         %     end
+         %  end
+         %  field_id=get_dict['_id']
+         %  field_value=get_dict['_name']
          %end
          %# ----------------------------------------------------------------------------------------
          %end
 
-         %# """ Manage the different types of values"""
+         %if debug:
+            <i class="fa fa-bug"></i>
+            {{'%s (%s) -> %s%s=%s' % (name, field_id, field_type, content_type if field_type=='list' else '', field_value)}}<br/>
+            <i class="fa fa-bug"></i>
+            {{field}}
+         %end
+
+         %# Manage the different types of values
+         %# ----------------------------------------------------------------------------------------
          %if field_type == 'hidden':
             <input type="hidden" name='{{name}}' value='{{value}}'/>
             %continue
          %end
 
-         %if field_type in ['objectid']:
-            %if debug:
-            <i class="fa fa-bug"></i>{{field}} -> {{name}}='{{value}}' - {{attributes}}<br>
-            <i class="fa fa-bug"></i>{{! get_link()}}<br>
-            <i class="fa fa-bug"></i>{{! get_dict['_name']}} - {{! get_dict['_alias']}}<br>
+         %if field_type.startswith('objectid'):
+            %linked_object_type = content_type.replace('objectid:', '')
+            %icon=''
+            %if linked_object_type:
+            %  from alignak_webui.objects.element_state import ElementState
+            %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
+            %  icon=icon['icon'] if icon else ''
             %end
-
-            %from alignak_webui.objects.element_state import ElementState
-            %icon = ElementState().get_icon_state(object_type, 'unknown')
             <div class="form-group">
-               <label for="{{name}}" class="control-label">{{label}}</label>
-
-               <select id="{{name}}" class="form-control">
-                  <option value="{{get_dict['_id']}}">{{get_dict['_name']}}</option>
-               </select>
+               <label for="{{name}}" class="col-md-2 control-label">{{label}} {{icon}}</label>
+               <div class="col-md-10">
+                  <input id="{{name}}" name="{{name}}"
+                     class="form-control"
+                     type="{{'number' if field_type=='integer' else 'text'}}"
+                     placeholder="{{placeholder}}"
+                     value="{{field_value}}"
+                     >
+                  %if field.get('hint'):
+                  <p class="help-block">
+                     {{field.get('hint')}}
+                     %if field.get('unique', False):
+                     <br>This field must be unique!
+                     %end
+                  </p>
+                  %end
+               </div>
             </div>
             <script>
                $('#{{name}}').selectize({
@@ -85,206 +144,180 @@
                   searchField: 'name',
                   create: false,
 
-                  options: [ {
-                     'id': '{{get_dict['_id']}}', 'name': '{{get_dict['_name']}}'
-                  }],
-
                   render: {
                      option: function(item, escape) {
                         return '<div>' +
-                           '<span class="name">' +
-                           '<i class="fa fa-{{icon['icon']}}"></i>&nbsp;' +
-                           escape(item.name) +
-                           '</span>' +
-                           ' <em>(<small>' + escape(item.alias) + '</small>)</em>' +
+                           %if icon:
+                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                           %end
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
                         '</div>';
                      },
                      item: function(item, escape) {
-                        return '<span class="name">' +
-                           '<i class="fa fa-{{icon['icon']}}"></i>&nbsp;' +
-                           escape(item.name) +
-                           '</span>';
+                        console.log('Render: ', item, escape)
+                        return '<div>' +
+                           %if icon:
+                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                           %end
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                        '</div>';
                      }
                   },
 
-                  preload: 'focus',
-                  // {{allowed}}
-                  %if len(allowed) > 0 and allowed[0].startswith('inner://'):
+                  %if allowed:
+                  %# List of allowed values
+                  %if allowed[0].startswith('inner://'):
+                  preload: true,
                   load: function(query, callback) {
                      if (!query.length) return callback();
                      $.ajax({
-                        url: '{{allowed[0].replace('inner:/', '')}}',
+                        url: "{{allowed[0].replace('inner://', '/')}}",
                         type: 'GET',
                         error: function() {
-                           console.error('Error!')
                            callback();
                         },
                         success: function(res) {
-                           console.log(res)
+                           // 10 first items...
                            callback(res.slice(0, 10));
                         }
                      });
                   },
+                  %else:
+                     options: [
+                     %if is_list:
+                        %for option in allowed:
+                        {
+                           'id': '{{option}}', 'name': '{{option}}'
+                        },
+                        %end
+                     %else:
+                        { 'id': '{{field_id}}', 'name': '{{field_value}}' }
+                     %end
+                     ],
+                  %end
+                  %else:
+                  %# No list of allowed values
+                     options: [
+                        { 'id': '{{field_id}}', 'name': '{{field_value}}' }
+                     ],
                   %end
 
-                  maxItems: 1,      // single selection
-                  placeholder: '{{placeholder}}',
-                  hideSelected: true,
-                  allowEmptyOption: true
-               });
-            </script>
-            %continue
-         %end
+                  maxItems: {{'1' if format == 'select' else 'null'}},
+                  closeAfterSelect: {{'true' if format == 'select' else 'false'}},
 
-         %if field_type in ['list']:
-            %if debug:
-            <i class="fa fa-bug"></i>{{field}} -> {{name}}='{{value}}' <br>
-            %end
-            <div class="form-group">
-               <label for="{{name}}" class="control-label">{{label}}</label>
-
-               <select id="{{name}}" multiple="" class="form-control">
-                  %for option in value:
-                  <option>{{option}}</option>
-                  %end
-               </select>
-            </div>
-            <script>
-            %allowed = field.get('allowed')
-            %if allowed.startswith('inner://'):
-               $('#{{name}}').selectize({
-                  plugins: ['remove_button'],
-                  delimiter: ',',
-                  persist: false,
-                  %if edition:
-                  create: true,     // Allow creation of new values
-                  %end
-                  %if value:
-                  items: [
-                  %for option in value:
-                  '{{option}}',
-                  %end
-                  ],                // Initially selected values
-                  %end
-                  maxItems: null,   // multiselection
                   placeholder: '{{placeholder}}',
                   hideSelected: true,
+                  %if not required:
                   allowEmptyOption: true
+                  %end
                });
-            %else:
-               $('#{{name}}').selectize({
-                  %if edition:
-                  create: true,     // Allow creation of new values
-                  %end
-                  %if value:
-                  items: [
-                  %for option in value:
-                  '{{option}}',
-                  %end
-                  ],                // Initially selected values
-                  %end
-                  maxItems: null,   // multiselection
-                  placeholder: '{{placeholder}}',
-                  hideSelected: true,
-                  allowEmptyOption: true
-               });
-            %end
             </script>
             %continue
          %end
 
          %if field_type in ['boolean']:
             <div class="form-group">
-                  <div class="checkbox">
+               <div class="col-md-offset-2 col-md-10">
+                  <div class="togglebutton">
                      <label>
                         <input type="checkbox" {{'checked="checked"' if value else ''}}> {{label}}
                      </label>
                   </div>
+               </div>
             </div>
             %continue
          %end
 
-         %if field_type in ['string', 'integer']:
+         %if field_type in ['dict', 'string', 'integer']:
             <div class="form-group">
-               <label for="{{name}}" class="control-label">{{label}}</label>
-               <input class="form-control" type="{{'number' if field_type=='integer' else 'text'}}" placeholder="{{ value }}" name="{{name}}" value="{{value}}">
-               %if field.get('hint'):
-               <p class="help-block">
-                  {{field.get('hint')}}
-                  %if field.get('unique', False):
-                  <br>This field must be unique!
+               <label for="{{name}}" class="col-md-2 control-label">{{label}}</label>
+               <div class="col-md-10">
+                  <input id="{{name}}" name="{{name}}"
+                     class="form-control"
+                     type="{{'number' if field_type=='integer' else 'text'}}"
+                     placeholder="{{placeholder}}"
+                     value="{{field_value}}"
+                     >
+                  %if field.get('hint'):
+                  <p class="help-block">
+                     {{field.get('hint')}}
+                     %if field.get('unique', False):
+                     <br>This field must be unique!
+                     %end
+                  </p>
                   %end
-               </p>
-               %end
+               </div>
             </div>
-            %continue
-         %end
+            %if is_list:
+            <script>
+               $('#{{name}}').selectize({
+                  plugins: ['remove_button'],
+                  delimiter: ',',
+                  persist: false,
 
-         %if field_type in ['hst_srv']:
-            <div class="form-group">
-               <label for="{{name}}">{{label}}</label>
-               %if field_type == 'hst_srv' and bloodhound:
-               <input type="text" class="form-control input-sm typeahead" placeholder="{{_('Search by name ...')}}" name="{{key}}" value="{{value}}">
-               <script>
-                  // On page loaded ...
-                  $(function() {
-                     // Typeahead: builds suggestion engine
-                     var hosts = new Bloodhound({
-                        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-                        queryTokenizer: Bloodhound.tokenizers.whitespace,
-                        remote: {
-                           url: '/lookup?query=%QUERY',
-                           filter: function (hosts) {
-                              return $.map(hosts, function (host) { return { value: host }; });
-                           }
+                  valueField: 'id',
+                  labelField: 'name',
+                  searchField: 'name',
+                  create: false,
+
+                  render: {
+                     option: function(item, escape) {
+                        return '<div>' +
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                        '</div>';
+                     },
+                     item: function(item, escape) {
+                        return '<div>' +
+                           (item.id ? '' : '***') +
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                        '</div>';
+                     }
+                  },
+
+                  %if allowed:
+                  %if allowed[0].startswith('inner://'):
+                  preload: true,
+                  load: function(query, callback) {
+                     if (!query.length) return callback();
+                     $.ajax({
+                        url: "{{allowed[0].replace('inner://', '/')}}",
+                        type: 'GET',
+                        error: function() {
+                           callback();
+                        },
+                        success: function(res) {
+                           // 10 first items...
+                           callback(res.slice(0, 10));
                         }
                      });
-                     hosts.initialize();
-
-                     // Typeahead: activation
-                     var typeahead = $('#input-{{element.id}}-{{key}}').typeahead({
-                        hint: true,
-                        highlight: true,
-                        minLength: 3
-                     },
-                     {
-                        name: 'hosts',
-                        displayKey: 'value',
-                        source: hosts.ttAdapter(),
-                     });
-
-                     typeahead.on('typeahead:selected', function (eventlinked_object, suggestionlinked_object, suggestionDataset) {
-                        $('#input-{{element.id}}-{{key}}').val(suggestionlinked_object.value).html(suggestionlinked_object.value);
-                        hostSubmittable = true;
-                     });
-                  });
-               </script>
-               %end
-            </div>
-            %continue
-         %end
-
-         %if field_type in ['select']:
-            <div class="form-group">
-               <label for = "{{key}}">{{label}}</label>
-               %values = v.get('values', {})
-               %value = v.get('value', '')
-               <select name='{{k}}'>
-               %for sub_val,sub_name in values.iteritems():
-                  %selected = ''
-                  %if value == sub_val:
-                      %selected = 'selected'
+                  },
+                  %else:
+                  items: [
+                  %for option in allowed:
+                  {
+                     'id': '{{option}}', 'name': '{{option}}'
+                  },
                   %end
-                  <option value="{{sub_val}}" {{selected}}>{{sub_name}}</option>
-               %end
-               </select>
-            </div>
+                  ],
+                  %end
+                  %end
+
+                  maxItems: {{'1' if format == 'select' else 'null'}},
+                  placeholder: '{{placeholder}}',
+                  hideSelected: true,
+                  %if not required:
+                  allowEmptyOption: true
+                  %end
+               });
+            </script>
+            %end
             %continue
          %end
-
 
          %if debug:
-         <i class="fa fa-bug"></i>{{field}} -> {{name}}='{{value}}' <br>
+         <i class="fa fa-bug"></i><i class="fa fa-bug"></i>{{field}} -> {{name}}='{{field_value}}' <br>
          %end
       %end
       </fieldset>

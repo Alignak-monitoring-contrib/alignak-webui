@@ -48,12 +48,117 @@
          %if dt.searchable:
          <tr id="filterrow">
             %idx=0
-            %for column in dt.table_columns:
-               <th data-index="{{idx}}" data-name="{{ column['data'] }}"
-                   data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
-                   data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
-                   data-format-parameters="{{ column['format_parameters'] }}"
-                   data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
+            %for field in dt.table_columns:
+               %name = field.get('data', '')
+               %label = field.get('title', '')
+               %field_type = field.get('type', 'string')
+               %content_type = field.get('content_type', 'string')
+               %placeholder = field.get('placeholder', label)
+               %allowed = field.get('allowed').split(',')
+               %format = field.get('format')
+               %format_parameters = field.get('format_parameters')
+               %required = field.get('required')
+
+               %is_list = False
+               %if field_type=='list':
+               %  is_list = True
+               %  field_type = content_type
+               %end
+
+               <th data-index="{{idx}}" data-name="{{ field['data'] }}"
+                   data-searchable="{{ field['searchable'] }}"
+                   data-regex="{{ field['regex'] }}" data-size="{{ field['size'] }}"
+                   data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
+                   data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
+                   data-allowed="{{ field['allowed'] }}"
+                   >
+                  %if debug:
+                     <div>
+                     <i class="fa fa-bug"></i>
+                     {{'%s -> %s - %s' % (name, field_type, content_type if field_type=='list' else '')}}<br/>
+                     <i class="fa fa-bug"></i>
+                     {{field}}
+                     </div>
+                  %end
+
+                  %if field_type in ['boolean']:
+                     <div class="togglebutton">
+                        <label>
+                           <input type="checkbox" >
+                        </label>
+                     </div>
+                  %end
+
+                  %if field_type in ['dict', 'string', 'integer']:
+                     <input id="{{name}}" name="{{name}}"
+                        class="form-control"
+                        type="{{'number' if field_type=='integer' else 'text'}}"
+                        placeholder="{{placeholder}}"
+                        value=""
+                        >
+                     %#if is_list:
+                     <script>
+                        $('#{{name}}').selectize({
+                           plugins: ['remove_button'],
+                           delimiter: ',',
+                           persist: false,
+
+                           valueField: 'id',
+                           labelField: 'name',
+                           searchField: 'name',
+                           create: false,
+
+                           render: {
+                              option: function(item, escape) {
+                                 return '<div>' +
+                                    (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                                    (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                                 '</div>';
+                              },
+                              item: function(item, escape) {
+                                 return '<div>' +
+                                    (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                                 '</div>';
+                              }
+                           },
+
+                           %if allowed:
+                           %  if allowed[0].startswith('inner://'):
+                           preload: true,
+                           load: function(query, callback) {
+                              if (!query.length) return callback();
+                              $.ajax({
+                                 url: "{{allowed[0].replace('inner://', '/')}}",
+                                 type: 'GET',
+                                 error: function() {
+                                    callback();
+                                 },
+                                 success: function(res) {
+                                    // 10 first items...
+                                    callback(res.slice(0, 10));
+                                 }
+                              });
+                           },
+                           %  else:
+                              options: [
+                           %     for option in allowed:
+                                 {
+                                    'id': '{{option}}', 'name': '{{option}}'
+                                 },
+                           %     end
+                              ],
+                           %  end
+                           %end
+
+                           maxItems: {{'1' if format == 'select' else 'null'}},
+                           closeAfterSelect: true,
+                           placeholder: '{{placeholder}}',
+                           hideSelected: true,
+                           allowEmptyOption: true
+                        });
+                     </script>
+                     %#end
+                  %end
                </th>
                %idx += 1
             %end
@@ -82,7 +187,8 @@
 
       %if dt.searchable:
       // Setup - add a text/select input to each search cell
-      $('#tbl_{{object_type}} thead tr#filterrow th').each( function () {
+      // DEPRECATED FUNCTION !
+      $('#filterrow th2').each( function () {
          // Beware to only add one element that is the edit field ...
          // or change the stateLoadCallback restore processing!
          var title = $('#tbl_{{object_type}} thead th').eq( $(this).index() ).text();
@@ -126,18 +232,21 @@
 
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
-         var column_index = $(this).parent().data('index');
-         var column_name = $(this).parent().data('name');
+         var parent = $(this).parents('th')
+         var column_index = parent.data('index');
+         var column_name = parent.data('name');
+         var regex = parent.data('regex');
          var value = $(this).val();
          if ($(this).attr('type') == 'checkbox') {
             value = $(this).is(':checked');
          }
          if (debugTable) console.debug('Datatable event, search column '+column_name+' for '+value);
+         console.debug('Datatable event, search column '+column_name+' for '+value);
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
             .column(column_index)
-               .search(value, $(this).data('regex')=='True', false)
+               .search(value, regex=='True', false)
                .draw();
 
          // Enable the clear filter button
@@ -146,8 +255,9 @@
 
       // Apply the search filter for select fields
       $("#tbl_{{object_type}} thead select").on('change', function () {
-         var column_index = $(this).parent().data('index');
-         var column_name = $(this).parent().data('name');
+         var parent = $(this).parents('th')
+         var column_index = parent.data('index');
+         var column_name = parent.data('name');
          var value = $(this).val() || [];
 
          if (debugTable) console.debug("Datatable event, search column '"+column_name+"' for '" + value + "'");
@@ -163,6 +273,7 @@
       });
       %end
 
+      %if debug:
       $('#tbl_{{object_type}}').on( 'xhr.dt', function () {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          var json = table.ajax.json();
@@ -181,6 +292,7 @@
       $('#tbl_{{object_type}}').on( 'error.dt', function ( e, settings ) {
          if (debugTable) console.error('Datatable event, error ...');
       });
+      %end
 
       $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
@@ -198,7 +310,7 @@
 
          %if dt.searchable:
          // Populate select for object links fields ...
-         $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type="objectid"][data-searchable="True"]').each( function () {
+         $('#filterrow th2[data-format="select"][data-type="objectid"][data-searchable="True"]').each( function () {
             var field_name = $(this).data('name');
             var objects_list_url = $(this).data('allowed');
             objects_list_url = objects_list_url[0];
@@ -237,13 +349,6 @@
             });
          });
 
-         console.log('selectize')
-         $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type!="objectid"][data-searchable="True"]').each( function () {
-            var select = $(this).find('select');
-            select.select2({
-               tags: true
-            });
-         });
          %end
       });
 

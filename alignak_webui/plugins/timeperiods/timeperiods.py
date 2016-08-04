@@ -41,23 +41,6 @@ webui = None
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-    }
-}
 schema['name'] = {
     'type': 'string',
     'ui': {
@@ -187,7 +170,7 @@ def get_timeperiods_list():
 
     items = []
     for timeperiod in timeperiods:
-        items.append({'id': timeperiod.id, 'name': timeperiod.alias})
+        items.append({'id': timeperiod.id, 'name': timeperiod.name, 'alias': timeperiod.alias})
 
     response.status = 200
     response.content_type = 'application/json'
