@@ -90,7 +90,7 @@
                   %end
 
                   %if field_type in ['dict', 'string', 'integer']:
-                     <input id="{{name}}" name="{{name}}"
+                     <input id="filter_{{name}}" name="{{name}}"
                         class="form-control"
                         type="{{'number' if field_type=='integer' else 'text'}}"
                         placeholder="{{placeholder}}"
@@ -98,7 +98,7 @@
                         >
                      %#if is_list:
                      <script>
-                        $('#{{name}}').selectize({
+                        $('#filter_{{name}}').selectize({
                            plugins: ['remove_button'],
                            delimiter: ',',
                            persist: false,
@@ -241,7 +241,6 @@
             value = $(this).is(':checked');
          }
          if (debugTable) console.debug('Datatable event, search column '+column_name+' for '+value);
-         console.debug('Datatable event, search column '+column_name+' for '+value);
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
@@ -406,19 +405,32 @@
 
             // Update each search field with the received value
             $.each(data.columns, function(index, value) {
-               if (value['search']['search'] != "") {
-                  if (debugTable) console.debug('Update column', index, value['search']['search'], value);
+               var name = $('#filterrow th[data-index="'+index+'"]').data('name');
 
-                  // Update search filter input field value
-                  $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+               if ($('#filter_'+name).length) {
+                  var input_filter = $('#filter_'+name).selectize()[0].selectize;
+                  if (input_filter) {
+                     if (debugTable) console.debug('*** clear filter: ', index, name);
+                     input_filter.clear(true);
+                  }
 
-                  // Configure table filtering
-                  table
-                     .column(index)
-                        .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
+                  if (value['search']['search'] != "") {
+                     var name = $('#filterrow th[data-index="'+index+'"]').data('name');
+                     if (debugTable) console.debug('*** update filter: ', index, name, value['search']['search']);
 
-                  // Enable the clear filter button
-                  table.buttons('clearFilter:name').enable();
+                     // Update search filter input field value
+                     //$('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+                     // Clear items list
+                     input_filter.clear(true);
+
+                     // Configure table filtering
+                     table
+                        .column(index)
+                           .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
+
+                     // Enable the clear filter button
+                     table.buttons('clearFilter:name').enable();
+                  }
                }
             });
          } else {
