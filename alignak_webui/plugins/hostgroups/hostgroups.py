@@ -139,6 +139,17 @@ schema['hostgroups'] = {
         'embeddable': True
     }
 }
+schema['hosts'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Hosts members'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'host',
+        'embeddable': True
+    }
+}
 
 
 # This to define the global information for the table
@@ -263,7 +274,7 @@ def get_hostgroup_members(hostgroup_id):
     # items = hostgroup.members
 
     items = []
-    for host in hostgroup.members:
+    for host in hostgroup.hosts:
         lv_host = datamgr.get_livestate({'where': {'type': 'host', 'host': host.id}})
         lv_host = lv_host[0]
         title = "%s - %s (%s)" % (

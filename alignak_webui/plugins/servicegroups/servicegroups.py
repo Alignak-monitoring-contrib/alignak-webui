@@ -139,6 +139,17 @@ schema['servicegroups'] = {
         'embeddable': True
     }
 }
+schema['services'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('services members'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'service',
+        'embeddable': True
+    }
+}
 
 
 # This to define the global information for the table
@@ -267,7 +278,7 @@ def get_servicegroup_members(servicegroup_id):
     # items = servicegroup.members
 
     items = []
-    for service in servicegroup.members:
+    for service in servicegroup.services:
         lv_service = datamgr.get_livestate({'where': {'type': 'service', 'service': service.id}})
         lv_service = lv_service[0]
         title = "%s - %s (%s)" % (

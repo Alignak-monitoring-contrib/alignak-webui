@@ -55,7 +55,7 @@ class UserGroup(BackendElement):
         super(UserGroup, self)._create(params, date_format)
 
     @property
-    def members(self):
+    def users(self):
         """ Return linked object """
         return self._linked_users
 

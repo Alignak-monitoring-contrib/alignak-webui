@@ -145,12 +145,8 @@ class Datatable(object):
         }
 
         for field, model in schema.iteritems():
+            # Global table configuration?
             if field == 'ui':
-                if 'id_property' not in model['ui']:  # pragma: no cover - should never happen
-                    logger.error(
-                        'get_data_model, UI schema is not well formed: missing uid property'
-                    )
-                    continue
                 logger.debug(
                     'get_data_model, table UI schema: %s', model['ui']
                 )
@@ -185,6 +181,7 @@ class Datatable(object):
             ui_dm['model']['fields'].update({field: {
                 'data': field,
                 'type': model.get('type', 'string'),
+                'content_type': model.get('content_type', 'string'),
                 'allowed': ','.join(model.get('allowed', [])),
                 'defaultContent': model.get('default', ''),
                 'required': model.get('required', False),
@@ -204,8 +201,13 @@ class Datatable(object):
             }})
 
             # Specific format fields
-            if 'allowed' in model:
-                ui_dm['model']['fields'][field].update({'format': 'select'})
+            # if 'allowed' in model:
+                # ui_dm['model']['fields'][field].update({'format': 'select'})
+
+            if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
+                ui_dm['model']['fields'][field].update(
+                    {'content_type': 'objectid:' + model.get('data_relation').get('resource')}
+                )
 
             logger.warning("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
 

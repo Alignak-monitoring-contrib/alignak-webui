@@ -540,11 +540,11 @@ class Helper(object):
         return content
 
     @staticmethod
-    def get_html_item_list(object_id, object_type, objects_list, title=None):
+    def get_html_item_list(object_id, object_type, objects_list, title=None, max_items=10):
         """
         Build an html definition list for the items list
         """
-        if not objects_list:
+        if not objects_list or not isinstance(objects_list, list):
             return ''
 
         # Get global configuration
@@ -558,6 +558,12 @@ class Helper(object):
         items_list = app_config.get('tables.lists.list')
 
         content = ''
+        if len(objects_list) > max_items:
+            objects_list = objects_list[:max_items]
+            list_item = app_config.get('tables.lists.item')
+            content += list_item.replace("##content##", _('Only %d items...') % max_items)
+            content += list_item.replace("##content##", _('-- / --'))
+
         for item in objects_list:
             if isinstance(item, basestring):
                 list_item = app_config.get('tables.lists.item')

@@ -126,6 +126,17 @@ schema['usergroups'] = {
         'embeddable': True
     }
 }
+schema['users'] = {
+    'type': 'list',
+    'ui': {
+        'title': _('Users members'),
+        'visible': True
+    },
+    'data_relation': {
+        'resource': 'user',
+        'embeddable': True
+    }
+}
 
 
 # This to define the global information for the table
@@ -252,7 +263,7 @@ def get_usergroup_members(usergroup_id):
     # items = usergroup.members
 
     items = []
-    for user in usergroup.members:
+    for user in usergroup.users:
         items.append({
             'id': user.id,
             'name': user.name,
