@@ -90,11 +90,10 @@
                   %end
 
                   %if field_type in ['dict', 'string', 'integer']:
-                     <input id="filter_{{name}}" name="{{name}}"
+                     <input id="filter_{{name}}"
                         class="form-control"
                         type="{{'number' if field_type=='integer' else 'text'}}"
                         placeholder="{{placeholder}}"
-                        value=""
                         >
                      %#if is_list:
                      <script>
@@ -151,10 +150,10 @@
                            %end
 
                            maxItems: {{'1' if format == 'select' else 'null'}},
-                           closeAfterSelect: true,
+                           closeAfterSelect: {{'true' if format == 'select' else 'false'}},
                            placeholder: '{{placeholder}}',
                            hideSelected: true,
-                           allowEmptyOption: true
+                           allowEmptyOption: false
                         });
                      </script>
                      %#end
@@ -411,6 +410,7 @@
                   var input_filter = $('#filter_'+name).selectize()[0].selectize;
                   if (input_filter) {
                      if (debugTable) console.debug('*** clear filter: ', index, name);
+                     if (debugTable) console.debug('*** clear filter: ', index, input_filter.items);
                      input_filter.clear(true);
                   }
 

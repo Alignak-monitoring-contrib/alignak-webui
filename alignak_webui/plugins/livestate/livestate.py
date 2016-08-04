@@ -139,8 +139,7 @@ schema['state'] = {
     'ui': {
         'title': _('State'),
         'visible': True,
-        'size': 5,
-        # 'priority': 0,
+        'format': 'multiselect'
     },
     'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
 }
@@ -149,7 +148,7 @@ schema['state_type'] = {
     'ui': {
         'title': _('State type'),
         'visible': True,
-        # 'priority': 0,
+        'format': 'select'
     },
     'allowed': ["HARD", "SOFT"]
 }

@@ -250,7 +250,6 @@ class tests_0_external(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
-            '<th data-name="#" data-type="string"></th>',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>'
@@ -266,7 +265,6 @@ class tests_0_external(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
-            '<th data-name="#" data-type="string"></th>',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>'
@@ -282,7 +280,6 @@ class tests_0_external(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
-            '<th data-name="#" data-type="string"></th>',
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
