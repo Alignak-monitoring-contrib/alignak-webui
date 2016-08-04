@@ -691,7 +691,6 @@ class TestDatatableHosts(unittest2.TestCase):
             '<th data-name="active_checks_enabled" data-type="boolean">Active checks enabled</th>',
             '<th data-name="passive_checks_enabled" data-type="boolean">Passive checks enabled</th>',
             '<th data-name="parents" data-type="list">Parents</th>',
-            '<th data-name="hostgroups" data-type="list">Hosts groups</th>',
             '<th data-name="business_impact" data-type="integer">Business impact</th>'
         )
 
