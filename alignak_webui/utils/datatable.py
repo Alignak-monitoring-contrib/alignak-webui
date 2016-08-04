@@ -200,10 +200,6 @@ class Datatable(object):
                 'searchable': model['ui'].get('searchable', True),
             }})
 
-            # Specific format fields
-            # if 'allowed' in model:
-                # ui_dm['model']['fields'][field].update({'format': 'select'})
-
             if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
                 ui_dm['model']['fields'][field].update(
                     {'content_type': 'objectid:' + model.get('data_relation').get('resource')}
