@@ -25,12 +25,13 @@ from __future__ import print_function
 
 import os
 import traceback
+from collections import OrderedDict
 from configparser import ConfigParser
 
 # Do not use logger in this module ... or it may fail!
 
 
-class Settings(dict):
+class Settings(OrderedDict):
     """
     Class used to manage configuration file and application configuration
     """

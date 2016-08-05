@@ -49,6 +49,8 @@ backend_endpoint = 'host'
 hosts_parameters = None
 hosts_filenames = []
 
+table = OrderedDict()
+
 # Get the same schema as the applications backend and append information for the datatable view
 # Use an OrderedDict to create an ordered list of fields
 schema = OrderedDict()
@@ -497,6 +499,7 @@ def load_config(app=None, cfg_filenames=None):
     Load plugin configuration
     """
     global hosts_parameters, hosts_filenames
+    global table
 
     if not cfg_filenames:
         cfg_filenames = hosts_filenames
@@ -510,9 +513,29 @@ def load_config(app=None, cfg_filenames=None):
     config_file = hosts_parameters.read('hosts')
     logger.info("Plugin configuration read from: %s", config_file)
     if not hosts_parameters:
-        return False
+        return 'ko'
     logger.info("Plugin configuration: %s", hosts_parameters)
-    return True
+
+    table = OrderedDict()
+    for param in hosts_parameters:
+        p = param.split('.')
+        if p[0] not in ['table']:
+            continue
+        if len(p) < 3:
+            # Table global configuration [table]
+            logger.debug("table global configuration: %s = %s", param, hosts_parameters[param])
+            if '_table' not in table:
+                table['_table'] = {}
+            table['_table'][p[1]] = hosts_parameters[param]
+            continue
+
+        # Table field configuration [table.field]
+        if p[1] not in table:
+            table[p[1]] = {}
+        table[p[1]][p[2]] = hosts_parameters[param]
+        logger.debug("table field configuration: %s = %s", param, hosts_parameters[param])
+
+    return 'ok'
 
 
 def get_hosts(templates=False):
@@ -699,7 +722,7 @@ def get_hosts_table(embedded=False, identifier=None, credentials=None):
     """
     Get the elements to build a table
     """
-    return get_table('host', schema, embedded, identifier, credentials)
+    return get_table('host', table, embedded, identifier, credentials)
 
 
 def get_hosts_table_data():

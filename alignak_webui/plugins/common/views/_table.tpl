@@ -43,7 +43,7 @@
       <thead>
          <tr>
             %for column in dt.table_columns:
-            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
+            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}</th>
             %end
          </tr>
          %if dt.searchable:
@@ -56,7 +56,7 @@
                %field_type = field.get('type', 'string')
                %content_type = field.get('content_type', 'string')
                %placeholder = field.get('placeholder', label)
-               %allowed = field.get('allowed').split(',')
+               %allowed = field.get('allowed', []).split(',')
                %format = field.get('format')
                %format_parameters = field.get('format_parameters')
                <th>
@@ -78,7 +78,10 @@
                %field_type = field.get('type', 'string')
                %content_type = field.get('content_type', 'string')
                %placeholder = field.get('placeholder', label)
-               %allowed = field.get('allowed').split(',')
+               %allowed = field.get('allowed')
+               %if allowed:
+               % allowed = allowed.split(',')
+               %end
                %format = field.get('format')
                %format_parameters = field.get('format_parameters')
                %required = field.get('required')
