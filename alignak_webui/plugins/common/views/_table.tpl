@@ -1,6 +1,7 @@
 %import json
 
 %setdefault('debug', False)
+%setdefault('debugLogs', False)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -46,6 +47,29 @@
             %end
          </tr>
          %if dt.searchable:
+         %if debug:
+         <tr id="debug">
+            %idx=0
+            %for field in dt.table_columns:
+               %name = field.get('data', '')
+               %label = field.get('title', '')
+               %field_type = field.get('type', 'string')
+               %content_type = field.get('content_type', 'string')
+               %placeholder = field.get('placeholder', label)
+               %allowed = field.get('allowed').split(',')
+               %format = field.get('format')
+               %format_parameters = field.get('format_parameters')
+               <th>
+                  <div>
+                  <i class="fa fa-bug"></i>
+                  {{'%s -> %s - %s' % (name, field_type, content_type if field_type=='list' else '')}}<br/>
+                  <i class="fa fa-bug"></i>
+                  {{field}}
+                  </div>
+               </th>
+            %end
+         </tr>
+         %end
          <tr id="filterrow">
             %idx=0
             %for field in dt.table_columns:
@@ -72,92 +96,108 @@
                    data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
                    data-allowed="{{ field['allowed'] }}"
                    >
-                  %if debug:
-                     <div>
-                     <i class="fa fa-bug"></i>
-                     {{'%s -> %s - %s' % (name, field_type, content_type if field_type=='list' else '')}}<br/>
-                     <i class="fa fa-bug"></i>
-                     {{field}}
-                     </div>
-                  %end
 
+                  %if is_list:
+                  <select id="filter_{{name}}" class="form-control">
+                     <option value="WY" selected="selected">Wyoming</option>
+                  </select>
+                  %else:
                   %if field_type in ['boolean']:
-                     <div class="togglebutton">
-                        <label>
-                           <input type="checkbox" >
-                        </label>
-                     </div>
-                  %end
-
-                  %if field_type in ['dict', 'string', 'integer']:
+                  %allowed = {'Yes': 'true', 'No': 'false', 'Both': ''}
+                  <!--
+                  <select id="filter_{{name}}" class="form-control">
+                  </select>
+                  -->
+                  <div class="form-group form-group-sm">
                      <input id="filter_{{name}}"
                         class="form-control"
                         type="{{'number' if field_type=='integer' else 'text'}}"
                         placeholder="{{placeholder}}"
                         >
-                     %#if is_list:
-                     <script>
-                        $('#filter_{{name}}').selectize({
-                           plugins: ['remove_button'],
-                           delimiter: ',',
-                           persist: false,
-
-                           valueField: 'id',
-                           labelField: 'name',
-                           searchField: 'name',
-                           create: false,
-
-                           render: {
-                              option: function(item, escape) {
-                                 return '<div>' +
-                                    (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                                    (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                                 '</div>';
-                              },
-                              item: function(item, escape) {
-                                 return '<div>' +
-                                    (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                                 '</div>';
-                              }
-                           },
-
-                           %if allowed:
-                           %  if allowed[0].startswith('inner://'):
-                           preload: true,
-                           load: function(query, callback) {
-                              if (!query.length) return callback();
-                              $.ajax({
-                                 url: "{{allowed[0].replace('inner://', '/')}}",
-                                 type: 'GET',
-                                 error: function() {
-                                    callback();
-                                 },
-                                 success: function(res) {
-                                    // 10 first items...
-                                    callback(res.slice(0, 10));
-                                 }
-                              });
-                           },
-                           %  else:
-                              options: [
-                           %     for option in allowed:
-                                 {
-                                    'id': '{{option}}', 'name': '{{option}}'
-                                 },
-                           %     end
-                              ],
-                           %  end
-                           %end
-
-                           maxItems: {{'1' if format == 'select' else 'null'}},
-                           closeAfterSelect: {{'true' if format == 'select' else 'false'}},
-                           placeholder: '{{placeholder}}',
-                           hideSelected: true,
-                           allowEmptyOption: false
-                        });
-                     </script>
-                     %#end
+                  </div>
+                  %else:
+                  <div class="form-group form-group-sm">
+                     <input id="filter_{{name}}"
+                        class="form-control"
+                        type="{{'number' if field_type=='integer' else 'text'}}"
+                        placeholder="{{placeholder}}"
+                        >
+                  </div>
                   %end
+                  %end
+                  <script>
+                     $('#filter_{{name}}').selectize({
+                        plugins: ['remove_button'],
+                        delimiter: ',',
+                        persist: false,
+
+                        valueField: 'id',
+                        labelField: 'name',
+                        searchField: 'name',
+                        create: false,
+
+                        /*
+                        render: {
+                           option: function(item, escape) {
+                              return '<div>' +
+                                 (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                                 (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                              '</div>';
+                           },
+                           item: function(item, escape) {
+                              console.log(item)
+                              return '<div>' +
+                                 (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                              '</div>';
+                           }
+                        },*/
+
+                        %if allowed:
+                        %  if isinstance(allowed, dict):
+                           options: [
+                        %     for k in allowed:
+                                 { 'id': '{{allowed[k]}}', 'name': '{{k}}' },
+                        %     end
+                           ],
+                        %  else:
+                        %     if allowed[0].startswith('inner://'):
+                        preload: 'focus',
+                        load: function(query, callback) {
+                           if (!query.length) return callback();
+                           $.ajax({
+                              url: "{{allowed[0].replace('inner://', '/')}}",
+                              type: 'GET',
+                              error: function() {
+                                 callback();
+                              },
+                              success: function(res) {
+                                 // 10 first items...
+                                 callback(res.slice(0, 10));
+                              }
+                           });
+                        },
+                        %     else:
+                           options: [
+                        %        for option in allowed:
+                                    { 'id': '{{option}}', 'name': '{{option}}' },
+                        %        end
+                           ],
+                        %     end
+                        %  end
+                        %end
+
+                        maxItems: {{'1' if not is_list else 'null'}},
+                        closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+                        placeholder: '{{placeholder}}',
+                        hideSelected: true,
+                        allowEmptyOption: false,
+                        openOnFocus: true,
+                        onChange: function(value) {
+                           console.log("Changed:", value);
+                           console.log("Changed:", $(this));
+                        }
+                     });
+                  </script>
                </th>
                %idx += 1
             %end
@@ -170,11 +210,36 @@
 </div>
 
 <script>
-   var debugTable = {{'true' if debug else 'false'}};
+   var debugTable = {{'true' if debugLogs else 'false'}};
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
 
+   function resetFilters() {
+      var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+
+      // Reset table columns search
+      table
+         .columns()
+            .search('', false, false)
+            .draw();
+
+      // Clear the search fields
+      $('#filterrow th[data-searchable="True"]').each( function () {
+         var field_name = $(this).data('name');
+
+         if ($('#filter_'+field_name).length) {
+            var input_filter = $('#filter_'+field_name).selectize()[0].selectize;
+            if (input_filter) {
+               if (debugTable) console.debug('*** clear filter: ', field_name, input_filter.items);
+               input_filter.clear(true);
+            }
+         }
+      });
+
+      // Disable the clear filter button
+      table.buttons('clearFilter:name').disable();
+   }
    $(document).ready(function() {
       %if not embedded:
       set_current_page("{{ webui.get_url(request.route.name) }}");
@@ -185,50 +250,6 @@
       });
 
       %if dt.searchable:
-      // Setup - add a text/select input to each search cell
-      // DEPRECATED FUNCTION !
-      $('#filterrow th2').each( function () {
-         // Beware to only add one element that is the edit field ...
-         // or change the stateLoadCallback restore processing!
-         var title = $('#tbl_{{object_type}} thead th').eq( $(this).index() ).text();
-
-         if ($(this).data('searchable') != 'True') {
-            if (debugTable) console.log('Do not search for field: ' + $(this).data('name'));
-            return;
-         }
-
-         if (($(this).data('format')=='select') || ($(this).data('format')=='single_select')) {
-            var html = '<select class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
-            var allowed = $(this).data('allowed').split(',');
-            $.each(allowed, function(idx){
-               html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
-            });
-            html += '</select>';
-            $(this).html( html );
-
-         } else if (($(this).data('format')=='multiselect') || ($(this).data('format')=='multiple_select')) {
-            var html = '<select multiple class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
-            var allowed = $(this).data('allowed').split(',');
-            $.each(allowed, function(idx){
-               html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
-            });
-            html += '</select>';
-            $(this).html( html );
-
-         } else {
-            // Simple input field
-            var html = '<input size="'+$(this).data('size')+'" type="text" data-regex="'+$(this).data('regex')+'" placeholder="'+title+'" />';
-            if ($(this).data('type')=='integer') {
-               html = '<input size="'+$(this).data('size')+'" type="number" placeholder="'+title+'" />';
-            } else if ($(this).data('type')=='email') {
-               html = '<input size="'+$(this).data('size')+'" type="email" placeholder="'+title+'" />';
-            } else if ($(this).data('type')=='boolean') {
-               html = '<input type="checkbox" placeholder="'+title+'" />';
-            }
-            $(this).html( html );
-         }
-      });
-
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
          var parent = $(this).parents('th')
@@ -271,27 +292,6 @@
       });
       %end
 
-      %if debug:
-      $('#tbl_{{object_type}}').on( 'xhr.dt', function () {
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-         var json = table.ajax.json();
-         if (debugTable) console.debug('Datatable event, xhr, ', json);
-         if (debugTable) console.debug('Datatable event, xhr, ' + json.data.length +' row(s) loaded');
-      });
-
-      $('#tbl_{{object_type}}').on( 'draw.dt', function () {
-         if (debugTable) console.debug('Datatable event, draw ...');
-      });
-
-      $('#tbl_{{object_type}}').on( 'column-sizing.dt', function () {
-         if (debugTable) console.debug('Datatable event, column-sizing ...');
-      });
-
-      $('#tbl_{{object_type}}').on( 'error.dt', function ( e, settings ) {
-         if (debugTable) console.error('Datatable event, error ...');
-      });
-      %end
-
       $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
@@ -304,49 +304,6 @@
              $('[data-reaction="selection-not-empty"]').prop('disabled', true);
              $('[data-reaction="selection-empty"]').prop('disabled', false);
          }
-         %end
-
-         %if dt.searchable:
-         // Populate select for object links fields ...
-         $('#filterrow th2[data-format="select"][data-type="objectid"][data-searchable="True"]').each( function () {
-            var field_name = $(this).data('name');
-            var objects_list_url = $(this).data('allowed');
-            objects_list_url = objects_list_url[0];
-            if (! objects_list_url) {
-               console.error("Probably a missing format_parameters for field: ", field_name, objects_list_url);
-               return true;
-            }
-
-            var select = $(this).find('select');
-            if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_list_url);
-
-            $.ajax( {
-               "url": objects_list_url,
-               "dataType": "json",
-               "type": "GET",
-               "success": function (data) {
-                  if (debugTable) console.debug("Got data for '"+objects_list_url+"' ...", data);
-
-                  $.each(data, function (index, object) {
-                     //if (debugTable) console.debug('List item: ', object);
-                     select.append($('<option>', {
-                        value: object.id,
-                        text : object.name
-                     }));
-                  });
-
-                  select.select2({
-                     maximumSelectionLength: 2,
-                     minimumResultsForSearch: Infinity,
-                     tags: true
-                  });
-               },
-               "error": function (jqXHR, textStatus, errorThrown) {
-                  console.error("Get list error: ", objects_list_url,errorThrown, jqXHR);
-               }
-            });
-         });
-
          %end
       });
 
@@ -388,40 +345,22 @@
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, saved state loaded ...');
 
-         // Disable the clear filter button
-         table.buttons('clearFilter:name').disable();
-
-         // Clear the search fields
-         $('#filterrow th').children().val('');
-
-         // Reset table columns search
-         table
-            .columns()
-               .search('', false, false);
+         resetFilters();
 
          if (where['saved_filters']) {
-            if (debugTable) console.debug('Restoring saved filters...');
+            if (debugTable) console.debug('Restoring saved filters:', where);
 
             // Update each search field with the received value
             $.each(data.columns, function(index, value) {
                var name = $('#filterrow th[data-index="'+index+'"]').data('name');
 
                if ($('#filter_'+name).length) {
-                  var input_filter = $('#filter_'+name).selectize()[0].selectize;
-                  if (input_filter) {
-                     if (debugTable) console.debug('*** clear filter: ', index, name);
-                     if (debugTable) console.debug('*** clear filter: ', index, input_filter.items);
-                     input_filter.clear(true);
-                  }
-
                   if (value['search']['search'] != "") {
-                     var name = $('#filterrow th[data-index="'+index+'"]').data('name');
+                     var input_filter = $('#filter_'+name).selectize()[0].selectize;
                      if (debugTable) console.debug('*** update filter: ', index, name, value['search']['search']);
 
                      // Update search filter input field value
-                     //$('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
-                     // Clear items list
-                     input_filter.clear(true);
+                     input_filter.setValue(value['search']['search']);
 
                      // Configure table filtering
                      table
@@ -434,7 +373,7 @@
                }
             });
          } else {
-            if (debugTable) console.debug('Erasing saved filters...');
+            if (debugTable) console.debug('Erasing saved filters:', where);
 
             // Update each search field with the filter URL parameters
             $.each(where, function(key, value) {
@@ -455,8 +394,12 @@
                if (debugTable) console.debug('Update column search', table.column(key+':name'));
 
                // Update search filter input field value
-               if (debugTable) console.debug("Set new value: '" + value + "'");
+               var input_filter = $('#filter_'+key).selectize()[0].selectize;
+               if (debugTable) console.debug("Set new value: '" + value + "', for "+key);
                $('#filterrow th[data-name="'+key+'"]').children().val(value);
+
+               // Update search filter input field value
+               input_filter.setValue(value);
 
                // Configure table filtering
                table
@@ -757,18 +700,7 @@
                text: '<span id="clearFilter" class="fa-stack" style="font-size:0.63em;"><i class="fa fa-filter"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>',
                titleAttr: "{{_('Reset all the search filters')}}",
                action: function ( e, dt, node, data ) {
-                  // Reset table columns search
-                  table
-                     .columns()
-                        .search('', false, false)
-                        .draw();
-
-                  // Clear the search fields
-                  // Update search filter input field value
-                  $('#filterrow th').children().val('');
-
-                  // Disable the clear filter button
-                  table.buttons('clearFilter:name').disable();
+                  resetFilters();
                },
                className: 'btn-raised btn-xs'
             }

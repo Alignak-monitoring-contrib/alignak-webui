@@ -70,7 +70,7 @@ schema['name'] = {
         # This field is orderable (default: True)
         'orderable': True,
         # Edition hint message
-        'hint': _('This field must be unique'),
+        'hint': _('This field if the host name'),
         # Field is not editable (default: True)
         'editable': False,
     },

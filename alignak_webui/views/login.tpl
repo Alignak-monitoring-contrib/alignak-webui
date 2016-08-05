@@ -33,7 +33,7 @@
       <link href="/static/css/font-awesome.min.css" rel="stylesheet">
       <link href="/static/css/alignak_webui.css" rel="stylesheet">
 
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <!-- Material Design fonts -->
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
@@ -50,12 +50,6 @@
       <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
       %else:
       <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
-      %end
-
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design -->
-      <script src="/static/js/material/material.min.js"></script>
-      <script src="/static/js/material/ripples.min.js"></script>
       %end
    </head>
 
@@ -104,7 +98,7 @@
 
       %include("_footer")
 
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <!-- Bootstrap Material Design -->
       <script src="/static/js/material/material.min.js"></script>
       <script src="/static/js/material/ripples.min.js"></script>

@@ -205,7 +205,7 @@ class Datatable(object):
                     {'content_type': 'objectid:' + model.get('data_relation').get('resource')}
                 )
 
-            logger.warning("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
+            logger.debug("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
 
             # Convert data model format to datatables' one ...
             self.table_columns.append(ui_dm['model']['fields'][field])
@@ -467,7 +467,7 @@ class Datatable(object):
                             )
                     break
 
-            logger.info("backend search columns parameters: %s", searched_columns)
+            logger.warning("backend search individual columns parameters: %s", searched_columns)
 
         # Global search parameter
         # search:{"value":"test","regex":false}
@@ -476,10 +476,7 @@ class Datatable(object):
         # Will be too complex else ...
         if 'search' in params and 'columns' in params and params['search']:
             if 'value' in params['search'] and params['search']['value']:
-                logger.debug(
-                    "search requested, value: %s ",
-                    params['search']['value']
-                )
+                logger.debug("search requested, value: %s ", params['search']['value'])
                 for column in params['columns']:
                     if 'searchable' in column and column['searchable']:
                         logger.debug(
@@ -524,7 +521,7 @@ class Datatable(object):
         self.records_total = self.backend.count(self.object_type)
 
         # Request objects from the backend ...
-        logger.debug("table data get parameters: %s", parameters)
+        logger.warning("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
 
         if not items:

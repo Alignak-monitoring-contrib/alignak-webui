@@ -65,6 +65,7 @@ schema['name'] = {
 }
 schema['host'] = {
     'type': 'objectid',
+    'allowed': ['inner://hosts_list'],
     'ui': {
         'title': _('Host'),
         'visible': True,
@@ -87,6 +88,7 @@ schema['display_name_host'] = {
 }
 schema['service'] = {
     'type': 'objectid',
+    'allowed': ['inner://services_list'],
     'ui': {
         'title': _('Service'),
         'visible': True,

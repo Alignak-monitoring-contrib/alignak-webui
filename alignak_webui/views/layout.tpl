@@ -66,13 +66,9 @@
       <!-- select2 -->
       <link rel="stylesheet" href="/static/css/select2.min.css" >
 
-      <!-- selectize
-      <link rel="stylesheet" href="/static/css/selectize.css" >
-      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >-->
-
       <link rel="stylesheet" href="/static/css/timeline.css" >
 
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <!-- Material Design fonts -->
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
@@ -80,7 +76,10 @@
       <!-- Bootstrap Material Design -->
       <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
       <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
-      -->
+
+      <!-- selectize: styles already included with BMD
+      <link rel="stylesheet" href="/static/css/selectize.css" >
+      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >-->
       %end
 
       <!-- jsTree jQuery plugin -->
@@ -94,7 +93,7 @@
       -->
       <!-- Datatables jQuery plugin - separate files -->
       <link rel="stylesheet" href="/static/css/datatables/jquery.dataTables.min.css" >
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <link rel="stylesheet" href="/static/css/datatables/dataTables.material.min.css" >
       %else:
       %if request.app.config.get('bootstrap4', '0') == '1':
@@ -143,9 +142,6 @@
       %else:
       <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
       %end
-      <!--
-      <script type="text/javascript" src="/static/js/bootstrap-tab-bookmark.js"></script>
-      -->
       <script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
       <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
       <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
@@ -165,8 +161,8 @@
       <!-- selectize -->
       <script type="text/javascript" src="/static/js/selectize.min.js"></script>
 
-      <!-- select2 -->
-      <script type="text/javascript" src="/static/js/select2.full.min.js"></script>
+      <!-- select2
+      <script type="text/javascript" src="/static/js/select2.full.min.js"></script>-->
 
       <!-- jQuery Chart -->
       <script type="text/javascript" src="/static/js/Chart.min.js"></script>
@@ -182,7 +178,7 @@
       -->
       <!-- Datatables jQuery plugin - separate files -->
       <script type="text/javascript" src="/static/js/datatables/jquery.dataTables.min.js"></script>
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <script type="text/javascript" src="/static/js/datatables/dataTables.material.min.js"></script>
       %else:
       %if request.app.config.get('bootstrap4', '0') == '1':
