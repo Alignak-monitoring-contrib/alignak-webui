@@ -1013,7 +1013,7 @@ class WebUI(object):
                         ),
                         os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
                     ]
-                    config = f(app, cfg_files)
+                    config = f(cfg_files)
                     if config:
                         logger.info("plugin '%s' configured.", plugin_name)
                     else:  # pragma: no cover - if any ...
