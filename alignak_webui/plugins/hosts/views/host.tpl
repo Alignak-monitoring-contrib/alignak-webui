@@ -192,7 +192,7 @@
       <div class="btn-group pull-right">
          %if len(tags) > 2:
             <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+               <i class="fa fa-tag"></i>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
             </button>
             <ul class="dropdown-menu pull-right">
                %for tag in sorted(tags):
