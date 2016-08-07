@@ -1,7 +1,5 @@
 %setdefault('debug', False)
 
-%setdefault('page', 'unknown')
-
 %setdefault('display_steps_form', False)
 
 %setdefault('start', 0)
@@ -9,7 +7,7 @@
 %setdefault('total', 0)
 
 %from alignak_webui.utils.helper import Helper
-%setdefault('pagination', Helper.get_pagination_control(page, total, start, count))
+%setdefault('pagination', Helper.get_pagination_control('unknown', total, start, count))
 
 %from bottle import request
 

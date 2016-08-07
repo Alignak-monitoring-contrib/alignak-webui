@@ -53,7 +53,6 @@
       <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
       %else:
       <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
       %end
       <link rel="stylesheet" href="/static/css/font-awesome.min.css" >
       <link rel="stylesheet" href="/static/css/typeahead.css" >
@@ -332,7 +331,7 @@
                <!-- Page content header -->
                <section class="content-header">
                   %if pagination:
-                  %include("_pagination_element", pagination=pagination, page=page, elts_per_page=elts_per_page, display_steps_form=True)
+                  %include("_pagination_element", pagination=pagination, elts_per_page=elts_per_page, display_steps_form=True)
                   %end
                </section>
 
@@ -344,7 +343,7 @@
                %if pagination_bottom:
                <!-- Page content footer -->
                <section class="content-footer">
-                  %include("_pagination_element", pagination=pagination, page=page, elts_per_page=None)
+                  %include("_pagination_element", pagination=pagination, elts_per_page=None)
                </section>
                %end
             </div>

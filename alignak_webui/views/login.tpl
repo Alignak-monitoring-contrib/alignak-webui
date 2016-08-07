@@ -28,7 +28,6 @@
       <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
       %else:
       <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
       %end
       <link href="/static/css/font-awesome.min.css" rel="stylesheet">
       <link href="/static/css/alignak_webui.css" rel="stylesheet">
