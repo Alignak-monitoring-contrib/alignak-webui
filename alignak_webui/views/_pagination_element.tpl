@@ -87,14 +87,14 @@
          </div>
 
       <script>
-      $("#pagination_{{page_url.replace('/', '_')}} ul.dropdown-menu").click(function(e){
+      $("#pagination_{{page_url.replace('/', '_')}} ul.dropdown-menu li a").click(function(e){
          var value = $(this).data('elts');
 
          // Save user preference
-         save_user_preference('elts_per_page', value);
-
-         // Force page reloading
-         location.reload();
+         save_user_preference('elts_per_page', value, function() {
+            // Force page reloading
+            location.reload();
+         });
       });
       </script>
       %end
