@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', False)
+%setdefault('debugLogs', True)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -24,9 +24,6 @@
 %rebase("layout", title=title, page="/{{object_type}}s_table")
 %end
 
-%if dt.editable:
-%include("_edition.tpl")
-%end
 %if embedded and identifier:
 %scheme = request.urlparts.scheme
 %location = request.urlparts.netloc
@@ -445,7 +442,7 @@
          "processing": true,
          "serverSide": true,
          "ajax": {
-            "url": "{{server_url}}/{{object_type}}s_table_data",
+            "url": "{{server_url}}/{{object_type}}s/table_data",
             "method": "POST",
             "data": function ( d ) {
                // Add an extra field
@@ -720,16 +717,43 @@
                className: 'btn-raised btn-xs'
             }
             %end
+            // Only for tables with 'commands' attribute (eg. livestate)
+            %if dt.editable:
+            ,{
+               extend: 'selectedSingle',
+               text: "{{! _('<span class=\'fa fa-edit\'></span>')}}",
+               titleAttr: "{{_('Edit the selected item')}}",
+               className: 'btn-raised btn-xs',
+               action: function (e, dt, button, config) {
+                  var selected = dt.rows( { selected: true } );
+                  var count_selected = selected.indexes().length;
+                  if (count_selected != 1) {
+                     return;
+                  }
+                  var url = "{{server_url}}/{{object_type}}/form/";
+                  var first = true;
+                  $.each(selected.data(), function(index, elt){
+                     if (! first) return false;
+                     url += encodeURIComponent(elt._id);
+                  });
+                  window.setTimeout(function(){
+                     window.location.href = url;
+                  }, 50);
+               }
+            }
+            %end
             %if dt.commands:
             // Only for tables with 'commands' attribute (eg. livestate)
             ,{
                extend: 'collection',
                text: "{{! _('<span class=\'fa fa-bolt\'></span>')}}",
+               className: 'btn-raised btn-xs',
                buttons: [
                   {
                      extend: 'selected',
                      text: "{{_('Re-check')}}",
                      titleAttr: "{{_('Force a re-check for selected items')}}",
+                     className: 'btn-raised btn-xs',
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
@@ -753,13 +777,13 @@
                            display_modal(url);
                         }, 50);
                      },
-                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
                      extend: 'selected',
                      text: "{{_('Acknowledge')}}",
                      titleAttr: "{{_('Acknowledge selected items')}}",
+                     className: 'btn-raised btn-xs',
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
@@ -783,13 +807,13 @@
                            display_modal(url);
                         }, 50);
                      },
-                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
                      extend: 'selected',
                      text: "{{_('Downtime')}}",
                      titleAttr: "{{_('Schedule a downtime for selected items')}}",
+                     className: 'btn-raised btn-xs',
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
@@ -813,10 +837,8 @@
                            display_modal(url);
                         }, 50);
                      },
-                     className: 'btn-raised btn-xs'
                   }
                ],
-               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.recursive:
@@ -842,20 +864,18 @@
             if (visibility == false) {
                // Update search filter input field value
                $('#filterrow th[data-index="'+index+'"]').css({
-                  width : "0px",
                   display: "none"
                });
             }
             if (visibility == true) {
                // Update search filter input field value
                $('#filterrow th[data-index="'+index+'"]').css({
-                  width : "10px",
                   display: "table-cell"
                });
             }
          });
          // Recalculate columns and table width
-         if (debugTable) console.debug('Datatable event, state loaded ... recalculate columns and table width');
+         if (debugTable) console.debug('Datatable event, responsive resize... recalculate columns and table width');
          table.columns.adjust()
          table.responsive.recalc();
       });
