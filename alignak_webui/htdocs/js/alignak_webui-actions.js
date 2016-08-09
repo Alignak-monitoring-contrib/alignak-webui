@@ -51,7 +51,7 @@ function get_user_preference(key, callback, default_value) {
    })
    .fail(function( jqXHR, textStatus, errorThrown ) {
       console.error('get_user_preference, error: ', jqXHR, textStatus, errorThrown);
-      raise_message_ko(get_user_preference + ': '+ textStatus);
+      raise_message_ko(errorThrown + ': '+ textStatus);
    });
 }
 
