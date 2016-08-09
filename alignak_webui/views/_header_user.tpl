@@ -55,25 +55,25 @@
             <div class="panel-footer">
                <div class="btn-group" role="group">
                   <a class="btn btn-default btn-raised" href="#"
-                     data-action="about-box" data-toggle="tooltip" data-placement="bottom"
+                     data-action="about-box" data-toggle="tooltip" data-placement="top"
                      title="{{_('Display application information')}}">
                      <span class="fa fa-question"></span>
                   </a>
                   %if current_user.is_administrator():
                   <a class="btn btn-default btn-raised" href="#"
-                     data-action="edition-mode" data-state="{{'on' if edition_mode else 'off'}}" data-toggle="tooltip" data-placement="bottom"
+                     data-action="edition-mode" data-state="{{'on' if edition_mode else 'off'}}" data-toggle="tooltip" data-placement="top"
                      title="{{_('Enter edition mode')}}">
                      <span class="text-danger fa fa-edit"></span>
                   </a>
 
                   <a class="btn btn-default btn-raised" href="/preferences/user"
-                     data-action="user-preferences" data-toggle="tooltip" data-placement="bottom"
+                     data-action="user-preferences" data-toggle="tooltip" data-placement="top"
                      title="{{_('Show all the stored user preferences')}}">
                      <span class="fa fa-pencil"></span>
                   </a>
                   %end
                   <a class="btn btn-default btn-raised" href="/logout"
-                     data-action="logout" data-toggle="tooltip" data-placement="bottom"
+                     data-action="logout" data-toggle="tooltip" data-placement="top"
                      title="{{_('Disconnect from the application')}}">
                      <span class="fa fa-sign-out"></span>
                   </a>

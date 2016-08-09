@@ -182,7 +182,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 params['page'] = 0
             if 'max_results' not in params:
                 params['max_results'] = BACKEND_PAGINATION_LIMIT
-            logger.debug(
+            logger.info(
                 "get, search in the backend for %s: parameters=%s", object_type, params
             )
 
@@ -216,13 +216,15 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 if '_meta' in result:
                     for item in result['_items']:
                         item.update({'_total': result['_meta']['total']})
-                logger.debug("get, found in the backend: %s: %s", object_type, result['_items'])
+                logger.debug(
+                    "get, found in the backend: %s: %d elements",
+                    object_type, len(result['_items'])
+                )
                 return result['_items']
 
             if '_status' in result:
                 result.pop('_status')
             if '_meta' in result:
-                # result.update({'_total': result['_meta']['total']})
                 result['_total'] = result['_meta']['total']
             logger.debug("get, found one in the backend: %s: %s", object_type, result)
             return result
@@ -298,28 +300,18 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             return True
 
-        def update(self, object_type, object_id, data):
+        def update(self, element, data):
             """
             Update an element
-            - object_type is the element type
-            - object_id is the element identifier
             """
-            logger.info("update, request to update the %s: %s", object_type, object_id)
-
-            try:
-                # Get most recent version of the element
-                element = self.get('/'.join([object_type, object_id]))
-                logger.debug("update, element: %s", element)
-            except ValueError:  # pragma: no cover, simple protection
-                logger.warning("update, object %s, _id=%s not found", object_type, object_id)
-                return False
+            logger.info("update, request to update: %s", element)
 
             try:
                 # Request update
                 headers = {'If-Match': element['_etag']}
-                endpoint = '/'.join([object_type, object_id])
+                endpoint = '/'.join([element.get_type(), element.id])
                 logger.info("update, endpoint: %s, data: %s", endpoint, data)
-                result = self.backend.patch(endpoint, data, headers)
+                result = self.backend.patch(endpoint, data, headers, inception=True)
                 logger.debug("update, response: %s", result)
                 if result['_status'] != 'OK':  # pragma: no cover, should never happen
                     error = []

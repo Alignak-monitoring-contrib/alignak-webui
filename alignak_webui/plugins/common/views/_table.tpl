@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', True)
+%setdefault('debugLogs', False)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -717,7 +717,7 @@
                className: 'btn-raised btn-xs'
             }
             %end
-            // Only for tables with 'commands' attribute (eg. livestate)
+            // Only for 'editable' tables
             %if dt.editable:
             ,{
                extend: 'selectedSingle',
@@ -847,7 +847,7 @@
                titleAttr: "{{_('Navigate to the tree view')}}",
                action: function (e, dt, button, config) {
                   if (debugTable) console.log('Navigate to the tree view for {{object_type}}!');
-                  window.location.href = "/{{object_type}}s_tree";
+                  window.location.href = "/{{object_type}}s/tree";
                },
                className: 'btn-raised btn-xs'
             }

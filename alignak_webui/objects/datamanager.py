@@ -117,7 +117,7 @@ class DataManager(object):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
             self.id,
             self.get_objects_count(),
-            self.get_logged_user().get_username() if self.get_logged_user() else 'Not logged in',
+            self.logged_in_user.get_username() if self.logged_in_user else 'Not logged in',
             self.updated
         )
 
@@ -187,12 +187,6 @@ class DataManager(object):
         """
         self.logged_in_user = None
 
-    def get_logged_user(self):
-        """
-        Get the current logged in user
-        """
-        return self.logged_in_user
-
     ##
     # Find objects and load objects cache
     ##
@@ -221,12 +215,11 @@ class DataManager(object):
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
-            logger.debug("find_object, %s, params: %s", object_type, params)
 
         items = []
 
         result = self.backend.get(object_type, params, all_elements)
-        logger.debug("find_object, found: %s: %s", object_type, result)
+        # logger.debug("find_object, found: %s: %s", object_type, result)
 
         if not result:
             raise ValueError(
@@ -242,7 +235,7 @@ class DataManager(object):
             bo_object = object_class(item)
             items.append(bo_object)
             self.updated = datetime.utcnow()
-            logger.debug("find_object, created: %s", bo_object)
+            logger.debug("find_object, created.")
 
             # Update class _total_count (each item got from backend has an _total field)
             if '_total' in item:
@@ -262,7 +255,7 @@ class DataManager(object):
 
             :returns: the number of newly created objects
         """
-        if not self.get_logged_user():
+        if not self.logged_in_user:
             logger.error("load, must be logged-in before loading")
             return False
 
@@ -274,9 +267,9 @@ class DataManager(object):
             logger.error("load, already loading: reset counter")
             self.loading = 0
 
-        logger.debug("load, start loading: %s for %s", self, self.get_logged_user())
+        logger.debug("load, start loading: %s for %s", self, self.logged_in_user)
         logger.debug(
-            "load, start as administrator: %s", self.get_logged_user().is_administrator()
+            "load, start as administrator: %s", self.logged_in_user.is_administrator()
         )
         start = time.time()
 
@@ -474,25 +467,13 @@ class DataManager(object):
             return True
         return False
 
-    def update_object(self, object_type, element, data):
+    def update_object(self, element, data):
         """
         Update an element
-        - object_type is the element type
-        - element may be a string. In this case it is considered to be the element id
         """
-        logger.info("update_object, request to update the %s: %s", object_type, element)
+        logger.info("update_object, request to update: %s", element)
 
-        if isinstance(element, basestring):
-            object_id = element
-        else:
-            object_id = BackendElement.id
-
-        if self.backend.update(object_type, object_id, data):
-            items = self.find_object(object_type, object_id)
-            logger.info("update_object, updated: %s", items[0])
-            return True
-
-        return False
+        return self.backend.update(element, data)
 
     ##
     # User's preferences
@@ -559,54 +540,17 @@ class DataManager(object):
         :return: True / False
         :rtype: boolean
         """
-        try:
-            logger.debug(
-                "set_user_preferences, type: %s, for: %s",
-                prefs_type, user
-            )
+        logger.debug("set_user_preferences, type: %s, for: %s", prefs_type, user)
 
-            # Saved parameter must be a dictionary. Create a fake dictionary
-            if not isinstance(value, dict):
-                value = {'value': value}
-
-            # First, get to check if it exists
-            result = self.backend.get(
-                'uipref',
-                params={'where': {"type": prefs_type, "user": user}}
-            )
-            if result:
-                object_id = result[0]['_id']
-
-                # Update existing record ...
-                logger.debug(
-                    "set_user_preferences, update existing record: %s / %s (_id=%s)",
-                    prefs_type, user, object_id
+        # Get user stored value
+        if self.logged_in_user.name == user:
+            if self.logged_in_user.set_ui_preference(prefs_type, value):
+                return self.update_object(
+                    self.logged_in_user,
+                    {'ui_preferences': self.logged_in_user.ui_preferences}
                 )
-                data = {
-                    "user": user,
-                    "type": prefs_type,
-                    "data": value
-                }
-                response = self.backend.update('uipref', object_id, data=data)
-            else:
-                # Create new record ...
-                logger.debug(
-                    "set_user_preferences, create new record: %s / %s",
-                    prefs_type, user
-                )
-                data = {
-                    "user": user,
-                    "type": prefs_type,
-                    "data": value
-                }
-                response = self.backend.post('uipref', data=data)
-            logger.debug("set_user_preferences, response: %s", response)
-            return response
 
-        except Exception as e:  # pragma: no cover - should not happen
-            logger.error("set_user_preferences, exception: %s", str(e))
-            logger.error("traceback: %s", traceback.format_exc())
-            return False
+        return False
 
     def get_user_preferences(self, user, prefs_type, default=None):
         """
@@ -630,40 +574,12 @@ class DataManager(object):
         :return: found data, or None
         :rtype: dict
         """
-        try:
-            logger.debug("get_user_preferences, type: %s, for: %s", prefs_type, user)
+        logger.debug("get_user_preferences, type: %s, for: %s", prefs_type, user)
 
-            # All the preferences
-            if user is None:
-                return self.backend.get(
-                    'uipref', params={}, all_elements=True
-                )
-
-            # All the user preferences
-            if prefs_type is None:
-                return self.backend.get(
-                    'uipref', params={'where': {"user": user}}, all_elements=True
-                )
-
-            # Get required preference
-            result = self.backend.get(
-                'uipref',
-                params={'where': {"type": prefs_type, "user": user}}
-            )
-            # logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
-            if result:
-                # logger.debug("get_user_preferences, found: %s", result)
-                return result[0]['data']
-
-        except Exception as e:  # pragma: no cover - should never happen
-            logger.error("get_user_preferences, exception: %s", str(e))
-            logger.error("traceback: %s", traceback.format_exc())
-            return None
-
-        logger.debug("get_user_preferences, not found, default value: %s", default)
-        if default is not None and self.set_user_preferences(user, prefs_type, default):
-            # No default value...
-            return self.get_user_preferences(user, prefs_type)
+        # Get user stored value
+        if self.logged_in_user.name == user:
+            result = self.logged_in_user.get_ui_preference(prefs_type)
+            return result if result else default
 
         return None
 
@@ -1250,7 +1166,7 @@ class DataManager(object):
             search.update({'sort': 'name'})
 
         try:
-            logger.debug("get_commands, search: %s", search)
+            logger.warning("get_commands, search: %s", search)
             items = self.find_object('command', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1338,8 +1254,8 @@ class DataManager(object):
 
     def get_users(self, search=None, all_elements=False):
         """ Get a list of known users """
-        if not self.get_logged_user().is_administrator():
-            return [self.get_logged_user()]
+        if not self.logged_in_user.is_administrator():
+            return [self.logged_in_user]
 
         if search is None:
             search = {}
@@ -1400,7 +1316,7 @@ class DataManager(object):
                 return False
 
         user_id = user.id
-        if user_id == self.get_logged_user().id:
+        if user_id == self.logged_in_user.id:
             logger.warning(
                 "unauthorized request to delete the current logged-in user: %s",
                 user_id

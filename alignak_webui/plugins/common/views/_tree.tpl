@@ -8,7 +8,7 @@
 %search_string = request.query.get('search', '')
 
 %# jsTree js and css are included in the page layout
-%rebase("layout", title=title, page="/{{tree_type}}_tree")
+%rebase("layout", title=title, page="/{{tree_type}}/tree")
 
 %from alignak_webui.utils.helper import Helper
 
@@ -37,19 +37,19 @@
          </div>
          <div id="{{tree_type}}_tree_collapse" class="panel-collapse collapse">
             <ul class="list-group">
-               %for item in items:
+               %for item in elts:
                   <li class="list-group-item">
                      <small>Element: {{item}} - {{item.__dict__}}</small>
                   </li>
                %end
             </ul>
-            <div class="panel-footer">{{len(items)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elements</div>
          </div>
       </div>
    </div>
    %end
 
-   %if not items:
+   %if not elts:
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
       <div class="panel panel-default">
@@ -102,7 +102,7 @@
 
    // Build tree data...
    var jsTreeData = [];
-   %for item in items:
+   %for item in elts:
       jsTreeData.push( {
          "id": '{{item.id}}',
          "parent" : '{{'#' if item.level <= 0 else item.parent.id}}',
@@ -204,7 +204,7 @@
                if (debugTree) console.log('Selected :', action.node);
 
                $.ajax( {
-                  "url": "{{tree_type}}/members/" + action.node.id,
+                  "url": "/{{tree_type}}/members/" + action.node.id,
                   "dataType": "json",
                   "type": "GET",
                   "success": function (data) {

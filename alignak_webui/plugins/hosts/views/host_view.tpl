@@ -7,7 +7,7 @@
 %setdefault('credentials', None)
 
 %from alignak_webui.utils.metrics import HostMetrics
-%metrics = HostMetrics(livestate, livestate_services, hosts_parameters, host.tags)
+%metrics = HostMetrics(livestate, livestate_services, plugin_parameters, host.tags)
 %services_states = metrics.get_overall_state()
 %host_name, host_state = services_states[0]
 %services_states = services_states[1:]

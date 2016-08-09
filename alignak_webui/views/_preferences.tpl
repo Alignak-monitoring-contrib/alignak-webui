@@ -9,7 +9,7 @@
             <h2 class="panel-title">User</h2>
          </div>
          <div class="panel-body">
-            <!-- User image -->
+            <!-- User picture -->
             <div class="user-header bg-light-blue">
                <img src="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.name}}" title="Photo: {{current_user.name}}">
                <p class="username">
@@ -23,8 +23,8 @@
             <div class="user-body">
                <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                   <colgroup>
-                     <col style="width: 30%" />
-                     <col style="width: 70%" />
+                     <col style="width: 40%" />
+                     <col style="width: 60%" />
                   </colgroup>
                   <thead>
                      <tr><th colspan="2"></th></tr>
@@ -47,14 +47,17 @@
 
                <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                   <colgroup>
-                     <col style="width: 30%" />
-                     <col style="width: 70%" />
+                     <col style="width: 40%" />
+                     <col style="width: 60%" />
                   </colgroup>
                   <thead>
                      <tr><th colspan="2"></th></tr>
                   </thead>
                   <tbody style="font-size:x-small;">
                      %for attr, value in sorted(current_user.__dict__.iteritems()):
+                     %if attr in ['password', 'ui_preferences']:
+                     %  continue
+                     %end
                      <tr>
                         <td><strong>{{attr}}:</strong></td>
                         <td>{{value}}</td>
@@ -65,8 +68,8 @@
 
                <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                   <colgroup>
-                     <col style="width: 30%" />
-                     <col style="width: 70%" />
+                     <col style="width: 20%" />
+                     <col style="width: 80%" />
                   </colgroup>
                   <thead>
                      <tr>
@@ -76,29 +79,38 @@
                   <tbody style="font-size:x-small;">
                      %preferences = datamgr.get_user_preferences(current_user.get_username(), None)
                      %if preferences:
-                     %for preference in sorted(preferences):
-                        %if preference in ['_id']:
-                        %continue
-                        %end
+                     %  for key in sorted(preferences):
                         <tr>
-                           <td>{{preference}}</td>
-                           <td>{{datamgr.get_user_preferences(current_user.get_username(), preference)}}</td>
+                           <td>{{key}}</td>
+                           %value = datamgr.get_user_preferences(current_user.get_username(), key)
+                           <td>
+                           %if isinstance(value, dict):
+                           <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                              %for k,v in sorted(value.items()):
+                                 <dt>{{k}}</dt>
+                                 <dd>{{v}}</dd>
+                              %end
+                           </dl>
+                           %elif isinstance(value, list):
+                           <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                              %idx=0
+                              %for v in value:
+                                 <dt>{{idx}}</dt>
+                                 <dd>{{v}}</dd>
+                                 %idx += 1
+                              %end
+                           </dl>
+                           %else:
+                           {{value}}
+                           %end
+                           </td>
                         </tr>
-                     %end
+                     %  end
                      %else:
                         <tr>
                            <td colspan="2">{{_('No user preferences')}}</td>
                         </tr>
                      %end
-
-                     <tr>
-                        <td>bookmarks</td>
-                        <td>{{datamgr.get_user_preferences(current_user.get_username(), 'bookmarks')}}</td>
-                     </tr>
-                     <tr>
-                        <td>elts_per_page</td>
-                        <td>{{datamgr.get_user_preferences(current_user.get_username(), 'elts_per_page')}}</td>
-                     </tr>
                   </tbody>
                </table>
             </div>

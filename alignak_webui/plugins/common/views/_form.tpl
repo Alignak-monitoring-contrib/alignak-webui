@@ -19,10 +19,6 @@
       <legend>{{title}}</legend>
 
       %for field in dt.table_columns:
-         %#if not field.get('editable'):
-         %#continue
-         %#end
-
          %name = field.get('data', '')
          %if name[0] in ['#', '_']:
             %if debug:
@@ -83,13 +79,15 @@
          %# ----------------------------------------------------------------------------------------
          %if not is_list:
          %  linked_object = element[name]
+         %  field_id='_id'
+         %  field_value='_name'
          %  for method in dir(linked_object):
          %     if not callable(getattr(linked_object, method)) and method=='__dict__':
          %        get_dict = getattr(linked_object, method)
+         %        field_id=get_dict['_id']
+         %        field_value=get_dict['_name']
          %     end
          %  end
-         %  field_id=get_dict['_id']
-         %  field_value=get_dict['_name']
          %end
          %# ----------------------------------------------------------------------------------------
          %end
@@ -124,6 +122,7 @@
                      type="{{'number' if field_type=='integer' else 'text'}}"
                      placeholder="{{placeholder}}"
                      value="{{field_value}}"
+                     {{'readonly="readonly"' if not field.get('editable') else ''}}
                      >
                   %if field.get('hint'):
                   <p class="help-block">
@@ -221,7 +220,9 @@
                <div class="col-md-offset-2 col-md-10">
                   <div class="togglebutton">
                      <label>
-                        <input type="checkbox" {{'checked="checked"' if value else ''}}> {{label}}
+                        <input type="checkbox"
+                           {{'readonly="readonly"' if not field.get('editable') else ''}}
+                           {{'checked="checked"' if value else ''}}> {{label}}
                      </label>
                   </div>
                </div>
@@ -238,6 +239,7 @@
                      type="{{'number' if field_type=='integer' else 'text'}}"
                      placeholder="{{placeholder}}"
                      value="{{field_value}}"
+                     {{'readonly="readonly"' if not field.get('editable') else ''}}
                      >
                   %if field.get('hint'):
                   <p class="help-block">

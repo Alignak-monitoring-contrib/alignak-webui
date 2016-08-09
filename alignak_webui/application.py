@@ -1103,7 +1103,10 @@ class WebUI(object):
         """
         For a specific place like 'dashboard' or 'external', returns the application widgets list
         """
-        return self.widgets.get(place, [])
+        widgets_list = self.widgets.get(place, [])
+        for plugin in self.plugins_objects:
+            widgets_list += plugin.widgets.get(place, [])
+        return widgets_list
 
     def get_tables_for(self, place):
         """

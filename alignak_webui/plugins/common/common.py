@@ -23,12 +23,17 @@
     The common plugin is not a real plugin ... it simply allows to declare the views used by several
     other plugins.
 """
+from collections import OrderedDict
+
 from logging import getLogger
 from bottle import request, response, template
 
 from alignak_webui import _
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.datatable import Datatable
+
+# Settings
+from alignak_webui.utils.settings import Settings
 
 logger = getLogger(__name__)
 

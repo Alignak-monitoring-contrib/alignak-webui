@@ -360,7 +360,7 @@
             </a>
          </li>
 
-         %for widget in webui.widgets['host']:
+         %for widget in webui.get_widgets_for('host'):
             <li>
                <a href="#host_tab_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
@@ -378,7 +378,7 @@
             %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None)
          </div>
 
-         %for widget in webui.widgets['host']:
+         %for widget in webui.get_widgets_for('host'):
             <div id="host_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
                %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
             </div>

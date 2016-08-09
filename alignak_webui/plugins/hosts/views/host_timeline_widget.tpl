@@ -25,7 +25,6 @@
 
 %# Fetch elements per page preference for user, default is 25
 %elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-%elts_per_page = elts_per_page['value']
 
 %from alignak_webui.utils.helper import Helper
 
@@ -68,7 +67,7 @@
                   <li style="padding:5px">
                      <label class="checkbox-inline">
                         <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}">
-                           {{types[type]}}
+                           {{type}}
                         </input>
                      </label>
                   </li>

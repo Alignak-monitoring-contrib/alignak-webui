@@ -47,7 +47,7 @@
             <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}" placeholder="{{_('filter...')}}">
          </div>
       </div>
-      %if ('value' in user_bookmarks and user_bookmarks['value']) or ('value' in common_bookmarks and common_bookmarks['value']):
+      %if user_bookmarks or common_bookmarks:
       <div class="dropdown form-group text-left">
          <button class="btn btn-default dropdown-toggle" type="button" id="bookmarks_menu" data-toggle="dropdown" aria-expanded="true">
             <i class="fa fa-bookmark"></i>
@@ -56,10 +56,10 @@
          </button>
          <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="bookmarks_menu">
          <script type="text/javascript">
-            %for b in user_bookmarks['value']:
+            %for b in user_bookmarks:
                declare_bookmark("{{!b['name']}}","{{!b['uri']}}");
             %end
-            %for b in common_bookmarks['value']:
+            %for b in common_bookmarks:
                declare_bookmarksro("{{!b['name']}}","{{!b['uri']}}");
             %end
             </script>

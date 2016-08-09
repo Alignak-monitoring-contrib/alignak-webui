@@ -62,23 +62,24 @@
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
-      <!-- select2 -->
-      <link rel="stylesheet" href="/static/css/select2.min.css" >
-
       <link rel="stylesheet" href="/static/css/timeline.css" >
 
       %if request.app.config.get('material_design', '1') == '1':
-      <!-- Material Design fonts -->
+      <!-- Material Design fonts
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+      -->
+      <link rel="stylesheet" href="/static/css/font-roboto.css" >
+      <link rel="stylesheet" href="/static/css/material-icons.css" >
 
       <!-- Bootstrap Material Design -->
       <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
       <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
 
-      <!-- selectize: styles already included with BMD
-      <link rel="stylesheet" href="/static/css/selectize.css" >
-      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css" >-->
+      %else:
+      <!-- selectize: styles already included with BMD -->
+      <link rel="stylesheet" href="/static/css/selectize.css">
+      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css">
       %end
 
       <!-- jsTree jQuery plugin -->
@@ -159,9 +160,6 @@
 
       <!-- selectize -->
       <script type="text/javascript" src="/static/js/selectize.min.js"></script>
-
-      <!-- select2
-      <script type="text/javascript" src="/static/js/select2.full.min.js"></script>-->
 
       <!-- jQuery Chart -->
       <script type="text/javascript" src="/static/js/Chart.min.js"></script>
@@ -376,8 +374,7 @@
       %end
 
       %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design
-      -->
+      <!-- Bootstrap Material Design -->
       <script src="/static/js/material/material.min.js"></script>
       <script src="/static/js/material/ripples.min.js"></script>
 

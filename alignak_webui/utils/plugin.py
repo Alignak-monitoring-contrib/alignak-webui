@@ -27,6 +27,7 @@
     - create lists for plugin widgets, tables, and lists
     - create a route endpoint for the plugin configuration
 """
+import os
 import json
 from collections import OrderedDict
 
@@ -63,7 +64,7 @@ class Plugin(object):
         self.plugin_parameters = None
         self.table = None
 
-        # Store all the widgets, tables and lists
+        # Store all the widgets, tables and lists declared by the plugin
         self.widgets = {}
         self.tables = {}
         self.lists = {}
@@ -76,8 +77,16 @@ class Plugin(object):
     def load_routes(self, app):
         """
         Load and create plugin routes
+
+        This function declares a config route if it is not yet declared.
+
+        If the plugin manages a backend endpoint, this function declares routes for elements
+        view, elements table, list and templates if they are not yet declared.
+
+        Then, it creates the views and routes for the plugin in the main application, and store the
+        widgets, tables and lists declared by the plugin.
         """
-        if not 'load_config' in self.pages:
+        if 'load_config' not in self.pages:
             self.pages.update({
                 'load_config': {
                     'name': '%s plugin config' % self.name,
@@ -85,30 +94,94 @@ class Plugin(object):
                 }
             })
 
-        if hasattr(self, 'get') and not 'get' in self.pages:
-            self.pages.update({
-                'get': {
-                    'name': '%s' % self.name,
-                    'route': '/%ss' % self.backend_endpoint,
-                    'view': '%ss' % self.backend_endpoint,
-                }
-            })
+        if self.backend_endpoint:
+            if 'get_one' not in self.pages:
+                self.pages.update({
+                    'get_one': {
+                        'name': '%s' % self.name,
+                        'route': '/%s/<element_id>' % self.backend_endpoint,
+                        'view': '%s' % self.backend_endpoint,
+                    }
+                })
 
-        if hasattr(self, 'get_list') and not 'get_list' in self.pages:
-            self.pages.update({
-                'get_list': {
-                    'name': '%s list' % self.name,
-                    'route': '/%ss/list' % self.backend_endpoint
-                }
-            })
+            if 'get_all' not in self.pages:
+                self.pages.update({
+                    'get_all': {
+                        'name': 'All %s' % self.name,
+                        'route': '/%ss' % self.backend_endpoint,
+                        'view': '%ss' % self.backend_endpoint,
+                    }
+                })
 
-        if hasattr(self, 'get_templates') and not 'get_templates' in self.pages:
-            self.pages.update({
-                'get_templates': {
-                    'name': '%s templates' % self.name,
-                    'route': '/%ss/templates' % self.backend_endpoint
-                }
-            })
+            if 'get_tree' not in self.pages:
+                self.pages.update({
+                    'get_tree': {
+                        'name': '%s tree' % self.name,
+                        'route': '/%ss/tree' % self.backend_endpoint,
+                        'view': '_tree',
+                    }
+                })
+
+            if 'get_form' not in self.pages:
+                self.pages.update({
+                    'get_form': {
+                        'name': '%s form' % self.name,
+                        'route': '/%s/form/<element_id>' % self.backend_endpoint,
+                        'view': '_form',
+                    }
+                })
+
+            if 'get_table' not in self.pages:
+                self.pages.update({
+                    'get_table': {
+                        'name': '%s table' % self.name,
+                        'route': '/%ss/table' % self.backend_endpoint,
+                        'view': '_table',
+                        'tables': [
+                            {
+                                'id': '%ss_table' % self.backend_endpoint,
+                                'for': ['external'],
+                                'name': _('%s table' % self.name),
+                                'template': '_table',
+                                'icon': 'table',
+                                'description': _(
+                                    '<h4>%s table</h4>Displays a data table for the '
+                                    'system %ss.<br>' % (
+                                        self.name, self.backend_endpoint
+                                    )
+                                ),
+                                'actions': {
+                                    '%ss/table_data' % self.backend_endpoint: 'get_table_data'
+                                }
+                            }
+                        ]
+                    }
+                })
+
+            if 'get_table_data' not in self.pages:
+                self.pages.update({
+                    'get_table_data': {
+                        'name': '%s table data' % self.name,
+                        'route': '/%ss/table_data' % self.backend_endpoint,
+                        'method': 'POST'
+                    }
+                })
+
+            if 'get_list' not in self.pages:
+                self.pages.update({
+                    'get_list': {
+                        'name': '%s list' % self.name,
+                        'route': '/%ss/list' % self.backend_endpoint
+                    }
+                })
+
+            if 'get_templates' not in self.pages:
+                self.pages.update({
+                    'get_templates': {
+                        'name': '%s templates' % self.name,
+                        'route': '/%ss/templates' % self.backend_endpoint
+                    }
+                })
 
         for (f_name, entry) in self.pages.items():
             logger.debug("page entry: %s -> %s", entry, f_name)
@@ -177,7 +250,7 @@ class Plugin(object):
                             'read_only': widget.get('read_only', False),
                             'options': widget.get('options', None),
                             'picture': os.path.join(
-                                os.path.join('/static/plugins/', plugin_name),
+                                os.path.join('/static/plugins/', self.name.lower()),
                                 widget.get('picture', '')
                             ),
                             'base_uri': route_url,
@@ -200,7 +273,7 @@ class Plugin(object):
                     for place in table['for']:
                         if place not in self.tables:
                             self.tables[place] = []
-                        self.tables[place].append({
+                        table_dict = {
                             'id': table['id'],
                             'name': table['name'],
                             'description': table['description'],
@@ -208,8 +281,18 @@ class Plugin(object):
                             'icon': table.get('icon', 'leaf'),
                             'base_uri': page_route,
                             'function': f,
-                            'actions': table.get('actions', {})
-                        })
+                            'actions': {}
+                        }
+                        for action, f_name in table.get('actions', {}).items():
+                            f = getattr(self, f_name, None)
+                            if not callable(f):
+                                logger.error("Table action method: %s does not exist!", f_name)
+                                continue
+
+                            table_dict['actions'].update({
+                                action: f
+                            })
+                        self.tables[place].append(table_dict)
                         logger.info(
                             "Found table '%s' for %s", table['id'], place
                         )
@@ -250,7 +333,10 @@ class Plugin(object):
                 continue
             if len(p) < 3:
                 # Table global configuration [self.table]
-                logger.debug("table global configuration: %s = %s", param, self.plugin_parameters[param])
+                logger.debug(
+                    "table global configuration: %s = %s",
+                    param, self.plugin_parameters[param]
+                )
                 if '_table' not in self.table:
                     self.table['_table'] = {}
                 self.table['_table'][p[1]] = self.plugin_parameters[param]
@@ -260,15 +346,48 @@ class Plugin(object):
             if p[1] not in self.table:
                 self.table[p[1]] = {}
             self.table[p[1]][p[2]] = self.plugin_parameters[param]
-            logger.debug("self.table field configuration: %s = %s", param, self.plugin_parameters[param])
+            logger.debug(
+                "self.table field configuration: %s = %s", param, self.plugin_parameters[param]
+            )
 
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(self.plugin_parameters)
 
-    def get(self):
+    def get_one(self):
         """
-            Show list of elements
+            Show one element
+        """
+        datamgr = request.environ['beaker.session']['datamanager']
+
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:
+            response.status = 204
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'No method available to get a %s element' % self.backend_endpoint}
+            )
+
+        element = f(element_id)
+        if not element:
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            if not element:
+                return webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                         % element_id)
+
+        # Build table structure and data model
+        dt = Datatable(self.backend_endpoint, datamgr, self.table)
+
+        return {
+            'object_type': self.backend_endpoint,
+            'dt': dt,
+            'element': element
+        }
+
+    def get_all(self):
+        """
+            Show all elements on one page
         """
         user = request.environ['beaker.session']['current_user']
         target_user = request.environ['beaker.session']['target_user']
@@ -292,18 +411,16 @@ class Plugin(object):
             'where': where
         }
 
-
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
         if not f:
             response.status = 204
             response.content_type = 'application/json'
             return json.dumps(
-                {'error': 'No methode available to get %s elements' % self.backend_endpoint}
+                {'error': 'No method available to get %s elements' % self.backend_endpoint}
             )
 
         elts = f(search, all_elements=True)
-        print elts
 
         # Get last total elements count
         total = datamgr.get_objects_count(
@@ -313,21 +430,118 @@ class Plugin(object):
 
         return {
             'elts': elts,
-            'pagination': Helper.get_pagination_control('/%ss' % self.backend_endpoint, total, start, count),
-            'title': request.query.get('title', _('All users'))
+            'pagination': Helper.get_pagination_control(
+                '/%ss' % self.backend_endpoint, total, start, count
+            ),
+            'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
         }
 
-    def get_form(self, object_type, schema, element=None):
+    def get_tree(self):
+        """
+            Show list of elements
+        """
+        user = request.environ['beaker.session']['current_user']
+        target_user = request.environ['beaker.session']['target_user']
+        datamgr = request.environ['beaker.session']['datamanager']
+
+        username = user.get_username()
+        if not target_user.is_anonymous():
+            username = target_user.get_username()
+
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        # elts_per_page = elts_per_page['value']
+
+        # Pagination and search
+        start = int(request.query.get('start', '0'))
+        count = int(request.query.get('count', elts_per_page))
+        where = Helper.decode_search(request.query.get('search', ''))
+        search = {
+            'page': start // (count + 1),
+            'max_results': count,
+            'where': where
+        }
+
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
+        if not f:
+            response.status = 204
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'No method available to get %s elements' % self.backend_endpoint}
+            )
+
+        elts = f(search, all_elements=True)
+
+        # Get last total elements count
+        total = datamgr.get_objects_count(
+            self.backend_endpoint, search=where, refresh=True
+        )
+        count = min(count, total)
+
+        # Define contextual menu
+        context_menu = {
+            'actions': {
+                'action1': {
+                    "label": _('Fake action 1'),
+                    "icon": "ion-monitor",
+                    "separator_before": False,
+                    "separator_after": True,
+                    "action": '''
+                        function (obj) {
+                            console.log('Fake action 1');
+                        }
+                    '''
+                },
+                'action2': {
+                    "label": _('Fake action 2!'),
+                    "icon": "ion-monitor",
+                    "separator_before": False,
+                    "separator_after": False,
+                    "action": '''function (obj) {
+                       console.log('Fake action 2');
+                    }'''
+                }
+            }
+        }
+
+        return {
+            'tree_type': self.backend_endpoint,
+            'elts': elts,
+            'context_menu': context_menu,
+            'pagination': Helper.get_pagination_control(
+                '/%ss' % self.backend_endpoint, total, start, count
+            ),
+            'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
+        }
+
+    def get_form(self, element_id):
         """
         Build the object_type table and get data to populate the table
         """
         datamgr = request.environ['beaker.session']['datamanager']
 
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:
+            response.status = 204
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'No method available to get a %s element' % self.backend_endpoint}
+            )
+
+        element = f(element_id)
+        if not element:
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            if not element:
+                return webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                         % element_id)
+
         # Build table structure and data model
-        dt = Datatable(object_type, datamgr, schema)
+        dt = Datatable(self.backend_endpoint, datamgr, self.table)
 
         return {
-            'object_type': object_type,
+            'object_type': self.backend_endpoint,
             'dt': dt,
             'element': element
         }
@@ -337,10 +551,6 @@ class Plugin(object):
         Build the object_type table and get data to populate the table
         """
         datamgr = request.environ['beaker.session']['datamanager']
-
-        print self
-        print self.backend_endpoint
-        print self.table
 
         # Table filtering: default is to restore the table saved filters
         where = {'saved_filters': True}
@@ -403,7 +613,7 @@ class Plugin(object):
             response.status = 204
             response.content_type = 'application/json'
             return json.dumps(
-                {'error': 'No methode available to get %s elements' % self.backend_endpoint}
+                {'error': 'No method available to get %s elements' % self.backend_endpoint}
             )
 
         search = {
@@ -421,9 +631,10 @@ class Plugin(object):
         response.content_type = 'application/json'
         return json.dumps(items)
 
-    def get_widget(self, get_method, object_type, embedded=False, identifier=None, credentials=None):
+    def get_widget(self, get_method, object_type,
+                   embedded=False, identifier=None, credentials=None):
         # Because there are many locals needed :)
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-arguments
         """
         Get a widget...
         - get_methode is the datamanager method to call to get elements

@@ -33,9 +33,12 @@
       <link href="/static/css/alignak_webui.css" rel="stylesheet">
 
       %if request.app.config.get('material_design', '1') == '1':
-      <!-- Material Design fonts -->
+      <!-- Material Design fonts
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+      -->
+      <link rel="stylesheet" href="/static/css/font-roboto.css" >
+      <link rel="stylesheet" href="/static/css/material-icons.css" >
 
       <!-- Bootstrap Material Design -->
       <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">

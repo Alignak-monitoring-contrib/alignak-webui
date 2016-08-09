@@ -20,22 +20,21 @@
          </div>
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
-               %for host in hosts:
+               %for host in elts:
                   <li class="list-group-item"><small>Host: {{host}} - {{host.__dict__}}</small></li>
                %end
             </ul>
-            <div class="panel-footer">{{len(hosts)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elts</div>
          </div>
       </div>
    </div>
    %end
 
+   %if not elts:
+      %include("_nothing_found.tpl", search_string=search_string)
+   %else:
    <div class="panel panel-default">
       <div class="panel-body">
-      %if not hosts:
-         %include("_nothing_found.tpl", search_string=search_string)
-      %else:
-
          %# First element for global data
          %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
@@ -52,7 +51,7 @@
             </tr></thead>
 
             <tbody>
-               %for host in hosts:
+               %for host in elts:
                %lv_host = datamgr.get_livestate({'where': {'host': host.id}})
                %lv_host = lv_host[0]
                <tr id="#{{host.id}}">
@@ -92,9 +91,9 @@
              %end
             </tbody>
          </table>
-      %end
       </div>
    </div>
+   %end
  </div>
 
  <script>

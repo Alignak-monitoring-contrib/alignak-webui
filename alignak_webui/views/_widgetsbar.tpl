@@ -1,4 +1,5 @@
 %setdefault('debug', False)
+%setdefault('debug_host', False)
 
 <!-- Dashboard widgets bar -->
 <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Add a new widget')}}">
@@ -35,7 +36,7 @@
 </li>
 
 %if debug:
-   <li class="{{'dropdown' if in_sidebar else 'dropup'}}" data-toggle="tooltip" data-placement="right" title="{{_('External widgets')}}">
+   <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('External widgets')}}">
       <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
          <span class="caret"></span>
          <span class="fa fa-bug"></span>
@@ -55,7 +56,7 @@
    </li>
    %debug_host = datamgr.get_host({'name': 'webui'})
    %if debug_host:
-   <li class="{{'dropdown' if in_sidebar else 'dropup'}}" data-toggle="tooltip" data-placement="right" title="{{_('Hosts widgets')}}">
+   <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Hosts widgets')}}">
       <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
          <span class="caret"></span>
          <span class="fa fa-bug"></span>
@@ -74,7 +75,7 @@
       </ul>
    </li>
    %end
-   <li class="{{'dropdown' if in_sidebar else 'dropup'}}" data-toggle="tooltip" data-placement="right" title="{{_('External tables')}}">
+   <li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('External tables')}}">
       <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
          <span class="caret"></span>
          <span class="fa fa-bug"></span>
@@ -86,7 +87,7 @@
          <li>
             <a href="/external/table/{{table['id']}}?page&table_id={{table['id']}}">
                <span class="fa fa-fw fa-{{table['icon']}}"></span>
-               {{table['name']}} <em>(id: {{widget['id']}})</em>
+               {{table['name']}} <em>(id: {{table['id']}})</em>
             </a>
          </li>
          %end

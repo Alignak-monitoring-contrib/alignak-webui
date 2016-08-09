@@ -97,6 +97,10 @@ class User(BackendElement):
                 if self.is_admin:
                     self.picture = '/static/images/user_admin.png'
 
+        # User preferences ?
+        if not hasattr(self, 'ui_preferences'):
+            self.ui_preferences = {}
+
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
             return "<Authenticated %s, id: %s, name: %s, role: %s>" % (
@@ -203,3 +207,39 @@ class User(BackendElement):
             return self.widgets_allowed
         else:
             return getattr(self, 'widgets_allowed', '1') == '1'
+
+    def get_ui_preference(self, key=None):
+        """
+        Get a user UI preference
+        """
+        # Test for old user data model
+        if not getattr(self, 'ui_preferences', None):
+            return None
+
+        if not key:
+            return self.ui_preferences
+
+        # for ui_pref, value in self.ui_preferences:
+            # if key == ui_pref:
+                # return value
+        if key in self.ui_preferences:
+            return self.ui_preferences[key]
+
+        return None
+
+    def set_ui_preference(self, key, value):
+        """
+        Set a user UI preference
+
+        :param key: preference key
+        :type key: string
+        :param value: value to store
+        :type value: dict
+        :return: True / False
+        :rtype: boolean
+        """
+        if not key:
+            return None
+
+        self.ui_preferences.update({key: value})
+        return True

@@ -94,20 +94,25 @@ class Settings(OrderedDict):
             ]
 
         try:
+            # pylint: disable=too-many-nested-blocks
             config = ConfigParser()
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
                     for option in config.options(section):
-                        # noinspection PyBroadException
-                        try:
-                            if app_name in section:
-                                self[option] = config.get(section, option)
-                            else:
-                                self[section + '.' + option] = config.get(section, option)
-                        except Exception:  # pragma: no cover - should never happen ...
-                            self[section + '.' + option] = None
+                        if app_name in section:
+                            self[option] = config.get(section, option)
+                            if self[option] in ['True', 'true']:
+                                self[option] = True
+                            if self[option] in ['False', 'false']:
+                                self[option] = False
+                        else:
+                            self[section + '.' + option] = config.get(section, option)
+                            if self[section + '.' + option] in ['True', 'true']:
+                                self[section + '.' + option] = True
+                            if self[section + '.' + option] in ['False', 'false']:
+                                self[section + '.' + option] = False
             else:  # pragma: no cover - should never happen ...
                 print("No configuration file found in %s." % settings_filenames)
 
