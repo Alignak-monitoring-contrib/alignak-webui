@@ -87,4 +87,15 @@ class TestSettings(unittest2.TestCase):
 
         print(app_config)
         self.assert_('about_name' in app_config)
-        self.assert_(app_config['about_name'] == 'Alignak-WebUI')
+        self.assertEqual(app_config['about_name'], 'Alignak-WebUI')
+
+        # Variable 1 is String 1
+        self.assert_('test_mode' in app_config)
+        self.assertEqual(app_config['test_mode'], '1')
+        self.assertIsInstance(app_config['test_mode'], basestring)
+
+        # Variable True/true/False/false is boolean
+        self.assertTrue(app_config['test_boolean1'])
+        self.assertTrue(app_config['test_boolean2'])
+        self.assertFalse(app_config['test_boolean3'])
+        self.assertFalse(app_config['test_boolean4'])

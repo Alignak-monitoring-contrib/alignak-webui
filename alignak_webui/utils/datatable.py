@@ -61,7 +61,8 @@ class Datatable(object):
         self.datamgr = datamgr
         self.backend = self.datamgr.backend
 
-        self.records_total = 0
+        # Update global table records count, require total count from backend
+        self.records_total = self.backend.count(self.object_type)
         self.records_filtered = 0
 
         self.id_property = '_id'
@@ -135,15 +136,6 @@ class Datatable(object):
             )
             return None
 
-        ui_dm = {
-            'element_type': self.object_type,
-            'model': {
-                'id_property': None,
-                'page_title': '',
-                'fields': {}
-            }
-        }
-
         if 'ui' in schema:
             logger.error(
                 "get_data_model, UI schema"
@@ -209,7 +201,7 @@ class Datatable(object):
                         {'content_type': 'objectid:' + model.get('data_relation').get('resource')}
                     )
 
-                logger.debug("ui_dm, field: %s = %s", field, ui_field)
+                logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
                 # Convert data model format to datatables' one ...
                 self.table_columns.append(ui_field)
@@ -272,7 +264,7 @@ class Datatable(object):
                         {'content_type': 'objectid:' + model.get('resource', 'unknown')}
                     )
 
-                logger.debug("ui_dm, field: %s = %s", field, ui_field)
+                logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
                 # Convert data model format to datatables' one ...
                 self.table_columns.append(ui_field)

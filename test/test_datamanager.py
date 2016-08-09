@@ -349,7 +349,6 @@ class Test4NotAdmin(unittest2.TestCase):
                 "c",
                 "r"
             ],
-            "note": "Monitoring template : default",
             "definition_order": 100,
             "address1": "",
             "address2": "",

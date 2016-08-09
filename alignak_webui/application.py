@@ -27,6 +27,7 @@ import json
 import os
 import traceback
 from importlib import import_module
+import inspect
 from logging import getLogger
 
 # Bottle import
@@ -40,6 +41,7 @@ from alignak_webui import get_app_webui
 from alignak_webui.objects.item_user import User
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.plugin import Plugin
 
 
 logger = getLogger(__name__)
@@ -120,7 +122,7 @@ def before_request():
         )
         redirect('/login')
 
-    session['current_user'] = session['datamanager'].get_logged_user()
+    session['current_user'] = session['datamanager'].logged_in_user
     logger.debug("before_request, session authenticated user: %s", session['current_user'])
 
     # Make session current user available in the templates
@@ -193,7 +195,7 @@ def enable_cors(fn):
 
 
 # noinspection PyUnusedLocal
-@route('/external/<widget_type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
+@route('/external/<widget_type>/<identifier>/<action:path>', method=['GET', 'POST', 'OPTIONS'])
 @route('/external/<widget_type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
 @enable_cors
 def external(widget_type, identifier, action=None):
@@ -319,7 +321,7 @@ def external(widget_type, identifier, action=None):
         logger.debug("Found table: %s", found_table)
 
         if action and action in found_table['actions']:
-            logger.info("Required action: %s", action)
+            logger.info("Required action: %s = %s", action, found_table['actions'][action])
             return found_table['actions'][action]()
 
         if request.params.get('page', 'no') == 'no':
@@ -638,7 +640,7 @@ def user_authentication(username, password):
         session['target_user'] = User()
 
     session['message'] = session['datamanager'].connection_message
-    session['current_user'] = session['datamanager'].get_logged_user()
+    session['current_user'] = session['datamanager'].logged_in_user
     logger.debug("user_authentication, current user authenticated")
     return True
 
@@ -707,7 +709,7 @@ def get_user_preference():
     if default:
         default = json.loads(default)
 
-    return datamgr.get_user_preferences(username, key, default)
+    return json.dumps(datamgr.get_user_preferences(username, key, default))
 
 
 @route('/preference/user', 'DELETE')
@@ -822,6 +824,7 @@ class WebUI(object):
 
         # Store all the plugins
         self.plugins = []
+        self.plugins_objects = []
 
         # Store all the widgets
         self.widgets = {}
@@ -837,7 +840,6 @@ class WebUI(object):
 
         # Application configuration
         self.app_config = config
-        logger.info("Configuration: %s", self.app_config)
 
         # Load plugins in the plugins directory ...
         self.plugins_count = self.load_plugins(
@@ -866,16 +868,62 @@ class WebUI(object):
             if os.path.isdir(os.path.join(plugins_dir, fname))
         ]
 
-        # Try to import all found plugins
+        # Try to import all found supposed modules
         i = 0
         for plugin_name in plugin_names:
             logger.info("trying to load plugin '%s' ...", plugin_name)
             try:
-                # Import the plugin in the package namespace
+                # Import the module in the package namespace
                 plugin = import_module(
                     '.%s.%s.%s' % (plugins_dir.rsplit('/')[-1], plugin_name, plugin_name),
                     __package__
                 )
+
+                # Plugin declared classes ...
+                classes = inspect.getmembers(plugin, inspect.isclass)
+
+                # Find "Plugin" sub classes in imported module ...
+                p_classes = [co for dummy, co in classes if issubclass(co, Plugin) and co != Plugin]
+                if p_classes:
+                    logger.info("Found plugins classes: %s", p_classes)
+                    cfg_files = [
+                        '/usr/local/etc/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        '/etc/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        '~/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
+                    ]
+
+                    for p_class in p_classes:
+                        # Create a plugin instance
+                        p = p_class(self, cfg_files)
+
+                        # Add the views sub-directory of the plugin in the Bottle templates path
+                        dir_views = os.path.join(
+                            os.path.join(plugins_dir, plugin_name), 'views'
+                        )
+                        if os.path.isdir(dir_views):
+                            TEMPLATE_PATH.append(os.path.join(
+                                os.path.join(plugins_dir, plugin_name), 'views'
+                            ))
+                            logger.debug("register views directory '%s'", os.path.join(
+                                os.path.join(plugins_dir, plugin_name), 'views'
+                            ))
+
+                        i += 1
+                        self.plugins_objects.append(p)
+
+                        self.plugins.append({
+                            'name': plugin_name,
+                            'module': plugin
+                        })
+                        logger.info("registered plugin '%s'", plugin_name)
+                        continue
 
                 # Plugin defined routes ...
                 if hasattr(plugin, 'pages'):
@@ -1034,7 +1082,6 @@ class WebUI(object):
         # exit()
         return i
 
-    # noinspection PyMethodMayBeStatic
     def get_url(self, name):
         """
         Get the URL for a named route
@@ -1042,6 +1089,15 @@ class WebUI(object):
         :return:
         """
         return bottle.default_app().get_url(name)
+
+    def find_plugin(self, name):
+        """
+        Find a plugin with its name
+        """
+        for plugin in self.plugins_objects:
+            if plugin.name == name:
+                return plugin
+        return None
 
     def get_widgets_for(self, place):
         """
@@ -1053,7 +1109,10 @@ class WebUI(object):
         """
         For a specific place like 'external', return the application tables list
         """
-        return self.tables.get(place, [])
+        tables = self.tables.get(place, [])
+        for plugin in self.plugins_objects:
+            tables = tables + plugin.tables[place]
+        return tables
 
     ##
     # Make responses for browser client requests
