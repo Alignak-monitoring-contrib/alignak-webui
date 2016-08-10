@@ -60,11 +60,11 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_table_widget',
                         'icon': 'table',
                         'description': _(
-                            '<h4>Livestate table widget</h4>Displays a list of the live state of the'
-                            'monitored system hosts and services.<br>'
-                            'The number of hosts/services in this list can be defined in the widget '
-                            'options. The list of hosts/services can be filtered thanks to regex on the '
-                            'host/service name.'
+                            '<h4>Livestate table widget</h4>Displays a list of the live state of '
+                            'the monitored system hosts and services.<br>'
+                            'The number of hosts/services in this list can be defined in the '
+                            'widget options. The list of hosts/services can be filtered thanks to '
+                            'regex on the host/service name.'
                         ),
                         'picture': 'htdocs/img/livestate_table_widget.png',
                         'options': {
@@ -92,8 +92,8 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_hosts_chart_widget',
                         'icon': 'pie-chart',
                         'description': _(
-                            '<h4>Hosts livestate chart widget</h4>Displays a pie chart with the monitored'
-                            'system hosts states.'
+                            '<h4>Hosts livestate chart widget</h4>Displays a pie chart with the '
+                            'monitored system hosts states.'
                         ),
                         'picture': 'htdocs/img/livestate_hosts_chart_widget.png',
                         'options': {}
@@ -118,8 +118,8 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_hosts_history_chart_widget',
                         'icon': 'pie-chart',
                         'description': _(
-                            '<h4>Hosts livestate history chart widget</h4>Displays a line chart with '
-                            'the monitored system hosts states on a recent period of time.'
+                            '<h4>Hosts livestate history chart widget</h4>Displays a line chart '
+                            'with the monitored system hosts states on a recent period of time.'
                         ),
                         'picture': 'htdocs/img/livestate_hosts_history_chart_widget.png',
                         'options': {}
@@ -131,8 +131,8 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_services_history_chart_widget',
                         'icon': 'pie-chart',
                         'description': _(
-                            '<h4>Services livestate history chart widget</h4>Displays a line chart with '
-                            'the monitored system sevices states on a recent period of time.'
+                            '<h4>Services livestate history chart widget</h4>Displays a line chart '
+                            'with the monitored system sevices states on a recent period of time.'
                         ),
                         'picture': 'htdocs/img/livestate_services_history_chart_widget.png',
                         'options': {}
@@ -157,8 +157,8 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_services_counters_widget',
                         'icon': 'plus-square',
                         'description': _(
-                            '<h4>Services livestate counters widget</h4>Displays counters about the '
-                            'monitored system services states.'
+                            '<h4>Services livestate counters widget</h4>Displays counters about '
+                            'the monitored system services states.'
                         ),
                         'picture': 'htdocs/img/livestate_services_counters_widget.png',
                         'options': {}
@@ -170,8 +170,8 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_hosts_sla_widget',
                         'icon': 'life-saver',
                         'description': _(
-                            '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level about the '
-                            'monitored system hosts states.'
+                            '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level '
+                            'about the monitored system hosts states.'
                         ),
                         'picture': 'htdocs/img/livestate_hosts_sla_widget.png',
                         'options': {}
@@ -183,8 +183,8 @@ class PluginLivestate(Plugin):
                         'template': 'livestate_services_sla_widget',
                         'icon': 'life-saver',
                         'description': _(
-                            '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level about the '
-                            'monitored system services states.'
+                            '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level '
+                            'about the monitored system services states.'
                         ),
                         'picture': 'htdocs/img/livestate_services_sla_widget.png',
                         'options': {}
@@ -211,7 +211,6 @@ class PluginLivestate(Plugin):
         else:
             redirect('/host/' + livestate.host.id + '#services')
 
-
     def get_livestate_widget(self, embedded=False, identifier=None, credentials=None):
         """
         Get the livestate as a widget
@@ -222,4 +221,6 @@ class PluginLivestate(Plugin):
 
         """
         datamgr = request.environ['beaker.session']['datamanager']
-        return get_widget(datamgr.get_livestate, 'livestate', embedded, identifier, credentials)
+        return self.get_widget(
+            datamgr.get_livestates, 'livestate', embedded, identifier, credentials
+        )

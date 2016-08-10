@@ -68,8 +68,8 @@ class PluginHostsGroups(Plugin):
                 search={'max_results': 1, 'where': {'name': hostgroup_id}}
             )
             if not hostgroup:
-                return webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                         % element_id)
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % hostgroup_id)
 
         items = []
         for host in hostgroup.hosts:

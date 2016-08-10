@@ -56,22 +56,26 @@ class PluginServicesGroups(Plugin):
 
         super(PluginServicesGroups, self).__init__(app, cfg_filenames)
 
-    def get_servicegroup_members(servicegroup_id):
+    def get_servicegroup_members(self, servicegroup_id):
         """
         Get the servicegroup services list
         """
         datamgr = request.environ['beaker.session']['datamanager']
 
         servicegroup = datamgr.get_servicegroup(servicegroup_id)
-        if not servicegroup:  # pragma: no cover, should not happen
-            return webui.response_invalid_parameters(_('Services group element does not exist'))
-
-        # Not JSON serializable!
-        # items = servicegroup.members
+        if not servicegroup:
+            servicegroup = datamgr.get_servicegroup(
+                search={'max_results': 1, 'where': {'name': servicegroup_id}}
+            )
+            if not servicegroup:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % servicegroup_id)
 
         items = []
         for service in servicegroup.services:
-            lv_service = datamgr.get_livestates({'where': {'type': 'service', 'service': service.id}})
+            lv_service = datamgr.get_livestates(
+                {'where': {'type': 'service', 'service': service.id}}
+            )
             lv_service = lv_service[0]
             title = "%s - %s (%s)" % (
                 lv_service.status,

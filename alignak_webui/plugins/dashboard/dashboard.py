@@ -25,122 +25,131 @@
 
 import json
 from logging import getLogger
+
 from bottle import request
+
 from alignak_webui import _
+from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
-# Will be valued by the plugin loader
-webui = None
 
+class PluginDashboard(Plugin):
+    """ Dashboard plugin """
 
-# Our page
-def get_page():
-    """
-    Display dashboard page
-    """
-    user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-    datamgr = request.environ['beaker.session']['datamanager']
+    def __init__(self, app, cfg_filenames=None):
+        """
+        Dashboard plugin
+        """
+        self.name = 'Dashboard'
+        self.backend_endpoint = None
 
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+        self.pages = {
+            'get_page': {
+                'name': 'Dashboard',
+                'route': '/dashboard',
+                'view': 'dashboard'
+            },
+            'get_currently': {
+                'name': 'Currently',
+                'route': '/currently',
+                'view': 'currently'
+            }
+        }
 
-    # Search for the dashboard widgets
-    saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'widgets': []})
-    if not saved_widgets:
-        saved_widgets = {'widgets': []}
-        datamgr.set_user_preferences(username, 'dashboard_widgets', saved_widgets)
+        super(PluginDashboard, self).__init__(app, cfg_filenames)
 
-    widgets = []
-    for widget in saved_widgets['widgets']:
-        if 'id' not in widget:
-            continue
+    def get_page(self):
+        """
+        Display dashboard page
+        """
+        user = request.environ['beaker.session']['current_user']
+        target_user = request.environ['beaker.session']['target_user']
+        datamgr = request.environ['beaker.session']['datamanager']
 
-        logger.warning("Dashboard widget, got: %s", widget)
+        username = user.get_username()
+        if not target_user.is_anonymous():
+            username = target_user.get_username()
 
-        # Widget data:
-        # - for: widget page (default: dashboard)
-        # - id: unique identifier
-        # - x, y: position (default: 0, 0)
-        # - width, height: size (default: 1, 1)
-        # - base_url
-        # - options_json
+        # Search for the dashboard widgets
+        saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'widgets': []})
+        if not saved_widgets:
+            saved_widgets = {'widgets': []}
+            datamgr.set_user_preferences(username, 'dashboard_widgets', saved_widgets)
 
-        # by default the widget is for /dashboard
-        widget['for'] = widget.get('for', 'dashboard')
-        if not widget['for'] == 'dashboard':  # pragma: no cover - not testable yet
-            # Not a dashboard widget? I don't want it so
-            continue
+        widgets = []
+        for widget in saved_widgets['widgets']:
+            if 'id' not in widget:
+                continue
 
-        widget['x'] = widget.get('x', 0)
-        widget['y'] = widget.get('x', 0)
-        widget['width'] = widget.get('width', 1)
-        widget['minWidth'] = widget.get('minWidth', 1)
-        widget['maxWidth'] = widget.get('maxWidth', 12)
-        widget['height'] = widget.get('height', 1)
-        widget['minHeight'] = widget.get('minHeight', 1)
-        widget['maxHeight'] = widget.get('maxHeight', 6)
+            logger.warning("Dashboard widget, got: %s", widget)
 
-        widget['id'] = widget.get('id', None)
-        widget['uri'] = widget.get('uri', '/')
-        widget['name'] = widget.get('name', None)
-        widget['icon'] = widget.get('icon', 'leaf')
-        widget['template'] = widget.get('template', None)
+            # Widget data:
+            # - for: widget page (default: dashboard)
+            # - id: unique identifier
+            # - x, y: position (default: 0, 0)
+            # - width, height: size (default: 1, 1)
+            # - base_url
+            # - options_json
 
-        options = widget.get('options', {})
+            # by default the widget is for /dashboard
+            widget['for'] = widget.get('for', 'dashboard')
+            if not widget['for'] == 'dashboard':  # pragma: no cover - not testable yet
+                # Not a dashboard widget? I don't want it so
+                continue
 
-        widget['options'] = options
-        widget['options_json'] = json.dumps(options)
-        args = {'id': widget['id']}
-        args.update(options)
-        widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
-        logger.info("Dashboard widget: %s", widget)
-        widgets.append(widget)
+            widget['x'] = widget.get('x', 0)
+            widget['y'] = widget.get('x', 0)
+            widget['width'] = widget.get('width', 1)
+            widget['minWidth'] = widget.get('minWidth', 1)
+            widget['maxWidth'] = widget.get('maxWidth', 12)
+            widget['height'] = widget.get('height', 1)
+            widget['minHeight'] = widget.get('minHeight', 1)
+            widget['maxHeight'] = widget.get('maxHeight', 6)
 
-    return {
-        'widgets_bar': len(webui.get_widgets_for('dashboard')) != 0,
-        'widgets_place': 'dashboard',
-        'dashboard_widgets': widgets,
-        'title': request.query.get('title', _('Dashboard'))
-    }
+            widget['id'] = widget.get('id', None)
+            widget['uri'] = widget.get('uri', '/')
+            widget['name'] = widget.get('name', None)
+            widget['icon'] = widget.get('icon', 'leaf')
+            widget['template'] = widget.get('template', None)
 
+            options = widget.get('options', {})
 
-def get_currently():
-    """
-    Display currently page
-    """
-    user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-    datamgr = request.environ['beaker.session']['datamanager']
+            widget['options'] = options
+            widget['options_json'] = json.dumps(options)
+            args = {'id': widget['id']}
+            args.update(options)
+            widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
+            logger.info("Dashboard widget: %s", widget)
+            widgets.append(widget)
 
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+        return {
+            'widgets_bar': len(self.webui.get_widgets_for('dashboard')) != 0,
+            'widgets_place': 'dashboard',
+            'dashboard_widgets': widgets,
+            'title': request.query.get('title', _('Dashboard'))
+        }
 
-    # Get the stored panels
-    panels = datamgr.get_user_preferences(username, 'panels', {'panels': {}})
+    def get_currently(self):
+        """
+        Display currently page
+        """
+        user = request.environ['beaker.session']['current_user']
+        target_user = request.environ['beaker.session']['target_user']
+        datamgr = request.environ['beaker.session']['datamanager']
 
-    # Get the stored graphs
-    graphs = datamgr.get_user_preferences(username, 'graphs', {'graphs': {}})
+        username = user.get_username()
+        if not target_user.is_anonymous():
+            username = target_user.get_username()
 
-    return {
-        'panels': panels,
-        'graphs': graphs,
-        'title': request.query.get('title', _('Dashboard'))
-    }
+        # Get the stored panels
+        panels = datamgr.get_user_preferences(username, 'panels', {'panels': {}})
 
+        # Get the stored graphs
+        graphs = datamgr.get_user_preferences(username, 'graphs', {'graphs': {}})
 
-pages = {
-    get_page: {
-        'name': 'Dashboard',
-        'route': '/dashboard',
-        'view': 'dashboard'
-    },
-    get_currently: {
-        'name': 'Currently',
-        'route': '/currently',
-        'view': 'currently'
-    }
-}
+        return {
+            'panels': panels,
+            'graphs': graphs,
+            'title': request.query.get('title', _('Dashboard'))
+        }

@@ -44,9 +44,6 @@ from alignak_webui.utils.settings import Settings
 
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
-
 
 class Plugin(object):
     """ WebUI base plugin """
@@ -354,7 +351,7 @@ class Plugin(object):
         response.content_type = 'application/json'
         return json.dumps(self.plugin_parameters)
 
-    def get_one(self):
+    def get_one(self, element_id):
         """
             Show one element
         """
@@ -373,8 +370,8 @@ class Plugin(object):
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
-                return webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                         % element_id)
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % element_id)
 
         # Build table structure and data model
         dt = Datatable(self.backend_endpoint, datamgr, self.table)
@@ -534,8 +531,8 @@ class Plugin(object):
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
-                return webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                         % element_id)
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % element_id)
 
         # Build table structure and data model
         dt = Datatable(self.backend_endpoint, datamgr, self.table)
@@ -661,7 +658,7 @@ class Plugin(object):
         # Pagination and search
         start = int(request.params.get('start', '0'))
         count = int(request.params.get('count', elts_per_page))
-        where = webui.helper.decode_search(request.params.get('search', ''))
+        where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
             'page': start // (count + 1),
             'max_results': count,
@@ -686,14 +683,14 @@ class Plugin(object):
         # Widget options
         widget_id = request.params.get('widget_id', '')
         if widget_id == '':
-            return webui.response_invalid_parameters(_('Missing widget identifier'))
+            return self.webui.response_invalid_parameters(_('Missing widget identifier'))
 
         widget_place = request.params.get('widget_place', 'dashboard')
         widget_template = request.params.get('widget_template', 'elements_table_widget')
         widget_icon = request.params.get('widget_icon', 'plug')
         # Search in the application widgets (all plugins widgets)
         options = {}
-        for widget in webui.widgets[widget_place]:
+        for widget in self.webui.get_widgets_for(widget_place):
             if widget_id.startswith(widget['id']):
                 options = widget['options']
                 widget_template = widget['template']
@@ -702,7 +699,7 @@ class Plugin(object):
                 break
         else:
             logger.warning("Widget identifier not found: %s", widget_id)
-            return webui.response_invalid_parameters(_('Unknown widget identifier'))
+            return self.webui.response_invalid_parameters(_('Unknown widget identifier'))
 
         if options:
             options['search']['value'] = request.params.get('search', '')

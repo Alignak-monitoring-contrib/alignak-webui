@@ -604,11 +604,11 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
-            logger.debug("get_livestate, search: %s", search)
+            logger.debug("get_livestates, search: %s", search)
             items = self.find_object('livestate', search, all_elements)
             return items
         except ValueError:
-            logger.debug("get_livestate, none found")
+            logger.debug("get_livestates, none found")
 
     def get_livestate_hosts(self, search=None):
         """ Get livestate for hosts

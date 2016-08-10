@@ -50,6 +50,7 @@ class Settings(OrderedDict):
         self.filename = filename
 
     def read(self, app_name):
+        # pylint: disable=too-many-nested-blocks
         """ Read configuration file
 
         Tries to load a configuration from the following files:
@@ -94,7 +95,6 @@ class Settings(OrderedDict):
             ]
 
         try:
-            # pylint: disable=too-many-nested-blocks
             config = ConfigParser()
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:

@@ -29,6 +29,7 @@ from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
+
 class PluginServicesDependencies(Plugin):
     """ Services dependencies plugin """
 
@@ -46,4 +47,3 @@ class PluginServicesDependencies(Plugin):
         self.pages = {}
 
         super(PluginServicesDependencies, self).__init__(app, cfg_filenames)
-

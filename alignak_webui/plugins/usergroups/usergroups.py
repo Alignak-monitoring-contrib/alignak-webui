@@ -56,18 +56,20 @@ class PluginServicesGroups(Plugin):
 
         super(PluginServicesGroups, self).__init__(app, cfg_filenames)
 
-    def get_usergroup_members(usergroup_id):
+    def get_usergroup_members(self, usergroup_id):
         """
         Get the usergroup users list
         """
         datamgr = request.environ['beaker.session']['datamanager']
 
         usergroup = datamgr.get_usergroup(usergroup_id)
-        if not usergroup:  # pragma: no cover, should not happen
-            return webui.response_invalid_parameters(_('users group element does not exist'))
-
-        # Not JSON serializable!
-        # items = usergroup.members
+        if not usergroup:
+            usergroup = datamgr.get_usergroup(
+                search={'max_results': 1, 'where': {'name': usergroup_id}}
+            )
+            if not usergroup:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % usergroup_id)
 
         items = []
         for user in usergroup.users:

@@ -327,7 +327,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 logger.error("update, backend exception: %s", str(e))
                 return False
             except ValueError:  # pragma: no cover, should never happen
-                logger.warning("update, not found %s: %s", object_type, element)
+                logger.warning("update, not found %s: %s", element.get_type(), element)
                 return False
 
             return True

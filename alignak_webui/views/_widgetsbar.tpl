@@ -2,11 +2,11 @@
 %setdefault('debug_host', False)
 
 <!-- Dashboard widgets bar -->
-<li class="dropdown" data-toggle="tooltip" data-placement="right" title="{{_('Add a new widget')}}">
+<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Add a new widget')}}">
    <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret hidden-xs"></span>
       <span class="fa fa-plug"></span>
-      <span class="hidden-md hidden-sm hidden-xs">{{_('Widgets')}}</span>
+      <span class="sr-only">{{_('Widgets')}}</span>
    </a>
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Widgets menu')}}">

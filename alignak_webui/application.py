@@ -577,7 +577,6 @@ def server_static(path):
     Main application static files
     Plugins declare their own static routes under /plugins
     """
-    # logger.debug("Application static file: %s", path)
     if not path.startswith('plugins'):
         return static_file(
             path, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'htdocs')
@@ -823,7 +822,6 @@ class WebUI(object):
         logger.info("Initializing...")
 
         # Store all the plugins
-        self.plugins = []
         self.plugins_objects = []
 
         # Store all the widgets
@@ -843,11 +841,10 @@ class WebUI(object):
 
         # Load plugins in the plugins directory ...
         self.plugins_count = self.load_plugins(
-            bottle.app(),
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
         )
 
-    def load_plugins(self, app, plugins_dir):
+    def load_plugins(self, plugins_dir):
         # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
         """
         Load plugins from the provided directory
@@ -903,130 +900,8 @@ class WebUI(object):
                         # Create a plugin instance
                         p = p_class(self, cfg_files)
 
-                        # Add the views sub-directory of the plugin in the Bottle templates path
-                        dir_views = os.path.join(
-                            os.path.join(plugins_dir, plugin_name), 'views'
-                        )
-                        if os.path.isdir(dir_views):
-                            TEMPLATE_PATH.append(os.path.join(
-                                os.path.join(plugins_dir, plugin_name), 'views'
-                            ))
-                            logger.debug("register views directory '%s'", os.path.join(
-                                os.path.join(plugins_dir, plugin_name), 'views'
-                            ))
-
                         i += 1
                         self.plugins_objects.append(p)
-
-                        self.plugins.append({
-                            'name': plugin_name,
-                            'module': plugin
-                        })
-                        logger.info("registered plugin '%s'", plugin_name)
-                        continue
-
-                # Plugin defined routes ...
-                if hasattr(plugin, 'pages'):
-                    for (f, entry) in plugin.pages.items():
-                        logger.debug("page entry: %s", entry)
-
-                        # IMPORTANT: apply the view before the route!
-                        page_view = entry.get('view', None)
-                        if page_view:
-                            f = view(page_view)(f)
-
-                        page_route = entry.get('route', None)
-                        if not page_route:
-                            page_route = entry.get('routes', None)
-                        page_name = entry.get('name', None)
-                        # Maybe there is no route to link, so pass
-                        if not page_route:
-                            continue
-
-                        methods = entry.get('method', 'GET')
-
-                        # Routes are an array of tuples [(route, name), ...]
-                        route_url = ''
-                        if not isinstance(page_route, list):
-                            page_route = [(page_route, page_name)]
-                        for route_url, name in page_route:
-                            f = app.route(
-                                route_url, callback=f, method=methods, name=name,
-                                search_engine=entry.get('search_engine', False),
-                                search_prefix=entry.get('search_prefix', ''),
-                                search_filters=entry.get('search_filters', {})
-                            )
-
-                            # Plugin is dedicated to a backend endpoint...
-                            if hasattr(plugin, 'backend_endpoint'):
-                                if route_url == ('/%ss_list' % plugin.backend_endpoint):
-                                    self.lists['%ss_list' % plugin.backend_endpoint] = {
-                                        'id': plugin.backend_endpoint,
-                                        'base_uri': route_url,
-                                        'function': f
-                                    }
-                                    logger.info(
-                                        "Found list '%s' for %s", route_url, plugin.backend_endpoint
-                                    )
-
-                        # It's a valid widget entry if it got all data, and at least one route
-                        if 'widgets' in entry:
-                            for widget in entry.get('widgets'):
-                                if 'id' not in widget or 'for' not in widget:
-                                    continue
-                                if 'name' not in widget or 'description' not in widget:
-                                    continue
-                                if 'template' not in widget or not page_route:
-                                    continue
-
-                                for place in widget['for']:
-                                    if place not in self.widgets:
-                                        self.widgets[place] = []
-                                    self.widgets[place].append({
-                                        'id': widget['id'],
-                                        'name': widget['name'],
-                                        'description': widget['description'],
-                                        'template': widget['template'],
-                                        'icon': widget.get('icon', 'leaf'),
-                                        'read_only': widget.get('read_only', False),
-                                        'options': widget.get('options', None),
-                                        'picture': os.path.join(
-                                            os.path.join('/static/plugins/', plugin_name),
-                                            widget.get('picture', '')
-                                        ),
-                                        'base_uri': route_url,
-                                        'function': f
-                                    })
-                                    logger.info(
-                                        "Found widget '%s' for %s", widget['id'], place
-                                    )
-
-                        # It's a valid widget entry if it got all data, and at least one route
-                        if 'tables' in entry:
-                            for table in entry.get('tables'):
-                                if 'id' not in table or 'for' not in table:
-                                    continue
-                                if 'name' not in table or 'description' not in table:
-                                    continue
-                                if 'template' not in table or not page_route:
-                                    continue
-
-                                for place in table['for']:
-                                    if place not in self.tables:
-                                        self.tables[place] = []
-                                    self.tables[place].append({
-                                        'id': table['id'],
-                                        'name': table['name'],
-                                        'description': table['description'],
-                                        'template': table['template'],
-                                        'icon': table.get('icon', 'leaf'),
-                                        'base_uri': page_route,
-                                        'function': f,
-                                        'actions': table.get('actions', {})
-                                    })
-                                    logger.info(
-                                        "Found table '%s' for %s", table['id'], place
-                                    )
 
                 # Add the views sub-directory of the plugin in the Bottle templates path
                 dir_views = os.path.join(
@@ -1040,38 +915,6 @@ class WebUI(object):
                         os.path.join(plugins_dir, plugin_name), 'views'
                     ))
 
-                # Self register in the plugin so the pages can get my data
-                plugin.webui = self
-
-                # Load/set plugin configuration
-                f = getattr(plugin, 'load_config', None)
-                if f and callable(f):
-                    logger.info(
-                        "plugin '%s' needs to load its configuration. Configuring...", plugin_name
-                    )
-                    cfg_files = [
-                        '/usr/local/etc/%s/plugin_%s.cfg' % (
-                            self.app_config['name'].lower(), plugin_name
-                        ),
-                        '/etc/%s/plugin_%s.cfg' % (
-                            self.app_config['name'].lower(), plugin_name
-                        ),
-                        '~/%s/plugin_%s.cfg' % (
-                            self.app_config['name'].lower(), plugin_name
-                        ),
-                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
-                    ]
-                    config = f(cfg_files)
-                    if config:
-                        logger.info("plugin '%s' configured.", plugin_name)
-                    else:  # pragma: no cover - if any ...
-                        logger.warning("plugin '%s' configuration failed.", plugin_name)
-
-                i += 1
-                self.plugins.append({
-                    'name': plugin_name,
-                    'module': plugin
-                })
                 logger.info("registered plugin '%s'", plugin_name)
 
             except Exception as e:  # pragma: no cover - simple security ...
@@ -1079,7 +922,6 @@ class WebUI(object):
                 logger.error("traceback: %s", traceback.format_exc())
 
         logger.info("loaded %d plugins from: %s", i, plugins_dir)
-        # exit()
         return i
 
     def get_url(self, name):

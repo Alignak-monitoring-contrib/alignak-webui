@@ -60,7 +60,8 @@
          <div class="col-sm-6 col-sm-offset-3">
             <div class="login-panel panel panel-default" style="padding: 2vh;">
                <div class="panel-heading">
-                  <h2>{{request.app.config.get('about_name', manifest['name'])}} <small>{{_('version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h2>
+                  <h2>{{request.app.config.get('about_name', manifest['name'])}}</h2>
+                  <h3><small>{{_('Version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h3>
                   <center>
                      <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 80%"/>
                   </center>

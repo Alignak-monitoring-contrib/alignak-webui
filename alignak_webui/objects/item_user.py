@@ -219,9 +219,6 @@ class User(BackendElement):
         if not key:
             return self.ui_preferences
 
-        # for ui_pref, value in self.ui_preferences:
-            # if key == ui_pref:
-                # return value
         if key in self.ui_preferences:
             return self.ui_preferences[key]
 
