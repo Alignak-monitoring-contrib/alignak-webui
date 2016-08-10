@@ -241,7 +241,7 @@ class Datatable(object):
                     'data': field,
                     'type': model.get('type', 'string'),
                     'content_type': model.get('content_type', 'string'),
-                    'allowed': ','.join(model.get('allowed', [])),
+                    'allowed': model.get('allowed', ''),
                     'defaultContent': model.get('default', ''),
                     'required': model.get('required', False),
                     'empty': model.get('empty', False),
@@ -617,7 +617,7 @@ class Datatable(object):
         # Change item content ...
         for item in items:
             bo_object = object_class(item)
-            logger.debug("%s object item: %s", self.object_type, bo_object)
+            logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
 
             for key in item.keys():
                 for field in self.table_columns:

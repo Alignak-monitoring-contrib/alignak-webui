@@ -307,7 +307,7 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get livestate (livestate which embeds host and services definition)
         # -----------------------------------------------------------------------------------------
-        # self.get_livestate()
+        # self.get_livestates()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -586,7 +586,7 @@ class DataManager(object):
     ##
     # Livestate
     ##
-    def get_livestate(self, search=None):
+    def get_livestates(self, search=None, all_elements=False):
         """ Get livestate for all elements
 
             Elements in the livestate which type is 'host' or 'service'
@@ -605,7 +605,7 @@ class DataManager(object):
 
         try:
             logger.debug("get_livestate, search: %s", search)
-            items = self.find_object('livestate', search)
+            items = self.find_object('livestate', search, all_elements)
             return items
         except ValueError:
             logger.debug("get_livestate, none found")

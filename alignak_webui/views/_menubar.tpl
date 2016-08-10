@@ -27,7 +27,7 @@
          </a>
       </li>
       <li data-toggle="tooltip" data-placement="bottom" title="{{_('Log table')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Log check result table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+         <a class="navbar-link" href="{{ webui.get_url('Log check results table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
             <span class="fa fa-fw fa-history"></span>
             <span class="sr-only">{{_('Log')}}</span>
          </a>
@@ -67,6 +67,13 @@
                <a href="{{ webui.get_url('Hosts dependencies table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
                   <span class="fa fa-fw fa-arrows-v"></span>
                   <span>{{_('Hosts dependencies')}}</span>
+               </a>
+            </li>
+
+            <li>
+               <a href="{{ webui.get_url('Services dependencies table') + ('?target_user=' + target_user.get_username() if target_user else '') }}">
+                  <span class="fa fa-fw fa-arrows-v"></span>
+                  <span>{{_('Services dependencies')}}</span>
                </a>
             </li>
 

@@ -396,7 +396,10 @@ class BackendElement(object):
                 # Linked resource type
                 object_type = getattr(self, '_linked_' + key, None)
                 if object_type not in [kc.get_type() for kc in self.get_known_classes()]:
-                    logger.error("_create, unknown %s for %s", object_type, params[key])
+                    logger.error(
+                        "_create, unknown %s for %s, as %s for %s",
+                        key, self.get_type(), object_type, params[key]
+                    )
                     continue
 
                 object_class = [kc for kc in self.get_known_classes()

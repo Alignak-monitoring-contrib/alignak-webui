@@ -44,7 +44,7 @@ def lookup():
 
     logger.warning("lookup: %s", query)
 
-    elements = datamgr.get_livestate(search={'where': {'name': {"$regex": ".*" + query + ".*"}}})
+    elements = datamgr.get_livestates(search={'where': {'name': {"$regex": ".*" + query + ".*"}}})
     names = [e.name for e in elements]
     logger.warning("lookup: %s", names)
 

@@ -22,7 +22,7 @@
         %lat = pos['coordinates'][0]
         %lng = pos['coordinates'][1]
         %services = datamgr.get_services(search={'where': {'host':item.id}})
-        %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name': item.name}})
+        %livestate = datamgr.get_livestates(search={'where': {'type': 'host', 'name': item.name}})
         %livestate = livestate[0] if livestate else None
         %if not livestate:
         %continue
@@ -39,7 +39,7 @@
             {{ str(livestate.downtime).lower() }},
             [
                 %for service in services:
-                    %livestate = datamgr.get_livestate(search={'where': {'type': 'service', 'name':'%s/%s' % (item.name, service.name)}})
+                    %livestate = datamgr.get_livestates(search={'where': {'type': 'service', 'name':'%s/%s' % (item.name, service.name)}})
                     %livestate = livestate[0] if livestate else None
                     %if not livestate:
                     %continue

@@ -52,7 +52,7 @@
 
             <tbody>
                %for host in elts:
-               %lv_host = datamgr.get_livestate({'where': {'host': host.id}})
+               %lv_host = datamgr.get_livestates({'where': {'host': host.id}})
                %lv_host = lv_host[0]
                <tr id="#{{host.id}}">
                   <td title="{{host.alias}}">

@@ -61,7 +61,7 @@ def get_worldmap():
 
     # Fetch elements per page preference for user, default is 25
     elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
+    # elts_per_page = elts_per_page['value']
 
     # Pagination and search
     start = int(request.query.get('start', '0'))

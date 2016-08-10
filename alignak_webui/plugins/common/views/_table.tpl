@@ -99,7 +99,6 @@
 
                   %if is_list:
                   <select id="filter_{{name}}" class="form-control">
-                     <option value="WY" selected="selected">Wyoming</option>
                   </select>
                   %else:
                   %if field_type in ['boolean']:

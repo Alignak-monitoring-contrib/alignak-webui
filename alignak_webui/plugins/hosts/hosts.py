@@ -39,9 +39,7 @@ class PluginHosts(Plugin):
 
     def __init__(self, app, cfg_filenames=None):
         """
-        User plugin
-
-        Declare routes for adding, deleting a user
+        Hosts plugin
 
         Overload the default get route to declare filters.
         """
@@ -348,14 +346,14 @@ class PluginHosts(Plugin):
         )
 
         # Get host livestate
-        livestate = datamgr.get_livestate(
+        livestate = datamgr.get_livestates(
             search={'where': {'type': 'host', 'name': '%s' % host.name}}
         )
         if livestate:
             livestate = livestate[0]
 
         # Get host services livestate
-        livestate_services = datamgr.get_livestate(
+        livestate_services = datamgr.get_livestates(
             search={'where': {'type': 'service', 'host': host.id}}
         )
 
@@ -460,14 +458,14 @@ class PluginHosts(Plugin):
         services = datamgr.get_services(search={'where': {'host': element_id}})
 
         # Get host livestate
-        livestate = datamgr.get_livestate(
+        livestate = datamgr.get_livestates(
             search={'where': {'type': 'host', 'name': '%s' % host.name}}
         )
         if livestate:
             livestate = livestate[0]
 
         # Get host services livestate
-        livestate_services = datamgr.get_livestate(
+        livestate_services = datamgr.get_livestates(
             search={'where': {'type': 'service', 'host': host.id}}
         )
 

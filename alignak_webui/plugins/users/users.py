@@ -56,7 +56,7 @@ class PluginUsers(Plugin):
                 'method': 'POST'
             },
 
-            'get': {
+            'get_all': {
                 'name': '%s' % self.name,
                 'route': '/%ss' % self.backend_endpoint,
                 'view': '%ss' % self.backend_endpoint,

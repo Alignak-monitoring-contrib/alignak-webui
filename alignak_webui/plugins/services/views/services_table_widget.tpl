@@ -23,7 +23,7 @@
       </tr></thead>
       <tbody>
          %for service in services:
-         %lv_service = datamgr.get_livestate({'where': {'service': service.id}})
+         %lv_service = datamgr.get_livestates({'where': {'service': service.id}})
          %lv_service = lv_service[0]
          <tr id="{{service.id}}">
             <td title="{{service.alias}}">

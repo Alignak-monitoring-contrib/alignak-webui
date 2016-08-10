@@ -84,45 +84,12 @@ class Service(BackendElement):
         """ Return linked object """
         return self._linked_notification_period
 
-
-class ServiceGroup(BackendElement):
-    """
-    Object representing a servicegroup
-    """
-    _count = 0
-    # Next value used for auto generated id
-    _next_id = 1
-    # _type stands for Backend Object Type
-    _type = 'servicegroup'
-    # _cache is a list of created objects
-    _cache = {}
-
-    def _create(self, params, date_format):
-        """
-        Create a servicegroup (called only once when an object is newly created)
-        """
-        self._linked_servicegroups = 'servicegroup'
-        self._linked__parent = 'servicegroup'
-        self._linked_services = 'service'
-
-        super(ServiceGroup, self)._create(params, date_format)
-
     @property
-    def services(self):
+    def usergroups(self):
         """ Return linked object """
-        return self._linked_services
+        return self._linked_usergroups
 
     @property
-    def servicegroups(self):
+    def users(self):
         """ Return linked object """
-        return self._linked_servicegroups
-
-    @property
-    def parent(self):
-        """ Return group parent """
-        return self._linked__parent
-
-    @property
-    def level(self):
-        """ Return group level """
-        return self._level
+        return self._linked_users

@@ -73,7 +73,7 @@ class PluginHostsGroups(Plugin):
 
         items = []
         for host in hostgroup.hosts:
-            lv_host = datamgr.get_livestate({'where': {'type': 'host', 'host': host.id}})
+            lv_host = datamgr.get_livestates({'where': {'type': 'host', 'host': host.id}})
             lv_host = lv_host[0]
             title = "%s - %s (%s)" % (
                 lv_host.status,

@@ -20,29 +20,30 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin Log check result
+    Plugin hosts dependencies
 """
 
 from logging import getLogger
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
-
-class PluginLogCheckResults(Plugin):
-    """ Services groups plugin """
+class PluginServicesDependencies(Plugin):
+    """ Services dependencies plugin """
 
     def __init__(self, app, cfg_filenames=None):
         """
-        Services groups plugin
+        User plugin
+
+        Declare routes for adding, deleting a user
 
         Overload the default get route to declare filters.
         """
-        self.name = 'Log check results'
-        self.backend_endpoint = 'logcheckresult'
+        self.name = 'Services dependencies'
+        self.backend_endpoint = 'servicedependency'
 
         self.pages = {}
 
-        super(PluginLogCheckResults, self).__init__(app, cfg_filenames)
+        super(PluginServicesDependencies, self).__init__(app, cfg_filenames)
+

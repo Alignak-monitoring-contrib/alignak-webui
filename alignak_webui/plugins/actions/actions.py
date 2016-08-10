@@ -82,7 +82,7 @@ def add_acknowledge():
     problem = False
     status = ""
     for livestate_id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
+        livestate = datamgr.get_livestates({'where': {'_id': livestate_id}})
         if not livestate:
             status += _('Livestate element %s does not exist') % livestate_id
             continue
@@ -150,7 +150,7 @@ def add_recheck():
     problem = False
     status = ""
     for livestate_id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
+        livestate = datamgr.get_livestates({'where': {'_id': livestate_id}})
         if not livestate:
             status += _('Livestate element %s does not exist') % livestate_id
             continue
@@ -219,7 +219,7 @@ def add_downtime():
     problem = False
     status = ""
     for livestate_id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
+        livestate = datamgr.get_livestates({'where': {'_id': livestate_id}})
         if not livestate:
             status += _('Livestate element %s does not exist') % livestate_id
             continue
