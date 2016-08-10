@@ -822,7 +822,7 @@ class WebUI(object):
         logger.info("Initializing...")
 
         # Store all the plugins
-        self.plugins_objects = []
+        self.plugins = []
 
         # Store all the widgets
         self.widgets = {}
@@ -901,7 +901,7 @@ class WebUI(object):
                         p = p_class(self, cfg_files)
 
                         i += 1
-                        self.plugins_objects.append(p)
+                        self.plugins.append(p)
 
                 # Add the views sub-directory of the plugin in the Bottle templates path
                 dir_views = os.path.join(
@@ -936,7 +936,7 @@ class WebUI(object):
         """
         Find a plugin with its name
         """
-        for plugin in self.plugins_objects:
+        for plugin in self.plugins:
             if plugin.name == name:
                 return plugin
         return None
@@ -946,7 +946,7 @@ class WebUI(object):
         For a specific place like 'dashboard' or 'external', returns the application widgets list
         """
         widgets_list = self.widgets.get(place, [])
-        for plugin in self.plugins_objects:
+        for plugin in self.plugins:
             widgets_list += plugin.widgets.get(place, [])
         return widgets_list
 
@@ -955,7 +955,7 @@ class WebUI(object):
         For a specific place like 'external', return the application tables list
         """
         tables = self.tables.get(place, [])
-        for plugin in self.plugins_objects:
+        for plugin in self.plugins:
             tables = tables + plugin.tables[place]
         return tables
 
