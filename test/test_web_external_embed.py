@@ -149,6 +149,36 @@ class tests_0_external(unittest2.TestCase):
         )
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
+        # Refused - unknown table
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/table/unknown?widget_id=test',
+            status=409
+        )
+        response.mustcontain('<div><h1>Unknown required table: unknown.</h1><p>The required table is not available.</p></div>')
+
+        # Refused - unknown list
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/list/unknown?widget_id=test',
+            status=409
+        )
+        response.mustcontain('<div><h1>Unknown required list: unknown.</h1><p>The required list is not available.</p></div>')
+
+        # Refused - unknown host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/unknown?widget_id=test',
+            status=409
+        )
+        response.mustcontain('<div><h1>Missing host widget name.</h1><p>You must provide a widget name</p></div>')
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/unknown/unknown?widget_id=test',
+            status=409
+        )
+        response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
+
     def test_1_2_allowed_widgets(self):
         print ''
         print 'allowed widgets external access'
@@ -286,8 +316,7 @@ class tests_0_external(unittest2.TestCase):
             '"url": "http://localhost:80/external/table/hosts_table/hosts/table_data",'
         )
 
-    def test_0_1_4_host_widgets(self):
-        print ''
+    def test_1_4_host_widgets(self):
         print 'allowed host widgets external access'
 
         # Log in to get Data manager in the session

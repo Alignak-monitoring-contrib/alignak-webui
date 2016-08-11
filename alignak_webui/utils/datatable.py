@@ -626,7 +626,8 @@ class Datatable(object):
 
                     # Specific fields
                     if field['data'] == self.name_property:
-                        item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
+                        # item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
+                        item[key] = bo_object.html_link
 
                     if field['data'] == self.status_property:
                         item[key] = bo_object.get_html_state()

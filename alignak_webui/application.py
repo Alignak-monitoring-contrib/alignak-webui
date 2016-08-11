@@ -340,7 +340,12 @@ def external(widget_type, identifier, action=None):
             return get_app_webui().lists[identifier]['function'](embedded=True)
         else:
             logger.warning("External application requested unknown list: %s", identifier)
-            return WebUI.response_ko(_('Unknown required list'))
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required list: %s.</h1>'
+                '<p>The required list is not available.</p></div>' % identifier
+            )
 
     if widget_type == 'host':
         if not action:
