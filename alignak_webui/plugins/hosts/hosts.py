@@ -164,10 +164,10 @@ class PluginHosts(Plugin):
                 'view': 'hosts_widget',
                 'widgets': [
                     {
-                        'id': 'hosts/table',
+                        'id': 'hosts_table',
                         'for': ['external', 'dashboard'],
                         'name': _('Hosts table widget'),
-                        'template': 'hosts/table_widget',
+                        'template': 'hosts_table_widget',
                         'icon': 'table',
                         'description': _(
                             '<h4>Hosts table widget</h4>Displays a list of the monitored system '
