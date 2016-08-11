@@ -370,13 +370,13 @@ def external(widget_type, identifier, action=None):
 
         if request.params.get('page', 'no') == 'no':
             return found_widget['function'](
-                host_id=identifier, widget_id=found_widget['id'],
+                element_id=identifier, widget_id=found_widget['id'],
                 embedded=True, identifier=identifier, credentials=credentials
             )
 
         return template('external_widget', {
             'embedded_element': found_widget['function'](
-                host_id=identifier, widget_id=found_widget['id'],
+                element_id=identifier, widget_id=found_widget['id'],
                 embedded=True, identifier=identifier, credentials=credentials
             )
         })
@@ -962,7 +962,8 @@ class WebUI(object):
         """
         tables = self.tables.get(place, [])
         for plugin in self.plugins:
-            tables = tables + plugin.tables[place]
+            if place in plugin.tables:
+                tables = tables + plugin.tables[place]
         return tables
 
     ##

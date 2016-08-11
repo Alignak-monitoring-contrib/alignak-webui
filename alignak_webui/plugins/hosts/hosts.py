@@ -164,10 +164,10 @@ class PluginHosts(Plugin):
                 'view': 'hosts_widget',
                 'widgets': [
                     {
-                        'id': 'hosts_table',
+                        'id': 'hosts/table',
                         'for': ['external', 'dashboard'],
                         'name': _('Hosts table widget'),
-                        'template': 'hosts_table_widget',
+                        'template': 'hosts/table_widget',
                         'icon': 'table',
                         'description': _(
                             '<h4>Hosts table widget</h4>Displays a list of the monitored system '
@@ -175,7 +175,7 @@ class PluginHosts(Plugin):
                             'The number of hosts in this list can be defined in the widget options.'
                             'The list of hosts can be filtered thanks to regex on the host name'
                         ),
-                        'picture': 'htdocs/img/hosts_table_widget.png',
+                        'picture': 'htdocs/img/hosts/table_widget.png',
                         'options': {
                             'search': {
                                 'value': '',
@@ -267,7 +267,7 @@ class PluginHosts(Plugin):
             return self.webui.response_invalid_parameters(_('Missing widget identifier'))
 
         widget_place = request.params.get('widget_place', 'dashboard')
-        widget_template = request.params.get('widget_template', 'hosts_table_widget')
+        widget_template = request.params.get('widget_template', 'hosts/table_widget')
         widget_icon = request.params.get('widget_icon', 'plug')
         # Search in the application widgets (all plugins widgets)
         options = {}
@@ -478,12 +478,16 @@ class PluginHosts(Plugin):
         }
 
         # Find known history types
-        history_plugin = self.webui.find_plugin('history')
-        history_types = history_plugin.table['table.type.allowed']
+        history_plugin = self.webui.find_plugin('Histories')
+        history_types = []
+        if history_plugin and 'type' in history_plugin.table:
+            logger.warning("History types: %s", history_plugin.table['type'].get('allowed', []))
+            history_types = history_plugin.table['type'].get('allowed', [])
+            history_types = history_types.split(',')
 
         # Fetch timeline filters preference for user, default is []
         selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
-        selected_types = selected_types['value']
+        # selected_types = selected_types['value']
         for selected_type in history_types:
             if request.params.get(selected_type) == 'true':
                 if selected_type not in selected_types:
@@ -507,7 +511,7 @@ class PluginHosts(Plugin):
         widget_place = request.params.get('widget_place', 'host')
         widget_template = request.params.get('widget_template', 'host_widget')
         # Search in the application widgets (all plugins widgets)
-        for widget in self.webui.widgets[widget_place]:
+        for widget in self.webui.get_widgets_for(widget_place):
             if widget_id.startswith(widget['id']):
                 widget_template = widget['template']
                 logger.info("Widget found, template: %s", widget_template)
