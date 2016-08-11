@@ -283,7 +283,7 @@ class tests_0_external(unittest2.TestCase):
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
-            '"url": "http://localhost:80/external/table/hosts_table/hosts_table_data",'
+            '"url": "http://localhost:80/external/table/hosts_table/hosts/table_data",'
         )
 
     def test_0_1_4_host_widgets(self):

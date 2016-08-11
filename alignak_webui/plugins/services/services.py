@@ -51,10 +51,10 @@ class PluginServices(Plugin):
                 'view': 'services_widget',
                 'widgets': [
                     {
-                        'id': 'services/table',
+                        'id': 'services_table',
                         'for': ['external', 'dashboard'],
                         'name': _('Services table widget'),
-                        'template': 'services/table_widget',
+                        'template': 'services_table_widget',
                         'icon': 'table',
                         'description': _(
                             '<h4>Services table widget</h4>Displays a list of the monitored system '
