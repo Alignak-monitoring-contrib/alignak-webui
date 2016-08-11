@@ -493,30 +493,14 @@ class DataManager(object):
         :return: server's response
         :rtype: dict
         """
-        try:
-            logger.debug(
-                "delete_user_preferences, type: %s, for: %s",
-                prefs_type, user
-            )
 
-            # Still existing ...
-            result = self.backend.get(
-                'uipref',
-                params={'where': {"type": prefs_type, "user": user}}
-            )
-            logger.debug("delete_user_preferences, '%s' result: %s", prefs_type, result)
-            if result:
-                item = result[0]
-                logger.debug(
-                    "delete_user_preferences, delete an exising record: %s / %s (%s)",
-                    prefs_type, user, item['_id']
+        # Delete user stored value
+        if self.logged_in_user.name == user:
+            if self.logged_in_user.delete_ui_preference(prefs_type):
+                return self.update_object(
+                    self.logged_in_user,
+                    {'ui_preferences': self.logged_in_user.ui_preferences}
                 )
-                # Delete existing record ...
-                return self.delete_object('uipref', item['_id'])
-        except Exception as e:  # pragma: no cover - need specific backend tests
-            logger.error("delete_user_preferences, exception: %s", str(e))
-            logger.error("traceback: %s", traceback.format_exc())
-            raise e
 
         return False
 

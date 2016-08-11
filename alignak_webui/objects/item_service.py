@@ -53,7 +53,7 @@ class Service(BackendElement):
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
-        self._linked_servicegroups = 'servicegroup'
+        self._linked_maintenance_period = 'timeperiod'
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 
@@ -83,6 +83,11 @@ class Service(BackendElement):
     def notification_period(self):
         """ Return linked object """
         return self._linked_notification_period
+
+    @property
+    def maintenance_period(self):
+        """ Return linked object """
+        return self._linked_maintenance_period
 
     @property
     def usergroups(self):

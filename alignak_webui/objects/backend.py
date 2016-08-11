@@ -182,7 +182,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 params['page'] = 0
             if 'max_results' not in params:
                 params['max_results'] = BACKEND_PAGINATION_LIMIT
-            logger.info(
+            logger.debug(
                 "get, search in the backend for %s: parameters=%s", object_type, params
             )
 

@@ -708,6 +708,8 @@ def get_user_preference():
     if default:
         default = json.loads(default)
 
+    response.status = 200
+    response.content_type = 'application/json'
     return json.dumps(datamgr.get_user_preferences(username, key, default))
 
 
@@ -748,7 +750,11 @@ def get_common_preference():
     if not key:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    return datamgr.get_user_preferences('common', key, request.query.get('default', None))
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(
+        datamgr.get_user_preferences('common', key, request.query.get('default', None))
+    )
 
 
 @route('/preference/user', 'POST')

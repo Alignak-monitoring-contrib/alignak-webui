@@ -26,7 +26,7 @@
 </style>
 
 <!-- Tree display -->
-<div id="{{tree_type}}_tree_view">
+<div id="{{tree_type}}s_tree_view">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">

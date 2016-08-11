@@ -137,14 +137,15 @@ class TestDataTable(unittest2.TestCase):
         print('')
         print('test get table')
 
-        print('get page /commands_table')
-        response = self.app.get('/commands_table')
+        print('get page /commands/table')
+        response = self.app.get('/commands/table')
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Command name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Command alias</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
             '<th data-name="module_type" data-type="string">Module type</th>',
             '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
@@ -157,8 +158,8 @@ class TestDataTable(unittest2.TestCase):
         print('')
         print('test get table')
 
-        print('change content with /commands_table_data')
-        response = self.app.post('/commands_table_data')
+        print('change content with /commands/table_data')
+        response = self.app.post('/commands/table_data')
         response_value = response.json
         # Temporary ...
         self.items_count = response.json['recordsTotal']
@@ -182,7 +183,7 @@ class TestDataTable(unittest2.TestCase):
                 # self.assertTrue(response.json['data'][x]['ui'])
 
         # Specify count number ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 10,
@@ -194,7 +195,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(len(response.json['data']), 10)
 
         # Specify count number ... greater than number of elements
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 1000,
@@ -209,7 +210,7 @@ class TestDataTable(unittest2.TestCase):
         print("Get rows 5 per 5")
         count = 0
         for x in range(0, self.items_count, 5):
-            response = self.app.post('/commands_table_data', {
+            response = self.app.post('/commands/table_data', {
                 'object_type': 'command',
                 'draw': x / 5,
                 'start': x,
@@ -226,7 +227,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(count, self.items_count)
 
         # Out of scope rows ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'start': self.items_count * 2,
             'length': 5
         })
@@ -241,7 +242,7 @@ class TestDataTable(unittest2.TestCase):
         print('test sort table')
 
         # Sort ascending ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 10,
@@ -268,7 +269,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(len(response.json['data']), 10)
 
         # Sort descending ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 10,
@@ -300,15 +301,15 @@ class TestDataTable(unittest2.TestCase):
         print('')
         print('test filter table')
 
-        print('change content with /commands_table_data')
-        response = self.app.post('/commands_table_data')
+        print('change content with /commands/table_data')
+        response = self.app.post('/commands/table_data')
         response_value = response.json
         # Temporary ...
         self.items_count = response.json['recordsTotal']
 
         # Searching ...
         # Global search ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -340,7 +341,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(response.json['recordsFiltered'], 1)
         self.assertEqual(len(response.json['data']), 1)
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -373,7 +374,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -408,7 +409,7 @@ class TestDataTable(unittest2.TestCase):
 
         # Searching ...
         # Individual search ...
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -440,7 +441,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['data']
         assert len(response.json['data']) == 1
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -472,7 +473,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['recordsFiltered'] == 0
         assert not response.json['data']
 
-        response = self.app.post('/commands_table_data', {
+        response = self.app.post('/commands/table_data', {
             'object_type': 'command',
             'start': 0,
             'length': 5,
@@ -534,13 +535,13 @@ class TestDatatableCommands(unittest2.TestCase):
 
         global items_count
 
-        print('get page /commands_table')
-        response = self.app.get('/commands_table')
+        print('get page /commands/table')
+        response = self.app.get('/commands/table')
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Command name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
             '<th data-name="module_type" data-type="string">Module type</th>',
@@ -550,8 +551,8 @@ class TestDatatableCommands(unittest2.TestCase):
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
         )
 
-        print('change content with /commands_table_data')
-        response = self.app.post('/commands_table_data')
+        print('change content with /commands/table_data')
+        response = self.app.post('/commands/table_data')
         response_value = response.json
         print(response_value)
         # Temporary ...
@@ -604,27 +605,27 @@ class TestDatatableRealms(unittest2.TestCase):
 
         global items_count
 
-        print('get page /realms_table')
-        response = self.app.get('/realms_table')
+        print('get page /realms/table')
+        response = self.app.get('/realms/table')
         response.mustcontain(
             '<div id="realms_table" class="alignak_webui_table ">',
             "$('#tbl_realm').DataTable( {",
             '<table id="tbl_realm" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Realm name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="alias" data-type="string">Realm alias</th>',
             '<th data-name="default" data-type="boolean">Default realm</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
             '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
-            '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
+            # '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
+            # '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
             '<th data-name="services_critical_threshold" data-type="integer">Services critical threshold</th>',
             '<th data-name="services_warning_threshold" data-type="integer">Services warning threshold</th>',
             '<th data-name="globals_critical_threshold" data-type="integer">Global critical threshold</th>',
             '<th data-name="globals_warning_threshold" data-type="integer">Global warning threshold</th>'
         )
 
-        response = self.app.post('/realms_table_data')
+        response = self.app.post('/realms/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -674,8 +675,8 @@ class TestDatatableHosts(unittest2.TestCase):
 
         global items_count
 
-        print('get page /hosts_table')
-        response = self.app.get('/hosts_table')
+        print('get page /hosts/table')
+        response = self.app.get('/hosts/table')
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
             "$('#tbl_host').DataTable( {",
@@ -693,7 +694,7 @@ class TestDatatableHosts(unittest2.TestCase):
             '<th data-name="business_impact" data-type="integer">Business impact</th>'
         )
 
-        response = self.app.post('/hosts_table_data')
+        response = self.app.post('/hosts/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -739,21 +740,21 @@ class TestDatatableHostgroups(unittest2.TestCase):
 
         global items_count
 
-        print('get page /hostgroups_table')
-        response = self.app.get('/hostgroups_table')
+        print('get page /hostgroups/table')
+        response = self.app.get('/hostgroups/table')
         response.mustcontain(
             '<div id="hostgroups_table" class="alignak_webui_table ">',
             "$('#tbl_hostgroup').DataTable( {",
             '<table id="tbl_hostgroup" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Hosts group name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="alias" data-type="string">Hosts group alias</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
             '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="hostgroups" data-type="list">Hosts groups members</th>'
+            '<th data-name="hostgroups" data-type="list">Hosts groups</th>'
         )
 
-        response = self.app.post('/hostgroups_table_data')
+        response = self.app.post('/hostgroups/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -805,8 +806,8 @@ class TestDatatableServices(unittest2.TestCase):
 
         global items_count
 
-        print('get page /services_table')
-        response = self.app.get('/services_table')
+        print('get page /services/table')
+        response = self.app.get('/services/table')
         response.mustcontain(
             '<div id="services_table" class="alignak_webui_table ">',
             "$('#tbl_service').DataTable( {",
@@ -816,7 +817,6 @@ class TestDatatableServices(unittest2.TestCase):
             '<th data-name="alias" data-type="string">Service alias</th>',
             '<th data-name="display_name" data-type="string">Service display name</th>',
             '<th data-name="host" data-type="objectid">Host</th>',
-            '<th data-name="hostgroup_name" data-type="string">Hosts group name</th>',
             '<th data-name="check_command" data-type="objectid">Check command</th>',
             '<th data-name="check_command_args" data-type="string">Check command arguments</th>',
             '<th data-name="check_period" data-type="objectid">Check period</th>',
@@ -825,16 +825,15 @@ class TestDatatableServices(unittest2.TestCase):
             '<th data-name="max_check_attempts" data-type="integer">Maximum check attempts</th>',
             '<th data-name="active_checks_enabled" data-type="boolean">Active checks enabled</th>',
             '<th data-name="passive_checks_enabled" data-type="boolean">Passive checks enabled</th>',
-            '<th data-name="servicegroups" data-type="list">Services groups</th>',
             '<th data-name="business_impact" data-type="integer">Business impact</th>',
-            '<th data-name="contacts" data-type="list">Users</th>',
-            '<th data-name="contact_groups" data-type="list">Users groups</th>',
+            '<th data-name="users" data-type="list">Users</th>',
+            '<th data-name="usergroups" data-type="list">Users groups</th>',
             '<th data-name="notifications_enabled" data-type="boolean">Notifications enabled</th>',
             '<th data-name="notification_period" data-type="objectid">Notification period</th>',
             '<th data-name="notification_interval" data-type="integer">Notification interval</th>',
             '<th data-name="first_notification_delay" data-type="integer">First notification delay</th>',
-            '<th data-name="notification_options" data-type="list">Flapping detection options</th>',
-            '<th data-name="stalking_options" data-type="list">Flapping detection options</th>',
+            '<th data-name="notification_options" data-type="list">Notification options</th>',
+            '<th data-name="stalking_options" data-type="list">Stalking options</th>',
             '<th data-name="check_freshness" data-type="boolean">Freshness check enabled</th>',
             '<th data-name="freshness_threshold" data-type="integer">Freshness threshold</th>',
             '<th data-name="flap_detection_enabled" data-type="boolean">Flapping detection enabled</th>',
@@ -846,7 +845,7 @@ class TestDatatableServices(unittest2.TestCase):
             '<th data-name="process_perf_data" data-type="boolean">Process performance data</th>'
         )
 
-        response = self.app.post('/services_table_data')
+        response = self.app.post('/services/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -891,21 +890,22 @@ class TestDatatableervicegroups(unittest2.TestCase):
 
         global items_count
 
-        print('get page /servicegroups_table')
-        response = self.app.get('/servicegroups_table')
+        print('get page /servicegroups/table')
+        response = self.app.get('/servicegroups/table')
         response.mustcontain(
             '<div id="servicegroups_table" class="alignak_webui_table ">',
             "$('#tbl_servicegroup').DataTable( {",
             '<table id="tbl_servicegroup" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Services group name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="alias" data-type="string">Services group alias</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
             '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="servicegroups" data-type="list">services groups members</th>'
+            '<th data-name="services" data-type="list">Services</th>',
+            '<th data-name="servicegroups" data-type="list">Services groups</th>'
         )
 
-        response = self.app.post('/servicegroups_table_data')
+        response = self.app.post('/servicegroups/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -956,8 +956,8 @@ class TestDatatableUsers(unittest2.TestCase):
 
         global items_count
 
-        print('get page /users_table')
-        response = self.app.get('/users_table')
+        print('get page /users/table')
+        response = self.app.get('/users/table')
         response.mustcontain(
             '<div id="users_table" class="alignak_webui_table ">',
             "$('#tbl_user').DataTable( {",
@@ -967,7 +967,7 @@ class TestDatatableUsers(unittest2.TestCase):
             '<th data-name="alias" data-type="string">User alias</th>',
         )
 
-        response = self.app.post('/users_table_data')
+        response = self.app.post('/users/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -1012,21 +1012,22 @@ class TestDatatableUserGroups(unittest2.TestCase):
 
         global items_count
 
-        print('get page /usergroups_table')
-        response = self.app.get('/usergroups_table')
+        print('get page /usergroups/table')
+        response = self.app.get('/usergroups/table')
         response.mustcontain(
             '<div id="usergroups_table" class="alignak_webui_table ">',
             "$('#tbl_usergroup').DataTable( {",
             '<table id="tbl_usergroup" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Users group name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="alias" data-type="string">Users group alias</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
             '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="usergroups" data-type="list">Users groups members</th>'
+            '<th data-name="users" data-type="list">Users</th>',
+            '<th data-name="usergroups" data-type="list">Users groups</th>'
         )
 
-        response = self.app.post('/usergroups_table_data')
+        response = self.app.post('/usergroups/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -1077,8 +1078,8 @@ class TestDatatableLivestate(unittest2.TestCase):
 
         global items_count
 
-        print('get page /livestates_table')
-        response = self.app.get('/livestates_table')
+        print('get page /livestates/table')
+        response = self.app.get('/livestates/table')
         response.mustcontain(
             '<div id="livestates_table" class="alignak_webui_table ">',
             "$('#tbl_livestate').DataTable( {",
@@ -1089,16 +1090,15 @@ class TestDatatableLivestate(unittest2.TestCase):
             '<th data-name="display_name_host" data-type="string">Host display name</th>',
             '<th data-name="service" data-type="objectid">Service</th>',
             '<th data-name="display_name_service" data-type="string">Service display name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="last_check" data-type="integer">Last check</th>',
             '<th data-name="business_impact" data-type="integer">Business impact</th>',
             '<th data-name="state" data-type="string">State</th>',
             '<th data-name="state_type" data-type="string">State type</th>',
-            '<th data-name="state_id" data-type="integer">State identifier</th>',
+            '<th data-name="state_id" data-type="integer">State id</th>',
             '<th data-name="acknowledged" data-type="boolean">Acknowledged</th>',
             '<th data-name="downtime" data-type="boolean">In scheduled downtime</th>',
-            '<th data-name="output" data-type="string">Check output</th>',
-            '<th data-name="long_output" data-type="string">Check long output</th>',
+            '<th data-name="output" data-type="string">Output</th>',
+            '<th data-name="long_output" data-type="string">Long output</th>',
             '<th data-name="perf_data" data-type="string">Performance data</th>',
             '<th data-name="current_attempt" data-type="integer">Current attempt</th>',
             '<th data-name="max_attempts" data-type="integer">Max attempts</th>',
@@ -1110,7 +1110,7 @@ class TestDatatableLivestate(unittest2.TestCase):
             '<th data-name="execution_time" data-type="float">Execution time</th>'
         )
 
-        response = self.app.post('/livestates_table_data')
+        response = self.app.post('/livestates/table_data')
         print(response)
         response_value = response.json
         print(response_value)
@@ -1164,21 +1164,21 @@ class TestDatatableTimeperiod(unittest2.TestCase):
 
         global items_count
 
-        print('get page /timeperiods_table')
-        response = self.app.get('/timeperiods_table')
+        print('get page /timeperiods/table')
+        response = self.app.get('/timeperiods/table')
         response.mustcontain(
             '<div id="timeperiods_table" class="alignak_webui_table ">',
             "$('#tbl_timeperiod').DataTable( {",
             '<table id="tbl_timeperiod" ',
-            '<th data-name="name" data-type="string">Name</th>',
+            '<th data-name="name" data-type="string">Timeperiod name</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Alias</th>',
+            '<th data-name="alias" data-type="string">Timeperiod alias</th>',
             '<th data-name="is_active" data-type="boolean">Currently active</th>',
             '<th data-name="dateranges" data-type="list">Date ranges</th>',
-            '<th data-name="exclude" data-type="list">Excluded</th>'
+            '<th data-name="excludes" data-type="list">Exclusions</th>'
         )
 
-        response = self.app.post('/timeperiods_table_data')
+        response = self.app.post('/timeperiods/table_data')
         print(response)
         response_value = response.json
         print(response_value)
@@ -1227,20 +1227,20 @@ class TestDatatableUserRestrictRole(unittest2.TestCase):
 
         global items_count
 
-        print('get page /userrestrictroles_table')
-        response = self.app.get('/userrestrictroles_table')
+        print('get page /userrestrictroles/table')
+        response = self.app.get('/userrestrictroles/table')
         response.mustcontain(
             '<div id="userrestrictroles_table" class="alignak_webui_table ">',
             "$('#tbl_userrestrictrole').DataTable( {",
             '<table id="tbl_userrestrictrole" ',
             '<th data-name="user" data-type="objectid">User</th>',
             '<th data-name="realm" data-type="objectid">Realm</th>',
-            '<th data-name="sub_realm" data-type="boolean">Sub realm</th>',
-            '<th data-name="resource" data-type="string">Resource type</th>',
+            '<th data-name="subrealm" data-type="boolean">Sub realms</th>',
+            '<th data-name="resource" data-type="string">Resource</th>',
             '<th data-name="crud" data-type="list">CRUD</th>'
         )
 
-        response = self.app.post('/userrestrictroles_table_data')
+        response = self.app.post('/userrestrictroles/table_data')
         print(response)
         response_value = response.json
         print(response_value)
@@ -1291,8 +1291,8 @@ class TestDatatableLog(unittest2.TestCase):
 
         global items_count
 
-        print('get page /logcheckresults_table')
-        response = self.app.get('/logcheckresults_table')
+        print('get page /logcheckresults/table')
+        response = self.app.get('/logcheckresults/table')
         response.mustcontain(
             '<div id="logcheckresults_table" class="alignak_webui_table ">',
             "$('#tbl_logcheckresult').DataTable( {",
@@ -1301,18 +1301,18 @@ class TestDatatableLog(unittest2.TestCase):
             '<th data-name="service" data-type="objectid">Service</th>',
             '<th data-name="state" data-type="string">State</th>',
             '<th data-name="state_type" data-type="string">State type</th>',
-            '<th data-name="state_id" data-type="integer">State identifier</th>',
+            '<th data-name="state_id" data-type="integer">State id</th>',
             '<th data-name="acknowledged" data-type="boolean">Acknowledged</th>',
             '<th data-name="last_check" data-type="integer">Last check</th>',
             '<th data-name="last_state" data-type="string">Last state</th>',
-            '<th data-name="output" data-type="string">Check output</th>',
-            '<th data-name="long_output" data-type="string">Check long output</th>',
+            '<th data-name="output" data-type="string">Output</th>',
+            '<th data-name="long_output" data-type="string">Long output</th>',
             '<th data-name="perf_data" data-type="string">Performance data</th>',
             '<th data-name="latency" data-type="float">Latency</th>',
             '<th data-name="execution_time" data-type="float">Execution time</th>',
         )
 
-        response = self.app.post('/logcheckresults_table_data')
+        response = self.app.post('/logcheckresults/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -1350,8 +1350,8 @@ class TestDatatableHistory(unittest2.TestCase):
 
         global items_count
 
-        print('get page /historys_table')
-        response = self.app.get('/historys_table')
+        print('get page /historys/table')
+        response = self.app.get('/historys/table')
         response.mustcontain(
             '<div id="historys_table" class="alignak_webui_table ">',
             "$('#tbl_history').DataTable( {",
@@ -1365,7 +1365,7 @@ class TestDatatableHistory(unittest2.TestCase):
             '<th data-name="check_result" data-type="objectid">Check result</th>'
         )
 
-        response = self.app.post('/historys_table_data')
+        response = self.app.post('/historys/table_data')
         print(response)
         response_value = response.json
         print(response_value)

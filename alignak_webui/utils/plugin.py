@@ -344,7 +344,7 @@ class Plugin(object):
                 self.table[p[1]] = {}
             self.table[p[1]][p[2]] = self.plugin_parameters[param]
             logger.debug(
-                "self.table field configuration: %s = %s", param, self.plugin_parameters[param]
+                "table field configuration: %s = %s", param, self.plugin_parameters[param]
             )
 
         response.status = 200

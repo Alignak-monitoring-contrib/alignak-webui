@@ -113,7 +113,7 @@ class Test1FindAndSearch(unittest2.TestCase):
         datamanager = DataManager(backend_endpoint=backend_address)
         self.assertIsNotNone(datamanager.backend)
         self.assertFalse(datamanager.loaded )
-        self.assertIsNone(datamanager.get_logged_user())
+        self.assertIsNone(datamanager.logged_in_user)
         # Got known managed elements classes
         self.assertEqual(len(datamanager.known_classes), 19)
 
@@ -123,7 +123,7 @@ class Test1FindAndSearch(unittest2.TestCase):
         assert datamanager.backend.connected
         print('logged in as admin in the backend')
         # Datamanager is not yet aware of the user login !!!
-        assert datamanager.get_logged_user() is None
+        assert datamanager.logged_in_user is None
 
         # Get current user
         # 'name' is not existing!
@@ -157,7 +157,7 @@ class Test2Creation(unittest2.TestCase):
         datamanager = DataManager()
         assert datamanager.backend
         assert datamanager.loaded == False
-        assert datamanager.get_logged_user() is None
+        assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
         # Got known managed elements classes
         self.assertEqual(len(datamanager.known_classes), 19)
@@ -181,7 +181,7 @@ class Test2Creation(unittest2.TestCase):
         datamanager = DataManager(backend_endpoint=backend_address)
         assert datamanager.backend
         assert datamanager.loaded == False
-        assert datamanager.get_logged_user() is None
+        assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
 
         # Initialize and load fail ...
@@ -204,24 +204,24 @@ class Test2Creation(unittest2.TestCase):
         assert datamanager.connection_message == 'Connection successful'
         print("Logged user: %s" % datamanager.logged_in_user)
         assert datamanager.logged_in_user
-        assert datamanager.get_logged_user() is not None
-        assert datamanager.get_logged_user().id is not None
-        assert datamanager.get_logged_user().get_username() == 'admin'
-        assert datamanager.get_logged_user().authenticated
-        user_token = datamanager.get_logged_user().token
-        print(User._cache[datamanager.get_logged_user().id].__dict__)
+        assert datamanager.logged_in_user is not None
+        assert datamanager.logged_in_user.id is not None
+        assert datamanager.logged_in_user.get_username() == 'admin'
+        assert datamanager.logged_in_user.authenticated
+        user_token = datamanager.logged_in_user.token
+        print(User._cache[datamanager.logged_in_user.id].__dict__)
 
         print('DM reset')
         datamanager.reset()
         # Still logged-in...
         assert datamanager.logged_in_user
-        assert datamanager.get_logged_user() is not None
+        assert datamanager.logged_in_user is not None
 
         print('DM reset - logout')
         datamanager.reset(logout=True)
         # Logged-out...
         assert not datamanager.logged_in_user
-        assert datamanager.get_logged_user() is None
+        assert datamanager.logged_in_user is None
 
         # User login with an authentication token
         print('DM login - token')
@@ -230,17 +230,17 @@ class Test2Creation(unittest2.TestCase):
 
         print('DM login')
         assert datamanager.user_login('admin', 'admin', load=False)
-        print(datamanager.get_logged_user())
-        print(datamanager.get_logged_user().token)
-        user_token = datamanager.get_logged_user().token
+        print(datamanager.logged_in_user)
+        print(datamanager.logged_in_user.token)
+        user_token = datamanager.logged_in_user.token
         assert datamanager.user_login(user_token)
         assert datamanager.connection_message == 'Connection successful'
 
         assert datamanager.logged_in_user
-        assert datamanager.get_logged_user() is not None
-        assert datamanager.get_logged_user().id is not None
-        assert datamanager.get_logged_user().get_username() == 'admin'
-        assert datamanager.get_logged_user().authenticated
+        assert datamanager.logged_in_user is not None
+        assert datamanager.logged_in_user.id is not None
+        assert datamanager.logged_in_user.get_username() == 'admin'
+        assert datamanager.logged_in_user.authenticated
 
 
 class Test3LoadCreate(unittest2.TestCase):
@@ -366,13 +366,13 @@ class Test4NotAdmin(unittest2.TestCase):
         # Logout
         self.dmg.reset(logout=True)
         assert not self.dmg.backend.connected
-        assert self.dmg.get_logged_user() is None
+        assert self.dmg.logged_in_user is None
         assert self.dmg.loaded == False
 
         # Login as not_admin created user
         assert self.dmg.user_login('not_admin', 'NOPASSWORDSET', load=False)
         assert self.dmg.backend.connected
-        assert self.dmg.get_logged_user().get_username() == 'not_admin'
+        assert self.dmg.logged_in_user.get_username() == 'not_admin'
         print('logged in as not_admin')
 
         # Initialize and load ...
@@ -434,13 +434,13 @@ class Test4NotAdmin(unittest2.TestCase):
         # Logout
         self.dmg.reset(logout=True)
         assert not self.dmg.backend.connected
-        assert self.dmg.get_logged_user() is None
+        assert self.dmg.logged_in_user is None
         assert self.dmg.loaded == False
 
         # Login as admin
         assert self.dmg.user_login('admin', 'admin', load=False)
         assert self.dmg.backend.connected
-        assert self.dmg.get_logged_user().get_username() == 'admin'
+        assert self.dmg.logged_in_user.get_username() == 'admin'
 
         result = self.dmg.delete_user(new_user_id)
         # Can delete the former logged-in user
@@ -462,7 +462,7 @@ class Test5Basic(unittest2.TestCase):
         # Logout
         self.dmg.reset(logout=True)
         assert not self.dmg.backend.connected
-        assert self.dmg.get_logged_user() is None
+        assert self.dmg.logged_in_user is None
         assert self.dmg.loaded == False
 
     def test_5_1_get_simple(self):
@@ -516,7 +516,7 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
         # Get livestate
-        items = self.dmg.get_livestate()
+        items = self.dmg.get_livestates()
         for item in items:
             print("Got: ", item)
             assert item.id
@@ -525,7 +525,7 @@ class Test5Basic(unittest2.TestCase):
                 self.assertIsInstance(item.service, Service) # Must be an object
             else:
                 self.assertEqual(item.service, "service") # No linked object
-            livestate = self.dmg.get_livestate({'where': {'_id': item.id}})
+            livestate = self.dmg.get_livestates({'where': {'_id': item.id}})
             livestate = livestate[0]
             print("Got: %s" % livestate)
         self.assertEqual(len(items), 50)  # Backend pagination limit ...

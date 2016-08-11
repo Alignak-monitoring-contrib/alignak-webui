@@ -240,3 +240,17 @@ class User(BackendElement):
 
         self.ui_preferences.update({key: value})
         return True
+
+    def delete_ui_preference(self, key):
+        """
+        Delete a user UI preference
+
+        :param key: preference key
+        :type key: string
+        :return: True / False
+        :rtype: boolean
+        """
+        if not key:
+            return None
+
+        return self.ui_preferences.pop(key, None)

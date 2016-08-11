@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=global-statement, global-variable-not-assigned
 
 # Copyright (c) 2015-2016:
 #   Frederic Mohier, frederic.mohier@gmail.com
@@ -23,7 +22,6 @@
 """
     Plugin Hosts
 """
-import os
 from logging import getLogger
 
 from bottle import request, template, response
@@ -273,7 +271,7 @@ class PluginHosts(Plugin):
         widget_icon = request.params.get('widget_icon', 'plug')
         # Search in the application widgets (all plugins widgets)
         options = {}
-        for widget in self.webui.widgets[widget_place]:
+        for widget in self.webui.get_widgets_for(widget_place):
             if widget_id.startswith(widget['id']):
                 options = widget['options']
                 widget_template = widget['template']
@@ -316,8 +314,6 @@ class PluginHosts(Plugin):
         """
         Display an host
         """
-        global plugin_parameters
-
         user = request.environ['beaker.session']['current_user']
         datamgr = request.environ['beaker.session']['datamanager']
         target_user = request.environ['beaker.session']['target_user']

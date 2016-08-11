@@ -25,21 +25,21 @@
          </div>
          <div id="collapse_services" class="panel-collapse collapse">
             <ul class="list-group">
-               %for service in services:
+               %for service in elts:
                   <li class="list-group-item"><small>Service: {{service}} - {{service.__dict__}}</small></li>
                %end
             </ul>
-            <div class="panel-footer">{{len(services)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elements</div>
          </div>
       </div>
    </div>
    %end
 
+   %if not elts:
+      %include("_nothing_found.tpl", search_string=search_string)
+   %else:
    <div class="panel panel-default">
       <div class="panel-body">
-      %if not services:
-         %include("_nothing_found.tpl", search_string=search_string)
-      %else:
          %# First element for global data
          %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
@@ -55,7 +55,7 @@
             </tr></thead>
 
             <tbody>
-               %for service in services:
+               %for service in elts:
                %lv_service = datamgr.get_livestates({'where': {'host': service.host.id, 'service': service.id}})
                %lv_service = lv_service[0]
                <tr id="#{{service.id}}">
@@ -93,9 +93,9 @@
              %end
             </tbody>
          </table>
-      %end
       </div>
    </div>
+   %end
  </div>
 
 %if layout:
