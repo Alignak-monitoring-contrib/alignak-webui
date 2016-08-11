@@ -28,7 +28,6 @@ from logging import getLogger
 from bottle import request
 
 from alignak_webui import _
-from alignak_webui.plugins.common.common import get_widget
 from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)

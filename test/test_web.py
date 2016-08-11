@@ -483,6 +483,11 @@ class Test3Users(unittest2.TestCase):
             '5 elements out of 5',
         )
 
+        response = self.app.get('/users/config')
+
+        response = self.app.get('/users/list')
+
+        response = self.app.get('/users/table')
 
 class Test3Commands(unittest2.TestCase):
     def setUp(self):
@@ -505,6 +510,9 @@ class Test3Commands(unittest2.TestCase):
             '<div id="commands">',
             '25 elements out of 103',
         )
+        response = self.app.get('/commands/config')
+        response = self.app.get('/commands/list')
+        response = self.app.get('/commands/table')
 
 
 class Test3Hosts(unittest2.TestCase):
@@ -528,6 +536,11 @@ class Test3Hosts(unittest2.TestCase):
             '<div id="hosts">',
             '13 elements out of 13',
         )
+        response = self.app.get('/hosts/config')
+        response = self.app.get('/hosts/list')
+        response = self.app.get('/hosts/table')
+        response = self.app.get('/hosts/templates')
+        response = self.app.get('/host/localhost')
 
         print('get page /hosts/widget')
         response = self.app.post('/hosts/widget', status=204)
@@ -574,6 +587,10 @@ class Test3Services(unittest2.TestCase):
             '<div id="services">',
             '25 elements out of 94',
         )
+        response = self.app.get('/services/config')
+        response = self.app.get('/services/list')
+        response = self.app.get('/services/table')
+        response = self.app.get('/services/templates')
 
         print('get page /services/widget')
         response = self.app.post('/services/widget', status=204)
@@ -618,6 +635,10 @@ class Test3Timeperiods(unittest2.TestCase):
             '<div id="timeperiods">',
             '4 elements out of 4',
         )
+        response = self.app.get('/timeperiods/config')
+        response = self.app.get('/timeperiods/list')
+        response = self.app.get('/timeperiods/table')
+        response = self.app.get('/timeperiods/templates')
 
 
 class Test3Livestate(unittest2.TestCase):
@@ -799,6 +820,11 @@ class Test3Hostgroups(unittest2.TestCase):
             '<div id="hostgroups">',
             # '8 elements out of 8'
         )
+        response = self.app.get('/hostgroups/config')
+        response = self.app.get('/hostgroups/list')
+        response = self.app.get('/hostgroups/table')
+        response = self.app.get('/hostgroups/templates')
+        response = self.app.get('/hostgroup/all')
 
         print('get page /hostgroups/tree')
         response = self.app.get('/hostgroups/tree')
@@ -861,6 +887,11 @@ class Test3Servicegroups(unittest2.TestCase):
             '<div id="servicegroups">',
             # '5 elements out of 5'
         )
+        response = self.app.get('/servicegroups/config')
+        response = self.app.get('/servicegroups/list')
+        response = self.app.get('/servicegroups/table')
+        response = self.app.get('/servicegroups/templates')
+        response = self.app.get('/servicegroup/all')
 
         print('get page /servicegroups/tree')
         response = self.app.get('/servicegroups/tree')
@@ -923,6 +954,11 @@ class Test3Usergroups(unittest2.TestCase):
             '<div id="usergroups">',
             # '5 elements out of 5'
         )
+        response = self.app.get('/usergroups/config')
+        response = self.app.get('/usergroups/list')
+        response = self.app.get('/usergroups/table')
+        response = self.app.get('/usergroups/templates')
+        response = self.app.get('/usergroup/all')
 
         print('get page /usergroups/tree')
         response = self.app.get('/usergroups/tree')

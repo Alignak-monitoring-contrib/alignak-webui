@@ -29,7 +29,6 @@ from bottle import request, redirect
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
-from alignak_webui.plugins.common.common import get_widget
 
 logger = getLogger(__name__)
 

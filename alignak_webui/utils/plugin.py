@@ -53,9 +53,9 @@ class Plugin(object):
         Create a new plugin:
         """
         self.webui = app
-        if not hasattr(self, 'name'):
+        if not hasattr(self, 'name'):  # pragma: no cover - plugin should declare
             self.name = 'Unknown'
-        if not hasattr(self, 'backend_endpoint'):
+        if not hasattr(self, 'backend_endpoint'):  # pragma: no cover - plugin should declare
             self.backend_endpoint = None
         self.plugin_filenames = cfg_filenames
         self.plugin_parameters = None
@@ -183,7 +183,7 @@ class Plugin(object):
         for (f_name, entry) in self.pages.items():
             logger.debug("page entry: %s -> %s", entry, f_name)
             f = getattr(self, f_name, None)
-            if not callable(f):
+            if not callable(f):  # pragma: no cover - method should exist
                 logger.error("Callable method: %s does not exist!", f_name)
                 continue
 
@@ -195,7 +195,7 @@ class Plugin(object):
             if not page_route:
                 page_route = entry.get('routes', None)
             page_name = entry.get('name', None)
-            if not page_route:
+            if not page_route:  # pragma: no cover
                 # Maybe there is no route to link, so pass
                 continue
 
@@ -215,8 +215,8 @@ class Plugin(object):
                 )
 
                 # Register plugin element list route
-                if route_url == ('/%ss_list' % self.backend_endpoint):
-                    self.lists['%ss_list' % self.backend_endpoint] = {
+                if route_url == ('/%ss/list' % self.backend_endpoint):
+                    self.lists['%ss/list' % self.backend_endpoint] = {
                         'id': self.backend_endpoint,
                         'base_uri': route_url,
                         'function': f
@@ -228,11 +228,11 @@ class Plugin(object):
             if 'widgets' in entry:
                 for widget in entry.get('widgets'):
                     # It's a valid widget entry if it got all data, and at least one route
-                    if 'id' not in widget or 'for' not in widget:
+                    if 'id' not in widget or 'for' not in widget:  # pragma: no cover
                         continue
-                    if 'name' not in widget or 'description' not in widget:
+                    if 'name' not in widget or 'description' not in widget:  # pragma: no cover
                         continue
-                    if 'template' not in widget or not page_route:
+                    if 'template' not in widget or not page_route:  # pragma: no cover
                         continue
 
                     for place in widget['for']:
@@ -260,11 +260,11 @@ class Plugin(object):
             if 'tables' in entry:
                 for table in entry.get('tables'):
                     # It's a valid table entry if it got all data, and at least one route
-                    if 'id' not in table or 'for' not in table:
+                    if 'id' not in table or 'for' not in table:  # pragma: no cover
                         continue
-                    if 'name' not in table or 'description' not in table:
+                    if 'name' not in table or 'description' not in table:  # pragma: no cover
                         continue
-                    if 'template' not in table or not page_route:
+                    if 'template' not in table or not page_route:  # pragma: no cover
                         continue
 
                     for place in table['for']:
@@ -282,7 +282,7 @@ class Plugin(object):
                         }
                         for action, f_name in table.get('actions', {}).items():
                             f = getattr(self, f_name, None)
-                            if not callable(f):
+                            if not callable(f):  # pragma: no cover
                                 logger.error("Table action method: %s does not exist!", f_name)
                                 continue
 
