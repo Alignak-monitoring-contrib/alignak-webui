@@ -35,9 +35,15 @@
             %end
             </td>
 
+            %if not embedded:
             <td>
-               <small>{{! host.get_html_link(links) if links else host.alias}}</small>
+               <small>{{! host.get_html_link(links)}}</small>
             </td>
+            %else:
+            <td>
+               <small>{{! host.alias}}</small>
+            </td>
+            %end
 
             <td>
                <small>{{! Helper.get_html_business_impact(host.business_impact)}}</small>

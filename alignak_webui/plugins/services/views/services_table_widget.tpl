@@ -17,6 +17,7 @@
    <table class="table table-condensed">
       <thead><tr>
          <th style="width: 40px"></th>
+         <th>{{_('Host')}}</th>
          <th>{{_('Service')}}</th>
          <th>{{_('Business impact')}}</th>
          <th>{{_('Check command')}}</th>
@@ -35,9 +36,23 @@
             %end
             </td>
 
+            %if not embedded:
             <td>
-               <small>{{! service.get_html_link(links) if links else service.alias}}</small>
+               <small>{{! service.host.get_html_link(links)}}</small>
             </td>
+
+            <td>
+               <small>{{! service.get_html_link(links)}}</small>
+            </td>
+            %else:
+            <td>
+               <small>{{! service.host.alias}}</small>
+            </td>
+
+            <td>
+               <small>{{! service.alias}}</small>
+            </td>
+            %end
 
             <td>
                <small>{{! Helper.get_html_business_impact(service.business_impact)}}</small>
