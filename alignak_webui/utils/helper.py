@@ -565,6 +565,7 @@ class Helper(object):
             content += list_item.replace("##content##", _('-- / --'))
 
         for item in objects_list:
+            print("Item: %s" % item)
             if isinstance(item, basestring):
                 list_item = app_config.get('tables.lists.item')
                 content += list_item.replace("##content##", item)

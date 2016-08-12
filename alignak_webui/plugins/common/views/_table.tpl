@@ -1,7 +1,7 @@
 %import json
 
-%setdefault('debug', False)
-%setdefault('debugLogs', False)
+%setdefault('debug', True)
+%setdefault('debugLogs', True)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -53,15 +53,22 @@
                %field_type = field.get('type', 'string')
                %content_type = field.get('content_type', 'string')
                %placeholder = field.get('placeholder', label)
-               %allowed = field.get('allowed', []).split(',')
+               %allowed = field.get('allowed', '').split(',')
+               %if allowed[0] == '':
+               %  allowed = []
+               %end
                %format = field.get('format')
                %format_parameters = field.get('format_parameters')
                <th>
                   <div>
                   <i class="fa fa-bug"></i>
-                  {{'%s -> %s - %s' % (name, field_type, content_type if field_type=='list' else '')}}<br/>
-                  <i class="fa fa-bug"></i>
-                  {{field}}
+                  %if field_type=='list':
+                  {{'%s -> %s (%s) - %s (%s)' % (name, field_type, content_type, format, format_parameters)}}
+                  %else:
+                  {{'%s -> %s - %s (%s)' % (name, field_type, format, format_parameters)}}
+                  %end
+                  <br/>
+                  <i class="fa fa-list"></i> {{allowed}}
                   </div>
                </th>
             %end
@@ -70,14 +77,15 @@
          <tr id="filterrow">
             %idx=0
             %for field in dt.table_columns:
+               %selectize = False
                %name = field.get('data', '')
                %label = field.get('title', '')
                %field_type = field.get('type', 'string')
                %content_type = field.get('content_type', 'string')
-               %placeholder = field.get('placeholder', label)
-               %allowed = field.get('allowed')
-               %if allowed:
-               % allowed = allowed.split(',')
+               %placeholder = field.get('placeholder', '')
+               %allowed = field.get('allowed', '').split(',')
+               %if allowed[0] == '':
+               %  allowed = []
                %end
                %format = field.get('format')
                %format_parameters = field.get('format_parameters')
@@ -86,10 +94,18 @@
                %is_list = False
                %if field_type=='list':
                %  is_list = True
+               %  selectize = True
                %  field_type = content_type
+               %else:
+               %  if allowed:
+               %  selectize = True
+               %  end
+               %  if field_type in ['boolean', 'objectid']:
+               %  selectize = True
+               %  end
                %end
 
-               <th data-index="{{idx}}" data-name="{{ field['data'] }}"
+               <th data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectize="{{selectize}}"
                    data-searchable="{{ field['searchable'] }}"
                    data-regex="{{ field['regex'] }}" data-size="{{ field['size'] }}"
                    data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
@@ -98,15 +114,21 @@
                    >
 
                   %if is_list:
-                  <select id="filter_{{name}}" class="form-control">
-                  </select>
+                  <div class="form-group form-group-sm">
+                     <select id="filter_{{name}}" class="form-control">
+                     </select>
+                  </div>
                   %else:
-                  %if field_type in ['boolean']:
-                  %allowed = {'Yes': 'true', 'No': 'false', 'Both': ''}
-                  <!--
-                  <select id="filter_{{name}}" class="form-control">
-                  </select>
-                  -->
+                  %  if field_type in ['boolean']:
+                  %  allowed = {'Yes': 'true', 'No': 'false', 'Both': ''}
+                  <div class="form-group form-group-sm">
+                     <input id="filter_{{name}}"
+                        class="form-control"
+                        type="text"
+                        placeholder="{{placeholder}}"
+                        >
+                  </div>
+                  %  else:
                   <div class="form-group form-group-sm">
                      <input id="filter_{{name}}"
                         class="form-control"
@@ -114,25 +136,19 @@
                         placeholder="{{placeholder}}"
                         >
                   </div>
-                  %else:
-                  <div class="form-group form-group-sm">
-                     <input id="filter_{{name}}"
-                        class="form-control"
-                        type="{{'number' if field_type=='integer' else 'text'}}"
-                        placeholder="{{placeholder}}"
-                        >
-                  </div>
+                  %  end
                   %end
-                  %end
+                  %if selectize:
                   <script>
                      $('#filter_{{name}}').selectize({
                         plugins: ['remove_button'],
                         delimiter: ',',
-                        persist: false,
+                        persist: true,
 
                         valueField: 'id',
                         labelField: 'name',
                         searchField: 'name',
+
                         create: false,
 
                         /*
@@ -160,9 +176,10 @@
                            ],
                         %  else:
                         %     if allowed[0].startswith('inner://'):
-                        preload: 'focus',
+                        //preload: 'focus',
+                        preload: true,
                         load: function(query, callback) {
-                           if (!query.length) return callback();
+                           //if (!query.length) return callback();
                            $.ajax({
                               url: "{{allowed[0].replace('inner://', '/')}}",
                               type: 'GET',
@@ -171,7 +188,8 @@
                               },
                               success: function(res) {
                                  // 10 first items...
-                                 callback(res.slice(0, 10));
+                                 //callback(res.slice(0, 10));
+                                 callback(res);
                               }
                            });
                         },
@@ -193,10 +211,12 @@
                         openOnFocus: true,
                         onChange: function(value) {
                            console.log("Changed:", value);
-                           console.log("Changed:", $(this));
+                           console.log("Changed:", this);
+                           //this.clear(true);
                         }
                      });
                   </script>
+                  %end
                </th>
                %idx += 1
             %end
@@ -224,7 +244,7 @@
             .draw();
 
       // Clear the search fields
-      $('#filterrow th[data-searchable="True"]').each( function () {
+      $('#filterrow th[data-searchable="True"][data-selectize="True"]').each( function () {
          var field_name = $(this).data('name');
 
          if ($('#filter_'+field_name).length) {

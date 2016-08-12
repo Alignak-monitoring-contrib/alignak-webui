@@ -136,143 +136,69 @@ class Datatable(object):
             )
             return None
 
-        if 'ui' in schema:
-            logger.error(
-                "get_data_model, UI schema"
-            )
-            for field, model in schema.iteritems():
-                # Global table configuration?
-                if field == 'ui':
-                    logger.debug(
-                        'get_data_model, table UI schema: %s', model['ui']
-                    )
+        for field, model in schema.iteritems():
+            # Global table configuration?
+            if field == '_table':
+                logger.debug(
+                    'get_data_model, table UI schema: %s', model
+                )
 
-                    self.id_property = model['ui'].get('id_property', '_id')
-                    self.name_property = model['ui'].get('name_property', 'name')
-                    self.status_property = model['ui'].get('status_property', 'status')
+                self.id_property = model.get('id_property', '_id')
+                self.name_property = model.get('name_property', 'name')
+                self.status_property = model.get('status_property', 'status')
 
-                    self.title = model['ui']['page_title']
-                    self.visible = model['ui'].get('visible', True)
-                    self.printable = model['ui'].get('printable', True)
-                    self.orderable = model['ui'].get('orderable', True)
-                    self.selectable = model['ui'].get('selectable', True)
-                    self.editable = model['ui'].get('editable', True)
-                    self.searchable = model['ui'].get('searchable', True)
-                    self.responsive = model['ui'].get('responsive', True)
-                    self.recursive = model['ui'].get('recursive', False)
-                    self.css = model['ui'].get('css', "display")
+                self.title = model['page_title']
+                self.visible = model.get('visible', True)
+                self.printable = model.get('printable', True)
+                self.orderable = model.get('orderable', True)
+                self.selectable = model.get('selectable', True)
+                self.editable = model.get('editable', True)
+                self.searchable = model.get('searchable', True)
+                self.responsive = model.get('responsive', True)
+                self.recursive = model.get('recursive', False)
+                self.css = model.get('css', "display")
 
-                    self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
-                    continue
+                self.initial_sort = model.get('initial_sort', [[2, 'asc']])
+                continue
 
-                # If element is considered for the UI
-                if 'ui' not in model:
-                    continue
+            # If element is considered for the UI
+            if not model.get('visible'):
+                continue
 
-                if not model['ui'].get('visible'):
-                    continue
+            logger.debug("get_data_model, visible field: %s = %s", field, model)
 
-                logger.debug("get_data_model, visible field: %s = %s", field, model)
+            ui_field = {
+                'data': field,
+                'type': model.get('type', 'string'),
+                'content_type': model.get('content_type', 'string'),
+                'allowed': model.get('allowed', ''),
+                'defaultContent': model.get('default', ''),
+                'required': model.get('required', False),
+                'empty': model.get('empty', False),
+                'unique': model.get('unique', False),
 
-                ui_field = {
-                    'data': field,
-                    'type': model.get('type', 'string'),
-                    'content_type': model.get('content_type', 'string'),
-                    'allowed': ','.join(model.get('allowed', [])),
-                    'defaultContent': model.get('default', ''),
-                    'required': model.get('required', False),
-                    'empty': model.get('empty', False),
-                    'unique': model.get('unique', False),
+                'regex': model.get('regex', True),
+                'title': model.get('title', field),
+                'hint': model.get('hint'),
+                'format': model.get('format', 'string'),
+                'format_parameters': model.get('format_parameters', field),
+                'size': model.get('size', 10),
+                'visible': not model.get('hidden', False),
+                'orderable': model.get('orderable', True),
+                'editable': model.get('editable', True),
+                'searchable': model.get('searchable', True),
+            }
 
-                    'regex': model['ui'].get('regex', True),
-                    'title': model['ui'].get('title', field),
-                    'hint': model['ui'].get('hint'),
-                    'format': model['ui'].get('format', 'string'),
-                    'format_parameters': model['ui'].get('format_parameters', field),
-                    'size': model['ui'].get('size', 10),
-                    'visible': not model['ui'].get('hidden', False),
-                    'orderable': model['ui'].get('orderable', True),
-                    'editable': model['ui'].get('editable', True),
-                    'searchable': model['ui'].get('searchable', True),
-                }
+            if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
+                ui_field.update(
+                    {'content_type': 'objectid:' + model.get('resource', 'unknown')}
+                )
 
-                if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
-                    ui_field.update(
-                        {'content_type': 'objectid:' + model.get('data_relation').get('resource')}
-                    )
+            logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
-                logger.debug("get_data_model, field: %s = %s", field, ui_field)
-
-                # Convert data model format to datatables' one ...
-                self.table_columns.append(ui_field)
-        elif '_table' in schema:
-            for field, model in schema.iteritems():
-                # Global table configuration?
-                if field == '_table':
-                    logger.debug(
-                        'get_data_model, table UI schema: %s', model
-                    )
-
-                    self.id_property = model.get('id_property', '_id')
-                    self.name_property = model.get('name_property', 'name')
-                    self.status_property = model.get('status_property', 'status')
-
-                    self.title = model['page_title']
-                    self.visible = model.get('visible', True)
-                    self.printable = model.get('printable', True)
-                    self.orderable = model.get('orderable', True)
-                    self.selectable = model.get('selectable', True)
-                    self.editable = model.get('editable', True)
-                    self.searchable = model.get('searchable', True)
-                    self.responsive = model.get('responsive', True)
-                    self.recursive = model.get('recursive', False)
-                    self.css = model.get('css', "display")
-
-                    self.initial_sort = model.get('initial_sort', [[2, 'asc']])
-                    continue
-
-                # If element is considered for the UI
-                if not model.get('visible'):
-                    continue
-
-                logger.debug("get_data_model, visible field: %s = %s", field, model)
-
-                ui_field = {
-                    'data': field,
-                    'type': model.get('type', 'string'),
-                    'content_type': model.get('content_type', 'string'),
-                    'allowed': model.get('allowed', ''),
-                    'defaultContent': model.get('default', ''),
-                    'required': model.get('required', False),
-                    'empty': model.get('empty', False),
-                    'unique': model.get('unique', False),
-
-                    'regex': model.get('regex', True),
-                    'title': model.get('title', field),
-                    'hint': model.get('hint'),
-                    'format': model.get('format', 'string'),
-                    'format_parameters': model.get('format_parameters', field),
-                    'size': model.get('size', 10),
-                    'visible': not model.get('hidden', False),
-                    'orderable': model.get('orderable', True),
-                    'editable': model.get('editable', True),
-                    'searchable': model.get('searchable', True),
-                }
-
-                if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
-                    ui_field.update(
-                        {'content_type': 'objectid:' + model.get('resource', 'unknown')}
-                    )
-
-                logger.debug("get_data_model, field: %s = %s", field, ui_field)
-
-                # Convert data model format to datatables' one ...
-                self.table_columns.append(ui_field)
-        else:
-            logger.error(
-                "get_data_model, missing data in schema"
-            )
-            return None
+            # Convert data model format to datatables' one ...
+            self.table_columns.append(ui_field)
+        return None
 
     ##
     # Localization
@@ -589,6 +515,7 @@ class Datatable(object):
         items = self.backend.get(self.object_type, params=parameters)
 
         if not items:
+            logger.warning("No backend elements match search criteria: %s", parameters)
             # Empty response
             return json.dumps({
                 # draw is the request number ...
