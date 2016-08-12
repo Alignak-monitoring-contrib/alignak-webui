@@ -870,20 +870,14 @@ class TestItems(unittest2.TestCase):
         # Host item update
         time.sleep(1)
         now2 = datetime.now()
-        parameters = {
-            'last_check': now2,
+        item = Host({
+            'name': 'test',
+            'last_check': now,
+            '_created': 1470995433,
+            '_updated': 1470995450,
             'notes': 'Host notes'
-        }
-        # item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
-        # print(item.__dict__)
-        # assert item._id == 'host_1'
-        # assert item.get_last_check(timestamp=True) == timegm(now2.timetuple())
-
-        # Base item methods
-        # No backend id (_id)
-        # assert item.id == 'host_1'
-        # assert item.name == 'test'
-        # assert item.notes == 'Host notes'
-        # assert item.status == 'unknown'
-        # print(item.get_html_state())
-        # assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x "></i></span><span>Host is unknown</span></div>''' % item.id
+        })
+        print(item.created)
+        print(item.updated)
+        print(item.get_date(item.created))
+        self.assertEqual(item.get_date(item.created), '2016-08-12 11:50:33')

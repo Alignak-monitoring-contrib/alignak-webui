@@ -233,7 +233,7 @@ class BackendElement(object):
                     "Class %s, id_property: %s, invalid params: %s",
                     cls, id_property, params
                 )
-                if isinstance(params, BackendElement):
+                if isinstance(params, BackendElement):  # pragma: no cover, not tested!
                     # params = params.__dict__
                     # Do not copy, build a new object...
                     if params.id in cls._cache:
@@ -294,7 +294,7 @@ class BackendElement(object):
 
         try:
             logger.debug("New end, object: %s", cls._cache[_id]['name'])
-        except Exception:
+        except Exception:  # pragma: no cover, should not happen
             logger.debug("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
 
@@ -378,7 +378,7 @@ class BackendElement(object):
             try:
                 if params[key]:
                     setattr(self, key, params[key])
-            except Exception:
+            except Exception:  # pragma: no cover, should not happen
                 logger.critical("_create parameter TypeError: %s = %s", key, params[key])
 
         for key, value in sorted(params.items()):  # pylint:disable=too-many-nested-blocks
@@ -415,7 +415,7 @@ class BackendElement(object):
                 if isinstance(params[key], basestring) and self.get_backend():
                     # we need to load the object from the backend
                     result = self.get_backend().get(object_type + '/' + params[key])
-                    if not result:
+                    if not result:  # pragma: no cover, should not happen
                         logger.error(
                             "_create, item not found for %s, %s", object_type, value
                         )
@@ -434,7 +434,7 @@ class BackendElement(object):
                         if isinstance(element, basestring) and self.get_backend():
                             # we need to load the object from the backend
                             result = self.get_backend().get(object_type + '/' + element)
-                            if not result:
+                            if not result:  # pragma: no cover, should not happen
                                 logger.error(
                                     "_create, item not found for %s, %s", object_type, value
                                 )
@@ -445,7 +445,7 @@ class BackendElement(object):
                         elif isinstance(element, dict):
                             # Create a new object from a dict
                             objects_list.append(object_class(element))
-                        else:
+                        else:  # pragma: no cover, should not happen
                             logger.critical(
                                 "_create, list element %s is not a string nor a dict: %s",
                                 key, element
@@ -474,7 +474,7 @@ class BackendElement(object):
         initializing newly created objects.
         """
         logger.debug(" --- __init__ %s", self.__class__)
-        if not isinstance(params, dict):
+        if not isinstance(params, dict):  # pragma: no cover, specific case for protection...
             if self.__class__ == params.__class__:
                 params = params.__dict__
             elif self.get_known_classes() and params.__class__ in self.get_known_classes():
@@ -559,7 +559,7 @@ class BackendElement(object):
                 object_class = [kc for kc in self.get_known_classes()
                                 if kc.get_type() == object_type][0]
 
-            else:
+            else:  # pragma: no cover, should not happen
                 logger.error("__init__, unknown %s for %s", object_type, params[key])
                 continue
 
@@ -576,7 +576,7 @@ class BackendElement(object):
 
                 # Object link is a string, so we need to load the object from the backend
                 result = self.get_backend().get(object_type + '/' + params[key])
-                if not result:
+                if not result:  # pragma: no cover, should not happen
                     logger.error(
                         "__init__, item not found for %s, %s", object_type, value
                     )
@@ -595,7 +595,7 @@ class BackendElement(object):
                     if isinstance(element, basestring) and self.get_backend():
                         # we need to load the object from the backend
                         result = self.get_backend().get(object_type + '/' + element)
-                        if not result:
+                        if not result:  # pragma: no cover, should not happen
                             logger.error(
                                 "__init__, item not found for %s, %s", object_type, value
                             )
@@ -606,7 +606,7 @@ class BackendElement(object):
                     elif isinstance(element, dict):
                         # Create a new object from a dict
                         objects_list.append(object_class(element))
-                    else:
+                    else:  # pragma: no cover, should not happen
                         logger.critical(
                             "__init__, list element %s is not a string nor a dict: %s",
                             key, element
@@ -658,7 +658,7 @@ class BackendElement(object):
         """
         Get Item creation date as a timestamp
         """
-        if hasattr(self, '_updated'):
+        if hasattr(self, '_created'):
             return self._created
         return self._default_date
 

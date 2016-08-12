@@ -135,7 +135,7 @@ class TestLiveState(unittest2.TestCase):
             'page': 1,
             'max_results': count
         }
-        objs = self.dmg.get_livestate(search=search)
+        objs = self.dmg.get_livestates(search=search)
         self.assertEqual(len(objs), count)  # Backend pagination limit ...
         for obj in objs:
             print("Got: ", obj)
@@ -159,7 +159,7 @@ class TestLiveState(unittest2.TestCase):
             'page': 1,
             'max_results': count
         }
-        objs = self.dmg.get_livestate(search=search)
+        objs = self.dmg.get_livestates(search=search)
         self.assertEqual(len(objs), count)  # Backend pagination limit ...
         lv = LiveState()
         for obj in objs:
