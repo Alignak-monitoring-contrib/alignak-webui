@@ -56,7 +56,7 @@ loggerDm.setLevel(WARNING)
 loggerDm = getLogger('alignak_webui.objects.item')
 loggerDm.setLevel(ERROR)
 loggerDm = getLogger('alignak_webui.objects.backend')
-loggerDm.setLevel(INFO)
+loggerDm.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -87,7 +87,7 @@ def setup_module():
         print("Starting Alignak backend...")
         fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('alignak_backend'), stdout=fnull
+            shlex.split('alignak_backend')
         )
         time.sleep(1)
 
@@ -516,9 +516,7 @@ class TestDatatableCommands(unittest2.TestCase):
         result = self.dmg.load()
 
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(webapp)
 
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
