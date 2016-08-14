@@ -373,13 +373,15 @@
       <script type="text/javascript" src="/static/plugins/{{f}}"></script>
       %end
 
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <!-- Bootstrap Material Design -->
       <script src="/static/js/material/material.min.js"></script>
       <script src="/static/js/material/ripples.min.js"></script>
 
       <script>
-      $.material.init();
+      $(document).ready(function() {
+         $.material.init();
+      });
       </script>
       %end
    </body>

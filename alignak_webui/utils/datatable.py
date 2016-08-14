@@ -162,15 +162,18 @@ class Datatable(object):
                 continue
 
             # If element is considered for the UI
-            if not model.get('visible'):
+            if not model.get('visible', True):
                 continue
 
             logger.debug("get_data_model, visible field: %s = %s", field, model)
 
-            ui_field = {
+            # Get all the definitions made in the plugin configuration...
+            ui_field = model
+            # Update them with some specific information...
+            ui_field.update({
                 'data': field,
                 'type': model.get('type', 'string'),
-                'content_type': model.get('content_type', 'string'),
+                'content_type': model.get('content_type', model.get('type', 'string')),
                 'allowed': model.get('allowed', ''),
                 'defaultContent': model.get('default', ''),
                 'required': model.get('required', False),
@@ -179,15 +182,15 @@ class Datatable(object):
 
                 'regex': model.get('regex', True),
                 'title': model.get('title', field),
-                'hint': model.get('hint'),
-                'format': model.get('format', 'string'),
-                'format_parameters': model.get('format_parameters', field),
-                'size': model.get('size', 10),
-                'visible': not model.get('hidden', False),
+                'hint': model.get('hint', ''),
+                'format': model.get('format', ''),
+                'format_parameters': model.get('format_parameters', ''),
+                'visible': model.get('visible', True),
+                'hidden': model.get('hidden', False),
                 'orderable': model.get('orderable', True),
                 'editable': model.get('editable', True),
                 'searchable': model.get('searchable', True),
-            }
+            })
 
             if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
                 ui_field.update(
@@ -502,10 +505,9 @@ class Datatable(object):
         # Embed linked resources
         parameters['embedded'] = {}
         for field in self.table_columns:
-            if field['type'] == 'objectid' and field['format'] != 'objectid':
+            if field['type'] == 'objectid' or field['content_type'] == 'objectid':
                 parameters['embedded'].update({field['data']: 1})
-        if parameters['embedded']:
-            logger.info("backend embedded parameters: %s", parameters['embedded'])
+        logger.debug("backend embedded parameters: %s", parameters['embedded'])
 
         # Update global table records count, require total count from backend
         self.records_total = self.backend.count(self.object_type)
@@ -578,7 +580,7 @@ class Datatable(object):
                     if field['type'] == 'objectid' and \
                        key in parameters['embedded'] and item[key]:
                         related_object_class = [kc for kc in self.datamgr.known_classes
-                                                if kc.get_type() == field['format_parameters']]
+                                                if kc.get_type() == field['resource']]
                         if related_object_class:
                             related_object_class = related_object_class[0]
                             linked_object = related_object_class(item[key])

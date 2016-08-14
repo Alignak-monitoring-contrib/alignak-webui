@@ -43,97 +43,46 @@ Table configuration
 
 A backend object used in a plugin can be displayed as a table. For this, the plugin must declare:
 
-    - a table build URL (eg. `/elements_table`)
-    - a table update URL (eg. `/elements_table_data`)
+    - a table build URL (eg. `/elements/table`)
+    - a table update URL (eg. `/elements/table_data`)
     - a table schema as a global OrderedDict variable named *schema*
 
-**Note**: the table URLs are formed with element endpoint (eg. host), a plural form (add an s) and `_table` for the build URL or `_table_data` for the update URL.
+**Note**: the table URLs are formed with element endpoint (eg. host), a plural form (add an s) and `/table` for the build URL or `/table_data` for the update URL.
 
-The *schema* defines the global table configuration and the table columns configuration. Each column is declared as an item of the *schema* ordered dictionary. The declaration order will be used for the column order in the table.
+The *schema* defines the global table configuration and the table columns configuration. The schema is declared in the plugin configuration file.
+Each column is declared as a section of the configuration file.  The declaration order will be used for the column order in the table.
 
-The name of each column item much match eaxctly the name of the backend element field. The same constraint applies  for the column type.
+The name of each column item much match exactly the name of the backend element field. The same constraint applies  for the column type.
 
-The `ui` item in each column configuration is used to configure the table specific behaviour for a particular column. See the comments in the example below.
-
-The main `ui` item in the *schema* is used to configure the global table behaviour. This field allows to define the table title and the table main characteristics (ordering, sorting, ...). See the comments in the example below.
+The main `table` section in the *schema* is used to configure the global table behaviour. This field allows to define the table title and the table main characteristics (ordering, sorting, ...). See the comments in the example below.
 
 As an example::
 
-        schema = OrderedDict()
-        # Specific field to include the responsive + button used to display hidden columns on small devices (needed if the table type is responsive, else optional...)
-        schema['#'] = {
-            'type': 'string',
-            'ui': {
-                'title': '#',
-                'visible': True,
-                'hidden': False,
-                'searchable': False,
-                'orderable': False,
-                'regex': False,
-            }
-        }
+        [table]
+        ; Table global configuration
+        page_title=Hosts table (%%d items)
+        id_property=_id
+        visible=True
+        orderable=True
+        editable=True
+        selectable=True
+        searchable=True
+        responsive=False
 
-        schema['type'] = {
-            'type': 'string',
-            'ui': {
-                # Column title
-                'title': _('Type'),
-                # This field is visible (default: False)
-                'visible': True,
-                # This field is initially hidden (default: False)
-                'hidden': False,
-                # This field is searchable (default: True)
-                'searchable': True,
-                # search as a regex (default: True), else use an exact value match
-                'regex': True,
-                # This field is orderable (default: True)
-                'orderable': True,
-            },
-            'allowed': ["host", "service"]
-        }
-        schema['name'] = {
-            'type': 'string',
-            'ui': {
-                'title': _('Element name'),
-                'visible': True,
-            }
-        }
+        [table.name]
+        type=string
+        required=True
+        empty=False
+        unique=True
+        title=Host name
+        visible=True
+        hidden=False
+        searchable=True
+        regex=True
+        orderable=True
+        hint=This field is the host name
+        editable=False
 
-
-        # This to define the global information for the table
-        schema['ui'] = {
-            'type': 'boolean',
-            'default': True,
-
-            # UI parameters for the objects
-            'ui': {
-                'page_title': _('Livestate table (%d items)'),
-                # id, name and status property for the table elements
-                # Default values are:
-                # 'id_property': '_id',
-                # 'name_property': 'name',
-                # 'status_property': 'status',
-                # Must be True for the table to to displayed (obvious...)!
-                'visible': True,
-                # Table is orderable by columns
-                'orderable': True,
-                # Table is editable
-                'editable': False,
-                # Table rows can be selected
-                'selectable': True,
-                # Table columns search is activated
-                'searchable': True,
-                # Table is responsive (no horizontal scroll)
-                'responsive': True,
-
-                # Table CSS class
-                'css': "hover compact",
-
-                # Table initial sort
-                # Sort by descending business impact (column index 9)
-                'initial_sort': [[9, "desc"]]
-            }
-        }
 
 Table parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~

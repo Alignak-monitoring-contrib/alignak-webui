@@ -36,6 +36,7 @@ from bottle import request, response, template, route, view
 import bottle
 
 from alignak_webui import _
+from alignak_webui.objects.element import BackendElement
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.datatable import Datatable
 
@@ -125,6 +126,15 @@ class Plugin(object):
                         'name': '%s form' % self.name,
                         'route': '/%s/form/<element_id>' % self.backend_endpoint,
                         'view': '_form',
+                    }
+                })
+
+            if 'update_form' not in self.pages:
+                self.pages.update({
+                    'update_form': {
+                        'name': '%s form post' % self.name,
+                        'route': '/%s/form/<element_id>' % self.backend_endpoint,
+                        'method': 'POST'
                     }
                 })
 
@@ -518,7 +528,7 @@ class Plugin(object):
         """
         datamgr = request.environ['beaker.session']['datamanager']
 
-        # Get elements from the data manager
+        # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
         if not f:
             response.status = 204
@@ -527,6 +537,7 @@ class Plugin(object):
                 {'error': 'No method available to get a %s element' % self.backend_endpoint}
             )
 
+        # Get element from the data manager
         element = f(element_id)
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
@@ -534,14 +545,80 @@ class Plugin(object):
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
                                                               % element_id)
 
-        # Build table structure and data model
-        dt = Datatable(self.backend_endpoint, datamgr, self.table)
-
         return {
-            'object_type': self.backend_endpoint,
-            'dt': dt,
+            'plugin': self,
             'element': element
         }
+
+    def update_form(self, element_id):
+        """
+            Update an element
+        """
+        datamgr = request.environ['beaker.session']['datamanager']
+
+        # Get element get method from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:
+            response.status = 204
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'No method available to get a %s element' % self.backend_endpoint}
+            )
+
+        # Get element from the data manager
+        element = f(element_id)
+        if not element:
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            if not element:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % element_id)
+
+        # Prepare update request ...
+        data = {}
+        for field in request.forms:
+            update = False
+            value = request.forms.get(field)
+            logger.debug("- field: %s (%s) = %s", field, self.table[field].get('type'), request.forms.get(field))
+            if self.table[field].get('type') == 'boolean':
+                value = (request.forms.get(field) == 'true')
+            if self.table[field].get('type') == 'integer':
+                value = int(request.forms.get(field))
+            if self.table[field].get('type') == 'float':
+                value = float(request.forms.get(field))
+            if self.table[field].get('type') == 'list':
+                value = request.forms.getall(field)
+                if self.table[field].get('content_type') == 'dict':
+                    dict_values = {}
+                    for item in value:
+                        splitted = item.split('|')
+                        dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                    value = [dict_values]
+            if element[field] != value:
+                update = True
+                if isinstance(element[field], list) and element[field]:
+                    if isinstance(element[field][0], BackendElement):
+                        if element[field][0].id == value:
+                            update = False
+                if isinstance(element[field], BackendElement):
+                    if element[field].id == value:
+                        update = False
+            if update:
+                logger.warning("- field: %s = %s, whereas: %s", field, value, element[field])
+                data.update({field: value})
+
+        if data:
+            if not datamgr.update_object(element=element, data=data):
+                return self.webui.response_ko(_('Element %s update failed') % self.backend_endpoint)
+
+        if data:
+            data.update(
+                {'_message': _("%s '%s' updated") % (self.backend_endpoint, element.name)}
+            )
+        else:
+            data.update(
+                {'_message': _('No fields modified')}
+            )
+        return self.webui.response_data(data)
 
     def get_table(self, embedded=False, identifier=None, credentials=None):
         """

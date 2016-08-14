@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', False)
+%setdefault('debugLogs', True)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -107,7 +107,7 @@
 
                <th data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectize="{{selectize}}"
                    data-searchable="{{ field['searchable'] }}"
-                   data-regex="{{ field['regex'] }}" data-size="{{ field['size'] }}"
+                   data-regex="{{ field['regex'] }}"
                    data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
                    data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
                    data-allowed="{{ field['allowed'] }}"
@@ -176,7 +176,6 @@
                            ],
                         %  else:
                         %     if allowed[0].startswith('inner://'):
-                        //preload: 'focus',
                         preload: true,
                         load: function(query, callback) {
                            //if (!query.length) return callback();
@@ -314,16 +313,6 @@
       $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-
-         %if dt.selectable:
-         if (table.rows( { selected: true } ).count() > 0) {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', false);
-             $('[data-reaction="selection-empty"]').prop('disabled', true);
-         } else {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', true);
-             $('[data-reaction="selection-empty"]').prop('disabled', false);
-         }
-         %end
       });
 
       %if dt.selectable:
@@ -333,30 +322,14 @@
 
          var rowData = table.rows( indexes ).data().toArray();
          if (debugTable) console.debug('Datatable event, selected: ', rowData);
-
-         if (table.rows( { selected: true } ).count() > 0) {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', false);
-             $('[data-reaction="selection-empty"]').prop('disabled', true);
-         } else {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', true);
-             $('[data-reaction="selection-empty"]').prop('disabled', false);
-         }
       });
 
       $('#tbl_{{object_type}}').on( 'deselect.dt', function ( e, dt, type, indexes ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, deselected row ...');
 
-            var rowData = table.rows( indexes ).data().toArray();
-            if (debugTable) console.debug('Datatable event, deselected: ', rowData);
-
-            if (table.rows( { selected: true } ).count() > 0) {
-                $('[data-reaction="selection-not-empty"]').prop('disabled', false);
-                $('[data-reaction="selection-empty"]').prop('disabled', true);
-            } else {
-                $('[data-reaction="selection-not-empty"]').prop('disabled', true);
-                $('[data-reaction="selection-empty"]').prop('disabled', false);
-            }
+         var rowData = table.rows( indexes ).data().toArray();
+         if (debugTable) console.debug('Datatable event, deselected: ', rowData);
       });
       %end
 
@@ -433,6 +406,9 @@
 
       // Table declaration
       var table = $('#tbl_{{object_type}}').DataTable( {
+         // Table columns definition
+         "columns": {{ ! json.dumps(dt.table_columns) }},
+
          // Disable automatic width calculation
          "autoWidth": false,
 
@@ -533,9 +509,6 @@
          // Selection mode
          select: {{'true' if dt.selectable else 'false'}},
 
-         // Table columns definition
-         "columns": {{ ! json.dumps(dt.table_columns) }},
-
          // Table state saving/restoring
          stateSave: true,
          // Saved parameters
@@ -545,6 +518,7 @@
             data.search.search = "";
          },
          // Load table configuration
+         %if not request.query.get('no_restore', ''):
          stateLoadCallback: function (settings) {
             if (debugTable) console.debug("state loading for 'tbl_{{object_type}}' ...");
 
@@ -566,6 +540,7 @@
 
             return o;
          },
+         %end
          // Save table configuration
          stateSaveCallback: function (settings, data) {
             if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);

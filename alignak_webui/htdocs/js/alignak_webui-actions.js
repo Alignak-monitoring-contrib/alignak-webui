@@ -115,8 +115,16 @@ function save_common_preference(key, value, callback) {
 /*
  * Message raise part
  */
+function raise_message_info(text){
+   alertify.message(text, alert_success_delay);
+}
+
 function raise_message_ok(text){
    alertify.success(text, alert_success_delay);
+}
+
+function raise_message_warning(text){
+   alertify.warning(text, alert_success_delay);
 }
 
 function raise_message_ko(text){
@@ -135,7 +143,7 @@ function raise_message_ko(text){
 
      $.fn.serializeArray = function (options) {
          var o = $.extend({
-         checkboxesAsBools: false
+         checkboxesAsBools: true
      }, options || {});
 
      var rselectTextarea = /select|textarea/i;

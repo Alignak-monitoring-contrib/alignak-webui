@@ -58,7 +58,7 @@
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <!-- Material Design fonts -->
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
       <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
@@ -150,7 +150,7 @@
       </div>
       %include("_footer", commands=True)
 
-      %if request.app.config.get('material_design', '0') == '1':
+      %if request.app.config.get('material_design', '1') == '1':
       <!-- Bootstrap Material Design
       -->
       <script src="/static/js/material/material.min.js"></script>

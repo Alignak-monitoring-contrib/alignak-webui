@@ -231,11 +231,12 @@ class DataManager(object):
 
         for item in result:
             # Create a new object
-            logger.debug("find_object, begin creation: %s", object_class)
+            # logger.debug("find_object, begin creation: %s", object_class)
             bo_object = object_class(item)
             items.append(bo_object)
             self.updated = datetime.utcnow()
-            logger.debug("find_object, created.")
+            # logger.debug("find_object, created")
+            # logger.info("find_object, created: %s.", bo_object.__dict__)
 
             # Update class _total_count (each item got from backend has an _total field)
             if '_total' in item:
@@ -1248,8 +1249,9 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    'host_notification_commands': 1,
-                    'service_notification_commands': 1
+                    '_realm': 1,
+                    'host_notification_period': 1, 'host_notification_commands': 1,
+                    'service_notification_period': 1, 'service_notification_commands': 1
                 }
             })
 

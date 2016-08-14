@@ -3,100 +3,98 @@
 %# Default values
 %setdefault('debug', False)
 %setdefault('edition', True)
-%setdefault('title', '%s %s' % (object_type.title(), element.name))
+%setdefault('title', '%s %s' % (plugin.backend_endpoint.capitalize(), element.name))
 
-%rebase("layout", title=title, page="/{{object_type}}/edit/{{element.id}}")
+%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.id}}")
 
-<div id="form_{{object_type}}">
+<div id="form_{{plugin.backend_endpoint}}">
    <form role="form"
-         data-widget="{{element.id}}" data-action="save-options"
-         method="post" action="/{{object_type}}/edit/{{element.id}}"
+         data-element="{{element.id}}"
+         method="post" action="/{{plugin.backend_endpoint}}/form/{{element.id}}"
          style="padding: 20px;">
 
-      <input type="hidden" name='element.id' value='{{element.id}}'/>
-
       <fieldset>
-      <legend>{{title}}</legend>
+      <legend>{{! '%s <code>%s</code>' % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
 
-      %for field in dt.table_columns:
-         %name = field.get('data', '')
-         %if name[0] in ['#', '_']:
+      %for field, model in plugin.table.iteritems():
+         %selectize = False
+         %if not model.get('visible', True) or field[0] in ['#', '_']:
             %if debug:
-            <i class="fa fa-bug"></i>Ignored '{{name}}' field<br>
+            <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field<br>
             %end
             %continue
          %end
 
-         %value = element[name]
-         %field_id=element.id
-         %field_value=value
+         %if debug:
+         <i class="fa fa-bug"></i>{{field}} -> {{model}}<br>
+         %end
+
+         %field_value=element[field]
+         %is_list = False
+         %list_values = []
+
+         %label = model.get('title', '')
+         %field_type = model.get('type', 'string')
+         %content_type = model.get('content_type', field_type)
+         %placeholder = model.get('placeholder', label)
+         %hint = model.get('hint', label)
+         %allowed = model.get('allowed', '').split(',')
+         %if allowed[0] == '':
+         %  allowed = []
+         %end
+         %format = model.get('format')
+         %format_parameters = model.get('format_parameters')
+         %unique = model.get('unique')
+         %required = model.get('required')
+         %editable = model.get('editable', True)
 
          %from alignak_webui.objects.element import BackendElement
+
          %# Field value is a list
-         %if isinstance(value, list):
-         %  list_value = []
-         %  for v in value:
+         %if isinstance(field_value, list):
+         %  for v in field_value:
          %     if isinstance(v, BackendElement):
-         %        list_value.append(v.name)
-         %     elif isinstance(v, basestring):
-         %        list_value.append(v)
-         %     elif isinstance(v, tuple):
-         %        list_value.append(v)
+         %        list_values.append((v.id, v.name))
+         %     elif isinstance(v, dict):
+         %        for key,value in v.items():
+         %           list_values.append(('%s|%s' % (key, value), '%s=%s' % (key, value)))
+         %        end
          %     else:
-         %        list_value.append(v._id)
+         %        list_values.append((v, model.get("allowed_%s" % v, v)))
          %     end
          %  end
-         %  field_value=','.join(list_value)
-         %end
+         %  is_list = True
+         %  selectize=True
 
          %# Field value is a dict
-         %if isinstance(value, dict):
-         %  list_value = []
-         %  for k,v in value.items():
-         %     list_value.append('%s=%s' % (k, v))
+         %elif isinstance(field_value, dict):
+         %  for k,v in field_value.items():
+         %     list_values.append(('%s|%s' % (k, v), '%s=%s' % (k, v)))
          %  end
-         %  field_value=','.join(list_value)
-         %end
-
-         %label = field.get('title', '')
-         %field_type = field.get('type', 'string')
-         %content_type = field.get('content_type', 'string')
-         %placeholder = field.get('placeholder', label)
-         %allowed = field.get('allowed').split(',')
-         %format = field.get('format')
-         %format_parameters = field.get('format_parameters')
-         %required = field.get('required')
-
-         %is_list = False
-         %if field_type=='list':
          %  is_list = True
-         %  field_type = content_type
-         %end
+         %  selectize=True
 
-         %if field_type.startswith('objectid'):
-         %# ----------------------------------------------------------------------------------------
-         %# Fred's awful hack for Bottle issue #869: https://github.com/bottlepy/bottle/issues/869
-         %# ----------------------------------------------------------------------------------------
-         %if not is_list:
-         %  linked_object = element[name]
-         %  field_id='_id'
-         %  field_value='_name'
-         %  for method in dir(linked_object):
-         %     if not callable(getattr(linked_object, method)) and method=='__dict__':
-         %        get_dict = getattr(linked_object, method)
-         %        field_id=get_dict['_id']
-         %        field_value=get_dict['_name']
+         %# Field value is simple
+         %else:
+         %  if isinstance(field_value, BackendElement):
+         %     list_values.append((field_value.id, field_value.name))
+         %     selectize=True
+         %  else:
+         %     list_values.append((field_value, model.get("allowed_%s" % field_value, field_value)))
+         %     if allowed:
+         %        selectize=True
          %     end
          %  end
-         %end
-         %# ----------------------------------------------------------------------------------------
          %end
 
          %if debug:
             <i class="fa fa-bug"></i>
-            {{'%s (%s) -> %s%s=%s' % (name, field_id, field_type, content_type if field_type=='list' else '', field_value)}}<br/>
-            <i class="fa fa-bug"></i>
-            {{field}}
+            %if is_list:
+            {{'%s -> %s (%s) = %s' % (field, field_type, content_type, list_values)}}
+            %else:
+            {{'%s -> %s = %s' % (field, content_type, field_value)}}
+            %end
+            <br>
          %end
 
          %# Manage the different types of values
@@ -106,183 +104,127 @@
             %continue
          %end
 
-         %if field_type.startswith('objectid'):
-            %linked_object_type = content_type.replace('objectid:', '')
-            %icon=''
-            %if linked_object_type:
-            %  from alignak_webui.objects.element_state import ElementState
-            %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
-            %  icon=icon['icon'] if icon else ''
-            %end
-            <div class="form-group">
-               <label for="{{name}}" class="col-md-2 control-label">{{label}} {{icon}}</label>
-               <div class="col-md-10">
-                  <input id="{{name}}" name="{{name}}"
-                     class="form-control"
-                     type="{{'number' if field_type=='integer' else 'text'}}"
-                     placeholder="{{placeholder}}"
-                     value="{{field_value}}"
-                     {{'readonly="readonly"' if not field.get('editable') else ''}}
-                     >
-                  %if field.get('hint'):
-                  <p class="help-block">
-                     {{field.get('hint')}}
-                     %if field.get('unique', False):
-                     <br>This field must be unique!
-                     %end
-                  </p>
-                  %end
-               </div>
-            </div>
-            <script>
-               $('#{{name}}').selectize({
-                  plugins: ['remove_button'],
-
-                  valueField: 'id',
-                  labelField: 'name',
-                  searchField: 'name',
-                  create: false,
-
-                  render: {
-                     option: function(item, escape) {
-                        return '<div>' +
-                           %if icon:
-                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                           %end
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                        '</div>';
-                     },
-                     item: function(item, escape) {
-                        console.log('Render: ', item, escape)
-                        return '<div>' +
-                           %if icon:
-                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                           %end
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                        '</div>';
-                     }
-                  },
-
-                  %if allowed:
-                  %# List of allowed values
-                  %if allowed[0].startswith('inner://'):
-                  preload: true,
-                  load: function(query, callback) {
-                     if (!query.length) return callback();
-                     $.ajax({
-                        url: "{{allowed[0].replace('inner://', '/')}}",
-                        type: 'GET',
-                        error: function() {
-                           callback();
-                        },
-                        success: function(res) {
-                           // 10 first items...
-                           callback(res.slice(0, 10));
-                        }
-                     });
-                  },
-                  %else:
-                     options: [
-                     %if is_list:
-                        %for option in allowed:
-                        {
-                           'id': '{{option}}', 'name': '{{option}}'
-                        },
-                        %end
-                     %else:
-                        { 'id': '{{field_id}}', 'name': '{{field_value}}' }
-                     %end
-                     ],
-                  %end
-                  %else:
-                  %# No list of allowed values
-                     options: [
-                        { 'id': '{{field_id}}', 'name': '{{field_value}}' }
-                     ],
-                  %end
-
-                  maxItems: {{'1' if format == 'select' else 'null'}},
-                  closeAfterSelect: {{'true' if format == 'select' else 'false'}},
-
-                  placeholder: '{{placeholder}}',
-                  hideSelected: true,
-                  %if not required:
-                  allowEmptyOption: true
-                  %end
-               });
-            </script>
-            %continue
-         %end
-
          %if field_type in ['boolean']:
             <div class="form-group">
+               <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
                <div class="col-md-offset-2 col-md-10">
-                  <div class="togglebutton">
+                  <div class="checkbox">
                      <label>
-                        <input type="checkbox"
-                           {{'readonly="readonly"' if not field.get('editable') else ''}}
-                           {{'checked="checked"' if value else ''}}> {{label}}
+                        <input id="{{field}}" name="{{field}}" type="checkbox"
+                           {{'disabled="disabled"' if not edition or not editable else ''}}
+                           {{'checked="checked"' if field_value else ''}}
+                           >
                      </label>
                   </div>
-               </div>
-            </div>
-            %continue
-         %end
-
-         %if field_type in ['dict', 'string', 'integer']:
-            <div class="form-group">
-               <label for="{{name}}" class="col-md-2 control-label">{{label}}</label>
-               <div class="col-md-10">
-                  <input id="{{name}}" name="{{name}}"
-                     class="form-control"
-                     type="{{'number' if field_type=='integer' else 'text'}}"
-                     placeholder="{{placeholder}}"
-                     value="{{field_value}}"
-                     {{'readonly="readonly"' if not field.get('editable') else ''}}
-                     >
-                  %if field.get('hint'):
+                  %if hint:
                   <p class="help-block">
-                     {{field.get('hint')}}
-                     %if field.get('unique', False):
-                     <br>This field must be unique!
+                     {{hint}}
+                     %if unique:
+                     <br>This field must be unique.
+                     %end
+                     %if required:
+                     <br>This field is required.
                      %end
                   </p>
                   %end
                </div>
             </div>
-            %if is_list:
             <script>
-               $('#{{name}}').selectize({
-                  plugins: ['remove_button'],
-                  delimiter: ',',
-                  persist: false,
+               $("#{{field}}").on("change", function() {
+                 console.log("Value {{field}}:", $("#{{field}}").prop('checked'));
+               })
+            </script>
+            %continue
+         %end
 
-                  valueField: 'id',
-                  labelField: 'name',
-                  searchField: 'name',
-                  create: false,
+         %linked_object_type = model.get('resource', '')
+         %icon=''
+         %if linked_object_type:
+         %  from alignak_webui.objects.element_state import ElementState
+         %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
+         %  icon=icon['icon'] if icon else ''
+         %end
+         <div class="form-group">
+            <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
+            <div class="col-md-10">
+               %if is_list:
+               <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-list"></i></span>
+                  <select id="{{field}}" name="{{field}}"
+                         class="form-control"
+                         {{'readonly="readonly"' if not edition or not editable else ''}}>
+                  </select>
+               </div>
+               %else:
+               %if format == 'textarea':
+               <textarea id="{{field}}" name="{{field}}"
+                  class="form-control"
+                  rows="3"
+                  placeholder="{{placeholder}}"
+                  {{'readonly="readonly"' if not edition or not editable else ''}}
+                  >{{field_value}}</textarea>
+               %else:
+               <input id="{{field}}" name="{{field}}"
+                  class="form-control"
+                  type="{{'number' if field_type=='integer' else 'text'}}"
+                  placeholder="{{placeholder}}"
+                  value="{{field_value}}"
+                  {{'readonly="readonly"' if not edition or not editable else ''}}
+                  >
+               %end
+               %end
+               %if hint:
+               <p class="help-block">
+                  {{hint}}
+                  %if unique:
+                  <br>This field must be unique.
+                  %end
+                  %if required:
+                  <br>This field is required.
+                  %end
+               </p>
+               %end
+            </div>
+         </div>
+         %if selectize and edition:
+         <script>
+            $('#{{field}}').selectize({
+               %if not required:
+               'plugins': ["remove_button"],
+               %end
 
-                  render: {
-                     option: function(item, escape) {
-                        return '<div>' +
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                        '</div>';
-                     },
-                     item: function(item, escape) {
-                        return '<div>' +
-                           (item.id ? '' : '***') +
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                        '</div>';
-                     }
+               valueField: 'id',
+               labelField: 'name',
+               searchField: 'name',
+               create: false,
+
+               render: {
+                  option: function(item, escape) {
+                     return '<div>' +
+                        %if icon:
+                        '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                        %end
+                        (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                        (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                     '</div>';
                   },
+                  item: function(item, escape) {
+                     return '<div>' +
+                        %if icon:
+                        '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                        %end
+                        (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                     '</div>';
+                  }
+               },
 
-                  %if allowed:
-                  %if allowed[0].startswith('inner://'):
+               %if allowed:
+               %  # List of allowed values
+               %  if allowed[0].startswith('inner://'):
                   preload: true,
+                  openOnFocus: true,
                   load: function(query, callback) {
-                     if (!query.length) return callback();
+                     //if (!query.length) return callback();
                      $.ajax({
                         url: "{{allowed[0].replace('inner://', '/')}}",
                         type: 'GET',
@@ -290,66 +232,90 @@
                            callback();
                         },
                         success: function(res) {
-                           // 10 first items...
-                           callback(res.slice(0, 10));
+                           // 10 first items only...
+                           // callback(res.slice(0, 10));
+                           callback(res);
                         }
                      });
                   },
-                  %else:
-                  items: [
-                  %for option in allowed:
-                  {
-                     'id': '{{option}}', 'name': '{{option}}'
-                  },
-                  %end
+               %  else:
+                  options: [
+                  %     for option in allowed:
+                     {
+                        'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
+                     },
+                  %     end
                   ],
-                  %end
-                  %end
+               %  end
+               %else:
+               %# No list of allowed values
+                  options: [
+                     { 'id': 'XxX', 'name': 'You should define an allowed value...' }
+                  ],
+               %end
 
-                  maxItems: {{'1' if format == 'select' else 'null'}},
-                  placeholder: '{{placeholder}}',
-                  hideSelected: true,
-                  %if not required:
-                  allowEmptyOption: true
-                  %end
-               });
-            </script>
+               maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
+               closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+
+               placeholder: '{{placeholder}}',
+               hideSelected: true,
+               %if not required:
+               allowEmptyOption: true
+               %end
+            });
+            %# Add selected options / items to the control...
+            var $select = $('#{{field}}').selectize();
+            var selectize = $select[0].selectize;
+            %for field_id, field_value in list_values:
+               selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
             %end
-            %continue
+            %for field_id, field_value in list_values:
+               selectize.addItem("{{field_id}}");
+            %end
+         </script>
          %end
-
-         %if debug:
-         <i class="fa fa-bug"></i><i class="fa fa-bug"></i>{{field}} -> {{name}}='{{field_value}}' <br>
-         %end
+         %continue
       %end
       </fieldset>
+
+      <div class="form-group">
+         <div class="col-md-10 col-md-offset-2">
+            <button type="button" class="btn btn-default">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </div>
+      </div>
    </form>
 </div>
 
 <script>
-   $('form[data-widget="{{element.id}}"]').on("submit", function (evt) {
+   $('form[data-element="{{element.id}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
       evt.preventDefault();
-
-      $('#widgets_loading').show();
 
       $.ajax({
          url: $(this).attr('action'),
          type: $(this).attr('method'),
          data: $(this).serialize()
       })
-      .done(function( data, textStatus, jqXHR ) {
+      .done(function(data, textStatus, jqXHR) {
+         // data is JSON formed with a _message field
          if (jqXHR.status != 200) {
             console.error(jqXHR.status, data);
+            raise_message_ko(data._message);
          } else {
-            console.log('Posted !');
+            raise_message_info(data._message);
+            $.each(data, function(field, value){
+               if (field=='_message') return true;
+               $('#'+field).parents("div.form-group").addClass("has-success");
+               raise_message_ok("Updated " + field);
+            })
          }
       })
       .fail(function( jqXHR, textStatus, errorThrown ) {
          console.error(errorThrown, textStatus);
       })
      .always(function() {
-         $('#widgets_loading').hide();
+         //$('#widgets_loading').hide();
       });
    });
 </script>
