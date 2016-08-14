@@ -7,6 +7,26 @@
 
 %rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.id}}")
 
+%if debug:
+<div class="panel-group">
+   <div class="panel panel-default">
+      <div class="panel-heading">
+         <h4 class="panel-title">
+            <a data-toggle="collapse" href="#collapse_{{element.id}}"><i class="fa fa-bug"></i> Element as dictionary</a>
+         </h4>
+      </div>
+      <div id="collapse_{{element.id}}" class="panel-collapse collapse">
+         <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+            %for k,v in sorted(element.__dict__.items()):
+               <dt>{{k}}</dt>
+               <dd>{{v}}</dd>
+            %end
+         </dl>
+      </div>
+   </div>
+</div>
+%end
+
 <div id="form_{{plugin.backend_endpoint}}">
    <form role="form"
          data-element="{{element.id}}"
@@ -49,6 +69,10 @@
          %editable = model.get('editable', True)
 
          %from alignak_webui.objects.element import BackendElement
+
+         %if field_type=='point':
+         %field_value={'latitude': field_value['coordinates'][0], 'longitude': field_value['coordinates'][0]}
+         %end
 
          %# Field value is a list
          %if isinstance(field_value, list):
@@ -303,6 +327,28 @@
             console.error(jqXHR.status, data);
             raise_message_ko(data._message);
          } else {
+            if (data._errors) {
+               raise_message_ko(data._message);
+               $.each(data._errors, function(field, value){
+                  $('#'+field).parents("div.form-group").addClass("has-error");
+                  raise_message_ko(field + ":" + value);
+               })
+            } else {
+               raise_message_info(data._message);
+            }
+            $.each(data, function(field, value){
+               if (field=='_message') return true;
+               if (field=='_errors') return true;
+               $('#'+field).parents("div.form-group").addClass("has-success");
+               raise_message_ok("Updated " + field);
+            })
+         }
+      })
+      .fail(function( jqXHR, textStatus, errorThrown ) {
+         // data is JSON formed with a _message field
+         if (jqXHR.status != 409) {
+            console.error(errorThrown, textStatus);
+         } else {
             raise_message_info(data._message);
             $.each(data, function(field, value){
                if (field=='_message') return true;
@@ -310,9 +356,6 @@
                raise_message_ok("Updated " + field);
             })
          }
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error(errorThrown, textStatus);
       })
      .always(function() {
          //$('#widgets_loading').hide();

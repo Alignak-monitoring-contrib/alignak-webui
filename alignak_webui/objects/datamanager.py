@@ -922,9 +922,8 @@ class DataManager(object):
             })
 
         try:
-            logger.warning("get_hostdependencys, search: %s", search)
+            logger.debug("get_hostdependencys, search: %s", search)
             items = self.find_object('hostdependency', search, all_elements)
-            logger.warning("get_hostdependencys, found: %s", items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hostdependencys, none found")
@@ -983,6 +982,8 @@ class DataManager(object):
             search.update({'max_results': 1})
 
         items = self.get_hosts(search=search)
+        if items:
+            logger.warning("get_host, found: %s", items[0].__dict__)
         return items[0] if items else None
 
     ##

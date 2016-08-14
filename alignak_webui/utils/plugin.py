@@ -585,6 +585,26 @@ class Plugin(object):
                 value = int(request.forms.get(field))
             if self.table[field].get('type') == 'float':
                 value = float(request.forms.get(field))
+            if self.table[field].get('type') == 'point':
+                value = request.forms.getall(field)
+                dict_values = {}
+                for item in value:
+                    splitted = item.split('|')
+                    dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                value = {
+                    u'type': u'Point',
+                    u'coordinates': [
+                        float(dict_values['latitude']),
+                        float(dict_values['longitude'])
+                    ]
+                }
+            if self.table[field].get('type') == 'dict':
+                value = request.forms.getall(field)
+                dict_values = {}
+                for item in value:
+                    splitted = item.split('|')
+                    dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                value = dict_values
             if self.table[field].get('type') == 'list':
                 value = request.forms.getall(field)
                 if self.table[field].get('content_type') == 'dict':
@@ -607,13 +627,18 @@ class Plugin(object):
                 data.update({field: value})
 
         if data:
-            if not datamgr.update_object(element=element, data=data):
-                return self.webui.response_ko(_('Element %s update failed') % self.backend_endpoint)
-
-        if data:
-            data.update(
-                {'_message': _("%s '%s' updated") % (self.backend_endpoint, element.name)}
-            )
+            result = datamgr.update_object(element=element, data=data)
+            if result is True:
+                data.update(
+                    {'_message': _("%s '%s' updated") % (self.backend_endpoint, element.name)}
+                )
+            else:
+                data.update(
+                    {'_message': _("%s '%s' update failed!") % (self.backend_endpoint, element.name)}
+                )
+                data.update(
+                    {'_errors': result}
+                )
         else:
             data.update(
                 {'_message': _('No fields modified')}
