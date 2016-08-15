@@ -60,11 +60,19 @@
                      <span class="fa fa-question"></span>
                   </a>
                   %if current_user.is_administrator():
+                  %if edition_mode:
                   <a class="btn btn-default btn-raised" href="#"
-                     data-action="edition-mode" data-state="{{'on' if edition_mode else 'off'}}" data-toggle="tooltip" data-placement="top"
+                     data-action="edition-mode" data-state="on" data-toggle="tooltip" data-placement="top"
+                     title="{{_('Leave edition mode')}}">
+                     <span class="text-warning fa fa-edit"></span>
+                  </a>
+                  %else:
+                  <a class="btn btn-default btn-raised" href="#"
+                     data-action="edition-mode" data-state="off" data-toggle="tooltip" data-placement="top"
                      title="{{_('Enter edition mode')}}">
                      <span class="text-danger fa fa-edit"></span>
                   </a>
+                  %end
 
                   <a class="btn btn-default btn-raised" href="/preferences/user"
                      data-action="user-preferences" data-toggle="tooltip" data-placement="top"

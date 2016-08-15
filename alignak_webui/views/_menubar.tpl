@@ -1,5 +1,4 @@
 %setdefault('debug', False)
-%setdefault('edition_bar', False)
 %setdefault('widgets_bar', False)
 
 %if widgets_bar:
@@ -145,7 +144,7 @@
          </ul>
       </li>
 
-      %if edition_bar:
+      %if edition_mode:
          %include("_templatebar.tpl")
       %end
 

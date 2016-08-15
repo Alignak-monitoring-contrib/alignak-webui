@@ -103,9 +103,14 @@
    // Build tree data...
    var jsTreeData = [];
    %for item in elts:
+      %parent='#'
+      %if 'parent' in item.__dict__:
+      %  parent=item.parent.id
+      %end
+      %level=item.__dict__.get('level', 0)
       jsTreeData.push( {
          "id": '{{item.id}}',
-         "parent" : '{{'#' if item.level <= 0 else item.parent.id}}',
+         "parent" : '{{'#' if parent=='#' else item.parent.id}}',
          "text": '{{item.alias}}',
          "icon": '{{item.get_state()}}',
          "state": {
@@ -128,7 +133,7 @@
          a_attr: {
          }
       });
-      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item.level}}', '{{'#' if item.level <= 0 else item.parent.id}}');
+      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{level}}', '{{parent}}');
    %end
 
    $(document).ready(function(){

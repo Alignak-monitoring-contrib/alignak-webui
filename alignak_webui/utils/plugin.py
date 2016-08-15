@@ -32,7 +32,7 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response, template, route, view
+from bottle import request, response, template, route, view, redirect
 import bottle
 
 from alignak_webui import _
@@ -71,6 +71,19 @@ class Plugin(object):
 
         if cfg_filenames:
             self.load_config()
+
+    def send_user_message(self, message, status='ko'):
+        """
+        Send a user message:
+        - store a message in the current session
+        - redirects to the application home page
+        """
+        session = request.environ['beaker.session']
+        session['user_message'] = {
+            'status': status,
+            'message': message
+        }
+        redirect('/')
 
     def load_routes(self, app):
         """
@@ -370,18 +383,13 @@ class Plugin(object):
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
         if not f:
-            response.status = 204
-            response.content_type = 'application/json'
-            return json.dumps(
-                {'error': 'No method available to get a %s element' % self.backend_endpoint}
-            )
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         element = f(element_id)
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
-                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % element_id)
+                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
 
         # Build table structure and data model
         dt = Datatable(self.backend_endpoint, datamgr, self.table)
@@ -406,7 +414,6 @@ class Plugin(object):
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Pagination and search
         start = int(request.query.get('start', '0'))
@@ -421,11 +428,7 @@ class Plugin(object):
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
         if not f:
-            response.status = 204
-            response.content_type = 'application/json'
-            return json.dumps(
-                {'error': 'No method available to get %s elements' % self.backend_endpoint}
-            )
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         elts = f(search, all_elements=True)
 
@@ -472,11 +475,7 @@ class Plugin(object):
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
         if not f:
-            response.status = 204
-            response.content_type = 'application/json'
-            return json.dumps(
-                {'error': 'No method available to get %s elements' % self.backend_endpoint}
-            )
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         elts = f(search, all_elements=True)
 
@@ -526,24 +525,20 @@ class Plugin(object):
         """
         Build the object_type table and get data to populate the table
         """
+        session = request.environ['beaker.session']
         datamgr = request.environ['beaker.session']['datamanager']
 
         # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
         if not f:
-            response.status = 204
-            response.content_type = 'application/json'
-            return json.dumps(
-                {'error': 'No method available to get a %s element' % self.backend_endpoint}
-            )
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         # Get element from the data manager
         element = f(element_id)
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
-                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % element_id)
+                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
 
         return {
             'plugin': self,
@@ -559,19 +554,14 @@ class Plugin(object):
         # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
         if not f:
-            response.status = 204
-            response.content_type = 'application/json'
-            return json.dumps(
-                {'error': 'No method available to get a %s element' % self.backend_endpoint}
-            )
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         # Get element from the data manager
         element = f(element_id)
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
-                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % element_id)
+                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
 
         # Prepare update request ...
         data = {}
@@ -749,13 +739,17 @@ class Plugin(object):
         datamgr = request.environ['beaker.session']['datamanager']
         target_user = request.environ['beaker.session']['target_user']
 
+
+        # Get element get method from the data manager
+        if not callable(get_method):
+            self.send_user_message(_("Configured method is not callable."))
+
         username = user.get_username()
         if not target_user.is_anonymous():
             username = target_user.get_username()
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Pagination and search
         start = int(request.params.get('start', '0'))

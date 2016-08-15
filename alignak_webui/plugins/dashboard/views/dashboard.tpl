@@ -210,6 +210,10 @@
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
 
+      %if message:
+         raise_message_{{message.get('status', 'ko')}}("{{! message.get('message')}}");
+      %end
+
       %if not len(dashboard_widgets):
          // Show the widgets proposal area.
          $('#propose-widgets').show();

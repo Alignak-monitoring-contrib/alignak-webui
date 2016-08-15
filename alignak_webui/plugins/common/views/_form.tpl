@@ -102,6 +102,7 @@
          %else:
          %  if isinstance(field_value, BackendElement):
          %     list_values.append((field_value.id, field_value.name))
+         %     field_value=field_value.name
          %     selectize=True
          %  else:
          %     list_values.append((field_value, model.get("allowed_%s" % field_value, field_value)))
@@ -287,7 +288,7 @@
                allowEmptyOption: true
                %end
             });
-            %# Add selected options / items to the control...
+            // Add selected options / items to the control...
             var $select = $('#{{field}}').selectize();
             var selectize = $select[0].selectize;
             %for field_id, field_value in list_values:

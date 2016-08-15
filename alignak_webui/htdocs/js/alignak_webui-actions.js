@@ -263,8 +263,8 @@ $(document).ready(function() {
          raise_message_ko('Access to edition mode failed');
       })
       .always(function() {
-         // Page refresh
-         window.location.href = "/";
+         // Current page reload
+         window.location.reload();
       });
    });
 

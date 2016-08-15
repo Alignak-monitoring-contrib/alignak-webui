@@ -711,8 +711,8 @@
                className: 'btn-raised btn-xs'
             }
             %end
+            %if dt.editable and edition_mode:
             // Only for 'editable' tables
-            %if dt.editable:
             ,{
                extend: 'selectedSingle',
                text: "{{! _('<span class=\'fa fa-edit\'></span>')}}",

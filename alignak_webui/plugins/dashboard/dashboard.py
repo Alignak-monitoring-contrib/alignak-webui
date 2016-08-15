@@ -123,11 +123,18 @@ class PluginDashboard(Plugin):
             logger.info("Dashboard widget: %s", widget)
             widgets.append(widget)
 
+        message = None
+        session = request.environ['beaker.session']
+        if 'user_message' in session and session['user_message']:
+            message = session['user_message']
+            session['user_message'] = None
+
         return {
             'widgets_bar': len(self.webui.get_widgets_for('dashboard')) != 0,
             'widgets_place': 'dashboard',
             'dashboard_widgets': widgets,
-            'title': request.query.get('title', _('Dashboard'))
+            'title': request.query.get('title', _('Dashboard')),
+            'message': message
         }
 
     def get_currently(self):

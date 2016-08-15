@@ -515,8 +515,9 @@ def user_login():
     """
     session = request.environ['beaker.session']
     message = None
-    if 'message' in session and session['message']:
-        message = session['message']
+    if 'login_message' in session and session['login_message']:
+        message = session['login_message']
+        session['login_message'] = None
         logger.warning("login page with error message: %s", message)
 
     # Send login form
@@ -564,12 +565,12 @@ def user_auth():
     logger.debug("login, user '%s' is signing in ...", username)
 
     session = request.environ['beaker.session']
-    session['message'] = None
+    session['login_message'] = None
     if not user_authentication(username, password):
         # Redirect to application login page with an error message
-        if 'message' not in session:
-            session['message'] = _("Invalid username or password")
-        logger.warning("user '%s' access denied, message: %s", username, session['message'])
+        if 'login_message' not in session:
+            session['login_message'] = _("Invalid username or password")
+        logger.warning("user '%s' access denied, message: %s", username, session['login_message'])
         redirect('/login')
 
     logger.warning("user '%s' (%s) signed in", username, session['current_user'].name)
@@ -633,17 +634,18 @@ def user_authentication(username, password):
             )
         )
 
-    # Set user for the data manager and try to log-in.
-    if not session['datamanager'].user_login(username, password, load=(password is not None)):
-        session['message'] = session['datamanager'].connection_message
-        logger.warning("user authentication refused: %s", session['message'])
-        return False
+    if 'current_user' not in session or not session['current_user']:
+        # Set user for the data manager and try to log-in.
+        if not session['datamanager'].user_login(username, password, load=(password is not None)):
+            session['login_message'] = session['datamanager'].connection_message
+            logger.warning("user authentication refused: %s", session['login_message'])
+            return False
 
     # Create a new target user in the session
     if 'target_user' not in session:
         session['target_user'] = User()
 
-    session['message'] = session['datamanager'].connection_message
+    session['login_message'] = session['datamanager'].connection_message
     session['current_user'] = session['datamanager'].logged_in_user
     logger.debug("user_authentication, current user authenticated")
     return True
