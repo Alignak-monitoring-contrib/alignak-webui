@@ -5,6 +5,8 @@
 
 %rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/commands")
 
+%from alignak_webui.utils.helper import Helper
+
 <!-- commands filtering and display -->
 <div id="commands">
    %if debug:
@@ -42,7 +44,6 @@
                <th>{{_('Command name')}}</th>
                <th>{{_('Command line')}}</th>
                <th>{{_('Timeout')}}</th>
-               <th>{{_('Module type')}}</th>
                <th>{{_('Environment macros')}}</th>
                <th>{{_('Poller tag')}}</th>
                <th>{{_('Reactionner tag')}}</th>
@@ -68,11 +69,7 @@
                   </td>
 
                   <td>
-                     <small>{{command.module_type}}</small>
-                  </td>
-
-                  <td>
-                     <small>{{command.enable_environment_macros}}</small>
+                     <small>{{ ! Helper.get_on_off(command.enable_environment_macros) }}</small>
                   </td>
 
                   <td>

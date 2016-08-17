@@ -1,6 +1,6 @@
 %import json
 
-%rebase("layout", css=['user/htdocs/css/user.css'], title=_('User preferences'))
+%rebase("layout", css=['users/htdocs/css/users.css'], title=_('User preferences'))
 
 <div id="user-preferences">
    <div class="col-sm-12">
@@ -45,6 +45,7 @@
                   </tbody>
                </table>
 
+               <!--
                <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                   <colgroup>
                      <col style="width: 40%" />
@@ -65,15 +66,17 @@
                      %end
                   </tbody>
                </table>
+               -->
 
                <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                   <colgroup>
-                     <col style="width: 20%" />
-                     <col style="width: 80%" />
+                     <col class="col-sm-1">
+                     <col class="col-sm-3">
+                     <col class="col-sm-8">
                   </colgroup>
                   <thead>
                      <tr>
-                        <th colspan="2">Preferences:</th>
+                        <th colspan="3">{{_('User preferences:')}}</th>
                      </tr>
                   </thead>
                   <tbody style="font-size:x-small;">
@@ -81,6 +84,18 @@
                      %if preferences:
                      %  for key in sorted(preferences):
                         <tr>
+                           <td>
+                           %if current_user.is_power():
+                              <a class="btn btn-default btn-xs btn-raised" href="#"
+                                 data-action="delete-user-preference"
+                                 data-element="{{key}}"
+                                 data-message="{{_('User preference deleted')}}"
+                                 data-toggle="tooltip" data-placement="top"
+                                 title="{{_('Delete this user preference')}}">
+                                 <span class="fa fa-trash"></span>
+                              </a>
+                           %end
+                           </td>
                            <td>{{key}}</td>
                            %value = datamgr.get_user_preferences(current_user.get_username(), key)
                            <td>

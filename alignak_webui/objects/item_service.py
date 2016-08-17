@@ -48,11 +48,14 @@ class Service(BackendElement):
         """
         Create a service (called only once when an object is newly created)
         """
+        self._linked_templates = 'service'
         self._linked_host = 'host'
         self._linked_check_command = 'command'
+        self._linked_snapshot_command = 'command'
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
+        self._linked_snapshot_period = 'timeperiod'
         self._linked_maintenance_period = 'timeperiod'
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
@@ -60,9 +63,19 @@ class Service(BackendElement):
         super(Service, self)._create(params, date_format)
 
     @property
+    def templates(self):
+        """ Return linked object """
+        return self._linked_templates
+
+    @property
     def check_command(self):
         """ Return linked object """
         return self._linked_check_command
+
+    @property
+    def snapshot_command(self):
+        """ Return linked object """
+        return self._linked_snapshot_command
 
     @property
     def event_handler(self):
@@ -83,6 +96,11 @@ class Service(BackendElement):
     def notification_period(self):
         """ Return linked object """
         return self._linked_notification_period
+
+    @property
+    def snapshot_period(self):
+        """ Return linked object """
+        return self._linked_snapshot_period
 
     @property
     def maintenance_period(self):

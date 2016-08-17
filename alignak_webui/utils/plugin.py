@@ -408,6 +408,11 @@ class Plugin(object):
         target_user = request.environ['beaker.session']['target_user']
         datamgr = request.environ['beaker.session']['datamanager']
 
+        # Get elements get method from the data manager
+        f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
+        if not f:
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+
         username = user.get_username()
         if not target_user.is_anonymous():
             username = target_user.get_username()
@@ -424,11 +429,6 @@ class Plugin(object):
             'max_results': count,
             'where': where
         }
-
-        # Get elements from the data manager
-        f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
-        if not f:
-            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         elts = f(search, all_elements=True)
 
@@ -523,7 +523,10 @@ class Plugin(object):
 
     def get_form(self, element_id):
         """
-        Build the object_type table and get data to populate the table
+            Build the form for an element.
+
+            element_id is the _id (or name) of an object to read. If no object is found then en empty
+            element is sent to the formn this means a new object creation with default values.
         """
         session = request.environ['beaker.session']
         datamgr = request.environ['beaker.session']['datamanager']
@@ -536,9 +539,13 @@ class Plugin(object):
         # Get element from the data manager
         element = f(element_id)
         if not element:
-            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            element = f(search={
+                'max_results': 1, 'where': {'name': element_id, '_is_template': False}
+            })
             if not element:
-                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+                element = f(search={
+                    'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                })
 
         return {
             'plugin': self,
@@ -548,34 +555,51 @@ class Plugin(object):
     def update_form(self, element_id):
         """
             Update an element
+
+            If element_id is string 'None' then it is a new object creation, else element_id is the
+            _id (or name) of an object to update.
         """
         datamgr = request.environ['beaker.session']['datamanager']
+
+        create = (element_id == 'None')
 
         # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
         if not f:
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        # Get element from the data manager
-        element = f(element_id)
-        if not element:
-            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+        # For an object update...
+        if not create:
+            # Get element from the data manager
+            element = f(element_id)
             if not element:
-                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+                element = f(search={
+                    'max_results': 1, 'where': {'name': element_id, '_is_template': False}
+                })
+                if not element:
+                    element = f(search={
+                        'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                    })
+                    if not element:
+                        self.send_user_message(
+                            _("%s '%s' not found") % (self.backend_endpoint, element_id)
+                        )
 
         # Prepare update request ...
         data = {}
         for field in request.forms:
             update = False
             value = request.forms.get(field)
-            logger.debug("- field: %s (%s) = %s", field, self.table[field].get('type'), request.forms.get(field))
-            if self.table[field].get('type') == 'boolean':
+            field_type = self.table[field].get('type')
+            logger.debug("- posted field: %s (%s) = %s", field, field_type, request.forms.get(field))
+
+            if field_type == 'boolean':
                 value = (request.forms.get(field) == 'true')
-            if self.table[field].get('type') == 'integer':
+            if field_type == 'integer':
                 value = int(request.forms.get(field))
-            if self.table[field].get('type') == 'float':
+            if field_type == 'float':
                 value = float(request.forms.get(field))
-            if self.table[field].get('type') == 'point':
+            if field_type == 'point':
                 value = request.forms.getall(field)
                 dict_values = {}
                 for item in value:
@@ -588,14 +612,14 @@ class Plugin(object):
                         float(dict_values['longitude'])
                     ]
                 }
-            if self.table[field].get('type') == 'dict':
+            if field_type == 'dict':
                 value = request.forms.getall(field)
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
                     dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
                 value = dict_values
-            if self.table[field].get('type') == 'list':
+            if field_type == 'list':
                 value = request.forms.getall(field)
                 if self.table[field].get('content_type') == 'dict':
                     dict_values = {}
@@ -603,7 +627,8 @@ class Plugin(object):
                         splitted = item.split('|')
                         dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
                     value = [dict_values]
-            if element[field] != value:
+
+            if not create and element[field] != value:
                 update = True
                 if isinstance(element[field], list) and element[field]:
                     if isinstance(element[field][0], BackendElement):
@@ -613,26 +638,60 @@ class Plugin(object):
                     if element[field].id == value:
                         update = False
             if update:
-                logger.warning("- field: %s = %s, whereas: %s", field, value, element[field])
+                logger.warning("- updated field: %s = %s, whereas: %s", field, value, element[field])
+                logger.warning("- updated field: %s = %s, whereas: %s", field, type(value), type(element[field]))
+                data.update({field: value})
+            if create:
+                logger.warning("- field: %s = %s", field, value)
                 data.update({field: value})
 
-        if data:
-            result = datamgr.update_object(element=element, data=data)
-            if result is True:
-                data.update(
-                    {'_message': _("%s '%s' updated") % (self.backend_endpoint, element.name)}
-                )
+        # For an object update...
+        if not create:
+            if data:
+                logger.warning("Updated element with: %s", data)
+                result = datamgr.update_object(element=element, data=data)
+                if result is True:
+                    data.update(
+                        {'_message': _("%s '%s' updated") % (self.backend_endpoint, element.name)}
+                    )
+                else:
+                    data.update(
+                        {'_message': _("%s '%s' update failed!") % (
+                            self.backend_endpoint, element.name)
+                        }
+                    )
+                    data.update(
+                        {'_errors': result}
+                    )
             else:
                 data.update(
-                    {'_message': _("%s '%s' update failed!") % (self.backend_endpoint, element.name)}
-                )
-                data.update(
-                    {'_errors': result}
+                    {'_message': _('No fields modified')}
                 )
         else:
-            data.update(
-                {'_message': _('No fields modified')}
-            )
+            # Create a new object
+            if data:
+                result = datamgr.add_object(self.backend_endpoint, data=data)
+                if isinstance(result, basestring):
+                    data.update(
+                        {'_message': _("New %s created") % (self.backend_endpoint)}
+                    )
+                    data.update(
+                        {'_id': result}
+                    )
+                else:
+                    data.update(
+                        {'_message': _("%s creation failed!") % (
+                            self.backend_endpoint)
+                        }
+                    )
+                    data.update(
+                        {'_errors': result}
+                    )
+            else:
+                self.send_user_message(
+                    _("No data to create a new %s element") % self.backend_endpoint
+                )
+
         return self.webui.response_data(data)
 
     def get_table(self, embedded=False, identifier=None, credentials=None):

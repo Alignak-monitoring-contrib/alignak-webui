@@ -720,13 +720,12 @@ def get_user_preference():
     return json.dumps(datamgr.get_user_preferences(username, key, default))
 
 
-@route('/preference/user', 'DELETE')
+@route('/preference/user/delete', 'GET')
 def delete_user_preference():
     """
         Request parameters:
 
         - key, string identifying the parameter
-        - default, default value if parameter does not exist
     """
     datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
@@ -740,7 +739,9 @@ def delete_user_preference():
     if not key:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    return datamgr.delete_user_preferences(username, key)
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(datamgr.delete_user_preferences(username, key))
 
 
 @route('/preference/common', 'GET')

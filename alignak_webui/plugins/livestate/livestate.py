@@ -202,7 +202,11 @@ class PluginLivestate(Plugin):
 
         livestate = datamgr.get_livestates({'where': {'_id': element_id}})
         if not livestate:
-            return self.webui.response_invalid_parameters(_('Livestate element does not exist'))
+            livestate = datamgr.get_livestates({'where': {'name': element_id}})
+            if not livestate:
+                return self.webui.response_invalid_parameters(
+                    _('Livestate element does not exist')
+                )
 
         livestate = livestate[0]
         if livestate.type == 'host':

@@ -44,6 +44,8 @@
                <th style="width: 40px"></th>
                <th>{{_('Name')}}</th>
                <th>{{_('Alias')}}</th>
+               <th>{{_('Default')}}</th>
+               <th>{{_('Level')}}</th>
             </tr></thead>
 
             <tbody>
@@ -59,6 +61,14 @@
 
                   <td>
                      <small>{{realm.alias}}</small>
+                  </td>
+
+                  <td>
+                     <small>{{ ! Helper.get_on_off(realm.default) }}</small>
+                  </td>
+
+                  <td>
+                     <small>{{realm.level}}</small>
                   </td>
                </tr>
                %end

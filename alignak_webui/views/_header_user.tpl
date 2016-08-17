@@ -1,5 +1,5 @@
 %setdefault('debug', False)
-%setdefault('edition_mode', False)
+%setdefault('edition_mode', True)
 
 %if debug:
 <li class="dropdown">

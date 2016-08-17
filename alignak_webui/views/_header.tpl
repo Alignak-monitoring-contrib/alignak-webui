@@ -27,10 +27,11 @@
          setInterval("header_refresh();", header_refresh_period*1000);
       } else {
          console.log('Automatic header refresh disabled.');
+         $('#overall-hosts-states').addClass('disabled text-muted');
+         $('#overall-services-states').addClass('disabled text-muted');
       }
    });
 </script>
-
 
 <!-- Page header -->
 <header>
@@ -47,7 +48,7 @@
          </a>
 
          <ul class="nav navbar-nav navbar-left">
-            <li id="overall-hosts-states" class="pull-left">
+            <li id="overall-hosts-states" class="disabled text-muted pull-left">
                %include("_header_hosts_state.tpl")
             </li>
 

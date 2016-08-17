@@ -79,8 +79,9 @@
                   <div id="{{tree_type}}_tree"></div>
                </div>
                <div id="members_list" class="col-sm-6 col-xs-12">
-                  <div class="alert alert-info">
-                     {{_('Select an item in the left tree to display some elements.')}}
+                  <div class="alert alert-dismissible alert-info">
+                     <button type="button" class="close" data-dismiss="alert">×</button>
+                     <h4>{{_('Select an item in the left tree to display more elements.')}}</h4>
                   </div>
                </div>
             </div>
@@ -90,7 +91,7 @@
 </div>
 
 <script>
-   var debugTree = true;
+   var debugTree = {{'true' if debug else 'false'}};
 
    // Navigate to the table view
    $('[data-action="navigate-table"][data-element="{{tree_type}}"]').on("click", function () {
@@ -104,10 +105,10 @@
    var jsTreeData = [];
    %for item in elts:
       %parent='#'
-      %if 'parent' in item.__dict__:
-      %  parent=item.parent.id
+      %if item['parent'] and not isinstance(item['parent'], basestring):
+      %  parent=item['parent'].id
       %end
-      %level=item.__dict__.get('level', 0)
+      %level=item['level']
       jsTreeData.push( {
          "id": '{{item.id}}',
          "parent" : '{{'#' if parent=='#' else item.parent.id}}',
@@ -133,7 +134,7 @@
          a_attr: {
          }
       });
-      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{level}}', '{{parent}}');
+      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item['level']}}', '{{parent}}');
    %end
 
    $(document).ready(function(){

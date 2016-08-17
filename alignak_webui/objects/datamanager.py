@@ -113,6 +113,8 @@ class DataManager(object):
 
         self.updated = datetime.utcnow()
 
+        self.default_realm = None
+
     def __repr__(self):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
             self.id,
@@ -288,7 +290,7 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get all realms
         # -----------------------------------------------------------------------------------------
-        # self.get_realms()
+        self.default_realm = self.get_realms({'max_results': 1, 'where': {'default': True}})
 
         # -----------------------------------------------------------------------------------------
         # Get all users
@@ -438,11 +440,7 @@ class DataManager(object):
         """ Add an element """
         logger.info("add_object, request to add a %s: data: %s", object_type, data)
 
-        object_id = self.backend.post(object_type, data=data, files=files)
-        if object_id:
-            items = self.find_object(object_type, object_id)
-            return items[0]['_id']
-        return None
+        return self.backend.post(object_type, data=data, files=files)
 
     def delete_object(self, object_type, element):
         """
@@ -494,6 +492,7 @@ class DataManager(object):
         :return: server's response
         :rtype: dict
         """
+        logger.debug("delete_user_preferences, type: %s, for: %s", prefs_type, user)
 
         # Delete user stored value
         if self.logged_in_user.name == user:
@@ -594,6 +593,19 @@ class DataManager(object):
             return items
         except ValueError:
             logger.debug("get_livestates, none found")
+
+    def get_livestate(self, search):
+        """ Get a host/service by its livestate id (default). """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_livestates(search=search)
+        if items:
+            logger.warning("get_livestate, found: %s", items[0].__dict__)
+        return items[0] if items else None
 
     def get_livestate_hosts(self, search=None):
         """ Get livestate for hosts
@@ -957,6 +969,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    '_templates': 1,
                     'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
                     'snapshot_period': 1, 'maintenance_period': 1,
@@ -1154,6 +1167,7 @@ class DataManager(object):
         try:
             logger.warning("get_commands, search: %s", search)
             items = self.find_object('command', search, all_elements)
+            logger.warning("get_commands, got: %d", len(items))
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_commands, none found")

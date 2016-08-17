@@ -53,7 +53,9 @@ class Host(BackendElement):
         """
         Create a host (called only once when an object is newly created)
         """
+        self._linked_templates = 'host'
         self._linked_check_command = 'command'
+        self._linked_snapshot_command = 'command'
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
@@ -109,9 +111,19 @@ class Host(BackendElement):
             self.perfdatas = []
 
     @property
+    def templates(self):
+        """ Return linked object """
+        return self._linked_templates
+
+    @property
     def check_command(self):
         """ Return linked object """
         return self._linked_check_command
+
+    @property
+    def snapshot_command(self):
+        """ Return linked object """
+        return self._linked_snapshot_command
 
     @property
     def event_handler(self):

@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', True)
+%setdefault('debugLogs', False)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -529,7 +529,7 @@
                "dataType": "json",
                "type": "GET",
                "data": {
-                  "key": '{{object_type}}s_table'
+                  "key": 'table_{{object_type}}s'
                },
                "async": false,
                "success": function (json) {
@@ -551,7 +551,7 @@
                "dataType": "json",
                "type": "POST",
                "data": {
-                  "key": '{{object_type}}s_table',
+                  "key": 'table_{{object_type}}s',
                   // Json stringify to avoid complex array formatting ...
                   "value": JSON.stringify( data )
                },
