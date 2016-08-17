@@ -48,7 +48,7 @@ class Service(BackendElement):
         """
         Create a service (called only once when an object is newly created)
         """
-        self._linked_templates = 'service'
+        self._linked__templates = 'service'
         self._linked_host = 'host'
         self._linked_check_command = 'command'
         self._linked_snapshot_command = 'command'
@@ -63,9 +63,9 @@ class Service(BackendElement):
         super(Service, self)._create(params, date_format)
 
     @property
-    def templates(self):
+    def _templates(self):
         """ Return linked object """
-        return self._linked_templates
+        return self._linked__templates
 
     @property
     def check_command(self):

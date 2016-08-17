@@ -544,8 +544,13 @@ class Plugin(object):
             })
             if not element:
                 element = f(search={
-                    'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                    'max_results': 1, 'where': {'_id': element_id, '_is_template': True}
                 })
+                if not element:
+                    element = f(search={
+                        'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                    })
+                    # If not found, element will remain as None to create a new element
 
         return {
             'plugin': self,
@@ -578,12 +583,16 @@ class Plugin(object):
                 })
                 if not element:
                     element = f(search={
-                        'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                        'max_results': 1, 'where': {'_id': element_id, '_is_template': True}
                     })
                     if not element:
-                        self.send_user_message(
-                            _("%s '%s' not found") % (self.backend_endpoint, element_id)
-                        )
+                        element = f(search={
+                            'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                        })
+                        if not element:
+                            self.send_user_message(
+                                _("%s '%s' not found") % (self.backend_endpoint, element_id)
+                            )
 
         # Prepare update request ...
         data = {}
@@ -593,6 +602,9 @@ class Plugin(object):
             field_type = self.table[field].get('type')
             logger.debug("- posted field: %s (%s) = %s", field, field_type, request.forms.get(field))
 
+            if field_type == 'objectid':
+                if not value:
+                    value = None
             if field_type == 'boolean':
                 value = (request.forms.get(field) == 'true')
             if field_type == 'integer':
@@ -632,7 +644,10 @@ class Plugin(object):
                 update = True
                 if isinstance(element[field], list) and element[field]:
                     if isinstance(element[field][0], BackendElement):
-                        if element[field][0].id == value:
+                        id_values = []
+                        for item in element[field]:
+                            id_values.append(item.id)
+                        if id_values == value:
                             update = False
                 if isinstance(element[field], BackendElement):
                     if element[field].id == value:

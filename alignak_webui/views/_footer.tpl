@@ -2,7 +2,7 @@
 %from alignak_webui import manifest
 
 <!-- Page footer -->
-<footer class="navbar-default navbar-fixed-bottom">
+<footer class="page-footer navbar-default navbar-fixed-bottom">
    <div class="container-fluid">
       <!-- Page footer -->
       <img src="/static/images/{{request.app.config.get('webui_logo', 'logo_webui_xxs.png')}}" alt="{{_('WebUI Logo')}}" style="height: 18px">

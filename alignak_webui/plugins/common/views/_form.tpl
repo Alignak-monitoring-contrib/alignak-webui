@@ -3,10 +3,12 @@
 %# Default values
 %setdefault('debug', False)
 %setdefault('edition', edition_mode)
-%setdefault('is_templated', False)
+%setdefault('is_templated', '_is_template' in plugin.table)
 %setdefault('is_template', False)
+%setdefault('has_template', False)
 
 %if element:
+%# An element still exists...
 %setdefault('title', _('%s %s') % (plugin.backend_endpoint.capitalize(), element.name))
 %rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
 
@@ -14,14 +16,16 @@
 %is_template = True
 %end
 
-%else:
-%setdefault('title', _('New %s') % (plugin.backend_endpoint))
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
-
-%if '_is_template' in plugin.table:
-%is_templated = True
+%if '_is_template' in element.__dict__ and not element['_is_template']:
+%if '_template_fields' in element.__dict__ and element['_template_fields']:
+%has_template = True
+%end
 %end
 
+%else:
+%# No element exist...
+%setdefault('title', _('New %s') % (plugin.backend_endpoint))
+%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
 %end
 
 %if debug and element:
@@ -65,18 +69,29 @@
 
          <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
       %elif element:
+         %if has_template:
+         <div class="alert alert-dismissible alert-info">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>{{_('You are modifying a %s based upon one or more template(s).') % plugin.backend_endpoint}}</h4>
+         </div>
+         %end
+
          <legend>{{! _('%s <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
       %else:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
             <h4>{{_('You are creating a new %s.') % plugin.backend_endpoint}}</h4>
+
             %if is_templated:
             <hr/>
             <p>
                {{_('The %s elements are based upon templates.') % plugin.backend_endpoint}}
             </p>
             <p>
-               {{_('You must define a name for your new %s and choose a template.') % plugin.backend_endpoint}}
+               {{_('You must define a name for your new %s.') % plugin.backend_endpoint}}
+            </p>
+            <p>
+               {{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}
             </p>
             %end
          </div>
@@ -84,9 +99,9 @@
          <legend>{{! _('New %s') % (plugin.backend_endpoint)}}</legend>
       %end
 
-      %if is_templated:
+      %if not element and is_templated:
          %field = 'name'
-         %model = plugin.table['name']
+         %model = plugin.table[field]
 
          %label = model.get('title', '')
          %field_type = model.get('type', 'string')
@@ -98,11 +113,12 @@
          %  allowed = []
          %end
          %format = model.get('format')
-         %format_parameters = model.get('format_parameters')
          %unique = model.get('unique')
          %required = model.get('required')
          %editable = model.get('editable', True)
 
+         <div class="well page">
+         <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
          <div class="form-group">
             <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
             <div class="col-md-10">
@@ -126,7 +142,49 @@
                %end
             </div>
          </div>
+         </div>
+         %field = '_is_template'
+         %model = plugin.table[field]
 
+         %label = model.get('title', '')
+         %field_type = model.get('type', 'string')
+         %content_type = model.get('content_type', field_type)
+         %placeholder = model.get('placeholder', label)
+         %hint = model.get('hint', label)
+         %allowed = model.get('allowed', '').split(',')
+         %if allowed[0] == '':
+         %  allowed = []
+         %end
+         %format = model.get('format')
+         %unique = model.get('unique')
+         %required = model.get('required')
+         %editable = model.get('editable', True)
+
+         <div class="well page">
+         <h4>{{_('%s is a template:') % plugin.backend_endpoint.capitalize()}}</h4>
+         <div class="form-group">
+            <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
+            <div class="col-md-offset-2 col-md-10">
+               <div class="input-group">
+                  <div class="togglebutton">
+                     <label>
+                        <input id="{{field}}" name="{{field}}" type="checkbox"
+                           {{'disabled="disabled"' if not edition or not editable else ''}}
+                           >
+                     </label>
+                  </div>
+               </div>
+               %if hint:
+               <p class="help-block">
+                  {{hint}}
+               </p>
+               %end
+            </div>
+         </div>
+         </div>
+      %end
+
+      %if has_template or is_templated:
          %field = '_templates'
          %model = plugin.table['_templates']
 
@@ -140,14 +198,18 @@
          %  allowed = []
          %end
          %format = model.get('format')
-         %format_parameters = model.get('format_parameters')
          %unique = model.get('unique')
          %required = model.get('required')
          %editable = model.get('editable', True)
 
          %list_values = []
+         %if element:
+         %for v in element['_templates']:
+         %  list_values.append((v.id, v.name))
+         %end
+         %end
          %is_list = True
-         %selectize = True
+         %selectize=True
 
          %linked_object_type = model.get('resource', '')
          %icon=''
@@ -156,15 +218,20 @@
          %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
          %  icon=icon['icon'] if icon else ''
          %end
+         <div class="well page">
+         <h4>{{_('Inherited templates:')}}</h4>
          <div class="form-group">
             <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
             <div class="col-md-10">
                <div class="input-group">
-                  <span class="input-group-addon"><i class="fa fa-list"></i></span>
+                  <span class="input-group-addon text-info">
+                     <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                  </span>
                   <select id="{{field}}" name="{{field}}"
                          class="form-control"
                          {{'readonly="readonly"' if not edition or not editable else ''}}>
                   </select>
+                  <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
                </div>
                %if hint:
                <p class="help-block">
@@ -267,7 +334,15 @@
             %end
          </script>
          %end
-      %else:
+         </div>
+      %end
+
+      %if element:
+         %if debug and has_template:
+         <div>
+         <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
+         </div>
+         %end
          %for field, model in plugin.table.iteritems():
             %selectize = False
             %if not model.get('visible', True) or field[0] in ['#', '_']:
@@ -298,7 +373,6 @@
             %  allowed = []
             %end
             %format = model.get('format')
-            %format_parameters = model.get('format_parameters')
             %unique = model.get('unique')
             %required = model.get('required')
             %editable = model.get('editable', True)
@@ -388,13 +462,20 @@
                <div class="form-group">
                   <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
                   <div class="col-md-offset-2 col-md-10">
-                     <div class="checkbox">
-                        <label>
-                           <input id="{{field}}" name="{{field}}" type="checkbox"
-                              {{'disabled="disabled"' if not edition or not editable else ''}}
-                              {{'checked="checked"' if field_value else ''}}
-                              >
-                        </label>
+                     <div class="input-group">
+                        <span class="input-group-addon text-info">
+                           %if has_template and field in element['_template_fields']:
+                           <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                           %end
+                        </span>
+                        <div class="checkbox">
+                           <label>
+                              <input id="{{field}}" name="{{field}}" type="checkbox"
+                                 {{'disabled="disabled"' if not edition or not editable else ''}}
+                                 {{'checked="checked"' if field_value else ''}}
+                                 >
+                           </label>
+                        </div>
                      </div>
                      %if hint:
                      <p class="help-block">
@@ -422,32 +503,39 @@
             <div class="form-group">
                <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
                <div class="col-md-10">
-                  %if is_list:
                   <div class="input-group">
-                     <span class="input-group-addon"><i class="fa fa-list"></i></span>
+                     <span class="input-group-addon text-info">
+                        %if has_template and field in element['_template_fields']:
+                        <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                        %end
+                     </span>
+                     %if is_list:
                      <select id="{{field}}" name="{{field}}"
                             class="form-control"
                             {{'readonly="readonly"' if not edition or not editable else ''}}>
                      </select>
+                     %elif format == 'textarea':
+                     <textarea id="{{field}}" name="{{field}}"
+                        class="form-control"
+                        rows="3"
+                        placeholder="{{placeholder}}"
+                        {{'readonly="readonly"' if not edition or not editable else ''}}
+                        >{{field_value}}</textarea>
+                     %else:
+                     <input id="{{field}}" name="{{field}}"
+                        class="form-control"
+                        type="{{'number' if field_type=='integer' else 'text'}}"
+                        placeholder="{{placeholder}}"
+                        value="{{field_value}}"
+                        {{'readonly="readonly"' if not edition or not editable else ''}}
+                        >
+                     %end
+                     <span class="input-group-addon text-info">
+                        %if is_list:
+                        <i class="fa fa-fw fa-list" title="{{_('The value of this field is a list of items')}}"></i>
+                        %end
+                     </span>
                   </div>
-                  %else:
-                  %if format == 'textarea':
-                  <textarea id="{{field}}" name="{{field}}"
-                     class="form-control"
-                     rows="3"
-                     placeholder="{{placeholder}}"
-                     {{'readonly="readonly"' if not edition or not editable else ''}}
-                     >{{field_value}}</textarea>
-                  %else:
-                  <input id="{{field}}" name="{{field}}"
-                     class="form-control"
-                     type="{{'number' if field_type=='integer' else 'text'}}"
-                     placeholder="{{placeholder}}"
-                     value="{{field_value}}"
-                     {{'readonly="readonly"' if not edition or not editable else ''}}
-                     >
-                  %end
-                  %end
                   %if hint:
                   <p class="help-block">
                      {{hint}}
@@ -569,6 +657,7 @@
    $('form[data-element="{{element.id if element else 'None'}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
       evt.preventDefault();
+      console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
 
       $.ajax({
          url: $(this).attr('action'),

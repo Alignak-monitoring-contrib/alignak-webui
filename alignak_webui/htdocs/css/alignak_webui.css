@@ -295,17 +295,17 @@ padding: 0;
 /*
  * Footer navigation bar
  */
-footer {
+footer.page-footer {
     position: fixed;
     height: 25px;
     bottom: 0;
     width: 100%;
     background-color: rgba(255,255,255,0.7);
 }
-footer img {
+footer.page-footer img {
     height: 16px;
 }
-footer span {
+footer.page-footer span {
     font-size: 0.8em;
 }
 
