@@ -158,7 +158,7 @@ class Datatable(object):
                 self.recursive = model.get('recursive', False)
                 self.css = model.get('css', "display")
 
-                self.initial_sort = model.get('initial_sort', [[2, 'asc']])
+                self.initial_sort = model.get('initial_sort', [[1, 'asc']])
                 continue
 
             # If element is considered for the UI
@@ -185,7 +185,7 @@ class Datatable(object):
                 'hint': model.get('hint', ''),
                 'format': model.get('format', ''),
                 'format_parameters': model.get('format_parameters', ''),
-                'visible': model.get('visible', True),
+                'visible': model.get('visible', not model.get('hidden', False)),
                 'hidden': model.get('hidden', False),
                 'orderable': model.get('orderable', True),
                 'editable': model.get('editable', True),

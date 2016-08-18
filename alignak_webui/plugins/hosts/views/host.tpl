@@ -208,6 +208,26 @@
          %end
       </div>
       %end
+      %if templates:
+      <div class="btn-group pull-right">
+         %if len(templates) > 2:
+            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+               <i class="fa fa-tag"></i>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right">
+               %for tag in sorted(templates):
+               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
+               %end
+            </ul>
+         %else:
+            %for tag in sorted(templates):
+               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
+                  <span class="fa fa-tag"></span> {{tag}}
+               </a>
+            %end
+         %end
+      </div>
+      %end
    </div>
    %end
 

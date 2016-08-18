@@ -477,26 +477,30 @@ class DataManager(object):
     ##
     # User's preferences
     ##
-    def delete_user_preferences(self, user, prefs_type):
+    def delete_user_preferences(self, user, preference_key):
         """
         Delete user's preferences
 
-        If the data are not found, returns None else return the backend response.
-
-        An exception is raised if an error occurs, else returns the backend response
+        *****
+        Currently this sets the value None in the preferences dictionary instead of removing
+        the attribute, because thebackend does not allow to $unset in a dictionary!
+        *****
 
         :param user: username
         :type user: string
-        :param prefs_type: preference type
-        :type prefs_type: string
+        :param preference_key: preference unique key
+        :type preference_key: string
         :return: server's response
         :rtype: dict
         """
-        logger.debug("delete_user_preferences, type: %s, for: %s", prefs_type, user)
+        logger.debug("delete_user_preferences, type: %s, for: %s", preference_key, user)
 
         # Delete user stored value
         if self.logged_in_user.name == user:
-            if self.logged_in_user.delete_ui_preference(prefs_type):
+            if self.logged_in_user.delete_ui_preference(preference_key):
+                # Should no exist!
+                self.logged_in_user.set_ui_preference(preference_key, None)
+                # {$unset: {preference_key:1}}
                 return self.update_object(
                     self.logged_in_user,
                     {'ui_preferences': self.logged_in_user.ui_preferences}
@@ -504,7 +508,7 @@ class DataManager(object):
 
         return False
 
-    def set_user_preferences(self, user, prefs_type, value):
+    def set_user_preferences(self, user, preference_key, value):
         """
         Set user's preferences
 
@@ -517,18 +521,18 @@ class DataManager(object):
 
         :param user: username
         :type user: string
-        :param prefs_type: preference type
-        :type prefs_type: string
+        :param preference_key: preference unique key
+        :type preference_key: string
         :param value: value of the parameter to store
         :type value: dict
         :return: True / False
         :rtype: boolean
         """
-        logger.debug("set_user_preferences, type: %s, for: %s", prefs_type, user)
+        logger.debug("set_user_preferences, type: %s, for: %s", preference_key, user)
 
         # Get user stored value
         if self.logged_in_user.name == user:
-            if self.logged_in_user.set_ui_preference(prefs_type, value):
+            if self.logged_in_user.set_ui_preference(preference_key, value):
                 return self.update_object(
                     self.logged_in_user,
                     {'ui_preferences': self.logged_in_user.ui_preferences}
@@ -536,7 +540,7 @@ class DataManager(object):
 
         return False
 
-    def get_user_preferences(self, user, prefs_type, default=None):
+    def get_user_preferences(self, user, preference_key, default=None):
         """
         Get user's preferences
 
@@ -544,7 +548,7 @@ class DataManager(object):
         a default value is provided then this function returns the defaut value after having stored
         it in the user's preferendes.
 
-        If prefs_type is None then this function returns all the user stored preferences.
+        If preference_key is None then this function returns all the user stored preferences.
         If user is None then all the preferences are returned.
 
         **Note**: When a simple value is stored with set_user_preferences, it is never returned as
@@ -553,16 +557,16 @@ class DataManager(object):
         :param default:
         :param user: username
         :type user: string
-        :param prefs_type: preference type
-        :type prefs_type: string
+        :param preference_key: preference unique key
+        :type preference_key: string
         :return: found data, or None
         :rtype: dict
         """
-        logger.debug("get_user_preferences, type: %s, for: %s", prefs_type, user)
+        logger.debug("get_user_preferences, type: %s, for: %s", preference_key, user)
 
         # Get user stored value
         if self.logged_in_user.name == user:
-            result = self.logged_in_user.get_ui_preference(prefs_type)
+            result = self.logged_in_user.get_ui_preference(preference_key)
             return result if result else default
 
         return None

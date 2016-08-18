@@ -6,6 +6,8 @@
 
 %ss = datamgr.get_livesynthesis()['services_synthesis']
 %if ss:
+
+%if request.app.config.get('header_refresh_period', '30') != '0':
 %# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
 %services_states_queue = datamgr.get_user_preferences(current_user.name, 'services_states_queue', [])
 %#services_states_queue = services_states_queue['value'] if services_states_queue else []
@@ -14,6 +16,7 @@
 %services_states_queue.pop(0)
 %end
 %datamgr.set_user_preferences(current_user.name, 'services_states_queue', services_states_queue)
+%end
 
 <!-- Declared here to make sure they are applied -->
 <style>
@@ -27,7 +30,7 @@
    color: #FFF;
 }
 </style>
-<div id="services-states-popover-content" class="hidden" style="color:white !important">
+<div id="services-states-popover-content" class="hidden">
    <table class="table table-invisible">
       <tbody>
          <tr>
@@ -53,11 +56,10 @@
 <a id="services-states-popover"
    href="#"
    title="{{_('Overall services states: %d services (%d problems)') % (ss['nb_elts'], ss['nb_problems'])}}"
-   data-container="body"
    data-count="{{ ss['nb_elts'] }}"
    data-problems="{{ ss['nb_problems'] }}"
    data-original-title="{{_('Services states')}}"
-   data-toggle="popover popover-services"
+   data-toggle="popover"
    data-html="true"
    data-trigger="hover focus">
    <span class="fa fa-{{icon}}"></span>

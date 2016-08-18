@@ -345,7 +345,7 @@
          %end
          %for field, model in plugin.table.iteritems():
             %selectize = False
-            %if not model.get('visible', True) or field[0] in ['#', '_']:
+            %if model.get('hidden', False) or field[0] in ['#', '_']:
                %if debug:
                %if element:
                <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field, value: {{element[field]}}<br>

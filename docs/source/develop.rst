@@ -41,18 +41,20 @@ Datatables
 Table configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-A backend object used in a plugin can be displayed as a table. For this, the plugin must declare:
+Backend elements can be displayed as a table. For this, the plugin must declare:
 
     - a table build URL (eg. `/elements/table`)
     - a table update URL (eg. `/elements/table_data`)
-    - a table schema as a global OrderedDict variable named *schema*
+    - a table schema in its configuration file
 
 **Note**: the table URLs are formed with element endpoint (eg. host), a plural form (add an s) and `/table` for the build URL or `/table_data` for the update URL.
 
-The *schema* defines the global table configuration and the table columns configuration. The schema is declared in the plugin configuration file.
-Each column is declared as a section of the configuration file.  The declaration order will be used for the column order in the table.
+The plugin class makes this configuration easy and it is enough to define the table configuration.
 
-The name of each column item much match exactly the name of the backend element field. The same constraint applies  for the column type.
+The *schema* defines the global table configuration and the table columns configuration. The schema is declared in the plugin configuration file.
+Each column is declared as a section of the configuration file.  The declaration order in the configuration file will be used for the column ordering in the table.
+
+The name of each column item much match exactly the name of the backend element field.
 
 The main `table` section in the *schema* is used to configure the global table behaviour. This field allows to define the table title and the table main characteristics (ordering, sorting, ...). See the comments in the example below.
 
@@ -61,7 +63,6 @@ As an example::
         [table]
         ; Table global configuration
         page_title=Hosts table (%%d items)
-        id_property=_id
         visible=True
         orderable=True
         editable=True
@@ -71,9 +72,6 @@ As an example::
 
         [table.name]
         type=string
-        required=True
-        empty=False
-        unique=True
         title=Host name
         visible=True
         hidden=False
@@ -81,28 +79,41 @@ As an example::
         regex=True
         orderable=True
         hint=This field is the host name
-        editable=False
+        editable=True
+        required=True
+        empty=False
+        unique=True
+
+        [table._realm]
+        title=Realm
+        type=objectid
+        searchable=True
+        allowed=inner://realms/list
+        resource=realm
+        visible=False
 
 
 Table parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Each plugin table may be:
+Each table may be:
 
     - visible, (default: True)
     - printable, (default: True)
     - orderable, (default: True)
     - selectable, (default: True)
     - searchable, (default: True)
-    - editable, (default: False)
+    - editable, (default: True)
     - responsive, (default: True)
-    - recursive, (default: True)
+    - recursive, (default: False)
     - commands, (default: False) - only applies to the livestate table
     - css, (default: display)
 
-Initial (default) table sort is defined as:
+Initial (default) table sort is defined as (CURRENTLY NOT IMPLEMENTED !):
 
-    - initial_sort which is an array of array: [[9, "desc"]]
+    - initial_sort which is an array of array: [[1, "desc"]]
+
+All the tables are sorted by default on the first defined column by ascending value.
 
 Table css classes are defined here: https://datatables.net/manual/styling/classes
 
@@ -110,33 +121,20 @@ Table css classes are defined here: https://datatables.net/manual/styling/classe
 Table display
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a status_property is defined for the table (default is to use the `status` field in the elemnts), then each table row has an extra CSS class named as: table-row-status_property.
+If a status_property is defined for the table (default is to use the `status` field in the elements), then each table row has an extra CSS class named as: table-row-status_property.
 
 As an example, for the livestate table, an element with status UP will have a CSS class **table-row-up**.
 
 The corresponding classes can be defined in the *alignak_webui-items.css* file. Some example classes still exist in this file for the livestate states (eg. UP, OK, ...).
 
-
-Table edition
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Table edition is available on a column basis; each column can have its own edition parameter.
-
-The table must be **editable**.::
-
-
-        # This to define the global information for the table
-        schema['ui'] = {
-
-            'ui': {
-                'page_title': _('Livestate table (%d items)'),
-                ...
-                # Table is editable
-                'editable': True,
-                ...
+I a table column has a `visible` attribute defined as False, this column will not be displayed in the table.
+To hide a column and allow the user to show this column thanks to the table column selector, you can use the `hidden` attribute and set it to True.
 
 
 Field attributes:
+
+    - `visible` (True): to include a column with this field
+    - `hidden` (False): to hide the column in the table display
 
     - `type`: is the field type (see the known types list hereunder)
     - `content_type`: is the list items content type (eg. same as type) if the field is a *list*
@@ -146,30 +144,37 @@ Field attributes:
 
 Field types:
 
-    - `objectid`
-    - `string`
+    - `string` (default)
     - `integer`
+    - `float`
     - `boolean`
+    - `objectid`
+    - `list`
+    - `dict`
+    - `point`
 
-Field content types:
+Field content types (for a list of items):
 
-    - objectid
-    - string
-    - integer
-    - boolean
+    - `string` (default)
+    - `integer`
+    - `float`
+    - `boolean`
+    - `objectid`
+    - `dict`
+    - `point`
 
 Available formats:
 
     - `date`:
     - `on_off`:
-    - `select` or `single_select`: only one value is allowed in the field
-    - `multiselect`:
+    - `single`: only one value is allowed in the list field
+    - `multiple`: several values are allowed in the list field
 
-When the field `type` is a list, the `content_type` field may specify which type is to be used for the list items (eg. string, integer, ...).
+When the field `type` is a list, the `content_type` field must specify which type is to be used for the list items (eg. string, integer, ...).
 If the `allowed` field contains a value, it may be:
 
     - inner://url
-    - an array of the allowed values
+    - a comma separated list of the allowed values
 
 
 Table filtering

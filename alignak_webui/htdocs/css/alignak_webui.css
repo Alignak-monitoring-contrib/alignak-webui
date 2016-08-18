@@ -92,10 +92,19 @@ header span.label {
     font-size: 0.7em;
 }
 
+
+/*
+ * Navigation bar
+ */
 #navbar-collapsible-part {
     margin-left: 15px;
     margin-right: 5px;
 }
+
+.navbar-right {
+    margin-right: 0 !important;
+}
+
 /*
  * Application menu bar - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.

@@ -24,8 +24,8 @@
 %end
 
 <!-- User info -->
-<li class="dropdown user user-menu hidden-xs">
-   <a href="#" class="dropdown-toggle" data-original-title="{{_('User menu')}}" data-toggle="dropdown">
+<li class="dropdown user user-menu" data-toggle="tooltip" data-placement="bottom" title="{{_('User')}}">
+   <a href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret"></span>
       <span class="fa fa-user"></span>
       %if request.app.config.get('target_user', 'no') == 'yes':
@@ -34,15 +34,16 @@
       %end
       %end
       <span class="username hidden-sm hidden-xs hidden-md">{{current_user.name}}</span>
+      <span class="sr-only">{{_('User menu')}}</span>
    </a>
 
-   <ul class="dropdown-menu">
+   <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('User menu')}}">
       %if request.app.config.get('target_user', 'no') == 'yes':
-      <li class="user-header">
+      <li class="user-header hidden-xs hidden-sm">
          %include("_select_target_user")
       </li>
       %end
-      <li class="user-header">
+      <li class="user-header hidden-xs hidden-sm">
          <div class="panel panel-default">
             <div class="panel-body">
                <!-- User image / name -->
@@ -59,7 +60,7 @@
                      title="{{_('Display application information')}}">
                      <span class="fa fa-question"></span>
                   </a>
-                  %if current_user.is_administrator():
+                  %if current_user.is_power():
                   %if edition_mode:
                   <a class="btn btn-default btn-raised" href="#"
                      data-action="edition-mode" data-state="on" data-toggle="tooltip" data-placement="top"
@@ -73,13 +74,13 @@
                      <span class="text-danger fa fa-edit"></span>
                   </a>
                   %end
+                  %end
 
                   <a class="btn btn-default btn-raised" href="/preferences/user"
                      data-action="user-preferences" data-toggle="tooltip" data-placement="top"
                      title="{{_('Show all the stored user preferences')}}">
                      <span class="fa fa-pencil"></span>
                   </a>
-                  %end
                   <a class="btn btn-default btn-raised" href="/logout"
                      data-action="logout" data-toggle="tooltip" data-placement="top"
                      title="{{_('Disconnect from the application')}}">
@@ -89,15 +90,42 @@
             </div>
          </div>
       </li>
+
+      <li>
+         <a href="/preferences/user" data-action="user-preferences" >
+            <span class="fa fa-pencil"></span>
+            <span>{{_('User preferences')}}</span>
+         </a>
+      </li>
+      %if current_user.is_power():
+      <li>
+         %if edition_mode:
+         <a href="#" data-action="edition-mode" data-state="on">
+            <span class="text-warning fa fa-edit"></span>
+            <span>{{_('Leave edition mode')}}</span>
+         </a>
+         %else:
+         <a href="#" data-action="edition-mode" data-state="off">
+            <span class="text-danger fa fa-edit"></span>
+            <span>{{_('Enter edition mode')}}</span>
+         </a>
+         %end
+      </li>
+      <li class="divider">
+      </li>
+      %end
+      <li>
+         <a href="#" data-action="about-box">
+            <span class="fa fa-question"></span>
+            <span>{{_('About...')}}</span>
+         </a>
+      </li>
+      <li>
+         <a data-action="logout" href="/logout">
+            <span class="fa fa-sign-out"></span>
+            <span>{{_('Disconnect')}}</span>
+         </a>
+      </li>
    </ul>
 </li>
 
-<!-- Logout icon on extra-small devices -->
-<li class="hidden-sm hidden-md hidden-lg">
-   <a data-action="logout"
-      data-toggle="tooltip" data-placement="bottom"
-      title="{{_('Disconnect from the application')}}"
-      href="/logout">
-      <i class="fa fa-sign-out"></i>
-   </a>
-</li>

@@ -259,8 +259,7 @@ class User(BackendElement):
 
         :param key: preference key
         :type key: string
-        :return: True / False
-        :rtype: boolean
+        :return: current value of the deleted key
         """
         if not key:
             return None
