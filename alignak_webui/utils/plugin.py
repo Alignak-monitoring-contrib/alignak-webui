@@ -540,17 +540,27 @@ class Plugin(object):
         element = f(element_id)
         if not element:
             element = f(search={
-                'max_results': 1, 'where': {'name': element_id, '_is_template': False}
+                'max_results': 1, 'where': {'name': element_id}
             })
             if not element:
                 element = f(search={
-                    'max_results': 1, 'where': {'_id': element_id, '_is_template': True}
+                    'max_results': 1, 'where': {'_id': element_id, '_is_template': False}
                 })
                 if not element:
                     element = f(search={
-                        'max_results': 1, 'where': {'name': element_id, '_is_template': True}
+                        'max_results': 1, 'where': {'name': element_id, '_is_template': False}
                     })
-                    # If not found, element will remain as None to create a new element
+                    if not element:
+                        element = f(search={
+                            'max_results': 1, 'where': {'_id': element_id, '_is_template': True}
+                        })
+                        if not element:
+                            element = f(search={
+                                'max_results': 1, 'where': {
+                                    'name': element_id, '_is_template': True
+                                }
+                            })
+                            # If not found, element will remain as None to create a new element
 
         return {
             'plugin': self,
@@ -579,7 +589,7 @@ class Plugin(object):
             element = f(element_id)
             if not element:
                 element = f(search={
-                    'max_results': 1, 'where': {'name': element_id, '_is_template': False}
+                    'max_results': 1, 'where': {'name': element_id}
                 })
                 if not element:
                     element = f(search={
@@ -685,6 +695,11 @@ class Plugin(object):
         else:
             # Create a new object
             if data:
+                if '_realm' in self.table and '_realm' not in data:
+                    data.update(
+                        {'_realm': datamgr.default_realm.id}
+                    )
+
                 result = datamgr.add_object(self.backend_endpoint, data=data)
                 if isinstance(result, basestring):
                     data.update(
@@ -766,6 +781,10 @@ class Plugin(object):
         """
         Get the elements list
 
+        If the templates parameter is not None, the search is performed with this parameter (True or
+        False). If a templates URL parameter (GET or POST) exists, the elements list is
+        completed with the templates list to get all the elements and templates.
+
         Returns a JSON list containing, for each item, its id, name and alias
         """
         datamgr = request.environ['beaker.session']['datamanager']
@@ -782,11 +801,23 @@ class Plugin(object):
         search = {
             'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})
         }
-        if templates is not None:
-            search['where'] = {'_is_template': templates}
-        elts = f(search, all_elements=True)
 
         items = []
+        if templates is not None:
+            search['where'] = {'_is_template': templates}
+        else:
+            templates = request.query.get('templates', '')
+            if templates:
+                search['where'] = {'_is_template': True}
+                elts = f(search, all_elements=True)
+                for elt in elts:
+                    items.append({'id': elt.id, 'name': elt.name, 'alias': elt.alias})
+                search = {
+                    'projection': json.dumps({"_id": 1, "name": 1, "alias": 1}),
+                    'where': {'_is_template': False}
+                }
+
+        elts = f(search, all_elements=True)
         for elt in elts:
             items.append({'id': elt.id, 'name': elt.name, 'alias': elt.alias})
 

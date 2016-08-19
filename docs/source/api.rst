@@ -28,13 +28,21 @@ Each plugin defines routes that are added to the application routes when the plu
 Most plugins are dedicated to a specific backend element (eg. host, service, ...). For those plugins, some rules are commonly used for the routes:
 
     - /elements, get the paginated elements list
-    - /elements_tree, get the element tree view (for some elements)
-    - /elements_table, get the element table view
-    - /elements_table_data, get the element table data (called by the datatable)
-    - /elements_list, get all the elements list as a json list of objects containing `id` and `name`
+    - /elements/tree, get the element tree view (for some elements)
+    - /elements/table, get the element table view
+    - /elements/table_data, get the element table data (called by the datatable)
+    - /elements/list, get all the elements list as a json list of objects containing `id`, `name` and `alias`
     - /element/id, get the view of a specific element. *id* may be the element `id` or `name`
 
 Where `element` stands for the specific element name: host, service, user, ...
+
+
+    get_list:
+
+    If the templates parameter is not None, the search is performed with this parameter (True or
+    False). If a templates URL parameter (GET or POST) exists, the elements list is
+    completed with the templates list to get all the elements and templates.
+
 
 External access
 ---------------

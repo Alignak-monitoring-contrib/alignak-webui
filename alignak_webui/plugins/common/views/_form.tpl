@@ -203,7 +203,7 @@
          %editable = model.get('editable', True)
 
          %list_values = []
-         %if element:
+         %if element and element['_templates']:
          %for v in element['_templates']:
          %  list_values.append((v.id, v.name))
          %end
@@ -337,21 +337,28 @@
          </div>
       %end
 
-      %if element:
-         %if debug and has_template:
+      %#if element:
+         %if debug and element and has_template:
          <div>
          <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
          </div>
          %end
+
          %for field, model in plugin.table.iteritems():
             %selectize = False
-            %if model.get('hidden', False) or field[0] in ['#', '_']:
+            %if not model.get('visible', True) or field[0] in ['#', '_']:
                %if debug:
                %if element:
                <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field, value: {{element[field]}}<br>
                %else:
                <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field<br>
                %end
+               %end
+               %continue
+            %end
+            %if not element and not model.get('create_template', False):
+               %if debug:
+               <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field<br>
                %end
                %continue
             %end
@@ -368,7 +375,11 @@
             %content_type = model.get('content_type', field_type)
             %placeholder = model.get('placeholder', label)
             %hint = model.get('hint', label)
+            %if is_template:
+            %allowed = model.get('allowed_template', model.get('allowed', '')).split(',')
+            %else:
             %allowed = model.get('allowed', '').split(',')
+            %end
             %if allowed[0] == '':
             %  allowed = []
             %end
@@ -561,6 +572,10 @@
                   searchField: 'name',
                   create: false,
 
+                  create: function(input) {
+                     console.log(input)
+                     return { 'id': input, 'name': input };
+                  },
                   render: {
                      option: function(item, escape) {
                         return '<div>' +
@@ -610,7 +625,7 @@
                      %     end
                      ],
                   %  end
-                  %else:
+                  %elif is_list:
                   %# No list of allowed values
                      options: [
                         { 'id': 'XxX', 'name': 'You should define an allowed value...' }
@@ -639,7 +654,7 @@
             %end
             %continue
          %end
-      %end
+      %#end
       </fieldset>
 
       %if edition:

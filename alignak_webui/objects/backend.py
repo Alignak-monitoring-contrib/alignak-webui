@@ -254,7 +254,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     error = e.response["_issues"]
                 else:
                     error.append(str(e))
-                logger.error("update, backend exception: %s", str(e))
+                logger.warning("post, error(s): %s", error)
+                logger.error("post, backend exception: %s", str(e))
                 return error
             except Exception as e:  # pragma: no cover, simple protection
                 logger.warning("post, error: %s", str(e))
@@ -325,7 +326,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                         error.append(result["_issues"])
                         for issue in result["_issues"]:
                             error.append(result["_issues"][issue])
-                    logger.warning("update, error: %s", error)
+                    logger.warning("update, error(s): %s", error)
                     return error
             except BackendException as e:  # pragma: no cover, should never happen
                 error = []

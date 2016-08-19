@@ -143,6 +143,18 @@ header span.label {
 /*
  * Application tables
  */
+/* Set fixed position for table buttons */
+div.dt-buttons {
+   position: fixed;
+}
+div.dataTables_wrapper div.row.table {
+    margin-top: 25px;
+}
+
+div.dataTables_paginate {
+    text-align: center !important;
+}
+
 /* Set smaller font for table content */
 tbody > tr {
    font-size:11px;

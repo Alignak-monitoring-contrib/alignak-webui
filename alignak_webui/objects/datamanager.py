@@ -290,7 +290,7 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get all realms
         # -----------------------------------------------------------------------------------------
-        self.default_realm = self.get_realms({'max_results': 1, 'where': {'default': True}})
+        self.default_realm = self.get_realm({'max_results': 1, 'where': {'default': True}})
 
         # -----------------------------------------------------------------------------------------
         # Get all users
@@ -932,6 +932,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    '_realm': 1,
                     'dependent_hosts': 1, 'dependent_hostgroups': 1,
                     'hosts': 1, 'hostgroups': 1
                 }

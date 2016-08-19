@@ -176,6 +176,7 @@ If the `allowed` field contains a value, it may be:
     - inner://url
     - a comma separated list of the allowed values
 
+If the edited item is a template, the `allowed_template` (if it is defined) is used instead of the `allowed` value. This to allow defining a different list of allowed values for the templates.
 
 Table filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~

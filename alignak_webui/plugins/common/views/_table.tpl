@@ -610,7 +610,11 @@
          dom: 'Blfrtip',
          Currently, no global search...
          */
-         dom: "<'row'<'col-xs-12'B><'col-xs-1'>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-12'i>>" + "<'row'<'col-xs-12'p>>",
+         dom:
+            "<'row buttons'<'col-xs-12'B>>" +
+            "<'row table'<'col-xs-12'tr>>" +
+            "<'row'<'hidden-xs'i>>" +
+            "<'row'<'col-xs-12'p>>",
          // Table columns visibility button
          buttons: [
             {
