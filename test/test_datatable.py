@@ -504,10 +504,6 @@ class TestDataTable(unittest2.TestCase):
 
 class TestDatatableCommands(unittest2.TestCase):
     def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        assert self.dmg.user_login('admin', 'admin')
-        # result = self.dmg.load()
-
         # Test application
         self.app = TestApp(webapp)
 
@@ -515,7 +511,7 @@ class TestDatatableCommands(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        print('Data manager', self.dmg)
+        print(redirected_response)
 
     def test_01_commands(self):
         print('')
