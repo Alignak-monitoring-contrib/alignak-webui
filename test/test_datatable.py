@@ -129,9 +129,6 @@ class TestDataTable(unittest2.TestCase):
 
         self.items_count = 0
 
-    def tearDown(self):
-        print("")
-
     def test_01_get(self):
         print('')
         print('test get table')
@@ -507,9 +504,7 @@ class TestDataTable(unittest2.TestCase):
 
 class TestDatatableCommands(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -522,9 +517,7 @@ class TestDatatableCommands(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-
-    def tearDown(self):
-        print("")
+        print('Data manager', self.dmg)
 
     def test_01_commands(self):
         print('')
