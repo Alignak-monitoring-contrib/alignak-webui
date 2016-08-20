@@ -525,10 +525,9 @@ class Plugin(object):
         """
             Build the form for an element.
 
-            element_id is the _id (or name) of an object to read. If no object is found then en empty
-            element is sent to the formn this means a new object creation with default values.
+            element_id is the _id (or name) of an object to read. If no object is found then an
+            empty element is sent to the form which means a new object creation with default values.
         """
-        session = request.environ['beaker.session']
         datamgr = request.environ['beaker.session']['datamanager']
 
         # Get element get method from the data manager
@@ -568,6 +567,7 @@ class Plugin(object):
         }
 
     def update_form(self, element_id):
+        # pylint: disable=too-many-locals, not-an-iterable, redefined-variable-type
         """
             Update an element
 
@@ -610,18 +610,20 @@ class Plugin(object):
             update = False
             value = request.forms.get(field)
             field_type = self.table[field].get('type')
-            logger.debug("- posted field: %s (%s) = %s", field, field_type, request.forms.get(field))
+            logger.debug(
+                "- posted field: %s (%s) = %s", field, field_type, request.forms.get(field)
+            )
 
             if field_type == 'objectid':
                 if not value:
                     value = None
-            if field_type == 'boolean':
+            elif field_type == 'boolean':
                 value = (request.forms.get(field) == 'true')
-            if field_type == 'integer':
+            elif field_type == 'integer':
                 value = int(request.forms.get(field))
-            if field_type == 'float':
+            elif field_type == 'float':
                 value = float(request.forms.get(field))
-            if field_type == 'point':
+            elif field_type == 'point':
                 value = request.forms.getall(field)
                 dict_values = {}
                 for item in value:
@@ -634,14 +636,14 @@ class Plugin(object):
                         float(dict_values['longitude'])
                     ]
                 }
-            if field_type == 'dict':
+            elif field_type == 'dict':
                 value = request.forms.getall(field)
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
                     dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
                 value = dict_values
-            if field_type == 'list':
+            elif field_type == 'list':
                 value = request.forms.getall(field)
                 if self.table[field].get('content_type') == 'dict':
                     dict_values = {}
@@ -663,8 +665,9 @@ class Plugin(object):
                     if element[field].id == value:
                         update = False
             if update:
-                logger.warning("- updated field: %s = %s, whereas: %s", field, value, element[field])
-                logger.warning("- updated field: %s = %s, whereas: %s", field, type(value), type(element[field]))
+                logger.warning(
+                    "- updated field: %s = %s, whereas: %s", field, value, element[field]
+                )
                 data.update({field: value})
             if create:
                 logger.warning("- field: %s = %s", field, value)
@@ -681,8 +684,10 @@ class Plugin(object):
                     )
                 else:
                     data.update(
-                        {'_message': _("%s '%s' update failed!") % (
-                            self.backend_endpoint, element.name)
+                        {
+                            '_message': _("%s '%s' update failed!") % (
+                                self.backend_endpoint, element.name
+                            )
                         }
                     )
                     data.update(
@@ -710,8 +715,8 @@ class Plugin(object):
                     )
                 else:
                     data.update(
-                        {'_message': _("%s creation failed!") % (
-                            self.backend_endpoint)
+                        {
+                            '_message': _("%s creation failed!") % (self.backend_endpoint)
                         }
                     )
                     data.update(
@@ -768,7 +773,6 @@ class Plugin(object):
         return dt.table_data()
 
     def get_templates(self, embedded=False):
-        # pylint: disable=unused-argument
         """
         Get the elements templates list
 
@@ -843,7 +847,6 @@ class Plugin(object):
         user = request.environ['beaker.session']['current_user']
         datamgr = request.environ['beaker.session']['datamanager']
         target_user = request.environ['beaker.session']['target_user']
-
 
         # Get element get method from the data manager
         if not callable(get_method):

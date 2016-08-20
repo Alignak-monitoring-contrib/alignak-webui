@@ -63,18 +63,14 @@ from alignak_webui.objects.item_uipref import *
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
-# logger.setLevel(INFO)
+logger.setLevel(INFO)
 
 
 class DataManager(object):
     """
-    Base class for all data manager objects
-    """
-    id = 1
-
-    """
         Application data manager object
     """
+    id = 1
 
     def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
         """

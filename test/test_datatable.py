@@ -143,14 +143,14 @@ class TestDataTable(unittest2.TestCase):
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
             '<th data-name="name" data-type="string">Command name</th>',
+            '<th data-name="_realm" data-type="objectid">Realm</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Command alias</th>',
+            '<th data-name="notes" data-type="string">Notes</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
-            '<th data-name="module_type" data-type="string">Module type</th>',
             '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
-            '<th data-name="timeout" data-type="integer">Timeout</th>',
             '<th data-name="poller_tag" data-type="string">Poller tag</th>',
-            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
+            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>',
         )
 
     def test_02_change(self):
@@ -539,13 +539,14 @@ class TestDatatableCommands(unittest2.TestCase):
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
             '<th data-name="name" data-type="string">Command name</th>',
+            '<th data-name="_realm" data-type="objectid">Realm</th>',
             '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Command alias</th>',
+            '<th data-name="notes" data-type="string">Notes</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
-            '<th data-name="module_type" data-type="string">Module type</th>',
             '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
-            '<th data-name="timeout" data-type="integer">Timeout</th>',
             '<th data-name="poller_tag" data-type="string">Poller tag</th>',
-            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>'
+            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>',
         )
 
         print('change content with /commands/table_data')
@@ -614,12 +615,12 @@ class TestDatatableRealms(unittest2.TestCase):
             '<th data-name="default" data-type="boolean">Default realm</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
             '<th data-name="_parent" data-type="objectid">Parent</th>',
-            # '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
-            # '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
+            '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
+            '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
             '<th data-name="services_critical_threshold" data-type="integer">Services critical threshold</th>',
             '<th data-name="services_warning_threshold" data-type="integer">Services warning threshold</th>',
-            '<th data-name="globals_critical_threshold" data-type="integer">Global critical threshold</th>',
-            '<th data-name="globals_warning_threshold" data-type="integer">Global warning threshold</th>'
+            '<th data-name="global_critical_threshold" data-type="integer">Global critical threshold</th>',
+            '<th data-name="global_warning_threshold" data-type="integer">Global warning threshold</th>'
         )
 
         response = self.app.post('/realms/table_data')
@@ -1083,10 +1084,10 @@ class TestDatatableLivestate(unittest2.TestCase):
             '<table id="tbl_livestate" ',
             '<th data-name="type" data-type="string">Type</th>',
             '<th data-name="name" data-type="string">Element name</th>',
-            '<th data-name="host" data-type="objectid">Host</th>',
-            '<th data-name="display_name_host" data-type="string">Host display name</th>',
-            '<th data-name="service" data-type="objectid">Service</th>',
-            '<th data-name="display_name_service" data-type="string">Service display name</th>',
+            # '<th data-name="host" data-type="objectid">Host</th>',
+            # '<th data-name="display_name_host" data-type="string">Host display name</th>',
+            # '<th data-name="service" data-type="objectid">Service</th>',
+            # '<th data-name="display_name_service" data-type="string">Service display name</th>',
             '<th data-name="last_check" data-type="integer">Last check</th>',
             '<th data-name="business_impact" data-type="integer">Business impact</th>',
             '<th data-name="state" data-type="string">State</th>',
@@ -1172,7 +1173,7 @@ class TestDatatableTimeperiod(unittest2.TestCase):
             '<th data-name="alias" data-type="string">Timeperiod alias</th>',
             '<th data-name="is_active" data-type="boolean">Currently active</th>',
             '<th data-name="dateranges" data-type="list">Date ranges</th>',
-            '<th data-name="excludes" data-type="list">Exclusions</th>'
+            '<th data-name="exclude" data-type="list">Exclusions</th>'
         )
 
         response = self.app.post('/timeperiods/table_data')
