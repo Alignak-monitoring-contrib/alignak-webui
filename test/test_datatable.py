@@ -520,7 +520,10 @@ class TestDatatableCommands(unittest2.TestCase):
         global items_count
 
         print('get page /commands/table')
+        response = self.app.get('/commands')
+        print(response)
         response = self.app.get('/commands/table')
+        print(response)
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
