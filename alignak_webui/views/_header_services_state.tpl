@@ -7,6 +7,7 @@
 %ss = datamgr.get_livesynthesis()['services_synthesis']
 %if ss:
 
+%from bottle import request
 %if request.app.config.get('header_refresh_period', '30') != '0':
 %# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
 %services_states_queue = datamgr.get_user_preferences(current_user.name, 'services_states_queue', [])

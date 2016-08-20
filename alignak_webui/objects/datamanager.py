@@ -240,6 +240,7 @@ class DataManager(object):
             if '_total' in item:
                 object_class.set_total_count(item['_total'])
 
+        logger.info("find_object, %s, found %d items", object_type, len(items))
         return items
 
     def load(self, reset=False, refresh=False):

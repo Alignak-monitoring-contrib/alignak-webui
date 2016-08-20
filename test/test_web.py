@@ -664,6 +664,7 @@ class Test3Livestate(unittest2.TestCase):
         datamgr = session['datamanager']
         lv_host = datamgr.get_livestates({'where': {'name': 'webui'}})
         lv_service = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
+        print('livestate: %s / %s' % (lv_host, lv_service))
 
         # Redirect to host page
         response = self.app.get('/livestate/' + lv_host[0].id)

@@ -363,7 +363,7 @@
          <tr>
             <td><strong>{{_('Event handler:')}}</strong></td>
             <td>
-               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name() }}</a>
+               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name }}</a>
             </td>
          </tr>
          %end

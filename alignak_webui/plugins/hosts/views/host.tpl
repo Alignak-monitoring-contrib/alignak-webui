@@ -157,6 +157,7 @@
    <!-- First row : tags and actions ... -->
    %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
    %tags = host.tags
+   %templates = host._templates
    %if host.action_url or tags or groups:
    <div>
       %if groups:
