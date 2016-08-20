@@ -209,7 +209,6 @@ class PluginLivestate(Plugin):
                 )
 
         livestate = livestate[0]
-        print('Here :%s' % livestate)
         if livestate.type == 'host':
             redirect('/host/' + livestate.host.id)
         else:

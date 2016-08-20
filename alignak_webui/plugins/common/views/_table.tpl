@@ -3,6 +3,8 @@
 %setdefault('debug', False)
 %setdefault('debugLogs', False)
 
+%setdefault('edition_mode', False)
+
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
 %from bottle import request

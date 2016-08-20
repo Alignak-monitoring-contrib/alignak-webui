@@ -99,7 +99,7 @@ def teardown_module(module):
         pid.kill()
 
 
-class tests_0_external(unittest2.TestCase):
+class tests_external(unittest2.TestCase):
 
     def setUp(self):
         print ""
@@ -251,7 +251,7 @@ class tests_0_external(unittest2.TestCase):
             '<div id="pc_hosts_hosts_chart">'
         )
 
-    def test_1_3_allowed_tables(self):
+    def test_1_0_allowed_tables(self):
         print ''
         print 'allowed tables external access'
 
@@ -282,7 +282,7 @@ class tests_0_external(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="tags" data-type="list">Tags</th>',
             '<th data-name="alias" data-type="string">Host alias</th>'
         )
 
@@ -297,7 +297,7 @@ class tests_0_external(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="tags" data-type="list">Tags</th>',
             '<th data-name="alias" data-type="string">Host alias</th>'
         )
 
@@ -312,7 +312,7 @@ class tests_0_external(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="tags" data-type="list">Tags</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
             '"url": "http://localhost:80/external/table/hosts_table/hosts/table_data",'
         )

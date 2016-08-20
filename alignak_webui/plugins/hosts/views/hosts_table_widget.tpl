@@ -41,7 +41,7 @@
             </td>
             %else:
             <td>
-               <small>{{! host.alias}}</small>
+               <small>{{! host.get_html_link(links) if links else host.alias}}</small>
             </td>
             %end
 
