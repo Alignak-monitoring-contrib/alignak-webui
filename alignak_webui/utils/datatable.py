@@ -355,7 +355,7 @@ class Datatable(object):
             Not included if there is no error.
         """
         # Manage request parameters ...
-        logger.info("request data for table: %s", request.params.get('object_type'))
+        logger.info("request data for table: %s", request.forms.get('object_type'))
 
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
@@ -460,7 +460,7 @@ class Datatable(object):
                             )
                     break
 
-            logger.warning("backend search individual columns parameters: %s", searched_columns)
+            logger.info("backend search individual columns parameters: %s", searched_columns)
 
         # Global search parameter
         # search:{"value":"test","regex":false}
@@ -513,11 +513,11 @@ class Datatable(object):
         self.records_total = self.backend.count(self.object_type)
 
         # Request objects from the backend ...
-        logger.warning("table data get parameters: %s", parameters)
+        logger.info("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
 
         if not items:
-            logger.warning("No backend elements match search criteria: %s", parameters)
+            logger.info("No backend elements match search criteria: %s", parameters)
             # Empty response
             return json.dumps({
                 # draw is the request number ...

@@ -509,6 +509,7 @@ class TestDatatableCommands(unittest2.TestCase):
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
+        print('Data manager', self.dmg)
         result = self.dmg.load()
 
         # Test application
@@ -518,7 +519,6 @@ class TestDatatableCommands(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        print('Data manager', self.dmg)
 
     def test_01_commands(self):
         print('')
