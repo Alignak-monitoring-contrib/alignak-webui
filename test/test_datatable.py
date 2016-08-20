@@ -505,6 +505,7 @@ class TestDataTable(unittest2.TestCase):
 class TestDatatableCommands(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
+        print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
@@ -545,7 +546,6 @@ class TestDatatableCommands(unittest2.TestCase):
         print('change content with /commands/table_data')
         response = self.app.post('/commands/table_data')
         response_value = response.json
-        print(response_value)
         # Temporary ...
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
