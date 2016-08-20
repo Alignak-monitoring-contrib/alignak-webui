@@ -94,7 +94,7 @@
       <!-- Datatables jQuery plugin - separate files -->
       <link rel="stylesheet" href="/static/css/datatables/jquery.dataTables.min.css" >
       %if request.app.config.get('material_design', '1') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/dataTables.material.min.css" >
+      <!--<link rel="stylesheet" href="/static/css/datatables/dataTables.material.min.css" >-->
       %else:
       %if request.app.config.get('bootstrap4', '0') == '1':
       <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap4.min.css" >
