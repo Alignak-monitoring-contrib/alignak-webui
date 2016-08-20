@@ -274,7 +274,7 @@ class DataManager(object):
         start = time.time()
 
         if reset:
-            logger.warning("Objects cache reset")
+            logger.info("Objects cache reset")
             self.reset(logout=False)
 
         self.loading += 1
@@ -329,11 +329,11 @@ class DataManager(object):
         """
         Reset data in the data manager objects
         """
-        logger.info("Data manager reset...")
+        logger.debug("Data manager reset...")
 
         # Clean internal objects cache
         for known_class in self.known_classes:
-            logger.info("Cleaning %s cache...", known_class.get_type())
+            logger.debug("Cleaning %s cache...", known_class.get_type())
             known_class.clean_cache()
 
         if logout:

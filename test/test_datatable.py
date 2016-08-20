@@ -505,12 +505,8 @@ class TestDataTable(unittest2.TestCase):
 class TestDatatableCommands(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
         assert self.dmg.user_login('admin', 'admin')
-        print('Data manager', self.dmg)
-        result = self.dmg.load()
+        # result = self.dmg.load()
 
         # Test application
         self.app = TestApp(webapp)
@@ -519,6 +515,7 @@ class TestDatatableCommands(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
+        print('Data manager', self.dmg)
 
     def test_01_commands(self):
         print('')
@@ -557,12 +554,11 @@ class TestDatatableCommands(unittest2.TestCase):
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
                 assert response.json['data'][x]['definition_order']
-                assert response.json['data'][x]['enable_environment_macros']
                 assert response.json['data'][x]['command_line']
+                assert response.json['data'][x]['enable_environment_macros']
                 assert response.json['data'][x]['timeout']
                 assert response.json['data'][x]['poller_tag']
                 assert response.json['data'][x]['reactionner_tag']
-                assert response.json['data'][x]['enable_environment_macros']
                 # No more ui in the backend
                 # assert response.json['data'][x]['ui'] == True
 
