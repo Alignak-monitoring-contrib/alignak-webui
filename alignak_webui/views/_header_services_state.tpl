@@ -11,7 +11,6 @@
 %if request.app.config.get('header_refresh_period', '30') != '0':
 %# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
 %services_states_queue = datamgr.get_user_preferences(current_user.name, 'services_states_queue', [])
-%#services_states_queue = services_states_queue['value'] if services_states_queue else []
 %services_states_queue.append({'date': time.time(), 'ss': ss})
 %if len(services_states_queue) > 120:
 %services_states_queue.pop(0)

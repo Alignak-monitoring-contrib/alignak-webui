@@ -48,7 +48,7 @@
          </a>
 
          <ul class="nav navbar-nav navbar-left">
-            <li id="overall-hosts-states" class="disabled text-muted pull-left">
+            <li id="overall-hosts-states" class="pull-left">
                %include("_header_hosts_state.tpl")
             </li>
 

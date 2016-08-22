@@ -76,7 +76,6 @@ def setup_module():
 
 
 def teardown_module():
-    print("")
     print("stop applications backend")
 
     if backend_address == "http://127.0.0.1:5000/":
@@ -85,12 +84,6 @@ def teardown_module():
 
 
 class TestCreation(unittest2.TestCase):
-    def setUp(self):
-        print("")
-
-    def tearDown(self):
-        print("")
-
     def test_creation(self):
         print("--- creation")
 
@@ -107,12 +100,6 @@ class TestCreation(unittest2.TestCase):
 
 
 class TestLogin(unittest2.TestCase):
-    def setUp(self):
-        print("")
-
-    def tearDown(self):
-        print("")
-
     def test_login(self):
         print("--- login")
 
@@ -136,9 +123,6 @@ class TestGet(unittest2.TestCase):
         assert self.be.connected
 
         print("Logged in")
-
-    def tearDown(self):
-        print("")
 
     def test_count(self):
         print("--- count")
