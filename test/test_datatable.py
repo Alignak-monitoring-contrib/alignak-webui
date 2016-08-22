@@ -77,11 +77,11 @@ def setup_module():
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
         # Delete used mongo DBs
-        exit_code = subprocess.call(
-            shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
-        )
-        assert exit_code == 0
+        # exit_code = subprocess.call(
+            # shlex.split(
+                # 'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+        # )
+        # assert exit_code == 0
 
         # No console output for the applications backend ...
         print("Starting Alignak backend...")
@@ -92,11 +92,11 @@ def setup_module():
         time.sleep(1)
 
         print("Feeding backend...")
-        q = subprocess.Popen(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'), stdout=fnull
-        )
-        (stdoutdata, stderrdata) = q.communicate()  # now wait
-        assert exit_code == 0
+        # q = subprocess.Popen(
+            # shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'), stdout=fnull
+        # )
+        # (stdoutdata, stderrdata) = q.communicate()  # now wait
+        # assert exit_code == 0
 
 
 def teardown_module(module):
@@ -511,7 +511,6 @@ class TestDatatableCommands(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        print(redirected_response)
 
     def test_01_commands(self):
         print('')
@@ -521,9 +520,9 @@ class TestDatatableCommands(unittest2.TestCase):
 
         print('get page /commands/table')
         response = self.app.get('/commands')
-        print(response)
+        # print(response)
         response = self.app.get('/commands/table')
-        print(response)
+        # print(response)
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",

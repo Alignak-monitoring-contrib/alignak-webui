@@ -196,7 +196,8 @@ def main():  # pragma: no cover, not mesured by coverage!
             app=webapp,
             host=app_config.get('host', '127.0.0.1'),
             port=int(app_config.get('port', 5001)),
-            debug=(app_config.get('debug', '0') == '1'),
+            # debug=(app_config.get('debug', '0') == '1'),
+            debug=True,
             server=app_config.get('http_backend', 'cherrypy')
         )
     except Exception as e:
