@@ -28,7 +28,6 @@ script:
   - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_backend_alignak.py test_datamanager.py test_datatable.py
   - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_web*.py
   - coverage combine
-  - coverage report -m
   - cd ..
 # specific call to launch coverage data into coveralls.io
 after_success:

@@ -1,5 +1,5 @@
 future
-ConfigParser
+configparser
 docopt
 Bottle>=0.12.9,<0.13
 Beaker==1.8.0

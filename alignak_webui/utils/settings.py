@@ -26,7 +26,7 @@ from __future__ import print_function
 import os
 import traceback
 from collections import OrderedDict
-from configparser import RawConfigParser
+from configparser import ConfigParser
 
 # Do not use logger in this module ... or it may fail!
 
@@ -95,7 +95,7 @@ class Settings(OrderedDict):
             ]
 
         try:
-            config = RawConfigParser()
+            config = ConfigParser(interpolation=None)
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:
                 # Build settings dictionnary for application parameters
