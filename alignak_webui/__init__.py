@@ -206,7 +206,10 @@ def get_app_webui():
 # --------------------------------------------------------------------------------------------------
 # WebUI application is default bottle app
 bottle_app = bottle.app()
-bottle.app().catchall = False
+
+# In test mode, let Bottle report errors to the WSGI environment (it helps debugging...)
+if os.environ.get('TEST_WEBUI'):
+    bottle.app().catchall = False
 
 # Bottle templates path
 bottle.TEMPLATE_PATH.append(
