@@ -748,8 +748,10 @@ class Plugin(object):
 
         # Build page title
         title = dt.title
+        logger.warning("Table title: %s", title)
         if '%d' in title:
             title = title % dt.records_total
+        logger.warning("Table title: %s", title)
 
         return {
             'object_type': self.backend_endpoint,
