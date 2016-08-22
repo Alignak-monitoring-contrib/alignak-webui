@@ -66,11 +66,11 @@ def setup_module():
         print("PID: %s" % pid)
         time.sleep(3)
 
-        print("")
-        print("populate backend content")
-        exit_code = subprocess.call(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
+        print("Feeding backend...")
+        q = subprocess.Popen(
+            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'), stdout=fnull
         )
+        (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
 
 

@@ -102,7 +102,6 @@ def teardown_module(module):
 class tests_actions(unittest2.TestCase):
 
     def setUp(self):
-        print ""
         print "setting up ..."
 
         # Test application

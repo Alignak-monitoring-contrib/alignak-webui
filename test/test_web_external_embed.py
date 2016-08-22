@@ -20,23 +20,20 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
+from __future__ import print_function
 import os
-import json
 import time
 import shlex
 import unittest2
 import subprocess
-from calendar import timegm
-from datetime import datetime, timedelta
 
-from nose import with_setup
 from nose.tools import *
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
 os.environ['WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print "Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE']
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 import alignak_webui.app
 from alignak_webui import webapp
@@ -55,8 +52,8 @@ from webtest import TestApp
 pid = None
 backend_address = "http://127.0.0.1:5000/"
 
+
 def setup_module(module):
-    print ("")
     print ("start alignak backend")
 
     global pid
@@ -91,7 +88,6 @@ def setup_module(module):
 
 
 def teardown_module(module):
-    print ("")
     print ("stop applications backend")
 
     if backend_address == "http://127.0.0.1:5000/":
@@ -99,31 +95,25 @@ def teardown_module(module):
         pid.kill()
 
 
-class tests_external(unittest2.TestCase):
+class TestsExternal(unittest2.TestCase):
 
     def setUp(self):
-        print ""
-        print "setting up ..."
+        print("setting up ...")
 
         # Test application
         self.app = TestApp(
             webapp
         )
 
-    def tearDown(self):
-        print ""
-        print "tearing down ..."
-
     def test_1_1_refused(self):
-        print ''
-        print 'refused external access'
+        print('refused external access')
 
         # Refused - no credentials
         response = self.app.get(
             '/external/widget/hosts_table?widget_id=test',
             status=401
         )
-        print response
+        print(response)
         response.mustcontain('<div><h1>External access denied.</h1><p>To embed an Alignak WebUI widget or table, you must provide credentials.<br>Log into the Alignak WebUI with your credentials, or make a request with a Basic-Authentication allowing access to Alignak backend.</p></div>')
 
         # Refused - bad credentials
@@ -181,8 +171,7 @@ class tests_external(unittest2.TestCase):
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
     def test_1_2_allowed_widgets(self):
-        print ''
-        print 'allowed widgets external access'
+        print('allowed widgets external access')
 
         # Allowed - default widgets parameters: widget_id and widget_template
         # Add parameter page to get a whole page: js, css, ...
@@ -251,13 +240,12 @@ class tests_external(unittest2.TestCase):
             '<div id="pc_hosts_hosts_chart">'
         )
 
-    def test_1_0_allowed_tables(self):
-        print ''
-        print 'allowed tables external access'
+    def test_1_3_allowed_tables(self):
+        print('allowed tables external access')
 
         # Allowed - default table parameters: none
         # Add parameter page to get a whole page: js, css, ...
-        print "Whole page..."
+        print("Whole page...")
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
             '/external/table/hosts_table?page'
@@ -274,7 +262,7 @@ class tests_external(unittest2.TestCase):
 
         # Allowed - default table parameters: none
         # No parameter page: only the widget
-        print "Only div..."
+        print("Only div...")
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
             '/external/table/hosts_table'
@@ -289,7 +277,7 @@ class tests_external(unittest2.TestCase):
         # Allowed - default table parameters: none
         # No parameter page: only the widget
         # With links, but empty
-        print "Only div with links..."
+        print("Only div with links...")
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
             '/external/table/hosts_table?links'
@@ -304,7 +292,7 @@ class tests_external(unittest2.TestCase):
         # Allowed - default table parameters: none
         # No parameter page: only the widget
         # With links, not empty so URL are prefixed ...
-        print "Only div with links..."
+        print("Only div with links...")
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
             '/external/table/hosts_table?links=http://test'
@@ -318,13 +306,13 @@ class tests_external(unittest2.TestCase):
         )
 
     def test_1_4_host_widgets(self):
-        print 'allowed host widgets external access'
+        print('allowed host widgets external access')
 
         # Log in to get Data manager in the session
         response = self.app.get('/login')
         response.mustcontain('<form role="form" method="post" action="/login">')
 
-        print 'login accepted - go to home page'
+        print('login accepted - go to home page')
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
@@ -355,7 +343,7 @@ class tests_external(unittest2.TestCase):
         )
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
-        ## Host information
+        # Host information
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -382,7 +370,7 @@ class tests_external(unittest2.TestCase):
             '<!-- Hosts information widget -->',
         )
 
-        ## Host configuration
+        # Host configuration
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -409,7 +397,7 @@ class tests_external(unittest2.TestCase):
             '<!-- Hosts configuration widget -->',
         )
 
-        ## Host metrics
+        # Host metrics
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -436,7 +424,7 @@ class tests_external(unittest2.TestCase):
             '<!-- Hosts metrics widget -->',
         )
 
-        ## Host timeline
+        # Host timeline
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -463,7 +451,7 @@ class tests_external(unittest2.TestCase):
             '<!-- Hosts timeline widget -->',
         )
 
-        ## Host services
+        # Host services
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -490,7 +478,7 @@ class tests_external(unittest2.TestCase):
             '<!-- Hosts services widget -->',
         )
 
-        ## Host history
+        # Host history
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -518,8 +506,7 @@ class tests_external(unittest2.TestCase):
         )
 
     def test_2_widgets(self):
-        print ''
-        print 'allowed widgets'
+        print('allowed widgets')
 
         # Hosts table
         self.app.authorization = ('Basic', ('admin', 'admin'))
