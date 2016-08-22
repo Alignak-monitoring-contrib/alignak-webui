@@ -83,11 +83,12 @@ def setup_module():
         )
         assert exit_code == 0
 
+        # No console output for the applications backend ...
         print("Starting Alignak backend...")
+        fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('alignak_backend')
+            shlex.split('alignak_backend'), stdout=fnull
         )
-        print("PID: %s" % pid)
         time.sleep(1)
 
         print("Feeding backend...")
