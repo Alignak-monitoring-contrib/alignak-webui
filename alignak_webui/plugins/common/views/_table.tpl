@@ -7,7 +7,7 @@
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
-%from bottle import request, test
+%from bottle import request
 %setdefault('links', request.params.get('links', ''))
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)

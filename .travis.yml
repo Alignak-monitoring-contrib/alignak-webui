@@ -24,10 +24,9 @@ script:
   # Code dynamic analysis
   - cd test
   - coverage erase
-  - nosetests --nocapture --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_datatable.py
-  - nosetests -xvv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_helper.py test_settings.py test_run.py test_alignak_webui.py
-  - nosetests -xvv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_backend_alignak.py test_datamanager.py
-  - nosetests -xvv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_web*.py
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_helper.py test_settings.py test_run.py test_alignak_webui.py
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_backend_alignak.py test_datamanager.py test_datatable.py
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_web*.py
   - coverage combine
   - coverage report -m
   - cd ..
