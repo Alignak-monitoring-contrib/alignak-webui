@@ -99,29 +99,29 @@
  */
 .table-row-ok,
 .table-row-up {
-    background-color: #e6ffe6;
+    background-color: #e6ffe6 !important;
 }
 
 .table-row-warning,
 .table-row-unreachable {
-    background-color: #fff5e6;
+    background-color: #fff5e6 !important;
 }
 
 .table-row-critical,
 .table-row-down {
-    background-color: #ffe6e6;
+    background-color: #ffe6e6 !important;
 }
 
 .table-row-unknown,
 .table-row-pending {
-    background-color: #e6f2ff;
+    background-color: #e6f2ff !important;
 }
 
 .table-row-ack,
 .table-row-downtime {
-    background-color: #ffe6ff;
+    background-color: #ffe6ff !important;
 }
 
 .table-row-greyed {
-    background-color: #f5f5f0;
+    background-color: #f5f5f0 !important;
 }

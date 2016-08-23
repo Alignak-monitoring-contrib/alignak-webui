@@ -563,44 +563,6 @@
             });
          },
 
-         // Each created row ...
-         createdRow: function (row, data, index) {
-            /*
-            if (debugTable) console.debug('Datatable createdRow, data: ', data);
-            if (debugTable) console.debug('Datatable createdRow, name: {{dt.name_property}}');
-            if (debugTable) console.debug('Datatable createdRow, status: {{dt.status_property}}');
-            */
-
-            if ('{{dt.name_property}}' in data) {
-               var name_node = table.cell(index, '{{dt.name_property}}:name').node();
-               // The node descendants should contain some information about the element
-               /* eg.
-                  <a href="/livestate/5786027106fd4b0af2d51b3e">vm-win7/Cpu</a>
-               */
-            }
-
-            if ('{{dt.status_property}}' in data) {
-               var status_node = table.cell(index, '{{dt.status_property}}:name').node();
-               // The node descendants should contain some information about the element
-               /* eg.
-                  <div class="item-state item_livestate_ok OK" style="display: inline; font-size:0.9em;" data-item-id="5786027006fd4b0af0d51c42" data-item-name="vm-win7/Disks" data-item-type="livestate" data-item-state="OK" title="Service is ok">
-                     <span class="fa-stack ">
-                        <i class="fa fa-circle fa-stack-2x item_livestate_ok"></i>
-                        <i class="fa fa-cube fa-stack-1x fa-inverse"></i>
-                     </span>
-                     <span>Service is ok</span>
-                  </div>
-                */
-               var id = $(status_node).find('[data-item-id]').data('item-id');
-               var type = $(status_node).find('[data-item-type]').data('item-type');
-               var name = $(status_node).find('[data-item-name]').data('item-name');
-               var state = $(status_node).find('[data-item-state]').data('item-state');
-
-               var row = table.row(index).node();
-               $(row).addClass('table-row-'+state.toLowerCase());
-            }
-         },
-
          /*
             B - buttons
             l - length changing input control

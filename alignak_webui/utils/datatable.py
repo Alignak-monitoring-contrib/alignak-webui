@@ -560,6 +560,7 @@ class Datatable(object):
 
                     if field['data'] == self.status_property:
                         item[key] = bo_object.get_html_state()
+                        item['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
 
                     if field['data'] == "business_impact":
                         item[key] = Helper.get_html_business_impact(bo_object.business_impact)
