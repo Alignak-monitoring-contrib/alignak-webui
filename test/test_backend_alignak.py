@@ -69,7 +69,7 @@ def setup_module():
 
         print("Feeding backend...")
         q = subprocess.Popen(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'), stdout=fnull
+            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
         )
         (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
