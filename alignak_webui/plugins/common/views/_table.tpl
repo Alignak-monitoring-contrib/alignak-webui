@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', False)
+%setdefault('debugLogs', True)
 
 %setdefault('edition_mode', False)
 
@@ -251,7 +251,7 @@
          if ($('#filter_'+field_name).length) {
             var input_filter = $('#filter_'+field_name).selectize()[0].selectize;
             if (input_filter) {
-               if (debugTable) console.debug('*** clear filter: ', field_name, input_filter.items);
+               //if (debugTable) console.debug('*** clear filter: ', field_name, input_filter.items);
                input_filter.clear(true);
             }
          }
@@ -260,14 +260,17 @@
       // Disable the clear filter button
       table.buttons('clearFilter:name').disable();
    }
+
    $(document).ready(function() {
       %if not embedded:
       set_current_page("{{ webui.get_url(request.route.name) }}");
       %end
 
+      %if credentials:
       $.ajaxSetup({
          headers: { "Authorization": "Basic " + btoa('{{credentials}}') }
       });
+      %end
 
       %if dt.searchable:
       // Apply the search filter for input fields
@@ -338,6 +341,7 @@
       $('#tbl_{{object_type}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, saved state loaded ...');
+         if (debugTable) console.debug('Saved filters:', where['saved_filters']);
 
          resetFilters();
 
@@ -383,9 +387,8 @@
                var column_index = table.column(key+':name').index();
                var column_regex = table.column(key+':name').data('regex');
 
-               if (debugTable) console.debug('Update column search special', special);
                if (debugTable) console.debug('Update column search', column_index, key, value, column_regex);
-               if (debugTable) console.debug('Update column search', table.column(key+':name'));
+               if (debugTable) console.debug('Update column search special', special);
 
                // Update search filter input field value
                var input_filter = $('#filter_'+key).selectize()[0].selectize;
