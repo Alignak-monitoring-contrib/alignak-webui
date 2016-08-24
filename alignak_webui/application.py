@@ -264,10 +264,10 @@ def external(widget_type, identifier, action=None):
         BaseTemplate.defaults['datamgr'] = session['datamanager']
 
     logger.debug(
-        "External request, widget type: %s", widget_type
+        "External request, element type: %s", widget_type
     )
 
-    if widget_type not in ['widget', 'table', 'list', 'host']:
+    if widget_type not in ['files', 'widget', 'table', 'list', 'host']:
         logger.warning("External application requested unknown type: %s", widget_type)
         response.status = 409
         response.content_type = 'text/html'
@@ -275,6 +275,27 @@ def external(widget_type, identifier, action=None):
             '<div><h1>Unknown required type: %s.</h1>'
             '<p>The required type is unknwown</p></div>' % widget_type
         )
+
+    if widget_type == 'files':
+        if identifier == 'js_list':
+            response.status = 200
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'status': 'ok', 'files': get_app_webui().js_list}
+            )
+        elif identifier == 'css_list':
+            response.status = 200
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'status': 'ok', 'files': get_app_webui().css_list}
+            )
+        else:
+            logger.warning("External application requested unknown files: %s", identifier)
+            response.status = 409
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'status': 'ko', 'message': "Unknown files list: %s" % identifier}
+            )
 
     if widget_type == 'widget':
         found_widget = None
@@ -945,6 +966,136 @@ class WebUI(object):
         :return:
         """
         return bottle.default_app().get_url(name)
+
+    @property
+    def js_list(self):
+        """
+        Get the list of Javascript files
+        :return:
+        """
+        js_list = [
+            '/static/js/jquery-1.12.0.min.js',
+            "/static/js/jquery-1.12.0.min.js",
+            "/static/js/jquery-ui-1.11.4.min.js"
+        ]
+
+        if self.app_config.get('bootstrap4', '0') == '1':
+            js_list += [
+                "/static/js/bootstrap4/bootstrap.min.js"
+            ]
+        else:
+            js_list += [
+                "/static/js/bootstrap3/bootstrap.min.js"
+            ]
+
+        js_list += [
+            "/static/js/moment-with-langs.min.js",
+            "/static/js/daterangepicker.js",
+            "/static/js/jquery.jclock.js",
+            "/static/js/jquery.jTruncate.js",
+            "/static/js/typeahead.bundle.min.js",
+            "/static/js/screenfull.js"
+            "/static/js/alertify.min.js",
+            "/static/js/selectize.min.js",
+            "/static/js/Chart.min.js",
+            "/static/js/jstree.min.js",
+        ]
+
+        # Datatables files (may be grouped in one huge file...)
+        js_list += [
+            "/static/js/datatables/jquery.dataTables.min.js",
+            "/static/js/datatables/dataTables.responsive.min.js",
+            "/static/js/datatables/dataTables.buttons.min.js",
+            "/static/js/datatables/buttons.bootstrap.min.js",
+            "/static/js/datatables/buttons.colVis.min.js",
+            "/static/js/datatables/buttons.flash.min.js",
+            "/static/js/datatables/buttons.html5.min.js",
+            "/static/js/datatables/buttons.print.min.js",
+            "/static/js/datatables/dataTables.select.min.js",
+        ]
+        if self.app_config.get('bootstrap4', '0') == '1':
+            js_list += [
+                "/static/js/datatables/dataTables.bootstrap4.min.js",
+                "/static/js/datatables/responsive.bootstrap4.min.js"
+            ]
+        else:
+            js_list += [
+                "/static/js/datatables/dataTables.bootstrap.min.js",
+                "/static/js/datatables/responsive.bootstrap.min.js"
+            ]
+
+        if self.app_config.get('material_design', '1') == '1':
+            js_list += [
+                "/static/js/material/material.min.js",
+                "/static/js/material/ripples.min.js"
+            ]
+
+        return js_list
+
+    @property
+    def css_list(self):
+        """
+        Get the list of Javascript files
+        :return:
+        """
+        if self.app_config.get('bootstrap4', '0') == '1':
+            css_list = [
+                "/static/css/bootstrap4/bootstrap.min.css"
+            ]
+        else:
+            css_list = [
+                "/static/css/bootstrap3/bootstrap.min.css"
+            ]
+
+        css_list += [
+            "/static/css/font-awesome.min.css",
+            "/static/css/typeahead.css",
+            "/static/css/daterangepicker.css",
+            "/static/css/alertify.min.css",
+            "/static/css/alertify.bootstrap.min.css",
+            "/static/css/timeline.css"
+        ]
+
+        if self.app_config.get('material_design', '1') == '1':
+            css_list += [
+                "/static/css/font-roboto.css",
+                "/static/css/material-icons.css",
+                "/static/css/material/bootstrap-material-design.css",
+                "/static/css/material/ripples.min.css"
+            ]
+        else:
+            css_list += [
+                "/static/css/selectize.css",
+                "/static/css/selectize.bootstrap3.css"
+            ]
+
+        css_list += [
+            "/static/css/jstree/style.min.css",
+            "/static/css/datatables/jquery.dataTables.min.css",
+            "/static/css/datatables/responsive.dataTables.min.css",
+            "/static/css/datatables/buttons.dataTables.min.css",
+            "/static/css/datatables/select.dataTables.min.css",
+            "/static/css/datatables/select.bootstrap.min.css"
+        ]
+        if self.app_config.get('bootstrap4', '0') == '1':
+            css_list += [
+                "/static/css/datatables/dataTables.bootstrap4.min.css",
+                "/static/css/datatables/responsive.bootstrap4.min.css",
+                "/static/css/datatables/buttons.bootstrap4.min.css"
+            ]
+        else:
+            css_list += [
+                "/static/css/datatables/dataTables.bootstrap.min.css",
+                "/static/css/datatables/responsive.bootstrap.min.css",
+                "/static/css/datatables/buttons.bootstrap.min.css"
+            ]
+
+        css_list += [
+            "/static/css/alignak_webui.css",
+            "/static/css/alignak_webui-items.css"
+        ]
+
+        return css_list
 
     def find_plugin(self, name):
         """

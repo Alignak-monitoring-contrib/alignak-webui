@@ -505,6 +505,17 @@ class TestsExternal(unittest2.TestCase):
             '<!-- Hosts history widget -->',
         )
 
+
+class TestAllWidgets(unittest2.TestCase):
+
+    def setUp(self):
+        print("setting up ...")
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
     def test_2_widgets(self):
         print('allowed widgets')
 
@@ -548,6 +559,115 @@ class TestsExternal(unittest2.TestCase):
             '<div id="wd_panel_services_chart" class="panel panel-default alignak_webui_widget embedded">',
             '<div id="pc_services_services_chart">'
         )
+
+
+class TestExternalFiles(unittest2.TestCase):
+
+    def setUp(self):
+        print("setting up ...")
+
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+
+    def test_request_unknown_files(self):
+        print('Request list of js files')
+
+        # Allowed - default widgets parameters: widget_id and widget_template
+        # Add parameter page to get a whole page: js, css, ...
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/files/unknown', status=409
+        )
+        print(response)
+        assert "status" in response.json
+        assert response.json['status'] == "ko"
+        assert "message" in response.json
+        assert response.json['message']
+
+    def test_request_js_files(self):
+        print('Request list of js files')
+
+        # Allowed - default widgets parameters: widget_id and widget_template
+        # Add parameter page to get a whole page: js, css, ...
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/files/js_list'
+        )
+        print(response)
+        assert response.json['status'] == "ok"
+        assert "files" in response.json
+        assert response.json['files']
+
+        reference =  [
+            "/static/js/jquery-1.12.0.min.js",
+            "/static/js/jquery-1.12.0.min.js",
+            "/static/js/jquery-ui-1.11.4.min.js",
+            "/static/js/bootstrap3/bootstrap.min.js",
+            "/static/js/moment-with-langs.min.js",
+            "/static/js/daterangepicker.js",
+            "/static/js/jquery.jclock.js",
+            "/static/js/jquery.jTruncate.js",
+            "/static/js/typeahead.bundle.min.js",
+            "/static/js/screenfull.js/static/js/alertify.min.js",
+            "/static/js/selectize.min.js", "/static/js/Chart.min.js",
+            "/static/js/jstree.min.js",
+            "/static/js/datatables/jquery.dataTables.min.js",
+            "/static/js/datatables/dataTables.responsive.min.js",
+            "/static/js/datatables/dataTables.buttons.min.js",
+            "/static/js/datatables/buttons.bootstrap.min.js",
+            "/static/js/datatables/buttons.colVis.min.js",
+            "/static/js/datatables/buttons.flash.min.js",
+            "/static/js/datatables/buttons.html5.min.js",
+            "/static/js/datatables/buttons.print.min.js",
+            "/static/js/datatables/dataTables.select.min.js",
+            "/static/js/datatables/dataTables.bootstrap.min.js",
+            "/static/js/datatables/responsive.bootstrap.min.js",
+            "/static/js/material/material.min.js",
+            "/static/js/material/ripples.min.js"
+        ]
+        self.assertEqual(reference, response.json['files'])
+
+    def test_request_css_files(self):
+        print('Request list of css files')
+
+        # Allowed - default widgets parameters: widget_id and widget_template
+        # Add parameter page to get a whole page: js, css, ...
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/files/css_list'
+        )
+        print(response)
+        assert response.json['status'] == "ok"
+        assert "files" in response.json
+        assert response.json['files']
+
+        reference =  [
+            "/static/css/bootstrap3/bootstrap.min.css",
+            "/static/css/font-awesome.min.css",
+            "/static/css/typeahead.css",
+            "/static/css/daterangepicker.css",
+            "/static/css/alertify.min.css",
+            "/static/css/alertify.bootstrap.min.css",
+            "/static/css/timeline.css",
+            "/static/css/font-roboto.css",
+            "/static/css/material-icons.css",
+            "/static/css/material/bootstrap-material-design.css",
+            "/static/css/material/ripples.min.css",
+            "/static/css/jstree/style.min.css",
+            "/static/css/datatables/jquery.dataTables.min.css",
+            "/static/css/datatables/responsive.dataTables.min.css",
+            "/static/css/datatables/buttons.dataTables.min.css",
+            "/static/css/datatables/select.dataTables.min.css",
+            "/static/css/datatables/select.bootstrap.min.css",
+            "/static/css/datatables/dataTables.bootstrap.min.css",
+            "/static/css/datatables/responsive.bootstrap.min.css",
+            "/static/css/datatables/buttons.bootstrap.min.css",
+            "/static/css/alignak_webui.css",
+            "/static/css/alignak_webui-items.css"
+        ]
+        self.assertEqual(reference, response.json['files'])
 
 
 if __name__ == '__main__':
