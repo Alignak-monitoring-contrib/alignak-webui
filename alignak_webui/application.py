@@ -994,7 +994,7 @@ class WebUI(object):
             "/static/js/jquery.jclock.js",
             "/static/js/jquery.jTruncate.js",
             "/static/js/typeahead.bundle.min.js",
-            "/static/js/screenfull.js"
+            "/static/js/screenfull.js",
             "/static/js/alertify.min.js",
             "/static/js/selectize.min.js",
             "/static/js/Chart.min.js",

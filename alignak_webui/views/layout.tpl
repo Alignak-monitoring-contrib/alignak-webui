@@ -48,7 +48,7 @@
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
       <!-- Stylesheets
-      ================================================== -->
+      ==================================================
       %if request.app.config.get('bootstrap4', '0') == '1':
       <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
       %else:
@@ -58,49 +58,30 @@
       <link rel="stylesheet" href="/static/css/typeahead.css" >
       <link rel="stylesheet" href="/static/css/daterangepicker.css" >
 
-      <!-- alertify.js dialog boxes -->
       <link rel="stylesheet" href="/static/css/alertify.min.css" >
       <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
 
       <link rel="stylesheet" href="/static/css/timeline.css" >
 
       %if request.app.config.get('material_design', '1') == '1':
-      <!-- Material Design fonts
-      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
-      -->
       <link rel="stylesheet" href="/static/css/font-roboto.css" >
       <link rel="stylesheet" href="/static/css/material-icons.css" >
 
-      <!-- Bootstrap Material Design -->
       <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
       <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
 
       %else:
-      <!-- selectize: styles already included with BMD -->
       <link rel="stylesheet" href="/static/css/selectize.css">
       <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css">
       %end
 
-      <!-- jsTree jQuery plugin -->
       <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
 
-      <!-- Datatables jQuery plugin - download builder file
-      <link rel="stylesheet" href="/static/css/datatables/all_datatables.min.css" >
-      -->
-      <!-- Datatable, CDN version:
-      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-flash-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.css"/>
-      -->
-      <!-- Datatables jQuery plugin - separate files -->
       <link rel="stylesheet" href="/static/css/datatables/jquery.dataTables.min.css" >
-      %if request.app.config.get('material_design', '1') == '1':
-      <!--<link rel="stylesheet" href="/static/css/datatables/dataTables.material.min.css" >-->
-      %else:
       %if request.app.config.get('bootstrap4', '0') == '1':
       <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap4.min.css" >
       %else:
       <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap.min.css" >
-      %end
       %end
 
       <link rel="stylesheet" href="/static/css/datatables/responsive.dataTables.min.css" >
@@ -119,10 +100,16 @@
 
       <link rel="stylesheet" href="/static/css/datatables/select.dataTables.min.css" >
       <link rel="stylesheet" href="/static/css/datatables/select.bootstrap.min.css" >
+      -->
+      %# WebUI CSS files
+      %for f in webui.css_list:
+      <link rel="stylesheet" href="{{f}}">
+      %end
 
-      <!-- Alignak Web UI -->
+      <!-- Alignak Web UI
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
+      -->
 
       %# Specific CSS files
       %for f in css:
@@ -134,7 +121,7 @@
       <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Search for hosts and services in Alignak WebUI" />
 
       <!-- Scripts
-      ================================================== -->
+      ==================================================
       <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
       <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
       %if request.app.config.get('bootstrap4', '0') == '1':
@@ -149,8 +136,9 @@
       <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
       <script type="text/javascript" src="/static/js/screenfull.js"></script>
 
-      <!-- alertify.js dialog boxes -->
       <script type="text/javascript" src="/static/js/alertify.min.js"></script>
+      -->
+
       <script type="text/javascript">
       alertify.defaults.transition = "slide";
       alertify.defaults.theme.ok = "btn btn-primary";
@@ -158,22 +146,19 @@
       alertify.defaults.theme.input = "form-control";
       </script>
 
-      <!-- selectize -->
+      <!-- selectize
       <script type="text/javascript" src="/static/js/selectize.min.js"></script>
+      -->
 
-      <!-- jQuery Chart -->
+      <!-- jQuery Chart
       <script type="text/javascript" src="/static/js/Chart.min.js"></script>
+      -->
 
-      <!-- jsTree jQuery plugin -->
+      <!-- jsTree jQuery plugin
       <script type="text/javascript" src="/static/js/jstree.min.js"></script>
+      -->
 
-      <!-- Datatables jQuery plugin - download builder file
-      <script type="text/javascript" src="/static/js/datatables/all_datatables.min.js"></script>
-      -->
-      <!-- Datatable, CDN version:
-      <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-flash-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.js"></script>
-      -->
-      <!-- Datatables jQuery plugin - separate files -->
+      <!-- Datatables jQuery plugin - separate files
       <script type="text/javascript" src="/static/js/datatables/jquery.dataTables.min.js"></script>
       %if request.app.config.get('material_design', '1') == '1':
       <script type="text/javascript" src="/static/js/datatables/dataTables.material.min.js"></script>
@@ -200,6 +185,12 @@
       <script type="text/javascript" src="/static/js/datatables/buttons.print.min.js"></script>
 
       <script type="text/javascript" src="/static/js/datatables/dataTables.select.min.js"></script>
+      -->
+
+      %# WebUI Javascript files
+      %for f in webui.js_list:
+      <script type="text/javascript" src="{{f}}"></script>
+      %end
 
       <!--
        Application globals ...
