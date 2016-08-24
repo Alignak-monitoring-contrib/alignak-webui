@@ -7,6 +7,14 @@
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
       $.ajax({
+         url: "/ping?action=refresh&template=_header_states"
+      })
+      .done(function(content, textStatus, jqXHR) {
+         $('#_header_states').html(content);
+      });
+
+      /*
+      $.ajax({
          url: "/ping?action=refresh&template=_header_hosts_state"
       })
       .done(function(content, textStatus, jqXHR) {
@@ -19,6 +27,7 @@
       .done(function(content, textStatus, jqXHR) {
          $('#overall-services-states').html(content);
       });
+      */
    }
 
    $(document).ready(function(){
@@ -47,14 +56,8 @@
             <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
          </a>
 
-         <ul class="nav navbar-nav navbar-left">
-            <li id="overall-hosts-states" class="pull-left">
-               %include("_header_hosts_state.tpl")
-            </li>
-
-            <li id="overall-services-states" class="pull-left">
-               %include("_header_services_state.tpl")
-            </li>
+         <ul class="nav navbar-nav navbar-left" id="_header_states">
+            %include("_header_states.tpl")
          </ul>
       </div>
 
