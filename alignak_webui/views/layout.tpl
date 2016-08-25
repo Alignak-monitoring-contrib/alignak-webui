@@ -42,66 +42,13 @@
 
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
-      <!-- Stylesheets
-      ==================================================
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
-      %end
-      <link rel="stylesheet" href="/static/css/font-awesome.min.css" >
-      <link rel="stylesheet" href="/static/css/typeahead.css" >
-      <link rel="stylesheet" href="/static/css/daterangepicker.css" >
-
-      <link rel="stylesheet" href="/static/css/alertify.min.css" >
-      <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
-
-      <link rel="stylesheet" href="/static/css/timeline.css" >
-
-      %if request.app.config.get('material_design', '1') == '1':
-      <link rel="stylesheet" href="/static/css/font-roboto.css" >
-      <link rel="stylesheet" href="/static/css/material-icons.css" >
-
-      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
-      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
-
-      %else:
-      <link rel="stylesheet" href="/static/css/selectize.css">
-      <link rel="stylesheet" href="/static/css/selectize.bootstrap3.css">
-      %end
-
-      <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
-
-      <link rel="stylesheet" href="/static/css/datatables/jquery.dataTables.min.css" >
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap4.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap.min.css" >
-      %end
-
-      <link rel="stylesheet" href="/static/css/datatables/responsive.dataTables.min.css" >
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/responsive.bootstrap4.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/datatables/responsive.bootstrap.min.css" >
-      %end
-
-      <link rel="stylesheet" href="/static/css/datatables/buttons.dataTables.min.css" >
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/buttons.bootstrap4.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/datatables/buttons.bootstrap.min.css" >
-      %end
-
-      <link rel="stylesheet" href="/static/css/datatables/select.dataTables.min.css" >
-      <link rel="stylesheet" href="/static/css/datatables/select.bootstrap.min.css" >
-      -->
+      <!-- Stylesheets -->
       %# WebUI CSS files
       %for f in webui.css_list:
       <link rel="stylesheet" href="{{f}}">
       %end
 
-      <!-- Alignak Web UI
+      <!-- Alignak Web UI (included in the previous files list)
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
       -->
@@ -115,66 +62,9 @@
       ================================================== -->
       <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Search for hosts and services in Alignak WebUI" />
 
-      <!-- Scripts
-      ==================================================
-      <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
-      <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
-      %end
-      <script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
-      <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
-      <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
-      <script type="text/javascript" src="/static/js/jquery.jTruncate.js"></script>
-      <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
-      <script type="text/javascript" src="/static/js/screenfull.js"></script>
-
-      <script type="text/javascript" src="/static/js/alertify.min.js"></script>
+      <!--
+         Application libraries
       -->
-
-      <!-- selectize
-      <script type="text/javascript" src="/static/js/selectize.min.js"></script>
-      -->
-
-      <!-- jQuery Chart
-      <script type="text/javascript" src="/static/js/Chart.min.js"></script>
-      -->
-
-      <!-- jsTree jQuery plugin
-      <script type="text/javascript" src="/static/js/jstree.min.js"></script>
-      -->
-
-      <!-- Datatables jQuery plugin - separate files
-      <script type="text/javascript" src="/static/js/datatables/jquery.dataTables.min.js"></script>
-      %if request.app.config.get('material_design', '1') == '1':
-      <script type="text/javascript" src="/static/js/datatables/dataTables.material.min.js"></script>
-      %else:
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/datatables/dataTables.bootstrap4.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/datatables/dataTables.bootstrap.min.js"></script>
-      %end
-      %end
-
-      <script type="text/javascript" src="/static/js/datatables/dataTables.responsive.min.js"></script>
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/datatables/responsive.bootstrap4.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/datatables/responsive.bootstrap.min.js"></script>
-      %end
-
-      <script type="text/javascript" src="/static/js/datatables/dataTables.buttons.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.bootstrap.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.colVis.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.flash.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.html5.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.print.min.js"></script>
-
-      <script type="text/javascript" src="/static/js/datatables/dataTables.select.min.js"></script>
-      -->
-
       %# WebUI Javascript files
       %for f in webui.js_list:
       <script type="text/javascript" src="{{f}}"></script>
