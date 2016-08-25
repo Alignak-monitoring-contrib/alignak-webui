@@ -134,13 +134,6 @@
       <script type="text/javascript" src="/static/js/alertify.min.js"></script>
       -->
 
-      <script type="text/javascript">
-      alertify.defaults.transition = "slide";
-      alertify.defaults.theme.ok = "btn btn-primary";
-      alertify.defaults.theme.cancel = "btn btn-danger";
-      alertify.defaults.theme.input = "form-control";
-      </script>
-
       <!-- selectize
       <script type="text/javascript" src="/static/js/selectize.min.js"></script>
       -->
@@ -356,6 +349,12 @@
 
       <script>
       $(document).ready(function() {
+         // Initialize alertify library
+         alertify.defaults.transition = "slide";
+         alertify.defaults.theme.ok = "btn btn-primary";
+         alertify.defaults.theme.cancel = "btn btn-danger";
+         alertify.defaults.theme.input = "form-control";
+
          $.material.init();
       });
       </script>

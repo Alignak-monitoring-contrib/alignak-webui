@@ -886,18 +886,17 @@ class WebUI(object):
         :return:
         """
         js_list = [
-            '/static/js/jquery-1.12.0.min.js',
             "/static/js/jquery-1.12.0.min.js",
             "/static/js/jquery-ui-1.11.4.min.js"
         ]
 
         if self.app_config.get('bootstrap4', '0') == '1':
             js_list += [
-                "/static/js/bootstrap4/bootstrap.min.js"
+                "/static/js/bootstrap4.min.js"
             ]
         else:
             js_list += [
-                "/static/js/bootstrap3/bootstrap.min.js"
+                "/static/js/bootstrap.min.js"
             ]
 
         js_list += [
@@ -913,27 +912,13 @@ class WebUI(object):
             "/static/js/jstree.min.js",
         ]
 
-        # Datatables files (may be grouped in one huge file...)
-        js_list += [
-            "/static/js/datatables/jquery.dataTables.min.js",
-            "/static/js/datatables/dataTables.responsive.min.js",
-            "/static/js/datatables/dataTables.buttons.min.js",
-            "/static/js/datatables/buttons.bootstrap.min.js",
-            "/static/js/datatables/buttons.colVis.min.js",
-            "/static/js/datatables/buttons.flash.min.js",
-            "/static/js/datatables/buttons.html5.min.js",
-            "/static/js/datatables/buttons.print.min.js",
-            "/static/js/datatables/dataTables.select.min.js",
-        ]
         if self.app_config.get('bootstrap4', '0') == '1':
             js_list += [
-                "/static/js/datatables/dataTables.bootstrap4.min.js",
-                "/static/js/datatables/responsive.bootstrap4.min.js"
+                "/static/js/datatables.bootstrap4.min.js"
             ]
         else:
             js_list += [
-                "/static/js/datatables/dataTables.bootstrap.min.js",
-                "/static/js/datatables/responsive.bootstrap.min.js"
+                "/static/js/datatables.min.js"
             ]
 
         if self.app_config.get('material_design', '1') == '1':
@@ -952,11 +937,11 @@ class WebUI(object):
         """
         if self.app_config.get('bootstrap4', '0') == '1':
             css_list = [
-                "/static/css/bootstrap4/bootstrap.min.css"
+                "/static/css/bootstrap4.min.css"
             ]
         else:
             css_list = [
-                "/static/css/bootstrap3/bootstrap.min.css"
+                "/static/css/bootstrap.min.css"
             ]
 
         css_list += [
@@ -972,7 +957,7 @@ class WebUI(object):
             css_list += [
                 "/static/css/font-roboto.css",
                 "/static/css/material-icons.css",
-                "/static/css/material/bootstrap-material-design.css",
+                "/static/css/material/bootstrap-material-design.min.css",
                 "/static/css/material/ripples.min.css"
             ]
         else:
@@ -983,23 +968,14 @@ class WebUI(object):
 
         css_list += [
             "/static/css/jstree/style.min.css",
-            "/static/css/datatables/jquery.dataTables.min.css",
-            "/static/css/datatables/responsive.dataTables.min.css",
-            "/static/css/datatables/buttons.dataTables.min.css",
-            "/static/css/datatables/select.dataTables.min.css",
-            "/static/css/datatables/select.bootstrap.min.css"
         ]
         if self.app_config.get('bootstrap4', '0') == '1':
             css_list += [
-                "/static/css/datatables/dataTables.bootstrap4.min.css",
-                "/static/css/datatables/responsive.bootstrap4.min.css",
-                "/static/css/datatables/buttons.bootstrap4.min.css"
+                "/static/css/datatables.bootstrap4.min.css",
             ]
         else:
             css_list += [
-                "/static/css/datatables/dataTables.bootstrap.min.css",
-                "/static/css/datatables/responsive.bootstrap.min.css",
-                "/static/css/datatables/buttons.bootstrap.min.css"
+                "/static/css/datatables.min.css",
             ]
 
         css_list += [

@@ -677,7 +677,7 @@ class BackendElement(object):
         """
         Get Item endpoint (page url)
         """
-        return '/%s/%s' % (self.object_type, self.id)
+        return '/%s/%s' % (self.object_type, self.name)
 
     @property
     def html_link(self):
