@@ -606,9 +606,8 @@ class TestExternalFiles(unittest2.TestCase):
 
         reference =  [
             "/static/js/jquery-1.12.0.min.js",
-            "/static/js/jquery-1.12.0.min.js",
             "/static/js/jquery-ui-1.11.4.min.js",
-            "/static/js/bootstrap3/bootstrap.min.js",
+            "/static/js/bootstrap.min.js",
             "/static/js/moment-with-langs.min.js",
             "/static/js/daterangepicker.js",
             "/static/js/jquery.jclock.js",
@@ -619,17 +618,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/js/selectize.min.js",
             "/static/js/Chart.min.js",
             "/static/js/jstree.min.js",
-            "/static/js/datatables/jquery.dataTables.min.js",
-            "/static/js/datatables/dataTables.responsive.min.js",
-            "/static/js/datatables/dataTables.buttons.min.js",
-            "/static/js/datatables/buttons.bootstrap.min.js",
-            "/static/js/datatables/buttons.colVis.min.js",
-            "/static/js/datatables/buttons.flash.min.js",
-            "/static/js/datatables/buttons.html5.min.js",
-            "/static/js/datatables/buttons.print.min.js",
-            "/static/js/datatables/dataTables.select.min.js",
-            "/static/js/datatables/dataTables.bootstrap.min.js",
-            "/static/js/datatables/responsive.bootstrap.min.js",
+            "/static/js/datatables.min.js",
             "/static/js/material/material.min.js",
             "/static/js/material/ripples.min.js"
         ]
@@ -650,7 +639,7 @@ class TestExternalFiles(unittest2.TestCase):
         assert response.json['files']
 
         reference =  [
-            "/static/css/bootstrap3/bootstrap.min.css",
+            "/static/css/bootstrap.min.css",
             "/static/css/font-awesome.min.css",
             "/static/css/typeahead.css",
             "/static/css/daterangepicker.css",
@@ -659,17 +648,10 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/css/timeline.css",
             "/static/css/font-roboto.css",
             "/static/css/material-icons.css",
-            "/static/css/material/bootstrap-material-design.css",
+            "/static/css/material/bootstrap-material-design.min.css",
             "/static/css/material/ripples.min.css",
             "/static/css/jstree/style.min.css",
-            "/static/css/datatables/jquery.dataTables.min.css",
-            "/static/css/datatables/responsive.dataTables.min.css",
-            "/static/css/datatables/buttons.dataTables.min.css",
-            "/static/css/datatables/select.dataTables.min.css",
-            "/static/css/datatables/select.bootstrap.min.css",
-            "/static/css/datatables/dataTables.bootstrap.min.css",
-            "/static/css/datatables/responsive.bootstrap.min.css",
-            "/static/css/datatables/buttons.bootstrap.min.css",
+            "/static/css/datatables.min.css",
             "/static/css/alignak_webui.css",
             "/static/css/alignak_webui-items.css"
         ]
