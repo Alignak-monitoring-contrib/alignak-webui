@@ -120,16 +120,15 @@ def before_request():
     BaseTemplate.defaults['current_user'] = session['current_user']
     # Make session edition mode available in the templates
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
-    # Make session datamanager available in the templates
-    get_app_webui().datamgr = DataManager(
+    # Make data manager available in the request and in the templates
+    request.app.datamgr = DataManager(
         user=session['current_user'],
         backend_endpoint=request.app.config.get(
             'alignak_backend',
             'http://127.0.0.1:5000'
         )
     )
-    request.app.datamgr = get_app_webui().datamgr
-    BaseTemplate.defaults['datamgr'] = get_app_webui().datamgr
+    BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
@@ -228,6 +227,16 @@ def external(widget_type, identifier, action=None):
 
         # Make session data available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
+
+        # Make data manager available in the request and in the templates
+        request.app.datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint=request.app.config.get(
+                'alignak_backend',
+                'http://127.0.0.1:5000'
+            )
+        )
+        BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.debug(
         "External request, element type: %s", widget_type

@@ -66,10 +66,10 @@ header {
 }
 .navbar-brand img {
     height: 100%;
-    background-color: rgba(255,255,255,0.7);
+    background-color: rgba(255,255,255,0.8);
+    border-radius: 5px;
     padding: 3px;
 }
-
 /*
  * Header - Hosts and services states icons
  */
