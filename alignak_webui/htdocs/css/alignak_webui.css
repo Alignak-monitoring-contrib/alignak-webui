@@ -70,6 +70,7 @@ header {
     border-radius: 5px;
     padding: 3px;
 }
+
 /*
  * Header - Hosts and services states icons
  */
@@ -77,6 +78,27 @@ header {
 #services-states-popover {
     width: 44px;
     height: 50px;
+}
+
+/*
+ * Header - Hosts and services popovers
+
+   Hack because current Bootstrap material design (V3) does not deal correctly with popovers ...
+ */
+.popover-hosts {
+    background: #eee;
+    color: #fff;
+    border-radius: 3px;
+}
+.popover-services {
+    background: #eee;
+    color: #fff;
+    border-radius: 3px;
+}
+.popover-title {
+    /* blue-grey-400 */
+    background-color: #78909c;
+    color: #FFF;
 }
 
 /*

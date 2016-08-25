@@ -6,15 +6,17 @@ Development
 Application
 -----------
 
-Web application developed with Python Bottle micro-framework. See `app.py` for the main application file and `application.py` as the Bottle application.
+Web application developed with Python Bottle micro-framework. See `app.py` for the main application file and `application.py` as the Bottle application and the main routes definition.
 
 User authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The application install a *before_request* hook to detect if a session currently exists and an authenticated user already connected.
+The application install a *before_request* hook to detect if a session currently exists and an authenticated user is already connected (stored in the session).
 
-If no session exists all the requests are redirected to the */login* page. User is authenticated near Alignak bakcned with username / password. Once authenticated, a Contact representing the current user is stored in the session. This contact has an *authenticated* attribute set.
-
+If no session exists all the requests are redirected to the */login* page.
+User is authenticated near Alignak backend with username / password.
+Once authenticated, a User object representing the current user is stored in the session.
+This user has an *authenticated* attribute set.
 
 
 Session management
@@ -22,16 +24,18 @@ Session management
 
 The application uses Beaker middleware for session management. The configuration is made in `__init__.py`.
 
-The session is stored in memory, mainly for performance and also because some stored objects can not be pickled (BackendConnection) to file storage.
+The session is stored in a file to persist across application restarts and to allow using a multi-threaded web server.
 
 A cookie named as the application (Alignak-WebUI) is existing as soon as a session is created. Its expiry delay is 6 hours.
 
-The session stores the current user, the target user, the connection message and the data manager containing all the UI data.
+The session stores the current user and some small other information (login message, application message).
 
 
 Data manager
 ------------------
  The application uses a DataManager object to store all the information about the data got from the Alignak backend.
+
+ The DataManager is an interface between the application and its plugins, and the data store in the Alignak backend.
 
  TO BE DETAILED !
 
@@ -231,10 +235,6 @@ Some examples:
     - livestate elements business impact high: `search=business_impact:5`
 
 
-User's preferences
-------------------
-
- TO BE EXPLAINED !
 
 HTML templates
 ---------------
@@ -254,3 +254,35 @@ Good practices
 ~~~~~~~~~~~~~~
 
 From Python to javascript, main javascript variables are declared in layout.tpl to be available for every HTML and Javascript files.
+
+
+
+Application UI design
+---------------------
+
+The application User Interface design is based upon Google Material Design served by the Bootstrap Material Design project (https://github.com/FezVrasta/bootstrap-material-design)
+
+The default CSS can be changed and rebuilt from the project LESS files.
+
+On a Linux Ubuntu:
+
+    sudo apt-get install nodejs-legacy
+    sudo apt-get install npm
+    sudo apt-get install node-less
+
+    sudo npm install bower -g
+    sudo npm install -g grunt-cli
+
+    git clone https://github.com/FezVrasta/bootstrap-material-design
+    cd bootstrap-material-design/
+    npm install && bower install
+
+    # Colors are defined in less/_colors.less
+    # Change variables in less/_variables.less
+
+    grunt less      # Rebuild CSS files in dist/css
+    grunt cssmin    # Minify CSS files in dist/css
+
+
+Once the new CSS files are built copy the content of the dist/css directory into the htdocs/css/material directory of the WebUI.
+

@@ -8,7 +8,6 @@
 %setdefault('title', _('Untitled...'))
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
-%setdefault('refresh_header', True)
 %setdefault('current_user', None)
 %setdefault('sidebar', False)
 %setdefault('elts_per_page', 25)
@@ -204,13 +203,6 @@
       var app_refresh_period = {{int(request.app.config.get('refresh_period', '60'))}};
       </script>
       <script src="/static/js/alignak_webui-refresh.js"></script>
-      %end
-      %if refresh_header:
-      <script>
-      var header_refresh_period = {{int(request.app.config.get('header_refresh_period', '30'))}};
-      </script>
-      %else:
-      var header_refresh_period = 0;
       %end
 
       <script src="/static/js/alignak_webui-external.js"></script>

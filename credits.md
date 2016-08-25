@@ -17,6 +17,9 @@ alertify: http://alertifyjs.com/
 
 screenfull.js: https://sindresorhus.com/screenfull.js/
 
+Bootstrap Material Design: https://github.com/FezVrasta/bootstrap-material-design
+
+
 Contributors
 ------------
 

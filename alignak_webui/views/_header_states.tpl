@@ -32,23 +32,6 @@
 %datamgr.set_user_preferences(current_user, 'services_states_queue', services_states_queue)
 %end
 
-<!-- Declared here to make sure they are applied -->
-<style>
-.popover-hosts {
-   background: #eee;
-   color: #fff;
-   border-radius: 3px;
-}
-.popover-services {
-   background: #eee;
-   color: #fff;
-   border-radius: 3px;
-}
-.popover-title {
-   background: #009688;
-   color: #FFF;
-}
-</style>
 <div id="hosts-states-popover-content" class="hidden">
    <table class="table table-invisible">
       <tbody>
