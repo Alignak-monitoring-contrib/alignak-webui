@@ -619,14 +619,14 @@ class TestLivestate(unittest2.TestCase):
         lv_service = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
         print('livestate: %s / %s' % (lv_host, lv_service))
 
-        Redirect to host page
+        # Redirect to host page
         response = self.app.get('/livestate/' + lv_host[0].id)
         response = response.follow()
         response.mustcontain(
             '<div id="host">',
         )
 
-        Redirect to host page
+        # Redirect to host page
         response = self.app.get('/livestate/' + lv_service[0].id)
         response = response.follow()
         response.mustcontain(
