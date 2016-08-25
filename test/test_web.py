@@ -610,25 +610,28 @@ class TestLivestate(unittest2.TestCase):
         print('get page /livestate')
         response = self.app.get('/livestate/fake_id', status=204)
 
-        # session = response.request.environ['beaker.session']
-        # datamgr = session['datamanager']
-        # lv_host = datamgr.get_livestates({'where': {'name': 'webui'}})
-        # lv_service = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
-        # print('livestate: %s / %s' % (lv_host, lv_service))
+        session = response.request.environ['beaker.session']
+        datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint='http://127.0.0.1:5000'
+        )
+        lv_host = datamgr.get_livestates({'where': {'name': 'webui'}})
+        lv_service = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
+        print('livestate: %s / %s' % (lv_host, lv_service))
 
-        # Redirect to host page
-        # response = self.app.get('/livestate/' + lv_host[0].id)
-        # response = response.follow()
-        # response.mustcontain(
-            # '<div id="host">',
-        # )
+        Redirect to host page
+        response = self.app.get('/livestate/' + lv_host[0].id)
+        response = response.follow()
+        response.mustcontain(
+            '<div id="host">',
+        )
 
-        # Redirect to host page
-        # response = self.app.get('/livestate/' + lv_service[0].id)
-        # response = response.follow()
-        # response.mustcontain(
-            # '<div id="host">',
-        # )
+        Redirect to host page
+        response = self.app.get('/livestate/' + lv_service[0].id)
+        response = response.follow()
+        response.mustcontain(
+            '<div id="host">',
+        )
 
         print('get page /livestates/widget')
         # Errors
