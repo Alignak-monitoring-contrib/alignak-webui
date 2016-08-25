@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', True)
+%setdefault('debugLogs', False)
 
 %setdefault('edition_mode', False)
 
