@@ -60,7 +60,7 @@ class PluginHostsGroups(Plugin):
         """
         Get the hostgroup hosts list
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         hostgroup = datamgr.get_hostgroup(hostgroup_id)
         if not hostgroup:

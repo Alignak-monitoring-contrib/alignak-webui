@@ -192,6 +192,7 @@ def set_app_webui(webui):
 
     # Make main application object available in all Bottle templates
     app_webui = webui
+    bottle_app.webui = webui
     BaseTemplate.defaults['webui'] = webui
     return app_webui
 
@@ -221,7 +222,7 @@ bottle.TEMPLATE_PATH.append(
 # Extend default WSGI application with a session middleware
 session_opts = {
     # Important: somedata stored in the session cannot be pickled. Using file is not allowed!
-    'session.type': 'memory',
+    'session.type': 'file',
     'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
     'session.auto': True,
     'session.cookie_expires': 21600,    # 6 hours

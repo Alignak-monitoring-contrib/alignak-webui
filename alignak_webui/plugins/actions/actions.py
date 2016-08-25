@@ -109,12 +109,7 @@ class PluginActions(Plugin):
 
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-
-        user_id = user.id
-        if not target_user.is_anonymous():
-            user_id = target_user.id
+        datamgr = request.app.datamgr
 
         livestate_ids = request.forms.getall('livestate_id')
         if not livestate_ids:
@@ -137,7 +132,7 @@ class PluginActions(Plugin):
                 'action': 'add',
                 'host': livestate.host.id,
                 'service': None,
-                'user': user_id,
+                'user': user.id,
                 'sticky': request.forms.get('sticky', 'false') == 'true',
                 'notify': request.forms.get('notify', 'false') == 'true',
                 'persistent': request.forms.get('persistent', 'false') == 'true',
@@ -177,12 +172,7 @@ class PluginActions(Plugin):
         Request a forced check
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-
-        user_id = user.id
-        if not target_user.is_anonymous():
-            user_id = target_user.id
+        datamgr = request.app.datamgr
 
         livestate_ids = request.forms.getall('livestate_id')
         if not livestate_ids:
@@ -204,7 +194,7 @@ class PluginActions(Plugin):
             data = {
                 'host': livestate.host.id,
                 'service': None,
-                'user': user_id,
+                'user': user.id,
                 'comment': request.forms.get('comment', _('No comment'))
             }
             if livestate.service != 'service':
@@ -246,12 +236,7 @@ class PluginActions(Plugin):
         Add a downtime
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-
-        user_id = user.id
-        if not target_user.is_anonymous():
-            user_id = target_user.id
+        datamgr = request.app.datamgr
 
         livestate_ids = request.forms.getall('livestate_id')
         if not livestate_ids:
@@ -275,7 +260,7 @@ class PluginActions(Plugin):
                 'action': 'add',
                 'host': livestate.host.id,
                 'service': None,
-                'user': user_id,
+                'user': user.id,
                 'start_time': request.forms.get('start_time'),
                 'end_time': request.forms.get('end_time'),
                 'fixed': request.forms.get('fixed', 'false') == 'true',

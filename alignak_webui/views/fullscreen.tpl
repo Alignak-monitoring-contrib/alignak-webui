@@ -9,16 +9,12 @@
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
 %setdefault('current_user', None)
-%setdefault('target_user', None)
 %setdefault('sidebar', True)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
 
 %username = current_user.get_username()
-%if not target_user.is_anonymous():
-%username = target_user.get_username()
-%end
 
 <!DOCTYPE html>
 <html lang="en">

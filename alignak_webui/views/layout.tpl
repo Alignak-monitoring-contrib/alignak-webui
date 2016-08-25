@@ -10,7 +10,6 @@
 %setdefault('refresh', True)
 %setdefault('refresh_header', True)
 %setdefault('current_user', None)
-%setdefault('target_user', None)
 %setdefault('sidebar', False)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
@@ -19,9 +18,6 @@
 %setdefault('edition_mode', False)
 
 %username = current_user.get_username()
-%if not target_user.is_anonymous():
-%username = target_user.get_username()
-%end
 
 <!DOCTYPE html>
 <html lang="en">
@@ -242,13 +238,10 @@
                         <strong>User</strong>: {{current_user}}
                      </small></div>
                      <div><small>
-                        <strong>Target user</strong>: {{target_user}}
-                     </small></div>
-                     <div><small>
                         <strong>Request</strong>:
                         <div class="panel panel-default">
                            <div class="panel-heading">
-                              <a data-toggle="collapse" href="#panel2">Request['environ']:</a>
+                              <a data-toggle="collapse" href="#panel2">request['environ']:</a>
                            </div>
                            <div id="panel2" class="panel-collapse collapse">
                               <ul class="list-group">
@@ -260,11 +253,11 @@
                         </div>
                         <div class="panel panel-default">
                            <div class="panel-heading">
-                              <a data-toggle="collapse" href="#panel3">Request['app']:</a>
+                              <a data-toggle="collapse" href="#panel3">request['app'] / request.environ['bottle.app']:</a>
                            </div>
                            <div id="panel3" class="panel-collapse collapse">
                               <ul class="list-group">
-                                 %for k in request.app.__dict__:
+                                 %for k in request.environ['bottle.app'].__dict__:
                                     <li class="list-group-item"><small>{{k}} - {{request.app.__dict__[k]}}</small></li>
                                  %end
                               </ul>

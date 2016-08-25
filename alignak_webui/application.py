@@ -85,14 +85,6 @@ def before_request():
         # Make session current user available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
 
-    if 'target_user' in session:
-        # Make session target user available in the templates
-        BaseTemplate.defaults['target_user'] = session['target_user']
-
-    if 'datamanager' in session:
-        # Make session datamanager available in the templates
-        BaseTemplate.defaults['datamgr'] = session['datamanager']
-
     # Public URLs routing ...
     if request.urlparts.path == '/ping' or \
        request.urlparts.path == '/heartbeat':
@@ -122,7 +114,6 @@ def before_request():
         )
         redirect('/login')
 
-    session['current_user'] = session['datamanager'].logged_in_user
     logger.debug("before_request, session authenticated user: %s", session['current_user'])
 
     # Make session current user available in the templates
@@ -130,38 +121,15 @@ def before_request():
     # Make session edition mode available in the templates
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
     # Make session datamanager available in the templates
-    BaseTemplate.defaults['datamgr'] = session['datamanager']
-
-    # Set/change target user in the session
-    target_user_username = request.query.get('target_user', None)
-    if target_user_username == "":
-        if 'target_user' in session and not session['target_user'].is_anonymous():
-            logger.warning("no more target user in the session")
-            session['target_user'] = User()
-
-            # Reload data ...
-            session['datamanager'].load(reset=True)
-    elif target_user_username is not None:
-        if 'target_user' in session and \
-           session['target_user'].get_username() != target_user_username:
-            logger.info("new target user specified: %s", target_user_username)
-            target_user = session['datamanager'].get_user({
-                'where': {'name': target_user_username}
-            })
-            if target_user:
-                logger.debug(
-                    "before_request, target_user set in the session: %s", target_user_username
-                )
-                session['target_user'] = target_user
-
-                # Reload data ...
-                session['datamanager'].load(reset=True)
-            else:
-                logger.warning("before_request, no more target_user in the session")
-                session['target_user'] = User()
-
-    # Make session target user available in the templates
-    BaseTemplate.defaults['target_user'] = session['target_user']
+    get_app_webui().datamgr = DataManager(
+        user=session['current_user'],
+        backend_endpoint=request.app.config.get(
+            'alignak_backend',
+            'http://127.0.0.1:5000'
+        )
+    )
+    request.app.datamgr = get_app_webui().datamgr
+    BaseTemplate.defaults['datamgr'] = get_app_webui().datamgr
 
     logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
@@ -260,8 +228,6 @@ def external(widget_type, identifier, action=None):
 
         # Make session data available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
-        BaseTemplate.defaults['target_user'] = session['target_user']
-        BaseTemplate.defaults['datamgr'] = session['datamanager']
 
     logger.debug(
         "External request, element type: %s", widget_type
@@ -460,7 +426,6 @@ def ping():
         # Acknowledge UI refresh
         session['refresh_required'] = False
         if 'datamanager' in session:
-            session['datamanager'].new_data = []
             session['datamanager'].refresh_required = False
 
             response.status = 200
@@ -583,7 +548,7 @@ def user_auth():
     """
     username = request.forms.get('username', None)
     password = request.forms.get('password', None)
-    logger.debug("login, user '%s' is signing in ...", username)
+    logger.info("login, user '%s' is signing in ...", username)
 
     session = request.environ['beaker.session']
     session['login_message'] = None
@@ -594,7 +559,7 @@ def user_auth():
         logger.warning("user '%s' access denied, message: %s", username, session['login_message'])
         redirect('/login')
 
-    logger.warning("user '%s' (%s) signed in", username, session['current_user'].name)
+    logger.info("user '%s' (%s) signed in", username, session['current_user'].name)
     redirect('/')
 
 
@@ -641,33 +606,25 @@ def user_authentication(username, password):
     # Session...
     session = request.environ['beaker.session']
 
-    # Get backend in the server session (if it exists ... else create)
-    if 'datamanager' not in session:
-        logger.info("user authentication, creating a new data manager in the session...")
-        logger.info(
-            "backend: %s",
-            request.app.config.get('alignak_backend', 'http://127.0.0.1:5000')
-        )
-        session['datamanager'] = DataManager(
-            request.app.config.get(
+    session['login_message'] = None
+    if 'current_user' not in session or not session['current_user']:
+        # Build DM without any user parameter
+        datamgr = DataManager(
+            backend_endpoint=request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
             )
         )
 
-    if 'current_user' not in session or not session['current_user']:
         # Set user for the data manager and try to log-in.
-        if not session['datamanager'].user_login(username, password, load=(password is not None)):
-            session['login_message'] = session['datamanager'].connection_message
+        if not datamgr.user_login(username, password, load=(password is not None)):
+            session['login_message'] = datamgr.connection_message
+
             logger.warning("user authentication refused: %s", session['login_message'])
             return False
 
-    # Create a new target user in the session
-    if 'target_user' not in session:
-        session['target_user'] = User()
+        session['current_user'] = datamgr.logged_in_user
 
-    session['login_message'] = session['datamanager'].connection_message
-    session['current_user'] = session['datamanager'].logged_in_user
     logger.debug("user_authentication, current user authenticated")
     return True
 
@@ -720,13 +677,10 @@ def get_user_preference():
         - key, string identifying the parameter
         - default, default value if parameter does not exist
     """
-    datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
+        'alignak_backend', 'http://127.0.0.1:5000'
+    ))
 
     key = request.query.get('key', None)
     if not key:
@@ -738,7 +692,7 @@ def get_user_preference():
 
     response.status = 200
     response.content_type = 'application/json'
-    return json.dumps(datamgr.get_user_preferences(username, key, default))
+    return json.dumps(datamgr.get_user_preferences(user, key, default))
 
 
 @route('/preference/user/delete', 'GET')
@@ -748,13 +702,10 @@ def delete_user_preference():
 
         - key, string identifying the parameter
     """
-    datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
+        'alignak_backend', 'http://127.0.0.1:5000'
+    ))
 
     key = request.query.get('key', None)
     if not key:
@@ -762,28 +713,7 @@ def delete_user_preference():
 
     response.status = 200
     response.content_type = 'application/json'
-    return json.dumps(datamgr.delete_user_preferences(username, key))
-
-
-@route('/preference/common', 'GET')
-def get_common_preference():
-    """
-        Request parameters:
-
-        - key, string identifying the parameter
-        - default, default value if parameter does not exist
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    key = request.query.get('key', None)
-    if not key:
-        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(
-        datamgr.get_user_preferences('common', key, request.query.get('default', None))
-    )
+    return json.dumps(datamgr.delete_user_preferences(user, key))
 
 
 @route('/preference/user', 'POST')
@@ -794,52 +724,22 @@ def set_user_preference():
         - key, string identifying the parameter
         - value, as a JSON formatted string
     """
-    datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
+        'alignak_backend', 'http://127.0.0.1:5000'
+    ))
 
     key = request.forms.get('key', None)
     value = request.forms.get('value', None)
     if key is None or value is None:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    if datamgr.set_user_preferences(username, key, json.loads(value)):
+    if datamgr.set_user_preferences(user, key, json.loads(value)):
         return WebUI.response_ok(message=_('User preferences saved'))
     else:
         return WebUI.response_ko(
             message=_('Problem encountered while saving common preferences')
         )
-
-
-@route('/preference/common', 'POST')
-def set_common_preference():
-    """
-        Request parameters:
-
-        - key, string identifying the parameter
-        - value, as a JSON formatted string
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    user = request.environ['beaker.session']['current_user']
-
-    key = request.forms.get('key', None)
-    value = request.forms.get('value', None)
-    if key is None or value is None:
-        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    if user.is_administrator():
-        if datamgr.set_user_preferences('common', key, json.loads(value)):
-            return WebUI.response_ok(message=_('Common preferences saved'))
-        else:
-            return WebUI.response_ko(
-                message=_('Problem encountered while saving common preferences')
-            )
-    else:
-        return WebUI.response_ko(message=_('Only adaministrator user can save common preferences'))
 
 
 class WebUI(object):
@@ -848,13 +748,13 @@ class WebUI(object):
     """
     def __init__(self, config=None):
         """
-        Application configuration
+        Application initialization
 
         :param: config
         :type: dict
         """
 
-        logger.info("Initializing...")
+        logger.info("Initializing application...")
 
         # Store all the plugins
         self.plugins = []
@@ -873,6 +773,9 @@ class WebUI(object):
 
         # Application configuration
         self.app_config = config
+
+        # Application data manager
+        self.datamgr = None
 
         # Load plugins in the plugins directory ...
         self.plugins_count = self.load_plugins(

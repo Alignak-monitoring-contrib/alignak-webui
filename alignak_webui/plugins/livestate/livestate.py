@@ -198,7 +198,7 @@ class PluginLivestate(Plugin):
         """
         Display the element linked to a livestate item
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         livestate = datamgr.get_livestates({'where': {'_id': element_id}})
         if not livestate:
@@ -223,7 +223,7 @@ class PluginLivestate(Plugin):
         - search for specific elements search
 
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
         return self.get_widget(
             datamgr.get_livestates, 'livestate', embedded, identifier, credentials
         )

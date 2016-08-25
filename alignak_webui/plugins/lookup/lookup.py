@@ -56,7 +56,7 @@ class PluginLookup(Plugin):
         """
         Search in the livestate for an element name
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         query = request.query.get('query', '')
 

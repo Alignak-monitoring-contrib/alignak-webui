@@ -6,7 +6,7 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%services_states_queue = datamgr.get_user_preferences(current_user.name, 'services_states_queue', [])
+%services_states_queue = datamgr.get_user_preferences(current_user, 'services_states_queue', [])
 %services_states_queue = services_states_queue['value']
 %if not services_states_queue:
    <center>

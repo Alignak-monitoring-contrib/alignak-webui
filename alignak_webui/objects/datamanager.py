@@ -72,16 +72,17 @@ class DataManager(object):
     """
     id = 1
 
-    def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
+    def __init__(self, user=None, backend_endpoint='http://127.0.0.1:5000'):
         """
         Create an instance
         """
         # Set a unique id for each DM object
         self.__class__.id += 1
 
+        logger.info("DM, creating: %s, user: %s, be: %s", self.__class__.id, user, backend_endpoint)
+
         # Associated backend object
         self.backend_endpoint = backend_endpoint
-        # self.backend = Backend(backend_endpoint)
         self.backend = BackendConnection(backend_endpoint)
 
         # Get known objects type from the imported modules
@@ -110,6 +111,9 @@ class DataManager(object):
         self.updated = datetime.utcnow()
 
         self.default_realm = None
+
+        if user:
+            self.user_login(user.token, load=False)
 
     def __repr__(self):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
@@ -169,7 +173,7 @@ class DataManager(object):
             else:
                 self.connection_message = _('Backend connection refused...')
         except BackendException as e:  # pragma: no cover, should not happen
-            logger.warning("configured backend is not available!")
+            logger.warning("configured backend is not available: %s", str(e))
             self.connection_message = e.message
         except Exception as e:  # pragma: no cover, should not happen
             logger.warning("User login exception: %s", str(e))
@@ -216,10 +220,11 @@ class DataManager(object):
 
         items = []
 
-        result = self.backend.get(object_type, params, all_elements)
-        # logger.debug("find_object, found: %s: %s", object_type, result)
-
-        if not result:
+        try:
+            result = self.backend.get(object_type, params, all_elements)
+            # logger.debug("find_object, found: %s: %s", object_type, result)
+        except BackendException as e:  # pragma: no cover, simple protection
+            logger.warning("find_object, exception: %s", str(e))
             raise ValueError(
                 '%s, search: %s was not found in the backend' % (object_type, params)
             )
@@ -493,15 +498,14 @@ class DataManager(object):
         logger.debug("delete_user_preferences, type: %s, for: %s", preference_key, user)
 
         # Delete user stored value
-        if self.logged_in_user.name == user:
-            if self.logged_in_user.delete_ui_preference(preference_key):
-                # Should no exist!
-                self.logged_in_user.set_ui_preference(preference_key, None)
-                # {$unset: {preference_key:1}}
-                return self.update_object(
-                    self.logged_in_user,
-                    {'ui_preferences': self.logged_in_user.ui_preferences}
-                )
+        if user.delete_ui_preference(preference_key):
+            # Should no exist!
+            user.set_ui_preference(preference_key, None)
+            # {$unset: {preference_key:1}}
+            return self.update_object(
+                user,
+                {'ui_preferences': self.logged_in_user.ui_preferences}
+            )
 
         return False
 
@@ -528,12 +532,10 @@ class DataManager(object):
         logger.debug("set_user_preferences, type: %s, for: %s", preference_key, user)
 
         # Get user stored value
-        if self.logged_in_user.name == user:
-            if self.logged_in_user.set_ui_preference(preference_key, value):
-                return self.update_object(
-                    self.logged_in_user,
-                    {'ui_preferences': self.logged_in_user.ui_preferences}
-                )
+        if user.set_ui_preference(preference_key, value):
+            return self.update_object(
+                user, {'ui_preferences': user.ui_preferences}
+            )
 
         return False
 
@@ -562,11 +564,8 @@ class DataManager(object):
         logger.debug("get_user_preferences, type: %s, for: %s", preference_key, user)
 
         # Get user stored value
-        if self.logged_in_user.name == user:
-            result = self.logged_in_user.get_ui_preference(preference_key)
-            return result if result else default
-
-        return None
+        result = user.get_ui_preference(preference_key)
+        return result if result else default
 
     ##
     # Livestate
@@ -997,8 +996,6 @@ class DataManager(object):
             search.update({'max_results': 1})
 
         items = self.get_hosts(search=search)
-        if items:
-            logger.warning("get_host, found: %s", items[0].__dict__)
         return items[0] if items else None
 
     ##

@@ -143,7 +143,11 @@ class tests_actions(unittest2.TestCase):
         session = response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].get_username() == 'admin'
-        datamgr = session['datamanager']
+
+        datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint='http://127.0.0.1:5000'
+        )
 
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
@@ -237,7 +241,10 @@ class tests_actions(unittest2.TestCase):
         assert session['current_user'].get_username() == 'admin'
 
         # Data manager
-        datamgr = session['datamanager']
+        datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint='http://127.0.0.1:5000'
+        )
 
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
@@ -340,7 +347,10 @@ class tests_actions(unittest2.TestCase):
         assert session['current_user'].get_username() == 'admin'
 
         # Data manager
-        datamgr = session['datamanager']
+        datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint='http://127.0.0.1:5000'
+        )
 
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})

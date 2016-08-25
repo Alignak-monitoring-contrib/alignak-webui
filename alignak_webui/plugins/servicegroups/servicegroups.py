@@ -60,7 +60,7 @@ class PluginServicesGroups(Plugin):
         """
         Get the servicegroup services list
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         servicegroup = datamgr.get_servicegroup(servicegroup_id)
         if not servicegroup:

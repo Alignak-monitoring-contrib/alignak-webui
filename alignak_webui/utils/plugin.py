@@ -378,7 +378,7 @@ class Plugin(object):
         """
             Show one element
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
@@ -405,20 +405,15 @@ class Plugin(object):
             Show all elements on one page
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         # Get elements get method from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
         if not f:
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
-
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
 
         # Pagination and search
         start = int(request.query.get('start', '0'))
@@ -451,15 +446,10 @@ class Plugin(object):
             Show list of elements
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
         # elts_per_page = elts_per_page['value']
 
         # Pagination and search
@@ -528,7 +518,7 @@ class Plugin(object):
             element_id is the _id (or name) of an object to read. If no object is found then an
             empty element is sent to the form which means a new object creation with default values.
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
@@ -574,7 +564,7 @@ class Plugin(object):
             If element_id is string 'None' then it is a new object creation, else element_id is the
             _id (or name) of an object to update.
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         create = (element_id == 'None')
 
@@ -733,7 +723,7 @@ class Plugin(object):
         """
         Build the object_type table and get data to populate the table
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         # Table filtering: default is to restore the table saved filters
         where = {'saved_filters': True}
@@ -767,7 +757,7 @@ class Plugin(object):
         """
         Get the table data (requested from the table)
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
         dt = Datatable(self.backend_endpoint, datamgr, self.table)
 
         response.status = 200
@@ -793,7 +783,7 @@ class Plugin(object):
 
         Returns a JSON list containing, for each item, its id, name and alias
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
@@ -847,19 +837,14 @@ class Plugin(object):
 
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-        target_user = request.environ['beaker.session']['target_user']
+        datamgr = request.app.datamgr
 
         # Get element get method from the data manager
         if not callable(get_method):
             self.send_user_message(_("Configured method is not callable."))
 
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
-
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
 
         # Pagination and search
         start = int(request.params.get('start', '0'))

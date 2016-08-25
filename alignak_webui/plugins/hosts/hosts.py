@@ -225,15 +225,10 @@ class PluginHosts(Plugin):
 
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-        target_user = request.environ['beaker.session']['target_user']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
         # elts_per_page = elts_per_page['value']
 
         # Pagination and search
@@ -315,12 +310,7 @@ class PluginHosts(Plugin):
         Display an host
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-        target_user = request.environ['beaker.session']['target_user']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Get host
         host = datamgr.get_host(element_id)
@@ -355,7 +345,7 @@ class PluginHosts(Plugin):
 
         # Get host history (timeline)
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
         # elts_per_page = elts_per_page['value']
 
         # Host history pagination and search parameters
@@ -377,7 +367,7 @@ class PluginHosts(Plugin):
             history_types = history_types.split(',')
 
         # Fetch timeline filters preference for user, default is []
-        selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+        selected_types = datamgr.get_user_preferences(user, 'timeline_filters', [])
         # selected_types = selected_types['value']
         for selected_type in history_types:
             if request.params.get(selected_type) == 'true':
@@ -387,7 +377,7 @@ class PluginHosts(Plugin):
                 if selected_type in selected_types:
                     selected_types.remove(selected_type)
 
-        datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+        datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
         if selected_types:
             search['where'].update({'type': {'$in': selected_types}})
         logger.warning("History selected types: %s", selected_types)
@@ -438,12 +428,7 @@ class PluginHosts(Plugin):
         Display an host
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-        target_user = request.environ['beaker.session']['target_user']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Get host
         host = datamgr.get_host(element_id)
@@ -466,7 +451,7 @@ class PluginHosts(Plugin):
         )
 
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
         # elts_per_page = elts_per_page['value']
 
         # Host history pagination and search parameters
@@ -486,7 +471,7 @@ class PluginHosts(Plugin):
             history_types = history_types.split(',')
 
         # Fetch timeline filters preference for user, default is []
-        selected_types = datamgr.get_user_preferences(username, 'timeline_filters', [])
+        selected_types = datamgr.get_user_preferences(user, 'timeline_filters', [])
         # selected_types = selected_types['value']
         for selected_type in history_types:
             if request.params.get(selected_type) == 'true':
@@ -497,7 +482,7 @@ class PluginHosts(Plugin):
                     selected_types.remove(selected_type)
 
         if selected_types:
-            datamgr.set_user_preferences(username, 'timeline_filters', selected_types)
+            datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
             search['where'].update({'type': {'$in': selected_types}})
         logger.warning("History selected types: %s", selected_types)
 

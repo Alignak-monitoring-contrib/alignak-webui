@@ -76,7 +76,7 @@
                   </tr>
                </thead>
                <tbody style="font-size:x-small;">
-                  %preferences = datamgr.get_user_preferences(current_user.get_username(), None)
+                  %preferences = datamgr.get_user_preferences(current_user, None)
                   %if preferences:
                   %  for key in sorted(preferences):
                      <tr>
@@ -93,7 +93,7 @@
                         %end
                         </td>
                         <td>{{key}}</td>
-                        %value = datamgr.get_user_preferences(current_user.get_username(), key)
+                        %value = datamgr.get_user_preferences(current_user, key)
                         <td>
                         %if isinstance(value, dict):
                         <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">

@@ -110,15 +110,10 @@ class PluginWorldmap(Plugin):
         Get the hosts list to build a worldmap
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-        target_user = request.environ['beaker.session']['target_user']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
         # elts_per_page = elts_per_page['value']
 
         # Pagination and search
@@ -155,7 +150,7 @@ class PluginWorldmap(Plugin):
         - must have custom variables with GPS coordinates
         - must have a business_impact that match the one defined in this plugin parameters
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         # Get elements from the data manager
         hosts = datamgr.get_hosts(search)

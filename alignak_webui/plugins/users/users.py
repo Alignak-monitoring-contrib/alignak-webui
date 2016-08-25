@@ -92,7 +92,7 @@ class PluginUsers(Plugin):
         """
             Add a user
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         name = request.forms.get('name', '')
         if not name:
@@ -157,7 +157,7 @@ class PluginUsers(Plugin):
         """
         User deletion form
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         user_id = request.query.get('user_id', -1)
         if user_id == -1:
@@ -179,7 +179,7 @@ class PluginUsers(Plugin):
         """
             Delete a user
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         user_id = request.forms.get('user_id', -1)
         if user_id == -1:  # pragma: no cover - should never happen

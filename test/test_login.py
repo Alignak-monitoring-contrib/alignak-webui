@@ -43,8 +43,7 @@ print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 import alignak_webui.app
 
 from alignak_webui import webapp
-from alignak_webui.objects.datamanager import DataManager
-import alignak_webui.utils.datatable
+# import alignak_webui.utils.datatable
 
 import bottle
 from bottle import BaseTemplate, TEMPLATE_PATH
@@ -167,7 +166,7 @@ class Test1Login(unittest2.TestCase):
         print("")
         print("tearing down ...")
 
-    def test_1_2_login_refused(self):
+    def test_login_refused(self):
         print('')
         print('test login/logout process - login refused')
 
@@ -190,7 +189,7 @@ class Test1Login(unittest2.TestCase):
         response = self.app.get('/heartbeat', status=401)
         response.mustcontain('Session expired')
 
-    def test_1_3_login_accepted(self):
+    def test_login_accepted_session(self):
         print('')
         print('test login accepted')
 
@@ -201,74 +200,44 @@ class Test1Login(unittest2.TestCase):
         print('login accepted - go to home page')
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         print('Response: %s' % response)
-        # Redirected twice: /login -> / -> /hosts !
+
+        # A session cookie now exists
+        assert self.app.cookies['Alignak-WebUI']
+        print('cookies: ', self.app.cookiejar)
+        for cookie in self.app.cookiejar:
+            print('cookie: ', cookie.name, cookie.expires)
+            if cookie.name=='Alignak-WebUI':
+                assert cookie.expires
+
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].name == 'admin'
+
+    def test_login_accepted(self):
+        print('')
+        print('test login accepted')
+
+        print('get login page')
+        response = self.app.get('/login')
+        response.mustcontain('<form role="form" method="post" action="/login">')
+
+        print('login accepted - go to home page')
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        print('Response: %s' % response)
+
+        # Redirected twice: /login -> / -> /dashboard
         redirected_response = response.follow()
         print('Redirected response: %s' % redirected_response)
         redirected_response = redirected_response.follow()
         print('Redirected response: %s' % redirected_response)
         redirected_response.mustcontain('<div id="dashboard">')
-        # A session cookie now exists
-        print(self.app.cookies)
-        assert self.app.cookies['Alignak-WebUI']
-        print('cookies: ', self.app.cookiejar)
-        for cookie in self.app.cookiejar:
-            print('cookie: ', cookie.name, cookie.expires)
-            if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
-
-        session = response.request.environ['beaker.session']
-        print("session:", session)
-
-        assert 'current_user' in session and session['current_user']
-        print(session['current_user'])
-        assert session['current_user'].name == 'admin'
-
-        assert 'datamanager' in session and session['datamanager']
-        print(session['datamanager'])
-        assert session['datamanager'].logged_in_user.name == 'admin'
-        assert session['datamanager'].logged_in_user.get_username() == 'admin'
-        dm1 = session['datamanager']
 
         print('get home page /dashboard')
         response = self.app.get('/dashboard')
         response.mustcontain('<div id="dashboard">')
 
-        # A session cookie now exists
-        assert self.app.cookies['Alignak-WebUI']
-        print('cookies: ', self.app.cookiejar)
-        for cookie in self.app.cookiejar:
-            print('cookie: ', cookie.name, cookie.expires)
-            if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
-
-        session = response.request.environ['beaker.session']
-        print("session:", session)
-
-        assert 'current_user' in session and session['current_user']
-        assert session['current_user'].name == 'admin'
-
-        assert 'datamanager' in session and session['datamanager']
-        assert session['datamanager'].logged_in_user.name == 'admin'
-        dm2 = session['datamanager']
-
-        # Datamanager is never the same object because response is a different object !
-        # assert dm1 != dm2 ????
-
-        # Despite different objects, content is identical !
-        assert dm1.id == dm2.id
-        print(dm1.__dict__)
-        print(dm2.__dict__)
-        # Expect for the updated time ...
-        # assert dm1.updated != dm2.updated
-
-        # /ping, still sends a status 200, but refresh is required
+        # /ping, still sends a status 200
         response = self.app.get('/ping')
-        print(response)
-        response.mustcontain('refresh')
-
-        # Reply with required refresh done
-        response = self.app.get('/ping?action=done')
-        print(response)
         response.mustcontain('pong')
 
         # /heartbeat, now sends a status 200

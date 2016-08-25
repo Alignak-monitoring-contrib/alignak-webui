@@ -30,6 +30,7 @@ from bottle import request
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.objects.datamanager import DataManager
 
 logger = getLogger(__name__)
 
@@ -64,18 +65,13 @@ class PluginDashboard(Plugin):
         Display dashboard page
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Search for the dashboard widgets
-        saved_widgets = datamgr.get_user_preferences(username, 'dashboard_widgets', {'widgets': []})
+        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', {'widgets': []})
         if not saved_widgets:
             saved_widgets = {'widgets': []}
-            datamgr.set_user_preferences(username, 'dashboard_widgets', saved_widgets)
+            datamgr.set_user_preferences(user, 'dashboard_widgets', saved_widgets)
 
         widgets = []
         for widget in saved_widgets['widgets']:
@@ -142,18 +138,13 @@ class PluginDashboard(Plugin):
         Display currently page
         """
         user = request.environ['beaker.session']['current_user']
-        target_user = request.environ['beaker.session']['target_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Get the stored panels
-        panels = datamgr.get_user_preferences(username, 'panels', {'panels': {}})
+        panels = datamgr.get_user_preferences(user, 'panels', {'panels': {}})
 
         # Get the stored graphs
-        graphs = datamgr.get_user_preferences(username, 'graphs', {'graphs': {}})
+        graphs = datamgr.get_user_preferences(user, 'graphs', {'graphs': {}})
 
         return {
             'panels': panels,

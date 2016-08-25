@@ -45,7 +45,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
     """
     class __BackendConnection(object):
         """
-        Base class for all objects state management (displayed icon, ...)
+        Base class for Alignak backend connection
         """
 
         def __init__(self, backend_endpoint='http://127.0.0.1:5002'):
@@ -192,8 +192,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 else:
                     result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
-                logger.warning("get, backend exception for %s: %s", object_type, str(e))
-                return None
+                logger.info("get, backend exception for %s: %s", object_type, str(e))
+                raise e
 
             logger.debug(
                 "search, search result for %s: result=%s", object_type, result
@@ -330,7 +330,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     return error
             except BackendException as e:  # pragma: no cover, should never happen
                 error = []
-                if "_issues" in e.response:
+                if e.response and "_issues" in e.response:
                     error = e.response["_issues"]
                 else:
                     error.append(str(e))

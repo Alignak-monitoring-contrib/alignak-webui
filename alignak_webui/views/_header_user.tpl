@@ -13,7 +13,6 @@
             <div class="panel-body">
                <ul class="list-group">
                   <li class="list-group-item"><small>Current user: {{current_user}}</small></li>
-                  <li class="list-group-item"><small>Target user: {{target_user}}</small></li>
                </ul>
                <div class="panel-footer">Total: {{datamgr.get_objects_count('user')}} users</div>
             </div>
@@ -28,21 +27,11 @@
    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret"></span>
       <span class="fa fa-user"></span>
-      %if request.app.config.get('target_user', 'no') == 'yes':
-      %if not target_user.is_anonymous() and current_user.get_username() != target_user.get_username():
-      <span class="label label-warning" style="position:relative; left: 0px">{{target_user.get_username()}}</span>
-      %end
-      %end
       <span class="username hidden-sm hidden-xs hidden-md">{{current_user.name}}</span>
       <span class="sr-only">{{_('User menu')}}</span>
    </a>
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('User menu')}}">
-      %if request.app.config.get('target_user', 'no') == 'yes':
-      <li class="user-header hidden-xs hidden-sm">
-         %include("_select_target_user")
-      </li>
-      %end
       <li class="user-header hidden-xs hidden-sm">
          <div class="panel panel-default">
             <div class="panel-body">

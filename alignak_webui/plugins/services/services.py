@@ -112,15 +112,10 @@ class PluginServices(Plugin):
 
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.environ['beaker.session']['datamanager']
-        target_user = request.environ['beaker.session']['target_user']
-
-        username = user.get_username()
-        if not target_user.is_anonymous():
-            username = target_user.get_username()
+        datamgr = request.app.datamgr
 
         # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
 
         # Pagination and search
         start = int(request.params.get('start', '0'))

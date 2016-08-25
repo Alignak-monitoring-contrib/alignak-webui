@@ -60,7 +60,7 @@ class PluginServicesGroups(Plugin):
         """
         Get the usergroup users list
         """
-        datamgr = request.environ['beaker.session']['datamanager']
+        datamgr = request.app.datamgr
 
         usergroup = datamgr.get_usergroup(usergroup_id)
         if not usergroup:
