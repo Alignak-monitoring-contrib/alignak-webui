@@ -88,7 +88,7 @@ class PluginActions(Plugin):
             'livestate_id': request.query.getall('livestate_id'),
             'element_name': request.query.getall('element_name'),
             'sticky': request.query.get('sticky', '1') == '1',
-            'notify': request.query.get('notify', '0') == '1',
+            'notify': request.query.get('notify', '1') == '1',
             'persistent': request.query.get('persistent', '1') == '1',
             'comment': request.query.get('comment', _('Acknowledge requested from WebUI')),
             'read_only': request.query.get('read_only', '0') == '1',

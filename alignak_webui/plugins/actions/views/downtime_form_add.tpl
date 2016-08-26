@@ -64,7 +64,7 @@
          <input type="text" readonly name="end_time" id="end_time" value="{{end_time}}" />
       </div>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request downtime')}}</button>
+      <button type="submit" class="btn btn-success btn-lg btn-raised"> <i class="fa fa-check"></i>{{_('Request downtime')}}</button>
    </form>
 </div>
 

@@ -30,46 +30,38 @@
 
       <fieldset>
          <div class="form-group">
-            <label class="col-md-2 control-label" for="sticky">{{_('Acknowledge option - sticky:')}}</label>
+            <label class="col-md-2 control-label" for="sticky">{{_('Acknowledge is sticky:')}}</label>
             <div class="col-md-offset-2 col-md-10">
-               <div class="togglebutton">
+               <div class="checkbox">
                   <label>
                      <input id="sticky" name="sticky" type="checkbox" {{'checked="checked"' if sticky else ''}} >
                   </label>
                </div>
-               <p class="help-block">{{_('Sticky acknowledge')}}</p>
+               <p class="help-block">{{_('If checked, the acknowledge will remain until the element returns to an OK state.')}}</p>
             </div>
          </div>
          <div class="form-group">
-            <label class="col-md-2 control-label" for="notify">{{_('Acknowledge option - notify:')}}</label>
+            <label class="col-md-2 control-label" for="notify">{{_('Acknowledge notifies:')}}</label>
             <div class="col-md-offset-2 col-md-10">
-               <div class="input-group">
-                  <span class="input-group-addon text-info">
-                  </span>
-                  <div class="checkbox">
-                     <label>
-                        <input id="notify" name="notify" type="checkbox" {{'checked="checked"' if notify else ''}} >
-                     </label>
-                  </div>
+               <div class="checkbox">
+                  <label>
+                     <input id="notify" name="notify" type="checkbox" {{'checked="checked"' if notify else ''}} >
+                  </label>
                </div>
-               <p class="help-block">{{_('Sticky acknowledge')}}</p>
+               <p class="help-block">{{_('If checked, a notification will be sent out to the concerned contacts')}}</p>
             </div>
          </div>
          <div class="form-group">
-            <label class="col-md-2 control-label" for="persistent">{{_('Acknowledge option - persistent:')}}</label>
+            <label class="col-md-2 control-label" for="persistent">{{_('Acknowledge is persistent:')}}</label>
             <div class="col-md-offset-2 col-md-10">
-               <div class="input-group">
-                  <span class="input-group-addon text-info">
-                  </span>
-                  <div class="checkbox">
-                     <label>
-                        <input id="persistent" name="persistent" type="checkbox"
-                           {{'checked="checked"' if persistent else ''}}
-                           >
-                     </label>
-                  </div>
+               <div class="checkbox">
+                  <label>
+                     <input id="persistent" name="persistent" type="checkbox"
+                        {{'checked="checked"' if persistent else ''}}
+                        >
+                  </label>
                </div>
-               <p class="help-block">{{_('Persistent acknowledge')}}</p>
+               <p class="help-block">{{_('If checked, the comment will persist after the acknowledge is no more useful')}}</p>
             </div>
          </div>
 
@@ -77,10 +69,11 @@
             <div class="col-sm-12">
                <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
             </div>
+            <p class="help-block">{{_('This comment will be associated to the acknowledge')}}</p>
          </div>
       </fieldset>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request acknowledge')}}</button>
+      <button type="submit" class="btn btn-success btn-lg btn-raised"> <i class="fa fa-check"></i>{{_('Request acknowledge')}}</button>
    </form>
 </div>
 

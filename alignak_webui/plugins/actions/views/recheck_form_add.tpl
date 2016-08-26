@@ -24,13 +24,16 @@
          %end
       </div>
 
-      <div class="form-group">
-         <div class="col-sm-12">
-            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
+      <fieldset>
+         <div class="form-group">
+            <div class="col-sm-12">
+               <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
+            </div>
+            <p class="help-block">{{_('This comment will be associated to the scheduled downtime')}}</p>
          </div>
-      </div>
+      </fieldset>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request recheck')}}</button>
+      <button type="submit" class="btn btn-success btn-lg btn-raised"> <i class="fa fa-check"></i>{{_('Request recheck')}}</button>
    </form>
 </div>
 
