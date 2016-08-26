@@ -922,6 +922,7 @@ class WebUI(object):
             ]
 
         js_list += [
+            "/static/js/material/arrive.min.js",
             "/static/js/material/material.min.js",
             "/static/js/material/ripples.min.js"
         ]

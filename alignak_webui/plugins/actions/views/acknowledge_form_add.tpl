@@ -29,24 +29,6 @@
       </div>
 
       <fieldset>
-<div class="form-group">
-  <div class="checkbox">
-    <label>
-      <input type="checkbox"> Notifications
-    </label>
-  </div>
-  <p class="help-block">Notify me about updates to apps or games that I've downloaded</p>
-</div>
-<div class="form-group">
-  <div class="checkbox">
-    <label>
-      <input type="checkbox" checked=""> Auto-updates
-    </label>
-  </div>
-  <p class="help-block">Auto-update apps over wifi only</p>
-</div>
-
-
          <div class="form-group">
             <label class="col-md-2 control-label" for="sticky">{{_('Acknowledge option - sticky:')}}</label>
             <div class="col-md-offset-2 col-md-10">
