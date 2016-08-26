@@ -921,11 +921,10 @@ class WebUI(object):
                 "/static/js/datatables.min.js"
             ]
 
-        if self.app_config.get('material_design', '1') == '1':
-            js_list += [
-                "/static/js/material/material.min.js",
-                "/static/js/material/ripples.min.js"
-            ]
+        js_list += [
+            "/static/js/material/material.min.js",
+            "/static/js/material/ripples.min.js"
+        ]
 
         return js_list
 
@@ -953,18 +952,12 @@ class WebUI(object):
             "/static/css/timeline.css"
         ]
 
-        if self.app_config.get('material_design', '1') == '1':
-            css_list += [
-                "/static/css/font-roboto.css",
-                "/static/css/material-icons.css",
-                "/static/css/material/bootstrap-material-design.min.css",
-                "/static/css/material/ripples.min.css"
-            ]
-        else:
-            css_list += [
-                "/static/css/selectize.css",
-                "/static/css/selectize.bootstrap3.css"
-            ]
+        css_list += [
+            "/static/css/font-roboto.css",
+            "/static/css/material-icons.css",
+            "/static/css/material/bootstrap-material-design.min.css",
+            "/static/css/material/ripples.min.css"
+        ]
 
         css_list += [
             "/static/css/jstree/style.min.css",
