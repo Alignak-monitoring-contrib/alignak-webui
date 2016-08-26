@@ -619,6 +619,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/js/Chart.min.js",
             "/static/js/jstree.min.js",
             "/static/js/datatables.min.js",
+            "/static/js/material/arrive.min.js",
             "/static/js/material/material.min.js",
             "/static/js/material/ripples.min.js"
         ]
