@@ -42,7 +42,14 @@
       <thead>
          <tr>
             %for column in dt.table_columns:
-            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}</th>
+            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}
+            %if debug:
+            {{column.get('visible','###')}} - {{column.get('orderable','###')}} - {{column.get('searchable','###')}}
+            %end
+            %if column.get('hidden',False):
+            %column['visible'] = False
+            %end
+            </th>
             %end
          </tr>
          %if dt.searchable:
@@ -153,22 +160,6 @@
 
                         create: false,
 
-                        /*
-                        render: {
-                           option: function(item, escape) {
-                              return '<div>' +
-                                 (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                                 (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                              '</div>';
-                           },
-                           item: function(item, escape) {
-                              console.log(item)
-                              return '<div>' +
-                                 (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                              '</div>';
-                           }
-                        },*/
-
                         %if allowed:
                         %  if isinstance(allowed, dict):
                            options: [
@@ -180,7 +171,6 @@
                         %     if allowed[0].startswith('inner://'):
                         preload: true,
                         load: function(query, callback) {
-                           //if (!query.length) return callback();
                            $.ajax({
                               url: "{{allowed[0].replace('inner://', '/')}}",
                               type: 'GET',
@@ -188,8 +178,6 @@
                                  callback();
                               },
                               success: function(res) {
-                                 // 10 first items...
-                                 //callback(res.slice(0, 10));
                                  callback(res);
                               }
                            });

@@ -192,7 +192,8 @@ class Datatable(object):
                 'searchable': model.get('searchable', True),
             })
 
-            # If one says a field is hidden, it means that it must be visible ... but hidden!
+            # If one says a field is hidden, it means that it must be visible ...
+            # but it will be hidden!
             if model.get('hidden', False):
                 ui_field.update({'visible': True})
 
