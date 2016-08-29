@@ -333,7 +333,7 @@ class PluginHosts(Plugin):
 
         # Get host livestate
         livestate = datamgr.get_livestates(
-            search={'where': {'type': 'host', 'name': '%s' % host.name}}
+            search={'where': {'type': 'host', 'host': '%s' % host.id}}
         )
         if livestate:
             livestate = livestate[0]

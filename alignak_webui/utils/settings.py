@@ -76,6 +76,7 @@ class Settings(OrderedDict):
         """
         if not app_name:
             return None
+        app_name = app_name.lower()
 
         if self.filename:
             if not isinstance(self.filename, list):
@@ -86,11 +87,11 @@ class Settings(OrderedDict):
                 settings_filenames = self.filename
         else:
             settings_filenames = [
-                '/usr/local/etc/%s/settings.cfg' % app_name.lower(),
-                '/etc/%s/settings.cfg' % app_name.lower(),
-                '~/%s/settings.cfg' % app_name.lower(),
+                '/usr/local/etc/%s/settings.cfg' % app_name,
+                '/etc/%s/settings.cfg' % app_name,
+                '~/%s/settings.cfg' % app_name,
                 os.path.abspath('../etc/settings.cfg'),
-                os.path.abspath('../%s/etc/settings.cfg' % app_name.lower()),
+                os.path.abspath('../%s/etc/settings.cfg' % app_name),
                 './settings.cfg'
             ]
 

@@ -230,7 +230,13 @@ class DataManager(object):
             )
 
         # Find "Backend object type" classes in file imported modules ...
-        object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
+        object_class = [kc for kc in self.known_classes if kc.get_type() == object_type]
+        if not object_class:
+            logger.warning("find_object, unknown object type: %s", object_type)
+            raise ValueError(
+                '%s, is not currently managed!' % (object_type)
+            )
+        object_class = object_class[0]
 
         for item in result:
             # Create a new object
@@ -881,7 +887,7 @@ class DataManager(object):
         return self.add_object('actiondowntime', data)
 
     ##
-    # hostgroups
+    # Hosts groups
     ##
     def get_hostgroups(self, search=None, all_elements=False):
         """ Get a list of all hostgroups. """
@@ -917,7 +923,7 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
-    # hostdependencys
+    # Hosts dependencies
     ##
     def get_hostdependencys(self, search=None, all_elements=False):
         """ Get a list of all host dependencies. """
@@ -999,7 +1005,7 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
-    # servicegroups
+    # Services groups
     ##
     def get_servicegroups(self, search=None, all_elements=False):
         """ Get a list of all servicegroups. """
@@ -1026,6 +1032,44 @@ class DataManager(object):
             search.update({'max_results': 1})
 
         items = self.get_servicegroups(search=search)
+        return items[0] if items else None
+
+    ##
+    # Services dependencies
+    ##
+    def get_servicedependencys(self, search=None, all_elements=False):
+        """ Get a list of all service dependencies. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1,
+                    'dependent_services': 1, 'dependent_servicegroups': 1,
+                    'services': 1, 'servicegroups': 1
+                }
+            })
+
+        try:
+            logger.debug("get_servicedependencys, search: %s", search)
+            items = self.find_object('servicedependency', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_servicedependencys, none found")
+
+        return []
+
+    def get_servicedependency(self, search):
+        """ Get a servicedependency by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_servicedependencys(search=search)
         return items[0] if items else None
 
     ##

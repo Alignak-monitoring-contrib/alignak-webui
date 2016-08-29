@@ -64,6 +64,13 @@ class LiveState(BackendElement):
         )
 
     @property
+    def endpoint(self):
+        """
+        Get Item endpoint (page url)
+        """
+        return '/livestate/%s' % (self.id)
+
+    @property
     def host(self):
         """ Return linked object """
         return self._linked_host

@@ -63,6 +63,13 @@ class Service(BackendElement):
         super(Service, self)._create(params, date_format)
 
     @property
+    def endpoint(self):
+        """
+        Get Item endpoint (page url)
+        """
+        return '/service/%s' % (self.id)
+
+    @property
     def _templates(self):
         """ Return linked object """
         return self._linked__templates

@@ -49,7 +49,7 @@ logger = getLogger(__name__)
 class Plugin(object):
     """ WebUI base plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, cfg_filenames):
         """
         Create a new plugin:
         """
@@ -67,10 +67,13 @@ class Plugin(object):
         self.tables = {}
         self.lists = {}
 
-        self.load_routes(bottle.app())
+        self.configuration_loaded = self.load_config(initialization=True)
+        if self.configuration_loaded and self.plugin_parameters.get('enabled', 'True') != 'True':
+            logger.warning("Plugin %s is installed but disabled.", self.name)
+            return
 
-        if cfg_filenames:
-            self.load_config()
+        self.load_routes(bottle.app())
+        logger.info("Plugin %s is installed and enabled.", self.name)
 
     def send_user_message(self, message, status='ko'):
         """
@@ -317,7 +320,7 @@ class Plugin(object):
                             "Found table '%s' for %s", table['id'], place
                         )
 
-    def load_config(self, cfg_filenames=None):
+    def load_config(self, cfg_filenames=None, initialization=False):
         """
         Load plugin configuration
 
@@ -329,19 +332,24 @@ class Plugin(object):
 
         The `table` attribute  is initialized with the content of the [table] and [table.field]
         variables.
+
+        When the initialization parameter is set, the function returns True / False instead of a
+        JSON formatted response.
         """
         if not cfg_filenames:
             cfg_filenames = self.plugin_filenames
         else:
             self.plugin_filenames = cfg_filenames
 
-        logger.info("Read plugin configuration file: %s", cfg_filenames)
+        logger.debug("Read plugin configuration file: %s", cfg_filenames)
 
         # Read configuration file
         self.plugin_parameters = Settings(cfg_filenames)
-        config_file = self.plugin_parameters.read('hosts')
-        logger.info("Plugin configuration read from: %s", config_file)
+        config_file = self.plugin_parameters.read(self.name)
+        logger.debug("Plugin configuration read from: %s", config_file)
         if not self.plugin_parameters:
+            if initialization:
+                return False
             response.status = 204
             response.content_type = 'application/json'
             return json.dumps({'error': 'No configuration found'})
@@ -370,6 +378,8 @@ class Plugin(object):
                 "table field configuration: %s = %s", param, self.plugin_parameters[param]
             )
 
+        if initialization:
+            return True
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(self.plugin_parameters)

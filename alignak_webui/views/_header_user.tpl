@@ -42,41 +42,6 @@
                </p>
                <img src="{{current_user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % current_user.name}}" title="{{_('Photo: %s') % current_user.name}}">
             </div>
-            <div class="panel-footer">
-               <div class="btn-group" role="group">
-                  <a class="btn btn-default btn-raised" href="#"
-                     data-action="about-box" data-toggle="tooltip" data-placement="top"
-                     title="{{_('Display application information')}}">
-                     <span class="fa fa-question"></span>
-                  </a>
-                  %if current_user.is_power():
-                  %if edition_mode:
-                  <a class="btn btn-default btn-raised" href="#"
-                     data-action="edition-mode" data-state="on" data-toggle="tooltip" data-placement="top"
-                     title="{{_('Leave edition mode')}}">
-                     <span class="text-warning fa fa-edit"></span>
-                  </a>
-                  %else:
-                  <a class="btn btn-default btn-raised" href="#"
-                     data-action="edition-mode" data-state="off" data-toggle="tooltip" data-placement="top"
-                     title="{{_('Enter edition mode')}}">
-                     <span class="text-danger fa fa-edit"></span>
-                  </a>
-                  %end
-                  %end
-
-                  <a class="btn btn-default btn-raised" href="/preferences/user"
-                     data-action="user-preferences" data-toggle="tooltip" data-placement="top"
-                     title="{{_('Show all the stored user preferences')}}">
-                     <span class="fa fa-pencil"></span>
-                  </a>
-                  <a class="btn btn-default btn-raised" href="/logout"
-                     data-action="logout" data-toggle="tooltip" data-placement="top"
-                     title="{{_('Disconnect from the application')}}">
-                     <span class="fa fa-sign-out"></span>
-                  </a>
-               </div>
-            </div>
          </div>
       </li>
 

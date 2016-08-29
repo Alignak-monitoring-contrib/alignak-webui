@@ -46,11 +46,17 @@ class PluginLivestate(Plugin):
         self.backend_endpoint = 'livestate'
 
         self.pages = {
+            'get_one': {
+                'name': '%s' % self.name,
+                'route': '/%s/<element_id>' % self.backend_endpoint,
+                'method': 'GET',
+                'view': '%s' % self.backend_endpoint,
+            },
             'get_livestate_widget': {
                 'name': 'Livestate widget',
-                'route': '/livestate/widget',
+                'route': '/%s/widget' % self.backend_endpoint,
                 'method': 'POST',
-                'view': 'livestate_widget',
+                'view': '%s_widget' % self.backend_endpoint,
                 'widgets': [
                     {
                         'id': 'livestate_table',
@@ -212,7 +218,7 @@ class PluginLivestate(Plugin):
         if livestate.type == 'host':
             redirect('/host/' + livestate.host.id)
         else:
-            redirect('/host/' + livestate.host.id + '#services')
+            redirect('/service/' + livestate.service.id)
 
     def get_livestate_widget(self, embedded=False, identifier=None, credentials=None):
         """

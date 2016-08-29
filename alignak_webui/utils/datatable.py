@@ -192,6 +192,10 @@ class Datatable(object):
                 'searchable': model.get('searchable', True),
             })
 
+            # If one says a field is hidden, it means that it must be visible ... but hidden!
+            if model.get('hidden', False):
+                ui_field.update({'visible': True})
+
             if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
                 ui_field.update(
                     {'content_type': 'objectid:' + model.get('resource', 'unknown')}
