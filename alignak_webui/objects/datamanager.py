@@ -806,20 +806,25 @@ class DataManager(object):
             })
             for state in 'up', 'down', 'unreachable':
                 hosts_synthesis.update({
-                    "nb_%s_hard" % state: hosts_synthesis["nb_%s_hard" % state] + ls["hosts_%s_hard" % state]
+                    "nb_%s_hard" % state:
+                    hosts_synthesis["nb_%s_hard" % state] + ls["hosts_%s_hard" % state]
                 })
                 hosts_synthesis.update({
-                    "nb_%s_soft" % state: hosts_synthesis["nb_%s_soft" % state] + ls["hosts_%s_soft" % state]
+                    "nb_%s_soft" % state:
+                    hosts_synthesis["nb_%s_soft" % state] + ls["hosts_%s_soft" % state]
                 })
                 hosts_synthesis.update({
-                    "nb_" + state: hosts_synthesis["nb_%s_hard" % state] + hosts_synthesis["nb_%s_soft" % state]
+                    "nb_" + state:
+                    hosts_synthesis["nb_%s_hard" % state] + hosts_synthesis["nb_%s_soft" % state]
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 hosts_synthesis.update({
-                    "nb_" + state: hosts_synthesis["nb_%s" % state] + ls["hosts_%s" % state]
+                    "nb_" + state:
+                    hosts_synthesis["nb_%s" % state] + ls["hosts_%s" % state]
                 })
             hosts_synthesis.update({
-                "nb_problems": hosts_synthesis["nb_down_hard"] + hosts_synthesis["nb_unreachable_hard"]
+                "nb_problems":
+                hosts_synthesis["nb_down_hard"] + hosts_synthesis["nb_unreachable_hard"]
             })
             for state in 'up', 'down', 'unreachable':
                 hosts_synthesis.update({
@@ -844,13 +849,17 @@ class DataManager(object):
             })
             for state in 'ok', 'warning', 'critical', 'unknown':
                 services_synthesis.update({
-                    "nb_%s_hard" % state: services_synthesis["nb_%s_hard" % state] + ls["services_%s_hard" % state]
+                    "nb_%s_hard" % state:
+                    services_synthesis["nb_%s_hard" % state] + ls["services_%s_hard" % state]
                 })
                 services_synthesis.update({
-                    "nb_%s_soft" % state: services_synthesis["nb_%s_soft" % state] + ls["services_%s_soft" % state]
+                    "nb_%s_soft" % state:
+                    services_synthesis["nb_%s_soft" % state] + ls["services_%s_soft" % state]
                 })
                 services_synthesis.update({
-                    "nb_" + state: services_synthesis["nb_%s_hard" % state] + services_synthesis["nb_%s_soft" % state]
+                    "nb_" + state:
+                    services_synthesis["nb_%s_hard" % state] +
+                        services_synthesis["nb_%s_soft" % state]
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 services_synthesis.update({
@@ -859,7 +868,8 @@ class DataManager(object):
                     ) if services_synthesis['nb_elts'] else 0.0
                 })
             services_synthesis.update({
-                "nb_problems": services_synthesis["nb_warning_hard"] + services_synthesis["nb_critical_hard"]
+                "nb_problems":
+                services_synthesis["nb_warning_hard"] + services_synthesis["nb_critical_hard"]
             })
             for state in 'ok', 'warning', 'critical', 'unknown':
                 services_synthesis.update({
