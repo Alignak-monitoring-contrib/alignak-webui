@@ -119,6 +119,7 @@
   text-transform: uppercase;
 
   width: 45%;
+  max-width: 50px;
   position: relative;
   bottom: 6em;
 
@@ -126,9 +127,11 @@
 }
 .icon-badge-left {
   float: left;
+  left: 52%;
 }
 .icon-badge-right {
   float: right;
+  right: 52%;
 }
 
 #dashboard-synthesis a span.fa {
