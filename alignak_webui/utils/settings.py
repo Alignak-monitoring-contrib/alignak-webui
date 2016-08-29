@@ -102,7 +102,7 @@ class Settings(OrderedDict):
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
                     for option in config.options(section):
-                        if app_name == section:
+                        if app_name == section.lower():
                             self[option] = config.get(section, option)
                             if self[option] in ['True', 'true']:
                                 self[option] = True
