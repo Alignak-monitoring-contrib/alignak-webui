@@ -435,7 +435,7 @@ class Plugin(object):
             'where': where
         }
 
-        elts = f(search, all_elements=True)
+        elts = f(search, all_elements=False)
 
         # Get last total elements count
         total = datamgr.get_objects_count(

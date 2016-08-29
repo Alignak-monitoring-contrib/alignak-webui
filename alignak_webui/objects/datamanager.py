@@ -213,7 +213,7 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.info("find_object, %s, params: %s", object_type, params)
+        logger.info("find_object, %s, params: %s, all: %s", object_type, params, all_elements)
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
