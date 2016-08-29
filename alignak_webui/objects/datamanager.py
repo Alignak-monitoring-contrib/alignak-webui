@@ -794,7 +794,7 @@ class DataManager(object):
         services_synthesis = default_ls['services_synthesis']
 
         for ls in items:
-            logger.warning("livesynthesis item: %s", ls.__dict__)
+            logger.debug("livesynthesis item: %s", ls.__dict__)
 
             # Hosts synthesis
             hosts_synthesis.update({
@@ -878,7 +878,7 @@ class DataManager(object):
             'hosts_synthesis': hosts_synthesis,
             'services_synthesis': services_synthesis
         }
-        logger.warning("live synthesis, %s", synthesis)
+        logger.debug("live synthesis, %s", synthesis)
         return synthesis
 
     ##

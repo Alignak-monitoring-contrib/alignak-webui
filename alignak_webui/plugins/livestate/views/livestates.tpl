@@ -1,11 +1,15 @@
 %setdefault('debug', False)
+%# When layout is False, this template is embedded
+%setdefault('layout', True)
 
-%setdefault('type', 'Both')
+%setdefault('elt_type', 'Both')
+
+%if layout:
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/services")
+%end
 
 %from bottle import request
 %search_string = request.query.get('search', '')
-
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/livestates")
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
@@ -33,6 +37,9 @@
       </tr></thead>
       <tbody>
          %for livestate in elts:
+         %if elt_type != 'Both' and elt_type != livestate.type:
+         %continue
+         %end
          <tr id="#{{livestate.id}}">
             <td title="{{livestate.alias}}">
                %label = "%s - %s (%s)" % (livestate.status, Helper.print_duration(livestate.last_check, duration_only=True, x_elts=0), livestate.output)
@@ -91,4 +98,12 @@
        %end
       </tbody>
    </table>
+%end
+
+%if layout:
+ <script>
+   $(document).ready(function(){
+      set_current_page("{{ webui.get_url(request.route.name) }}");
+   });
+ </script>
 %end
