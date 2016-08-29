@@ -23,9 +23,13 @@
     Plugin Realm
 """
 
+import json
 from logging import getLogger
 
+from bottle import request, template, response
+
 from alignak_webui import _
+from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
@@ -43,6 +47,54 @@ class PluginRealms(Plugin):
         self.name = 'Realms'
         self.backend_endpoint = 'realm'
 
-        self.pages = {}
+        self.pages = {
+            'get_realm_members': {
+                'name': 'Realm members',
+                'route': '/realm/members/<realm_id>'
+            },
+        }
 
         super(PluginRealms, self).__init__(app, cfg_filenames)
+
+    def get_realm_members(self, realm_id):
+        """
+        Get the realm hosts list
+        """
+        datamgr = request.app.datamgr
+
+        realm = datamgr.get_realm(realm_id)
+        if not realm:
+            realm = datamgr.get_realm(
+                search={'max_results': 1, 'where': {'name': realm_id}}
+            )
+            if not realm:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % realm_id)
+
+        # Get elements from the data manager
+        search = {
+            'where': {'_realm': realm.id}
+        }
+        hosts = datamgr.get_hosts(search)
+
+        items = []
+        for host in hosts:
+            lv_host = datamgr.get_livestates({'where': {'type': 'host', 'host': host.id}})
+            lv_host = lv_host[0]
+            title = "%s - %s (%s)" % (
+                lv_host.status,
+                Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0),
+                lv_host.output
+            )
+
+            items.append({
+                'id': host.id,
+                'name': host.name,
+                'alias': host.alias,
+                'icon': lv_host.get_html_state(text=None, title=title),
+                'url': lv_host.get_html_link()
+            })
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(items)
