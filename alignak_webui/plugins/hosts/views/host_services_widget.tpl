@@ -8,4 +8,4 @@
 
 %from alignak_webui.utils.helper import Helper
 
-%include("services.tpl", elts=services, layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
+%include("livestates.tpl", elts=livestate_services, layout=False, pagination=webui.helper.get_pagination_control('livestate', len(livestate_services), 0, len(livestate_services)))
