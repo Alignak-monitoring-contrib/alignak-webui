@@ -630,7 +630,7 @@ class TestLivestate(unittest2.TestCase):
         response = self.app.get('/livestate/' + lv_service[0].id)
         response = response.follow()
         response.mustcontain(
-            '<div id="host">',
+            '<div id="service">',
         )
 
         print('get page /livestates/widget')
