@@ -533,7 +533,12 @@ class Datatable(object):
 
         # Create an object ...
         object_class = [kc for kc in self.datamgr.known_classes
-                        if kc.get_type() == self.object_type][0]
+                        if kc.get_type() == self.object_type]
+        if not object_class:
+            logger.warning("datatable, unknown object type: %s", self.object_type)
+            return '%s, is not currently managed!' % (self.object_type)
+
+        object_class = object_class[0]
         bo_object = object_class()
 
         # Update inner properties
