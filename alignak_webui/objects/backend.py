@@ -193,7 +193,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 else:
                     result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
-                logger.info("get, backend exception for %s: %s", object_type, str(e))
+                logger.warning("get, backend exception for %s: %s", object_type, str(e))
                 raise e
 
             logger.debug(
