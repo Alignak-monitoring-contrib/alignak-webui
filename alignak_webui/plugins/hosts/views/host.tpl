@@ -324,7 +324,7 @@
                %end
 
                %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-               {{! Service({'livestate': {'state': state} }).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
+               {{! Service({'ls_state': state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
 
                %if synthesis['nb_' + state]>0:
                </a>
