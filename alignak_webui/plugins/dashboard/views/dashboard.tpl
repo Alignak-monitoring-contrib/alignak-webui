@@ -89,7 +89,7 @@
          %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
          %font='danger' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'success'
          <center>
-            <a href="{{ webui.get_url('Hosts table') }}?search=state_id:1 state_id:2">
+            <a href="{{ webui.get_url('Hosts table') }}?search=ls_state_id:1 ls_state_id:2">
                <span class="fa fa-4x fa-exclamation-triangle icon-{{font}}"></span>
                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Problems')}}</span>
                <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
