@@ -81,16 +81,27 @@ header {
 }
 
 /*
+#hosts-states-popover-content,
+#services-states-popover-content {
+    width: 440px;
+}
+*/
+
+/*
  * Header - Hosts and services popovers
 
    Hack because current Bootstrap material design (V3) does not deal correctly with popovers ...
  */
 .popover-hosts {
+    max-width: 100%;
+    width: 350px;
     background: #eee;
     color: #fff;
     border-radius: 3px;
 }
 .popover-services {
+    max-width: 100%;
+    width: 350px;
     background: #eee;
     color: #fff;
     border-radius: 3px;

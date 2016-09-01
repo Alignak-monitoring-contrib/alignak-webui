@@ -33,11 +33,17 @@
    <table class="table table-invisible">
       <tbody>
          <tr>
-            %for state in ['up', 'unreachable', 'down']:
+            %for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
             <td>
               %title = _('%s hosts %s (%s%%)') % (hs["nb_" + state], state, hs["pct_" + state])
               %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
-               <a href="{{ webui.get_url('Hosts table') }}?search=status:{{state.upper()}}">
+               %if state in ['up', 'unreachable', 'down']:
+                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}">
+               %elif state in ['acknowledged']:
+                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_acknowledged:yes">
+               %elif state in ['in_downtime']:
+                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_downtime:yes">
+               %end
               {{! Host({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
                </a>
             </td>
@@ -72,6 +78,7 @@
    $('#hosts-states-popover').popover({
       placement: 'bottom',
       animation: true,
+      container: 'body',
       template: '<div class="popover popover-hosts"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
       content: function() {
          return $('#hosts-states-popover-content').html();
@@ -84,12 +91,18 @@
    <table class="table table-invisible">
       <tbody>
          <tr>
-            %for state in ['ok', 'warning', 'critical', 'unknown']:
+            %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
             <td>
               %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
               %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
-               <a href="{{ webui.get_url('Services table') }}?search=status:{{state.upper()}}">
-              {{! Service({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
+               %if state in ['ok', 'warning', 'critical', 'unknown']:
+                  <a href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}">
+               %elif state in ['acknowledged']:
+                  <a href="{{ webui.get_url('Services table') }}?search=ls_acknowledged:yes">
+               %elif state in ['in_downtime']:
+                  <a href="{{ webui.get_url('Services table') }}?search=ls_downtime:yes">
+               %end
+               {{! Service({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
                </a>
             </td>
             %end
@@ -122,6 +135,7 @@
    $('#services-states-popover').popover({
       placement: 'bottom',
       animation: true,
+      container: 'body',
       template: '<div class="popover popover-services"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
       content: function() {
          return $('#services-states-popover-content').html();
