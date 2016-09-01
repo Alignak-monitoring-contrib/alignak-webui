@@ -1153,9 +1153,8 @@ class DataManager(object):
             search.update({'sort': 'name'})
 
         try:
-            logger.warning("get_commands, search: %s", search)
+            logger.debug("get_commands, search: %s", search)
             items = self.find_object('command', search, all_elements)
-            logger.warning("get_commands, got: %d", len(items))
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_commands, none found")
