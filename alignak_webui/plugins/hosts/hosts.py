@@ -175,7 +175,7 @@ class PluginHosts(Plugin):
                             'The number of hosts in this list can be defined in the widget options.'
                             'The list of hosts can be filtered thanks to regex on the host name'
                         ),
-                        'picture': 'htdocs/img/hosts/table_widget.png',
+                        'picture': 'htdocs/img/hosts_table_widget.png',
                         'options': {
                             'search': {
                                 'value': '',

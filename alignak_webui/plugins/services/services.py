@@ -62,7 +62,7 @@ class PluginServices(Plugin):
                             'the widget options. The list of services can be filtered thanks to '
                             'regex on the service name'
                         ),
-                        'picture': 'htdocs/img/services/table_widget.png',
+                        'picture': 'htdocs/img/services_table_widget.png',
                         'options': {
                             'search': {
                                 'value': '',
