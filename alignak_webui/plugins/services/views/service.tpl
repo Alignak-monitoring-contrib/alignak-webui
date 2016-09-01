@@ -1,7 +1,13 @@
 %setdefault('debug', False)
-%setdefault('services', None)
-%setdefault('livestate', None)
+%setdefault('host', None)
+%setdefault('service', None)
+%setdefault('parents', None)
+%setdefault('children', None)
 %setdefault('history', None)
+%setdefault('events', None)
+%setdefault('timeline_pagination', None)
+%setdefault('types', None)
+%setdefault('selected_types', None)
 %setdefault('title', "{{_('Service view')")
 
 %rebase("layout", title=title, js=[], css=[], page="/service")
@@ -25,23 +31,6 @@
                %for k,v in sorted(service.__dict__.items()):
                   <dt>{{k}}</dt>
                   <dd>{{v}}</dd>
-               %end
-            </dl>
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_livestate_{{service.id}}"><i class="fa fa-bug"></i> Service livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_livestate_{{service.id}}" class="panel-collapse collapse">
-            <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-               %if livestate:
-               %for k,v in sorted(livestate.__dict__.items()):
-                  <dt>{{k}}</dt>
-                  <dd>{{v}}</dd>
-               %end
                %end
             </dl>
          </div>
@@ -219,17 +208,19 @@
          <div class="row">
             <dl class="col-sm-6 col-md-4">
                <dt>{{_('Host:')}}</dt>
-               <dd>{{! livestate_host.html_state_link}}</dd>
+               <dd>{{! host.html_state_link}}</dd>
 
                <dt>{{_('Alias:')}}</dt>
                <dd>{{service.alias}}</dd>
 
+               %if service.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
                %for note_url in Helper.get_element_notes_url(service, default_title="Note", default_icon="tag", popover=True):
                   <button class="btn btn-default btn-xs">{{! note_url}}</button>
                %end
                </dd>
+               %end
 
                <dt>{{_('Importance:')}}</dt>
                <dd>{{!Helper.get_html_business_impact(service.business_impact, icon=True, text=True)}}</dd>
@@ -268,7 +259,7 @@
 
    <!-- Third row : business impact alerting ... -->
    %if current_user.is_power():
-      %if livestate and livestate.is_problem and service.business_impact > 2 and not service.acknowledged:
+      %if service and service.is_problem and service.business_impact > 2 and not service.acknowledged:
       <div class="panel panel-default">
          <div class="panel-heading" style="padding-bottom: -10">
             <div class="aroundpulse pull-left" style="padding: 8px;">
@@ -276,8 +267,8 @@
                <i class="fa fa-3x fa-spin fa-gear"></i>
             </div>
             <div style="margin-left: 60px;">
-            %disabled_ack = '' if livestate.is_problem and not service.acknowledged else 'disabled'
-            %disabled_fix = '' if livestate.is_problem and service.event_handler_enabled and service.event_handler else 'disabled'
+            %disabled_ack = '' if service.is_problem and not service.acknowledged else 'disabled'
+            %disabled_fix = '' if service.is_problem and service.event_handler_enabled and service.event_handler else 'disabled'
             <p class="alert alert-danger" style="margin-bottom:0">
                {{_('This element has an important impact on your business, you may acknowledge it or try to fix it.')}}
             </p>

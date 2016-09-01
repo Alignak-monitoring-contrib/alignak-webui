@@ -378,8 +378,11 @@ class BackendElement(object):
             try:
                 if params[key]:
                     setattr(self, key, params[key])
-            except Exception:  # pragma: no cover, should not happen
-                logger.critical("_create parameter TypeError: %s = %s", key, params[key])
+            except Exception as e:
+                logger.critical(
+                    "_create parameter exception: %s, %s = %s, %s",
+                    self.__class__, key, params[key], str(e)
+                )
 
         for key, value in sorted(params.items()):  # pylint:disable=too-many-nested-blocks
             logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
@@ -395,7 +398,8 @@ class BackendElement(object):
                 )
                 # Linked resource type
                 object_type = getattr(self, '_linked_' + key, None)
-                if object_type not in [kc.get_type() for kc in self.get_known_classes()]:
+                if not isinstance(object_type, dict) and \
+                        object_type not in [kc.get_type() for kc in self.get_known_classes()]:
                     logger.error(
                         "_create, unknown %s for %s, as %s for %s",
                         key, self.get_type(), object_type, params[key]
@@ -508,8 +512,11 @@ class BackendElement(object):
 
             try:
                 setattr(self, key, params[key])
-            except Exception:  # pragma: no cover, should not happen
-                logger.critical("__init__, parameter TypeError: %s = %s", key, params[key])
+            except Exception as e:
+                logger.critical(
+                    "__init__ parameter exception: %s, %s = %s, %s",
+                    self.__class__, key, params[key], str(e)
+                )
 
         for key, value in sorted(params.items()):
             if not hasattr(self, '_linked_' + key):

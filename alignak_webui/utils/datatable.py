@@ -556,7 +556,7 @@ class Datatable(object):
         # Change item content ...
         for item in items:
             bo_object = object_class(item)
-            logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
+            # logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
 
             for key in item.keys():
                 for field in self.table_columns:
@@ -569,7 +569,7 @@ class Datatable(object):
                         item[key] = bo_object.html_link
 
                     if field['data'] == self.status_property:
-                        item[key] = bo_object.get_html_state()
+                        item[key] = bo_object.get_html_state(text=None)
                         item['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
 
                     if field['data'] == "business_impact":

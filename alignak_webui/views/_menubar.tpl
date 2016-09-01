@@ -15,12 +15,6 @@
             <span class="sr-only">{{_('Dashboard')}}</span>
          </a>
       </li>
-      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Livestate table')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Livestate table') }}">
-            <span class="fa fa-fw fa-heartbeat"></span>
-            <span class="sr-only">{{_('Livestate')}}</span>
-         </a>
-      </li>
       <li data-toggle="tooltip" data-placement="bottom" title="{{_('Log table')}}">
          <a class="navbar-link" href="{{ webui.get_url('Log check results table') }}">
             <span class="fa fa-fw fa-history"></span>

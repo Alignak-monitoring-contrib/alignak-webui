@@ -5,11 +5,12 @@
 %from alignak_webui.objects.item_host import Host
 %from alignak_webui.objects.item_service import Service
 
-%lv = datamgr.get_livesynthesis()
-%hs = lv['hosts_synthesis']
-
 %from bottle import request
 %if request.app.config.get('header_refresh_period', '30') != '0':
+
+%lv = datamgr.get_livesynthesis()
+
+%hs = lv['hosts_synthesis']
 %# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
 %hosts_states_queue = datamgr.get_user_preferences(current_user, 'hosts_states_queue', [])
 %hosts_states_queue.append({'date': time.time(), 'hs': hs})
@@ -17,12 +18,8 @@
 %hosts_states_queue.pop(0)
 %end
 %datamgr.set_user_preferences(current_user, 'hosts_states_queue', hosts_states_queue)
-%end
 
 %ss = lv['services_synthesis']
-
-%from bottle import request
-%if request.app.config.get('header_refresh_period', '30') != '0':
 %# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
 %services_states_queue = datamgr.get_user_preferences(current_user, 'services_states_queue', [])
 %services_states_queue.append({'date': time.time(), 'ss': ss})
@@ -40,8 +37,8 @@
             <td>
               %title = _('%s hosts %s (%s%%)') % (hs["nb_" + state], state, hs["pct_" + state])
               %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
-               <a href="{{ webui.get_url('Livestate table') }}?search=type:host state:{{state.upper()}}">
-              {{! Host({'status':state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
+               <a href="{{ webui.get_url('Hosts table') }}?search=status:{{state.upper()}}">
+              {{! Host({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
                </a>
             </td>
             %end
@@ -91,8 +88,8 @@
             <td>
               %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
               %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
-               <a href="{{ webui.get_url('Livestate table') }}?search=type:service state:{{state.upper()}}">
-              {{! Service({'status':state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
+               <a href="{{ webui.get_url('Services table') }}?search=status:{{state.upper()}}">
+              {{! Service({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
                </a>
             </td>
             %end

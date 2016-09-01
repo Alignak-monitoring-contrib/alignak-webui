@@ -56,16 +56,10 @@
 
             <tbody>
                %for service in elts:
-               %lv_service = datamgr.get_livestates({'where': {'host': service.host.id, 'service': service.id}})
-               %lv_service = lv_service[0]
                <tr id="#{{service.id}}">
                   <td title="{{service.alias}}">
-                  %if lv_service:
-                     %title = "%s - %s (%s)" % (lv_service.status, Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0), lv_service.output)
-                     {{! lv_service.get_html_state(text=None, title=title)}}
-                  %else:
-                     {{! service.get_html_state(text=None, title=_('No livestate for this element'))}}
-                  %end
+                     %title = "%s - %s (%s)" % (service.state, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
+                     {{! service.get_html_state(text=None, title=title)}}
                   </td>
 
                   <td>
@@ -85,9 +79,7 @@
                   </td>
 
                   <td>
-                  %if lv_service:
-                     <small>{{! lv_service.output}}</small>
-                  %end
+                     <small>{{! service.output}}</small>
                   </td>
                </tr>
              %end

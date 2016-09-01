@@ -1,6 +1,6 @@
 %import json
 
-%setdefault('debug', False)
+%setdefault('debug', True)
 %setdefault('selectable', True)
 %setdefault('context_menu', True)
 
@@ -112,8 +112,13 @@
       jsTreeData.push( {
          "id": '{{item.id}}',
          "parent" : '{{'#' if parent=='#' else item.parent.id}}',
+         "type" : '{{'root' if parent=='#' else 'node'}}',
          "text": '{{item.alias}}',
-         "icon": '{{item.get_state()}}',
+         %if parent=='#':
+         "icon": 'fa fa-w fa-sitemap',
+         %else:
+         "icon": 'fa fa-w fa-list',
+         %end
          "state": {
             "opened": true,
             "selected": false,
@@ -158,6 +163,7 @@
                "data" : jsTreeData
             },
             "plugins" : [
+               //"types",
                "sort",
                %if selectable:
                "checkbox",
@@ -167,7 +173,23 @@
                "contextmenu"
                %end
             ],
-            "search": { "show_only_matches": true },
+            "search": {
+               "show_only_matches": true
+            },
+            /*
+            "types" : {
+               "#" : {
+                  "icon" : "fa fa-tree",
+                  "max_depth" : 4
+               },
+               "root" : {
+                  "icon" : "fa fa-w fa-sitemap"
+               },
+               "default" : {
+                  "icon" : "fa fa-w fa-list"
+               }
+            },
+            */
             %if context_menu:
             "contextmenu": {
                "items": function(node) {
@@ -208,6 +230,19 @@
 
             if (action.action == 'select_node') {
                if (debugTree) console.log('Selected :', action.node);
+
+
+               $.ajax( {
+                  "url": "/{{tree_type}}/status/" + action.node.id,
+                  "dataType": "json",
+                  "type": "GET",
+                  "success": function (data) {
+                     if (debugTree) console.debug("Got status:", data);
+                  },
+                  "error": function (jqXHR, textStatus, errorThrown) {
+                     console.error("Get list error: ", textStatus, jqXHR);
+                  }
+               });
 
                $.ajax( {
                   "url": "/{{tree_type}}/members/" + action.node.id,

@@ -62,7 +62,7 @@ class PluginLookup(Plugin):
 
         logger.debug("lookup query: %s", query)
 
-        elements = datamgr.get_livestates(
+        elements = datamgr.get_hosts(
             search={'where': {'name': {"$regex": ".*" + query + ".*"}}}
         )
         names = [e.name for e in elements]

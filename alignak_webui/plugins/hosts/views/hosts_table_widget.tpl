@@ -23,16 +23,10 @@
       </tr></thead>
       <tbody>
          %for host in hosts:
-         %lv_host = datamgr.get_livestates({'where': {'host': host.id}})
-         %lv_host = lv_host[0]
          <tr id="{{host.id}}">
             <td title="{{host.alias}}">
-            %if lv_host:
-               %label = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)
-               {{! lv_host.get_html_state(text=None, title=label)}}
-            %else:
-               {{! host.get_html_state(text=None, title=_('No livestate for this element'))}}
-            %end
+            %label = "%s - %s (%s)" % (host.status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
+            {{! host.get_html_state(text=None, title=label)}}
             </td>
 
             %if not embedded:

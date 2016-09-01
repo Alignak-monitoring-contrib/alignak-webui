@@ -7,7 +7,7 @@
 %setdefault('credentials', None)
 
 <div id="service_view_information" class="col-lg-4 col-sm-4 text-center">
-   {{! livestate.get_html_state(text=None, size="fa-5x")}}
+   {{! service.get_html_state(text=None, size="fa-5x")}}
    <div>
       <strong>{{service.alias}}</strong>
    </div>
@@ -15,7 +15,7 @@
    <center>
       <h4>{{_('Attached to %s') % service.host.alias}}</h4>
    </center>
-   {{! livestate_host.html_state_link}}
+   {{! host.html_state_link}}
 </div>
 <div id="service_view_graphes" class="col-lg-8 col-sm-8">
 
@@ -39,15 +39,15 @@
          </tr>
       </thead>
       <tbody style="font-size:x-small;">
-      %if livestate.perf_data:
+      %if service.perf_data:
          %name_line = True
-         %perfdatas = PerfDatas(livestate.perf_data)
+         %perfdatas = PerfDatas(service.perf_data)
          %if perfdatas:
          %for metric in sorted(perfdatas, key=lambda metric: metric.name):
          %if metric.name:
          <tr>
             %if name_line:
-            <td><strong>{{livestate.name}}</strong></td>
+            <td><strong>{{service.name}}</strong></td>
             %else:
             <td></td>
             %end

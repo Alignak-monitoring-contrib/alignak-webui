@@ -332,21 +332,20 @@ class PluginHosts(Plugin):
         )
 
         # Get host livestate
-        livestate = datamgr.get_livestates(
-            search={'where': {'type': 'host', 'host': '%s' % host.id}}
-        )
-        if livestate:
-            livestate = livestate[0]
+        # livestate = datamgr.get_livestates(
+            # search={'where': {'type': 'host', 'host': '%s' % host.id}}
+        # )
+        # if livestate:
+            # livestate = livestate[0]
 
         # Get host services livestate
-        livestate_services = datamgr.get_livestates(
-            search={'where': {'type': 'service', 'host': host.id}}
-        )
+        # livestate_services = datamgr.get_livestates(
+            # search={'where': {'type': 'service', 'host': host.id}}
+        # )
 
         # Get host history (timeline)
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Host history pagination and search parameters
         start = int(request.params.get('start', '0'))
@@ -406,8 +405,8 @@ class PluginHosts(Plugin):
             'host': host,
             'plugin_parameters': self.plugin_parameters,
             'services': services,
-            'livestate': livestate,
-            'livestate_services': livestate_services,
+            # 'livestate': livestate,
+            # 'livestate_services': livestate_services,
             'history': history,
             'events': events,
             'parents': parents,

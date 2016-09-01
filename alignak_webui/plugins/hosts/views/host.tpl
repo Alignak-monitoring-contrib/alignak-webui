@@ -1,7 +1,13 @@
 %setdefault('debug', False)
+%setdefault('host', None)
 %setdefault('services', None)
-%setdefault('livestate', None)
+%setdefault('parents', None)
+%setdefault('children', None)
 %setdefault('history', None)
+%setdefault('events', None)
+%setdefault('timeline_pagination', None)
+%setdefault('types', None)
+%setdefault('selected_types', None)
 %setdefault('title', "{{_('Host view')")
 
 %rebase("layout", title=title, js=[], css=[], page="/host")
@@ -32,21 +38,6 @@
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_livestate_{{host.id}}"><i class="fa fa-bug"></i> Host livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_livestate_{{host.id}}" class="panel-collapse collapse">
-            <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-               %for k,v in sorted(livestate.__dict__.items()):
-                  <dt>{{k}}</dt>
-                  <dd>{{v}}</dd>
-               %end
-            </dl>
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
                <a data-toggle="collapse" href="#collapse_{{host.id}}_services"><i class="fa fa-bug"></i> Host services as dictionary</a>
             </h4>
          </div>
@@ -59,32 +50,6 @@
                   </h4>
                </div>
                <div id="collapse{{service.id}}_services" class="panel-collapse collapse" style="height: 200px;">
-                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-                     %for k,v in sorted(service.__dict__.items()):
-                        <dt>{{k}}</dt>
-                        <dd>{{v}}</dd>
-                     %end
-                  </dl>
-               </div>
-            </div>
-            %end
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_{{host.id}}_services_livestate"><i class="fa fa-bug"></i> Host services livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_{{host.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
-            %for service in livestate_services:
-            <div class="panel panel-default">
-               <div class="panel-heading">
-                  <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.id}}_services_livestate"><i class="fa fa-bug"></i> Service livestate: {{service.name}}</a>
-                  </h4>
-               </div>
-               <div id="collapse{{service.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px;">
                   <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                      %for k,v in sorted(service.__dict__.items()):
                         <dt>{{k}}</dt>
@@ -271,12 +236,15 @@
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
+               %if host.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
                %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
                   <button class="btn btn-default btn-xs">{{! note_url}}</button>
                %end
                </dd>
+               %end
+
                <dt>{{_('Address:')}}</dt>
                <dd>{{host.address}}</dd>
 
@@ -317,7 +285,7 @@
 
    <!-- Third row : business impact alerting ... -->
    %if current_user.is_power():
-      %if livestate.is_problem and host.business_impact > 2 and not host.acknowledged:
+      %if host.is_problem and host.business_impact > 2 and not host.acknowledged:
       <div class="panel panel-default">
          <div class="panel-heading" style="padding-bottom: -10">
             <div class="aroundpulse pull-left" style="padding: 8px;">
@@ -325,8 +293,8 @@
                <i class="fa fa-3x fa-spin fa-gear"></i>
             </div>
             <div style="margin-left: 60px;">
-            %disabled_ack = '' if livestate.is_problem and not host.acknowledged else 'disabled'
-            %disabled_fix = '' if livestate.is_problem and host.event_handler_enabled and host.event_handler else 'disabled'
+            %disabled_ack = '' if host.is_problem and not host.acknowledged else 'disabled'
+            %disabled_fix = '' if host.is_problem and host.event_handler_enabled and host.event_handler else 'disabled'
             <p class="alert alert-danger" style="margin-bottom:0">
                {{_('This element has an important impact on your business, you may acknowledge it or try to fix it.')}}
             </p>
@@ -344,7 +312,7 @@
          <tbody>
            <tr>
              <td>
-               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}}">
+               <a role="menuitem" href="/livestates/table?search=type:service name:{{host.name}}">
                   <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
                </a>
              </td>
@@ -352,11 +320,11 @@
              %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
              <td>
                %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}} state:{{state.upper()}}">
+               <a role="menuitem" href="/livestates/table?search=type:service name:{{host.name}} state:{{state.upper()}}">
                %end
 
                %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-               {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
+               {{! Service({'livestate': {'state': state} }).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
 
                %if synthesis['nb_' + state]>0:
                </a>

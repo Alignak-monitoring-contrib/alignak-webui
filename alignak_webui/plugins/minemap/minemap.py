@@ -79,7 +79,7 @@ class PluginMinemap(Plugin):
         }
 
         # Get elements from the data manager
-        hosts = datamgr.get_livestate_hosts(search)
+        hosts = datamgr.get_hosts(search)
 
         minemap = []
         columns = []
@@ -87,7 +87,7 @@ class PluginMinemap(Plugin):
             minemap_row = {'host_check': host}
 
             # services = datamgr.get_services(search={'where': {'host': host.id}})
-            services = datamgr.get_livestate_services(
+            services = datamgr.get_services(
                 search={'where': {'host': host.host.id}}
             )
             if services:

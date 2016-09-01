@@ -79,20 +79,14 @@ class PluginRealms(Plugin):
 
         items = []
         for host in hosts:
-            lv_host = datamgr.get_livestates({'where': {'type': 'host', 'host': host.id}})
-            lv_host = lv_host[0]
-            title = "%s - %s (%s)" % (
-                lv_host.status,
-                Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0),
-                lv_host.output
-            )
+            logger.debug("Realm member: %s", host)
 
             items.append({
                 'id': host.id,
                 'name': host.name,
                 'alias': host.alias,
-                'icon': lv_host.get_html_state(text=None, title=title),
-                'url': lv_host.get_html_link()
+                'icon': host.get_html_state(text=None, title=title),
+                'url': host.get_html_link()
             })
 
         response.status = 200

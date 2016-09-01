@@ -56,7 +56,7 @@ from alignak_webui.objects.item_servicedependency import *
 from alignak_webui.objects.item_history import *
 from alignak_webui.objects.item_log import *
 from alignak_webui.objects.item_actions import *
-from alignak_webui.objects.item_livestate import *
+# from alignak_webui.objects.item_livestate import *
 from alignak_webui.objects.item_livesynthesis import *
 from alignak_webui.objects.item_userrestrictrole import *
 
@@ -213,7 +213,7 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.info("find_object, %s, params: %s, all: %s", object_type, params, all_elements)
+        logger.debug("find_object, %s, params: %s, all: %s", object_type, params, all_elements)
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
@@ -222,7 +222,7 @@ class DataManager(object):
 
         try:
             result = self.backend.get(object_type, params, all_elements)
-            # logger.debug("find_object, found: %s: %s", object_type, result)
+            logger.debug("find_object, found: %s: %s", object_type, result)
         except BackendException as e:  # pragma: no cover, simple protection
             logger.warning("find_object, exception: %s", str(e))
             raise ValueError(
@@ -251,7 +251,7 @@ class DataManager(object):
             if '_total' in item:
                 object_class.set_total_count(item['_total'])
 
-        logger.info("find_object, %s, found %d items", object_type, len(items))
+        logger.debug("find_object, %s, found %d items", object_type, len(items))
         return items
 
     def load(self, reset=False, refresh=False):
@@ -299,26 +299,6 @@ class DataManager(object):
         # Get all realms
         # -----------------------------------------------------------------------------------------
         self.default_realm = self.get_realm({'max_results': 1, 'where': {'default': True}})
-
-        # -----------------------------------------------------------------------------------------
-        # Get all users
-        # -----------------------------------------------------------------------------------------
-        # self.get_users()
-
-        # -----------------------------------------------------------------------------------------
-        # Get all timeperiods
-        # -----------------------------------------------------------------------------------------
-        # self.get_timeperiods()
-
-        # -----------------------------------------------------------------------------------------
-        # Get all commands
-        # -----------------------------------------------------------------------------------------
-        # self.get_commands()
-
-        # -----------------------------------------------------------------------------------------
-        # Get livestate (livestate which embeds host and services definition)
-        # -----------------------------------------------------------------------------------------
-        # self.get_livestates()
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -579,98 +559,37 @@ class DataManager(object):
     def get_livestates(self, search=None, all_elements=False):
         """ Get livestate for all elements
 
-            Elements in the livestate which type is 'host' or 'service'
+            DEPRECATED
 
-            :param search: backend request search
-            :type search: dic
-            :return: list of hosts/services live states
-            :rtype: list
         """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'host': 1, 'service': 1}})
-
-        try:
-            logger.debug("get_livestates, search: %s", search)
-            items = self.find_object('livestate', search, all_elements)
-            return items
-        except ValueError:
-            logger.debug("get_livestates, none found")
+        return []
 
     def get_livestate(self, search):
-        """ Get a host/service by its livestate id (default). """
+        """ Get a host/service by its livestate id (default).
 
-        if isinstance(search, basestring):
-            search = {'max_results': 1, 'where': {'_id': search}}
-        elif 'max_results' not in search:
-            search.update({'max_results': 1})
+            DEPRECATED
 
-        items = self.get_livestates(search=search)
-        if items:
-            logger.warning("get_livestate, found: %s", items[0].__dict__)
-        return items[0] if items else None
+        """
+        return []
 
     def get_livestate_hosts(self, search=None):
         """ Get livestate for hosts
 
-            Elements in the livestate which type is 'host'
+            DEPRECATED
 
-            :param search: backend request search
-            :type search: dic
-            :return: list of hosts live states
-            :rtype: list
         """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'host': 1}})
-        if 'where' not in search:
-            search.update({'where': {'type': 'host'}})
-        elif 'type' not in search['where']:
-            search['where'].update({'type': 'host'})
-
-        try:
-            logger.debug("get_livestate_hosts, search: %s", search)
-            items = self.find_object('livestate', search)
-            return items
-        except ValueError:  # pragma: no cover - should not happen
-            logger.debug("get_livestate_hosts, none found")
+        return []
 
     def get_livestate_services(self, search=None):
         """ Get livestate for services
 
-            Elements in the livestate which type is 'service'
+            DEPRECATED
 
-            :param search: backend request search
-            :type search: dic
-            :return: list of services live states
-            :rtype: list
         """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'service': 1}})
-        if 'where' not in search:
-            search.update({'where': {'type': 'service'}})
-        elif 'type' not in search['where']:
-            search['where'].update({'type': 'service'})
-
-        try:
-            logger.debug("get_livestate_services, search: %s", search)
-            items = self.find_object('livestate', search)
-            return items
-        except ValueError:
-            logger.debug("get_livestate_services, none found")
+        return []
 
     def get_livesynthesis(self, search=None):
-        """ Get livestate synthesis for hosts and services
+        """ Get live state synthesis for hosts and services
 
             Example backend response::
 
@@ -924,7 +843,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_parent': 1
+                    '_parent': 1, 'hostgroups': 1, 'hosts': 1
                 }
             })
 

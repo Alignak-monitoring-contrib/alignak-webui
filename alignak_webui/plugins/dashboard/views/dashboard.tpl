@@ -50,7 +50,7 @@
          %cfg_state = ElementState().get_icon_state('host', 'up')
          %icon = cfg_state['icon']
          <center>
-            <a href="{{ webui.get_url('Livestate table') }}?search=type:host">
+            <a href="{{ webui.get_url('Hosts table') }}">
                <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Hosts')}}</span>
                <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
@@ -70,7 +70,7 @@
          %cfg_state = ElementState().get_icon_state('service', 'ok')
          %icon = cfg_state['icon']
          <center>
-            <a class="icon-{{font}}" href="{{ webui.get_url('Livestate table') }}?search=type:service">
+            <a class="icon-{{font}}" href="{{ webui.get_url('Services table') }}">
                <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Services')}}</span>
                <div class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of hosts up')}}">{{ss["nb_elts"]}}</div>
@@ -89,7 +89,7 @@
          %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
          %font='danger' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'success'
          <center>
-            <a href="{{ webui.get_url('Livestate table') }}?search=state_id:1 state_id:2">
+            <a href="{{ webui.get_url('Hosts table') }}?search=state_id:1 state_id:2">
                <span class="fa fa-4x fa-exclamation-triangle icon-{{font}}"></span>
                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Problems')}}</span>
                <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
@@ -109,7 +109,7 @@
          %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
          %font='info'
          <center>
-            <a href="{{ webui.get_url('Livestate table') }}">
+            <a href="{{ webui.get_url('Services table') }}">
                <span class="fa fa-4x fa-bolt icon-{{font}}"></span>
                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Impacts')}}</span>
                <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>

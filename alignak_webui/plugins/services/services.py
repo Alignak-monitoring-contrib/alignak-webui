@@ -217,20 +217,6 @@ class PluginServices(Plugin):
             search={'where': {'dependent_services': service.id}}
         )
 
-        # Get host livestate
-        livestate_host = datamgr.get_livestates(
-            search={'where': {'type': 'host', 'host': host.id}}
-        )
-        if livestate_host:
-            livestate_host = livestate_host[0]
-
-        # Get service livestate
-        livestate = datamgr.get_livestates(
-            search={'where': {'type': 'service', 'service': '%s' % service.id}}
-        )
-        if livestate:
-            livestate = livestate[0]
-
         # Get service history (timeline)
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
@@ -293,8 +279,6 @@ class PluginServices(Plugin):
             'host': host,
             'service': service,
             'plugin_parameters': self.plugin_parameters,
-            'livestate': livestate,
-            'livestate_host': livestate_host,
             'history': history,
             'events': events,
             'parents': parents,

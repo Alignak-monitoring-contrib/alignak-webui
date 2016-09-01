@@ -24,16 +24,10 @@
       </tr></thead>
       <tbody>
          %for service in services:
-         %lv_service = datamgr.get_livestates({'where': {'service': service.id}})
-         %lv_service = lv_service[0]
          <tr id="{{service.id}}">
             <td title="{{service.alias}}">
-            %if lv_service:
-               %label = "%s - %s (%s)" % (lv_service.status, Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0), lv_service.output)
-               {{! lv_service.get_html_state(text=None, title=label)}}
-            %else:
-               {{! service.get_html_state(text=None, title=_('No livestate for this element'))}}
-            %end
+            %label = "%s - %s (%s)" % (service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
+            {{! service.get_html_state(text=None, title=label)}}
             </td>
 
             %if not embedded:

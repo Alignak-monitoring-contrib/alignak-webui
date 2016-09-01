@@ -477,7 +477,7 @@ class Plugin(object):
         if not f:
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        elts = f(search, all_elements=True)
+        elts = f(search, all_elements=False)
 
         # Get last total elements count
         total = datamgr.get_objects_count(

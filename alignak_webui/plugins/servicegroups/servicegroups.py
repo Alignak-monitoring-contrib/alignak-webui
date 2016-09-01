@@ -73,22 +73,13 @@ class PluginServicesGroups(Plugin):
 
         items = []
         for service in servicegroup.services:
-            lv_service = datamgr.get_livestates(
-                {'where': {'type': 'service', 'service': service.id}}
-            )
-            lv_service = lv_service[0]
-            title = "%s - %s (%s)" % (
-                lv_service.status,
-                Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0),
-                lv_service.output
-            )
 
             items.append({
                 'id': service.id,
                 'name': service.name,
                 'alias': service.alias,
-                'icon': lv_service.get_html_state(text=None, title=title),
-                'url': lv_service.get_html_link()
+                'icon': service.get_html_state(text=None, title=title),
+                'url': service.get_html_link()
             })
 
         response.status = 200

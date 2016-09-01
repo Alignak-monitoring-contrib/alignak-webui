@@ -52,9 +52,45 @@ class PluginHostsGroups(Plugin):
                 'name': 'Host group members',
                 'route': '/hostgroup/members/<hostgroup_id>'
             },
+            'get_hostgroup_status': {
+                'name': 'Host group status',
+                'route': '/hostgroup/status/<hostgroup_id>'
+            },
         }
 
         super(PluginHostsGroups, self).__init__(app, cfg_filenames)
+
+    def get_hostgroup_status(self, hostgroup_id):
+        """
+        Get the hostgroup overall status
+        """
+        datamgr = request.app.datamgr
+
+        hostgroup = datamgr.get_hostgroup(hostgroup_id)
+        if not hostgroup:
+            hostgroup = datamgr.get_hostgroup(
+                search={'max_results': 1, 'where': {'name': hostgroup_id}}
+            )
+            if not hostgroup:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % hostgroup_id)
+
+        group_state = 0
+        for host in hostgroup.members:
+            logger.debug("Group member: %s", host)
+
+            # Get host services
+            services = datamgr.get_services(search={'where': {'host': host.id}})
+
+            # Get host overall state (0, 1, 2, 3)
+            state = host.get_real_state(services)
+            group_state = max(state, group_state)
+
+        logger.debug("Group state: %d", group_state)
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps({'status': group_state})
 
     def get_hostgroup_members(self, hostgroup_id):
         """
@@ -72,21 +108,20 @@ class PluginHostsGroups(Plugin):
                                                               % hostgroup_id)
 
         items = []
-        for host in hostgroup.hosts:
-            lv_host = datamgr.get_livestates({'where': {'type': 'host', 'host': host.id}})
-            lv_host = lv_host[0]
+        for host in hostgroup.members:
+            logger.debug("Hostgroup member: %s", host)
             title = "%s - %s (%s)" % (
-                lv_host.status,
-                Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0),
-                lv_host.output
+                host.status,
+                Helper.print_duration(host.last_check, duration_only=True, x_elts=0),
+                host.output
             )
 
             items.append({
                 'id': host.id,
                 'name': host.name,
                 'alias': host.alias,
-                'icon': lv_host.get_html_state(text=None, title=title),
-                'url': lv_host.get_html_link()
+                'icon': host.get_html_state(text=None, title=title),
+                'url': host.get_html_link()
             })
 
         response.status = 200
