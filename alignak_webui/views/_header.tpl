@@ -12,22 +12,6 @@
       .done(function(content, textStatus, jqXHR) {
          $('#_header_states').html(content);
       });
-
-      /*
-      $.ajax({
-         url: "/ping?action=refresh&template=_header_hosts_state"
-      })
-      .done(function(content, textStatus, jqXHR) {
-         $('#overall-hosts-states').html(content);
-      });
-
-      $.ajax({
-         url: "/ping?action=refresh&template=_header_services_state"
-      })
-      .done(function(content, textStatus, jqXHR) {
-         $('#overall-services-states').html(content);
-      });
-      */
    }
 
    $(document).ready(function(){
@@ -53,7 +37,7 @@
             <span class="icon-bar"></span>
          </button>
          <a class="navbar-brand" href="/" style="float: left">
-            <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
+            <img src="{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
          </a>
 
          <ul class="nav navbar-nav navbar-left" id="_header_states">

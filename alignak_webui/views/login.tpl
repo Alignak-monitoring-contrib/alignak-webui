@@ -50,7 +50,7 @@
                   <h2>{{request.app.config.get('about_name', manifest['name'])}}</h2>
                   <h3><small>{{_('Version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h3>
                   <center>
-                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 80%"/>
+                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 90%"/>
                   </center>
                </div>
                <div class="panel-body">
