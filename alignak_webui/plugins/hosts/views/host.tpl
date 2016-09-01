@@ -312,7 +312,7 @@
          <tbody>
            <tr>
              <td>
-               <a role="menuitem" href="/livestates/table?search=type:service name:{{host.name}}">
+               <a role="menuitem" href="/services/table?search=host:{{host.id}}">
                   <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
                </a>
              </td>
@@ -320,7 +320,7 @@
              %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
              <td>
                %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/livestates/table?search=type:service name:{{host.name}} state:{{state.upper()}}">
+               <a role="menuitem" href="/services/table?search=ls_state:{{state.upper()}}">
                %end
 
                %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
