@@ -88,15 +88,11 @@ class PluginMinemap(Plugin):
 
             # services = datamgr.get_services(search={'where': {'host': host.id}})
             services = datamgr.get_services(
-                search={'where': {'host': host.host.id}}
+                search={'where': {'host': host.id}}
             )
-            if services:
-                for service_check in services:
-                    if isinstance(service_check.service, basestring):
-                        logger.critical(service_check.__dict__)
-                    else:
-                        columns.append(service_check.service.name)
-                        minemap_row.update({service_check.service.name: service_check})
+            for service in services:
+                columns.append(service.alias)
+                minemap_row.update({service.name: service})
 
             minemap.append(minemap_row)
 
