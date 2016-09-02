@@ -711,19 +711,18 @@
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
+                        if (selected.indexes().length == 0) {
                            return;
                         }
                         var url = "/recheck/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
-                           var elt_name = elt.display_name_host;
-                           if (elt.type == 'service') {
-                              elt_name += ' (' + elt.display_name_service + ')';
-                           }
                            if (! first) url += '&';
-                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
                            if (first) first = false;
                         });
                         window.setTimeout(function(){
@@ -741,19 +740,18 @@
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
+                        if (selected.indexes().length == 0) {
                            return;
                         }
                         var url = "/acknowledge/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
-                           var elt_name = elt.display_name_host;
-                           if (elt.type == 'service') {
-                              elt_name += ' (' + elt.display_name_service + ')';
-                           }
                            if (! first) url += '&';
-                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
                            if (first) first = false;
                         });
                         window.setTimeout(function(){
@@ -771,19 +769,18 @@
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
+                        if (selected.indexes().length == 0) {
                            return;
                         }
                         var url = "/downtime/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
-                           var elt_name = elt.display_name_host;
-                           if (elt.type == 'service') {
-                              elt_name += ' (' + elt.display_name_service + ')';
-                           }
                            if (! first) url += '&';
-                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
                            if (first) first = false;
                         });
                         window.setTimeout(function(){

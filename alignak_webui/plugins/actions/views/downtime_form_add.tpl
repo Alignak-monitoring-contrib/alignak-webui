@@ -3,7 +3,9 @@
 
 %# downtime attributes
 %setdefault('action', 'add')
-%setdefault('livestate_id', '-1')
+%setdefault('element_id', '-1')
+%setdefault('elements_type', 'host')
+%setdefault('element_name', 'unknown')
 %setdefault('fixed', True)
 %setdefault('duration', False)
 
@@ -18,12 +20,13 @@
 <div class="modal-body">
    <form data-item="downtime" data-action="{{action}}" class="form-horizontal" method="post" action="/downtime/add" role="form">
       <div class="form-group" style="display: none">
-         %for id in livestate_id:
-         <input type="text" readonly id="livestate_id" name="livestate_id" value="{{id}}">
+         %for id in element_id:
+         <input type="text" readonly id="element_id" name="element_id" value="{{id}}">
          %end
          %for name in element_name:
          <input type="text" readonly id="element_name" name="element_name" value="{{name}}">
          %end
+         <input type="text" readonly id="elements_type" name="elements_type" value="{{elements_type}}">
       </div>
 
       <div class="form-group">

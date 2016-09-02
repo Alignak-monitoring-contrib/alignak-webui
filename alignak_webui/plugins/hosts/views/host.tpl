@@ -8,9 +8,9 @@
 %setdefault('timeline_pagination', None)
 %setdefault('types', None)
 %setdefault('selected_types', None)
-%setdefault('title', "{{_('Host view')")
+%setdefault('title', _('Host view'))
 
-%rebase("layout", title=title, js=[], css=[], page="/host")
+%rebase("layout", title=title, js=[], css=[], page="/host/{{host.id}}")
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
