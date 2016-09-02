@@ -1,6 +1,6 @@
 %import json
 
-%setdefault('debug', True)
+%setdefault('debug', False)
 %setdefault('selectable', True)
 %setdefault('context_menu', True)
 

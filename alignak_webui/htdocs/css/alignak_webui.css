@@ -197,7 +197,8 @@ table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataT
    top: 3px;
 }
 /* Selected line */
-table.dataTable tr.selected {
+table.dataTable tr.selected,
+table.dataTable .sorting_1 {
    color: #aaa !important;
    background-color:lightyellow !important;
 }
