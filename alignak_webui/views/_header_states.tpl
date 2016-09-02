@@ -27,7 +27,6 @@
 %services_states_queue.pop(0)
 %end
 %datamgr.set_user_preferences(current_user, 'services_states_queue', services_states_queue)
-%end
 
 <div id="hosts-states-popover-content" class="hidden">
    <table class="table table-invisible">
@@ -37,14 +36,16 @@
             <td>
               %title = _('%s hosts %s (%s%%)') % (hs["nb_" + state], state, hs["pct_" + state])
               %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
+               <a href="{{ webui.get_url('Hosts table') }}?search=
                %if state in ['up', 'unreachable', 'down']:
-                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}">
+                  ls_state:{{state.upper()}}
                %elif state in ['acknowledged']:
-                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_acknowledged:yes">
+                  ls_acknowledged:yes
                %elif state in ['in_downtime']:
-                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_downtime:yes">
+                  ls_downtime:yes
                %end
-              {{! Host({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
+               ">
+               {{! Host({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
                </a>
             </td>
             %end
@@ -86,22 +87,23 @@
    });
 </script>
 
-<li id="overall-services-states" class="pull-left">
 <div id="services-states-popover-content" class="hidden">
    <table class="table table-invisible">
       <tbody>
          <tr>
             %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
             <td>
-              %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
-              %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
+               %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
+               %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
+               <a href="{{ webui.get_url('Services table') }}?search=
                %if state in ['ok', 'warning', 'critical', 'unknown']:
-                  <a href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}">
+                  ls_state:{{state.upper()}}
                %elif state in ['acknowledged']:
-                  <a href="{{ webui.get_url('Services table') }}?search=ls_acknowledged:yes">
+                  ls_acknowledged:yes
                %elif state in ['in_downtime']:
-                  <a href="{{ webui.get_url('Services table') }}?search=ls_downtime:yes">
+                  ls_downtime:yes
                %end
+               ">
                {{! Service({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
                </a>
             </td>
@@ -111,6 +113,7 @@
    </table>
 </div>
 
+<li id="overall-services-states" class="pull-left">
 %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
 %from alignak_webui.objects.element_state import ElementState
 %items_states = ElementState()
@@ -142,5 +145,5 @@
       }
    });
 </script>
-
+%end
 %end
