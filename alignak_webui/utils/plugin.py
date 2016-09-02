@@ -400,6 +400,7 @@ class Plugin(object):
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
                 self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+        logger.warning("get_one, found: %s - %s", element, element.__dict__)
 
         # Build table structure and data model
         dt = Datatable(self.backend_endpoint, datamgr, self.table)

@@ -34,15 +34,11 @@ import json
 from logging import getLogger
 from bottle import request
 
+from datetime import datetime
+
 from alignak_webui import _
-
-# Import all objects we will need
-# pylint: disable=wildcard-import,unused-wildcard-import
-# We need all the classes defined whatever their number to use the globals() object.
-# from alignak_webui.objects.datamanager import DataManager
-# from alignak_webui.objects.element import *
-
 from alignak_webui.utils.helper import Helper
+from alignak_webui.objects.element import BackendElement
 
 logger = getLogger(__name__)
 
@@ -82,7 +78,7 @@ class Datatable(object):
         self.editable = True
         self.responsive = True
         self.recursive = False
-        self.commands = (object_type == 'livestate')
+        self.commands = (object_type == 'host') or (object_type == 'service')
 
         self.css = "compact nowrap"
 
@@ -148,15 +144,16 @@ class Datatable(object):
                 self.status_property = model.get('status_property', 'status')
 
                 self.title = model['page_title']
-                self.visible = model.get('visible', True)
-                self.printable = model.get('printable', True)
-                self.orderable = model.get('orderable', True)
-                self.selectable = model.get('selectable', True)
-                self.editable = model.get('editable', True)
-                self.searchable = model.get('searchable', True)
-                self.responsive = model.get('responsive', True)
-                self.recursive = model.get('recursive', False)
-                self.css = model.get('css', "display")
+                self.visible = model.get('visible', self.visible)
+                self.printable = model.get('printable', self.printable)
+                self.orderable = model.get('orderable', self.orderable)
+                self.selectable = model.get('selectable', self.selectable)
+                self.editable = model.get('editable', self.editable)
+                self.searchable = model.get('searchable', self.searchable)
+                self.responsive = model.get('responsive', self.responsive)
+                self.recursive = model.get('recursive', self.recursive)
+                self.commands = model.get('commands', self.commands)
+                self.css = model.get('css', "display nowrap")
 
                 self.initial_sort = model.get('initial_sort', [[1, 'asc']])
                 continue
@@ -514,13 +511,28 @@ class Datatable(object):
                 parameters['embedded'].update({field['data']: 1})
         logger.debug("backend embedded parameters: %s", parameters['embedded'])
 
+        # Get elements from the data manager
+        f = getattr(self.datamgr, 'get_%ss' % self.object_type)
+        if not f:
+            logger.error(
+                "datatable, unknown datamanager function to get object type: %s", self.object_type
+            )
+            # Empty response
+            return json.dumps({
+                # draw is the request number ...
+                "draw": int(params.get('draw', '0')),
+                "recordsTotal": 0,
+                "recordsFiltered": 0,
+                "data": []
+            })
+
         # Update global table records count, require total count from backend
         self.records_total = self.backend.count(self.object_type)
 
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
-
+        logger.info("table data got %d items", len(items))
         if not items:
             logger.info("No backend elements match search criteria: %s", parameters)
             # Empty response
@@ -537,7 +549,14 @@ class Datatable(object):
                         if kc.get_type() == self.object_type]
         if not object_class:
             logger.warning("datatable, unknown object type: %s", self.object_type)
-            return '%s, is not currently managed!' % (self.object_type)
+            # Empty response
+            return json.dumps({
+                # draw is the request number ...
+                "draw": int(params.get('draw', '0')),
+                "recordsTotal": 0,
+                "recordsFiltered": 0,
+                "data": []
+            })
 
         object_class = object_class[0]
         bo_object = object_class()
@@ -554,55 +573,91 @@ class Datatable(object):
             self.status_property = bo_object.__class__.status_property
 
         # Change item content ...
+        rows = []
         for item in items:
             bo_object = object_class(item)
-            # logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
+            logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
 
-            for key in item.keys():
-                for field in self.table_columns:
-                    if field['data'] != key:
-                        continue
+            row = {}
+            row['DT_RowData'] = {}
+            row['_id'] = bo_object.id
+            for field in self.table_columns:
+                # Specific fields
+                if field['data'] == self.name_property:
+                    # item[field] = bo_object.get_html_link(prefix=request.params.get('links'))
+                    row[self.name_property] = bo_object.html_link
+                    row['DT_RowData'].update(
+                        { "object_%s" % self.object_type: bo_object.name }
+                    )
+                    continue
 
-                    # Specific fields
-                    if field['data'] == self.name_property:
-                        # item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
-                        item[key] = bo_object.html_link
+                if field['data'] == self.status_property:
+                    row[self.status_property] = bo_object.get_html_state(text=None)
+                    row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
+                    continue
 
-                    if field['data'] == self.status_property:
-                        item[key] = bo_object.get_html_state(text=None)
-                        item['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
+                if field['data'] == "alias":
+                    row[field['data']] = bo_object.alias
+                    continue
 
-                    if field['data'] == "business_impact":
-                        item[key] = Helper.get_html_business_impact(bo_object.business_impact)
+                if field['data'] == "notes":
+                    row[field['data']] = bo_object.notes
+                    continue
 
-                    # Specific fields type
-                    if field['type'] == 'datetime':
-                        item[key] = bo_object.get_date(item[key])
+                if field['data'] == "business_impact":
+                    row[field['data']] = Helper.get_html_business_impact(bo_object.business_impact)
+                    continue
 
-                    if field['type'] == 'boolean':
-                        item[key] = Helper.get_on_off(item[key])
+                # Specific fields type
+                if field['type'] == 'datetime':
+                    row[field['data']] = bo_object.get_date(bo_object[field['data']])
+                    continue
 
-                    if field['type'] == 'list':
-                        item[key] = Helper.get_html_item_list(
-                            bo_object.id, key,
-                            getattr(bo_object, key), title=field['title']
+                if field['type'] == 'boolean':
+                    row[field['data']] = Helper.get_on_off(bo_object[field['data']])
+                    continue
+
+                if field['type'] == 'list':
+                    row[field['data']] = Helper.get_html_item_list(
+                        bo_object.id, field['data'],
+                        getattr(bo_object, field['data']), title=field['title']
+                    )
+                    continue
+
+                if field['type'] == 'dict':
+                    row[field['data']] = Helper.get_html_item_list(
+                        bo_object.id, field['data'],
+                        getattr(bo_object, field['data']), title=field['title']
+                    )
+                    continue
+
+                if field['type'] == 'objectid':
+                    if isinstance(bo_object[field['data']], BackendElement):
+                        row[field['data']] = bo_object[field['data']].get_html_link(
+                            prefix=request.params.get('links')
                         )
+                        row['DT_RowData'].update(
+                            { "object_%s" % field['data']: bo_object[field['data']].name }
+                        )
+                    else:
+                        row[field['data']] = getattr(bo_object, field['data'])
+                    continue
 
-                    if field['type'] == 'objectid' and \
-                       key in parameters['embedded'] and item[key]:
-                        related_object_class = [kc for kc in self.datamgr.known_classes
-                                                if kc.get_type() == field['resource']]
-                        if related_object_class:
-                            related_object_class = related_object_class[0]
-                            linked_object = related_object_class(item[key])
-                            item[key] = linked_object.get_html_link(
-                                prefix=request.params.get('links')
-                            )
-                        break
+                row[field['data']] = getattr(bo_object, field['data'])
+                # if field['type'] == 'objectid' and \
+                   # field in parameters['embedded'] and item[field]:
+                    # related_object_class = [kc for kc in self.datamgr.known_classes
+                                            # if kc.get_type() == field['resource']]
+                    # if related_object_class:
+                        # related_object_class = related_object_class[0]
+                        # linked_object = related_object_class(item[field])
+                        # item[field] = linked_object.get_html_link(
+                            # prefix=request.params.get('links')
+                        # )
+                    # break
 
-            # Very specific fields...
-            if self.responsive:
-                item['#'] = ''
+            logger.debug("Table row: %s", row)
+            rows.append(row)
 
         # Total number of filtered records
         self.records_filtered = self.records_total
@@ -619,6 +674,6 @@ class Datatable(object):
             "draw": int(params.get('draw', '0')),
             "recordsTotal": self.records_total,
             "recordsFiltered": self.records_filtered,
-            "data": items
+            "data": rows
         }
         return json.dumps(rsp)
