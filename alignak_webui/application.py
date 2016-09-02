@@ -101,7 +101,8 @@ def before_request():
     if 'current_user' not in session:
         # Redirect to application login page
         logger.warning(
-            "before_request, no current_user in the session. Redirecting to the login page..."
+            "The session expired or there is no user in the session."
+            " Redirecting to the login page..."
         )
         redirect('/login')
 

@@ -37,7 +37,7 @@
             <span class="icon-bar"></span>
          </button>
          <a class="navbar-brand" href="/" style="float: left">
-            <img src="{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
+            <img src="{{request.app.config.get('company_logo', '/static/images/default_company.png')}}" alt="{{_('Company logo')}}" />
          </a>
 
          <ul class="nav navbar-nav navbar-left" id="_header_states">
