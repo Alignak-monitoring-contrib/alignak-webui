@@ -601,7 +601,7 @@ class TestDatatableRealms(unittest2.TestCase):
             '<th data-name="alias" data-type="string">Realm alias</th>',
             '<th data-name="default" data-type="boolean">Default realm</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="_parent" data-type="objectid">Parent</th>',
+            '<th data-name="parent" data-type="objectid">Parent</th>',
             '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
             '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
             '<th data-name="services_critical_threshold" data-type="integer">Services critical threshold</th>',
@@ -1032,92 +1032,6 @@ class TestDatatableUserGroups(unittest2.TestCase):
                 assert '_level' in response.json['data'][x] is not None
                 assert '_parent' in response.json['data'][x] is not None
                 assert 'usergroups' in response.json['data'][x] is not None
-
-
-class TestDatatableLivestate(unittest2.TestCase):
-    def setUp(self):
-        print("")
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def tearDown(self):
-        print("")
-
-    def test_livestate(self):
-        print('')
-        print('test livestate table')
-
-        global items_count
-
-        print('get page /livestates/table')
-        response = self.app.get('/livestates/table')
-        response.mustcontain(
-            '<div id="livestates_table" class="alignak_webui_table ">',
-            "$('#tbl_livestate').DataTable( {",
-            '<table id="tbl_livestate" ',
-            '<th data-name="type" data-type="string">Type</th>',
-            '<th data-name="name" data-type="string">Element name</th>',
-            # '<th data-name="host" data-type="objectid">Host</th>',
-            # '<th data-name="display_name_host" data-type="string">Host display name</th>',
-            # '<th data-name="service" data-type="objectid">Service</th>',
-            # '<th data-name="display_name_service" data-type="string">Service display name</th>',
-            '<th data-name="last_check" data-type="datetime">Last check</th>',
-            '<th data-name="business_impact" data-type="integer">Business impact</th>',
-            '<th data-name="state" data-type="string">State</th>',
-            '<th data-name="state_type" data-type="string">State type</th>',
-            '<th data-name="state_id" data-type="integer">State id</th>',
-            '<th data-name="acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="downtime" data-type="boolean">In scheduled downtime</th>',
-            '<th data-name="output" data-type="string">Output</th>',
-            '<th data-name="long_output" data-type="string">Long output</th>',
-            '<th data-name="perf_data" data-type="string">Performance data</th>',
-            '<th data-name="current_attempt" data-type="integer">Current attempt</th>',
-            '<th data-name="max_attempts" data-type="integer">Max attempts</th>',
-            '<th data-name="next_check" data-type="integer">Next check</th>',
-            '<th data-name="last_state_changed" data-type="integer">Last state changed</th>',
-            '<th data-name="last_state" data-type="string">Last state</th>',
-            '<th data-name="last_state_type" data-type="string">Last state type</th>',
-            '<th data-name="latency" data-type="float">Latency</th>',
-            '<th data-name="execution_time" data-type="float">Execution time</th>'
-        )
-
-        response = self.app.post('/livestates/table_data')
-        print(response)
-        response_value = response.json
-        print(response_value)
-        # Temporary
-        items_count = response.json['recordsTotal']
-        # assert response.json['recordsTotal'] == items_count
-        # assert response.json['recordsFiltered'] == items_count
-        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
-        assert response.json['data']
-        for x in range(0, items_count + 0):
-            # Only if lower than default pagination ...
-            if x < BACKEND_PAGINATION_DEFAULT:
-                print(response.json['data'][x])
-                assert response.json['data'][x]
-                assert response.json['data'][x]['type'] is not None
-                assert response.json['data'][x]['name'] is not None
-                assert response.json['data'][x]['state'] is not None
-                assert response.json['data'][x]['host'] is not None
-                if response.json['data'][x]['type'] == 'service':
-                    assert response.json['data'][x]['service'] is not None
-                else:
-                    assert response.json['data'][x]['service'] is None
 
 
 class TestDatatableTimeperiod(unittest2.TestCase):

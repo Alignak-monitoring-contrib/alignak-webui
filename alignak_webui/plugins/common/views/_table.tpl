@@ -42,11 +42,12 @@
       <thead>
          <tr>
             %for column in dt.table_columns:
-            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}
             %if debug:
+            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}
             {{column.get('visible','###')}} - {{column.get('orderable','###')}} - {{column.get('searchable','###')}}
-            %end
             </th>
+            %end
+            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}</th>
             %end
          </tr>
          %if dt.searchable:
