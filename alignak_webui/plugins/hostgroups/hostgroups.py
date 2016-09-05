@@ -109,12 +109,7 @@ class PluginHostsGroups(Plugin):
 
         items = []
         for host in hostgroup.members:
-            logger.debug("Hostgroup member: %s", host)
-            title = "%s - %s (%s)" % (
-                host.status,
-                Helper.print_duration(host.last_check, duration_only=True, x_elts=0),
-                host.output
-            )
+            logger.debug("Group member: %s", host)
 
             items.append({
                 'id': host.id,

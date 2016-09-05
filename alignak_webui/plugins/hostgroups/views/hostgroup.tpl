@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 %setdefault('title', _('Hostgroup view'))
 
 %from bottle import request
