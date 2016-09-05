@@ -45,7 +45,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
     """
     class __BackendConnection(object):
         """
-        Base class for all objects state management (displayed icon, ...)
+        Base class for Alignak backend connection
         """
 
         def __init__(self, backend_endpoint='http://127.0.0.1:5002'):
@@ -115,11 +115,23 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             # Update backend search parameters
             if params is None:
-                params = {'page': 0, 'max_results': 1}
+                params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
             if 'where' in params:
                 params['where'] = json.dumps(params['where'])
+            if 'embedded' in params:
+                del params['embedded']
+            if 'where' not in params:
+                params['where'] = {}
+            if 'page' not in params:
+                params['page'] = 0
             if 'max_results' not in params:
-                params['max_results'] = 1
+                params['max_results'] = BACKEND_PAGINATION_LIMIT
+            # if params is None:
+                # params = {'page': 0, 'max_results': 1}
+            # if 'where' in params:
+                # params['where'] = json.dumps(params['where'])
+            # if 'max_results' not in params:
+                # params['max_results'] = 1
             logger.debug(
                 "count, search in the backend for %s: parameters=%s", object_type, params
             )
@@ -183,7 +195,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             if 'max_results' not in params:
                 params['max_results'] = BACKEND_PAGINATION_LIMIT
             logger.debug(
-                "get, search in the backend for %s: parameters=%s", object_type, params
+                "get, search in the backend for %s: parameters=%s, all: %s",
+                object_type, params, all_elements
             )
 
             try:
@@ -193,7 +206,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
                 logger.warning("get, backend exception for %s: %s", object_type, str(e))
-                return None
+                raise e
 
             logger.debug(
                 "search, search result for %s: result=%s", object_type, result
@@ -216,13 +229,15 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 if '_meta' in result:
                     for item in result['_items']:
                         item.update({'_total': result['_meta']['total']})
-                logger.debug("get, found in the backend: %s: %s", object_type, result['_items'])
+                logger.debug(
+                    "get, found in the backend: %s: %d elements",
+                    object_type, len(result['_items'])
+                )
                 return result['_items']
 
             if '_status' in result:
                 result.pop('_status')
             if '_meta' in result:
-                # result.update({'_total': result['_meta']['total']})
                 result['_total'] = result['_meta']['total']
             logger.debug("get, found one in the backend: %s: %s", object_type, result)
             return result
@@ -247,9 +262,14 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     logger.warning("post, error: %s", result)
                     return None
             except BackendException as e:  # pragma: no cover, simple protection
+                error = []
+                if "_issues" in e.response:
+                    error = e.response["_issues"]
+                else:
+                    error.append(str(e))
+                logger.warning("post, error(s): %s", error)
                 logger.error("post, backend exception: %s", str(e))
-                logger.error("- response: %s", e.response)
-                return None
+                return error
             except Exception as e:  # pragma: no cover, simple protection
                 logger.warning("post, error: %s", str(e))
                 return None
@@ -298,28 +318,18 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             return True
 
-        def update(self, object_type, object_id, data):
+        def update(self, element, data):
             """
             Update an element
-            - object_type is the element type
-            - object_id is the element identifier
             """
-            logger.info("update, request to update the %s: %s", object_type, object_id)
-
-            try:
-                # Get most recent version of the element
-                element = self.get('/'.join([object_type, object_id]))
-                logger.debug("update, element: %s", element)
-            except ValueError:  # pragma: no cover, simple protection
-                logger.warning("update, object %s, _id=%s not found", object_type, object_id)
-                return False
+            logger.info("update, request to update: %s", element)
 
             try:
                 # Request update
                 headers = {'If-Match': element['_etag']}
-                endpoint = '/'.join([object_type, object_id])
+                endpoint = '/'.join([element.get_type(), element.id])
                 logger.info("update, endpoint: %s, data: %s", endpoint, data)
-                result = self.backend.patch(endpoint, data, headers)
+                result = self.backend.patch(endpoint, data, headers, inception=True)
                 logger.debug("update, response: %s", result)
                 if result['_status'] != 'OK':  # pragma: no cover, should never happen
                     error = []
@@ -329,13 +339,18 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                         error.append(result["_issues"])
                         for issue in result["_issues"]:
                             error.append(result["_issues"][issue])
-                    logger.warning("update, error: %s", error)
-                    return False
+                    logger.warning("update, error(s): %s", error)
+                    return error
             except BackendException as e:  # pragma: no cover, should never happen
+                error = []
+                if e.response and "_issues" in e.response:
+                    error = e.response["_issues"]
+                else:
+                    error.append(str(e))
                 logger.error("update, backend exception: %s", str(e))
-                return False
+                return error
             except ValueError:  # pragma: no cover, should never happen
-                logger.warning("update, not found %s: %s", object_type, element)
+                logger.warning("update, not found %s: %s", element.get_type(), element)
                 return False
 
             return True

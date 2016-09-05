@@ -72,6 +72,40 @@ The application searches in several location for a configuration file:
 
 Where NAME is the plugin name and DIR is the plugin directory.
 
+The configuration file is built like an Ini file parsed thank to Python ConfigPaser.
+
+        ; ------------------------------------------------------------------------------------------
+        ; Plugin configuration file formatted as RFC822 standard
+        ; ------------------------------------------------------------------------------------------
+
+        [timeperiods]
+        ; Plugin global configuration
+        enabled=False
+        ; A parameter in a section name like the plugin is seen as parameter:
+        ; timeperiods.enabled is: enabled
+        ; else the parameter is section.parameter
+
+        [table]
+        ; Table global configuration
+        page_title=Timeperiods table (%d items)
+        visible=True
+        orderable=True
+        editable=True
+        selectable=True
+        searchable=True
+        responsive=False
+        recursive=True
+
+        [table.name]
+        title=Timeperiod name
+        type=string
+        searchable=True
+        regex=True
+        orderable=True
+        editable=True
+        hint=This field is the time period name
+
+
 
 Plugin routes
 ---------------------------------------

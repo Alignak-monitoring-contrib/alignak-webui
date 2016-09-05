@@ -27,34 +27,45 @@ import json
 from logging import getLogger
 
 from bottle import request
+from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
-# Will be valued by the plugin loader
-webui = None
 
+class PluginLookup(Plugin):
+    """ Dashboard plugin """
 
-def lookup():
-    """
-    Search in the livestate for an element name
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+    def __init__(self, app, cfg_filenames=None):
+        """
+        Dashboard plugin
+        """
+        self.name = 'Dashboard'
+        self.backend_endpoint = None
 
-    query = request.query.get('query', '')
+        self.pages = {
+            'lookup': {
+                'name': 'Get Lookup',
+                'route': '/lookup',
+                'method': 'GET'
+            }
+        }
 
-    logger.warning("lookup: %s", query)
+        super(PluginLookup, self).__init__(app, cfg_filenames)
 
-    elements = datamgr.get_livestate(search={'where': {'name': {"$regex": ".*" + query + ".*"}}})
-    names = [e.name for e in elements]
-    logger.warning("lookup: %s", names)
+    def lookup(self):
+        """
+        Search in the livestate for an element name
+        """
+        datamgr = request.app.datamgr
 
-    return json.dumps(names)
+        query = request.query.get('query', '')
 
+        logger.debug("lookup query: %s", query)
 
-pages = {
-    lookup: {
-        'name': 'GetLookup',
-        'route': '/lookup',
-        'method': 'GET'
-    }
-}
+        elements = datamgr.get_hosts(
+            search={'where': {'name': {"$regex": ".*" + query + ".*"}}}
+        )
+        names = [e.name for e in elements]
+        logger.info("lookup found: %s", names)
+
+        return json.dumps(names)

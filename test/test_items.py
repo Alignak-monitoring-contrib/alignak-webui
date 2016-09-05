@@ -34,7 +34,6 @@ from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.item_host import Host
 from alignak_webui.objects.item_service import Service
-from alignak_webui.objects.item_livestate import LiveState
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.item_user import User
 from alignak_webui.utils.settings import Settings
@@ -847,11 +846,13 @@ class TestItems(unittest2.TestCase):
         assert len(item._cache) == 1
 
         print(item)
-        assert "%s" % item == "<host, id: host_0, name: anonymous, status: unknown>"
-        assert item._id == 'host_0'
-        assert item._type == 'host'
-        assert item.name == 'anonymous'
-        assert item.status == 'unknown'
+        print(item.__dict__)
+        # status is None because there is no status_property defined
+        self.assertEqual("%s" % item, "<host, id: host_0, name: anonymous, status: None>")
+        self.assertEqual(item._id, 'host_0')
+        self.assertEqual(item._type, 'host')
+        self.assertEqual(item.name, 'anonymous')
+        self.assertIsNone(item.status)
 
         item = Host()
         print(item.__dict__)
@@ -861,7 +862,7 @@ class TestItems(unittest2.TestCase):
         now = datetime.now()
         item = Host({
             'name': 'test',
-            'last_check': now
+            'ls_last_check': now
         })
         print(item.__dict__)
         assert item._id == 'host_1'
@@ -870,20 +871,14 @@ class TestItems(unittest2.TestCase):
         # Host item update
         time.sleep(1)
         now2 = datetime.now()
-        parameters = {
-            'last_check': now2,
+        item = Host({
+            'name': 'test',
+            'last_check': now,
+            '_created': 1470995433,
+            '_updated': 1470995450,
             'notes': 'Host notes'
-        }
-        # item._update(parameters, date_format='%Y-%m-%d %H:%M:%S')
-        # print(item.__dict__)
-        # assert item._id == 'host_1'
-        # assert item.get_last_check(timestamp=True) == timegm(now2.timetuple())
-
-        # Base item methods
-        # No backend id (_id)
-        # assert item.id == 'host_1'
-        # assert item.name == 'test'
-        # assert item.notes == 'Host notes'
-        # assert item.status == 'unknown'
-        # print(item.get_html_state())
-        # assert item.get_html_state() == '''<div class="item-state item_hostUnknown " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="host"><span class="fa-stack"  title="Host is unknown"><i class="fa fa-circle fa-stack-2x item_hostUnknown"></i><i class="fa fa-question fa-stack-1x "></i></span><span>Host is unknown</span></div>''' % item.id
+        })
+        print(item.created)
+        print(item.updated)
+        print(item.get_date(item.created))
+        self.assertEqual(item.get_date(item.created), '2016-08-12 11:50:33')

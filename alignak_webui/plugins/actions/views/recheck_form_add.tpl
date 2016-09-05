@@ -3,7 +3,9 @@
 
 %# recheck attributes
 %setdefault('action', 'add')
-%setdefault('livestate_id', '-1')
+%setdefault('element_id', '-1')
+%setdefault('elements_type', 'host')
+%setdefault('element_name', 'unknown')
 
 <div class="modal-header">
    <a class="close" data-refresh="start" data-dismiss="modal">×</a>
@@ -16,21 +18,25 @@
 <div class="modal-body">
    <form data-item="recheck" data-action="recheck" class="form-horizontal" method="post" action="/recheck/add" role="form">
       <div class="form-group" style="display: none">
-         %for id in livestate_id:
-         <input type="text" readonly id="livestate_id" name="livestate_id" value="{{id}}">
+         %for id in element_id:
+         <input type="text" readonly id="element_id" name="element_id" value="{{id}}">
          %end
          %for name in element_name:
          <input type="text" readonly id="element_name" name="element_name" value="{{name}}">
          %end
+         <input type="text" readonly id="elements_type" name="elements_type" value="{{elements_type}}">
       </div>
 
-      <div class="form-group">
-         <div class="col-sm-12">
-            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
+      <fieldset>
+         <div class="form-group">
+            <div class="col-sm-12">
+               <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
+            </div>
+            <p class="help-block">{{_('This comment will be associated to the scheduled downtime')}}</p>
          </div>
-      </div>
+      </fieldset>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request recheck')}}</button>
+      <button type="submit" class="btn btn-success btn-lg btn-raised"> <i class="fa fa-check"></i>{{_('Request recheck')}}</button>
    </form>
 </div>
 

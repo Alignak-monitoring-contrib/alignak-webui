@@ -21,7 +21,7 @@
 var actions_logs=false;
 var refresh_delay_after_action=1000;
 var alert_success_delay=3;
-var alert_error_delay=5;
+var alert_error_delay=8;
 
 /**
  * Get current user preference value:
@@ -51,7 +51,7 @@ function get_user_preference(key, callback, default_value) {
    })
    .fail(function( jqXHR, textStatus, errorThrown ) {
       console.error('get_user_preference, error: ', jqXHR, textStatus, errorThrown);
-      raise_message_ko(get_user_preference + ': '+ textStatus);
+      raise_message_ko(errorThrown + ': '+ textStatus);
    });
 }
 
@@ -80,6 +80,36 @@ function save_user_preference(key, value, callback) {
    .fail(function( jqXHR, textStatus, errorThrown ) {
       console.error('save_user_preference, error: ', jqXHR, textStatus, errorThrown);
       raise_message_ko(save_user_preference + ': '+ textStatus);
+   });
+}
+
+/**
+ * Delete a user preference:
+ * - key
+ * - callback function called after data are posted
+**/
+function delete_user_preference(key, callback) {
+   if (actions_logs) console.debug('Delete user preference: ', key);
+
+   $.ajax({
+      url: '/preference/user/delete',
+      dataType: "json",
+      method: "GET",
+      data: {
+         'key' : key
+      }
+   })
+   .done(function( data, textStatus, jqXHR ) {
+      if (actions_logs) console.debug('Deleted user preference: ', key, data);
+
+      if (typeof callback !== 'undefined' && $.isFunction(callback)) {
+         if (actions_logs) console.debug('Calling callback function ...', data);
+         callback(data);
+      }
+   })
+   .fail(function( jqXHR, textStatus, errorThrown ) {
+      console.error('delete_user_preference, error: ', jqXHR, textStatus, errorThrown);
+      raise_message_ko(errorThrown + ': '+ textStatus);
    });
 }
 
@@ -115,8 +145,16 @@ function save_common_preference(key, value, callback) {
 /*
  * Message raise part
  */
+function raise_message_info(text, persist){
+   alertify.message(text, alert_success_delay);
+}
+
 function raise_message_ok(text){
    alertify.success(text, alert_success_delay);
+}
+
+function raise_message_warning(text){
+   alertify.warning(text, alert_success_delay);
 }
 
 function raise_message_ko(text){
@@ -135,7 +173,7 @@ function raise_message_ko(text){
 
      $.fn.serializeArray = function (options) {
          var o = $.extend({
-         checkboxesAsBools: false
+         checkboxesAsBools: true
      }, options || {});
 
      var rselectTextarea = /select|textarea/i;
@@ -255,8 +293,8 @@ $(document).ready(function() {
          raise_message_ko('Access to edition mode failed');
       })
       .always(function() {
-         // Page refresh
-         window.location.href = "/";
+         // Current page reload
+         window.location.reload(true);
       });
    });
 
@@ -325,6 +363,19 @@ $(document).ready(function() {
       if (actions_logs) console.debug("Delete a user", elt)
       if (elt) {
          display_modal("/user/form/delete?user_id="+encodeURIComponent(elt));
+      }
+   });
+
+   // Delete a user preference
+   $('body').on("click", '[data-action="delete-user-preference"]', function () {
+      var elt = $(this).data('element');
+      var message = $(this).data('message');
+      if (actions_logs) console.debug("Delete a user preference", elt)
+      if (elt) {
+         delete_user_preference(encodeURIComponent(elt), function() {
+            raise_message_ok(message);
+            window.location.reload(true);
+         });
       }
    });
 

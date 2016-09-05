@@ -65,7 +65,7 @@ class ServiceGroup(BackendElement):
         return self._linked_servicegroups
 
     @property
-    def parent(self):
+    def _parent(self):
         """ Return group parent """
         return self._linked__parent
 

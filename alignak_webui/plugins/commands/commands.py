@@ -24,250 +24,27 @@
     Plugin Commands
 """
 
-import json
-from collections import OrderedDict
 from logging import getLogger
 
-from bottle import request, response
-
-from alignak_webui import _
-from alignak_webui.plugins.common.common import get_table, get_table_data
+from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Get the same schema as the applications backend and append information for the datatable view
-# Use an OrderedDict to create an ordered list of fields
-schema = OrderedDict()
-schema['name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Name'),
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': True,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': True,
-        # This field is orderable (default: True)
-        'orderable': True,
-    },
-}
-schema['definition_order'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Definition order'),
-        'visible': True,
-        'hidden': True,
-        'orderable': False,
-    },
-}
-schema['alias'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Alias'),
-        'visible': True
-    },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
-}
-schema['command_line'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Command line'),
-        'visible': True
-    },
-}
-schema['module_type'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Module type'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['enable_environment_macros'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Enable environment macros'),
-        'visible': True
-    },
-}
-schema['timeout'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Timeout'),
-        'visible': True
-    },
-}
-schema['poller_tag'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Poller tag'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['reactionner_tag'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Reactionner tag'),
-        'visible': True,
-        'hidden': True
-    },
-}
+class PluginCommands(Plugin):
+    """ user backend elements management plugin """
 
+    def __init__(self, app, cfg_filenames=None):
+        """
+        User plugin
 
-# This to define if the object in this model are to be used in the UI
-schema['ui'] = {
-    'type': 'boolean',
-    'default': True,
+        Declare routes for adding, deleting a user
 
-    # UI parameters for the objects
-    'ui': {
-        'page_title': _('Commands table (%d items)'),
-        'id_property': '_id',
-        'visible': True,
-        'orderable': True,
-        'editable': False,
-        'selectable': True,
-        'searchable': True,
-        'responsive': False
-    }
-}
+        Overload the default get route to declare filters.
+        """
+        self.name = 'Commands'
+        self.backend_endpoint = 'command'
 
+        self.pages = {}
 
-def get_commands():
-    """
-    Get the commands list
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'where': where
-    }
-
-    # Get elements from the data manager
-    commands = datamgr.get_commands(search)
-    # Get last total elements count
-    total = datamgr.get_objects_count('command', search=where, refresh=True)
-    count = min(count, total)
-
-    if request.params.get('list', None):
-        return get_commands_list()
-
-    return {
-        'commands': commands,
-        'pagination': webui.helper.get_pagination_control('/commands', total, start, count),
-        'title': request.query.get('title', _('All commands'))
-    }
-
-
-def get_commands_list():
-    """
-    Get the commands list
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Get elements from the data manager
-    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    commands = datamgr.get_commands(search, all_elements=True)
-
-    items = []
-    for command in commands:
-        items.append({'id': command.id, 'name': command.name, 'alias': command.alias})
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
-
-
-def get_commands_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the elements to build a table
-    """
-    return get_table('command', schema, embedded, identifier, credentials)
-
-
-def get_commands_table_data():
-    """
-    Get the elements required by the table
-    """
-    return get_table_data('command', schema)
-
-
-pages = {
-    get_commands: {
-        'name': 'Commands',
-        'route': '/commands',
-        'view': 'commands',
-        'search_engine': False,
-        'search_prefix': '',
-        'search_filters': {
-        }
-    },
-    get_commands_list: {
-        'name': 'Commands list',
-        'route': '/commands_list'
-    },
-    get_commands_table: {
-        'name': 'Commands table',
-        'route': '/commands_table',
-        'view': '_table',
-        'tables': [
-            {
-                'id': 'commands_table',
-                'for': ['external'],
-                'name': _('Commands table'),
-                'template': '_table',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Commands table</h4>Displays a datatable for the system commands.<br>'
-                ),
-                'actions': {
-                    'commands_table_data': get_commands_table_data
-                }
-            }
-        ]
-    },
-
-    get_commands_table_data: {
-        'name': 'Commands table data',
-        'route': '/commands_table_data',
-        'method': 'POST'
-    },
-}
+        super(PluginCommands, self).__init__(app, cfg_filenames)

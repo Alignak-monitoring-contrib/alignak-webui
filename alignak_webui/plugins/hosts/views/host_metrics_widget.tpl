@@ -25,9 +25,9 @@
       </tr>
    </thead>
    <tbody style="font-size:x-small;">
-   %if livestate.perf_data:
+   %if host.perf_data:
       %name_line = True
-      %perfdatas = PerfDatas(livestate.perf_data)
+      %perfdatas = PerfDatas(host.perf_data)
       %if perfdatas:
       %for metric in sorted(perfdatas, key=lambda metric: metric.name):
       %if metric.name:
@@ -55,7 +55,7 @@
       </tr>
    %end
 
-   %for service in livestate_services:
+   %for service in services:
       %if service.perf_data:
          %name_line = True
          %perfdatas = PerfDatas(service.perf_data)

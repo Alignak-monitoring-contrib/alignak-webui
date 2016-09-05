@@ -60,22 +60,22 @@ def setup_module():
         time.sleep(1)
 
         # No console output for the applications backend ...
+        print("Starting Alignak backend...")
+        fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('alignak_backend')
+            shlex.split('alignak_backend'), stdout=fnull
         )
-        print("PID: %s" % pid)
-        time.sleep(3)
+        time.sleep(1)
 
-        print("")
-        print("populate backend content")
-        exit_code = subprocess.call(
+        print("Feeding backend...")
+        q = subprocess.Popen(
             shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
         )
+        (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
 
 
 def teardown_module():
-    print("")
     print("stop applications backend")
 
     if backend_address == "http://127.0.0.1:5000/":
@@ -84,12 +84,6 @@ def teardown_module():
 
 
 class TestCreation(unittest2.TestCase):
-    def setUp(self):
-        print("")
-
-    def tearDown(self):
-        print("")
-
     def test_creation(self):
         print("--- creation")
 
@@ -106,12 +100,6 @@ class TestCreation(unittest2.TestCase):
 
 
 class TestLogin(unittest2.TestCase):
-    def setUp(self):
-        print("")
-
-    def tearDown(self):
-        print("")
-
     def test_login(self):
         print("--- login")
 
@@ -135,9 +123,6 @@ class TestGet(unittest2.TestCase):
         assert self.be.connected
 
         print("Logged in")
-
-    def tearDown(self):
-        print("")
 
     def test_count(self):
         print("--- count")

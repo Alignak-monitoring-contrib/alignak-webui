@@ -19,22 +19,21 @@
          </div>
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
-               %for timeperiod in timeperiods:
+               %for timeperiod in elts:
                   <li class="list-group-item"><small>Timeperiod: {{timeperiod}} - {{timeperiod.__dict__}}</small></li>
                %end
             </ul>
-            <div class="panel-footer">{{len(timeperiods)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elements</div>
          </div>
       </div>
    </div>
    %end
 
+   %if not elts:
+      %include("_nothing_found.tpl", search_string=search_string)
+   %else:
    <div class="panel panel-default">
       <div class="panel-body">
-      %if not timeperiods:
-         %include("_nothing_found.tpl", search_string=search_string)
-      %else:
-
          %# First element for global data
          %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
@@ -48,7 +47,7 @@
             </tr></thead>
 
             <tbody>
-               %for timeperiod in timeperiods:
+               %for timeperiod in elts:
                <tr id="#{{timeperiod.id}}">
                   <td>
                      {{! timeperiod.get_html_state()}}
@@ -69,9 +68,9 @@
              %end
             </tbody>
          </table>
-      %end
       </div>
    </div>
+   %end
  </div>
 
  <script>

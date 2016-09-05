@@ -23,28 +23,32 @@
       </tr></thead>
       <tbody>
          %for host in hosts:
-         %lv_host = datamgr.get_livestate({'where': {'host': host.id}})
-         %lv_host = lv_host[0]
          <tr id="{{host.id}}">
             <td title="{{host.alias}}">
-            %if lv_host:
-               %label = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)
-               {{! lv_host.get_html_state(text=None, title=label)}}
-            %else:
-               {{! host.get_html_state(text=None, title=_('No livestate for this element'))}}
-            %end
+            %label = "%s - %s (%s)" % (host.status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
+            {{! host.get_html_state(text=None, title=label)}}
             </td>
 
+            %if not embedded:
+            <td>
+               <small>{{! host.get_html_link(links)}}</small>
+            </td>
+            %else:
             <td>
                <small>{{! host.get_html_link(links) if links else host.alias}}</small>
             </td>
+            %end
 
             <td>
                <small>{{! Helper.get_html_business_impact(host.business_impact)}}</small>
             </td>
 
             <td>
+               %if host.check_command and host.check_command != 'command':
                <small>{{! host.check_command.get_html_link(links) if links else host.check_command.alias}}</small>
+               %else:
+               {{_('Command not fetched from the backend')}}
+               %end
             </td>
          </tr>
        %end

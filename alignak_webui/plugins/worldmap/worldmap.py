@@ -28,8 +28,7 @@ from logging import getLogger
 from bottle import request
 
 from alignak_webui import _
-from alignak_webui.plugins.common.common import get_widget
-from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
@@ -47,127 +46,131 @@ worldmap_parameters = {
 }
 
 
-def get_worldmap():
-    """
-    Get the hosts list to build a worldmap
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
+class PluginWorldmap(Plugin):
+    """ Worldmap plugin """
 
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    def __init__(self, app, cfg_filenames=None):
+        """
+        Worldmap plugin
+        """
+        self.name = 'Worldmap'
+        self.backend_endpoint = None
 
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = Helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'sort': '-_id',
-        'where': where
-    }
-
-    # Get valid hosts
-    valid_hosts = get_valid_elements(search)
-
-    # Get last total elements count
-    total = len(valid_hosts)
-    count = min(len(valid_hosts), total)
-
-    return {
-        'mapId': 'hostsMap',
-        'params': worldmap_parameters,
-        'hosts': valid_hosts,
-        'pagination': webui.helper.get_pagination_control('/worldmap', total, start, count),
-        'title': request.query.get('title', _('Hosts worldmap'))
-    }
-
-
-def get_valid_elements(search):
-    """
-    Get hosts valid for a map:
-    - must have custom variables with GPS coordinates
-    - must have a business_impact that match the one defined in this plugin parameters
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Get elements from the data manager
-    hosts = datamgr.get_hosts(search)
-    logger.info("worldmap, search valid hosts")
-
-    valid_hosts = []
-    for host in hosts:
-        logger.debug("worldmap, found host '%s'", host.name)
-
-        if host.business_impact not in worldmap_parameters['hosts_level']:
-            continue
-
-        if host.position:
-            logger.info("worldmap, host '%s' located: %s", host.name, host.position)
-            valid_hosts.append(host)
-
-    return valid_hosts
-
-
-def get_worldmap_widget(embedded=False, identifier=None, credentials=None):
-    """
-    Get the worldmap widget
-    """
-    return get_widget(get_valid_elements, 'host', embedded, identifier, credentials)
-
-
-# We export our properties to the webui
-pages = {
-    get_worldmap: {
-        'name': 'Worldmap',
-        'route': '/worldmap',
-        'view': 'worldmap'
-    },
-
-    get_worldmap_widget: {
-        'name': 'Worlmap widget',
-        'route': '/worldmap/widget',
-        'method': 'POST',
-        'view': 'worldmap_widget',
-        'widgets': [
-            {
-                'id': 'worldmap',
-                'for': ['external', 'dashboard'],
-                'name': _('Worldmap widget'),
-                'template': 'worldmap_widget',
-                'icon': 'globe',
-                'description': _(
-                    '<h4>Worldmap widget</h4>Displays a world map of the monitored system '
-                    'hosts.<br>The number of hosts on the map can be defined in the widget '
-                    'options. The list of hosts can be filtered thanks to regex on the '
-                    'host name.'
-                ),
-                'picture': 'htdocs/img/worldmap_widget.png',
-                'options': {
-                    'search': {
-                        'value': '',
-                        'type': 'text',
-                        'label': _('Filter (ex. status:ok)')
-                    },
-                    'count': {
-                        'value': -1,
-                        'type': 'int',
-                        'label': _('Number of elements')
-                    },
-                    'filter': {
-                        'value': '',
-                        'type': 'hst_srv',
-                        'label': _('Host/service name search')
+        self.pages = {
+            'show_worldmap': {
+                'name': 'Worldmap',
+                'route': '/worldmap',
+                'view': 'worldmap'
+            },
+            'get_worldmap_widget': {
+                'name': 'Worlmap widget',
+                'route': '/worldmap/widget',
+                'method': 'POST',
+                'view': 'worldmap_widget',
+                'widgets': [
+                    {
+                        'id': 'worldmap',
+                        'for': ['external', 'dashboard'],
+                        'name': _('Worldmap widget'),
+                        'template': 'worldmap_widget',
+                        'icon': 'globe',
+                        'description': _(
+                            '<h4>Worldmap widget</h4>Displays a world map of the monitored system '
+                            'hosts.<br>The number of hosts on the map can be defined in the widget '
+                            'options. The list of hosts can be filtered thanks to regex on the '
+                            'host name.'
+                        ),
+                        'picture': 'htdocs/img/worldmap_widget.png',
+                        'options': {
+                            'search': {
+                                'value': '',
+                                'type': 'text',
+                                'label': _('Filter (ex. status:ok)')
+                            },
+                            'count': {
+                                'value': -1,
+                                'type': 'int',
+                                'label': _('Number of elements')
+                            },
+                            'filter': {
+                                'value': '',
+                                'type': 'hst_srv',
+                                'label': _('Host/service name search')
+                            }
+                        }
                     }
-                }
+                ]
             }
-        ]
-    }
-}
+        }
+
+        super(PluginWorldmap, self).__init__(app, cfg_filenames)
+
+    def show_worldmap(self):
+        """
+        Get the hosts list to build a worldmap
+        """
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+        # elts_per_page = elts_per_page['value']
+
+        # Pagination and search
+        start = int(request.query.get('start', '0'))
+        count = int(request.query.get('count', elts_per_page))
+        where = self.webui.helper.decode_search(request.query.get('search', ''))
+        search = {
+            'page': start // (count + 1),
+            'max_results': count,
+            'sort': '-_id',
+            'where': where
+        }
+
+        # Get valid hosts
+        valid_hosts = self.get_valid_elements(search)
+
+        # Get last total elements count
+        total = len(valid_hosts)
+        count = min(len(valid_hosts), total)
+
+        return {
+            'mapId': 'hostsMap',
+            'params': worldmap_parameters,
+            'hosts': valid_hosts,
+            'pagination': self.webui.helper.get_pagination_control(
+                '/worldmap', total, start, count
+            ),
+            'title': request.query.get('title', _('Hosts worldmap'))
+        }
+
+    def get_valid_elements(self, search):
+        """
+        Get hosts valid for a map:
+        - must have custom variables with GPS coordinates
+        - must have a business_impact that match the one defined in this plugin parameters
+        """
+        datamgr = request.app.datamgr
+
+        # Get elements from the data manager
+        hosts = datamgr.get_hosts(search)
+        logger.info("worldmap, search valid hosts")
+
+        valid_hosts = []
+        for host in hosts:
+            logger.debug("worldmap, found host '%s'", host.name)
+
+            if host.business_impact not in worldmap_parameters['hosts_level']:
+                continue
+
+            if host.position:
+                logger.info("worldmap, host '%s' located: %s", host.name, host.position)
+                valid_hosts.append(host)
+
+        return valid_hosts
+
+    def get_worldmap_widget(self, embedded=False, identifier=None, credentials=None):
+        """
+        Get the worldmap widget
+        """
+        return self.get_widget(self.get_valid_elements, 'host', embedded, identifier, credentials)

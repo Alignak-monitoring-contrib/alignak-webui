@@ -57,7 +57,9 @@ class User(BackendElement):
         """
         Create a user (called only once when an object is newly created)
         """
+        self._linked_host_notification_period = 'timeperiod'
         self._linked_host_notification_commands = 'command'
+        self._linked_service_notification_period = 'timeperiod'
         self._linked_service_notification_commands = 'command'
 
         super(User, self)._create(params, date_format)
@@ -97,6 +99,10 @@ class User(BackendElement):
                 if self.is_admin:
                     self.picture = '/static/images/user_admin.png'
 
+        # User preferences ?
+        if not hasattr(self, 'ui_preferences'):
+            self.ui_preferences = {}
+
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
             return "<Authenticated %s, id: %s, name: %s, role: %s>" % (
@@ -114,9 +120,19 @@ class User(BackendElement):
         return '/%ss#%s' % (self.object_type, self.id)
 
     @property
+    def host_notification_period(self):
+        """ Return linked object """
+        return self._linked_host_notification_period
+
+    @property
     def host_notification_commands(self):
         """ Return linked object """
         return self._linked_host_notification_commands
+
+    @property
+    def service_notification_period(self):
+        """ Return linked object """
+        return self._linked_service_notification_period
 
     @property
     def service_notification_commands(self):
@@ -203,3 +219,49 @@ class User(BackendElement):
             return self.widgets_allowed
         else:
             return getattr(self, 'widgets_allowed', '1') == '1'
+
+    def get_ui_preference(self, key=None):
+        """
+        Get a user UI preference
+        """
+        # Test for old user data model
+        if not getattr(self, 'ui_preferences', None):
+            return None
+
+        if not key:
+            return self.ui_preferences
+
+        if key in self.ui_preferences:
+            return self.ui_preferences[key]
+
+        return None
+
+    def set_ui_preference(self, key, value):
+        """
+        Set a user UI preference
+
+        :param key: preference key
+        :type key: string
+        :param value: value to store
+        :type value: dict
+        :return: True / False
+        :rtype: boolean
+        """
+        if not key:
+            return None
+
+        self.ui_preferences.update({key: value})
+        return True
+
+    def delete_ui_preference(self, key):
+        """
+        Delete a user UI preference
+
+        :param key: preference key
+        :type key: string
+        :return: current value of the deleted key
+        """
+        if not key:
+            return None
+
+        return self.ui_preferences.pop(key, None)

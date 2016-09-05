@@ -14,45 +14,33 @@
 
     %# List hosts and their services
     var hosts = [
-    %for item in hosts:
-        %pos = item.position
-        %if not pos['type'] == 'Point':
+    %for host in hosts:
+        %pos = host.position
+        %if 'type' not in pos or pos['type'] != 'Point':
         %continue
         %end
         %lat = pos['coordinates'][0]
         %lng = pos['coordinates'][1]
-        %services = datamgr.get_services(search={'where': {'host':item.id}})
-        %livestate = datamgr.get_livestate(search={'where': {'type': 'host', 'name': item.name}})
-        %livestate = livestate[0] if livestate else None
-        %if not livestate:
-        %continue
-        %end
+        %services = datamgr.get_services(search={'where': {'host':host.id}})
         new Host(
-            '{{ item.id }}', '{{ item.name }}',
-            '{{ livestate.status }}', '{{ ! livestate.get_html_state(text=None)}}',
-            '{{ item.business_impact }}',
-            '{{ ! Helper.get_html_business_impact(item.business_impact) }}',
+            '{{ host.id }}', '{{ host.name }}',
+            '{{ host.status }}', '{{ ! host.get_html_state(text=None)}}',
+            '{{ host.business_impact }}',
+            '{{ ! Helper.get_html_business_impact(host.business_impact) }}',
             {{ lat }}, {{ lng }},
-            '{{ livestate.id }}',
-            {{ str(livestate.is_problem).lower() }},
-            {{ str(livestate.is_problem).lower() }} && {{ str(livestate.acknowledged).lower() }},
-            {{ str(livestate.downtime).lower() }},
+            {{ str(host.is_problem).lower() }},
+            {{ str(host.is_problem).lower() }} && {{ str(host.acknowledged).lower() }},
+            {{ str(host.downtime).lower() }},
             [
                 %for service in services:
-                    %livestate = datamgr.get_livestate(search={'where': {'type': 'service', 'name':'%s/%s' % (item.name, service.name)}})
-                    %livestate = livestate[0] if livestate else None
-                    %if not livestate:
-                    %continue
-                    %end
                     new Service(
-                        '{{ livestate.id }}', '{{ item.name }}',
+                        '{{ host.id }}', '{{ host.name }}',
                         '{{ service.id }}', '{{ service.name }}',
-                        '{{ livestate.status }}', '{{ ! livestate.get_html_state(text=None)}}',
+                        '{{ service.status }}', '{{ ! service.get_html_state(text=None)}}',
                         '{{ service.business_impact }}', '{{ ! Helper.get_html_business_impact(service.business_impact) }}',
-                        '{{ livestate.id }}',
-                        {{ str(livestate.is_problem).lower() }},
-                        {{ str(livestate.is_problem).lower() }} && {{ str(livestate.acknowledged).lower() }},
-                        {{ str(livestate.downtime).lower() }}
+                        {{ str(service.is_problem).lower() }},
+                        {{ str(service.is_problem).lower() }} && {{ str(service.acknowledged).lower() }},
+                        {{ str(service.downtime).lower() }}
                     ),
                 %end
             ]
@@ -63,8 +51,8 @@
 
     function hostInfoContent() {
         var text = '<div class="map-infoView" id="iw-' + this.name + '">' + this.stateIcon;
-        text += '<span class="map-hostname"><a href="/livestate/' + this.lvId + '">' + this.name + '</a> ' + this.biIcon + '</span>';
-        if (this.scheduledDowntime) {
+        text += '<span class="map-hostname"><a href="/host/' + this.id + '">' + this.name + '</a> ' + this.biIcon + '</span>';
+        if (this.isDowntimed) {
             text += '<div><i class="fa fa-ambulance"></i> {{_('Currently in scheduled downtime.')}}</div>';
         }
         if (this.isProblem) {
@@ -73,7 +61,7 @@
                 text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
             } else {
                 %if current_user.is_power():
-                text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.lvId+'"><i class="fa fa-check"></i></button>';
+                text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.id+'"><i class="fa fa-check"></i></button>';
                 %else:
                 text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
                 %end
@@ -148,7 +136,7 @@
         return hs;
     }
 
-    function Host(id, name, state, stateIcon, bi, biIcon, lat, lng, lvId, isProblem, isAcknowledged, scheduledDowntime, services) {
+    function Host(id, name, state, stateIcon, bi, biIcon, lat, lng, isProblem, isAcknowledged, isDowntimed, services) {
         this.id = id;
         this.name = name;
         this.state = state;
@@ -157,10 +145,9 @@
         this.biIcon = biIcon;
         this.lat = lat;
         this.lng = lng;
-        this.lvId = lvId;
         this.isProblem = isProblem;
         this.isAcknowledged = isAcknowledged;
-        this.scheduledDowntime = scheduledDowntime;
+        this.isDowntimed = isDowntimed;
         this.services = services;
 
         this.infoContent = hostInfoContent;
@@ -170,8 +157,8 @@
     }
 
     function serviceInfoContent() {
-        var text = '<li>' + this.stateIcon + ' <a href="/livestate/' + this.lvId + '">' + this.name + '</a> ' + this.biIcon + '</li>';
-        if (this.scheduledDowntime) {
+        var text = '<li>' + this.stateIcon + ' <a href="/service/' + this.id + '">' + this.name + '</a> ' + this.biIcon + '</li>';
+        if (this.isDowntimed) {
             text += '<div><i class="fa fa-ambulance"></i> {{_('Currently in scheduled downtime.')}}</div>';
         }
         if (this.isProblem) {
@@ -180,7 +167,7 @@
                 text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
             } else {
                 %if current_user.is_power():
-                text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.lvId+'"><i class="fa fa-check"></i></button>';
+                text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.id+'"><i class="fa fa-check"></i></button>';
                 %else:
                 text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
                 %end
@@ -190,7 +177,7 @@
         return text;
     }
 
-    function Service(hostId, hostName, id, name, state, stateIcon, bi, biIcon, lvId, isProblem, isAcknowledged, scheduledDowntime) {
+    function Service(hostId, hostName, id, name, state, stateIcon, bi, biIcon, isProblem, isAcknowledged, isDowntimed) {
         this.hostId = hostId;
         this.hostName = hostName;
         this.id = id;
@@ -199,10 +186,9 @@
         this.stateIcon = stateIcon;
         this.bi = bi;
         this.biIcon = biIcon;
-        this.lvId = lvId;
         this.isProblem = isProblem;
         this.isAcknowledged = isAcknowledged;
-        this.scheduledDowntime = scheduledDowntime;
+        this.isDowntimed = isDowntimed;
 
         this.infoContent = serviceInfoContent;
     }
@@ -279,7 +265,7 @@
 
         var scripts = [];
         scripts.push('/static/plugins/worldmap/htdocs/js/leaflet.markercluster.js');
-        scripts.push('/static/plugins/worldmap/htdocs/js/Leaflet.Icon.Glyph.js');
+        scripts.push('/static/plugins/worldmap/htdocs/js/leaflet.Icon.Glyph.js');
         scripts.push('/static/plugins/worldmap/htdocs/js/leaflet.label.js');
         loadScripts(scripts, function() {
             if (debugMaps)

@@ -7,17 +7,10 @@
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
       $.ajax({
-         url: "/ping?action=refresh&template=_header_hosts_state"
+         url: "/ping?action=refresh&template=_header_states"
       })
       .done(function(content, textStatus, jqXHR) {
-         $('#overall-hosts-states').html(content);
-      });
-
-      $.ajax({
-         url: "/ping?action=refresh&template=_header_services_state"
-      })
-      .done(function(content, textStatus, jqXHR) {
-         $('#overall-services-states').html(content);
+         $('#_header_states').html(content);
       });
    }
 
@@ -27,10 +20,11 @@
          setInterval("header_refresh();", header_refresh_period*1000);
       } else {
          console.log('Automatic header refresh disabled.');
+         $('#overall-hosts-states').addClass('disabled text-muted');
+         $('#overall-services-states').addClass('disabled text-muted');
       }
    });
 </script>
-
 
 <!-- Page header -->
 <header>
@@ -42,18 +36,16 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="/" style="float: left">
-            <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
+         <a class="navbar-brand" href="/">
+            <img
+               src="{{request.app.config.get('company_logo', '/static/images/default_company.png')}}"
+               style="{{request.app.config.get('company_logo_css', '')}}"
+               alt="{{_('Company logo')}}"
+               title="{{request.app.config.get('company_logo_title', _('Alignak Web User Interface'))}}" />
          </a>
 
-         <ul class="nav navbar-nav navbar-left">
-            <li id="overall-hosts-states" class="pull-left">
-               %include("_header_hosts_state.tpl")
-            </li>
-
-            <li id="overall-services-states" class="pull-left">
-               %include("_header_services_state.tpl")
-            </li>
+         <ul class="nav navbar-nav navbar-left" id="_header_states">
+            %include("_header_states.tpl")
          </ul>
       </div>
 

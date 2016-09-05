@@ -25,12 +25,13 @@ from __future__ import print_function
 
 import os
 import traceback
-from configparser import ConfigParser
+from collections import OrderedDict
+from configparser import RawConfigParser
 
 # Do not use logger in this module ... or it may fail!
 
 
-class Settings(dict):
+class Settings(OrderedDict):
     """
     Class used to manage configuration file and application configuration
     """
@@ -49,6 +50,7 @@ class Settings(dict):
         self.filename = filename
 
     def read(self, app_name):
+        # pylint: disable=too-many-nested-blocks
         """ Read configuration file
 
         Tries to load a configuration from the following files:
@@ -74,6 +76,7 @@ class Settings(dict):
         """
         if not app_name:
             return None
+        app_name = app_name.lower()
 
         if self.filename:
             if not isinstance(self.filename, list):
@@ -84,31 +87,33 @@ class Settings(dict):
                 settings_filenames = self.filename
         else:
             settings_filenames = [
-                '/usr/local/etc/%s/settings.cfg' % app_name.lower(),
-                '/etc/%s/settings.cfg' % app_name.lower(),
-                '~/%s/settings.cfg' % app_name.lower(),
+                '/usr/local/etc/%s/settings.cfg' % app_name,
+                '/etc/%s/settings.cfg' % app_name,
+                '~/%s/settings.cfg' % app_name,
                 os.path.abspath('../etc/settings.cfg'),
-                os.path.abspath('../%s/etc/settings.cfg' % app_name.lower()),
+                os.path.abspath('../%s/etc/settings.cfg' % app_name),
                 './settings.cfg'
             ]
 
         try:
-            config = ConfigParser()
+            config = RawConfigParser()
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
                     for option in config.options(section):
-                        # noinspection PyBroadException
-                        try:
-                            if app_name in section:
-                                self[option] = config.get(section, option)
-                            else:
-                                self[section + '.' + option] = config.get(section, option)
-                        except Exception:  # pragma: no cover - should never happen ...
-                            self[section + '.' + option] = None
-            else:  # pragma: no cover - should never happen ...
-                print("No configuration file found in %s." % settings_filenames)
+                        if app_name == section.lower():
+                            self[option] = config.get(section, option)
+                            if self[option] in ['True', 'true']:
+                                self[option] = True
+                            if self[option] in ['False', 'false']:
+                                self[option] = False
+                        else:
+                            self[section + '.' + option] = config.get(section, option)
+                            if self[section + '.' + option] in ['True', 'true']:
+                                self[section + '.' + option] = True
+                            if self[section + '.' + option] in ['False', 'false']:
+                                self[section + '.' + option] = False
 
             return found_cfg_file
         except Exception as e:

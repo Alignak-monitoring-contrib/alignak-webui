@@ -546,7 +546,7 @@ class TestBI(unittest2.TestCase):
 
 
 class TestTP(unittest2.TestCase):
-    def test_07_bis_print_timeperiod(self):
+    def test_07_print_timeperiod(self):
         print("---")
 
         # Invalid values
@@ -561,10 +561,13 @@ class TestTP(unittest2.TestCase):
              'dateranges': [{u'monday': u'00:00-24:00'}, {u'tuesday': u'00:00-24:00'},
                             {u'wednesday': u'00:00-24:00'}, {u'thursday': u'00:00-24:00'},
                             {u'friday': u'00:00-24:00'}, {u'saturday': u'00:00-24:00'},
-                            {u'sunday': u'00:00-24:00'}], '_alias': u'', '_links': {
-                u'self': {u'href': u'timeperiod/575a7dd74c988c170e857988',
-                          u'title': u'Timeperiod'}}, '_realm': u'575a7dd74c988c170e857987',
-             '_created': 1465548247, 'exclude': [], '_status': 'unknown',
+                            {u'sunday': u'00:00-24:00'}],
+             '_alias': u'',
+             '_links': {
+                u'self': {u'href': u'timeperiod/575a7dd74c988c170e857988', u'title': u'Timeperiod'}
+             },
+             '_created': 1465548247, 'exclude': [],
+             '_status': 'unknown',
              '_id': u'575a7dd74c988c170e857988',
              '_etag': u'e9f5fb031b79f9abdc42f44d413f8220c321767b', 'imported_from': u''})
         s = helper.get_html_timeperiod(tp)

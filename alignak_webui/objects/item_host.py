@@ -33,6 +33,8 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Host(BackendElement):
+    # Because there are many methods needed :)
+    # pylint: disable=too-many-public-methods
     """
     Object representing an host
     """
@@ -44,8 +46,11 @@ class Host(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
+    # Status property
+    status_property = 'ls_state'
+
     # Dates fields: list of the attributes to be considered as dates
-    _dates = BackendElement._dates + ['last_state_change', 'last_check', 'next_check']
+    _dates = BackendElement._dates + ['ls_last_state_change', 'ls_last_check', 'ls_next_check']
 
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
@@ -53,7 +58,10 @@ class Host(BackendElement):
         """
         Create a host (called only once when an object is newly created)
         """
+        self._linked__realm = 'realm'
+        self._linked__templates = 'host'
         self._linked_check_command = 'command'
+        self._linked_snapshot_command = 'command'
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
@@ -64,54 +72,25 @@ class Host(BackendElement):
 
         super(Host, self)._create(params, date_format)
 
-        # Missing in the backend ...
-        if not hasattr(self, 'customs'):
-            self.customs = []
+    @property
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm
 
-        # From the livestate
-        if not hasattr(self, 'is_impact'):
-            self.impact = False
-        if not hasattr(self, 'is_problem'):
-            self.is_problem = False
-        if not hasattr(self, 'problem_has_been_acknowledged'):
-            self.problem_has_been_acknowledged = False
-        if not hasattr(self, 'last_state_change'):
-            self.last_state_change = self._default_date
-        if not hasattr(self, 'last_check'):
-            self.last_check = self._default_date
-        if not hasattr(self, 'output'):
-            self.output = self._default_date
-        if not hasattr(self, 'long_output'):
-            self.long_output = self._default_date
-        if not hasattr(self, 'perf_data'):
-            self.perf_data = self._default_date
-        if not hasattr(self, 'latency'):
-            self.latency = self._default_date
-        if not hasattr(self, 'execution_time'):
-            self.execution_time = self._default_date
-        if not hasattr(self, 'attempt'):
-            self.attempt = self._default_date
-        if not hasattr(self, 'max_check_attempts'):
-            self.max_check_attempts = self._default_date
-        if not hasattr(self, 'state_type'):
-            self.state_type = self._default_date
-        if not hasattr(self, 'next_check'):
-            self.next_check = self._default_date
-
-        if not hasattr(self, 'comments'):
-            self.comments = []
-
-        if not hasattr(self, 'services'):
-            self.services = []
-        if not hasattr(self, 'downtimes'):
-            self.downtimes = []
-        if not hasattr(self, 'perfdatas'):
-            self.perfdatas = []
+    @property
+    def _templates(self):
+        """ Return linked object """
+        return self._linked__templates
 
     @property
     def check_command(self):
         """ Return linked object """
         return self._linked_check_command
+
+    @property
+    def snapshot_command(self):
+        """ Return linked object """
+        return self._linked_snapshot_command
 
     @property
     def event_handler(self):
@@ -162,6 +141,174 @@ class Host(BackendElement):
                 return None
 
         return {u'type': u'Point', u'coordinates': [_lat, _lng]}
+
+    # @property
+    # def status(self):
+        # """
+        # Return host live state status
+        # """
+        # return self.ls_state
+
+    @property
+    def state_id(self):
+        """
+        Return host live state identifier
+        """
+        return self.ls_state_id
+
+    @property
+    def state(self):
+        """
+        Return host live state
+        """
+        return self.ls_state
+
+    @property
+    def state_type(self):
+        """
+        Return host live state type
+        """
+        return self.ls_state_type
+
+    @property
+    def last_check(self):
+        """
+        Return host live state last check
+        """
+        return self.ls_last_check
+
+    @property
+    def execution_time(self):
+        """
+        Return host live state execution time
+        """
+        return self.ls_execution_time
+
+    @property
+    def latency(self):
+        """
+        Return host live state latency
+        """
+        return self.ls_latency
+
+    @property
+    def current_attempt(self):
+        """
+        Return host live state current attempt
+        """
+        return self.ls_current_attempt
+
+    @property
+    def max_attempts(self):
+        """
+        Return host live state maximum attempts
+        """
+        return self.ls_max_attempts
+
+    @property
+    def next_check(self):
+        """
+        Return host live state next check
+        """
+        return self.ls_next_check
+
+    @property
+    def last_state_changed(self):
+        """
+        Return host live state last state changed
+        """
+        return self.ls_last_state_changed
+
+    @property
+    def last_state(self):
+        """
+        Return host live last_state
+        """
+        return self.ls_last_state
+
+    @property
+    def last_state_type(self):
+        """
+        Return host live last_state type
+        """
+        return self.ls_last_state_type
+
+    @property
+    def output(self):
+        """
+        Return host live state output
+        """
+        return self.ls_output
+
+    @property
+    def long_output(self):
+        """
+        Return host live state long output
+        """
+        return self.ls_long_output
+
+    @property
+    def perf_data(self):
+        """
+        Return host live state performance data
+        """
+        return self.ls_perf_data
+
+    @property
+    def acknowledged(self):
+        """
+        Return host live state acknowledged
+        """
+        return self.ls_acknowledged
+
+    @property
+    def downtime(self):
+        """
+        Return host live state downtime
+        """
+        return self.ls_downtimed
+
+    @property
+    def is_problem(self):
+        """
+        An element is_problem if not ok / unknwown and hard state type
+        """
+        if self.state_id in [1, 2] and self.state_type == "HARD":
+            return True
+        return False
+
+    def get_real_state(self, children):
+        """
+        Get the host real state, including the services state
+        """
+        hs = 0
+
+        if self.state == 'DOWN':
+            if self.acknowledged:
+                hs = 3
+            else:
+                hs = 2
+        elif self.state != 'UP':
+            if self.acknowledged:
+                hs = 3
+            else:
+                hs = 1
+
+        for child in children:
+            if child.state == 'CRITICAL':
+                if hs in ['OK', 'WARNING', 'ACK']:
+                    if child.acknowledged:
+                        hs = 3
+                    else:
+                        hs = 2
+            elif child.state != 'OK':
+                if hs in ['OK', 'ACK']:
+                    if child.acknowledged:
+                        hs = 3
+                    else:
+                        hs = 1
+
+        return hs
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

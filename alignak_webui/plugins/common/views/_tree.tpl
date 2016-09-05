@@ -8,7 +8,7 @@
 %search_string = request.query.get('search', '')
 
 %# jsTree js and css are included in the page layout
-%rebase("layout", title=title, page="/{{tree_type}}_tree")
+%rebase("layout", title=title, page="/{{tree_type}}/tree")
 
 %from alignak_webui.utils.helper import Helper
 
@@ -26,7 +26,7 @@
 </style>
 
 <!-- Tree display -->
-<div id="{{tree_type}}_tree_view">
+<div id="{{tree_type}}s_tree_view">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -37,19 +37,19 @@
          </div>
          <div id="{{tree_type}}_tree_collapse" class="panel-collapse collapse">
             <ul class="list-group">
-               %for item in items:
+               %for item in elts:
                   <li class="list-group-item">
                      <small>Element: {{item}} - {{item.__dict__}}</small>
                   </li>
                %end
             </ul>
-            <div class="panel-footer">{{len(items)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elements</div>
          </div>
       </div>
    </div>
    %end
 
-   %if not items:
+   %if not elts:
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
       <div class="panel panel-default">
@@ -79,8 +79,9 @@
                   <div id="{{tree_type}}_tree"></div>
                </div>
                <div id="members_list" class="col-sm-6 col-xs-12">
-                  <div class="alert alert-info">
-                     {{_('Select an item in the left tree to display some elements.')}}
+                  <div class="alert alert-dismissible alert-info">
+                     <button type="button" class="close" data-dismiss="alert">×</button>
+                     <h4>{{_('Select an item in the left tree to display more elements.')}}</h4>
                   </div>
                </div>
             </div>
@@ -90,24 +91,34 @@
 </div>
 
 <script>
-   var debugTree = true;
+   var debugTree = {{'true' if debug else 'false'}};
 
    // Navigate to the table view
    $('[data-action="navigate-table"][data-element="{{tree_type}}"]').on("click", function () {
       var elt_id = $(this).data('element');
       window.setTimeout(function(){
-         window.location.href = "/{{tree_type}}s_table";
+         window.location.href = "/{{tree_type}}s/table";
       }, 50);
    });
 
    // Build tree data...
    var jsTreeData = [];
-   %for item in items:
+   %for item in elts:
+      %parent='#'
+      %if item['_parent'] and not isinstance(item['_parent'], basestring):
+      %  parent=item['_parent'].id
+      %end
+      %level=item['level']
       jsTreeData.push( {
          "id": '{{item.id}}',
-         "parent" : '{{'#' if item.level <= 0 else item.parent.id}}',
+         "parent" : '{{'#' if parent=='#' else item._parent.id}}',
+         "type" : '{{'root' if parent=='#' else 'node'}}',
          "text": '{{item.alias}}',
-         "icon": '{{item.get_state()}}',
+         %if parent=='#':
+         "icon": 'fa fa-w fa-sitemap',
+         %else:
+         "icon": 'fa fa-w fa-list',
+         %end
          "state": {
             "opened": true,
             "selected": false,
@@ -128,7 +139,7 @@
          a_attr: {
          }
       });
-      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item.level}}', '{{'#' if item.level <= 0 else item.parent.id}}');
+      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item['level']}}', '{{parent}}');
    %end
 
    $(document).ready(function(){
@@ -152,6 +163,7 @@
                "data" : jsTreeData
             },
             "plugins" : [
+               //"types",
                "sort",
                %if selectable:
                "checkbox",
@@ -161,7 +173,23 @@
                "contextmenu"
                %end
             ],
-            "search": { "show_only_matches": true },
+            "search": {
+               "show_only_matches": true
+            },
+            /*
+            "types" : {
+               "#" : {
+                  "icon" : "fa fa-tree",
+                  "max_depth" : 4
+               },
+               "root" : {
+                  "icon" : "fa fa-w fa-sitemap"
+               },
+               "default" : {
+                  "icon" : "fa fa-w fa-list"
+               }
+            },
+            */
             %if context_menu:
             "contextmenu": {
                "items": function(node) {
@@ -203,8 +231,21 @@
             if (action.action == 'select_node') {
                if (debugTree) console.log('Selected :', action.node);
 
+
                $.ajax( {
-                  "url": "{{tree_type}}/members/" + action.node.id,
+                  "url": "/{{tree_type}}/status/" + action.node.id,
+                  "dataType": "json",
+                  "type": "GET",
+                  "success": function (data) {
+                     if (debugTree) console.debug("Got status:", data);
+                  },
+                  "error": function (jqXHR, textStatus, errorThrown) {
+                     console.error("Get list error: ", textStatus, jqXHR);
+                  }
+               });
+
+               $.ajax( {
+                  "url": "/{{tree_type}}/members/" + action.node.id,
                   "dataType": "json",
                   "type": "GET",
                   "success": function (data) {
