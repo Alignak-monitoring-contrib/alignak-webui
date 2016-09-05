@@ -298,7 +298,6 @@ class PluginHosts(Plugin):
                     logger.info("Widget new options saved!")
                     break
 
-
         title = request.params.get('title', _('Hosts'))
         if name_filter:
             title = _('%s (%s)') % (title, name_filter)
@@ -348,19 +347,6 @@ class PluginHosts(Plugin):
             search={'where': {'dependent_hosts': host.id}}
         )
 
-        # Get host livestate
-        # livestate = datamgr.get_livestates(
-            # search={'where': {'type': 'host', 'host': '%s' % host.id}}
-        # )
-        # if livestate:
-            # livestate = livestate[0]
-
-        # Get host services livestate
-        # livestate_services = datamgr.get_livestates(
-            # search={'where': {'type': 'service', 'host': host.id}}
-        # )
-
-        # Get host history (timeline)
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
 

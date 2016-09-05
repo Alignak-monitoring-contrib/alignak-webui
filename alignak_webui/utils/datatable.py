@@ -96,7 +96,9 @@ class Datatable(object):
         for field in self.table_columns:
             if field['data'] == '_is_template':
                 self.is_templated = True
-                self.records_total = self.backend.count(self.object_type, params={'where': {'_is_template': False}})
+                self.records_total = self.backend.count(
+                    self.object_type, params={'where': {'_is_template': False}}
+                )
                 break
         else:
             self.records_total = self.backend.count(self.object_type)
@@ -519,7 +521,9 @@ class Datatable(object):
         for field in self.table_columns:
             if field['data'] == '_is_template':
                 self.is_templated = True
-                self.records_total = self.backend.count(self.object_type, params={'where': {'_is_template': False}})
+                self.records_total = self.backend.count(
+                    self.object_type, params={'where': {'_is_template': False}}
+                )
                 break
         else:
             self.records_total = self.backend.count(self.object_type)
@@ -577,7 +581,6 @@ class Datatable(object):
         rows = []
         for item in items:
             bo_object = object_class(item)
-            # logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
 
             row = {}
             row['DT_RowData'] = {}
@@ -588,7 +591,7 @@ class Datatable(object):
                     # item[field] = bo_object.get_html_link(prefix=request.params.get('links'))
                     row[self.name_property] = bo_object.html_link
                     row['DT_RowData'].update(
-                        { "object_%s" % self.object_type: bo_object.name }
+                        {"object_%s" % self.object_type: bo_object.name}
                     )
                     continue
 
@@ -641,7 +644,7 @@ class Datatable(object):
                             prefix=request.params.get('links')
                         )
                         row['DT_RowData'].update(
-                            { "object_%s" % field['data']: bo_object[field['data']].name }
+                            {"object_%s" % field['data']: bo_object[field['data']].name}
                         )
                     else:
                         row[field['data']] = getattr(bo_object, field['data'])

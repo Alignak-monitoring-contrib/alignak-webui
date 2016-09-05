@@ -79,8 +79,6 @@ class DataManager(object):
         # Set a unique id for each DM object
         self.__class__.id += 1
 
-        # logger.info("DM, creating: %s, user: %s, be: %s", self.__class__.id, user, backend_endpoint)
-
         # Associated backend object
         self.backend_endpoint = backend_endpoint
         self.backend = BackendConnection(backend_endpoint)
