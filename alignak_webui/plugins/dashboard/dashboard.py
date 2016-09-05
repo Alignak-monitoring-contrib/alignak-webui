@@ -141,13 +141,19 @@ class PluginDashboard(Plugin):
         datamgr = request.app.datamgr
 
         # Get the stored panels
-        panels = datamgr.get_user_preferences(user, 'panels', {'panels': {}})
+        panels = datamgr.get_user_preferences(user, 'currently_panels', None)
 
         # Get the stored graphs
-        graphs = datamgr.get_user_preferences(user, 'graphs', {'graphs': {}})
+        graphs = datamgr.get_user_preferences(user, 'currently_graphs', None)
+
+        # Live state stored queuers
+        hosts_states_queue = datamgr.get_user_preferences(user, 'hosts_states_queue', [])
+        services_states_queue = datamgr.get_user_preferences(user, 'services_states_queue', [])
 
         return {
             'panels': panels,
             'graphs': graphs,
-            'title': request.query.get('title', _('Dashboard'))
+            'hosts_states_queue': hosts_states_queue,
+            'services_states_queue': services_states_queue,
+            'title': request.query.get('title', _('Keep an eye'))
         }

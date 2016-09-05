@@ -8,8 +8,9 @@
 
 %setdefault('panels', None)
 %#Set this to True to reset saved parameters
-%create_panels_preferences = False
-%if create_panels_preferences or not 'panel_counters_hosts' in panels:
+%create_panels_preferences = True
+%if create_panels_preferences or not panels:
+%panels = {}
 %panels['panel_counters_hosts'] = {'collapsed': False}
 %panels['panel_counters_services'] = {'collapsed': False}
 %panels['panel_percentage_hosts'] = {'collapsed': False}
@@ -26,8 +27,9 @@
 %setdefault('services_states', ['ok','warning','critical','unknown'])
 
 %#Set this to True to reset saved parameters
-%create_graphs_preferences = False
-%if create_graphs_preferences or not 'pie_graph_hosts' in graphs:
+%create_graphs_preferences = True
+%if create_graphs_preferences or not graphs:
+%graphs = {}
 %graphs['pie_graph_hosts'] = {'legend': True, 'title': True, 'states': hosts_states}
 %graphs['pie_graph_services'] = {'legend': True, 'title': True, 'states': services_states}
 %graphs['line_graph_hosts'] = {'legend': True, 'title': True, 'states': hosts_states}
@@ -55,8 +57,6 @@
 
 %setdefault('hosts_states_queue_length', 30)
 %setdefault('services_states_queue_length', 30)
-%hosts_states_queue = datamgr.get_user_preferences(current_user, 'hosts_states_queue', [])
-%services_states_queue = datamgr.get_user_preferences(current_user, 'services_states_queue', [])
 
 <div id="currently">
 <script type="text/javascript">
@@ -219,7 +219,7 @@
                   options: {
                      title: {
                         display: true,
-                        text: '{{title}}'
+                        text: '{{_('Hosts states history')}}'
                      },
                      legend: {
                         display: true,
@@ -303,58 +303,38 @@
             // Services line chart
             if ($("#panel_line_graph_services").is(":visible") && ! panels["panel_line_graph_services"].collapsed) {
                if (dashboard_logs) console.debug('Refresh: panel_line_graph_services', graphs['line_graph_services']);
-               var data = [];
-               data['labels'] = line_graph_services_data['labels'];
-               data['datasets'] = [];
-
-               $.each(graphs['line_graph_services']['display_states'], function(state, active) {
-                  if (! active) return;
-                  var counter_value = parseInt($('#one-eye-overall span.services-count[data-state="'+state+'"]').data("count"));
-
-                  // Update table rows
-                  row = line_graph_services_data['datasets'][state];
-                  row['data'] = states_queue["nb_services_"+state];
-                  data['datasets'].push(row);
-
-                  if (! forced) {
-                     if (states_queue["nb_services_"+state].length > services_states_queue_length) {
-                        states_queue["nb_services_"+state].shift();
-                     }
-                     states_queue["nb_services_"+state].push(counter_value);
-                  }
-               });
-                  var labels=[];
-                  %idx=len(services_states_queue)
+               var labels=[];
+               %idx=len(services_states_queue)
+               %for ls in services_states_queue:
+                  labels.push('{{ls['date']}}');
+                  %idx=idx-1
+               %end
+               %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+                  var data_{{state}}=[];
                   %for ls in services_states_queue:
-                     labels.push('{{ls['date']}}');
-                     %idx=idx-1
+                  data_{{state}}.push({{ls["ss"]["nb_" + state]}});
                   %end
-                  %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
-                     var data_{{state}}=[];
-                     %for ls in services_states_queue:
-                     data_{{state}}.push({{ls["ss"]["nb_" + state]}});
+               %end
+               var data = {
+                  labels: labels,
+                  datasets: [
+                     %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+                     {
+                        label: g_services_states["{{state.lower()}}"]['label'],
+                        fill: false,
+                        lineTension: 0.1,
+                        borderWidth: 1,
+                        borderColor: g_services_states["{{state.lower()}}"]['color'],
+                        backgroundColor: g_services_states["{{state.lower()}}"]['background'],
+                        pointBorderWidth: 1,
+                        pointRadius: 2,
+                        pointBorderColor: g_services_states["{{state.lower()}}"]['color'],
+                        pointBackgroundColor: g_services_states["{{state.lower()}}"]['background'],
+                        data: data_{{state}}
+                     },
                      %end
-                  %end
-                  var data = {
-                     labels: labels,
-                     datasets: [
-                        %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
-                        {
-                           label: g_services_states["{{state.lower()}}"]['label'],
-                           fill: false,
-                           lineTension: 0.1,
-                           borderWidth: 1,
-                           borderColor: g_services_states["{{state.lower()}}"]['color'],
-                           backgroundColor: g_services_states["{{state.lower()}}"]['background'],
-                           pointBorderWidth: 1,
-                           pointRadius: 2,
-                           pointBorderColor: g_services_states["{{state.lower()}}"]['color'],
-                           pointBackgroundColor: g_services_states["{{state.lower()}}"]['background'],
-                           data: data_{{state}}
-                        },
-                        %end
-                     ]
-                  };
+                  ]
+               };
 
                new Chart($("#line-graph-services canvas"), {
                   type: 'line',
@@ -362,7 +342,7 @@
                   options: {
                      title: {
                         display: true,
-                        text: '{{title}}'
+                        text: '{{_('Services states history')}}'
                      },
                      legend: {
                         display: true,
@@ -668,12 +648,12 @@ div.pull-right a, div.pull-right div {
                         </button>
                         <ul class="dropdown-menu pull-right" role="menu">
                            <li>
-                              <a href="#" data-action="toggle-legend" data-graph="pie_graph_hosts" class="{{'active' if graphs['pie_graph_hosts']['legend'] else ''}}">
+                              <a href="#" data-action="toggle-legend" data-graph="pie_graph_hosts">
                                  <i class="fa fa-check fa-fw" style="{{'display:none;' if not graphs['pie_graph_hosts']['legend'] else ''}}"></i>{{_('Display graph legend?')}}
                               </a>
                            </li>
                            <li>
-                              <a href="#" data-action="toggle-title" data-graph="pie_graph_hosts" class="{{'active' if graphs['pie_graph_hosts']['title'] else ''}}">
+                              <a href="#" data-action="toggle-title" data-graph="pie_graph_hosts">
                                  <i class="fa fa-check fa-fw" style="{{'display:none;' if not graphs['pie_graph_hosts']['title'] else ''}}"></i>{{_('Display graph title?')}}
                               </a>
                            </li>
@@ -715,12 +695,12 @@ div.pull-right a, div.pull-right div {
                         </button>
                         <ul class="dropdown-menu pull-right" role="menu">
                            <li>
-                              <a href="#" data-action="toggle-legend" data-graph="pie_graph_services" class="{{'active' if graphs['pie_graph_services']['legend'] else ''}}">
+                              <a href="#" data-action="toggle-legend" data-graph="pie_graph_services">
                                  <i class="fa fa-check fa-fw" style="{{'display:none;' if not graphs['pie_graph_services']['legend'] else ''}}"></i>{{_('Display graph legend?')}}
                               </a>
                            </li>
                            <li>
-                              <a href="#" data-action="toggle-title" data-graph="pie_graph_services" class="{{'active' if graphs['pie_graph_services']['title'] else ''}}">
+                              <a href="#" data-action="toggle-title" data-graph="pie_graph_services">
                                  <i class="fa fa-check fa-fw" style="{{'display:none;' if not graphs['pie_graph_services']['title'] else ''}}"></i>{{_('Display graph title?')}}
                               </a>
                            </li>
@@ -755,12 +735,6 @@ div.pull-right a, div.pull-right div {
                      {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (hs['nb_problems']) if hs['nb_problems'] else '.'}}
                   </span>
                   <div class="pull-right">
-                     <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                           <i class="fa fa-gear fa-fw"></i>
-                           <span class="caret"></span>
-                        </button>
-                     </div>
                      <a href="#p_panel_line_graph_hosts" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_line_graph_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
                  </div>
                </div>
@@ -782,12 +756,6 @@ div.pull-right a, div.pull-right div {
                      {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
                   </span>
                   <div class="pull-right">
-                     <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                           <i class="fa fa-gear fa-fw"></i>
-                           <span class="caret"></span>
-                        </button>
-                     </div>
                      <a href="#p_panel_line_graph_services" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_line_graph_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
                   </div>
                </div>
@@ -863,201 +831,6 @@ div.pull-right a, div.pull-right div {
          refresh_required = true;
       });
    });
-
-   var hosts_states_queue_length = {{ hosts_states_queue_length }};
-   var services_states_queue_length = {{ services_states_queue_length }};
-   var states_queue = {
-     "nb_hosts_up": [], "nb_hosts_unreachable": [], "nb_hosts_down": [],
-     "nb_services_ok": [], "nb_services_warning": [], "nb_services_critical": [], "nb_services_unknown": []
-   };
-
-   %for state in graphs['pie_graph_hosts']['states']:
-     for (var i=0; i<hosts_states_queue_length; i++) {
-         states_queue["nb_hosts_{{state}}"].push(0);
-     }
-   %end
-   %for state in graphs['pie_graph_services']['states']:
-     for (var i=0; i<services_states_queue_length; i++) {
-         states_queue["nb_services_{{state}}"].push(0);
-     }
-   %end
-
-
-   var line_graph_hosts_states = {{ !json.dumps(graphs['pie_graph_hosts']['states']) }};
-   var line_graph_hosts_data = {
-      labels: [],
-      datasets: {
-         "up": {
-             label: "Hosts up",
-             fillColor: "rgba(91,183,91,0.2)",
-             strokeColor: "rgba(91,183,91,1)",
-             pointColor: "rgba(91,183,91,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(220,220,220,1)"
-         },
-         "unreachable": {
-             label: "Hosts unreachable",
-             fillColor: "rgba(250,167,50,0.2)",
-             strokeColor: "rgba(250,167,50,1)",
-             pointColor: "rgba(250,167,50,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(151,187,205,1)"
-        },
-        "down": {
-             label: "Hosts down",
-             fillColor: "rgba(218,79,73,0.2)",
-             strokeColor: "rgba(218,79,73,1)",
-             pointColor: "rgba(218,79,73,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(220,220,220,1)"
-        }
-      }
-   };
-   // Labels are refresh periods ...
-   for (i=-hosts_states_queue_length; i<=0; i++) {
-     line_graph_hosts_data['labels'].push(moment().subtract(-i * app_refresh_period, 'seconds').fromNow());
-   }
-   var line_graph_hosts_options = {
-      ///Boolean - Whether grid lines are shown across the chart
-      scaleShowGridLines : true,
-
-      //String - Colour of the grid lines
-      scaleGridLineColor : "rgba(0,0,0,.05)",
-
-      //Number - Width of the grid lines
-      scaleGridLineWidth : 1,
-
-      //Boolean - Whether to show horizontal lines (except X axis)
-      scaleShowHorizontalLines: false,
-
-      //Boolean - Whether to show vertical lines (except Y axis)
-      scaleShowVerticalLines: false,
-
-      //Boolean - Whether the line is curved between points
-      bezierCurve : true,
-
-      //Number - Tension of the bezier curve between points
-      bezierCurveTension : 0.4,
-
-      //Boolean - Whether to show a dot for each point
-      pointDot : true,
-
-      //Number - Radius of each point dot in pixels
-      pointDotRadius : 4,
-
-      //Number - Pixel width of point dot stroke
-      pointDotStrokeWidth : 1,
-
-      //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-      pointHitDetectionRadius : 20,
-
-      //Boolean - Whether to show a stroke for datasets
-      datasetStroke : true,
-
-      //Number - Pixel width of dataset stroke
-      datasetStrokeWidth : 2,
-
-      //Boolean - Whether to fill the dataset with a colour
-      datasetFill : true,
-
-      pointDot: true,
-   };
-
-
-   var line_graph_services_states = {{ !json.dumps(graphs['line_graph_services']['states']) }};
-   var line_graph_services_data = {
-      labels: [],
-      datasets: {
-         "ok": {
-             label: "Services ok",
-             fillColor: "rgba(91,183,91,0.2)",
-             strokeColor: "rgba(91,183,91,1)",
-             pointColor: "rgba(91,183,91,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(220,220,220,1)"
-         },
-         "warning": {
-             label: "Services warning",
-             fillColor: "rgba(250,167,50,0.2)",
-             strokeColor: "rgba(250,167,50,1)",
-             pointColor: "rgba(250,167,50,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(151,187,205,1)"
-        },
-        "critical": {
-             label: "Services critical",
-             fillColor: "rgba(218,79,73,0.2)",
-             strokeColor: "rgba(218,79,73,1)",
-             pointColor: "rgba(218,79,73,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(220,220,220,1)"
-        },
-        "unknown": {
-             label: "Services unknown",
-             fillColor: "rgba(90,211,209,0.2)",
-             strokeColor: "rgba(90,211,209,1)",
-             pointColor: "rgba(90,211,209,1)",
-             pointStrokeColor: "#fff",
-             pointHighlightFill: "#fff",
-             pointHighlightStroke: "rgba(220,220,220,1)"
-        }
-      }
-   };
-   // Labels are refresh periods ...
-   for (i=-services_states_queue_length; i<=0; i++) {
-      line_graph_services_data['labels'].push(moment().subtract(-i * app_refresh_period, 'seconds').fromNow());
-   }
-   var line_graph_services_options = {
-      ///Boolean - Whether grid lines are shown across the chart
-      scaleShowGridLines : true,
-
-      //String - Colour of the grid lines
-      scaleGridLineColor : "rgba(0,0,0,.05)",
-
-      //Number - Width of the grid lines
-      scaleGridLineWidth : 1,
-
-      //Boolean - Whether to show horizontal lines (except X axis)
-      scaleShowHorizontalLines: false,
-
-      //Boolean - Whether to show vertical lines (except Y axis)
-      scaleShowVerticalLines: false,
-
-      //Boolean - Whether the line is curved between points
-      bezierCurve : true,
-
-      //Number - Tension of the bezier curve between points
-      bezierCurveTension : 0.4,
-
-      //Boolean - Whether to show a dot for each point
-      pointDot : true,
-
-      //Number - Radius of each point dot in pixels
-      pointDotRadius : 4,
-
-      //Number - Pixel width of point dot stroke
-      pointDotStrokeWidth : 1,
-
-      //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-      pointHitDetectionRadius : 20,
-
-      //Boolean - Whether to show a stroke for datasets
-      datasetStroke : true,
-
-      //Number - Pixel width of dataset stroke
-      datasetStrokeWidth : 2,
-
-      //Boolean - Whether to fill the dataset with a colour
-      datasetFill : true,
-
-      pointDot: true,
-   };
 </script>
 
 </div>
