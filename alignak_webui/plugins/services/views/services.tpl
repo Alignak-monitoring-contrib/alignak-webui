@@ -25,21 +25,21 @@
          </div>
          <div id="collapse_services" class="panel-collapse collapse">
             <ul class="list-group">
-               %for service in services:
+               %for service in elts:
                   <li class="list-group-item"><small>Service: {{service}} - {{service.__dict__}}</small></li>
                %end
             </ul>
-            <div class="panel-footer">{{len(services)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elements</div>
          </div>
       </div>
    </div>
    %end
 
+   %if not elts:
+      %include("_nothing_found.tpl", search_string=search_string)
+   %else:
    <div class="panel panel-default">
       <div class="panel-body">
-      %if not services:
-         %include("_nothing_found.tpl", search_string=search_string)
-      %else:
          %# First element for global data
          %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
@@ -55,17 +55,11 @@
             </tr></thead>
 
             <tbody>
-               %for service in services:
-               %lv_service = datamgr.get_livestate({'where': {'host': service.host.id, 'service': service.id}})
-               %lv_service = lv_service[0]
+               %for service in elts:
                <tr id="#{{service.id}}">
                   <td title="{{service.alias}}">
-                  %if lv_service:
-                     %title = "%s - %s (%s)" % (lv_service.status, Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0), lv_service.output)
-                     {{! lv_service.get_html_state(text=None, title=title)}}
-                  %else:
-                     {{! service.get_html_state(text=None, title=_('No livestate for this element'))}}
-                  %end
+                     %title = "%s - %s (%s)" % (service.state, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
+                     {{! service.get_html_state(text=None, title=title)}}
                   </td>
 
                   <td>
@@ -85,17 +79,15 @@
                   </td>
 
                   <td>
-                  %if lv_service:
-                     <small>{{! lv_service.output}}</small>
-                  %end
+                     <small>{{! service.output}}</small>
                   </td>
                </tr>
              %end
             </tbody>
          </table>
-      %end
       </div>
    </div>
+   %end
  </div>
 
 %if layout:

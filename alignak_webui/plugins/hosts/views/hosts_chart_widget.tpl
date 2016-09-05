@@ -26,9 +26,9 @@
    $(document).ready(function() {
       var data=[], labels=[], colors=[], hover_colors=[];
       %for state in 'up', 'unreachable', 'down', 'acknowledged', 'in_downtime':
-         labels.push(g_hosts_states["{{state.lower()}}"]['label']);
+         labels.push(g_hosts_states["{{state}}"]['label']);
          data.push({{hs["nb_" + state]}});
-         colors.push(g_hosts_states["{{state.lower()}}"]['color'])
+         colors.push(g_hosts_states["{{state}}"]['color'])
          hover_colors.push(g_hoverBackgroundColor)
       %end
       var data = {

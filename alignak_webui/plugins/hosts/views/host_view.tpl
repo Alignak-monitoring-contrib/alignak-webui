@@ -7,17 +7,17 @@
 %setdefault('credentials', None)
 
 %from alignak_webui.utils.metrics import HostMetrics
-%metrics = HostMetrics(livestate, livestate_services, hosts_parameters, host.tags)
+%metrics = HostMetrics(host, services, plugin_parameters, host.tags)
 %services_states = metrics.get_overall_state()
 %host_name, host_state = services_states[0]
 %services_states = services_states[1:]
 
 <div id="host_view_information" class="col-lg-4 col-sm-4 text-center">
-   {{! livestate.get_html_state(text=None, size="fa-5x")}}
+   {{! host.get_html_state(text=None, size="fa-5x")}}
    <div>
       <strong>{{host.alias}}</strong>
    </div>
-   %if livestate_services:
+   %if services:
    <div class="text-left">
       <table class="table table-condensed">
          <thead><tr>
@@ -26,15 +26,15 @@
          </tr></thead>
 
          <tbody>
-            %for lv_service in livestate_services:
-            <tr id="#{{lv_service.id}}">
-               <td title="{{lv_service.alias}}">
-                  %title = "%s - %s (%s)" % (lv_service.status, Helper.print_duration(lv_service.last_check, duration_only=True, x_elts=0), lv_service.output)
-                  {{! lv_service.get_html_state(text=None, title=title)}}
+            %for service in services:
+            <tr id="#{{service.id}}">
+               <td title="{{service.alias}}">
+                  %title = "%s - %s (%s)" % (service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
+                  {{! service.get_html_state(text=None, title=title)}}
                </td>
 
                <td>
-                  <small>{{! lv_service.get_html_link()}}</small>
+                  <small>{{! service.get_html_link()}}</small>
                </td>
             </tr>
             %end

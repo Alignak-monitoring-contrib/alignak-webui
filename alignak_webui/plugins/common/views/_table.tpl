@@ -1,6 +1,9 @@
 %import json
 
 %setdefault('debug', False)
+%setdefault('debugLogs', False)
+
+%setdefault('edition_mode', False)
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
@@ -23,9 +26,6 @@
 %rebase("layout", title=title, page="/{{object_type}}s_table")
 %end
 
-%if dt.editable:
-%include("_edition.tpl")
-%end
 %if embedded and identifier:
 %scheme = request.urlparts.scheme
 %location = request.urlparts.netloc
@@ -42,18 +42,168 @@
       <thead>
          <tr>
             %for column in dt.table_columns:
-            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}">{{ column['title'] }}</th>
+            %if debug:
+            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}
+            {{column.get('visible','###')}} - {{column.get('orderable','###')}} - {{column.get('searchable','###')}}
+            </th>
+            %end
+            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}</th>
             %end
          </tr>
          %if dt.searchable:
+         %if debug:
+         <tr id="debug">
+            %idx=0
+            %for field in dt.table_columns:
+               %name = field.get('data', '')
+               %label = field.get('title', '')
+               %field_type = field.get('type', 'string')
+               %content_type = field.get('content_type', 'string')
+               %placeholder = field.get('placeholder', label)
+               %allowed = field.get('allowed', '').split(',')
+               %if allowed[0] == '':
+               %  allowed = []
+               %end
+               %format = field.get('format')
+               %format_parameters = field.get('format_parameters')
+               <th>
+                  <div>
+                  <i class="fa fa-bug"></i>
+                  %if field_type=='list':
+                  {{'%s -> %s (%s) - %s (%s)' % (name, field_type, content_type, format, format_parameters)}}
+                  %else:
+                  {{'%s -> %s - %s (%s)' % (name, field_type, format, format_parameters)}}
+                  %end
+                  <br/>
+                  <i class="fa fa-list"></i> {{allowed}}
+                  </div>
+               </th>
+            %end
+         </tr>
+         %end
          <tr id="filterrow">
             %idx=0
-            %for column in dt.table_columns:
-               <th data-index="{{idx}}" data-name="{{ column['data'] }}"
-                   data-regex="{{ column['regex'] }}" data-size="{{ column['size'] }}"
-                   data-type="{{ column['type'] }}" data-format="{{ column['format'] }}"
-                   data-format-parameters="{{ column['format_parameters'] }}"
-                   data-allowed="{{ column['allowed'] }}" data-searchable="{{ column['searchable'] }}">
+            %for field in dt.table_columns:
+               %selectize = False
+               %name = field.get('data', '')
+               %label = field.get('title', '')
+               %field_type = field.get('type', 'string')
+               %content_type = field.get('content_type', 'string')
+               %placeholder = field.get('placeholder', '')
+               %allowed = field.get('allowed', '').split(',')
+               %if allowed[0] == '':
+               %  allowed = []
+               %end
+               %format = field.get('format')
+               %format_parameters = field.get('format_parameters')
+               %required = field.get('required')
+
+               %is_list = False
+               %if field_type=='list':
+               %  is_list = True
+               %  selectize = True
+               %  field_type = content_type
+               %else:
+               %  if allowed:
+               %  selectize = True
+               %  end
+               %  if field_type in ['boolean', 'objectid']:
+               %  selectize = True
+               %  end
+               %end
+
+               <th data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectize="{{selectize}}"
+                   data-searchable="{{ field['searchable'] }}"
+                   data-regex="{{ field['regex'] }}"
+                   data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
+                   data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
+                   data-allowed="{{ field['allowed'] }}"
+                   >
+
+                  %if is_list:
+                  <div class="form-group form-group-sm">
+                     <select id="filter_{{name}}" class="form-control">
+                     </select>
+                  </div>
+                  %else:
+                  %  if field_type in ['boolean']:
+                  %  allowed = {'Yes': 'true', 'No': 'false', 'Both': ''}
+                  <div class="form-group form-group-sm">
+                     <input id="filter_{{name}}"
+                        class="form-control"
+                        type="text"
+                        placeholder="{{placeholder}}"
+                        >
+                  </div>
+                  %  else:
+                  <div class="form-group form-group-sm">
+                     <input id="filter_{{name}}"
+                        class="form-control"
+                        type="{{'number' if field_type=='integer' else 'text'}}"
+                        placeholder="{{placeholder}}"
+                        >
+                  </div>
+                  %  end
+                  %end
+                  %if selectize:
+                  <script>
+                     $('#filter_{{name}}').selectize({
+                        plugins: ['remove_button'],
+                        delimiter: ',',
+                        persist: true,
+
+                        valueField: 'id',
+                        labelField: 'name',
+                        searchField: 'name',
+
+                        create: false,
+
+                        %if allowed:
+                        %  if isinstance(allowed, dict):
+                           options: [
+                        %     for k in allowed:
+                                 { 'id': '{{allowed[k]}}', 'name': '{{k}}' },
+                        %     end
+                           ],
+                        %  else:
+                        %     if allowed[0].startswith('inner://'):
+                        preload: true,
+                        load: function(query, callback) {
+                           $.ajax({
+                              url: "{{allowed[0].replace('inner://', '/')}}",
+                              type: 'GET',
+                              error: function() {
+                                 callback();
+                              },
+                              success: function(res) {
+                                 callback(res);
+                              }
+                           });
+                        },
+                        %     else:
+                           options: [
+                        %        for option in allowed:
+                                    { 'id': '{{option}}', 'name': '{{option}}' },
+                        %        end
+                           ],
+                        %     end
+                        %  end
+                        %end
+
+                        maxItems: {{'1' if not is_list else 'null'}},
+                        closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+                        placeholder: '{{placeholder}}',
+                        hideSelected: true,
+                        allowEmptyOption: false,
+                        openOnFocus: true,
+                        onChange: function(value) {
+                           console.log("Changed:", value);
+                           console.log("Changed:", this);
+                           //this.clear(true);
+                        }
+                     });
+                  </script>
+                  %end
                </th>
                %idx += 1
             %end
@@ -66,68 +216,55 @@
 </div>
 
 <script>
-   var debugTable = {{'true' if debug else 'false'}};
+   var debugTable = {{'true' if debugLogs else 'false'}};
    var where = {{! json.dumps(where)}};
    var columns = '';
    var selectedRows = [];
+
+   function resetFilters() {
+      var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+
+      // Reset table columns search
+      table
+         .columns()
+            .search('', false, false)
+            .draw();
+
+      // Clear the search fields
+      $('#filterrow th[data-searchable="True"][data-selectize="True"]').each( function () {
+         var field_name = $(this).data('name');
+
+         if ($('#filter_'+field_name).length) {
+            var input_filter = $('#filter_'+field_name).selectize()[0].selectize;
+            if (input_filter) {
+               //if (debugTable) console.debug('*** clear filter: ', field_name, input_filter.items);
+               input_filter.clear(true);
+            }
+         }
+      });
+
+      // Disable the clear filter button
+      table.buttons('clearFilter:name').disable();
+   }
 
    $(document).ready(function() {
       %if not embedded:
       set_current_page("{{ webui.get_url(request.route.name) }}");
       %end
 
+      %if credentials:
       $.ajaxSetup({
          headers: { "Authorization": "Basic " + btoa('{{credentials}}') }
       });
+      %end
 
       %if dt.searchable:
-      // Setup - add a text/select input to each search cell
-      $('#tbl_{{object_type}} thead tr#filterrow th').each( function () {
-         // Beware to only add one element that is the edit field ...
-         // or change the stateLoadCallback restore processing!
-         var title = $('#tbl_{{object_type}} thead th').eq( $(this).index() ).text();
-
-         if ($(this).data('searchable') != 'True') {
-            if (debugTable) console.log('Do not search for field: ' + $(this).data('name'));
-            return;
-         }
-
-         if (($(this).data('format')=='select') || ($(this).data('format')=='single_select')) {
-            var html = '<select class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
-            var allowed = $(this).data('allowed').split(',');
-            $.each(allowed, function(idx){
-               html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
-            });
-            html += '</select>';
-            $(this).html( html );
-
-         } else if (($(this).data('format')=='multiselect') || ($(this).data('format')=='multiple_select')) {
-            var html = '<select multiple class="sel_'+ $(this).data('type') +'"><option value="">{{_('*')}}</option>';
-            var allowed = $(this).data('allowed').split(',');
-            $.each(allowed, function(idx){
-               html += '<option value="'+allowed[idx]+'">'+allowed[idx]+'</option>'
-            });
-            html += '</select>';
-            $(this).html( html );
-
-         } else {
-            // Simple input field
-            var html = '<input size="'+$(this).data('size')+'" type="text" data-regex="'+$(this).data('regex')+'" placeholder="'+title+'" />';
-            if ($(this).data('type')=='integer') {
-               html = '<input size="'+$(this).data('size')+'" type="number" placeholder="'+title+'" />';
-            } else if ($(this).data('type')=='email') {
-               html = '<input size="'+$(this).data('size')+'" type="email" placeholder="'+title+'" />';
-            } else if ($(this).data('type')=='boolean') {
-               html = '<input type="checkbox" placeholder="'+title+'" />';
-            }
-            $(this).html( html );
-         }
-      });
-
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
-         var column_index = $(this).parent().data('index');
-         var column_name = $(this).parent().data('name');
+         var parent = $(this).parents('th')
+         var column_index = parent.data('index');
+         var column_name = parent.data('name');
+         var regex = parent.data('regex');
          var value = $(this).val();
          if ($(this).attr('type') == 'checkbox') {
             value = $(this).is(':checked');
@@ -137,7 +274,7 @@
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
             .column(column_index)
-               .search(value, $(this).data('regex')=='True', false)
+               .search(value, regex=='True', false)
                .draw();
 
          // Enable the clear filter button
@@ -146,8 +283,9 @@
 
       // Apply the search filter for select fields
       $("#tbl_{{object_type}} thead select").on('change', function () {
-         var column_index = $(this).parent().data('index');
-         var column_name = $(this).parent().data('name');
+         var parent = $(this).parents('th')
+         var column_index = parent.data('index');
+         var column_name = parent.data('name');
          var value = $(this).val() || [];
 
          if (debugTable) console.debug("Datatable event, search column '"+column_name+"' for '" + value + "'");
@@ -163,88 +301,9 @@
       });
       %end
 
-      $('#tbl_{{object_type}}').on( 'xhr.dt', function () {
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-         var json = table.ajax.json();
-         if (debugTable) console.debug('Datatable event, xhr, ', json);
-         if (debugTable) console.debug('Datatable event, xhr, ' + json.data.length +' row(s) loaded');
-      });
-
-      $('#tbl_{{object_type}}').on( 'draw.dt', function () {
-         if (debugTable) console.debug('Datatable event, draw ...');
-      });
-
-      $('#tbl_{{object_type}}').on( 'column-sizing.dt', function () {
-         if (debugTable) console.debug('Datatable event, column-sizing ...');
-      });
-
-      $('#tbl_{{object_type}}').on( 'error.dt', function ( e, settings ) {
-         if (debugTable) console.error('Datatable event, error ...');
-      });
-
       $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-
-         %if dt.selectable:
-         if (table.rows( { selected: true } ).count() > 0) {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', false);
-             $('[data-reaction="selection-empty"]').prop('disabled', true);
-         } else {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', true);
-             $('[data-reaction="selection-empty"]').prop('disabled', false);
-         }
-         %end
-
-         %if dt.searchable:
-         // Populate select for object links fields ...
-         $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type="objectid"][data-searchable="True"]').each( function () {
-            var field_name = $(this).data('name');
-            var objects_list_url = $(this).data('allowed');
-            objects_list_url = objects_list_url[0];
-            if (! objects_list_url) {
-               console.error("Probably a missing format_parameters for field: ", field_name, objects_list_url);
-               return true;
-            }
-
-            var select = $(this).find('select');
-            if (debugTable) console.log('Objects list field: ' + field_name + ', for: ' + objects_list_url);
-
-            $.ajax( {
-               "url": objects_list_url,
-               "dataType": "json",
-               "type": "GET",
-               "success": function (data) {
-                  if (debugTable) console.debug("Got data for '"+objects_list_url+"' ...", data);
-
-                  $.each(data, function (index, object) {
-                     //if (debugTable) console.debug('List item: ', object);
-                     select.append($('<option>', {
-                        value: object.id,
-                        text : object.name
-                     }));
-                  });
-
-                  select.select2({
-                     maximumSelectionLength: 2,
-                     minimumResultsForSearch: Infinity,
-                     tags: true
-                  });
-               },
-               "error": function (jqXHR, textStatus, errorThrown) {
-                  console.error("Get list error: ", objects_list_url,errorThrown, jqXHR);
-               }
-            });
-         });
-
-         console.log('selectize')
-         $('#tbl_{{object_type}} thead tr#filterrow th[data-format="select"][data-type!="objectid"][data-searchable="True"]').each( function () {
-            var select = $(this).find('select');
-            select.select2({
-               tags: true
-            });
-         });
-         %end
       });
 
       %if dt.selectable:
@@ -254,70 +313,51 @@
 
          var rowData = table.rows( indexes ).data().toArray();
          if (debugTable) console.debug('Datatable event, selected: ', rowData);
-
-         if (table.rows( { selected: true } ).count() > 0) {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', false);
-             $('[data-reaction="selection-empty"]').prop('disabled', true);
-         } else {
-             $('[data-reaction="selection-not-empty"]').prop('disabled', true);
-             $('[data-reaction="selection-empty"]').prop('disabled', false);
-         }
       });
 
       $('#tbl_{{object_type}}').on( 'deselect.dt', function ( e, dt, type, indexes ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, deselected row ...');
 
-            var rowData = table.rows( indexes ).data().toArray();
-            if (debugTable) console.debug('Datatable event, deselected: ', rowData);
-
-            if (table.rows( { selected: true } ).count() > 0) {
-                $('[data-reaction="selection-not-empty"]').prop('disabled', false);
-                $('[data-reaction="selection-empty"]').prop('disabled', true);
-            } else {
-                $('[data-reaction="selection-not-empty"]').prop('disabled', true);
-                $('[data-reaction="selection-empty"]').prop('disabled', false);
-            }
+         var rowData = table.rows( indexes ).data().toArray();
+         if (debugTable) console.debug('Datatable event, deselected: ', rowData);
       });
       %end
 
       $('#tbl_{{object_type}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, saved state loaded ...');
-
-         // Disable the clear filter button
-         table.buttons('clearFilter:name').disable();
-
-         // Clear the search fields
-         $('#filterrow th').children().val('');
-
-         // Reset table columns search
-         table
-            .columns()
-               .search('', false, false);
+         if (debugTable) console.debug('Saved filters:', where['saved_filters']);
 
          if (where['saved_filters']) {
-            if (debugTable) console.debug('Restoring saved filters...');
+            if (debugTable) console.debug('Restoring saved filters:', where);
 
             // Update each search field with the received value
             $.each(data.columns, function(index, value) {
-               if (value['search']['search'] != "") {
-                  if (debugTable) console.debug('Update column', index, value['search']['search'], value);
+               var name = $('#filterrow th[data-index="'+index+'"]').data('name');
 
-                  // Update search filter input field value
-                  $('#filterrow th[data-index="'+index+'"]').children().val(value['search']['search']);
+               if ($('#filter_'+name).length) {
+                  if (value['search']['search'] != "") {
+                     var input_filter = $('#filter_'+name).selectize()[0].selectize;
+                     if (debugTable) console.debug('*** update filter: ', index, name, value['search']['search']);
 
-                  // Configure table filtering
-                  table
-                     .column(index)
-                        .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
+                     // Update search filter input field value
+                     input_filter.setValue(value['search']['search']);
 
-                  // Enable the clear filter button
-                  table.buttons('clearFilter:name').enable();
+                     // Configure table filtering
+                     table
+                        .column(index)
+                           .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
+
+                     // Enable the clear filter button
+                     table.buttons('clearFilter:name').enable();
+                  }
                }
             });
          } else {
-            if (debugTable) console.debug('Erasing saved filters...');
+            if (debugTable) console.debug('Erasing saved filters:', where);
+
+            resetFilters();
 
             // Update each search field with the filter URL parameters
             $.each(where, function(key, value) {
@@ -333,13 +373,16 @@
                var column_index = table.column(key+':name').index();
                var column_regex = table.column(key+':name').data('regex');
 
-               if (debugTable) console.debug('Update column search special', special);
                if (debugTable) console.debug('Update column search', column_index, key, value, column_regex);
-               if (debugTable) console.debug('Update column search', table.column(key+':name'));
+               if (debugTable) console.debug('Update column search special', special);
 
                // Update search filter input field value
-               if (debugTable) console.debug("Set new value: '" + value + "'");
+               var input_filter = $('#filter_'+key).selectize()[0].selectize;
+               if (debugTable) console.debug("Set new value: '" + value + "', for "+key);
                $('#filterrow th[data-name="'+key+'"]').children().val(value);
+
+               // Update search filter input field value
+               input_filter.setValue(value);
 
                // Configure table filtering
                table
@@ -354,6 +397,9 @@
 
       // Table declaration
       var table = $('#tbl_{{object_type}}').DataTable( {
+         // Table columns definition
+         "columns": {{ ! json.dumps(dt.table_columns) }},
+
          // Disable automatic width calculation
          "autoWidth": false,
 
@@ -382,7 +428,7 @@
          "processing": true,
          "serverSide": true,
          "ajax": {
-            "url": "{{server_url}}/{{object_type}}s_table_data",
+            "url": "{{server_url}}/{{object_type}}s/table_data",
             "method": "POST",
             "data": function ( d ) {
                // Add an extra field
@@ -454,9 +500,6 @@
          // Selection mode
          select: {{'true' if dt.selectable else 'false'}},
 
-         // Table columns definition
-         "columns": {{ ! json.dumps(dt.table_columns) }},
-
          // Table state saving/restoring
          stateSave: true,
          // Saved parameters
@@ -466,6 +509,7 @@
             data.search.search = "";
          },
          // Load table configuration
+         %if not request.query.get('no_restore', ''):
          stateLoadCallback: function (settings) {
             if (debugTable) console.debug("state loading for 'tbl_{{object_type}}' ...");
 
@@ -476,7 +520,7 @@
                "dataType": "json",
                "type": "GET",
                "data": {
-                  "key": '{{object_type}}s_table'
+                  "key": 'table_{{object_type}}s'
                },
                "async": false,
                "success": function (json) {
@@ -487,6 +531,7 @@
 
             return o;
          },
+         %end
          // Save table configuration
          stateSaveCallback: function (settings, data) {
             if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);
@@ -497,7 +542,7 @@
                "dataType": "json",
                "type": "POST",
                "data": {
-                  "key": '{{object_type}}s_table',
+                  "key": 'table_{{object_type}}s',
                   // Json stringify to avoid complex array formatting ...
                   "value": JSON.stringify( data )
                },
@@ -505,44 +550,6 @@
                   if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings);
                }
             });
-         },
-
-         // Each created row ...
-         createdRow: function (row, data, index) {
-            /*
-            if (debugTable) console.debug('Datatable createdRow, data: ', data);
-            if (debugTable) console.debug('Datatable createdRow, name: {{dt.name_property}}');
-            if (debugTable) console.debug('Datatable createdRow, status: {{dt.status_property}}');
-            */
-
-            if ('{{dt.name_property}}' in data) {
-               var name_node = table.cell(index, '{{dt.name_property}}:name').node();
-               // The node descendants should contain some information about the element
-               /* eg.
-                  <a href="/livestate/5786027106fd4b0af2d51b3e">vm-win7/Cpu</a>
-               */
-            }
-
-            if ('{{dt.status_property}}' in data) {
-               var status_node = table.cell(index, '{{dt.status_property}}:name').node();
-               // The node descendants should contain some information about the element
-               /* eg.
-                  <div class="item-state item_livestate_ok OK" style="display: inline; font-size:0.9em;" data-item-id="5786027006fd4b0af0d51c42" data-item-name="vm-win7/Disks" data-item-type="livestate" data-item-state="OK" title="Service is ok">
-                     <span class="fa-stack ">
-                        <i class="fa fa-circle fa-stack-2x item_livestate_ok"></i>
-                        <i class="fa fa-cube fa-stack-1x fa-inverse"></i>
-                     </span>
-                     <span>Service is ok</span>
-                  </div>
-                */
-               var id = $(status_node).find('[data-item-id]').data('item-id');
-               var type = $(status_node).find('[data-item-type]').data('item-type');
-               var name = $(status_node).find('[data-item-name]').data('item-name');
-               var state = $(status_node).find('[data-item-state]').data('item-state');
-
-               var row = table.row(index).node();
-               $(row).addClass('table-row-'+state.toLowerCase());
-            }
          },
 
          /*
@@ -556,7 +563,11 @@
          dom: 'Blfrtip',
          Currently, no global search...
          */
-         dom: "<'row'<'col-xs-12'B><'col-xs-1'>>" + "<'row'<'col-xs-12'tr>>" + "<'row'<'col-xs-12'i>>" + "<'row'<'col-xs-12'p>>",
+         dom:
+            "<'row buttons'<'col-xs-12'B>>" +
+            "<'row table'<'col-xs-12'tr>>" +
+            "<'row'<'hidden-xs'i>>" +
+            "<'row'<'col-xs-12'p>>",
          // Table columns visibility button
          buttons: [
             {
@@ -640,18 +651,7 @@
                text: '<span id="clearFilter" class="fa-stack" style="font-size:0.63em;"><i class="fa fa-filter"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>',
                titleAttr: "{{_('Reset all the search filters')}}",
                action: function ( e, dt, node, data ) {
-                  // Reset table columns search
-                  table
-                     .columns()
-                        .search('', false, false)
-                        .draw();
-
-                  // Clear the search fields
-                  // Update search filter input field value
-                  $('#filterrow th').children().val('');
-
-                  // Disable the clear filter button
-                  table.buttons('clearFilter:name').disable();
+                  resetFilters();
                },
                className: 'btn-raised btn-xs'
             }
@@ -668,103 +668,125 @@
                className: 'btn-raised btn-xs'
             }
             %end
+            %if dt.editable and edition_mode:
+            // Only for 'editable' tables
+            ,{
+               extend: 'selectedSingle',
+               text: "{{! _('<span class=\'fa fa-edit\'></span>')}}",
+               titleAttr: "{{_('Edit the selected item')}}",
+               className: 'btn-raised btn-xs',
+               action: function (e, dt, button, config) {
+                  var selected = dt.rows( { selected: true } );
+                  var count_selected = selected.indexes().length;
+                  if (count_selected != 1) {
+                     return;
+                  }
+                  var url = "{{server_url}}/{{object_type}}/form/";
+                  var first = true;
+                  $.each(selected.data(), function(index, elt){
+                     if (! first) return false;
+                     url += encodeURIComponent(elt._id);
+                  });
+                  window.setTimeout(function(){
+                     window.location.href = url;
+                  }, 50);
+               }
+            }
+            %end
             %if dt.commands:
             // Only for tables with 'commands' attribute (eg. livestate)
             ,{
                extend: 'collection',
                text: "{{! _('<span class=\'fa fa-bolt\'></span>')}}",
+               className: 'btn-raised btn-xs',
                buttons: [
                   {
                      extend: 'selected',
                      text: "{{_('Re-check')}}",
                      titleAttr: "{{_('Force a re-check for selected items')}}",
+                     className: 'btn-raised btn-xs',
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
+                        if (selected.indexes().length == 0) {
                            return;
                         }
                         var url = "/recheck/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
-                           var elt_name = elt.display_name_host;
-                           if (elt.type == 'service') {
-                              elt_name += ' (' + elt.display_name_service + ')';
-                           }
                            if (! first) url += '&';
-                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
                            if (first) first = false;
                         });
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
                      },
-                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
                      extend: 'selected',
                      text: "{{_('Acknowledge')}}",
                      titleAttr: "{{_('Acknowledge selected items')}}",
+                     className: 'btn-raised btn-xs',
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
+                        if (selected.indexes().length == 0) {
                            return;
                         }
                         var url = "/acknowledge/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
-                           var elt_name = elt.display_name_host;
-                           if (elt.type == 'service') {
-                              elt_name += ' (' + elt.display_name_service + ')';
-                           }
                            if (! first) url += '&';
-                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
                            if (first) first = false;
                         });
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
                      },
-                     className: 'btn-raised btn-xs'
                   }
                   ,
                   {
                      extend: 'selected',
                      text: "{{_('Downtime')}}",
                      titleAttr: "{{_('Schedule a downtime for selected items')}}",
+                     className: 'btn-raised btn-xs',
                      action: function (e, dt, button, config) {
                         // Fix for datatable that do not close dropdown immediatly...
                         $(".dt-button-background").trigger("click");
                         var selected = dt.rows( { selected: true } );
-                        var count_selected = selected.indexes().length;
-                        if (count_selected == 0) {
+                        if (selected.indexes().length == 0) {
                            return;
                         }
                         var url = "/downtime/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
-                           var elt_name = elt.display_name_host;
-                           if (elt.type == 'service') {
-                              elt_name += ' (' + elt.display_name_service + ')';
-                           }
                            if (! first) url += '&';
-                           url += "livestate_id="+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name);
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
                            if (first) first = false;
                         });
                         window.setTimeout(function(){
                            display_modal(url);
                         }, 50);
                      },
-                     className: 'btn-raised btn-xs'
                   }
                ],
-               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.recursive:
@@ -773,7 +795,7 @@
                titleAttr: "{{_('Navigate to the tree view')}}",
                action: function (e, dt, button, config) {
                   if (debugTable) console.log('Navigate to the tree view for {{object_type}}!');
-                  window.location.href = "/{{object_type}}s_tree";
+                  window.location.href = "/{{object_type}}s/tree";
                },
                className: 'btn-raised btn-xs'
             }
@@ -790,20 +812,18 @@
             if (visibility == false) {
                // Update search filter input field value
                $('#filterrow th[data-index="'+index+'"]').css({
-                  width : "0px",
                   display: "none"
                });
             }
             if (visibility == true) {
                // Update search filter input field value
                $('#filterrow th[data-index="'+index+'"]').css({
-                  width : "10px",
                   display: "table-cell"
                });
             }
          });
          // Recalculate columns and table width
-         if (debugTable) console.debug('Datatable event, state loaded ... recalculate columns and table width');
+         if (debugTable) console.debug('Datatable event, responsive resize... recalculate columns and table width');
          table.columns.adjust()
          table.responsive.recalc();
       });

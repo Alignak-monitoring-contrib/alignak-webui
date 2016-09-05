@@ -55,6 +55,11 @@ class HostGroup(BackendElement):
         super(HostGroup, self)._create(params, date_format)
 
     @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_hosts
+
+    @property
     def hosts(self):
         """ Return linked object """
         return self._linked_hosts
@@ -65,7 +70,7 @@ class HostGroup(BackendElement):
         return self._linked_hostgroups
 
     @property
-    def parent(self):
+    def _parent(self):
         """ Return group parent """
         return self._linked__parent
 

@@ -33,6 +33,8 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Service(BackendElement):
+    # Because there are many methods needed :)
+    # pylint: disable=too-many-public-methods
     """
     Object representing a service
     """
@@ -44,25 +46,48 @@ class Service(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
+    # Status property
+    status_property = 'ls_state'
+
     def _create(self, params, date_format):
         """
         Create a service (called only once when an object is newly created)
         """
+        self._linked__templates = 'service'
         self._linked_host = 'host'
         self._linked_check_command = 'command'
+        self._linked_snapshot_command = 'command'
         self._linked_event_handler = 'command'
         self._linked_check_period = 'timeperiod'
         self._linked_notification_period = 'timeperiod'
-        self._linked_servicegroups = 'servicegroup'
+        self._linked_snapshot_period = 'timeperiod'
+        self._linked_maintenance_period = 'timeperiod'
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 
         super(Service, self)._create(params, date_format)
 
     @property
+    def endpoint(self):
+        """
+        Get Item endpoint (page url)
+        """
+        return '/service/%s' % (self.id)
+
+    @property
+    def _templates(self):
+        """ Return linked object """
+        return self._linked__templates
+
+    @property
     def check_command(self):
         """ Return linked object """
         return self._linked_check_command
+
+    @property
+    def snapshot_command(self):
+        """ Return linked object """
+        return self._linked_snapshot_command
 
     @property
     def event_handler(self):
@@ -84,45 +109,157 @@ class Service(BackendElement):
         """ Return linked object """
         return self._linked_notification_period
 
-
-class ServiceGroup(BackendElement):
-    """
-    Object representing a servicegroup
-    """
-    _count = 0
-    # Next value used for auto generated id
-    _next_id = 1
-    # _type stands for Backend Object Type
-    _type = 'servicegroup'
-    # _cache is a list of created objects
-    _cache = {}
-
-    def _create(self, params, date_format):
-        """
-        Create a servicegroup (called only once when an object is newly created)
-        """
-        self._linked_servicegroups = 'servicegroup'
-        self._linked__parent = 'servicegroup'
-        self._linked_services = 'service'
-
-        super(ServiceGroup, self)._create(params, date_format)
-
     @property
-    def services(self):
+    def snapshot_period(self):
         """ Return linked object """
-        return self._linked_services
+        return self._linked_snapshot_period
 
     @property
-    def servicegroups(self):
+    def maintenance_period(self):
         """ Return linked object """
-        return self._linked_servicegroups
+        return self._linked_maintenance_period
 
     @property
-    def parent(self):
-        """ Return group parent """
-        return self._linked__parent
+    def usergroups(self):
+        """ Return linked object """
+        return self._linked_usergroups
 
     @property
-    def level(self):
-        """ Return group level """
-        return self._level
+    def users(self):
+        """ Return linked object """
+        return self._linked_users
+
+    @property
+    def status(self):
+        """
+        Return service live state status
+        """
+        return self.ls_state
+
+    @property
+    def state_id(self):
+        """
+        Return host live state identifier
+        """
+        return self.ls_state_id
+
+    @property
+    def state(self):
+        """
+        Return host live state
+        """
+        return self.ls_state
+
+    @property
+    def state_type(self):
+        """
+        Return host live state type
+        """
+        return self.ls_state_type
+
+    @property
+    def last_check(self):
+        """
+        Return host live state last check
+        """
+        return self.ls_last_check
+
+    @property
+    def execution_time(self):
+        """
+        Return host live state execution time
+        """
+        return self.ls_execution_time
+
+    @property
+    def latency(self):
+        """
+        Return host live state latency
+        """
+        return self.ls_latency
+
+    @property
+    def current_attempt(self):
+        """
+        Return host live state current attempt
+        """
+        return self.ls_current_attempt
+
+    @property
+    def max_attempts(self):
+        """
+        Return host live state maximum attempts
+        """
+        return self.ls_max_attempts
+
+    @property
+    def next_check(self):
+        """
+        Return host live state next check
+        """
+        return self.ls_next_check
+
+    @property
+    def last_state_changed(self):
+        """
+        Return host live state last state changed
+        """
+        return self.ls_last_state_changed
+
+    @property
+    def last_state(self):
+        """
+        Return host live last_state
+        """
+        return self.ls_last_state
+
+    @property
+    def last_state_type(self):
+        """
+        Return host live last_state type
+        """
+        return self.ls_last_state_type
+
+    @property
+    def output(self):
+        """
+        Return host live state output
+        """
+        return self.ls_output
+
+    @property
+    def long_output(self):
+        """
+        Return host live state long output
+        """
+        return self.ls_long_output
+
+    @property
+    def perf_data(self):
+        """
+        Return host live state performance data
+        """
+        return self.ls_perf_data
+
+    @property
+    def acknowledged(self):
+        """
+        Return host live state acknowledged
+        """
+        return self.ls_acknowledged
+
+    @property
+    def downtime(self):
+        """
+        Return host live state downtime
+        """
+        return self.ls_downtimed
+
+    @property
+    def is_problem(self):
+        """
+        An element is_problem if not ok / unknwown and hard state type
+        """
+        if self.state_id in [1, 2] and self.state_type == "HARD":
+            return True
+        return False

@@ -1,9 +1,16 @@
 %setdefault('debug', False)
+%setdefault('host', None)
 %setdefault('services', None)
-%setdefault('livestate', None)
+%setdefault('parents', None)
+%setdefault('children', None)
 %setdefault('history', None)
+%setdefault('events', None)
+%setdefault('timeline_pagination', None)
+%setdefault('types', None)
+%setdefault('selected_types', None)
+%setdefault('title', _('Host view'))
 
-%rebase("layout", title=title, js=[], css=[], page="/host")
+%rebase("layout", title=title, js=[], css=[], page="/host/{{host.id}}")
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
@@ -31,21 +38,6 @@
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_livestate_{{host.id}}"><i class="fa fa-bug"></i> Host livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_livestate_{{host.id}}" class="panel-collapse collapse">
-            <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-               %for k,v in sorted(livestate.__dict__.items()):
-                  <dt>{{k}}</dt>
-                  <dd>{{v}}</dd>
-               %end
-            </dl>
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
                <a data-toggle="collapse" href="#collapse_{{host.id}}_services"><i class="fa fa-bug"></i> Host services as dictionary</a>
             </h4>
          </div>
@@ -58,32 +50,6 @@
                   </h4>
                </div>
                <div id="collapse{{service.id}}_services" class="panel-collapse collapse" style="height: 200px;">
-                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-                     %for k,v in sorted(service.__dict__.items()):
-                        <dt>{{k}}</dt>
-                        <dd>{{v}}</dd>
-                     %end
-                  </dl>
-               </div>
-            </div>
-            %end
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_{{host.id}}_services_livestate"><i class="fa fa-bug"></i> Host services livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_{{host.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
-            %for service in livestate_services:
-            <div class="panel panel-default">
-               <div class="panel-heading">
-                  <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.id}}_services_livestate"><i class="fa fa-bug"></i> Service livestate: {{service.name}}</a>
-                  </h4>
-               </div>
-               <div id="collapse{{service.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px;">
                   <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                      %for k,v in sorted(service.__dict__.items()):
                         <dt>{{k}}</dt>
@@ -157,6 +123,7 @@
    <!-- First row : tags and actions ... -->
    %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
    %tags = host.tags
+   %templates = host._templates
    %if host.action_url or tags or groups:
    <div>
       %if groups:
@@ -192,7 +159,7 @@
       <div class="btn-group pull-right">
          %if len(tags) > 2:
             <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+               <i class="fa fa-tag"></i>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
             </button>
             <ul class="dropdown-menu pull-right">
                %for tag in sorted(tags):
@@ -201,6 +168,26 @@
             </ul>
          %else:
             %for tag in sorted(tags):
+               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
+                  <span class="fa fa-tag"></span> {{tag}}
+               </a>
+            %end
+         %end
+      </div>
+      %end
+      %if templates:
+      <div class="btn-group pull-right">
+         %if len(templates) > 2:
+            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+               <i class="fa fa-tag"></i>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right">
+               %for tag in sorted(templates):
+               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
+               %end
+            </ul>
+         %else:
+            %for tag in sorted(templates):
                <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
                   <span class="fa fa-tag"></span> {{tag}}
                </a>
@@ -249,12 +236,15 @@
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
+               %if host.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
                %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
                   <button class="btn btn-default btn-xs">{{! note_url}}</button>
                %end
                </dd>
+               %end
+
                <dt>{{_('Address:')}}</dt>
                <dd>{{host.address}}</dd>
 
@@ -322,7 +312,7 @@
          <tbody>
            <tr>
              <td>
-               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}}">
+               <a role="menuitem" href="/services/table?search=host:{{host.id}}">
                   <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
                </a>
              </td>
@@ -330,11 +320,11 @@
              %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
              <td>
                %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}} state:{{state.upper()}}">
+               <a role="menuitem" href="/services/table?search=ls_state:{{state.upper()}}">
                %end
 
                %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-               {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
+               {{! Service({'ls_state': state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
 
                %if synthesis['nb_' + state]>0:
                </a>
@@ -347,7 +337,7 @@
      </div>
    </div>
 
-   <!-- Fifth row : host widgets -->
+   <!-- Fifth row : host widgets ... -->
    <div>
       <ul class="nav nav-tabs">
          <li class="active">
@@ -360,7 +350,7 @@
             </a>
          </li>
 
-         %for widget in webui.widgets['host']:
+         %for widget in webui.get_widgets_for('host'):
             <li>
                <a href="#host_tab_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
@@ -378,14 +368,14 @@
             %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None)
          </div>
 
-         %for widget in webui.widgets['host']:
+         %for widget in webui.get_widgets_for('host'):
             <div id="host_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
                %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
             </div>
          %end
       </div>
    </div>
- </div>
+</div>
 
 <script>
    // Automatically navigate to the desired tab if an # exists in the URL

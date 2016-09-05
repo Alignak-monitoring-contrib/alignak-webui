@@ -19,6 +19,7 @@
        // console.log('Loaded all CSS files!');
    });
 </script>
+
 <!-- HTML map container -->
 <div class="map_container_widget">
    %if not hosts:
@@ -29,11 +30,11 @@
       </div>
    %else:
       <div id="{{mapId}}" class="osm">
-           <div class="alert alert-info">
-              <a href="#" class="alert-link">Loading map ...</a>
+         <div class="alert alert-info">
+            <a href="#" class="alert-link">{{_('Loading map ...')}}</a>
          </div>
       </div>
    %end
-</div>
 
-%include("_worldmap")
+   %include("_worldmap")
+</div>

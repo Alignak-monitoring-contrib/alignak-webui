@@ -22,15 +22,15 @@
 <!-- HTML map container -->
 <div class="map_container">
    %if not hosts:
-   <div class="panel-heading">
-      <center class="alert-warning">
-         <h3>{{_('We could not find any hosts to locate on a map.')}}</h3>
-      </center>
-   </div>
+      <div class="panel-heading">
+         <center class="alert-warning">
+            <h3>{{_('We could not find any hosts to locate on a map.')}}</h3>
+         </center>
+      </div>
    %else:
       <div id="{{mapId}}">
          <div class="alert alert-info">
-            <a href="#" class="alert-link">Loading map ...</a>
+            <a href="#" class="alert-link">{{_('Loading map ...')}}</a>
          </div>
       </div>
    %end

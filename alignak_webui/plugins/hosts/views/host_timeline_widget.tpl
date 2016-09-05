@@ -18,14 +18,8 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%username = current_user.get_username()
-%if not target_user.is_anonymous():
-%username = target_user.get_username()
-%end
-
 %# Fetch elements per page preference for user, default is 25
-%elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-%elts_per_page = elts_per_page['value']
+%elts_per_page = datamgr.get_user_preferences(current_user, 'elts_per_page', 25)
 
 %from alignak_webui.utils.helper import Helper
 
@@ -68,7 +62,7 @@
                   <li style="padding:5px">
                      <label class="checkbox-inline">
                         <input type="checkbox" {{'checked' if type in selected_types else ''}} name="{{type}}">
-                           {{types[type]}}
+                           {{type}}
                         </input>
                      </label>
                   </li>

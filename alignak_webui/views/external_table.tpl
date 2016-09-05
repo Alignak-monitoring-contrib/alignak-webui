@@ -34,30 +34,43 @@
 
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
-      <!-- Stylesheets
-      ================================================== -->
-      <link rel="stylesheet"href="/static/css/bootstrap.min.css" >
-      <link rel="stylesheet"href="/static/css/bootstrap-theme.min.css" >
-      <link rel="stylesheet"href="/static/css/font-awesome.min.css" >
-      <!-- Datatables jQuery plugin -->
-      <link rel="stylesheet" href="/static/css/datatables.min.css" >
+      <!-- Stylesheets -->
+      %# WebUI CSS files
+      %for f in webui.css_list:
+      <link rel="stylesheet" href="{{f}}">
+      %end
 
-      <!--
+      <!-- Alignak Web UI (included in the previous files list)
       <link rel="stylesheet" href="/static/css/alignak_webui.css" >
       <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
       -->
 
       <!-- Scripts
       ================================================== -->
-      <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
-      <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-      <!-- Datatables jQuery plugin -->
-      <script type="text/javascript" src="/static/js/datatables.min.js"></script>
+      <!--
+         Application libraries
+      -->
+      %# WebUI Javascript files
+      %for f in webui.js_list:
+      <script type="text/javascript" src="{{f}}"></script>
+      %end
    </head>
 
    <body>
       <section>
          {{! embedded_element}}
       </section>
+
+      <script>
+      $(document).ready(function() {
+         // Initialize alertify library
+         alertify.defaults.transition = "slide";
+         alertify.defaults.theme.ok = "btn btn-primary";
+         alertify.defaults.theme.cancel = "btn btn-danger";
+         alertify.defaults.theme.input = "form-control";
+
+         $.material.init();
+      });
+      </script>
    </body>
 </html>

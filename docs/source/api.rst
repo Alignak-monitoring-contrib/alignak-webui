@@ -7,9 +7,6 @@ Internal routes
 ---------------
 The application, as a Web application, manages routes. Some of them are application internal routes and most of them are provided by the application plugins.
 
-Application routes
-~~~~~~~~~~~~~~~~~~~~~~~~
-
 The application provided routes:
 
     - /, to get the home page
@@ -21,20 +18,73 @@ The application provided routes:
     - /modal/*, to display the modal dialog box with a specific content
 
 Plugins routes
-~~~~~~~~~~~~~~~~~~~~~~~~
+--------------
 
 Each plugin defines routes that are added to the application routes when the plugin is loaded.
 
-Most plugins are dedicated to a specific backend element (eg. host, service, ...). For those plugins, some rules are commonly used for the routes:
+Most plugins are dedicated to a specific backend element (eg. host, service, ...). For those plugins, some rules, implemented in the Plugin class, are commonly used for the routes:
 
     - /elements, get the paginated elements list
-    - /elements_tree, get the element tree view (for some elements)
-    - /elements_table, get the element table view
-    - /elements_table_data, get the element table data (called by the datatable)
-    - /elements_list, get all the elements list as a json list of objects containing `id` and `name`
+    - /elements/tree, get the element tree view (for some elements)
+    - /elements/table, get the element table view
+    - /elements/table_data, get the element table data (called by the datatable)
+    - /elements/list, get all the elements list as a json list of objects containing `id`, `name` and `alias`
     - /element/id, get the view of a specific element. *id* may be the element `id` or `name`
 
 Where `element` stands for the specific element name: host, service, user, ...
+
+Get elements page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most of the elements plugins provide a paginated view of the elements. Those views are not often used in the Web UI ... except when they are included in some mode complex views (eg. host view for the services)
+
+
+Get element page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some plugin provide a view for an element. This view / page is available on this endpoint::
+
+    /host/_id
+
+    /host/name
+
+Get elements table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the most common route provided by each plugin. It allows to display a table view for some elements.
+
+Table view::
+
+    /hosts/table
+
+    /hosts/table?search=
+
+    - `?search=` to clear all the table filters
+    - `?search=name:value` to search for `value` in the column `name`
+    - `?search=name:value name2:value2` to search for `value` in the column `name` and `value2` in `name2`
+
+Get elements tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the elements are linked together (eg. groups) a tree route will display a tree view of the elements.
+
+Tree view::
+
+    /hostgroups/tree
+
+Get elements list
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+A JSON list of the elements and elements templates is available on the endpoint `/elements/list` and  `/elements/templates`.
+If a templates URL parameter (GET or POST) exists, the elements list is completed with the templates list to get all the elements and templates.
+
+List view::
+
+    /hostgroups/list
+
+    /hostgroups/templates
+
+    /hostgroups/list?templates=1
 
 External access
 ---------------

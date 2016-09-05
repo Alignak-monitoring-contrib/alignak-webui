@@ -51,7 +51,7 @@ logger = getLogger(__name__)
 _ = gettext.gettext
 
 # Application manifest
-VERSION = (0, 50, 5)
+VERSION = (0, 5, 0, 'a')
 __application__ = u"Alignak-WebUI"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
@@ -192,6 +192,7 @@ def set_app_webui(webui):
 
     # Make main application object available in all Bottle templates
     app_webui = webui
+    bottle_app.webui = webui
     BaseTemplate.defaults['webui'] = webui
     return app_webui
 
@@ -207,6 +208,10 @@ def get_app_webui():
 # WebUI application is default bottle app
 bottle_app = bottle.app()
 
+# In test mode, let Bottle report errors to the WSGI environment (it helps debugging...)
+if os.environ.get('TEST_WEBUI'):
+    bottle.app().catchall = False
+
 # Bottle templates path
 bottle.TEMPLATE_PATH.append(
     os.path.join(
@@ -217,7 +222,7 @@ bottle.TEMPLATE_PATH.append(
 # Extend default WSGI application with a session middleware
 session_opts = {
     # Important: somedata stored in the session cannot be pickled. Using file is not allowed!
-    'session.type': 'memory',
+    'session.type': 'file',
     'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
     'session.auto': True,
     'session.cookie_expires': 21600,    # 6 hours

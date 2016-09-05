@@ -52,31 +52,27 @@ from alignak_webui.objects.item_hostgroup import *
 from alignak_webui.objects.item_hostdependency import *
 from alignak_webui.objects.item_service import *
 from alignak_webui.objects.item_servicegroup import *
+from alignak_webui.objects.item_servicedependency import *
 from alignak_webui.objects.item_history import *
 from alignak_webui.objects.item_log import *
 from alignak_webui.objects.item_actions import *
-from alignak_webui.objects.item_livestate import *
+# from alignak_webui.objects.item_livestate import *
 from alignak_webui.objects.item_livesynthesis import *
 from alignak_webui.objects.item_userrestrictrole import *
-from alignak_webui.objects.item_uipref import *
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
-# logger.setLevel(INFO)
+logger.setLevel(INFO)
 
 
 class DataManager(object):
     """
-    Base class for all data manager objects
+        Application data manager object
     """
     id = 1
 
-    """
-        Application data manager object
-    """
-
-    def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
+    def __init__(self, user=None, backend_endpoint='http://127.0.0.1:5000'):
         """
         Create an instance
         """
@@ -85,7 +81,6 @@ class DataManager(object):
 
         # Associated backend object
         self.backend_endpoint = backend_endpoint
-        # self.backend = Backend(backend_endpoint)
         self.backend = BackendConnection(backend_endpoint)
 
         # Get known objects type from the imported modules
@@ -113,11 +108,16 @@ class DataManager(object):
 
         self.updated = datetime.utcnow()
 
+        self.default_realm = None
+
+        if user:
+            self.user_login(user.token, load=False)
+
     def __repr__(self):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
             self.id,
             self.get_objects_count(),
-            self.get_logged_user().get_username() if self.get_logged_user() else 'Not logged in',
+            self.logged_in_user.get_username() if self.logged_in_user else 'Not logged in',
             self.updated
         )
 
@@ -133,13 +133,12 @@ class DataManager(object):
         If no password is provided, the username is assumed to be an authentication token and we
         use the backend connect function.
         """
-        logger.info("user_login, connection requested: %s, load: %s", username, load)
+        logger.debug("user_login, connection requested: %s, load: %s", username, load)
 
         self.connected = False
         self.connection_message = _('Backend connecting...')
         try:
             # Backend login
-            logger.info("Requesting backend authentication, username: %s", username)
             self.connected = self.backend.login(username, password)
             if self.connected:
                 self.connection_message = _('Connection successful')
@@ -160,7 +159,7 @@ class DataManager(object):
                 self.logged_in_user = User(users[0])
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
-                logger.info("Logged-in user: %s", self.logged_in_user)
+                # logger.info("Logged-in user: %s", self.logged_in_user)
 
                 # Get total objects count from the backend
                 self.get_objects_count(refresh=True, log=False)
@@ -171,13 +170,13 @@ class DataManager(object):
             else:
                 self.connection_message = _('Backend connection refused...')
         except BackendException as e:  # pragma: no cover, should not happen
-            logger.warning("configured backend is not available!")
+            logger.warning("configured backend is not available: %s", str(e))
             self.connection_message = e.message
         except Exception as e:  # pragma: no cover, should not happen
             logger.warning("User login exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
 
-        logger.info("user_login, connection message: %s", self.connection_message)
+        # logger.info("user_login, connection message: %s", self.connection_message)
         return self.connected
 
     def user_logout(self):
@@ -186,12 +185,6 @@ class DataManager(object):
         datamanager to do it.
         """
         self.logged_in_user = None
-
-    def get_logged_user(self):
-        """
-        Get the current logged in user
-        """
-        return self.logged_in_user
 
     ##
     # Find objects and load objects cache
@@ -217,37 +210,45 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.info("find_object, %s, params: %s", object_type, params)
+        logger.debug("find_object, %s, params: %s, all: %s", object_type, params, all_elements)
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
-            logger.debug("find_object, %s, params: %s", object_type, params)
 
         items = []
 
-        result = self.backend.get(object_type, params, all_elements)
-        logger.debug("find_object, found: %s: %s", object_type, result)
-
-        if not result:
+        try:
+            result = self.backend.get(object_type, params, all_elements)
+            logger.debug("find_object, found: %s: %s", object_type, result)
+        except BackendException as e:  # pragma: no cover, simple protection
+            logger.warning("find_object, exception: %s", str(e))
             raise ValueError(
                 '%s, search: %s was not found in the backend' % (object_type, params)
             )
 
         # Find "Backend object type" classes in file imported modules ...
-        object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
+        object_class = [kc for kc in self.known_classes if kc.get_type() == object_type]
+        if not object_class:
+            logger.warning("find_object, unknown object type: %s", object_type)
+            raise ValueError(
+                '%s, is not currently managed!' % (object_type)
+            )
+        object_class = object_class[0]
 
         for item in result:
             # Create a new object
-            logger.debug("find_object, begin creation: %s", object_class)
+            # logger.debug("find_object, begin creation: %s", object_class)
             bo_object = object_class(item)
             items.append(bo_object)
             self.updated = datetime.utcnow()
-            logger.debug("find_object, created: %s", bo_object)
+            # logger.debug("find_object, created")
+            # logger.info("find_object, created: %s.", bo_object.__dict__)
 
             # Update class _total_count (each item got from backend has an _total field)
             if '_total' in item:
                 object_class.set_total_count(item['_total'])
 
+        logger.debug("find_object, %s, found %d items", object_type, len(items))
         return items
 
     def load(self, reset=False, refresh=False):
@@ -262,7 +263,7 @@ class DataManager(object):
 
             :returns: the number of newly created objects
         """
-        if not self.get_logged_user():
+        if not self.logged_in_user:
             logger.error("load, must be logged-in before loading")
             return False
 
@@ -274,14 +275,14 @@ class DataManager(object):
             logger.error("load, already loading: reset counter")
             self.loading = 0
 
-        logger.debug("load, start loading: %s for %s", self, self.get_logged_user())
+        logger.debug("load, start loading: %s for %s", self, self.logged_in_user)
         logger.debug(
-            "load, start as administrator: %s", self.get_logged_user().is_administrator()
+            "load, start as administrator: %s", self.logged_in_user.is_administrator()
         )
         start = time.time()
 
         if reset:
-            logger.warning("Objects cache reset")
+            logger.info("Objects cache reset")
             self.reset(logout=False)
 
         self.loading += 1
@@ -294,27 +295,7 @@ class DataManager(object):
         # -----------------------------------------------------------------------------------------
         # Get all realms
         # -----------------------------------------------------------------------------------------
-        # self.get_realms()
-
-        # -----------------------------------------------------------------------------------------
-        # Get all users
-        # -----------------------------------------------------------------------------------------
-        # self.get_users()
-
-        # -----------------------------------------------------------------------------------------
-        # Get all timeperiods
-        # -----------------------------------------------------------------------------------------
-        # self.get_timeperiods()
-
-        # -----------------------------------------------------------------------------------------
-        # Get all commands
-        # -----------------------------------------------------------------------------------------
-        # self.get_commands()
-
-        # -----------------------------------------------------------------------------------------
-        # Get livestate (livestate which embeds host and services definition)
-        # -----------------------------------------------------------------------------------------
-        # self.get_livestate()
+        self.default_realm = self.get_realm({'max_results': 1, 'where': {'default': True}})
 
         # Get internal objects count
         new_objects_count = self.get_objects_count()
@@ -336,11 +317,11 @@ class DataManager(object):
         """
         Reset data in the data manager objects
         """
-        logger.info("Data manager reset...")
+        logger.debug("Data manager reset...")
 
         # Clean internal objects cache
         for known_class in self.known_classes:
-            logger.info("Cleaning %s cache...", known_class.get_type())
+            logger.debug("Cleaning %s cache...", known_class.get_type())
             known_class.clean_cache()
 
         if logout:
@@ -444,11 +425,7 @@ class DataManager(object):
         """ Add an element """
         logger.info("add_object, request to add a %s: data: %s", object_type, data)
 
-        object_id = self.backend.post(object_type, data=data, files=files)
-        if object_id:
-            items = self.find_object(object_type, object_id)
-            return items[0]['_id']
-        return None
+        return self.backend.post(object_type, data=data, files=files)
 
     def delete_object(self, object_type, element):
         """
@@ -456,7 +433,7 @@ class DataManager(object):
         - object_type is the element type
         - element may be a string. In this case it is considered to be the element id
         """
-        logger.info("delete_object, request to delete the %s: %s", object_type, element)
+        logger.debug("delete_object, request to delete the %s: %s", object_type, element)
 
         if isinstance(element, basestring):
             object_id = element
@@ -474,72 +451,48 @@ class DataManager(object):
             return True
         return False
 
-    def update_object(self, object_type, element, data):
+    def update_object(self, element, data):
         """
         Update an element
-        - object_type is the element type
-        - element may be a string. In this case it is considered to be the element id
         """
-        logger.info("update_object, request to update the %s: %s", object_type, element)
+        logger.debug("update_object, request to update: %s", element)
 
-        if isinstance(element, basestring):
-            object_id = element
-        else:
-            object_id = BackendElement.id
-
-        if self.backend.update(object_type, object_id, data):
-            items = self.find_object(object_type, object_id)
-            logger.info("update_object, updated: %s", items[0])
-            return True
-
-        return False
+        return self.backend.update(element, data)
 
     ##
     # User's preferences
     ##
-    def delete_user_preferences(self, user, prefs_type):
+    def delete_user_preferences(self, user, preference_key):
         """
         Delete user's preferences
 
-        If the data are not found, returns None else return the backend response.
-
-        An exception is raised if an error occurs, else returns the backend response
+        *****
+        Currently this sets the value None in the preferences dictionary instead of removing
+        the attribute, because thebackend does not allow to $unset in a dictionary!
+        *****
 
         :param user: username
         :type user: string
-        :param prefs_type: preference type
-        :type prefs_type: string
+        :param preference_key: preference unique key
+        :type preference_key: string
         :return: server's response
         :rtype: dict
         """
-        try:
-            logger.debug(
-                "delete_user_preferences, type: %s, for: %s",
-                prefs_type, user
-            )
+        logger.debug("delete_user_preferences, type: %s, for: %s", preference_key, user)
 
-            # Still existing ...
-            result = self.backend.get(
-                'uipref',
-                params={'where': {"type": prefs_type, "user": user}}
+        # Delete user stored value
+        if user.delete_ui_preference(preference_key):
+            # Should no exist!
+            user.set_ui_preference(preference_key, None)
+            # {$unset: {preference_key:1}}
+            return self.update_object(
+                user,
+                {'ui_preferences': self.logged_in_user.ui_preferences}
             )
-            logger.debug("delete_user_preferences, '%s' result: %s", prefs_type, result)
-            if result:
-                item = result[0]
-                logger.debug(
-                    "delete_user_preferences, delete an exising record: %s / %s (%s)",
-                    prefs_type, user, item['_id']
-                )
-                # Delete existing record ...
-                return self.delete_object('uipref', item['_id'])
-        except Exception as e:  # pragma: no cover - need specific backend tests
-            logger.error("delete_user_preferences, exception: %s", str(e))
-            logger.error("traceback: %s", traceback.format_exc())
-            raise e
 
         return False
 
-    def set_user_preferences(self, user, prefs_type, value):
+    def set_user_preferences(self, user, preference_key, value):
         """
         Set user's preferences
 
@@ -552,63 +505,25 @@ class DataManager(object):
 
         :param user: username
         :type user: string
-        :param prefs_type: preference type
-        :type prefs_type: string
+        :param preference_key: preference unique key
+        :type preference_key: string
         :param value: value of the parameter to store
         :type value: dict
         :return: True / False
         :rtype: boolean
         """
-        try:
-            logger.debug(
-                "set_user_preferences, type: %s, for: %s",
-                prefs_type, user
+        logger.info("set_user_preferences, type: %s, for: %s", preference_key, user)
+        logger.info("set_user_preferences, value = %s", value)
+
+        # Get user stored value
+        if user.set_ui_preference(preference_key, value):
+            return self.update_object(
+                user, {'ui_preferences': user.ui_preferences}
             )
 
-            # Saved parameter must be a dictionary. Create a fake dictionary
-            if not isinstance(value, dict):
-                value = {'value': value}
+        return False
 
-            # First, get to check if it exists
-            result = self.backend.get(
-                'uipref',
-                params={'where': {"type": prefs_type, "user": user}}
-            )
-            if result:
-                object_id = result[0]['_id']
-
-                # Update existing record ...
-                logger.debug(
-                    "set_user_preferences, update existing record: %s / %s (_id=%s)",
-                    prefs_type, user, object_id
-                )
-                data = {
-                    "user": user,
-                    "type": prefs_type,
-                    "data": value
-                }
-                response = self.backend.update('uipref', object_id, data=data)
-            else:
-                # Create new record ...
-                logger.debug(
-                    "set_user_preferences, create new record: %s / %s",
-                    prefs_type, user
-                )
-                data = {
-                    "user": user,
-                    "type": prefs_type,
-                    "data": value
-                }
-                response = self.backend.post('uipref', data=data)
-            logger.debug("set_user_preferences, response: %s", response)
-            return response
-
-        except Exception as e:  # pragma: no cover - should not happen
-            logger.error("set_user_preferences, exception: %s", str(e))
-            logger.error("traceback: %s", traceback.format_exc())
-            return False
-
-    def get_user_preferences(self, user, prefs_type, default=None):
+    def get_user_preferences(self, user, preference_key, default=None):
         """
         Get user's preferences
 
@@ -616,7 +531,7 @@ class DataManager(object):
         a default value is provided then this function returns the defaut value after having stored
         it in the user's preferendes.
 
-        If prefs_type is None then this function returns all the user stored preferences.
+        If preference_key is None then this function returns all the user stored preferences.
         If user is None then all the preferences are returned.
 
         **Note**: When a simple value is stored with set_user_preferences, it is never returned as
@@ -625,137 +540,28 @@ class DataManager(object):
         :param default:
         :param user: username
         :type user: string
-        :param prefs_type: preference type
-        :type prefs_type: string
+        :param preference_key: preference unique key
+        :type preference_key: string
         :return: found data, or None
         :rtype: dict
         """
-        try:
-            logger.debug("get_user_preferences, type: %s, for: %s", prefs_type, user)
+        logger.debug("get_user_preferences, type: %s, for: %s", preference_key, user)
 
-            # All the preferences
-            if user is None:
-                return self.backend.get(
-                    'uipref', params={}, all_elements=True
-                )
-
-            # All the user preferences
-            if prefs_type is None:
-                return self.backend.get(
-                    'uipref', params={'where': {"user": user}}, all_elements=True
-                )
-
-            # Get required preference
-            result = self.backend.get(
-                'uipref',
-                params={'where': {"type": prefs_type, "user": user}}
-            )
-            # logger.debug("get_user_preferences, '%s' result: %s", prefs_type, result)
-            if result:
-                # logger.debug("get_user_preferences, found: %s", result)
-                return result[0]['data']
-
-        except Exception as e:  # pragma: no cover - should never happen
-            logger.error("get_user_preferences, exception: %s", str(e))
-            logger.error("traceback: %s", traceback.format_exc())
-            return None
-
-        logger.debug("get_user_preferences, not found, default value: %s", default)
-        if default is not None and self.set_user_preferences(user, prefs_type, default):
-            # No default value...
-            return self.get_user_preferences(user, prefs_type)
-
-        return None
+        # Get user stored value
+        result = user.get_ui_preference(preference_key)
+        return result if result else default
 
     ##
-    # Livestate
+    # Live synthesis
     ##
-    def get_livestate(self, search=None):
-        """ Get livestate for all elements
-
-            Elements in the livestate which type is 'host' or 'service'
-
-            :param search: backend request search
-            :type search: dic
-            :return: list of hosts/services live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'host': 1, 'service': 1}})
-
-        try:
-            logger.debug("get_livestate, search: %s", search)
-            items = self.find_object('livestate', search)
-            return items
-        except ValueError:
-            logger.debug("get_livestate, none found")
-
-    def get_livestate_hosts(self, search=None):
-        """ Get livestate for hosts
-
-            Elements in the livestate which type is 'host'
-
-            :param search: backend request search
-            :type search: dic
-            :return: list of hosts live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'host': 1}})
-        if 'where' not in search:
-            search.update({'where': {'type': 'host'}})
-        elif 'type' not in search['where']:
-            search['where'].update({'type': 'host'})
-
-        try:
-            logger.debug("get_livestate_hosts, search: %s", search)
-            items = self.find_object('livestate', search)
-            return items
-        except ValueError:  # pragma: no cover - should not happen
-            logger.debug("get_livestate_hosts, none found")
-
-    def get_livestate_services(self, search=None):
-        """ Get livestate for services
-
-            Elements in the livestate which type is 'service'
-
-            :param search: backend request search
-            :type search: dic
-            :return: list of services live states
-            :rtype: list
-        """
-        if not search:
-            search = {}
-        if "sort" not in search:
-            search.update({'sort': '-business_impact,-state_id'})
-        if 'embedded' not in search:
-            search.update({'embedded': {'service': 1}})
-        if 'where' not in search:
-            search.update({'where': {'type': 'service'}})
-        elif 'type' not in search['where']:
-            search['where'].update({'type': 'service'})
-
-        try:
-            logger.debug("get_livestate_services, search: %s", search)
-            items = self.find_object('livestate', search)
-            return items
-        except ValueError:
-            logger.debug("get_livestate_services, none found")
-
     def get_livesynthesis(self, search=None):
-        """ Get livestate synthesis for hosts and services
+        """ Get live state synthesis for hosts and services
 
             Example backend response::
 
                 {
+                    '_realm': u'57bd834106fd4b5c26daf040',
+
                     'services_total': 89,
                     'services_business_impact': 0,
                     'services_ok_hard': 8,
@@ -785,6 +591,8 @@ class DataManager(object):
                     ... / ...
                 }
 
+                {
+
             Returns an hosts_synthesis dictionary containing:
             - number of elements
             - business impact
@@ -801,6 +609,11 @@ class DataManager(object):
             - number of problems (down and unreachable, only hard state)
             - percentage of problems
 
+            The new backend (as of 29/08/2016) returns an array which main contain several items.
+            Each item is the computed livesynthesis for a specific realm.
+            This function sums up all the elements to compute a global livesynthesis for the
+            current user.
+
             :return: hosts and services live state synthesis in a dictionary
             :rtype: dict
         """
@@ -815,7 +628,7 @@ class DataManager(object):
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
 
-                'nb_up': 0, 'pct_up': 100.0,
+                'nb_up': 0, 'pct_up': 0.0,
                 'nb_up_hard': 0, 'nb_up_soft': 0,
                 'nb_down': 0, 'pct_down': 0.0,
                 'nb_down_hard': 0, 'nb_down_soft': 0,
@@ -834,7 +647,7 @@ class DataManager(object):
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
 
-                'nb_ok': 0, 'pct_ok': 100.0,
+                'nb_ok': 0, 'pct_ok': 0.0,
                 'nb_ok_hard': 0, 'nb_ok_soft': 0,
                 'nb_warning': 0, 'pct_warning': 0.0,
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
@@ -859,85 +672,102 @@ class DataManager(object):
 
         if not items:
             return default_ls
-        ls = items[0]
 
+        # Hosts synthesis
+        hosts_synthesis = default_ls['hosts_synthesis']
         # Services synthesis
-        hosts_synthesis = {
-            'nb_elts': ls["hosts_total"],
-            'business_impact': ls["hosts_business_impact"],
-            'critical_threshold': 5.0,
-            'warning_threshold': 2.0,
-            'global_critical_threshold': 5.0,
-            'global_warning_threshold': 2.0,
-        }
-        for state in 'up', 'down', 'unreachable':
-            hosts_synthesis.update({
-                "nb_%s_hard" % state: ls["hosts_%s_hard" % state]
-            })
-            hosts_synthesis.update({
-                "nb_%s_soft" % state: ls["hosts_%s_soft" % state]
-            })
-            hosts_synthesis.update({
-                "nb_" + state: ls["hosts_%s_hard" % state] + ls["hosts_%s_soft" % state]
-            })
-        for state in 'acknowledged', 'in_downtime', 'flapping':
-            hosts_synthesis.update({
-                "nb_" + state: ls["hosts_%s" % state]
-            })
-        hosts_synthesis.update({
-            "nb_problems": ls["hosts_down_hard"] + ls["hosts_unreachable_hard"]
-        })
-        for state in 'up', 'down', 'unreachable':
-            hosts_synthesis.update({
-                "pct_" + state: round(
-                    100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
-                ) if hosts_synthesis['nb_elts'] else 0.0
-            })
-        for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
-            hosts_synthesis.update({
-                "pct_" + state: round(
-                    100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
-                ) if hosts_synthesis['nb_elts'] else 0.0
-            })
+        services_synthesis = default_ls['services_synthesis']
 
-        # Services synthesis
-        services_synthesis = {
-            'nb_elts': ls["services_total"],
-            'business_impact': ls["services_business_impact"],
-            'critical_threshold': 5.0,
-            'warning_threshold': 2.0,
-            'global_critical_threshold': 5.0,
-            'global_warning_threshold': 2.0,
-        }
-        for state in 'ok', 'warning', 'critical', 'unknown':
+        for ls in items:
+            logger.debug("livesynthesis item: %s", ls.__dict__)
+
+            # Hosts synthesis
+            hosts_synthesis.update({
+                "nb_elts": hosts_synthesis['nb_elts'] + ls["hosts_total"]
+            })
+            hosts_synthesis.update({
+                'business_impact': min(hosts_synthesis['business_impact'],
+                                       ls["hosts_business_impact"]),
+            })
+            for state in 'up', 'down', 'unreachable':
+                hosts_synthesis.update({
+                    "nb_%s_hard" % state:
+                    hosts_synthesis["nb_%s_hard" % state] + ls["hosts_%s_hard" % state]
+                })
+                hosts_synthesis.update({
+                    "nb_%s_soft" % state:
+                    hosts_synthesis["nb_%s_soft" % state] + ls["hosts_%s_soft" % state]
+                })
+                hosts_synthesis.update({
+                    "nb_" + state:
+                    hosts_synthesis["nb_%s_hard" % state] + hosts_synthesis["nb_%s_soft" % state]
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping':
+                hosts_synthesis.update({
+                    "nb_" + state:
+                    hosts_synthesis["nb_%s" % state] + ls["hosts_%s" % state]
+                })
+            hosts_synthesis.update({
+                "nb_problems":
+                hosts_synthesis["nb_down_hard"] + hosts_synthesis["nb_unreachable_hard"]
+            })
+            for state in 'up', 'down', 'unreachable':
+                hosts_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                    ) if hosts_synthesis['nb_elts'] else 0.0
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+                hosts_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                    ) if hosts_synthesis['nb_elts'] else 0.0
+                })
+
+            # Services synthesis
             services_synthesis.update({
-                "nb_%s_hard" % state: ls["services_%s_hard" % state]
+                "nb_elts": services_synthesis['nb_elts'] + ls["services_total"]
             })
             services_synthesis.update({
-                "nb_%s_soft" % state: ls["services_%s_soft" % state]
+                'business_impact': min(services_synthesis['business_impact'],
+                                       ls["services_business_impact"]),
             })
+            for state in 'ok', 'warning', 'critical', 'unknown':
+                services_synthesis.update({
+                    "nb_%s_hard" % state:
+                    services_synthesis["nb_%s_hard" % state] + ls["services_%s_hard" % state]
+                })
+                services_synthesis.update({
+                    "nb_%s_soft" % state:
+                    services_synthesis["nb_%s_soft" % state] + ls["services_%s_soft" % state]
+                })
+                services_synthesis.update({
+                    "nb_" + state:
+                    services_synthesis["nb_%s_hard" % state] +
+                        services_synthesis["nb_%s_soft" % state]
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping':
+                services_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                    ) if services_synthesis['nb_elts'] else 0.0
+                })
             services_synthesis.update({
-                "nb_" + state: ls["services_%s_hard" % state] + ls["services_%s_soft" % state]
+                "nb_problems":
+                services_synthesis["nb_warning_hard"] + services_synthesis["nb_critical_hard"]
             })
-        for state in 'acknowledged', 'in_downtime', 'flapping':
-            services_synthesis.update({
-                "nb_" + state: ls["services_%s" % state]
-            })
-        services_synthesis.update({
-            "nb_problems": ls["services_warning_hard"] + ls["services_critical_hard"]
-        })
-        for state in 'ok', 'warning', 'critical', 'unknown':
-            services_synthesis.update({
-                "pct_" + state: round(
-                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
-                ) if services_synthesis['nb_elts'] else 0.0
-            })
-        for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
-            services_synthesis.update({
-                "pct_" + state: round(
-                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
-                ) if services_synthesis['nb_elts'] else 0.0
-            })
+            for state in 'ok', 'warning', 'critical', 'unknown':
+                services_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                    ) if services_synthesis['nb_elts'] else 0.0
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+                services_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                    ) if services_synthesis['nb_elts'] else 0.0
+                })
 
         synthesis = {
             'hosts_synthesis': hosts_synthesis,
@@ -968,7 +798,7 @@ class DataManager(object):
         return self.add_object('actiondowntime', data)
 
     ##
-    # hostgroups
+    # Hosts groups
     ##
     def get_hostgroups(self, search=None, all_elements=False):
         """ Get a list of all hostgroups. """
@@ -979,7 +809,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_parent': 1
+                    '_parent': 1, 'hostgroups': 1, 'hosts': 1
                 }
             })
 
@@ -1004,7 +834,7 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
-    # hostdependencys
+    # Hosts dependencies
     ##
     def get_hostdependencys(self, search=None, all_elements=False):
         """ Get a list of all host dependencies. """
@@ -1015,15 +845,15 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    '_realm': 1,
                     'dependent_hosts': 1, 'dependent_hostgroups': 1,
                     'hosts': 1, 'hostgroups': 1
                 }
             })
 
         try:
-            logger.warning("get_hostdependencys, search: %s", search)
+            logger.debug("get_hostdependencys, search: %s", search)
             items = self.find_object('hostdependency', search, all_elements)
-            logger.warning("get_hostdependencys, found: %s", items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hostdependencys, none found")
@@ -1057,6 +887,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    '_realm': 1, '_templates': 1,
                     'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
                     'snapshot_period': 1, 'maintenance_period': 1,
@@ -1085,7 +916,7 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
-    # servicegroups
+    # Services groups
     ##
     def get_servicegroups(self, search=None, all_elements=False):
         """ Get a list of all servicegroups. """
@@ -1093,6 +924,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1
+                }
+            })
 
         try:
             logger.debug("get_servicegroups, search: %s", search)
@@ -1115,6 +952,44 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
+    # Services dependencies
+    ##
+    def get_servicedependencys(self, search=None, all_elements=False):
+        """ Get a list of all service dependencies. """
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1,
+                    'dependent_services': 1, 'dependent_servicegroups': 1,
+                    'services': 1, 'servicegroups': 1
+                }
+            })
+
+        try:
+            logger.debug("get_servicedependencys, search: %s", search)
+            items = self.find_object('servicedependency', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_servicedependencys, none found")
+
+        return []
+
+    def get_servicedependency(self, search):
+        """ Get a servicedependency by its id. """
+
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_servicedependencys(search=search)
+        return items[0] if items else None
+
+    ##
     # Services
     ##
     def get_services(self, search=None, template=False, all_elements=False):
@@ -1130,6 +1005,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    '_realm': 1,
                     'host': 1,
                     'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
@@ -1248,6 +1124,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1
+                }
+            })
 
         try:
             logger.debug("get_commands, search: %s", search)
@@ -1281,6 +1163,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
+                    '_realm': 1,
                     '_parent': 1
                 }
             })
@@ -1338,8 +1221,8 @@ class DataManager(object):
 
     def get_users(self, search=None, all_elements=False):
         """ Get a list of known users """
-        if not self.get_logged_user().is_administrator():
-            return [self.get_logged_user()]
+        if not self.logged_in_user.is_administrator():
+            return [self.logged_in_user]
 
         if search is None:
             search = {}
@@ -1348,8 +1231,9 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    'host_notification_commands': 1,
-                    'service_notification_commands': 1
+                    '_realm': 1,
+                    'host_notification_period': 1, 'host_notification_commands': 1,
+                    'service_notification_period': 1, 'service_notification_commands': 1
                 }
             })
 
@@ -1400,7 +1284,7 @@ class DataManager(object):
                 return False
 
         user_id = user.id
-        if user_id == self.get_logged_user().id:
+        if user_id == self.logged_in_user.id:
             logger.warning(
                 "unauthorized request to delete the current logged-in user: %s",
                 user_id
@@ -1418,6 +1302,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_parent': 1
+                }
+            })
 
         try:
             logger.debug("get_realms, search: %s", search)
@@ -1448,6 +1338,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1
+                }
+            })
 
         try:
             logger.debug("get_timeperiods, search: %s", search)

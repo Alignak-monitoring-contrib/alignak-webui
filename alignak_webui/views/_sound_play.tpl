@@ -7,7 +7,7 @@
 <script type="text/javascript">
    get_user_preference('sound', function(data) {
       // Toggle sound icon...
-      if (data.value == 'no') {
+      if (data == 'no') {
          sound_activated = false;
          $('#sound_alerting').addClass('disabled text-muted');
       } else {
@@ -16,7 +16,7 @@
       }
       $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
          get_user_preference('sound', function(data) {
-            if (data.value == 'no') {
+            if (data == 'no') {
                save_user_preference('sound', JSON.stringify('yes'), function(){
                   sound_activated = true;
                   playAlertSound();

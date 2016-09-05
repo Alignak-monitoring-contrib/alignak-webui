@@ -27,6 +27,7 @@ import json
 import os
 import traceback
 from importlib import import_module
+import inspect
 from logging import getLogger
 
 # Bottle import
@@ -40,6 +41,7 @@ from alignak_webui import get_app_webui
 from alignak_webui.objects.item_user import User
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.plugin import Plugin
 
 
 logger = getLogger(__name__)
@@ -83,14 +85,6 @@ def before_request():
         # Make session current user available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
 
-    if 'target_user' in session:
-        # Make session target user available in the templates
-        BaseTemplate.defaults['target_user'] = session['target_user']
-
-    if 'datamanager' in session:
-        # Make session datamanager available in the templates
-        BaseTemplate.defaults['datamgr'] = session['datamanager']
-
     # Public URLs routing ...
     if request.urlparts.path == '/ping' or \
        request.urlparts.path == '/heartbeat':
@@ -107,7 +101,8 @@ def before_request():
     if 'current_user' not in session:
         # Redirect to application login page
         logger.warning(
-            "before_request, no current_user in the session. Redirecting to the login page..."
+            "The session expired or there is no user in the session."
+            " Redirecting to the login page..."
         )
         redirect('/login')
 
@@ -115,53 +110,28 @@ def before_request():
     if not user_authentication(current_user.token, None):  # pragma: no cover - simple security!
         # Redirect to application login page
         logger.warning(
-            "before_request, current_user in the session is not authenticated."
+            "user in the session is not authenticated."
             " Redirecting to the login page..."
         )
         redirect('/login')
 
-    session['current_user'] = session['datamanager'].get_logged_user()
     logger.debug("before_request, session authenticated user: %s", session['current_user'])
 
     # Make session current user available in the templates
     BaseTemplate.defaults['current_user'] = session['current_user']
     # Make session edition mode available in the templates
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
-    # Make session datamanager available in the templates
-    BaseTemplate.defaults['datamgr'] = session['datamanager']
+    # Make data manager available in the request and in the templates
+    request.app.datamgr = DataManager(
+        user=session['current_user'],
+        backend_endpoint=request.app.config.get(
+            'alignak_backend',
+            'http://127.0.0.1:5000'
+        )
+    )
+    BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
-    # Set/change target user in the session
-    target_user_username = request.query.get('target_user', None)
-    if target_user_username == "":
-        if 'target_user' in session and not session['target_user'].is_anonymous():
-            logger.warning("no more target user in the session")
-            session['target_user'] = User()
-
-            # Reload data ...
-            session['datamanager'].load(reset=True)
-    elif target_user_username is not None:
-        if 'target_user' in session and \
-           session['target_user'].get_username() != target_user_username:
-            logger.info("new target user specified: %s", target_user_username)
-            target_user = session['datamanager'].get_user({
-                'where': {'name': target_user_username}
-            })
-            if target_user:
-                logger.debug(
-                    "before_request, target_user set in the session: %s", target_user_username
-                )
-                session['target_user'] = target_user
-
-                # Reload data ...
-                session['datamanager'].load(reset=True)
-            else:
-                logger.warning("before_request, no more target_user in the session")
-                session['target_user'] = User()
-
-    # Make session target user available in the templates
-    BaseTemplate.defaults['target_user'] = session['target_user']
-
-    logger.debug("before_request, call function for route: %s", request.urlparts.path)
+    # logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -193,7 +163,7 @@ def enable_cors(fn):
 
 
 # noinspection PyUnusedLocal
-@route('/external/<widget_type>/<identifier>/<action>', method=['GET', 'POST', 'OPTIONS'])
+@route('/external/<widget_type>/<identifier>/<action:path>', method=['GET', 'POST', 'OPTIONS'])
 @route('/external/<widget_type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
 @enable_cors
 def external(widget_type, identifier, action=None):
@@ -216,7 +186,7 @@ def external(widget_type, identifier, action=None):
         if not user_authentication(current_user.token, None):
             # Redirect to application login page
             logger.warning(
-                "before_request, current_user in the session is not authenticated."
+                "user in the session is not authenticated."
                 " Redirecting to the login page..."
             )
             redirect('/login')
@@ -258,14 +228,22 @@ def external(widget_type, identifier, action=None):
 
         # Make session data available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
-        BaseTemplate.defaults['target_user'] = session['target_user']
-        BaseTemplate.defaults['datamgr'] = session['datamanager']
+
+        # Make data manager available in the request and in the templates
+        request.app.datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint=request.app.config.get(
+                'alignak_backend',
+                'http://127.0.0.1:5000'
+            )
+        )
+        BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.debug(
-        "External request, widget type: %s", widget_type
+        "External request, element type: %s", widget_type
     )
 
-    if widget_type not in ['widget', 'table', 'list', 'host']:
+    if widget_type not in ['files', 'widget', 'table', 'list', 'host']:
         logger.warning("External application requested unknown type: %s", widget_type)
         response.status = 409
         response.content_type = 'text/html'
@@ -273,6 +251,27 @@ def external(widget_type, identifier, action=None):
             '<div><h1>Unknown required type: %s.</h1>'
             '<p>The required type is unknwown</p></div>' % widget_type
         )
+
+    if widget_type == 'files':
+        if identifier == 'js_list':
+            response.status = 200
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'status': 'ok', 'files': get_app_webui().js_list}
+            )
+        elif identifier == 'css_list':
+            response.status = 200
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'status': 'ok', 'files': get_app_webui().css_list}
+            )
+        else:
+            logger.warning("External application requested unknown files: %s", identifier)
+            response.status = 409
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'status': 'ko', 'message': "Unknown files list: %s" % identifier}
+            )
 
     if widget_type == 'widget':
         found_widget = None
@@ -319,7 +318,7 @@ def external(widget_type, identifier, action=None):
         logger.debug("Found table: %s", found_table)
 
         if action and action in found_table['actions']:
-            logger.info("Required action: %s", action)
+            logger.info("Required action: %s = %s", action, found_table['actions'][action])
             return found_table['actions'][action]()
 
         if request.params.get('page', 'no') == 'no':
@@ -338,7 +337,12 @@ def external(widget_type, identifier, action=None):
             return get_app_webui().lists[identifier]['function'](embedded=True)
         else:
             logger.warning("External application requested unknown list: %s", identifier)
-            return WebUI.response_ko(_('Unknown required list'))
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required list: %s.</h1>'
+                '<p>The required list is not available.</p></div>' % identifier
+            )
 
     if widget_type == 'host':
         if not action:
@@ -368,13 +372,13 @@ def external(widget_type, identifier, action=None):
 
         if request.params.get('page', 'no') == 'no':
             return found_widget['function'](
-                host_id=identifier, widget_id=found_widget['id'],
+                element_id=identifier, widget_id=found_widget['id'],
                 embedded=True, identifier=identifier, credentials=credentials
             )
 
         return template('external_widget', {
             'embedded_element': found_widget['function'](
-                host_id=identifier, widget_id=found_widget['id'],
+                element_id=identifier, widget_id=found_widget['id'],
                 embedded=True, identifier=identifier, credentials=credentials
             )
         })
@@ -432,7 +436,6 @@ def ping():
         # Acknowledge UI refresh
         session['refresh_required'] = False
         if 'datamanager' in session:
-            session['datamanager'].new_data = []
             session['datamanager'].refresh_required = False
 
             response.status = 200
@@ -469,15 +472,6 @@ def ping():
 
     # Check new data in the data manager for the page refresh
     session = request.environ['beaker.session']
-    if session and 'datamanager' in session:
-        # Test without cache
-        if session['datamanager'].refresh_required:
-            session['refresh_required'] = True
-            logger.warning("Data manager says a refresh is required")
-        # if session['datamanager'].refresh_required or session['datamanager'].load(refresh=True):
-            # session['refresh_required'] = True
-            # logger.warning("Data manager says a refresh is required")
-
     if 'refresh_required' in session and session['refresh_required']:
         # Require UI refresh
         response.status = 200
@@ -508,8 +502,9 @@ def user_login():
     """
     session = request.environ['beaker.session']
     message = None
-    if 'message' in session and session['message']:
-        message = session['message']
+    if 'login_message' in session and session['login_message']:
+        message = session['login_message']
+        session['login_message'] = None
         logger.warning("login page with error message: %s", message)
 
     # Send login form
@@ -554,18 +549,18 @@ def user_auth():
     """
     username = request.forms.get('username', None)
     password = request.forms.get('password', None)
-    logger.debug("login, user '%s' is signing in ...", username)
+    logger.info("login, user '%s' is signing in ...", username)
 
     session = request.environ['beaker.session']
-    session['message'] = None
+    session['login_message'] = None
     if not user_authentication(username, password):
         # Redirect to application login page with an error message
-        if 'message' not in session:
-            session['message'] = _("Invalid username or password")
-        logger.warning("user '%s' access denied, message: %s", username, session['message'])
+        if 'login_message' not in session:
+            session['login_message'] = _("Invalid username or password")
+        logger.warning("user '%s' access denied, message: %s", username, session['login_message'])
         redirect('/login')
 
-    logger.warning("user '%s' (%s) signed in", username, session['current_user'].name)
+    logger.info("user '%s' (%s) signed in", username, session['current_user'].name)
     redirect('/')
 
 
@@ -575,7 +570,6 @@ def server_static(path):
     Main application static files
     Plugins declare their own static routes under /plugins
     """
-    # logger.debug("Application static file: %s", path)
     if not path.startswith('plugins'):
         return static_file(
             path, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'htdocs')
@@ -608,37 +602,30 @@ def user_authentication(username, password):
     Stores the authenticated User object in the session to make it available
     """
 
-    logger.info("user_authentication, authenticating: %s", username)
+    logger.debug("user_authentication, authenticating: %s", username)
 
     # Session...
     session = request.environ['beaker.session']
 
-    # Get backend in the server session (if it exists ... else create)
-    if 'datamanager' not in session:
-        logger.info("user authentication, creating a new data manager in the session...")
-        logger.info(
-            "backend: %s",
-            request.app.config.get('alignak_backend', 'http://127.0.0.1:5000')
-        )
-        session['datamanager'] = DataManager(
-            request.app.config.get(
+    session['login_message'] = None
+    if 'current_user' not in session or not session['current_user']:
+        # Build DM without any user parameter
+        datamgr = DataManager(
+            backend_endpoint=request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
             )
         )
 
-    # Set user for the data manager and try to log-in.
-    if not session['datamanager'].user_login(username, password, load=(password is not None)):
-        session['message'] = session['datamanager'].connection_message
-        logger.warning("user authentication refused: %s", session['message'])
-        return False
+        # Set user for the data manager and try to log-in.
+        if not datamgr.user_login(username, password, load=(password is not None)):
+            session['login_message'] = datamgr.connection_message
 
-    # Create a new target user in the session
-    if 'target_user' not in session:
-        session['target_user'] = User()
+            logger.warning("user authentication refused: %s", session['login_message'])
+            return False
 
-    session['message'] = session['datamanager'].connection_message
-    session['current_user'] = session['datamanager'].get_logged_user()
+        session['current_user'] = datamgr.logged_in_user
+
     logger.debug("user_authentication, current user authenticated")
     return True
 
@@ -691,13 +678,10 @@ def get_user_preference():
         - key, string identifying the parameter
         - default, default value if parameter does not exist
     """
-    datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
+        'alignak_backend', 'http://127.0.0.1:5000'
+    ))
 
     key = request.query.get('key', None)
     if not key:
@@ -707,47 +691,30 @@ def get_user_preference():
     if default:
         default = json.loads(default)
 
-    return datamgr.get_user_preferences(username, key, default)
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(datamgr.get_user_preferences(user, key, default))
 
 
-@route('/preference/user', 'DELETE')
+@route('/preference/user/delete', 'GET')
 def delete_user_preference():
     """
         Request parameters:
 
         - key, string identifying the parameter
-        - default, default value if parameter does not exist
     """
-    datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
+        'alignak_backend', 'http://127.0.0.1:5000'
+    ))
 
     key = request.query.get('key', None)
     if not key:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    return datamgr.delete_user_preferences(username, key)
-
-
-@route('/preference/common', 'GET')
-def get_common_preference():
-    """
-        Request parameters:
-
-        - key, string identifying the parameter
-        - default, default value if parameter does not exist
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    key = request.query.get('key', None)
-    if not key:
-        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    return datamgr.get_user_preferences('common', key, request.query.get('default', None))
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps(datamgr.delete_user_preferences(user, key))
 
 
 @route('/preference/user', 'POST')
@@ -758,52 +725,22 @@ def set_user_preference():
         - key, string identifying the parameter
         - value, as a JSON formatted string
     """
-    datamgr = request.environ['beaker.session']['datamanager']
     user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
+        'alignak_backend', 'http://127.0.0.1:5000'
+    ))
 
     key = request.forms.get('key', None)
     value = request.forms.get('value', None)
     if key is None or value is None:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    if datamgr.set_user_preferences(username, key, json.loads(value)):
+    if datamgr.set_user_preferences(user, key, json.loads(value)):
         return WebUI.response_ok(message=_('User preferences saved'))
     else:
         return WebUI.response_ko(
             message=_('Problem encountered while saving common preferences')
         )
-
-
-@route('/preference/common', 'POST')
-def set_common_preference():
-    """
-        Request parameters:
-
-        - key, string identifying the parameter
-        - value, as a JSON formatted string
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    user = request.environ['beaker.session']['current_user']
-
-    key = request.forms.get('key', None)
-    value = request.forms.get('value', None)
-    if key is None or value is None:
-        return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
-
-    if user.is_administrator():
-        if datamgr.set_user_preferences('common', key, json.loads(value)):
-            return WebUI.response_ok(message=_('Common preferences saved'))
-        else:
-            return WebUI.response_ko(
-                message=_('Problem encountered while saving common preferences')
-            )
-    else:
-        return WebUI.response_ko(message=_('Only adaministrator user can save common preferences'))
 
 
 class WebUI(object):
@@ -812,13 +749,13 @@ class WebUI(object):
     """
     def __init__(self, config=None):
         """
-        Application configuration
+        Application initialization
 
         :param: config
         :type: dict
         """
 
-        logger.info("Initializing...")
+        logger.info("Initializing application...")
 
         # Store all the plugins
         self.plugins = []
@@ -837,15 +774,16 @@ class WebUI(object):
 
         # Application configuration
         self.app_config = config
-        logger.info("Configuration: %s", self.app_config)
+
+        # Application data manager
+        self.datamgr = None
 
         # Load plugins in the plugins directory ...
         self.plugins_count = self.load_plugins(
-            bottle.app(),
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
         )
 
-    def load_plugins(self, app, plugins_dir):
+    def load_plugins(self, plugins_dir):
         # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
         """
         Load plugins from the provided directory
@@ -866,119 +804,43 @@ class WebUI(object):
             if os.path.isdir(os.path.join(plugins_dir, fname))
         ]
 
-        # Try to import all found plugins
+        # Try to import all found supposed modules
         i = 0
         for plugin_name in plugin_names:
             logger.info("trying to load plugin '%s' ...", plugin_name)
             try:
-                # Import the plugin in the package namespace
+                # Import the module in the package namespace
                 plugin = import_module(
                     '.%s.%s.%s' % (plugins_dir.rsplit('/')[-1], plugin_name, plugin_name),
                     __package__
                 )
 
-                # Plugin defined routes ...
-                if hasattr(plugin, 'pages'):
-                    for (f, entry) in plugin.pages.items():
-                        logger.debug("page entry: %s", entry)
+                # Plugin declared classes ...
+                classes = inspect.getmembers(plugin, inspect.isclass)
 
-                        # IMPORTANT: apply the view before the route!
-                        page_view = entry.get('view', None)
-                        if page_view:
-                            f = view(page_view)(f)
+                # Find "Plugin" sub classes in imported module ...
+                p_classes = [co for dummy, co in classes if issubclass(co, Plugin) and co != Plugin]
+                if p_classes:
+                    logger.info("Found plugins classes: %s", p_classes)
+                    cfg_files = [
+                        '/usr/local/etc/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        '/etc/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        '~/%s/plugin_%s.cfg' % (
+                            self.app_config['name'].lower(), plugin_name
+                        ),
+                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
+                    ]
 
-                        page_route = entry.get('route', None)
-                        if not page_route:
-                            page_route = entry.get('routes', None)
-                        page_name = entry.get('name', None)
-                        # Maybe there is no route to link, so pass
-                        if not page_route:
-                            continue
+                    for p_class in p_classes:
+                        # Create a plugin instance
+                        p = p_class(self, cfg_files)
 
-                        methods = entry.get('method', 'GET')
-
-                        # Routes are an array of tuples [(route, name), ...]
-                        route_url = ''
-                        if not isinstance(page_route, list):
-                            page_route = [(page_route, page_name)]
-                        for route_url, name in page_route:
-                            f = app.route(
-                                route_url, callback=f, method=methods, name=name,
-                                search_engine=entry.get('search_engine', False),
-                                search_prefix=entry.get('search_prefix', ''),
-                                search_filters=entry.get('search_filters', {})
-                            )
-
-                            # Plugin is dedicated to a backend endpoint...
-                            if hasattr(plugin, 'backend_endpoint'):
-                                if route_url == ('/%ss_list' % plugin.backend_endpoint):
-                                    self.lists['%ss_list' % plugin.backend_endpoint] = {
-                                        'id': plugin.backend_endpoint,
-                                        'base_uri': route_url,
-                                        'function': f
-                                    }
-                                    logger.info(
-                                        "Found list '%s' for %s", route_url, plugin.backend_endpoint
-                                    )
-
-                        # It's a valid widget entry if it got all data, and at least one route
-                        if 'widgets' in entry:
-                            for widget in entry.get('widgets'):
-                                if 'id' not in widget or 'for' not in widget:
-                                    continue
-                                if 'name' not in widget or 'description' not in widget:
-                                    continue
-                                if 'template' not in widget or not page_route:
-                                    continue
-
-                                for place in widget['for']:
-                                    if place not in self.widgets:
-                                        self.widgets[place] = []
-                                    self.widgets[place].append({
-                                        'id': widget['id'],
-                                        'name': widget['name'],
-                                        'description': widget['description'],
-                                        'template': widget['template'],
-                                        'icon': widget.get('icon', 'leaf'),
-                                        'read_only': widget.get('read_only', False),
-                                        'options': widget.get('options', None),
-                                        'picture': os.path.join(
-                                            os.path.join('/static/plugins/', plugin_name),
-                                            widget.get('picture', '')
-                                        ),
-                                        'base_uri': route_url,
-                                        'function': f
-                                    })
-                                    logger.info(
-                                        "Found widget '%s' for %s", widget['id'], place
-                                    )
-
-                        # It's a valid widget entry if it got all data, and at least one route
-                        if 'tables' in entry:
-                            for table in entry.get('tables'):
-                                if 'id' not in table or 'for' not in table:
-                                    continue
-                                if 'name' not in table or 'description' not in table:
-                                    continue
-                                if 'template' not in table or not page_route:
-                                    continue
-
-                                for place in table['for']:
-                                    if place not in self.tables:
-                                        self.tables[place] = []
-                                    self.tables[place].append({
-                                        'id': table['id'],
-                                        'name': table['name'],
-                                        'description': table['description'],
-                                        'template': table['template'],
-                                        'icon': table.get('icon', 'leaf'),
-                                        'base_uri': page_route,
-                                        'function': f,
-                                        'actions': table.get('actions', {})
-                                    })
-                                    logger.info(
-                                        "Found table '%s' for %s", table['id'], place
-                                    )
+                        i += 1
+                        self.plugins.append(p)
 
                 # Add the views sub-directory of the plugin in the Bottle templates path
                 dir_views = os.path.join(
@@ -992,38 +854,6 @@ class WebUI(object):
                         os.path.join(plugins_dir, plugin_name), 'views'
                     ))
 
-                # Self register in the plugin so the pages can get my data
-                plugin.webui = self
-
-                # Load/set plugin configuration
-                f = getattr(plugin, 'load_config', None)
-                if f and callable(f):
-                    logger.info(
-                        "plugin '%s' needs to load its configuration. Configuring...", plugin_name
-                    )
-                    cfg_files = [
-                        '/usr/local/etc/%s/plugin_%s.cfg' % (
-                            self.app_config['name'].lower(), plugin_name
-                        ),
-                        '/etc/%s/plugin_%s.cfg' % (
-                            self.app_config['name'].lower(), plugin_name
-                        ),
-                        '~/%s/plugin_%s.cfg' % (
-                            self.app_config['name'].lower(), plugin_name
-                        ),
-                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
-                    ]
-                    config = f(app, cfg_files)
-                    if config:
-                        logger.info("plugin '%s' configured.", plugin_name)
-                    else:  # pragma: no cover - if any ...
-                        logger.warning("plugin '%s' configuration failed.", plugin_name)
-
-                i += 1
-                self.plugins.append({
-                    'name': plugin_name,
-                    'module': plugin
-                })
                 logger.info("registered plugin '%s'", plugin_name)
 
             except Exception as e:  # pragma: no cover - simple security ...
@@ -1031,10 +861,8 @@ class WebUI(object):
                 logger.error("traceback: %s", traceback.format_exc())
 
         logger.info("loaded %d plugins from: %s", i, plugins_dir)
-        # exit()
         return i
 
-    # noinspection PyMethodMayBeStatic
     def get_url(self, name):
         """
         Get the URL for a named route
@@ -1043,17 +871,133 @@ class WebUI(object):
         """
         return bottle.default_app().get_url(name)
 
+    @property
+    def js_list(self):
+        """
+        Get the list of Javascript files
+        :return:
+        """
+        js_list = [
+            "/static/js/jquery-1.12.0.min.js",
+            "/static/js/jquery-ui-1.11.4.min.js"
+        ]
+
+        if self.app_config.get('bootstrap4', '0') == '1':
+            js_list += [
+                "/static/js/bootstrap4.min.js"
+            ]
+        else:
+            js_list += [
+                "/static/js/bootstrap.min.js"
+            ]
+
+        js_list += [
+            "/static/js/moment-with-langs.min.js",
+            "/static/js/daterangepicker.js",
+            "/static/js/jquery.jclock.js",
+            "/static/js/jquery.jTruncate.js",
+            "/static/js/typeahead.bundle.min.js",
+            "/static/js/screenfull.js",
+            "/static/js/alertify.min.js",
+            "/static/js/selectize.min.js",
+            "/static/js/Chart.min.js",
+            "/static/js/jstree.min.js",
+        ]
+
+        if self.app_config.get('bootstrap4', '0') == '1':
+            js_list += [
+                "/static/js/datatables.bootstrap4.min.js"
+            ]
+        else:
+            js_list += [
+                "/static/js/datatables.min.js"
+            ]
+
+        js_list += [
+            "/static/js/material/arrive.min.js",
+            "/static/js/material/material.min.js",
+            "/static/js/material/ripples.min.js"
+        ]
+
+        return js_list
+
+    @property
+    def css_list(self):
+        """
+        Get the list of Javascript files
+        :return:
+        """
+        if self.app_config.get('bootstrap4', '0') == '1':
+            css_list = [
+                "/static/css/bootstrap4.min.css"
+            ]
+        else:
+            css_list = [
+                "/static/css/bootstrap.min.css"
+            ]
+
+        css_list += [
+            "/static/css/font-awesome.min.css",
+            "/static/css/typeahead.css",
+            "/static/css/daterangepicker.css",
+            "/static/css/alertify.min.css",
+            "/static/css/alertify.bootstrap.min.css",
+            "/static/css/timeline.css"
+        ]
+
+        css_list += [
+            "/static/css/font-roboto.css",
+            "/static/css/material-icons.css",
+            "/static/css/material/bootstrap-material-design.min.css",
+            "/static/css/material/ripples.min.css"
+        ]
+
+        css_list += [
+            "/static/css/jstree/style.min.css",
+        ]
+        if self.app_config.get('bootstrap4', '0') == '1':
+            css_list += [
+                "/static/css/datatables.bootstrap4.min.css",
+            ]
+        else:
+            css_list += [
+                "/static/css/datatables.min.css",
+            ]
+
+        css_list += [
+            "/static/css/alignak_webui.css",
+            "/static/css/alignak_webui-items.css"
+        ]
+
+        return css_list
+
+    def find_plugin(self, name):
+        """
+        Find a plugin with its name
+        """
+        for plugin in self.plugins:
+            if plugin.name == name:
+                return plugin
+        return None
+
     def get_widgets_for(self, place):
         """
         For a specific place like 'dashboard' or 'external', returns the application widgets list
         """
-        return self.widgets.get(place, [])
+        widgets_list = self.widgets.get(place, [])
+        for plugin in self.plugins:
+            widgets_list += plugin.widgets.get(place, [])
+        return widgets_list
 
     def get_tables_for(self, place):
         """
         For a specific place like 'external', return the application tables list
         """
-        return self.tables.get(place, [])
+        tables = self.tables.get(place, [])
+        for plugin in self.plugins:
+            if place in plugin.tables:
+                tables = tables + plugin.tables[place]
+        return tables
 
     ##
     # Make responses for browser client requests

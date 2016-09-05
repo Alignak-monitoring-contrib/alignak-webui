@@ -5,7 +5,7 @@
    <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret hidden-xs"></span>
       <span class="fa fa-clone"></span>
-      <span class="hidden-md hidden-sm hidden-xs">{{_('Edition')}}</span>
+      <span class="sr-only">{{_('Edition')}}</span>
    </a>
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Edition mode menu')}}">

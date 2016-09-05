@@ -48,12 +48,18 @@ class HostDependency(BackendElement):
         """
         Create a hostdependency (called only once when an object is newly created)
         """
+        self._linked__realm = 'realm'
         self._linked_dependent_hosts = 'host'
         self._linked_dependent_hostgroups = 'hostgroup'
         self._linked_hosts = 'host'
         self._linked_hostgroups = 'hostgroup'
 
         super(HostDependency, self)._create(params, date_format)
+
+    @property
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm
 
     @property
     def hosts(self):

@@ -46,38 +46,27 @@
             <th colspan="2">{{_('Status:')}}</th>
          </tr>
       </thead>
-      %if livestate:
       <tbody style="font-size:x-small;">
          <tr>
             <td><strong>{{_('Status:')}}</strong></td>
             <td>
                %extra=''
-               %if livestate.acknowledged:
+               %if host.acknowledged:
                %extra += _(' and acknowledged')
                %end
-               %if livestate.downtime:
+               %if host.downtime:
                %extra += _(' and in scheduled downtime')
                %end
-               {{! livestate.get_html_state(extra=extra)}}
+               {{! host.get_html_state(extra=extra)}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Since:')}}</strong></td>
             <td>
-               {{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}
+               {{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
       </tbody>
-      %else:
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Status:')}}</strong></td>
-            <td class="alert alert-danger">
-               {{_('No livestate data for this host!')}}
-            </td>
-         </tr>
-      </tbody>
-      %end
    </table>
 
    <table class="table table-condensed table-nowrap">
@@ -90,55 +79,54 @@
             <th colspan="2">{{_('Last check:')}}</th>
          </tr>
       </thead>
-      %if livestate:
       <tbody style="font-size:x-small;">
          <tr>
             <td><strong>{{_('Last check:')}}</strong></td>
             <td>
-               {{Helper.print_duration(livestate.last_check, duration_only=False, x_elts=0)}}
+               {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Output:')}}</strong></td>
             <td class="popover-dismiss popover-large"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s check output') % livestate.output}}"
-                  data-content="{{_('%s<br/>%s') % (livestate.output, livestate.long_output.replace('\n', '<br/>') if livestate.long_output else '')}}"
+                  data-title="{{_('%s check output') % host.output}}"
+                  data-content="{{_('%s<br/>%s') % (host.output, host.long_output.replace('\n', '<br/>') if host.long_output else '')}}"
                   >
-               {{! livestate.output}}
+               {{! host.output}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Performance data:')}}</strong></td>
             <td class="popover-dismiss popover-large ellipsis"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s performance data') % livestate.output}}"
-                  data-content=" {{livestate.perf_data if livestate.perf_data else '(none)'}}"
+                  data-title="{{_('%s performance data') % host.output}}"
+                  data-content=" {{host.perf_data if host.perf_data else '(none)'}}"
                   >
-                {{livestate.perf_data if livestate.perf_data else '(none)'}}
+                {{host.perf_data if host.perf_data else '(none)'}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Check duration (latency):')}}</strong></td>
             <td>
-               {{_('%.2f seconds (%.2f)') % (livestate.execution_time, livestate.latency) }}
+               {{_('%.2f seconds (%.2f)') % (host.execution_time, host.latency) }}
             </td>
          </tr>
 
          <tr>
-            <td><strong>{{_('Last state change:')}}</strong></td>
+            <td><strong>{{_('Last state changed:')}}</strong></td>
             <td class="popover-dismiss"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
                   data-title="{{host.name}}{{_('}} last state change date')}}"
-                  data-content="{{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}"
+                  data-content="{{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}"
                   >
-                {{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}
+                {{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Current attempt:')}}</strong></td>
             <td>
-               {{_('%s / %s %s state') % (host.attempt, livestate.max_attempts, livestate.state_type) }}
+               {{_('%s / %s %s state') % (host.current_attempt, host.max_attempts, host.state_type) }}
             </td>
          </tr>
          <tr>
@@ -148,20 +136,10 @@
                   data-title="{{host.name}}{{_('}} last state change date')}}"
                   data-content="{{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}"
                   >
-               {{! Helper.print_duration(livestate.next_check, duration_only=True, x_elts=0)}}
+               {{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}
             </td>
          </tr>
       </tbody>
-      %else:
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Status:')}}</strong></td>
-            <td class="alert alert-danger">
-               {{_('No livestate data for this host!')}}
-            </td>
-         </tr>
-      </tbody>
-      %end
    </table>
 
    <table class="table table-condensed">
@@ -363,7 +341,7 @@
          <tr>
             <td><strong>{{_('Event handler:')}}</strong></td>
             <td>
-               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name() }}</a>
+               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name }}</a>
             </td>
          </tr>
          %end

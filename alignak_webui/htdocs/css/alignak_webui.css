@@ -62,12 +62,14 @@ header {
  * Header - company logo
  */
 .navbar-brand {
+    float: left;
     padding: 5px;
 }
 .navbar-brand img {
     height: 100%;
-    background-color: rgba(255,255,255,0.7);
     padding: 3px;
+    background-color: rgba(255,255,255,0.8);
+    border-radius: 5px;
 }
 
 /*
@@ -77,6 +79,38 @@ header {
 #services-states-popover {
     width: 44px;
     height: 50px;
+}
+
+/*
+#hosts-states-popover-content,
+#services-states-popover-content {
+    width: 440px;
+}
+*/
+
+/*
+ * Header - Hosts and services popovers
+
+   Hack because current Bootstrap material design (V3) does not deal correctly with popovers ...
+ */
+.popover-hosts {
+    max-width: 100%;
+    width: 350px;
+    background: #eee;
+    color: #fff;
+    border-radius: 3px;
+}
+.popover-services {
+    max-width: 100%;
+    width: 350px;
+    background: #eee;
+    color: #fff;
+    border-radius: 3px;
+}
+.popover-title {
+    /* blue-grey-400 */
+    background-color: #78909c;
+    color: #FFF;
 }
 
 /*
@@ -92,10 +126,19 @@ header span.label {
     font-size: 0.7em;
 }
 
+
+/*
+ * Navigation bar
+ */
 #navbar-collapsible-part {
     margin-left: 15px;
     margin-right: 5px;
 }
+
+.navbar-right {
+    margin-right: 0 !important;
+}
+
 /*
  * Application menu bar - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.
@@ -134,6 +177,18 @@ header span.label {
 /*
  * Application tables
  */
+/* Set fixed position for table buttons */
+div.dt-buttons {
+   position: fixed;
+}
+div.dataTables_wrapper div.row.table {
+    margin-top: 45px;
+}
+
+div.dataTables_paginate {
+    text-align: center !important;
+}
+
 /* Set smaller font for table content */
 tbody > tr {
    font-size:11px;
@@ -143,11 +198,48 @@ table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataT
    top: 3px;
 }
 /* Selected line */
-table.dataTable tr.selected {
+table.dataTable tr.selected,
+table.dataTable .sorting_1 {
    color: #aaa !important;
    background-color:lightyellow !important;
 }
-
+table.dataTable th div.form-group-sm {
+    margin-top: 0;
+}
+/* Copy of the MD class to modify it */
+.selectize-control.single .selectize-dropdown,
+.selectize-control.multi .selectize-dropdown {
+  position: absolute;
+  z-index: 1000;
+  border: 0;
+  width: auto !important;
+  left: 0 !important;
+  height: auto;
+  background-color: #FFF;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 2px;
+  padding: 0;
+  margin-top: 3px;
+}
+.selectize-control.single .selectize-input:after,
+.selectize-control.multi .selectize-input:after,
+.selectize-control.single .selectize-input.input-active:after,
+.selectize-control.multi .selectize-input.input-active:after {
+    right: -10px /*5px*/;
+    position: absolute;
+    font-size: 24px;
+    content: "\e5c5";
+    font-family: 'Material Icons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 /*
  * Page content - the header navigation bar is fixed, page content must
  * be shifted to the bottom if the header bar is present (not present on fullscreen pages).
@@ -228,60 +320,7 @@ table.dataTable tr.selected {
 }
 
 /*
- * Side bar menu
- * - do not float left the menu items.
- * - min and max width
-#sidebar-menu, #actionbar-menu, #templatebar-menu {
-    min-width: 100px;
-    max-width: 200px;
-}
-#sidebar-menu  li {
-    float: none;
-}
-
-#actionbar-menu  {
-    position: fixed;
-    bottom: 10px;
-}
-#templatebar-menu  {
-    position: fixed;
-    bottom: 60px;
-}
- */
-
-/*
- * Side bar menu - for small devices, menu items are floating and
- * the menu is positionned in the header navigation bar collapsable part.
-@media (max-width: 992px) {
-    #topbar ul.navbar-right > li {
-        float:left;
-    }
-
-    #header-search {
-        float:left;
-    }
-
-    #sidebar-menu > ul > li  {
-        float:left;
-    }
-    #sidebar-menu {
-        height: 50px;
-        max-width: none;
-    }
-}
- */
-
-
-/*
- * Navigation bar, input field
-input#search {
-    max-width: 250px;
-}
-@media (max-width: 768px) {
-    input#search {
-        width: 100px;
-    }
-}
+ * Menu bar
  */
 #topbar form {
 padding: 0;
@@ -312,16 +351,27 @@ padding: 0;
 /*
  * Footer navigation bar
  */
-footer {
+footer.page-footer {
     position: fixed;
     height: 25px;
     bottom: 0;
     width: 100%;
     background-color: rgba(255,255,255,0.7);
 }
-footer img {
+footer.page-footer img {
     height: 16px;
 }
-footer span {
+footer.page-footer span {
     font-size: 0.8em;
+}
+
+
+/*
+ * Element forms
+ */
+form.element_form {
+    padding: 25px;
+}
+form.template_form {
+    background-color: #eee;
 }

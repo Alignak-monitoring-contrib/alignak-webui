@@ -22,40 +22,23 @@
 
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
-      <!-- Stylesheets
-      ================================================== -->
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
-      %end
-      <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-      <link href="/static/css/alignak_webui.css" rel="stylesheet">
-
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Material Design fonts -->
-      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
-
-      <!-- Bootstrap Material Design -->
-      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
-      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      <!-- Stylesheets -->
+      %# WebUI CSS files
+      %for f in webui.css_list:
+      <link rel="stylesheet" href="{{f}}">
       %end
 
-      <!-- Scripts
-      ================================================== -->
-      <script src="/static/js/jquery-1.12.0.min.js"></script>
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
-      %end
+      <!-- Alignak Web UI (included in the previous files list)
+      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
+      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
+      -->
 
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design -->
-      <script src="/static/js/material/material.min.js"></script>
-      <script src="/static/js/material/ripples.min.js"></script>
+      <!--
+         Application libraries
+      -->
+      %# WebUI Javascript files
+      %for f in webui.js_list:
+      <script type="text/javascript" src="{{f}}"></script>
       %end
    </head>
 
@@ -64,9 +47,10 @@
          <div class="col-sm-6 col-sm-offset-3">
             <div class="login-panel panel panel-default" style="padding: 2vh;">
                <div class="panel-heading">
-                  <h2>{{request.app.config.get('about_name', manifest['name'])}} <small>{{_('version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h2>
+                  <h2>{{request.app.config.get('about_name', manifest['name'])}}</h2>
+                  <h3><small>{{_('Version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h3>
                   <center>
-                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 80%"/>
+                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 90%"/>
                   </center>
                </div>
                <div class="panel-body">
@@ -104,15 +88,6 @@
 
       %include("_footer")
 
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design -->
-      <script src="/static/js/material/material.min.js"></script>
-      <script src="/static/js/material/ripples.min.js"></script>
-      <script>
-      $.material.init();
-      </script>
-      %end
-
       <script>
       $(document).ready(function() {
          /*
@@ -121,6 +96,8 @@
          $('body').on("submit", 'form[action="/login"]', function (evt) {
             $('#login-message').hide();
          });
+
+         $.material.init();
       });
       </script>
    </body>
