@@ -33,6 +33,8 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Service(BackendElement):
+    # Because there are many methods needed :)
+    # pylint: disable=too-many-public-methods
     """
     Object representing a service
     """

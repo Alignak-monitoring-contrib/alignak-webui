@@ -119,7 +119,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             if 'where' in params:
                 params['where'] = json.dumps(params['where'])
             if 'embedded' in params:
-                del(params['embedded'])
+                del params['embedded']
             if 'where' not in params:
                 params['where'] = {}
             if 'page' not in params:

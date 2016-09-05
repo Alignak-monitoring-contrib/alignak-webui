@@ -78,7 +78,7 @@ class PluginServicesGroups(Plugin):
                 'id': service.id,
                 'name': service.name,
                 'alias': service.alias,
-                'icon': service.get_html_state(text=None, title=title),
+                'icon': service.get_html_state(text=None, title=service.alias),
                 'url': service.get_html_link()
             })
 

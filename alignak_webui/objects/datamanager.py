@@ -552,40 +552,8 @@ class DataManager(object):
         return result if result else default
 
     ##
-    # Livestate
+    # Live synthesis
     ##
-    def get_livestates(self, search=None, all_elements=False):
-        """ Get livestate for all elements
-
-            DEPRECATED
-
-        """
-        return []
-
-    def get_livestate(self, search):
-        """ Get a host/service by its livestate id (default).
-
-            DEPRECATED
-
-        """
-        return []
-
-    def get_livestate_hosts(self, search=None):
-        """ Get livestate for hosts
-
-            DEPRECATED
-
-        """
-        return []
-
-    def get_livestate_services(self, search=None):
-        """ Get livestate for services
-
-            DEPRECATED
-
-        """
-        return []
-
     def get_livesynthesis(self, search=None):
         """ Get live state synthesis for hosts and services
 

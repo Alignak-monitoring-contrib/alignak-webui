@@ -322,6 +322,8 @@ class BackendElement(object):
             )
 
     def _create(self, params, date_format):
+        # Yes, but we nedd those locals!
+        # pylint: disable=too-many-locals
         """
         Create an object (called only once when an object is newly created)
 

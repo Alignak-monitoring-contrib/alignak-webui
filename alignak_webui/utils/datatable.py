@@ -32,9 +32,10 @@
 """
 import json
 from logging import getLogger
-from bottle import request
 
 from datetime import datetime
+
+from bottle import request
 
 from alignak_webui import _
 from alignak_webui.utils.helper import Helper

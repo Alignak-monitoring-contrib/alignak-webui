@@ -85,7 +85,7 @@ class PluginRealms(Plugin):
                 'id': host.id,
                 'name': host.name,
                 'alias': host.alias,
-                'icon': host.get_html_state(text=None, title=title),
+                'icon': host.get_html_state(text=None, title=host.alias),
                 'url': host.get_html_link()
             })
 

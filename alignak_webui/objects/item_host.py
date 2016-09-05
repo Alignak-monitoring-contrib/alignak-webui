@@ -33,6 +33,8 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Host(BackendElement):
+    # Because there are many methods needed :)
+    # pylint: disable=too-many-public-methods
     """
     Object representing an host
     """
@@ -74,11 +76,6 @@ class Host(BackendElement):
     def _realm(self):
         """ Return concerned realm """
         return self._linked__realm
-
-    @property
-    def _templates(self):
-        """ Return linked object """
-        return self._linked__templates
 
     @property
     def _templates(self):
