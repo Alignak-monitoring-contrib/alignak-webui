@@ -334,6 +334,18 @@
 %hs = datamgr.get_livesynthesis()['hosts_synthesis']
 %ss = datamgr.get_livesynthesis()['services_synthesis']
 
+<style>
+div.pull-right a, div.pull-right div {
+   margin-top: 0px; margin-bottom: 0px;
+}
+
+.hosts-count, .services-count {
+   font-size: 32px;
+}
+.hosts-state, .services-state {
+   font-size: 16px;
+}
+</style>
 <nav id="topbar" class="navbar navbar-fixed-top">
    <div id="one-eye-toolbar" class="col-xs-12">
       <ul class="nav navbar-nav navbar-left">
@@ -386,158 +398,159 @@
       <div id="one-eye-overall" class="col-xs-12">
          <div class="col-md-6" id="panel_counters_hosts">
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="fa fa-server"></i>
-                    <span class="hosts-all" data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}">
-                        {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (hs['nb_problems']) if hs['nb_problems'] else '.'}}
-                    </span>
-                    <div class="pull-right">
-                        <a href="#p_panel_counters_hosts" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_counters_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
-                    </div>
-                </div>
-                <div id="p_panel_counters_hosts" class="panel-collapse collapse {{'in' if not panels['panel_counters_hosts']['collapsed'] else ''}}">
-                    <div class="panel-body">
-                        %for state in 'up', 'unreachable', 'down':
-                        <div class="col-xs-6 col-md-3 text-center">
-                            %label = "%d<br/><em>(%s)</em>" % (hs['nb_' + state], state)
-                            <a role="button" href="/all?search=type:host is:{{state}} isnot:ack isnot:downtime" class="font-{{state.lower()}}">
-                                <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}" style="font-size: 3em;">{{ hs['nb_' + state] }}</span>
-                                <br/>
-                                <span style="font-size: 1.5em;">{{ state }}</span>
-                            </a>
-                        </div>
-                        %end
-                    </div>
-                </div>
+               <div class="panel-heading clearfix">
+                  <i class="fa fa-server"></i>
+                  <span class="hosts-all" data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}">
+                     {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (hs['nb_problems']) if hs['nb_problems'] else '.'}}
+                  </span>
+
+                  <div class="pull-right">
+                     <a href="#p_panel_counters_hosts" data-toggle="collapse" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_counters_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                  </div>
+               </div>
+               <div id="p_panel_counters_hosts" class="panel-collapse collapse {{'in' if not panels['panel_counters_hosts']['collapsed'] else ''}}">
+                  <div class="panel-body">
+                     %for state in 'up', 'unreachable', 'down':
+                     <div class="col-xs-6 col-md-3 text-center">
+                        %label = "%d<br/><em>(%s)</em>" % (hs['nb_' + state], state)
+                        <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}">
+                           <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['nb_' + state] }}</span>
+                           <br/>
+                           <span class="hosts-state">{{ state }}</span>
+                        </a>
+                     </div>
+                     %end
+                  </div>
+               </div>
             </div>
          </div>
          <div class="col-md-6" id="panel_counters_services">
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="fa fa-cubes"></i>
-                    <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
-                        {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
-                    </span>
-                    <div class="pull-right">
-                        <a href="#p_panel_counters_services" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_counters_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
-                    </div>
+               <div class="panel-heading">
+                  <i class="fa fa-cubes"></i>
+                  <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
+                     {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
+                  </span>
+                  <div class="pull-right">
+                     <a href="#p_panel_counters_services" data-toggle="collapse" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_counters_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                  </div>
                 </div>
-                <div id="p_panel_counters_services" class="panel-collapse collapse {{'in' if not panels['panel_counters_services']['collapsed'] else ''}}">
-                    <div class="panel-body">
-                        %for state in 'ok', 'warning', 'critical', 'unknown':
-                        <div class="col-xs-6 col-md-3 text-center">
-                            %label = "%d<br/><em>(%s)</em>" % (ss['nb_' + state], state)
-                            <a role="button" href="/all?search=type:service is:{{state}} isnot:ack isnot:downtime" class="font-{{state.lower()}}">
-                                <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 3em;">{{ ss['nb_' + state] }}</span>
-                                <br/>
-                                <span style="font-size: 1.5em;">{{ state }}</span>
-                            </a>
-                        </div>
-                        %end
-                    </div>
-                </div>
+               <div id="p_panel_counters_services" class="panel-collapse collapse {{'in' if not panels['panel_counters_services']['collapsed'] else ''}}">
+                  <div class="panel-body">
+                     %for state in 'ok', 'warning', 'critical', 'unknown':
+                     <div class="col-xs-6 col-md-3 text-center">
+                        %label = "%d<br/><em>(%s)</em>" % (ss['nb_' + state], state)
+                        <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
+                           <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['nb_' + state] }}</span>
+                           <br/>
+                           <span class="services-state">{{ state }}</span>
+                        </a>
+                     </div>
+                     %end
+                  </div>
+               </div>
             </div>
          </div>
       </div>
 
       <div id="one-eye-icons" class="col-xs-12">
          <div class="col-md-6" id="panel_percentage_hosts">
-               <div class="panel panel-default">
-                   <div class="panel-heading">
-                       <i class="fa fa-server"></i>
-                       <span class="hosts-all" data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}">
-                           {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (hs['nb_problems']) if hs['nb_problems'] else '.'}}
-                       </span>
-                       <div class="pull-right">
-                           <a href="#p_panel_percentage_hosts" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_percentage_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
-                       </div>
-                   </div>
-                   <div id="p_panel_percentage_hosts" class="panel-collapse collapse {{'in' if not panels['panel_percentage_hosts']['collapsed'] else ''}}">
-                       <div class="panel-body">
-                           <!-- Hosts SLA icons -->
-                           <div class="col-xs-4 col-sm-4 text-center">
-                               <a href="/all?search=type:host" class="btn">
-                                  <div>
-                                     %state = (100 - hs['pct_up'])
-                                     %font='ok' if state >= 95.0 else 'warning' if state >= 90.0 else 'critical'
-                                     <span class="badger-big badger-right font-{{font}}">{{state}}%</span>
-                                  </div>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <i class="fa fa-server"></i>
+                  <span class="hosts-all" data-count="{{ hs['nb_elts'] }}" data-problems="{{ hs['nb_problems'] }}">
+                     {{hs['nb_elts']}} hosts{{! "<em class='font-down'> (%d problems).</em>" % (hs['nb_problems']) if hs['nb_problems'] else '.'}}
+                  </span>
+                  <div class="pull-right">
+                     <a href="#p_panel_percentage_hosts" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_percentage_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                  </div>
+               </div>
+               <div id="p_panel_percentage_hosts" class="panel-collapse collapse {{'in' if not panels['panel_percentage_hosts']['collapsed'] else ''}}">
+                  <div class="panel-body">
+                     <!-- Hosts SLA icons -->
+                     <div class="col-xs-4 col-sm-4 text-center">
+                        <div class="col-xs-12 text-center">
+                           %sla = (100 - hs['pct_up'])
+                           %font='ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
+                           <a href="{{ webui.get_url('Hosts table') }}" class="sla_hosts_{{font}}">
+                              <div>{{sla}}%</div>
 
-                                  <i class="fa fa-4x fa-server font-{{font}}"></i>
-                                  <p class="badger-title font-{{font}}">&nbsp;SLA</p>
-                               </a>
-                           </div>
+                              <i class="fa fa-4x fa-server"></i>
+                              <p>{{_('Hosts SLA')}}</p>
+                           </a>
+                        </div>
+                        %known_problems=hs['nb_acknowledged']+hs['nb_in_downtime']+hs['nb_problems']
+                        %pct_known_problems=round(100.0 * known_problems / hs['nb_elts'], 2) if hs['nb_elts'] else -1
+                        <div class="col-xs-12 text-center">
+                           <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:down" class="sla_hosts_problems">
+                              <span class="hosts-count" data-count="{{ known_problems }}" data-state="problem">{{ pct_known_problems }}%</span>
+                              <br/>
+                              <span class="hosts-state">{{_('Known problems')}}</span>
+                           </a>
+                        </div>
+                     </div>
 
-                           %for state in 'up', 'unreachable', 'down':
-                           <div class="col-xs-4 col-sm-4 text-center">
-                               <a role="button" href="/all?search=type:host is:{{state}} isnot:ack isnot:downtime" class="font-{{state.lower()}}">
-                                   <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ hs['pct_' + state] }}%</span>
-                                   <br/>
-                                   <span style="font-size: 1em;">{{ state }}</span>
-                               </a>
-                           </div>
-                           %end
-                           %known_problems=hs['nb_acknowledged']+hs['nb_in_downtime']+hs['nb_problems']
-                           %pct_known_problems=round(100.0 * known_problems / hs['nb_elts'], 2) if hs['nb_elts'] else -1
-                           <div class="col-xs-4 col-sm-4 text-center">
-                               <a role="button" href="/all?search=type:host is:ack" class="font-unknown">
-                                   <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ pct_known_problems }}%</span>
-                                   <br/>
-                                   <span style="font-size: 1em;">Known problems</span>
-                               </a>
-                           </div>
-                       </div>
-                   </div>
+                     %for state in 'up', 'unreachable', 'down':
+                     <div class="col-xs-4 col-sm-4 text-center">
+                        <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}">
+                           <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['pct_' + state] }}%</span>
+                           <br/>
+                           <span class="hosts-state">{{ state }}</span>
+                        </a>
+                     </div>
+                     %end
+                  </div>
+               </div>
                </div>
          </div>
          <div class="col-md-6" id="panel_percentage_services">
-               <div class="panel panel-default">
-                   <div class="panel-heading">
-                       <i class="fa fa-cubes"></i>
-                       <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
-                           {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
-                       </span>
-                       <div class="pull-right">
-                           <a href="#p_panel_percentage_services" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_percentage_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
-                       </div>
-                   </div>
-                   <div id="p_panel_percentage_services" class="panel-collapse collapse {{'in' if not panels['panel_percentage_services']['collapsed'] else ''}}">
-                       <div class="panel-body">
-                           <!-- Services SLA icons -->
-                           <div class="col-xs-4 col-sm-4 text-center">
-                               <a href="/all?search=type:service" class="btn">
-                                  <div>
-                                     %state = (100 - ss['pct_ok'])
-                                     %font='ok' if state >= 95.0 else 'warning' if state >= 90.0 else 'critical'
-                                     <span class="badger-big badger-right font-{{font}}">{{state}}%</span>
-                                  </div>
-
-                                  <i class="fa fa-4x fa-server font-{{font}}"></i>
-                                  <p class="badger-title font-{{font}}">&nbsp;SLA</p>
-                               </a>
-                           </div>
-
-                           %for state in 'ok', 'warning', 'critical', 'unknown':
-                           <div class="col-xs-4 col-sm-4 text-center">
-                               <a role="button" href="/all?search=type:service is:{{state}} isnot:ack isnot:downtime" class="font-{{state.lower()}}">
-                                   <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ ss['pct_' + state] }}%</span>
-                                   <br/>
-                                   <span style="font-size: 1em;">{{ state }}</span>
-                               </a>
-                           </div>
-                           %end
-                           %known_problems=ss['nb_acknowledged']+ss['nb_in_downtime']+ss['nb_problems']
-                           %pct_known_problems=round(100.0 * known_problems / ss['nb_elts'], 2) if ss['nb_elts'] else -1
-                           <div class="col-xs-4 col-sm-4 text-center">
-                               <a role="button" href="/all?search=type:service is:ack" class="font-unknown">
-                                   <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}" style="font-size: 1.8em;">{{ pct_known_problems }}%</span>
-                                   <br/>
-                                   <span style="font-size: 1em;">Known problems</span>
-                               </a>
-                           </div>
-                       </div>
-                   </div>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <i class="fa fa-cubes"></i>
+                  <span class="services-all" data-count="{{ ss['nb_elts'] }}" data-problems="{{ ss['nb_problems'] }}">
+                     {{ss['nb_elts']}} services{{! "<em class='font-down'> (%d problems).</em>" % (ss['nb_problems']) if ss['nb_problems'] else '.'}}
+                  </span>
+                  <div class="pull-right">
+                     <a href="#p_panel_percentage_services" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_percentage_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                  </div>
                </div>
+               <div id="p_panel_percentage_services" class="panel-collapse collapse {{'in' if not panels['panel_percentage_services']['collapsed'] else ''}}">
+                  <div class="panel-body">
+                     <!-- Services SLA icons -->
+                     <div class="col-xs-4 col-sm-4 text-center">
+                        <div class="col-xs-12 text-center">
+                           %sla = (100 - ss['pct_ok'])
+                           %font='ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
+                           <a href="/all?search=type:service" class="sla_services_{{font}}">
+                              <div>{{sla}}%</div>
+
+                              <i class="fa fa-4x fa-server font-{{font}}"></i>
+                              <p>{{_('Services SLA')}}</p>
+                           </a>
+                        </div>
+                        %known_problems=ss['nb_acknowledged']+ss['nb_in_downtime']+ss['nb_problems']
+                        %pct_known_problems=round(100.0 * known_problems / ss['nb_elts'], 2) if ss['nb_elts'] else -1
+                        <div class="col-xs-12 text-center">
+                            <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:down" class="sla_services_problems">
+                                <span class="services-count" data-count="{{ known_problems }}" data-state="problem">{{ pct_known_problems }}%</span>
+                                <br/>
+                                <span class="services-state">{{_('Known problems')}}</span>
+                            </a>
+                        </div>
+                     </div>
+
+                     %for state in 'ok', 'warning', 'critical', 'unknown':
+                     <div class="col-xs-4 col-sm-4 text-center">
+                         <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
+                             <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['pct_' + state] }}%</span>
+                             <br/>
+                             <span class="services-state">{{ state }}</span>
+                         </a>
+                     </div>
+                     %end
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
 
@@ -576,7 +589,7 @@
                                    %end
                                </ul>
                            </div>
-                           <a href="#p_panel_pie_graph_hosts" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_pie_graph_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                           <a href="#p_panel_pie_graph_hosts" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_pie_graph_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
                        </div>
                    </div>
                    <div id="p_panel_pie_graph_hosts" class="panel-collapse collapse {{'in' if not panels['panel_pie_graph_hosts']['collapsed'] else ''}}">
@@ -636,7 +649,7 @@
                                    %end
                                </ul>
                            </div>
-                           <a href="#p_panel_pie_graph_services" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_pie_graph_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                           <a href="#p_panel_pie_graph_services" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_pie_graph_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
                        </div>
                    </div>
                    <div id="p_panel_pie_graph_services" class="panel-collapse collapse {{'in' if not panels['panel_pie_graph_services']['collapsed'] else ''}}">
@@ -696,7 +709,7 @@
                                    %end
                                </ul>
                            </div>
-                           <a href="#p_panel_line_graph_hosts" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_line_graph_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                           <a href="#p_panel_line_graph_hosts" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_line_graph_hosts']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
                        </div>
                    </div>
                    <div id="p_panel_line_graph_hosts" class="panel-collapse collapse {{'in' if not panels['panel_line_graph_hosts']['collapsed'] else ''}}">
@@ -756,7 +769,7 @@
                                    %end
                                </ul>
                            </div>
-                           <a href="#p_panel_line_graph_services" data-toggle="collapse" type="button" class="btn btn-xs"><i class="fa {{'fa-minus-square' if not panels['panel_line_graph_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
+                           <a href="#p_panel_line_graph_services" data-toggle="collapse" type="button" class="btn btn-xs btn-raised"><i class="fa {{'fa-minus-square' if not panels['panel_line_graph_services']['collapsed'] else 'fa-plus-square'}} fa-fw"></i></a>
                        </div>
                    </div>
                    <div id="p_panel_line_graph_services" class="panel-collapse collapse {{'in' if not panels['panel_line_graph_services']['collapsed'] else ''}}">
