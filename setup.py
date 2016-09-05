@@ -63,7 +63,7 @@ install_requires = [
 
 # Define paths
 if 'linux' in sys.platform or 'sunos5' in sys.platform:
-    paths = {
+    installation_paths = {
         'bin':     "/usr/bin",
         'var':     "/var/lib/alignak-webui/",
         'etc':     "/etc/alignak-webui",
@@ -71,7 +71,7 @@ if 'linux' in sys.platform or 'sunos5' in sys.platform:
         'log':     "/var/log/alignak-webui"
     }
 elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    paths = {
+    installation_paths = {
         'bin':     "/usr/local/bin",
         'var':     "/usr/local/libexec/alignak-webui",
         'etc':     "/usr/local/etc/alignak-webui",
@@ -83,7 +83,7 @@ else:
     exit(1)
 
 data_files = [
-    (paths['etc'], ['etc/settings.cfg'])
+    (installation_paths['etc'], ['etc/settings.cfg'])
 ]
 
 # Specific for Read the docs build process
