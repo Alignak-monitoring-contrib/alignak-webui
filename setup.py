@@ -65,20 +65,18 @@ install_requires = [
 if 'linux' in sys.platform or 'sunos5' in sys.platform:
     paths = {
         'bin':     "/usr/bin",
-        'var':     "/var/lib/alignak_webui/",
-        'share':   "/var/lib/alignak_webui/share",
-        'etc':     "/etc/alignak_webui",
-        'run':     "/var/run/alignak_webui",
-        'log':     "/var/log/alignak_webui"
+        'var':     "/var/lib/alignak-webui/",
+        'etc':     "/etc/alignak-webui",
+        'run':     "/var/run/alignak-webui",
+        'log':     "/var/log/alignak-webui"
     }
 elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
     paths = {
         'bin':     "/usr/local/bin",
-        'var':     "/usr/local/libexec/alignak_webui",
-        'share':   "/usr/local/share/alignak_webui",
-        'etc':     "/usr/local/etc/alignak_webui",
-        'run':     "/usr/local/var/run/alignak_webui",
-        'log':     "/usr/local/var/log/alignak_webui"
+        'var':     "/usr/local/libexec/alignak-webui",
+        'etc':     "/usr/local/etc/alignak-webui",
+        'run':     "/usr/local/var/run/alignak-webui",
+        'log':     "/usr/local/var/log/alignak-webui"
     }
 else:
     print "Unsupported platform, sorry!"
