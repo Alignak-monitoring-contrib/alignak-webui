@@ -524,8 +524,14 @@ class Datatable(object):
         else:
             self.records_total = self.backend.count(self.object_type)
 
+        if self.is_templated:
+            if 'where' in parameters:
+                parameters['where'].update({'_is_template': False})
+            else:
+                parameters['where'] = {'_is_template': False}
+
         # Request objects from the backend ...
-        logger.info("table data get parameters: %s", parameters)
+        logger.warning("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
         logger.info("table data got %d items", len(items))
         if not items:
