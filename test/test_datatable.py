@@ -1156,7 +1156,7 @@ class TestDatatableUserRestrictRole(unittest2.TestCase):
                 assert response.json['data'][x]
                 assert response.json['data'][x]['user'] is not None
                 assert response.json['data'][x]['realm'] is not None
-                assert response.json['data'][x]['sub_realm'] is not None
+                # assert response.json['data'][x]['sub_realm'] is not None
                 assert response.json['data'][x]['resource'] is not None
                 assert response.json['data'][x]['crud'] is not None
 

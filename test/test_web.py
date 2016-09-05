@@ -143,7 +143,6 @@ class TestDashboard(unittest2.TestCase):
             '<div id="one-eye-toolbar"',
             '<div id="one-eye-overall" ',
             '<div id="one-eye-icons" ',
-            '<div id="livestate-graphs" '
         )
 
 
@@ -589,112 +588,6 @@ class TestServices(unittest2.TestCase):
         })
         response.mustcontain(
             '<div id="wd_panel_services_chart_1" class="panel panel-default alignak_webui_widget ">'
-        )
-
-
-class TestLivestate(unittest2.TestCase):
-    def setUp(self):
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-
-    def tearDown(self):
-        response = self.app.get('/logout')
-
-    def test_3_7_livestate(self):
-        print('')
-        print('test livestate')
-
-        print('get page /livestate')
-        response = self.app.get('/livestate/fake_id', status=204)
-
-        session = response.request.environ['beaker.session']
-        datamgr = DataManager(
-            user=session['current_user'],
-            backend_endpoint='http://127.0.0.1:5000'
-        )
-        lv_host = datamgr.get_livestates({'where': {'name': 'webui'}})
-        lv_service = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
-        print('livestate: %s / %s' % (lv_host, lv_service))
-
-        # Redirect to host page
-        response = self.app.get('/livestate/' + lv_host[0].id)
-        response = response.follow()
-        response.mustcontain(
-            '<div id="host">',
-        )
-
-        # Redirect to host page
-        response = self.app.get('/livestate/' + lv_service[0].id)
-        response = response.follow()
-        response.mustcontain(
-            '<div id="service">',
-        )
-
-        print('get page /livestates/widget')
-        # Errors
-        response = self.app.post('/livestate/widget', status=204)
-        response = self.app.post('/livestate/widget', {'widget_id': 'test_widget'}, status=204)
-
-        # Hosts/services table
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_table_1',
-            'widget_template': 'livestate_table_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_table_1" class="panel panel-default alignak_webui_widget ">'
-        )
-
-        # Hosts chart
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_hosts_chart_1',
-            'widget_template': 'livestate_hosts_chart_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_hosts_chart_1" class="panel panel-default alignak_webui_widget ">'
-        )
-        # Hosts counters
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_hosts_counters_1',
-            'widget_template': 'livestate_hosts_counters_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_hosts_counters_1" class="panel panel-default alignak_webui_widget ">'
-        )
-        # Hosts SLA
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_hosts_sla_1',
-            'widget_template': 'livestate_hosts_sla_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_hosts_sla_1" class="panel panel-default alignak_webui_widget ">'
-        )
-
-        # Services chart
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_services_chart_1',
-            'widget_template': 'livestate_services_chart_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_services_chart_1" class="panel panel-default alignak_webui_widget ">'
-        )
-        # Services counters
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_services_counters_1',
-            'widget_template': 'livestate_services_counters_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_services_counters_1" class="panel panel-default alignak_webui_widget ">'
-        )
-        # Services SLA
-        response = self.app.post('/livestate/widget', {
-            'widget_id': 'livestate_services_sla_1',
-            'widget_template': 'livestate_services_sla_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_livestate_services_sla_1" class="panel panel-default alignak_webui_widget ">'
         )
 
 

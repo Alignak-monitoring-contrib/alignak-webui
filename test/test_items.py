@@ -34,7 +34,6 @@ from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.item_host import Host
 from alignak_webui.objects.item_service import Service
-from alignak_webui.objects.item_livestate import LiveState
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.item_user import User
 from alignak_webui.utils.settings import Settings
