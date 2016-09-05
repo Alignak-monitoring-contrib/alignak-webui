@@ -70,7 +70,7 @@ class HostGroup(BackendElement):
         return self._linked_hostgroups
 
     @property
-    def parent(self):
+    def _parent(self):
         """ Return group parent """
         return self._linked__parent
 

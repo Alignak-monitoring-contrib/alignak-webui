@@ -51,14 +51,14 @@ class Datatable(object):
         Create a new datatable:
         - object_type: object type in the backend
         - backend: backend endpoint (http://127.0.0.1:5002)
-        - schema: model dictionary (see hosts.py as an example)
+        - schema: table configuration as defined in the settings.cfg file of a plugin
         """
         self.object_type = object_type
         self.datamgr = datamgr
         self.backend = self.datamgr.backend
 
         # Update global table records count, require total count from backend
-        self.records_total = self.backend.count(self.object_type)
+        self.records_total = 0
         self.records_filtered = 0
 
         self.id_property = '_id'
@@ -92,6 +92,15 @@ class Datatable(object):
 
         self.get_data_model(schema)
 
+        self.is_templated = False
+        for field in self.table_columns:
+            if field['data'] == '_is_template':
+                self.is_templated = True
+                self.records_total = self.backend.count(self.object_type, params={'where': {'_is_template': False}})
+                break
+        else:
+            self.records_total = self.backend.count(self.object_type)
+
     ##
     # Data model
     ##
@@ -118,26 +127,17 @@ class Datatable(object):
                 the ui in its schema. The dictionary contains all the fields defined in the 'ui'
                 property of the schema of the element.
 
-            :param schema:
             :return: list of fields name/title
-            :rtype: list
-            :return: dictionary
-            :rtype: dict
         """
-        self.table_columns = []
-
         if not schema:
-            logger.error(
-                "get_data_model, missing schema"
-            )
+            logger.error("get_data_model, missing schema")
             return None
 
+        self.table_columns = []
         for field, model in schema.iteritems():
             # Global table configuration?
             if field == '_table':
-                logger.debug(
-                    'get_data_model, table UI schema: %s', model
-                )
+                # logger.debug('get_data_model, table UI schema: %s', model)
 
                 self.id_property = model.get('id_property', '_id')
                 self.name_property = model.get('name_property', 'name')
@@ -158,11 +158,7 @@ class Datatable(object):
                 self.initial_sort = model.get('initial_sort', [[1, 'asc']])
                 continue
 
-            # If element is considered for the UI
-            if not model.get('visible', True):
-                continue
-
-            logger.debug("get_data_model, visible field: %s = %s", field, model)
+            # logger.debug("get_data_model, visible field: %s = %s", field, model)
 
             # Get all the definitions made in the plugin configuration...
             ui_field = model
@@ -182,7 +178,8 @@ class Datatable(object):
                 'hint': model.get('hint', ''),
                 'format': model.get('format', ''),
                 'format_parameters': model.get('format_parameters', ''),
-                'visible': model.get('visible', not model.get('hidden', False)),
+                'visible': model.get('visible', True),
+                # 'visible': model.get('visible', not model.get('hidden', False)),
                 'hidden': model.get('hidden', False),
                 'orderable': model.get('orderable', True),
                 'editable': model.get('editable', True),
@@ -199,7 +196,7 @@ class Datatable(object):
                     {'content_type': 'objectid:' + model.get('resource', 'unknown')}
                 )
 
-            logger.debug("get_data_model, field: %s = %s", field, ui_field)
+            # logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
             # Convert data model format to datatables' one ...
             self.table_columns.append(ui_field)
@@ -359,6 +356,10 @@ class Datatable(object):
         # Manage request parameters ...
         logger.info("request data for table: %s", request.forms.get('object_type'))
 
+        for field in self.table_columns:
+            if field['data'] == '_is_template':
+                logger.warning("table_data, model: %s: %s", field['data'], field)
+
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
@@ -380,7 +381,7 @@ class Datatable(object):
 
         parameters['page'] = (first_row // rows_count) + 1
         parameters['max_results'] = rows_count
-        logger.info(
+        logger.debug(
             "get %d rows from row #%d -> page: %d",
             rows_count, first_row, parameters['page']
         )
@@ -504,30 +505,24 @@ class Datatable(object):
         if searched_global:
             parameters['where'] = {"$or": searched_global}
 
-        # Embed linked resources
+        # Embed linked resources / manage templated resources
         parameters['embedded'] = {}
         for field in self.table_columns:
+            logger.debug("field: %s", field['data'])
             if field['type'] == 'objectid' or field['content_type'] == 'objectid':
                 parameters['embedded'].update({field['data']: 1})
+
         logger.debug("backend embedded parameters: %s", parameters['embedded'])
 
-        # Get elements from the data manager
-        f = getattr(self.datamgr, 'get_%ss' % self.object_type)
-        if not f:
-            logger.error(
-                "datatable, unknown datamanager function to get object type: %s", self.object_type
-            )
-            # Empty response
-            return json.dumps({
-                # draw is the request number ...
-                "draw": int(params.get('draw', '0')),
-                "recordsTotal": 0,
-                "recordsFiltered": 0,
-                "data": []
-            })
-
-        # Update global table records count, require total count from backend
-        self.records_total = self.backend.count(self.object_type)
+        # Count total elements excluding templates if necessary
+        self.is_templated = False
+        for field in self.table_columns:
+            if field['data'] == '_is_template':
+                self.is_templated = True
+                self.records_total = self.backend.count(self.object_type, params={'where': {'_is_template': False}})
+                break
+        else:
+            self.records_total = self.backend.count(self.object_type)
 
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
@@ -576,7 +571,7 @@ class Datatable(object):
         rows = []
         for item in items:
             bo_object = object_class(item)
-            logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
+            # logger.debug("%s object item: %s: %s", self.object_type, bo_object, bo_object.__dict__)
 
             row = {}
             row['DT_RowData'] = {}
@@ -618,10 +613,13 @@ class Datatable(object):
                     continue
 
                 if field['type'] == 'list':
-                    row[field['data']] = Helper.get_html_item_list(
-                        bo_object.id, field['data'],
-                        getattr(bo_object, field['data']), title=field['title']
-                    )
+                    if hasattr(bo_object, field['data']):
+                        row[field['data']] = Helper.get_html_item_list(
+                            bo_object.id, field['data'],
+                            getattr(bo_object, field['data']), title=field['title']
+                        )
+                    else:
+                        row[field['data']] = 'Unknown'
                     continue
 
                 if field['type'] == 'dict':
@@ -641,22 +639,13 @@ class Datatable(object):
                         )
                     else:
                         row[field['data']] = getattr(bo_object, field['data'])
+                        if row[field['data']] == field['resource']:
+                            row[field['data']] = '...'
                     continue
 
                 row[field['data']] = getattr(bo_object, field['data'])
-                # if field['type'] == 'objectid' and \
-                   # field in parameters['embedded'] and item[field]:
-                    # related_object_class = [kc for kc in self.datamgr.known_classes
-                                            # if kc.get_type() == field['resource']]
-                    # if related_object_class:
-                        # related_object_class = related_object_class[0]
-                        # linked_object = related_object_class(item[field])
-                        # item[field] = linked_object.get_html_link(
-                            # prefix=request.params.get('links')
-                        # )
-                    # break
 
-            logger.debug("Table row: %s", row)
+            # logger.debug("Table row: %s", row)
             rows.append(row)
 
         # Total number of filtered records

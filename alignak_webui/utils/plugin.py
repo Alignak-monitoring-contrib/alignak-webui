@@ -403,11 +403,11 @@ class Plugin(object):
         logger.warning("get_one, found: %s - %s", element, element.__dict__)
 
         # Build table structure and data model
-        dt = Datatable(self.backend_endpoint, datamgr, self.table)
+        # dt = Datatable(self.backend_endpoint, datamgr, self.table)
 
         return {
             'object_type': self.backend_endpoint,
-            'dt': dt,
+            # 'dt': dt,
             'element': element
         }
 
@@ -734,25 +734,18 @@ class Plugin(object):
         """
         Build the object_type table and get data to populate the table
         """
-        datamgr = request.app.datamgr
-
         # Table filtering: default is to restore the table saved filters
         where = {'saved_filters': True}
         if request.query.get('search') is not None:
             where = Helper.decode_search(request.query.get('search', ''))
 
-        # Get total elements count
-        # total = datamgr.get_objects_count(object_type, search=where, refresh=True)
-
         # Build table structure
-        dt = Datatable(self.backend_endpoint, datamgr, self.table)
+        dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table)
 
         # Build page title
         title = dt.title
-        logger.warning("Table title: %s", title)
         if '%d' in title:
             title = title % dt.records_total
-        logger.warning("Table title: %s", title)
 
         return {
             'object_type': self.backend_endpoint,
@@ -768,8 +761,7 @@ class Plugin(object):
         """
         Get the table data (requested from the table)
         """
-        datamgr = request.app.datamgr
-        dt = Datatable(self.backend_endpoint, datamgr, self.table)
+        dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table)
 
         response.status = 200
         response.content_type = 'application/json'

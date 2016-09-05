@@ -105,13 +105,13 @@
    var jsTreeData = [];
    %for item in elts:
       %parent='#'
-      %if item['parent'] and not isinstance(item['parent'], basestring):
-      %  parent=item['parent'].id
+      %if item['_parent'] and not isinstance(item['_parent'], basestring):
+      %  parent=item['_parent'].id
       %end
       %level=item['level']
       jsTreeData.push( {
          "id": '{{item.id}}',
-         "parent" : '{{'#' if parent=='#' else item.parent.id}}',
+         "parent" : '{{'#' if parent=='#' else item._parent.id}}',
          "type" : '{{'root' if parent=='#' else 'node'}}',
          "text": '{{item.alias}}',
          %if parent=='#':

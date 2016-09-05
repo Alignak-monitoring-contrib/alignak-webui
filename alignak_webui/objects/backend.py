@@ -115,11 +115,23 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             # Update backend search parameters
             if params is None:
-                params = {'page': 0, 'max_results': 1}
+                params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
             if 'where' in params:
                 params['where'] = json.dumps(params['where'])
+            if 'embedded' in params:
+                del(params['embedded'])
+            if 'where' not in params:
+                params['where'] = {}
+            if 'page' not in params:
+                params['page'] = 0
             if 'max_results' not in params:
-                params['max_results'] = 1
+                params['max_results'] = BACKEND_PAGINATION_LIMIT
+            # if params is None:
+                # params = {'page': 0, 'max_results': 1}
+            # if 'where' in params:
+                # params['where'] = json.dumps(params['where'])
+            # if 'max_results' not in params:
+                # params['max_results'] = 1
             logger.debug(
                 "count, search in the backend for %s: parameters=%s", object_type, params
             )

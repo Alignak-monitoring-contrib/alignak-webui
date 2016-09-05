@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', False)
+%setdefault('debugLogs', True)
 
 %setdefault('edition_mode', False)
 
@@ -45,9 +45,6 @@
             <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}
             %if debug:
             {{column.get('visible','###')}} - {{column.get('orderable','###')}} - {{column.get('searchable','###')}}
-            %end
-            %if column.get('hidden',False):
-            %column['visible'] = False
             %end
             </th>
             %end
@@ -331,8 +328,6 @@
          if (debugTable) console.debug('Datatable event, saved state loaded ...');
          if (debugTable) console.debug('Saved filters:', where['saved_filters']);
 
-         resetFilters();
-
          if (where['saved_filters']) {
             if (debugTable) console.debug('Restoring saved filters:', where);
 
@@ -360,6 +355,8 @@
             });
          } else {
             if (debugTable) console.debug('Erasing saved filters:', where);
+
+            resetFilters();
 
             // Update each search field with the filter URL parameters
             $.each(where, function(key, value) {

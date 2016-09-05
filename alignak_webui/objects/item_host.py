@@ -56,6 +56,7 @@ class Host(BackendElement):
         """
         Create a host (called only once when an object is newly created)
         """
+        self._linked__realm = 'realm'
         self._linked__templates = 'host'
         self._linked_check_command = 'command'
         self._linked_snapshot_command = 'command'
@@ -68,6 +69,16 @@ class Host(BackendElement):
         self._linked_usergroups = 'usergroup'
 
         super(Host, self)._create(params, date_format)
+
+    @property
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm
+
+    @property
+    def _templates(self):
+        """ Return linked object """
+        return self._linked__templates
 
     @property
     def _templates(self):

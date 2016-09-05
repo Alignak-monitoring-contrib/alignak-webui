@@ -110,7 +110,7 @@ def before_request():
     if not user_authentication(current_user.token, None):  # pragma: no cover - simple security!
         # Redirect to application login page
         logger.warning(
-            "before_request, current_user in the session is not authenticated."
+            "user in the session is not authenticated."
             " Redirecting to the login page..."
         )
         redirect('/login')
@@ -131,7 +131,7 @@ def before_request():
     )
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
-    logger.debug("before_request, call function for route: %s", request.urlparts.path)
+    # logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ def external(widget_type, identifier, action=None):
         if not user_authentication(current_user.token, None):
             # Redirect to application login page
             logger.warning(
-                "before_request, current_user in the session is not authenticated."
+                "user in the session is not authenticated."
                 " Redirecting to the login page..."
             )
             redirect('/login')
@@ -472,15 +472,6 @@ def ping():
 
     # Check new data in the data manager for the page refresh
     session = request.environ['beaker.session']
-    if session and 'datamanager' in session:
-        # Test without cache
-        if session['datamanager'].refresh_required:
-            session['refresh_required'] = True
-            logger.warning("Data manager says a refresh is required")
-        # if session['datamanager'].refresh_required or session['datamanager'].load(refresh=True):
-            # session['refresh_required'] = True
-            # logger.warning("Data manager says a refresh is required")
-
     if 'refresh_required' in session and session['refresh_required']:
         # Require UI refresh
         response.status = 200
@@ -611,7 +602,7 @@ def user_authentication(username, password):
     Stores the authenticated User object in the session to make it available
     """
 
-    logger.info("user_authentication, authenticating: %s", username)
+    logger.debug("user_authentication, authenticating: %s", username)
 
     # Session...
     session = request.environ['beaker.session']

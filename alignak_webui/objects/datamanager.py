@@ -79,7 +79,7 @@ class DataManager(object):
         # Set a unique id for each DM object
         self.__class__.id += 1
 
-        logger.info("DM, creating: %s, user: %s, be: %s", self.__class__.id, user, backend_endpoint)
+        # logger.info("DM, creating: %s, user: %s, be: %s", self.__class__.id, user, backend_endpoint)
 
         # Associated backend object
         self.backend_endpoint = backend_endpoint
@@ -135,13 +135,12 @@ class DataManager(object):
         If no password is provided, the username is assumed to be an authentication token and we
         use the backend connect function.
         """
-        logger.info("user_login, connection requested: %s, load: %s", username, load)
+        logger.debug("user_login, connection requested: %s, load: %s", username, load)
 
         self.connected = False
         self.connection_message = _('Backend connecting...')
         try:
             # Backend login
-            logger.info("Requesting backend authentication, username: %s", username)
             self.connected = self.backend.login(username, password)
             if self.connected:
                 self.connection_message = _('Connection successful')
@@ -162,7 +161,7 @@ class DataManager(object):
                 self.logged_in_user = User(users[0])
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
-                logger.info("Logged-in user: %s", self.logged_in_user)
+                # logger.info("Logged-in user: %s", self.logged_in_user)
 
                 # Get total objects count from the backend
                 self.get_objects_count(refresh=True, log=False)
@@ -179,7 +178,7 @@ class DataManager(object):
             logger.warning("User login exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
 
-        logger.info("user_login, connection message: %s", self.connection_message)
+        # logger.info("user_login, connection message: %s", self.connection_message)
         return self.connected
 
     def user_logout(self):

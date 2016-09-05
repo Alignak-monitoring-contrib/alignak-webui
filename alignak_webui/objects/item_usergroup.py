@@ -65,7 +65,7 @@ class UserGroup(BackendElement):
         return self._linked_usergroups
 
     @property
-    def parent(self):
+    def _parent(self):
         """ Return group parent """
         return self._linked__parent
 

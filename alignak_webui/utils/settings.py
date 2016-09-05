@@ -114,8 +114,6 @@ class Settings(OrderedDict):
                                 self[section + '.' + option] = True
                             if self[section + '.' + option] in ['False', 'false']:
                                 self[section + '.' + option] = False
-            else:  # pragma: no cover - should never happen ...
-                print("No configuration file found in %s." % settings_filenames)
 
             return found_cfg_file
         except Exception as e:
