@@ -435,7 +435,7 @@ class DataManager(object):
         - object_type is the element type
         - element may be a string. In this case it is considered to be the element id
         """
-        logger.info("delete_object, request to delete the %s: %s", object_type, element)
+        logger.debug("delete_object, request to delete the %s: %s", object_type, element)
 
         if isinstance(element, basestring):
             object_id = element
@@ -457,7 +457,7 @@ class DataManager(object):
         """
         Update an element
         """
-        logger.info("update_object, request to update: %s", element)
+        logger.debug("update_object, request to update: %s", element)
 
         return self.backend.update(element, data)
 
@@ -514,7 +514,8 @@ class DataManager(object):
         :return: True / False
         :rtype: boolean
         """
-        logger.debug("set_user_preferences, type: %s, for: %s", preference_key, user)
+        logger.info("set_user_preferences, type: %s, for: %s", preference_key, user)
+        logger.info("set_user_preferences, value = %s", value)
 
         # Get user stored value
         if user.set_ui_preference(preference_key, value):

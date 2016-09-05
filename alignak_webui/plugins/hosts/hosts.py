@@ -24,6 +24,8 @@
 """
 from logging import getLogger
 
+from copy import deepcopy
+
 from bottle import request, template, response
 
 from alignak_webui import _
@@ -229,11 +231,12 @@ class PluginHosts(Plugin):
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Pagination and search
         start = int(request.params.get('start', '0'))
         count = int(request.params.get('count', elts_per_page))
+        if count < 1:
+            count = elts_per_page
         where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
             'page': start // (count + 1),
@@ -248,7 +251,7 @@ class PluginHosts(Plugin):
                     {'alias': {'$regex': ".*%s.*" % name_filter}}
                 ]
             })
-        logger.info("Search parameters: %s", search)
+        logger.debug("Widget search parameters: %s", search)
 
         # Get elements from the data manager
         hosts = datamgr.get_hosts(search)
@@ -277,11 +280,24 @@ class PluginHosts(Plugin):
             logger.warning("Widget identifier not found: %s", widget_id)
             return self.webui.response_invalid_parameters(_('Unknown widget identifier'))
 
-        if options:
-            options['search']['value'] = request.params.get('search', '')
-            options['count']['value'] = count
-            options['filter']['value'] = name_filter
+        new_options = deepcopy(options)
         logger.info("Widget options: %s", options)
+        if options:
+            new_options['search']['value'] = request.params.get('search', '')
+            new_options['count']['value'] = request.params.get('count', elts_per_page)
+            new_options['filter']['value'] = request.params.get('filter', '')
+        if options != new_options:
+            logger.info("Widget new options: %s", new_options)
+
+            # Search for the dashboard widgets
+            saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
+            for widget in saved_widgets:
+                if widget_id.startswith(widget['id']):
+                    widget['options'] = new_options
+                    datamgr.set_user_preferences(user, 'dashboard_widgets', saved_widgets)
+                    logger.info("Widget new options saved!")
+                    break
+
 
         title = request.params.get('title', _('Hosts'))
         if name_filter:
@@ -297,6 +313,7 @@ class PluginHosts(Plugin):
             'widget_uri': request.urlparts.path,
             'hosts': hosts,
             'options': options,
+            'save_options': options != new_options,
             'title': title,
             'embedded': embedded,
             'identifier': identifier,

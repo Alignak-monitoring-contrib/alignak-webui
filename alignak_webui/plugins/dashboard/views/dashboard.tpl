@@ -1,5 +1,7 @@
 %setdefault('debug', False)
 
+%import json
+
 %from bottle import request
 %rebase("layout", js=['dashboard/htdocs/js/lodash.js', 'dashboard/htdocs/js/jquery.ui.touch-punch.min.js', 'dashboard/htdocs/js/gridstack.min.js'], css=['dashboard/htdocs/css/dashboard.css', 'dashboard/htdocs/css/gridstack.min.css'], title=title)
 
@@ -169,7 +171,7 @@
                   data-gs-min-height="{{widget['minHeight']}}"
                   data-gs-max-height="{{widget['maxHeight']}}"
                   >
-               <div class="grid-stack-item-content card">
+               <div class="grid-stack-item-content card" style="padding:5px">
                </div>
             </div>
          %end
@@ -177,11 +179,21 @@
    </div>
 </div>
 <script type="text/javascript">
-   var dashboard_logs = false;
+   var dashboard_logs = true;
 
    $('.grid-stack').on('change', function (e, items) {
       if (dashboard_logs) console.log("Grid layout changed:", items);
-      if (items === undefined) return;
+      if (items === undefined) {
+         // No more widgets
+         var to_save = []
+         save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
+            if (dashboard_logs) console.log("Saved {{widgets_place}} widgets grid", to_save)
+            // Page refresh required
+            refresh_required = true;
+         });
+         return;
+      }
+
       var widgets = [];
       for (i = 0; i < items.length; i++) {
          if (dashboard_logs) console.log("Grid item: ", $('#'+items[i].id));
@@ -208,9 +220,11 @@
          }
       }
       if (widgets.length > 0) {
-         var to_save = {'widgets': widgets}
+         var to_save = widgets
          save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
             if (dashboard_logs) console.log("Saved {{widgets_place}} widgets grid", to_save)
+            // Page refresh required
+            refresh_required = true;
          });
       }
    });
@@ -219,6 +233,8 @@
       for (var i = 0; i < items.length; i++) {
          if (dashboard_logs) console.log('Item removed from grid:', items[i]);
       }
+      // Page refresh required
+      refresh_required = true;
    });
 
    $(document).ready(function(){
@@ -259,10 +275,9 @@
       $('.grid-stack').gridstack(options);
 
       %for widget in dashboard_widgets:
-         // We are saying to the user that we are loading a widget with
-         // a spinner
          nb_widgets_loading += 1;
 
+         if (dashboard_logs) console.log("Widget: ", {{! json.dumps(widget)}})
          if (dashboard_logs) console.log("Load: {{widget['uri']}} for {{widget['id']}}")
          $("#{{widget['id']}} div.grid-stack-item-content").load(
             "{{widget['uri']}}",
@@ -280,7 +295,7 @@
                   $('#widgets_loading').hide();
                }
 
-               if ( status == "error" ) {
+               if (status == "error") {
                   raise_message_ko("{{_('Error when loading a widget: %s' % widget['name'])}}");
                }
             }

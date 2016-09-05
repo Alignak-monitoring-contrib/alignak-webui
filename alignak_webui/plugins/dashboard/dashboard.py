@@ -68,17 +68,17 @@ class PluginDashboard(Plugin):
         datamgr = request.app.datamgr
 
         # Search for the dashboard widgets
-        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', {'widgets': []})
+        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
         if not saved_widgets:
-            saved_widgets = {'widgets': []}
-            datamgr.set_user_preferences(user, 'dashboard_widgets', saved_widgets)
+            datamgr.set_user_preferences(user, 'dashboard_widgets', [])
 
         widgets = []
-        for widget in saved_widgets['widgets']:
-            if 'id' not in widget:
-                continue
+        for widget in saved_widgets:
+            logger.info("Dashboard widget, got: %s", widget)
 
-            logger.warning("Dashboard widget, got: %s", widget)
+            if 'id' not in widget:
+                logger.warning("Widget ignored: %s", widget)
+                continue
 
             # Widget data:
             # - for: widget page (default: dashboard)
@@ -110,13 +110,11 @@ class PluginDashboard(Plugin):
             widget['template'] = widget.get('template', None)
 
             options = widget.get('options', {})
-
-            widget['options'] = options
-            widget['options_json'] = json.dumps(options)
             args = {'id': widget['id']}
-            args.update(options)
             widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
-            logger.info("Dashboard widget: %s", widget)
+            for option in options:
+                widget['options_uri'] += '&%s=%s' % (option, options[option]['value'])
+            logger.warning("Dashboard widget: %s", widget)
             widgets.append(widget)
 
         message = None
