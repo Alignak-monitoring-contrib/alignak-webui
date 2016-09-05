@@ -847,11 +847,13 @@ class TestItems(unittest2.TestCase):
         assert len(item._cache) == 1
 
         print(item)
-        assert "%s" % item == "<host, id: host_0, name: anonymous, status: unknown>"
-        assert item._id == 'host_0'
-        assert item._type == 'host'
-        assert item.name == 'anonymous'
-        assert item.status == 'unknown'
+        print(item.__dict__)
+        # status is None because there is no status_property defined
+        self.assertEqual("%s" % item, "<host, id: host_0, name: anonymous, status: None>")
+        self.assertEqual(item._id, 'host_0')
+        self.assertEqual(item._type, 'host')
+        self.assertEqual(item.name, 'anonymous')
+        self.assertIsNone(item.status)
 
         item = Host()
         print(item.__dict__)
@@ -861,7 +863,7 @@ class TestItems(unittest2.TestCase):
         now = datetime.now()
         item = Host({
             'name': 'test',
-            'last_check': now
+            'ls_last_check': now
         })
         print(item.__dict__)
         assert item._id == 'host_1'

@@ -50,7 +50,7 @@ class Host(BackendElement):
     status_property = 'ls_state'
 
     # Dates fields: list of the attributes to be considered as dates
-    _dates = BackendElement._dates + ['last_state_change', 'last_check', 'next_check']
+    _dates = BackendElement._dates + ['ls_last_state_change', 'ls_last_check', 'ls_next_check']
 
     def _create(self, params, date_format):
         # Not that bad ... because _create is called from __new__
