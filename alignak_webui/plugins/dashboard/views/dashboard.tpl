@@ -169,7 +169,7 @@
                   data-gs-min-height="{{widget['minHeight']}}"
                   data-gs-max-height="{{widget['maxHeight']}}"
                   >
-               <div class="grid-stack-item-content">
+               <div class="grid-stack-item-content card">
                </div>
             </div>
          %end
@@ -281,7 +281,7 @@
                }
 
                if ( status == "error" ) {
-                  raise_message_ko(status, data);
+                  raise_message_ko("{{_('Error when loading a widget: %s' % widget['name'])}}");
                }
             }
          );
