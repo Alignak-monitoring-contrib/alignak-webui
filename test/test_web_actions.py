@@ -149,14 +149,13 @@ class tests_actions(unittest2.TestCase):
             backend_endpoint='http://127.0.0.1:5000'
         )
 
-        # Get host, user and realm in the backend
+        # Get host and user in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
-        livestate = datamgr.get_livestates({'where': {'name': 'webui'}})
 
         # -------------------------------------------
         # Add an acknowledge
-        # Missing livestate_id!
+        # Missing element_id!
         data = {
             "action": "add",
             "host": host.id,
@@ -171,7 +170,8 @@ class tests_actions(unittest2.TestCase):
         # Acknowledge an host
         data = {
             "action": "add",
-            "livestate_id": livestate[0].id,
+            "elements_type": 'host',    # Default value, can be omitted ...
+            "element_id": host.id,
             "sticky": True,
             "persistent": True,
             "notify": True,
@@ -183,10 +183,11 @@ class tests_actions(unittest2.TestCase):
         assert response.json['message'] == "Acknowledge sent for webui."
 
         # Acknowledge a service
-        livestate = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
+        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
         data = {
             "action": "add",
-            "livestate_id": livestate[0].id,
+            "elements_type": 'service',
+            "element_id": service.id,
             "sticky": True,
             "persistent": True,
             "notify": True,
@@ -198,11 +199,12 @@ class tests_actions(unittest2.TestCase):
         assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter."
 
         # Acknowledge several services
-        livestate1 = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
-        livestate2 = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
         data = {
             "action": "add",
-            "livestate_id": [livestate1[0].id, livestate2[0].id],
+            "elements_type": 'service',
+            "element_id": [service1.id, service2.id],
             "sticky": True,
             "persistent": True,
             "notify": True,
@@ -249,7 +251,6 @@ class tests_actions(unittest2.TestCase):
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
-        livestate = datamgr.get_livestates({'where': {'name': 'webui'}})
 
         now = datetime.utcnow()
         later = now + timedelta(days=2, hours=4, minutes=3, seconds=12)
@@ -274,7 +275,7 @@ class tests_actions(unittest2.TestCase):
         # downtime an host
         data = {
             "action": "add",
-            "livestate_id": livestate[0].id,
+            "element_id": host.id,
             "start_time": now,
             "end_time": later,
             "fixed": False,
@@ -284,13 +285,14 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         print response
         assert response.json['status'] == "ok"
-        assert response.json['message'] == "downtime sent for webui."
+        assert response.json['message'] == "Downtime sent for webui."
 
         # downtime a service
-        livestate = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
+        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
         data = {
             "action": "add",
-            "livestate_id": livestate[0].id,
+            "elements_type": 'service',
+            "element_id": service.id,
             "start_time": now,
             "end_time": later,
             "fixed": False,
@@ -300,14 +302,15 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         print response
         assert response.json['status'] == "ok"
-        assert response.json['message'] == "downtime sent for webui/Shinken2-arbiter."
+        assert response.json['message'] == "Downtime sent for webui/Shinken2-arbiter."
 
         # downtime several services
-        livestate1 = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
-        livestate2 = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
         data = {
             "action": "add",
-            "livestate_id": [livestate1[0].id, livestate2[0].id],
+            "elements_type": 'service',
+            "element_id": [service1.id, service2.id],
             "start_time": now,
             "end_time": later,
             "fixed": False,
@@ -317,7 +320,7 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         print response
         assert response.json['status'] == "ok"
-        assert response.json['message'] == "downtime sent for webui/Shinken2-arbiter.downtime sent for webui/Shinken2-reactionner."
+        assert response.json['message'] == "Downtime sent for webui/Shinken2-arbiter.Downtime sent for webui/Shinken2-reactionner."
 
         print 'get page /downtime/form/add'
         response = self.app.get('/downtime/form/add')
@@ -355,7 +358,6 @@ class tests_actions(unittest2.TestCase):
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
-        livestate = datamgr.get_livestates({'where': {'name': 'webui'}})
 
         # -------------------------------------------
         # Add a recheck
@@ -372,7 +374,8 @@ class tests_actions(unittest2.TestCase):
 
         # Recheck an host
         data = {
-            "livestate_id": livestate[0].id,
+            "elements_type": 'host',
+            "element_id": host.id,
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)
@@ -381,9 +384,10 @@ class tests_actions(unittest2.TestCase):
         assert response.json['message'] == "Check request sent for webui."
 
         # Recheck a service
-        livestate = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
+        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
         data = {
-            "livestate_id": livestate[0].id,
+            "elements_type": 'service',
+            "element_id": service.id,
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)
@@ -392,10 +396,12 @@ class tests_actions(unittest2.TestCase):
         assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter."
 
         # Recheck several services
-        livestate1 = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-arbiter'}})
-        livestate2 = datamgr.get_livestates({'where': {'name': 'webui/Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
         data = {
-            "livestate_id": [livestate1[0].id, livestate2[0].id],
+            "action": "add",
+            "elements_type": 'service',
+            "element_id": [service1.id, service2.id],
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)

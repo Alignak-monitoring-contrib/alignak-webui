@@ -152,7 +152,13 @@ class PluginActions(Plugin):
                     status += _("Failed adding an acknowledge for %s") % element.name
                     problem = True
                 else:
-                    status += _('Acknowledge sent for %s.') % element.name
+                    if elements_type == 'service':
+                        data.update({'host': element.host.id, 'service': element.id})
+                        status += _('Acknowledge sent for %s/%s.') % \
+                            (element.host.name, element.name)
+                    else:
+                        status += _('Acknowledge sent for %s.') % \
+                            element.name
 
         logger.info("Request an acknowledge, result: %s", status)
 
@@ -218,7 +224,13 @@ class PluginActions(Plugin):
                     status += _("Failed adding a check request for %s") % element.name
                     problem = True
                 else:
-                    status += _('Check request sent for %s.') % element.name
+                    if elements_type == 'service':
+                        data.update({'host': element.host.id, 'service': element.id})
+                        status += _('Check request sent for %s/%s.') % \
+                            (element.host.name, element.name)
+                    else:
+                        status += _('Check request sent for %s.') % \
+                            element.name
 
         logger.info("Request a re-check, result: %s", status)
 
@@ -295,7 +307,13 @@ class PluginActions(Plugin):
                     status += _("Failed adding a downtime for %s") % element.name
                     problem = True
                 else:
-                    status += _('downtime sent for %s.') % element.name
+                    if elements_type == 'service':
+                        data.update({'host': element.host.id, 'service': element.id})
+                        status += _('Downtime sent for %s/%s.') % \
+                            (element.host.name, element.name)
+                    else:
+                        status += _('Downtime sent for %s.') % \
+                            element.name
 
         logger.info("Request a downtime, result: %s", status)
 
