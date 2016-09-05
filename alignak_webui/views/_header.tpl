@@ -36,8 +36,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="/" style="float: left">
-            <img src="{{request.app.config.get('company_logo', '/static/images/default_company.png')}}" alt="{{_('Company logo')}}" />
+         <a class="navbar-brand" href="/">
+            <img
+               src="{{request.app.config.get('company_logo', '/static/images/default_company.png')}}"
+               style="{{request.app.config.get('company_logo_css', '')}}"
+               alt="{{_('Company logo')}}"
+               title="{{request.app.config.get('company_logo_title', _('Alignak Web User Interface'))}}" />
          </a>
 
          <ul class="nav navbar-nav navbar-left" id="_header_states">
