@@ -69,8 +69,7 @@ if 'linux' in sys.platform or 'sunos5' in sys.platform:
         'share':   "/var/lib/alignak_webui/share",
         'etc':     "/etc/alignak_webui",
         'run':     "/var/run/alignak_webui",
-        'log':     "/var/log/alignak_webui",
-        'libexec': "/var/lib/alignak_webui/libexec",
+        'log':     "/var/log/alignak_webui"
     }
 elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
     paths = {
@@ -78,9 +77,8 @@ elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
         'var':     "/usr/local/libexec/alignak_webui",
         'share':   "/usr/local/share/alignak_webui",
         'etc':     "/usr/local/etc/alignak_webui",
-        'run':     "/var/run/alignak_webui",
-        'log':     "/var/log/alignak_webui",
-        'libexec': "/usr/local/libexec/alignak_webui/plugins",
+        'run':     "/usr/local/var/run/alignak_webui",
+        'log':     "/usr/local/var/log/alignak_webui"
     }
 else:
     print "Unsupported platform, sorry!"
