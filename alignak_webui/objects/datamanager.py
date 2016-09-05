@@ -628,7 +628,7 @@ class DataManager(object):
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
 
-                'nb_up': 0, 'pct_up': 100.0,
+                'nb_up': 0, 'pct_up': 0.0,
                 'nb_up_hard': 0, 'nb_up_soft': 0,
                 'nb_down': 0, 'pct_down': 0.0,
                 'nb_down_hard': 0, 'nb_down_soft': 0,
@@ -647,7 +647,7 @@ class DataManager(object):
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
 
-                'nb_ok': 0, 'pct_ok': 100.0,
+                'nb_ok': 0, 'pct_ok': 0.0,
                 'nb_ok_hard': 0, 'nb_ok_soft': 0,
                 'nb_warning': 0, 'pct_warning': 0.0,
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,

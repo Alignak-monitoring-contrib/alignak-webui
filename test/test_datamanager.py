@@ -40,10 +40,10 @@ import alignak_webui.app
 
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_user import User
+from alignak_webui.objects.item_usergroup import UserGroup
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.item_host import Host
 from alignak_webui.objects.item_service import Service
-from alignak_webui.objects.item_livestate import LiveState
 from alignak_webui.objects.item_timeperiod import TimePeriod
 from alignak_webui.objects.item_hostgroup import HostGroup
 from alignak_webui.objects.item_servicegroup import ServiceGroup
@@ -118,7 +118,7 @@ class Test1FindAndSearch(unittest2.TestCase):
         self.assertFalse(datamanager.loaded )
         self.assertIsNone(datamanager.logged_in_user)
         # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), 19)
+        self.assertEqual(len(datamanager.known_classes), 18)
 
         # Login ...
         assert datamanager.backend.login('admin', 'admin')
@@ -163,7 +163,7 @@ class Test2Creation(unittest2.TestCase):
         assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
         # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), 19)
+        self.assertEqual(len(datamanager.known_classes), 18)
 
         # Initialize and load fail ...
         print('DM load failed')
@@ -524,21 +524,6 @@ class Test5Basic(unittest2.TestCase):
             self.assertIsInstance(item.check_period, TimePeriod) # Must be an object
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
-        # Get livestate
-        items = self.dmg.get_livestates()
-        for item in items:
-            print("Got: ", item)
-            assert item.id
-            self.assertIsInstance(item.host, Host) # Must be an object
-            if item.type == 'service':
-                self.assertIsInstance(item.service, Service) # Must be an object
-            else:
-                self.assertEqual(item.service, "service") # No linked object
-            livestate = self.dmg.get_livestates({'where': {'_id': item.id}})
-            livestate = livestate[0]
-            print("Got: %s" % livestate)
-        self.assertEqual(len(items), 50)  # Backend pagination limit ...
-
     def test_5_1_get_linked_groups(self):
         print("")
         print('test objects get self linked')
@@ -549,7 +534,7 @@ class Test5Basic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             if item.level != 0:
-                self.assertIsInstance(item.parent, HostGroup) # Must be an object
+                self.assertIsInstance(item._parent, HostGroup) # Must be an object
         self.assertEqual(len(items), 9)
 
         # Get servicegroups
@@ -558,8 +543,17 @@ class Test5Basic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             if item.level != 0:
-                self.assertIsInstance(item.parent, ServiceGroup) # Must be an object
+                self.assertIsInstance(item._parent, ServiceGroup) # Must be an object
         self.assertEqual(len(items), 6)
+
+        # Get usergroups
+        items = self.dmg.get_usergroups()
+        for item in items:
+            print("Got: ", item)
+            assert item.id
+            if item.level != 0:
+                self.assertIsInstance(item._parent, UserGroup) # Must be an object
+        self.assertEqual(len(items), 3)
 
     @unittest2.skip("Skipped because not very useful and often change :/")
     def test_5_2_total_count(self):
@@ -573,7 +567,6 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.count_objects('user'), 5)
         self.assertEqual(self.dmg.count_objects('host'), 13)
         self.assertEqual(self.dmg.count_objects('service'), 94)
-        self.assertEqual(self.dmg.count_objects('livestate'), 13 + 94)
         self.assertEqual(self.dmg.count_objects('servicegroup'), 6)
         self.assertEqual(self.dmg.count_objects('hostgroup'), 9)
         # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
@@ -589,7 +582,6 @@ class Test5Basic(unittest2.TestCase):
         # Not loaded on login in the data manager ... so 0
         self.assertEqual(self.dmg.get_objects_count('host'), 0)
         self.assertEqual(self.dmg.get_objects_count('service'), 0)
-        self.assertEqual(self.dmg.get_objects_count('livestate'), 0)
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis'), 1)  # Not loaded on login ...
 
         # With refresh to get total backend objects count
@@ -599,48 +591,48 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 5)
         self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
         self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 94)
-        self.assertEqual(self.dmg.get_objects_count('livestate', refresh=True), 13 + 94)
         # self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
 
     def test_5_3_livesynthesis(self):
         print("")
         print('test livesynthesis')
 
-        default_ls = {
+        self.maxDiff = None
+        expected_ls = {
             'hosts_synthesis': {
-                'nb_elts': 0,
+                'nb_elts': 13,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
 
-                'nb_up': 0, 'pct_up': 100.0,
+                'nb_up': 0, 'pct_up': 0.0,
                 'nb_up_hard': 0, 'nb_up_soft': 0,
                 'nb_down': 0, 'pct_down': 0.0,
                 'nb_down_hard': 0, 'nb_down_soft': 0,
-                'nb_unreachable': 0, 'pct_unreachable': 0.0,
-                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+                'nb_unreachable': 13, 'pct_unreachable': 100.0,
+                'nb_unreachable_hard': 13, 'nb_unreachable_soft': 0,
 
-                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_problems': 13, 'pct_problems': 100.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
                 'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
             },
             'services_synthesis': {
-                'nb_elts': 0,
+                'nb_elts': 94,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
 
-                'nb_ok': 0, 'pct_ok': 100.0,
+                'nb_ok': 0, 'pct_ok': 0.0,
                 'nb_ok_hard': 0, 'nb_ok_soft': 0,
                 'nb_warning': 0, 'pct_warning': 0.0,
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                'nb_unknown': 0, 'pct_unknown': 0.0,
-                'nb_unknown_hard': 0, 'nb_unknown_soft': 0,
+                'nb_unknown': 94, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 94, 'nb_unknown_soft': 0,
 
                 'nb_problems': 0, 'pct_problems': 0.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
@@ -651,7 +643,7 @@ class Test5Basic(unittest2.TestCase):
 
         # Get livesynthesis
         self.dmg.get_livesynthesis()
-        # self.assertEqual(self.dmg.get_livesynthesis(), default_ls)
+        self.assertEqual(self.dmg.get_livesynthesis(), expected_ls)
 
 
 class Test6Relations(unittest2.TestCase):
