@@ -440,21 +440,8 @@ class PluginHosts(Plugin):
         # Get host services
         services = datamgr.get_services(search={'where': {'host': element_id}})
 
-        # Get host livestate
-        livestate = datamgr.get_livestates(
-            search={'where': {'type': 'host', 'name': '%s' % host.name}}
-        )
-        if livestate:
-            livestate = livestate[0]
-
-        # Get host services livestate
-        livestate_services = datamgr.get_livestates(
-            search={'where': {'type': 'service', 'host': host.id}}
-        )
-
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Host history pagination and search parameters
         start = int(request.params.get('start', '0'))
@@ -519,8 +506,6 @@ class PluginHosts(Plugin):
 
             'host': host,
             'services': services,
-            'livestate': livestate,
-            'livestate_services': livestate_services,
             'history': history,
             'timeline_pagination': self.webui.helper.get_pagination_control(
                 '/host/' + element_id, total, start, count
