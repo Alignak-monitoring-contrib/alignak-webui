@@ -53,7 +53,11 @@
             </td>
 
             <td>
+               %if service.check_command and service.check_command != 'command':
                <small>{{! service.check_command.get_html_link(links) if links else service.check_command.alias}}</small>
+               %else:
+               {{_('Command not fetched from the backend')}}
+               %end
             </td>
          </tr>
        %end

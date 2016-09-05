@@ -44,7 +44,11 @@
             </td>
 
             <td>
+               %if host.check_command and host.check_command != 'command':
                <small>{{! host.check_command.get_html_link(links) if links else host.check_command.alias}}</small>
+               %else:
+               {{_('Command not fetched from the backend')}}
+               %end
             </td>
          </tr>
        %end
