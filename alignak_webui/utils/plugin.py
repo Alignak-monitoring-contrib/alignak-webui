@@ -914,13 +914,13 @@ class Plugin(object):
                 saved_widget = widget
                 logger.info("Saved widget found: %s", saved_widget)
                 break
-        else:
-            logger.warning("Widget not found in the saved widgets: %s", widget_id)
-            return self.webui.response_invalid_parameters(_('Unknown widget'))
+        # else:
+            # logger.warning("Widget not found in the saved widgets: %s", widget_id)
+            # return self.webui.response_invalid_parameters(_('Unknown widget'))
 
         # Widget freshly created
         tmp_options = []
-        if 'options' not in saved_widget:
+        if not saved_widget or 'options' not in saved_widget:
             for option in options:
                 tmp_options.append("%s=%s" % (option, options[option]['value']))
             saved_options = '|'.join(tmp_options)

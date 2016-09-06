@@ -426,7 +426,7 @@ class BackendElement(object):
                 object_class = [kc for kc in self.get_known_classes()
                                 if kc.get_type() == object_type][0]
 
-                # Dictionary - linked object attributes (backend embedded object)
+                # Dictionary from a backend embedded object
                 if isinstance(params[key], dict):
                     linked_object = object_class(params[key])
                     setattr(self, '_linked_' + key, linked_object)
