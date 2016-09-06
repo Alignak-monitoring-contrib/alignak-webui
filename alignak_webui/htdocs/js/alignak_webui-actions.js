@@ -18,7 +18,7 @@
  * along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var actions_logs=false;
+var actions_logs=true;
 var refresh_delay_after_action=1000;
 var alert_success_delay=3;
 var alert_error_delay=8;
@@ -308,22 +308,44 @@ $(document).ready(function() {
          id: $(this).data('widget-id') + '_' + Date.now(),
          name: $(this).data('widget-name'),
          template: $(this).data('widget-template'),
+         icon: $(this).data('widget-icon'),
+         picture: $(this).data('widget-picture'),
+         options: $(this).data('widget-options'),
          uri: $(this).data('widget-uri')
       };
 
-      if (actions_logs) console.debug("Adding a widget: ", name)
+      var first=true;
+      var options='';
+      $.each(widget.options, function(key, value) {
+         if (first) {
+            widget.uri += '?'; first = false;
+         } else {
+            widget.uri += '&';
+            options += '|';
+         }
+         widget.uri += key + '=' + value['value'];
+         options += key + '=' + value['value'];
+      });
+      if (actions_logs) console.debug("Adding a widget: ", widget);
 
       // Get widgets grid...
       grid = $('.grid-stack').data('gridstack');
       // ... and add a widget to the grid
       var added_widget = grid.addWidget(
-         $('<div id="'+widget.id+'" data-name="'+widget.name+'" data-template="'+widget.template+'" data-uri="'+encodeURI(widget.uri)+'" class="grid-stack-item-content" />'),
+         $('<div id="'+widget.id+
+            '" data-name="'+widget.name+
+            '" data-template="'+widget.template+
+            '" data-icon="'+widget.icon+
+            '" data-picture="'+widget.picture+
+            '" data-options="'+options+
+            '" data-uri="'+widget.uri+
+            '" class="grid-stack-item-content" />'),
          0, 0, 6, 6,       // x, y, width, height
          true,             // autoPosition
          3, 12, 2, 64,     // minWidth, maxWidth, minHeight, maxHeight
          widget.id
       );
-      if (actions_logs) console.debug("Added a widget:", added_widget)
+      if (actions_logs) console.debug("Added a widget:", added_widget);
 
       window.setTimeout(function() {
          // Hide modal popup

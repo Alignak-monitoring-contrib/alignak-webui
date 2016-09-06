@@ -830,7 +830,7 @@ class Plugin(object):
         # pylint: disable=too-many-locals, too-many-arguments
         """
         Get a widget...
-        - get_methode is the datamanager method to call to get elements
+        - get_method is the datamanager method to call to get elements
         - object_type is the elements type
 
         - widget_id: widget identifier
@@ -843,6 +843,12 @@ class Plugin(object):
         datamgr = request.app.datamgr
 
         # Get element get method from the data manager
+        if not get_method:
+            # Get elements get method from the data manager
+            get_method = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
+            if not get_method:
+                self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+
         if not callable(get_method):
             self.send_user_message(_("Configured method is not callable."))
 
@@ -852,6 +858,8 @@ class Plugin(object):
         # Pagination and search
         start = int(request.params.get('start', '0'))
         count = int(request.params.get('count', elts_per_page))
+        if count < 1:
+            count = elts_per_page
         where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
             'page': start // (count + 1),
@@ -866,7 +874,7 @@ class Plugin(object):
                     {'alias': {'$regex': ".*%s.*" % name_filter}}
                 ]
             })
-        logger.info("Search parameters: %s", search)
+        logger.debug("Widget search parameters: %s", search)
 
         # Get elements from the data manager
         elements = get_method(search)
@@ -882,6 +890,7 @@ class Plugin(object):
         widget_place = request.params.get('widget_place', 'dashboard')
         widget_template = request.params.get('widget_template', 'elements_table_widget')
         widget_icon = request.params.get('widget_icon', 'plug')
+
         # Search in the application widgets (all plugins widgets)
         options = {}
         for widget in self.webui.get_widgets_for(widget_place):
@@ -895,11 +904,55 @@ class Plugin(object):
             logger.warning("Widget identifier not found: %s", widget_id)
             return self.webui.response_invalid_parameters(_('Unknown widget identifier'))
 
-        if options:
-            options['search']['value'] = request.params.get('search', '')
-            options['count']['value'] = count
-            options['filter']['value'] = name_filter
-        logger.info("Widget options: %s", options)
+        # Search in the saved dashboard widgets
+        saved_widget = None
+        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
+        for widget in saved_widgets:
+            if widget_id == widget['id']:
+                saved_widget = widget
+                logger.info("Saved widget found: %s", saved_widget)
+                break
+        else:
+            logger.warning("Widget not found in the saved widgets: %s", widget_id)
+            return self.webui.response_invalid_parameters(_('Unknown widget'))
+
+        # Widget freshly created
+        saved_options = []
+        if 'options' not in saved_widget:
+            for option in options:
+                saved_options.append("%s=%s" % (option, options[option]['value']))
+            saved_options = '|'.join(saved_options)
+        else:
+            saved_options = saved_widget['options']
+
+        new_options = []
+        logger.info("Saved widget options: %s", saved_options)
+        for option in saved_options.split('|'):
+            option=option.split('=')
+            logger.info("Saved widget option: %s", option)
+            if len(option) > 1:
+                if request.params.get(option[0]) != option[1]:
+                    new_options.append("%s=%s" % (option[0], request.params.get(option[0])))
+                    options[option[0]]['value'] = request.params.get(option[0])
+                else:
+                    new_options.append("%s=%s" % (option[0], option[1]))
+                    options[option[0]]['value'] = option[1]
+
+        new_options = '|'.join(new_options)
+        logger.info("Widget new options: %s", new_options)
+
+        if saved_options != new_options:
+            logger.info("Widget new options: %s", new_options)
+
+            # Search for the dashboard widgets
+            saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
+            for widget in saved_widgets:
+                if widget_id.startswith(widget['id']):
+                    widget['options'] = new_options
+                    datamgr.set_user_preferences(user, 'dashboard_widgets', saved_widgets)
+                    logger.info("Widget new options saved!")
+                    break
+        saved_options = new_options
 
         title = request.params.get('title', _('Hosts'))
         if name_filter:

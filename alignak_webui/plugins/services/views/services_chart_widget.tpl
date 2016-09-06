@@ -6,7 +6,7 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%if not services:
+%if not elements:
    <center>
       <h3>{{_('No services matching the filter...')}}</h3>
    </center>

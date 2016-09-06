@@ -9,7 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 
-%if not services:
+%if not elements:
    <center>
       <h3>{{_('No services matching the filter...')}}</h3>
    </center>
@@ -23,7 +23,7 @@
          <th>{{_('Check command')}}</th>
       </tr></thead>
       <tbody>
-         %for service in services:
+         %for service in elements:
          <tr id="{{service.id}}">
             <td title="{{service.alias}}">
             %label = "%s - %s (%s)" % (service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)

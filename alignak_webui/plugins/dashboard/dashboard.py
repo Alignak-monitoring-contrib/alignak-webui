@@ -76,11 +76,11 @@ class PluginDashboard(Plugin):
         for widget in saved_widgets:
             logger.info("Dashboard widget, got: %s", widget)
 
-            if 'id' not in widget:
-                logger.warning("Widget ignored: %s", widget)
-                continue
+            # if 'id' not in widget:
+                # logger.warning("Widget ignored: %s", widget)
+                # continue
 
-            # Widget data:
+            # Widget saved data are missing some fields when widget got created:
             # - for: widget page (default: dashboard)
             # - id: unique identifier
             # - x, y: position (default: 0, 0)
@@ -89,33 +89,20 @@ class PluginDashboard(Plugin):
             # - options_json
 
             # by default the widget is for /dashboard
-            widget['for'] = widget.get('for', 'dashboard')
-            if not widget['for'] == 'dashboard':  # pragma: no cover - not testable yet
-                # Not a dashboard widget? I don't want it so
-                continue
+            # if 'for' not in wiget:
+                # widget['for'] = 'dashboard'
 
-            widget['x'] = widget.get('x', 0)
-            widget['y'] = widget.get('x', 0)
-            widget['width'] = widget.get('width', 1)
-            widget['minWidth'] = widget.get('minWidth', 1)
-            widget['maxWidth'] = widget.get('maxWidth', 12)
-            widget['height'] = widget.get('height', 1)
-            widget['minHeight'] = widget.get('minHeight', 1)
-            widget['maxHeight'] = widget.get('maxHeight', 6)
+            # widget['uri'] = widget.get('uri', '/')
+            # if 'icon' not in wiget:
+                # widget['icon'] = widget.get('icon', 'leaf')
 
-            widget['id'] = widget.get('id', None)
-            widget['uri'] = widget.get('uri', '/')
-            widget['name'] = widget.get('name', None)
-            widget['icon'] = widget.get('icon', 'leaf')
-            widget['template'] = widget.get('template', None)
-
-            options = widget.get('options', {})
-            args = {'id': widget['id']}
-            widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
-            for option in options:
-                widget['options_uri'] += '&%s=%s' % (option, options[option]['value'])
-            logger.warning("Dashboard widget: %s", widget)
-            widgets.append(widget)
+            # options = widget.get('options', {})
+            # args = {'id': widget['id']}
+            # widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
+            # for option in options:
+                # widget['options_uri'] += '&%s=%s' % (option, options[option]['value'])
+            # logger.warning("Dashboard widget: %s", widget)
+            # widgets.append(widget)
 
         message = None
         session = request.environ['beaker.session']
@@ -126,7 +113,7 @@ class PluginDashboard(Plugin):
         return {
             'widgets_bar': len(self.webui.get_widgets_for('dashboard')) != 0,
             'widgets_place': 'dashboard',
-            'dashboard_widgets': widgets,
+            'dashboard_widgets': saved_widgets,
             'title': request.query.get('title', _('Dashboard')),
             'message': message
         }

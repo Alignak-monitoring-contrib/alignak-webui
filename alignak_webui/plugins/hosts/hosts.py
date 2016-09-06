@@ -267,6 +267,7 @@ class PluginHosts(Plugin):
         widget_place = request.params.get('widget_place', 'dashboard')
         widget_template = request.params.get('widget_template', 'hosts/table_widget')
         widget_icon = request.params.get('widget_icon', 'plug')
+
         # Search in the application widgets (all plugins widgets)
         options = {}
         for widget in self.webui.get_widgets_for(widget_place):
@@ -280,13 +281,44 @@ class PluginHosts(Plugin):
             logger.warning("Widget identifier not found: %s", widget_id)
             return self.webui.response_invalid_parameters(_('Unknown widget identifier'))
 
-        new_options = deepcopy(options)
-        logger.info("Widget options: %s", options)
-        if options:
-            new_options['search']['value'] = request.params.get('search', '')
-            new_options['count']['value'] = request.params.get('count', elts_per_page)
-            new_options['filter']['value'] = request.params.get('filter', '')
-        if options != new_options:
+        # Search in the saved dashboard widgets
+        saved_widget = None
+        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
+        for widget in saved_widgets:
+            if widget_id == widget['id']:
+                saved_widget = widget
+                logger.info("Saved widget found: %s", saved_widget)
+                break
+        else:
+            logger.warning("Widget not found in the saved widgets: %s", widget_id)
+            return self.webui.response_invalid_parameters(_('Unknown widget'))
+
+        # Widget freshly created
+        saved_options = []
+        if 'options' not in saved_widget:
+            for option in options:
+                saved_options.append("%s=%s" % (option, options[option]['value']))
+            saved_options = '|'.join(saved_options)
+        else:
+            saved_options = saved_widget['options']
+
+        new_options = []
+        logger.info("Saved widget options: %s", saved_options)
+        for option in saved_options.split('|'):
+            option=option.split('=')
+            logger.info("Saved widget option: %s", option)
+            if len(option) > 1:
+                if request.params.get(option[0]) != option[1]:
+                    new_options.append("%s=%s" % (option[0], request.params.get(option[0])))
+                    options[option[0]]['value'] = request.params.get(option[0])
+                else:
+                    new_options.append("%s=%s" % (option[0], option[1]))
+                    options[option[0]]['value'] = option[1]
+
+        new_options = '|'.join(new_options)
+        logger.info("Widget new options: %s", new_options)
+
+        if saved_options != new_options:
             logger.info("Widget new options: %s", new_options)
 
             # Search for the dashboard widgets
@@ -297,6 +329,7 @@ class PluginHosts(Plugin):
                     datamgr.set_user_preferences(user, 'dashboard_widgets', saved_widgets)
                     logger.info("Widget new options saved!")
                     break
+        saved_options = new_options
 
         title = request.params.get('title', _('Hosts'))
         if name_filter:

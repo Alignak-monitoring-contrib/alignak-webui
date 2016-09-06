@@ -203,6 +203,8 @@
             'name': $('#'+items[i].id).data('name'),
             'icon': $('#'+items[i].id).data('icon'),
             'template': $('#'+items[i].id).data('template'),
+            'picture': $('#'+items[i].id).data('picture'),
+            //'options': $('#'+items[i].id).data('options'),
             'x': items[i].x,
             'y': items[i].y,
             'width': items[i].width,
@@ -212,6 +214,7 @@
             'minHeight': items[i].minHeight,
             'maxHeight': items[i].maxHeight
          };
+         if (dashboard_logs) console.log("Widget item: ", widget);
          var found = widgets.some(function (el) {
             return el.id === widget.id;
          });
@@ -229,6 +232,7 @@
       }
    });
 
+/*
    $('.grid-stack').on('removed', function(event, items) {
       for (var i = 0; i < items.length; i++) {
          if (dashboard_logs) console.log('Item removed from grid:', items[i]);
@@ -236,6 +240,7 @@
       // Page refresh required
       refresh_required = true;
    });
+*/
 
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
@@ -282,8 +287,13 @@
          $("#{{widget['id']}} div.grid-stack-item-content").load(
             "{{widget['uri']}}",
             {
-               %for (key, v) in widget['options'].iteritems():
-                  {{key}}: '{{v.get('value', '')}}',
+               %if 'options' in widget:
+               %for option in widget['options'].split('|'):
+                  %option=option.split('=')
+                  %if len(option) > 1:
+                  {{option[0]}}: '{{option[1]}}',
+                  %end
+               %end
                %end
                title: '{{widget['name']}}',
                widget_template: '{{widget['template']}}',

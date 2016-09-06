@@ -1,6 +1,8 @@
 %setdefault('debug', False)
 %setdefault('debug_host', False)
 
+%import json
+
 <!-- Dashboard widgets bar -->
 <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Add a new widget')}}">
    <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -18,9 +20,13 @@
                 <button href='#' role='button'
                     data-action='add-widget'
                     data-widget-id='{{widget['id']}}'
+                    data-widget-for='dashboard'
                     data-widget-name='{{widget['name']}}'
                     data-widget-template='{{widget['template']}}'
+                    data-widget-icon='{{widget['icon']}}'
+                    data-widget-picture='{{widget['picture']}}'
                     data-widget-uri='{{widget['base_uri']}}'
+                    data-widget-options='{{json.dumps(widget['options'])}}'
                     class='btn btn-sm btn-success btn-raised'>
                     <span class='fa fa-plus'></span>
                     {{_('Add this widget to your dashboard')}}

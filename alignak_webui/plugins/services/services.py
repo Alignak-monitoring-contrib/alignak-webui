@@ -111,83 +111,10 @@ class PluginServices(Plugin):
         - search for specific elements search
 
         """
-        user = request.environ['beaker.session']['current_user']
-        datamgr = request.app.datamgr
-
-        # Fetch elements per page preference for user, default is 25
-        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-
-        # Pagination and search
-        start = int(request.params.get('start', '0'))
-        count = int(request.params.get('count', elts_per_page))
-        where = self.webui.helper.decode_search(request.params.get('search', ''))
-        search = {
-            'page': start // (count + 1),
-            'max_results': count,
-            'where': where
-        }
-        name_filter = request.params.get('filter', '')
-        if name_filter:
-            search['where'].update({
-                '$or': [
-                    {'name': {'$regex': ".*%s.*" % name_filter}},
-                    {'alias': {'$regex': ".*%s.*" % name_filter}}
-                ]
-            })
-        logger.info("Search parameters: %s", search)
-
-        # Get elements from the data manager
-        services = datamgr.get_services(search)
-        # Get last total elements count
-        total = datamgr.get_objects_count('service', search=where, refresh=True)
-        count = min(count, total)
-
-        # Widget options
-        widget_id = request.params.get('widget_id', '')
-        if widget_id == '':
-            return self.webui.response_invalid_parameters(_('Missing widget identifier'))
-
-        widget_place = request.params.get('widget_place', 'dashboard')
-        widget_template = request.params.get('widget_template', 'services/table_widget')
-        widget_icon = request.params.get('widget_icon', 'plug')
-        # Search in the application widgets (all plugins widgets)
-        options = {}
-        for widget in self.webui.get_widgets_for(widget_place):
-            if widget_id.startswith(widget['id']):
-                options = widget['options']
-                widget_template = widget['template']
-                widget_icon = widget['icon']
-                logger.info("Widget found, template: %s, options: %s", widget_template, options)
-                break
-        else:
-            logger.warning("Widget identifier not found: %s", widget_id)
-            return self.webui.response_invalid_parameters(_('Unknown widget identifier'))
-
-        if options:
-            options['search']['value'] = request.params.get('search', '')
-            options['count']['value'] = count
-            options['filter']['value'] = name_filter
-        logger.info("Widget options: %s", options)
-
-        title = request.params.get('title', _('Services'))
-        if name_filter:
-            title = _('%s (%s)') % (title, name_filter)
-
-        # Use required template to render the widget
-        return template('_widget', {
-            'widget_id': widget_id,
-            'widget_name': widget_template,
-            'widget_place': widget_place,
-            'widget_template': widget_template,
-            'widget_icon': widget_icon,
-            'widget_uri': request.urlparts.path,
-            'services': services,
-            'options': options,
-            'title': title,
-            'embedded': embedded,
-            'identifier': identifier,
-            'credentials': credentials
-        })
+        """
+        Get the worldmap widget
+        """
+        return self.get_widget(None, 'service', embedded, identifier, credentials)
 
     def get_one(self, element_id):
         # Because there are many locals needed :)
