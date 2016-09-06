@@ -72,37 +72,8 @@ class PluginDashboard(Plugin):
         if not saved_widgets:
             datamgr.set_user_preferences(user, 'dashboard_widgets', [])
 
-        widgets = []
         for widget in saved_widgets:
-            logger.info("Dashboard widget, got: %s", widget)
-
-            # if 'id' not in widget:
-                # logger.warning("Widget ignored: %s", widget)
-                # continue
-
-            # Widget saved data are missing some fields when widget got created:
-            # - for: widget page (default: dashboard)
-            # - id: unique identifier
-            # - x, y: position (default: 0, 0)
-            # - width, height: size (default: 1, 1)
-            # - base_url
-            # - options_json
-
-            # by default the widget is for /dashboard
-            # if 'for' not in wiget:
-                # widget['for'] = 'dashboard'
-
-            # widget['uri'] = widget.get('uri', '/')
-            # if 'icon' not in wiget:
-                # widget['icon'] = widget.get('icon', 'leaf')
-
-            # options = widget.get('options', {})
-            # args = {'id': widget['id']}
-            # widget['options_uri'] = '&'.join('%s=%s' % (k, v) for (k, v) in args.iteritems())
-            # for option in options:
-                # widget['options_uri'] += '&%s=%s' % (option, options[option]['value'])
-            # logger.warning("Dashboard widget: %s", widget)
-            # widgets.append(widget)
+            logger.debug("Dashboard widget, got: %s", widget)
 
         message = None
         session = request.environ['beaker.session']

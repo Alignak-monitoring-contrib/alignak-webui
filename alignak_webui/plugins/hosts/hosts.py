@@ -215,7 +215,6 @@ class PluginHosts(Plugin):
 
         super(PluginHosts, self).__init__(app, cfg_filenames)
 
-
     def get_hosts_widget(self, embedded=False, identifier=None, credentials=None):
         """
         Get the hosts widget

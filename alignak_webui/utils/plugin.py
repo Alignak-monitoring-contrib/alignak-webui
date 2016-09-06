@@ -928,7 +928,7 @@ class Plugin(object):
         new_options = []
         logger.info("Saved widget options: %s", saved_options)
         for option in saved_options.split('|'):
-            option=option.split('=')
+            option = option.split('=')
             logger.info("Saved widget option: %s", option)
             if len(option) > 1:
                 if request.params.get(option[0]) != option[1]:
