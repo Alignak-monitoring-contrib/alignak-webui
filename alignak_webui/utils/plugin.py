@@ -395,6 +395,7 @@ class Plugin(object):
         if not f:
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
+        logger.warning("get_one, search: %s", search)
         element = f(element_id)
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
@@ -436,6 +437,7 @@ class Plugin(object):
             'where': where
         }
 
+        logger.warning("get_all, search: %s", search)
         elts = f(search, all_elements=False)
 
         # Get last total elements count
@@ -917,28 +919,28 @@ class Plugin(object):
             return self.webui.response_invalid_parameters(_('Unknown widget'))
 
         # Widget freshly created
-        saved_options = []
+        tmp_options = []
         if 'options' not in saved_widget:
             for option in options:
-                saved_options.append("%s=%s" % (option, options[option]['value']))
-            saved_options = '|'.join(saved_options)
+                tmp_options.append("%s=%s" % (option, options[option]['value']))
+            saved_options = '|'.join(tmp_options)
         else:
             saved_options = saved_widget['options']
 
-        new_options = []
+        tmp_options = []
         logger.info("Saved widget options: %s", saved_options)
         for option in saved_options.split('|'):
             option = option.split('=')
             logger.info("Saved widget option: %s", option)
             if len(option) > 1:
                 if request.params.get(option[0]) != option[1]:
-                    new_options.append("%s=%s" % (option[0], request.params.get(option[0])))
+                    tmp_options.append("%s=%s" % (option[0], request.params.get(option[0])))
                     options[option[0]]['value'] = request.params.get(option[0])
                 else:
-                    new_options.append("%s=%s" % (option[0], option[1]))
+                    tmp_options.append("%s=%s" % (option[0], option[1]))
                     options[option[0]]['value'] = option[1]
 
-        new_options = '|'.join(new_options)
+        new_options = '|'.join(tmp_options)
         logger.info("Widget new options: %s", new_options)
 
         if saved_options != new_options:
