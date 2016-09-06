@@ -340,9 +340,13 @@
          %if host.event_handler_enabled and host.event_handler:
          <tr>
             <td><strong>{{_('Event handler:')}}</strong></td>
+            %if host.event_handler!='command':
             <td>
                <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name }}</a>
             </td>
+            %else:
+            <td class="text-warning">{{_('No event handler is defined for this host. Alignak will use the globally defined event handler.')}}</td>
+            %end
          </tr>
          %end
          %if host.event_handler_enabled and not host.event_handler:

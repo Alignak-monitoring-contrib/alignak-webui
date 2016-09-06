@@ -74,8 +74,7 @@ class PluginMinemap(Plugin):
         search = {
             'page': start // (count + 1),
             'max_results': count,
-            'where': where,
-            'embedded': {}
+            'where': where
         }
 
         # Get elements from the data manager
