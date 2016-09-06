@@ -395,7 +395,7 @@ class Plugin(object):
         if not f:
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        logger.warning("get_one, search: %s", search)
+        logger.debug("get_one, search: %s", element_id)
         element = f(element_id)
         if not element:
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
@@ -437,7 +437,7 @@ class Plugin(object):
             'where': where
         }
 
-        logger.warning("get_all, search: %s", search)
+        logger.debug("get_all, search: %s", search)
         elts = f(search, all_elements=False)
 
         # Get last total elements count
