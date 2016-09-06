@@ -101,18 +101,8 @@ class PluginServices(Plugin):
         super(PluginServices, self).__init__(app, cfg_filenames)
 
     def get_services_widget(self, embedded=False, identifier=None, credentials=None):
-        # Because there are many locals needed :)
-        # pylint: disable=too-many-locals
         """
-        Get the hosts list as a widget
-        - widget_id: widget identifier
-
-        - start and count for pagination
-        - search for specific elements search
-
-        """
-        """
-        Get the worldmap widget
+        Get the services widget
         """
         return self.get_widget(None, 'service', embedded, identifier, credentials)
 

@@ -9,7 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 
-%if not hosts:
+%if not elements:
    <center>
       <h3>{{_('No hosts matching the filter...')}}</h3>
    </center>
@@ -22,7 +22,7 @@
          <th>{{_('Check command')}}</th>
       </tr></thead>
       <tbody>
-         %for host in hosts:
+         %for host in elements:
          <tr id="{{host.id}}">
             <td title="{{host.alias}}">
             %label = "%s - %s (%s)" % (host.status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)

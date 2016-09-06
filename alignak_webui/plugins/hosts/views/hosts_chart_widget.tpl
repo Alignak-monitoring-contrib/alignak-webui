@@ -6,7 +6,7 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%if not hosts:
+%if not elements:
    <center>
       <h3>{{_('No hosts matching the filter...')}}</h3>
    </center>
