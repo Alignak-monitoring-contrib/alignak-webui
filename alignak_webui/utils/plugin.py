@@ -925,20 +925,20 @@ class Plugin(object):
         else:
             saved_options = saved_widget['options']
 
-        new_options = []
+        tmp_options = []
         logger.info("Saved widget options: %s", saved_options)
         for option in saved_options.split('|'):
             option = option.split('=')
             logger.info("Saved widget option: %s", option)
             if len(option) > 1:
                 if request.params.get(option[0]) != option[1]:
-                    new_options.append("%s=%s" % (option[0], request.params.get(option[0])))
+                    tmp_options.append("%s=%s" % (option[0], request.params.get(option[0])))
                     options[option[0]]['value'] = request.params.get(option[0])
                 else:
-                    new_options.append("%s=%s" % (option[0], option[1]))
+                    tmp_options.append("%s=%s" % (option[0], option[1]))
                     options[option[0]]['value'] = option[1]
 
-        new_options = '|'.join(new_options)
+        new_options = '|'.join(tmp_options)
         logger.info("Widget new options: %s", new_options)
 
         if saved_options != new_options:
