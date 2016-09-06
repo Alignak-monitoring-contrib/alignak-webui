@@ -398,8 +398,23 @@ class BackendElement(object):
                 logger.debug(
                     " link parameter: %s (%s) = %s", key, params[key].__class__, value
                 )
+
                 # Linked resource type
                 object_type = getattr(self, '_linked_' + key, None)
+                if object_type and isinstance(object_type, BackendElement):
+                    logger.debug(
+                        "_create, already linked with an object, %s/%s: %s",
+                        self.get_type(), key, object_type
+                    )
+                    continue
+                if object_type and isinstance(object_type, list):
+                    if object_type[0] and isinstance(object_type[0], BackendElement):
+                        logger.debug(
+                            "_create, already linked with an object list, %s/%s: %s",
+                            self.get_type(), key, object_type
+                        )
+                        continue
+
                 if not isinstance(object_type, dict) and \
                         object_type not in [kc.get_type() for kc in self.get_known_classes()]:
                     logger.error(
