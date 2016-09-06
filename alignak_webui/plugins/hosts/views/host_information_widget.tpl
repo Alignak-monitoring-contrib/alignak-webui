@@ -100,7 +100,7 @@
             <td><strong>{{_('Performance data:')}}</strong></td>
             <td class="popover-dismiss popover-large ellipsis"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s performance data') % host.output}}"
+                  data-title="{{_('%s performance data') % host.perf_data}}"
                   data-content=" {{host.perf_data if host.perf_data else '(none)'}}"
                   >
                 {{host.perf_data if host.perf_data else '(none)'}}
@@ -117,7 +117,7 @@
             <td><strong>{{_('Last state changed:')}}</strong></td>
             <td class="popover-dismiss"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{host.name}}{{_('}} last state change date')}}"
+                  data-title="{{host.name}}{{_('}} last state changed date')}}"
                   data-content="{{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}"
                   >
                 {{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}
@@ -133,7 +133,7 @@
             <td><strong>{{_('Next active check:')}}</strong></td>
             <td class="popover-dismiss"
                   data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{host.name}}{{_('}} last state change date')}}"
+                  data-title="{{host.name}}{{_('}} next check date')}}"
                   data-content="{{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}"
                   >
                {{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}
