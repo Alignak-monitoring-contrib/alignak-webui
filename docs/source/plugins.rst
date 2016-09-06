@@ -14,40 +14,31 @@ contain a Python file named *plugin.py* that is imported by the application as a
 
 All directories that do not match this requirement are ignored by the application.
 
-The *plugin.py* file must declare a global variable to be aware of the application object::
+The *plugin.py* file must declare a globalclass inherited from the application Plugin class::
 
-    # Will be populated by the UI with it's own value
-    webui = None
+    class PluginHosts(Plugin):
+        """ Hosts plugin """
+    
+        def __init__(self, app, cfg_filenames=None):
+            """
+            Hosts plugin
+    
+            Overload the default get route to declare filters.
+            """
+            self.name = 'Hosts'
+            self.backend_endpoint = 'host'
+    
+            self.pages = {
+            ...
+            }
 
-If the plugin is dedicated to a specific Alignak backend type of elements, it must declare which element is managed in a global variable *backend_endpoint*.::
+            super(PluginHosts, self).__init__(app, cfg_filenames)
+
+
+If the plugin is dedicated to a specific Alignak backend type of elements, it must declare which element is managed in a property *backend_endpoint*.::
 
     # Declare backend element endpoint
-    backend_endpoint = 'host'
-
-and it must declare which fields it manages in a global OrderedDict *schema*.::
-
-    # Use an OrderedDict to create an ordered list of fields
-    schema = OrderedDict()
-    # Specific field to include the responsive + button used to display hidden columns on small devices
-    schema['#'] = {
-        'type': 'string',
-        'ui': {
-            'title': '',
-            # This field is visible (default: False)
-            'visible': True,
-            # This field is initially hidden (default: False)
-            'hidden': False,
-            # This field is searchable (default: True)
-            'searchable': False,
-            # This field is orderable (default: True)
-            'orderable': False,
-            # search as a regex (else strict value comparing when searching is performed)
-            'regex': False,
-            # defines the priority for the responsive column hidding (0 is the most important)
-            # Default is 10000
-            # 'priority': 0,
-        }
-    }
+    self.backend_endpoint = 'host'
 
 This will allow the application to route all the request for this type of element to this specific plugin. When an external application requests an hosts list, this plugin will be requested for the list.
 
@@ -72,7 +63,7 @@ The application searches in several location for a configuration file:
 
 Where NAME is the plugin name and DIR is the plugin directory.
 
-The configuration file is built like an Ini file parsed thank to Python ConfigPaser.
+The configuration file is built like an Ini file parsed thank to Python ConfigPaser::
 
         ; ------------------------------------------------------------------------------------------
         ; Plugin configuration file formatted as RFC822 standard
