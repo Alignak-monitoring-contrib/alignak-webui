@@ -93,6 +93,29 @@ class PluginServices(Plugin):
                         ),
                         'picture': 'htdocs/img/services_chart_widget.png',
                         'options': {}
+                    },
+                    {
+                        'id': 'information',
+                        'for': ['service'],
+                        'name': _('Information'),
+                        'template': 'service_information_widget',
+                        'icon': 'info',
+                        'description': _(
+                            'Service information: service general information.'
+                        ),
+                        'options': {}
+                    },
+                    {
+                        'id': 'configuration',
+                        'for': ['service'],
+                        'name': _('Configuration'),
+                        'template': 'service_configuration_widget',
+                        'icon': 'gear',
+                        'read_only': True,
+                        'description': _(
+                            'Service configuration: service customs configuration variables.'
+                        ),
+                        'options': {}
                     }
                 ]
             },
