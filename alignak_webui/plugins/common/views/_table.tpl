@@ -112,7 +112,7 @@
                %  end
                %end
 
-               <th data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectize="{{selectize}}"
+               <td data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectize="{{selectize}}"
                    data-searchable="{{ field['searchable'] }}"
                    data-regex="{{ field['regex'] }}"
                    data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
@@ -204,7 +204,7 @@
                      });
                   </script>
                   %end
-               </th>
+               </td>
                %idx += 1
             %end
          </tr>
@@ -410,7 +410,7 @@
          // Pagination
          "lengthChange": true,
          "pageLength": 25,
-         "lengthMenu": [ 5, 10, 25, 50, 75, 100, '-1' ],
+/* Issue #81
          "lengthMenu": [
             [ 10, 25, 50, 100, -1 ],
             [
@@ -418,11 +418,25 @@
                "{{_('100 rows')}}", "{{_('Show all')}}"
             ]
          ],
-
+*/
+         "lengthMenu": [
+            [ 10, 25, 50 ],
+            [
+               "{{_('10 rows')}}", "{{_('25 rows')}}", "{{_('50 rows')}}"
+            ]
+         ],
          // Table information
          "info": true,
-         /* Table fixed header - do not activate because table scrolling is not compatible
-         "fixedHeader": true, */
+
+         /* Table fixed header: #74 */
+         "fixedHeader": {
+            headerOffset: $('#topbar').outerHeight()
+         },
+         /* Fixed leftmost column and scrolling mode: #74*/
+         "scrollX": true,
+         "fixedColumns": {
+            leftColumns: 1
+         },
 
          // Server side processing: request new data
          "processing": true,
