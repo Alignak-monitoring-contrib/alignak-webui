@@ -512,8 +512,8 @@ class DataManager(object):
         :return: True / False
         :rtype: boolean
         """
-        logger.info("set_user_preferences, type: %s, for: %s", preference_key, user)
-        logger.info("set_user_preferences, value = %s", value)
+        logger.info("set_user_preferences, key: %s, for: %s", preference_key, user)
+        # logger.debug("set_user_preferences, value = %s", value)
 
         # Get user stored value
         if user.set_ui_preference(preference_key, value):
@@ -545,7 +545,7 @@ class DataManager(object):
         :return: found data, or None
         :rtype: dict
         """
-        logger.debug("get_user_preferences, type: %s, for: %s", preference_key, user)
+        logger.debug("get_user_preferences, key: %s, for: %s", preference_key, user)
 
         # Get user stored value
         result = user.get_ui_preference(preference_key)
