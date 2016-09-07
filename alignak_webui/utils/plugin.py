@@ -432,7 +432,7 @@ class Plugin(object):
         count = int(request.query.get('count', elts_per_page))
         where = Helper.decode_search(request.query.get('search', ''))
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': where
         }
@@ -470,7 +470,7 @@ class Plugin(object):
         count = int(request.query.get('count', elts_per_page))
         where = Helper.decode_search(request.query.get('search', ''))
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': where
         }
@@ -864,7 +864,7 @@ class Plugin(object):
             count = elts_per_page
         where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': where
         }

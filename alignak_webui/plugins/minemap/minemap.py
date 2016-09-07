@@ -68,13 +68,17 @@ class PluginMinemap(Plugin):
         # elts_per_page = elts_per_page['value']
 
         # Pagination and search
-        start = int(request.query.get('start', '0'))
-        count = int(request.query.get('count', elts_per_page))
-        where = self.webui.helper.decode_search(request.query.get('search', ''))
+        start = int(request.params.get('start', '0'))
+        count = int(request.params.get('count', elts_per_page))
+        if count < 1:
+            count = elts_per_page
+        where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
-            'where': where
+            'where': where,
+            'embedded': {
+            }
         }
 
         # Get elements from the data manager
@@ -87,7 +91,12 @@ class PluginMinemap(Plugin):
 
             # services = datamgr.get_services(search={'where': {'host': host.id}})
             services = datamgr.get_services(
-                search={'where': {'host': host.id}}
+                search={
+                    'where': {'host': host.id},
+                    'embedded': {
+                    }
+                },
+                all_elements = True
             )
             for service in services:
                 columns.append(service.alias)
@@ -101,7 +110,7 @@ class PluginMinemap(Plugin):
 
         # Get last total elements count
         total = datamgr.get_objects_count('host', search=where, refresh=True)
-        count = min(len(hosts), total)
+        # count = min(len(hosts), total)
 
         return {
             'params': self.plugin_parameters,

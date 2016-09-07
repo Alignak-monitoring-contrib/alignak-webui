@@ -90,10 +90,16 @@
       $("#pagination_{{page_url.replace('/', '_')}} ul.dropdown-menu li a").click(function(e){
          var value = $(this).data('elts');
 
+         // Build a new pagination request url
+         var url = document.location.href;
+         url = url.replace(document.location.search, '');
+         url = url.replace('#', '');
+         url = url + '?start=0&count='+value;
+
          // Save user preference
          save_user_preference('elts_per_page', value, function() {
-            // Force page reloading
-            location.reload();
+            // Force page reloading with new parameters
+            document.location.href = url;
          });
       });
       </script>

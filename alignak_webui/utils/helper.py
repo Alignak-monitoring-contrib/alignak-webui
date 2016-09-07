@@ -439,8 +439,8 @@ class Helper(object):
         if count <= 0 or total <= 0:
             return [(page_url, start, count, total, False)]
 
-        max_page = total // count + 1
-        current_page = start // (count + 1)
+        max_page = (total // count) + 1
+        current_page = (start // count) + 1
         logger.debug(
             "Get navigation controls, total: %d, start: %d, count: %d, max items: %d",
             total, start, count, nb_max_items

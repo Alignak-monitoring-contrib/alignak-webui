@@ -257,7 +257,7 @@ class PluginHosts(Plugin):
         count = int(request.params.get('count', elts_per_page))
         where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': {'host': element_id}
         }
@@ -296,7 +296,7 @@ class PluginHosts(Plugin):
         # Get host events (all history except the events concerning the checks)
         excluded = [t for t in history_types if t.startswith('check.')]
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': {'host': element_id, 'type': {'$nin': excluded}}
         }

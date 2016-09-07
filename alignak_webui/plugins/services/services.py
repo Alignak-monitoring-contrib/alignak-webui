@@ -166,7 +166,7 @@ class PluginServices(Plugin):
         count = int(request.params.get('count', elts_per_page))
         where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': {'service': element_id}
         }
@@ -205,7 +205,7 @@ class PluginServices(Plugin):
         # Get service events (all history except the events concerning the checks)
         excluded = [t for t in history_types if t.startswith('check.')]
         search = {
-            'page': start // (count + 1),
+            'page': (start // count) + 1,
             'max_results': count,
             'where': {'service': element_id, 'type': {'$nin': excluded}}
         }

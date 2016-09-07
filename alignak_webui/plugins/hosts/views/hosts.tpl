@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 
 %from bottle import request
 %search_string = request.query.get('search', '')
