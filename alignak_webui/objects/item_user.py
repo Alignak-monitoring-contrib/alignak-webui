@@ -51,7 +51,7 @@ class User(BackendElement):
         "administrator": _("Administrator")
     }
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
@@ -62,7 +62,7 @@ class User(BackendElement):
         self._linked_service_notification_period = 'timeperiod'
         self._linked_service_notification_commands = 'command'
 
-        super(User, self)._create(params, date_format)
+        super(User, self)._create(params, date_format, embedded)
 
         self.authenticated = False
 

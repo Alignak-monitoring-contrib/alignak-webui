@@ -44,7 +44,7 @@ class HostDependency(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         """
         Create a hostdependency (called only once when an object is newly created)
         """
@@ -54,7 +54,7 @@ class HostDependency(BackendElement):
         self._linked_hosts = 'host'
         self._linked_hostgroups = 'hostgroup'
 
-        super(HostDependency, self)._create(params, date_format)
+        super(HostDependency, self)._create(params, date_format, embedded)
 
     @property
     def _realm(self):

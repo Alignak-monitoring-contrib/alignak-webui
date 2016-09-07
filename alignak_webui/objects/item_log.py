@@ -55,7 +55,7 @@ class Log(BackendElement):
     # Status property
     status_property = 'state'
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
@@ -64,7 +64,7 @@ class Log(BackendElement):
         self._linked_host = 'host'
         self._linked_service = 'service'
 
-        super(Log, self)._create(params, date_format)
+        super(Log, self)._create(params, date_format, embedded)
 
     @property
     def host(self):

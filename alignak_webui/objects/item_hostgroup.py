@@ -44,7 +44,7 @@ class HostGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         """
         Create a hostgroup (called only once when an object is newly created)
         """
@@ -52,7 +52,7 @@ class HostGroup(BackendElement):
         self._linked__parent = 'hostgroup'
         self._linked_hosts = 'host'
 
-        super(HostGroup, self)._create(params, date_format)
+        super(HostGroup, self)._create(params, date_format, embedded)
 
     @property
     def members(self):

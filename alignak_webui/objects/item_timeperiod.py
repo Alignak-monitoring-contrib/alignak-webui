@@ -50,13 +50,13 @@ class TimePeriod(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         """
         Create a timeperiod (called only once when an object is newly created)
         """
         self._linked__realm = 'realm'
 
-        super(TimePeriod, self)._create(params, date_format)
+        super(TimePeriod, self)._create(params, date_format, embedded)
 
     @property
     def _realm(self):

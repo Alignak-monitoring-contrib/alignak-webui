@@ -49,7 +49,7 @@ class History(BackendElement):
     # Status property
     status_property = 'type'
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
@@ -60,7 +60,7 @@ class History(BackendElement):
         self._linked_user = 'user'
         self._linked_logcheckresult = 'logcheckresult'
 
-        super(History, self)._create(params, date_format)
+        super(History, self)._create(params, date_format, embedded)
 
     @property
     def date(self):

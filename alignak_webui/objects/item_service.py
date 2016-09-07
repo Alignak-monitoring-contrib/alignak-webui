@@ -49,7 +49,7 @@ class Service(BackendElement):
     # Status property
     status_property = 'ls_state'
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         """
         Create a service (called only once when an object is newly created)
         """
@@ -65,7 +65,7 @@ class Service(BackendElement):
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 
-        super(Service, self)._create(params, date_format)
+        super(Service, self)._create(params, date_format, embedded)
 
     @property
     def endpoint(self):

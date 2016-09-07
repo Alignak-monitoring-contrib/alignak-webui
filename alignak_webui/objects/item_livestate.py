@@ -47,7 +47,7 @@ class LiveState(BackendElement):
     # Status property
     status_property = 'state'
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
@@ -56,7 +56,7 @@ class LiveState(BackendElement):
         self._linked_host = 'host'
         self._linked_service = 'service'
 
-        super(LiveState, self)._create(params, date_format)
+        super(LiveState, self)._create(params, date_format, embedded)
 
     def __repr__(self):
         return "<Livestate %s, id: %s, name: %s, status: %s>" % (

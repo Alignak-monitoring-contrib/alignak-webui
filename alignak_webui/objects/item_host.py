@@ -52,7 +52,7 @@ class Host(BackendElement):
     # Dates fields: list of the attributes to be considered as dates
     _dates = BackendElement._dates + ['ls_last_state_change', 'ls_last_check', 'ls_next_check']
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
@@ -70,7 +70,7 @@ class Host(BackendElement):
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 
-        super(Host, self)._create(params, date_format)
+        super(Host, self)._create(params, date_format, embedded)
 
     @property
     def _realm(self):

@@ -44,7 +44,7 @@ class UserGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         """
         Create a contactgroup (called only once when an object is newly created)
         """
@@ -52,7 +52,7 @@ class UserGroup(BackendElement):
         self._linked__parent = 'usergroup'
         self._linked_users = 'user'
 
-        super(UserGroup, self)._create(params, date_format)
+        super(UserGroup, self)._create(params, date_format, embedded)
 
     @property
     def users(self):

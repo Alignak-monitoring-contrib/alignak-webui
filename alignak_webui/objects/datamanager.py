@@ -189,7 +189,7 @@ class DataManager(object):
     ##
     # Find objects and load objects cache
     ##
-    def find_object(self, object_type, params=None, all_elements=False):
+    def find_object(self, object_type, params=None, all_elements=False, embedded=False):
         """
         Find an object ...
 
@@ -210,10 +210,16 @@ class DataManager(object):
 
         Returns an array of matching objects
         """
-        logger.debug("find_object, %s, params: %s, all: %s", object_type, params, all_elements)
+        logger.debug(
+            "find_object, %s, params: %s, all: %s, embedded: %s",
+            object_type, params, all_elements, embedded
+        )
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}
+
+        if 'embedded' in params and not embedded:
+            del(params['embedded'])
 
         items = []
 
@@ -238,7 +244,7 @@ class DataManager(object):
         for item in result:
             # Create a new object
             # logger.debug("find_object, begin creation: %s", object_class)
-            bo_object = object_class(item)
+            bo_object = object_class(item, embedded=embedded)
             items.append(bo_object)
             self.updated = datetime.utcnow()
             # logger.debug("find_object, created")
@@ -874,7 +880,7 @@ class DataManager(object):
     ##
     # Hosts
     ##
-    def get_hosts(self, search=None, template=False, all_elements=False):
+    def get_hosts(self, search=None, template=False, all_elements=False, embedded=True):
         """ Get a list of all hosts. """
         if search is None:
             search = {}
@@ -884,7 +890,7 @@ class DataManager(object):
             search.update({'where': {'_is_template': template}})
         elif '_is_template' not in search['where']:
             search['where'].update({'_is_template': template})
-        if 'embedded' not in search:
+        if embedded and 'embedded' not in search:
             search.update({
                 'embedded': {
                     '_realm': 1, '_templates': 1,
@@ -896,8 +902,8 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_hosts, search: %s", search)
-            items = self.find_object('host', search, all_elements)
+            logger.warning("get_hosts, search: %s", search)
+            items = self.find_object('host', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_hosts, none found")
@@ -992,7 +998,7 @@ class DataManager(object):
     ##
     # Services
     ##
-    def get_services(self, search=None, template=False, all_elements=False):
+    def get_services(self, search=None, template=False, all_elements=False, embedded=True):
         """ Get a list of all services. """
         if search is None:
             search = {}
@@ -1002,7 +1008,7 @@ class DataManager(object):
             search.update({'where': {'_is_template': template}})
         elif '_is_template' not in search['where']:
             search['where'].update({'_is_template': template})
-        if 'embedded' not in search:
+        if embedded and 'embedded' not in search:
             search.update({
                 'embedded': {
                     '_realm': 1,
@@ -1016,7 +1022,7 @@ class DataManager(object):
 
         try:
             logger.debug("get_services, search: %s", search)
-            items = self.find_object('service', search, all_elements)
+            items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_services, none found")

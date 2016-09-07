@@ -44,7 +44,7 @@ class ServiceGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
+    def _create(self, params, date_format, embedded):
         """
         Create a servicegroup (called only once when an object is newly created)
         """
@@ -52,7 +52,7 @@ class ServiceGroup(BackendElement):
         self._linked__parent = 'servicegroup'
         self._linked_services = 'service'
 
-        super(ServiceGroup, self)._create(params, date_format)
+        super(ServiceGroup, self)._create(params, date_format, embedded)
 
     @property
     def services(self):
