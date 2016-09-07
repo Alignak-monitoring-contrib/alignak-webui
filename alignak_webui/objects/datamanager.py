@@ -189,7 +189,7 @@ class DataManager(object):
     ##
     # Find objects and load objects cache
     ##
-    def find_object(self, object_type, params=None, all_elements=False, embedded=False):
+    def find_object(self, object_type, params=None, all_elements=False, embedded=True):
         """
         Find an object ...
 
