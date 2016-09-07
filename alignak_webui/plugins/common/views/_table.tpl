@@ -83,6 +83,7 @@
          %end
          <tr id="filterrow">
             %idx=0
+            %timeout=0
             %for field in dt.table_columns:
                %selectize = False
                %name = field.get('data', '')
@@ -112,17 +113,16 @@
                %  end
                %end
 
-               <td data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectize="{{selectize}}"
-                   data-searchable="{{ field['searchable'] }}"
-                   data-regex="{{ field['regex'] }}"
+               <td data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectized="{{selectize}}"
+                   data-searchable="{{ field['searchable'] }}" data-regex="{{ field['regex'] }}"
                    data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
                    data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
                    data-allowed="{{ field['allowed'] }}"
                    >
-
                   %if is_list:
                   <div class="form-group form-group-sm">
-                     <select id="filter_{{name}}" class="form-control">
+                     <select id="filter_{{name}}"
+                        class="form-control">
                      </select>
                   </div>
                   %else:
@@ -147,7 +147,7 @@
                   %end
                   %if selectize:
                   <script>
-                     window.setTimeout(function() {
+                     //window.setTimeout(function() {
                      $('#filter_{{name}}').selectize({
                         plugins: ['remove_button'],
                         delimiter: ',',
@@ -203,7 +203,8 @@
                            //this.clear(true);
                         }
                      });
-                     }, 1000);
+                     //}, {{timeout}});
+                     %timeout += 500
                   </script>
                   %end
                </td>
@@ -224,6 +225,7 @@
    var selectedRows = [];
 
    function resetFilters() {
+      if (debugTable) console.debug('Reset table filters');
       var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
 
       // Reset table columns search
@@ -232,15 +234,22 @@
             .search('', false, false)
             .draw();
 
-      // Clear the search fields
-      $('#filterrow th[data-searchable="True"][data-selectize="True"]').each( function () {
+      // Clear the search fields based on selectize
+      $('td[data-searchable="True"]').each( function () {
          var field_name = $(this).data('name');
 
-         if ($('#filter_'+field_name).length) {
-            var input_filter = $('#filter_'+field_name).selectize()[0].selectize;
-            if (input_filter) {
-               //if (debugTable) console.debug('*** clear filter: ', field_name, input_filter.items);
-               input_filter.clear(true);
+         if ($(this).data('selectized') == "True") {
+            if ($('#filter_'+field_name).length) {
+               var input_filter = $('#filter_'+field_name).selectize()[0].selectize;
+               if (input_filter) {
+                  if (debugTable) console.debug('*** clear selectized filter: ', field_name, input_filter.items);
+                  input_filter.clear(true);
+               }
+            }
+         } else {
+            if ($('#filter_'+field_name).length) {
+               if (debugTable) console.debug('*** clear filter: ', field_name, $('#filter_'+field_name).val());
+               $('#filter_'+field_name).val('');
             }
          }
       });
@@ -263,7 +272,7 @@
       %if dt.searchable:
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
-         var parent = $(this).parents('th')
+         var parent = $(this).parents('[data-name]')
          var column_index = parent.data('index');
          var column_name = parent.data('name');
          var regex = parent.data('regex');
@@ -271,7 +280,7 @@
          if ($(this).attr('type') == 'checkbox') {
             value = $(this).is(':checked');
          }
-         if (debugTable) console.debug('Datatable event, search column '+column_name+' for '+value);
+         if (debugTable) console.debug('Datatable input event, search column '+column_name+' for '+value);
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
@@ -285,12 +294,12 @@
 
       // Apply the search filter for select fields
       $("#tbl_{{object_type}} thead select").on('change', function () {
-         var parent = $(this).parents('th')
+         var parent = $(this).parents('[data-name]')
          var column_index = parent.data('index');
          var column_name = parent.data('name');
          var value = $(this).val() || [];
 
-         if (debugTable) console.debug("Datatable event, search column '"+column_name+"' for '" + value + "'");
+         if (debugTable) console.debug("Datatable select event, search column '"+column_name+"' for '" + value + "'");
 
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
@@ -331,20 +340,31 @@
          if (debugTable) console.debug('Datatable event, saved state loaded ...');
          if (debugTable) console.debug('Saved filters:', where['saved_filters']);
 
+         // Disable the clear filter button
+         table.buttons('clearFilter:name').disable();
+
          if (where['saved_filters']) {
-            if (debugTable) console.debug('Restoring saved filters:', where);
+            if (debugTable) console.debug('Restoring saved filters:', where, data);
 
             // Update each search field with the received value
             $.each(data.columns, function(index, value) {
-               var name = $('#filterrow th[data-index="'+index+'"]').data('name');
+               var name = $('#filterrow td[data-index="'+index+'"]').data('name');
+               var selectized = $('#filterrow td[data-index="'+index+'"]').data('selectized') == 'True';
 
                if ($('#filter_'+name).length) {
                   if (value['search']['search'] != "") {
-                     var input_filter = $('#filter_'+name).selectize()[0].selectize;
                      if (debugTable) console.debug('*** update filter: ', index, name, value['search']['search']);
 
-                     // Update search filter input field value
-                     input_filter.setValue(value['search']['search']);
+                     if (selectized) {
+                        var input_filter = $('#filter_'+name).selectize()[0].selectize;
+                        if (debugTable) console.debug('*** input filter: ', selectized, input_filter);
+
+                        // Update search filter input field value
+                        input_filter.setValue(value['search']['search']);
+                     } else {
+                        var input_filter = $('#filter_'+name);
+                        input_filter.val(value['search']['search']);
+                     }
 
                      // Configure table filtering
                      table
@@ -416,8 +436,7 @@
          "lengthMenu": [
             [ 10, 25, 50, 100, -1 ],
             [
-               "{{_('10 rows')}}", "{{_('25 rows')}}", "{{_('50 rows')}}",
-               "{{_('100 rows')}}", "{{_('Show all')}}"
+               "{{_('10 rows')}}", "{{_('25 rows')}}", "{{_('50 rows')}}", "{{_('100 rows')}}", "{{_('Show all')}}"
             ]
          ],
 */
@@ -434,8 +453,8 @@
          "fixedHeader": {
             headerOffset: $('#topbar').outerHeight()
          },
-         /* Fixed leftmost column and scrolling mode: #74*/
-         "scrollX": true,
+         /* Fixed leftmost column and scrolling mode: #74
+         "scrollX": true,*/
          "fixedColumns": {
             leftColumns: 1
          },
@@ -520,7 +539,7 @@
          stateSave: true,
          // Saved parameters
          "stateSaveParams": function (settings, data) {
-            if (debugTable) console.debug("state saved data", data);
+            //if (debugTable) console.debug("state saved data", data);
             // Ignore global search parameter ...
             data.search.search = "";
          },
@@ -550,7 +569,7 @@
          %end
          // Save table configuration
          stateSaveCallback: function (settings, data) {
-            if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);
+            //if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);
 
             // Post table data to the server ...
             $.ajax({
@@ -563,7 +582,7 @@
                   "value": JSON.stringify( data )
                },
                "success": function () {
-                  if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings);
+                  //if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings);
                }
             });
          },
