@@ -488,7 +488,10 @@ class BackendElement(object):
         logger.debug(" --- created %s (%s)", self.__class__, self[id_property])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        # Yes, but it is the base object and it needs those pubic methods!
+        # Yes, but we need those locals!
+        # pylint: disable=too-many-locals
+        # pylint:disable=too-many-nested-blocks
+        # Yes, but it is the base object and it needs those arguments!
         # pylint: disable=unused-argument
         """
         Initialize an object
