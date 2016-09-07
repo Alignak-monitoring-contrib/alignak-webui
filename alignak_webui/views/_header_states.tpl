@@ -35,17 +35,15 @@
          <tr>
             %for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
             <td>
-              %title = _('%s hosts %s (%s%%)') % (hs["nb_" + state], state, hs["pct_" + state])
-              %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
-               <a href="{{ webui.get_url('Hosts table') }}?search=
+               %title = _('%s hosts %s (%s%%)') % (hs["nb_" + state], state, hs["pct_" + state])
+               %label = "%s <i>(%s%%)</i>" % (hs["nb_" + state], hs["pct_" + state])
                %if state in ['up', 'unreachable', 'down']:
-                  ls_state:{{state.upper()}}
+                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}">
                %elif state in ['acknowledged']:
-                  ls_acknowledged:yes
+                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_acknowledged:yes">
                %elif state in ['in_downtime']:
-                  ls_downtime:yes
+                  <a href="{{ webui.get_url('Hosts table') }}?search=ls_downtime:yes">
                %end
-               ">
                {{! Host({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
                </a>
             </td>
@@ -96,15 +94,13 @@
             <td>
                %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
                %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
-               <a href="{{ webui.get_url('Services table') }}?search=
                %if state in ['ok', 'warning', 'critical', 'unknown']:
-                  ls_state:{{state.upper()}}
+                  <a href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}">
                %elif state in ['acknowledged']:
-                  ls_acknowledged:yes
+                  <a href="{{ webui.get_url('Services table') }}?search=ls_acknowledged:yes">
                %elif state in ['in_downtime']:
-                  ls_downtime:yes
+                  <a href="{{ webui.get_url('Services table') }}?search=ls_downtime:yes">
                %end
-               ">
                {{! Service({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
                </a>
             </td>
