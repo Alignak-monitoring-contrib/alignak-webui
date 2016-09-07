@@ -82,6 +82,7 @@ class PluginMinemap(Plugin):
         }
 
         # Get elements from the data manager
+        # Do not include the embedded fields to improve the loading time...
         hosts = datamgr.get_hosts(search, embedded=False)
 
         minemap = []
@@ -89,12 +90,11 @@ class PluginMinemap(Plugin):
         for host in hosts:
             minemap_row = {'host_check': host}
 
-            # services = datamgr.get_services(search={'where': {'host': host.id}})
+            # Get all host services
+            # Do not include the embedded fields to improve the loading time...
             services = datamgr.get_services(
                 search={
-                    'where': {'host': host.id},
-                    'embedded': {
-                    }
+                    'where': {'host': host.id}
                 },
                 all_elements = True,
                 embedded = False

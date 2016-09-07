@@ -152,6 +152,7 @@ class PluginWorldmap(Plugin):
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
+        # Do not include the embedded fields to improve the loading time...
         hosts = datamgr.get_hosts(search, embedded=False)
         logger.info("worldmap, search valid hosts")
 
