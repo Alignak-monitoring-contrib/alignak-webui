@@ -640,7 +640,7 @@ class TestMinemap(unittest2.TestCase):
         print('get page /min')
         response = self.app.get('/minemap')
         response.mustcontain(
-            '<div id="minemap">'
+            '<div id="minemap"'
         )
 
 
