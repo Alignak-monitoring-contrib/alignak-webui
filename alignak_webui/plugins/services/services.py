@@ -116,6 +116,30 @@ class PluginServices(Plugin):
                             'Service configuration: service customs configuration variables.'
                         ),
                         'options': {}
+                    },
+                    {
+                        'id': 'metrics',
+                        'for': ['service'],
+                        'name': _('Metrics'),
+                        'template': 'service_metrics_widget',
+                        'icon': 'line-chart',
+                        'description': _(
+                            '<h4>service metrics widget</h4>Displays service (and its services) last '
+                            'received metrics.'
+                        ),
+                        'picture': 'htdocs/img/service_metrics_widget.png',
+                        'options': {}
+                    },
+                    {
+                        'id': 'grafana',
+                        'for': ['service'],
+                        'name': _('Grafana'),
+                        'template': 'service_grafana_widget',
+                        'icon': 'area-chart',
+                        'description': _(
+                            '<h4>service grafana widget</h4>Displays service Grafana panel.'
+                        ),
+                        'options': {}
                     }
                 ]
             },
