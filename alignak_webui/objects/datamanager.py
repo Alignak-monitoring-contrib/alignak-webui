@@ -219,7 +219,7 @@ class DataManager(object):
             params = {'where': {'_id': params}}
 
         if 'embedded' in params and not embedded:
-            del(params['embedded'])
+            del params['embedded']
 
         items = []
 
