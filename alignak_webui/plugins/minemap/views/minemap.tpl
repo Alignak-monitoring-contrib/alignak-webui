@@ -76,7 +76,10 @@
 
          <script language="javascript" type="text/javascript" >
             $(document).ready(function(){
-               //$('table.table-fixed-header').floatThead({});
+               $('table.table-fixed-header').floatThead({
+                  top: $('#topbar').outerHeight(),
+                  zIndex: 101
+               });
             });
          </script>
       %end
