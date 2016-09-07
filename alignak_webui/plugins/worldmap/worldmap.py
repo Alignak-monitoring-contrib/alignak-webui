@@ -132,7 +132,6 @@ class PluginWorldmap(Plugin):
 
         # Get last total elements count
         total = len(valid_hosts)
-        count = min(len(valid_hosts), total)
 
         return {
             'mapId': 'hostsMap',
@@ -153,7 +152,7 @@ class PluginWorldmap(Plugin):
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
-        hosts = datamgr.get_hosts(search)
+        hosts = datamgr.get_hosts(search, embedded=False)
         logger.info("worldmap, search valid hosts")
 
         valid_hosts = []

@@ -18,7 +18,7 @@
  * along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var actions_logs=true;
+var actions_logs=false;
 var refresh_delay_after_action=1000;
 var alert_success_delay=3;
 var alert_error_delay=8;
