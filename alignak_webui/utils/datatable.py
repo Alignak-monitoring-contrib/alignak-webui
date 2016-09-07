@@ -511,7 +511,7 @@ class Datatable(object):
         # Embed linked resources / manage templated resources
         parameters['embedded'] = {}
         for field in self.table_columns:
-            logger.debug("field: %s", field['data'])
+            # logger.debug("field: %s", field['data'])
             if field['type'] == 'objectid' or field['content_type'] == 'objectid':
                 parameters['embedded'].update({field['data']: 1})
 

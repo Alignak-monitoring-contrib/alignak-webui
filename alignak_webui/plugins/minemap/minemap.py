@@ -96,8 +96,8 @@ class PluginMinemap(Plugin):
                 search={
                     'where': {'host': host.id}
                 },
-                all_elements = True,
-                embedded = False
+                all_elements=True,
+                embedded=False
             )
             for service in services:
                 columns.append(service.alias)

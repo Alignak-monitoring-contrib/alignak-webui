@@ -124,8 +124,8 @@ class PluginServices(Plugin):
                         'template': 'service_metrics_widget',
                         'icon': 'line-chart',
                         'description': _(
-                            '<h4>service metrics widget</h4>Displays service (and its services) last '
-                            'received metrics.'
+                            '<h4>service metrics widget</h4>Displays service (and its services) '
+                            'last received metrics.'
                         ),
                         'picture': 'htdocs/img/service_metrics_widget.png',
                         'options': {}
