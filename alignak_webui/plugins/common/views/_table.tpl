@@ -147,6 +147,7 @@
                   %end
                   %if selectize:
                   <script>
+                     window.setTimeout(function() {
                      $('#filter_{{name}}').selectize({
                         plugins: ['remove_button'],
                         delimiter: ',',
@@ -202,6 +203,7 @@
                            //this.clear(true);
                         }
                      });
+                     }, 1000);
                   </script>
                   %end
                </td>
