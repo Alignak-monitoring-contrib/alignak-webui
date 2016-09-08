@@ -839,6 +839,25 @@ class DataManager(object):
         items = self.get_hostgroups(search=search)
         return items[0] if items else None
 
+    def get_hostgroup_real_state(self, search):
+        """ Get a hosts group real state (including services states).
+
+        Returns -1 if any problem
+        """
+
+        hostgroup = self.get_hostgroup(search)
+        if not hostgroup:
+            return -1
+
+        real_state = 0
+        for host in hostgroup.members:
+            host_real_state = self.get_host_real_state(
+                search={'where': {'host': host.id}}, embedded=False
+            )
+            real_state = max(real_state, host_real_state)
+
+        return real_state
+
     ##
     # Hosts dependencies
     ##
@@ -910,7 +929,7 @@ class DataManager(object):
 
         return []
 
-    def get_host(self, search):
+    def get_host(self, search, embedded=True):
         """ Get a host by its id (default). """
 
         if isinstance(search, basestring):
@@ -918,8 +937,32 @@ class DataManager(object):
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
-        items = self.get_hosts(search=search)
+        items = self.get_hosts(search=search, embedded=embedded)
         return items[0] if items else None
+
+    def get_host_real_state(self, search):
+        """ Get a host real state (including services states).
+
+        Returns -1 if any problem
+        """
+
+        host = self.get_host(search, embedded=False)
+        if not host:
+            return -1
+
+        real_state = host.real_state
+        if real_state > 2:
+            return real_state
+
+        # Get host services
+        services = self.get_services(
+            search={'where': {'host': host.id}}, embedded=False, all_elements=True
+        )
+
+        for service in services:
+            real_state = max(real_state, service.real_state)
+
+        return real_state
 
     ##
     # Services groups
@@ -1021,7 +1064,7 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_services, search: %s", search)
+            logger.warning("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen

@@ -44,6 +44,11 @@ class HostGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
+    # Converting real state identifier to text status
+    real_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+    ]
+
     def _create(self, params, date_format, embedded):
         """
         Create a hostgroup (called only once when an object is newly created)

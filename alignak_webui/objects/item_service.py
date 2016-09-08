@@ -49,6 +49,11 @@ class Service(BackendElement):
     # Status property
     status_property = 'ls_state'
 
+    # Converting real state identifier to text status
+    real_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+    ]
+
     def _create(self, params, date_format, embedded):
         """
         Create a service (called only once when an object is newly created)
@@ -263,3 +268,39 @@ class Service(BackendElement):
         if self.state_id in [1, 2] and self.state_type == "HARD":
             return True
         return False
+
+    @property
+    def real_state(self):
+        """
+        Get the element real worst state, including:
+        - the acknowledged state
+        - the downtime state
+
+        The worst states is (prioritized):
+        - an host down
+        - an host unreachable
+        - an host downtimed
+        - an host acknowledged
+        - an host up
+
+        Note that unknown state services are considered as warning!
+        """
+        real_state = 0
+
+        if self.acknowledged:
+            real_state = 1
+        elif self.downtime:
+            real_state = 2
+        else:
+            if self.state == 'WARNING':
+                real_state = 3
+            elif self.state == 'CRITICAL':
+                real_state = 4
+            elif self.state != 'UNKNOWN':
+                real_state = 3
+
+        return real_state
+
+    @property
+    def real_status(self):
+        return self.real_state_to_status[self.real_state]
