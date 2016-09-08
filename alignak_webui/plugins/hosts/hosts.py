@@ -239,7 +239,9 @@ class PluginHosts(Plugin):
                 return self.webui.response_invalid_parameters(_('Host does not exist'))
 
         # Get host services
-        services = datamgr.get_services(search={'where': {'host': host.id}})
+        services = datamgr.get_services(
+            search={'where': {'host': host.id}}, embedded=True, all_elements=True
+        )
 
         # Get host dependencies
         children = datamgr.get_hostdependencys(

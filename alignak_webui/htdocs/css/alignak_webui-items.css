@@ -8,6 +8,7 @@
 .item_realm,
 .turquoise { color: #1abc9c; }
 .item_user,
+.item_hostgroup_unknown,
 .green-sea { color: #16a085; }
 
 /* Greens */
@@ -17,9 +18,11 @@
 .sla_hosts_ok,
 .sla_services_ok,
 .item_host_up,
+.item_host_ok,
 .item_service_ok,
 .item_logcheckresult_up,
 .item_logcheckresult_ok,
+.item_hostgroup_ok,
 .nephritis { color: #27ae60; }
 
 /* Blues */
@@ -30,6 +33,7 @@
 .belize-hole { color: #2980b9; }
 
 /* Purples */
+.item_hostgroup_in_downtime,
 .item_host_in_downtime,
 .item_service_in_downtime,
 .item_logcheckresult_in_downtime,
@@ -59,11 +63,13 @@
 .orange { color: #f39c12; }
 
 /* Oranges */
+.item_hostgroup_warning,
 .item_close,
 .item_inactive,
 .sla_hosts_warning,
 .sla_services_warning,
 .item_host_unreachable,
+.item_host_warning,
 .item_logcheckresult_unreachable,
 .item_service_warning,
 .item_logcheckresult_warning,
@@ -71,7 +77,9 @@
 .pumpkin { color: #d35400; }
 
 /* Reds */
+.item_hostgroup_critical,
 .item_host_down,
+.item_host_critical,
 .item_service_critical,
 .sla_hosts_critical,
 .sla_services_critical,
@@ -85,6 +93,7 @@
 .silver { color: #bdc3c7; }
 
 /* Grays */
+.item_hostgroup_acknowledged,
 .item_host_acknowledged,
 .item_service_acknowledged,
 .item_logcheckresult_acknowledged,

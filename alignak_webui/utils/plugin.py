@@ -401,7 +401,7 @@ class Plugin(object):
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
                 self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
-        logger.warning("get_one, found: %s - %s", element, element.__dict__)
+        logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
         # Build table structure and data model
         # dt = Datatable(self.backend_endpoint, datamgr, self.table)
@@ -523,6 +523,50 @@ class Plugin(object):
             ),
             'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
         }
+
+    def get_status(self, element_id=None, element=None):
+        """
+        Get the element overall status
+        """
+        datamgr = request.app.datamgr
+
+        if not element:
+            if not element_id:
+                self.send_user_message(
+                    _("Missing identifier for '%s'") % (self.backend_endpoint)
+                )
+
+            # Get elements from the data manager
+            f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+            if not f:
+                self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+
+            logger.debug("get_status, search: %s", element_id)
+            element = f(element_id)
+            if not element:
+                element = f(search={'max_results': 1, 'where': {'name': element_id}})
+                if not element:
+                    self.send_user_message(
+                        _("%s '%s' not found") % (self.backend_endpoint, element_id)
+                    )
+            logger.debug("get_status, found: %s - %s", element, element.__dict__)
+
+        group_state = 0
+        for host in element.members:
+            logger.debug("Group member: %s", host)
+
+            # Get host services
+            services = datamgr.get_services(search={'where': {'host': host.id}})
+
+            # Get host overall state (0, 1, 2, 3)
+            state = host.get_real_state(services)
+            group_state = max(state, group_state)
+
+        logger.debug("Group state: %d", group_state)
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps({'status': group_state})
 
     def get_form(self, element_id):
         """

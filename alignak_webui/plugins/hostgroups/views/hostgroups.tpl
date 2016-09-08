@@ -44,23 +44,48 @@
                <th style="width: 40px"></th>
                <th>{{_('Name')}}</th>
                <th>{{_('Alias')}}</th>
+               <th>{{_('Level')}}</th>
+               <th>{{_('Parent')}}</th>
             </tr></thead>
 
             <tbody>
+               %real_state_to_status = ['ok', 'acknowledged', 'in_downtime', 'warning', 'critical']
                %for hostgroup in elts:
-               <tr id="#{{hostgroup.id}}">
-                  <td title="{{hostgroup.alias}}">
-                     {{! hostgroup.get_html_state(text=None, title=hostgroup.alias)}}
-                  </td>
+                  %hostgroup.status = 'unknown'
+                  %real_state = 0
+                  %for host in hostgroup.members:
+                     %if isinstance(host, basestring):
+                        %continue
+                     %end
+                     %real_state = max(real_state, datamgr.get_host_real_state(host.id))
+                     %hostgroup.status = real_state_to_status[real_state]
+                  %end
+               %end
 
-                  <td>
-                     <small>{{!hostgroup.get_html_link()}}</small>
-                  </td>
+               %for hostgroup in elts:
+                  <tr id="#{{hostgroup.id}}">
+                     <td title="{{hostgroup.alias}}">
+                        {{! hostgroup.get_html_state(text=None)}}
+                     </td>
 
-                  <td>
-                     <small>{{hostgroup.alias}}</small>
-                  </td>
-               </tr>
+                     <td>
+                        <small>{{!hostgroup.get_html_link()}}</small>
+                     </td>
+
+                     <td>
+                        <small>{{hostgroup.alias}}</small>
+                     </td>
+
+                     <td>
+                        <small>{{hostgroup.level}}</small>
+                     </td>
+
+                     <td>
+                        %if hostgroup._parent and hostgroup._parent != 'hostgroup':
+                        <small>{{hostgroup._parent.alias}}</small>
+                        %end
+                     </td>
+                  </tr>
                %end
             </tbody>
          </table>

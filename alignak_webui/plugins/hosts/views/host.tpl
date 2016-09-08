@@ -287,18 +287,13 @@
    %if current_user.is_power():
       %if host.is_problem and host.business_impact > 2 and not host.acknowledged:
       <div class="panel panel-default">
-         <div class="panel-heading" style="padding-bottom: -10">
-            <div class="aroundpulse pull-left" style="padding: 8px;">
-               <span class="big-pulse pulse"></span>
-               <i class="fa fa-3x fa-spin fa-gear"></i>
-            </div>
-            <div style="margin-left: 60px;">
+         <div class="panel-body">
+            <i class="fa fa-2x fa-spin fa-gear"></i>
             %disabled_ack = '' if host.is_problem and not host.acknowledged else 'disabled'
             %disabled_fix = '' if host.is_problem and host.event_handler_enabled and host.event_handler else 'disabled'
-            <p class="alert alert-danger" style="margin-bottom:0">
+            <span class="alert alert-danger">
                {{_('This element has an important impact on your business, you may acknowledge it or try to fix it.')}}
-            </p>
-            </div>
+            </span>
          </div>
       </div>
       %end

@@ -60,33 +60,40 @@ class PluginHostsGroups(Plugin):
 
         super(PluginHostsGroups, self).__init__(app, cfg_filenames)
 
-    def get_hostgroup_status(self, hostgroup_id):
+    def get_hostgroup_status(self, hostgroup_id, hostgroup=None, no_json=False):
         """
         Get the hostgroup overall status
         """
         datamgr = request.app.datamgr
 
-        hostgroup = datamgr.get_hostgroup(hostgroup_id)
         if not hostgroup:
-            hostgroup = datamgr.get_hostgroup(
-                search={'max_results': 1, 'where': {'name': hostgroup_id}}
-            )
+            hostgroup = datamgr.get_hostgroup(hostgroup_id)
             if not hostgroup:
-                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % hostgroup_id)
+                hostgroup = datamgr.get_hostgroup(
+                    search={'max_results': 1, 'where': {'name': hostgroup_id}}
+                )
+                if not hostgroup:
+                    return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                                  % hostgroup_id)
 
         group_state = 0
         for host in hostgroup.members:
             logger.debug("Group member: %s", host)
 
-            # Get host services
-            services = datamgr.get_services(search={'where': {'host': host.id}})
+            if isinstance(host, basestring):
+                real_state='X'
+                continue
 
-            # Get host overall state (0, 1, 2, 3)
-            state = host.get_real_state(services)
-            group_state = max(state, group_state)
+            group_state = max(group_state, datamgr.get_host_real_state(host.id))
 
+        real_state_to_status = [
+            'Ok', 'Warning', 'Critical', 'Unknown', 'Acknowledged', 'Downtimed'
+        ]
+        hostgroup.status = real_state_to_status[group_state]
         logger.debug("Group state: %d", group_state)
+
+        if no_json:
+            return hostgroup.status
 
         response.status = 200
         response.content_type = 'application/json'

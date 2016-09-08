@@ -6,6 +6,7 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
+%from alignak_webui.objects.item_host import Host
 %from alignak_webui.utils.metrics import HostMetrics
 %metrics = HostMetrics(host, services, plugin_parameters, host.tags)
 %services_states = metrics.get_overall_state()
@@ -13,10 +14,16 @@
 %services_states = services_states[1:]
 
 <div id="host_view_information" class="col-lg-4 col-sm-4 text-center">
-   {{! host.get_html_state(text=None, size="fa-5x")}}
    <div>
-      <strong>{{host.alias}}</strong>
+      {{! Host({'ls_state': host.real_status}).get_html_state(text=None, size="fa-5x")}}
+      <legend><strong>{{host.alias}}</strong></legend>
    </div>
+   %if host.real_state != host.ls_state_id:
+   <div>
+      {{! host.get_html_state(text=None, size="fa-5x")}}
+      <legend>{{_('Host real state, including services')}}</legend>
+   </div>
+   %end
    %if services:
    <div class="text-left">
       <table class="table table-condensed">

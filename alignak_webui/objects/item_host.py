@@ -52,6 +52,11 @@ class Host(BackendElement):
     # Dates fields: list of the attributes to be considered as dates
     _dates = BackendElement._dates + ['ls_last_state_change', 'ls_last_check', 'ls_next_check']
 
+    # Converting real state identifier to text status
+    real_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+    ]
+
     def _create(self, params, date_format, embedded):
         # Not that bad ... because _create is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -71,6 +76,11 @@ class Host(BackendElement):
         self._linked_usergroups = 'usergroup'
 
         super(Host, self)._create(params, date_format, embedded)
+
+    @property
+    def members(self):
+        """ Return linked object """
+        return self.services
 
     @property
     def _realm(self):
@@ -277,38 +287,37 @@ class Host(BackendElement):
             return True
         return False
 
-    def get_real_state(self, children):
+    @property
+    def real_state(self):
         """
-        Get the host real state, including the services state
+        Get the element real worst state, including:
+        - the acknowledged state
+        - the downtime state
+
+        The worst states is (prioritized):
+        - an host down
+        - an host unreachable
+        - an host downtimed
+        - an host acknowledged
+        - an host up
         """
-        hs = 0
+        real_state = 0
 
-        if self.state == 'DOWN':
-            if self.acknowledged:
-                hs = 3
-            else:
-                hs = 2
-        elif self.state != 'UP':
-            if self.acknowledged:
-                hs = 3
-            else:
-                hs = 1
+        if self.acknowledged:
+            real_state = 1
+        elif self.downtime:
+            real_state = 2
+        else:
+            if self.state == 'UNREACHABLE':
+                real_state = 3
+            elif self.state == 'DOWN':
+                real_state = 4
 
-        for child in children:
-            if child.state == 'CRITICAL':
-                if hs in ['OK', 'WARNING', 'ACK']:
-                    if child.acknowledged:
-                        hs = 3
-                    else:
-                        hs = 2
-            elif child.state != 'OK':
-                if hs in ['OK', 'ACK']:
-                    if child.acknowledged:
-                        hs = 3
-                    else:
-                        hs = 1
+        return real_state
 
-        return hs
+    @property
+    def real_status(self):
+        return self.real_state_to_status[self.real_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

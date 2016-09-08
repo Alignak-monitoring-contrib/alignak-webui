@@ -232,7 +232,7 @@
                if (debugTree) console.log('Selected :', action.node);
 
 
-               $.ajax( {
+               $.ajax({
                   "url": "/{{tree_type}}/status/" + action.node.id,
                   "dataType": "json",
                   "type": "GET",
