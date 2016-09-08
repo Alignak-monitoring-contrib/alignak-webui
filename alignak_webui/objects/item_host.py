@@ -77,6 +77,9 @@ class Host(BackendElement):
 
         super(Host, self)._create(params, date_format, embedded)
 
+        if not hasattr(self, '_real_state'):
+            setattr(self, '_real_state', 0)
+
     @property
     def members(self):
         """ Return linked object """
@@ -151,13 +154,6 @@ class Host(BackendElement):
                 return None
 
         return {u'type': u'Point', u'coordinates': [_lat, _lng]}
-
-    # @property
-    # def status(self):
-        # """
-        # Return host live state status
-        # """
-        # return self.ls_state
 
     @property
     def state_id(self):
@@ -301,23 +297,31 @@ class Host(BackendElement):
         - an host acknowledged
         - an host up
         """
-        real_state = 0
+        self._real_state = 0
 
         if self.acknowledged:
-            real_state = 1
+            self._real_state = 1
         elif self.downtime:
-            real_state = 2
+            self._real_state = 2
         else:
             if self.state == 'UNREACHABLE':
-                real_state = 3
+                self._real_state = 3
             elif self.state == 'DOWN':
-                real_state = 4
+                self._real_state = 4
 
-        return real_state
+        return self._real_state
+
+    @real_state.setter
+    def real_state(self, real_state):
+        """
+        Set Item object real_state
+        """
+        self._real_state = real_state
 
     @property
     def real_status(self):
-        return self.real_state_to_status[self.real_state]
+        """Return real status string from the real state identifier"""
+        return self.real_state_to_status[self._real_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

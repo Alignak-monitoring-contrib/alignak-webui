@@ -403,12 +403,8 @@ class Plugin(object):
                 self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
-        # Build table structure and data model
-        # dt = Datatable(self.backend_endpoint, datamgr, self.table)
-
         return {
             'object_type': self.backend_endpoint,
-            # 'dt': dt,
             'element': element
         }
 

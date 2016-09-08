@@ -60,6 +60,35 @@ class PluginHostsGroups(Plugin):
 
         super(PluginHostsGroups, self).__init__(app, cfg_filenames)
 
+    def get_one(self, element_id):
+        """
+            Show one element
+        """
+        datamgr = request.app.datamgr
+
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+
+        logger.debug("get_one, search: %s", element_id)
+        element = f(element_id)
+        if not element:
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            if not element:
+                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+        logger.debug("get_one, found: %s - %s", element, element.__dict__)
+
+        group_members = element.hostgroups
+        if element.level == 0:
+            group_members = datamgr.get_hostgroups(search={'where': {'_level': 1}})
+
+        return {
+            'object_type': self.backend_endpoint,
+            'element': element,
+            'groups': group_members
+        }
+
     def get_hostgroup_status(self, hostgroup_id, hostgroup=None, no_json=False):
         """
         Get the hostgroup overall status
@@ -76,27 +105,40 @@ class PluginHostsGroups(Plugin):
                     return self.webui.response_invalid_parameters(_('Element does not exist: %s')
                                                                   % hostgroup_id)
 
-        group_state = 0
+        logger.debug("get_hostgroup_status: %s", hostgroup.name)
+        # Hosts group real state from hosts
+        hostgroup.real_state = 0
+        hostgroup._status = 'unknown'
         for host in hostgroup.members:
-            logger.debug("Group member: %s", host)
-
             if isinstance(host, basestring):
                 continue
 
-            group_state = max(group_state, datamgr.get_host_real_state(host.id))
+            host_state = datamgr.get_host_real_state(host.id)
+            logger.debug(" - host: %s, state: %d", host.name, host_state)
+            hostgroup.real_state = max(hostgroup.real_state, host_state)
 
-        real_state_to_status = [
-            'Ok', 'Warning', 'Critical', 'Unknown', 'Acknowledged', 'Downtimed'
-        ]
-        hostgroup.status = real_state_to_status[group_state]
-        logger.debug("Group state: %d", group_state)
+        logger.debug(" - state from hosts: %d -> %s", hostgroup.real_state, hostgroup.real_status)
+
+        group_members = hostgroup.hostgroups
+        if hostgroup.level == 0:
+            group_members = datamgr.get_hostgroups(search={'where': {'_level': 1}})
+
+        # Hosts group real state from group members
+        for group in group_members:
+            if isinstance(group, basestring):
+                continue
+
+            logger.debug(" - group: %s, state: %d", group.name, group.real_state)
+            hostgroup.real_state = max(hostgroup.real_state, group.real_state)
+
+        logger.debug(" - state from groups: %d -> %s", hostgroup.real_state, hostgroup.real_status)
 
         if no_json:
             return hostgroup.status
 
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps({'status': group_state})
+        return json.dumps({'status': hostgroup.real_state, 'status': hostgroup.status})
 
     def get_hostgroup_members(self, hostgroup_id):
         """

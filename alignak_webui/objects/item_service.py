@@ -72,6 +72,9 @@ class Service(BackendElement):
 
         super(Service, self)._create(params, date_format, embedded)
 
+        if not hasattr(self, '_real_state'):
+            setattr(self, '_real_state', 0)
+
     @property
     def endpoint(self):
         """
@@ -301,6 +304,14 @@ class Service(BackendElement):
 
         return real_state
 
+    @real_state.setter
+    def real_state(self, real_state):
+        """
+        Set Item object real_state
+        """
+        self._real_state = real_state
+
     @property
     def real_status(self):
-        return self.real_state_to_status[self.real_state]
+        """Return real status string from the real state identifier"""
+        return self.real_state_to_status[self._real_state]

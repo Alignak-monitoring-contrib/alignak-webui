@@ -21,7 +21,7 @@
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
                %for hostgroup in elts:
-                  <li class="list-group-item"><small>Hostgroup: {{hostgroup}} - {{hostgroup.__dict__}}</small></li>
+                  <li class="list-group-item">Hostgroup: {{hostgroup}} - {{hostgroup.__dict__}}</li>
                %end
             </ul>
             <div class="panel-footer">{{len(elts)}} elements</div>
@@ -49,40 +49,29 @@
             </tr></thead>
 
             <tbody>
-               %real_state_to_status = ['ok', 'acknowledged', 'in_downtime', 'warning', 'critical']
-               %for hostgroup in elts:
-                  %hostgroup.status = 'unknown'
-                  %real_state = 0
-                  %for host in hostgroup.members:
-                     %if isinstance(host, basestring):
-                        %continue
-                     %end
-                     %real_state = max(real_state, datamgr.get_host_real_state(host.id))
-                     %hostgroup.status = real_state_to_status[real_state]
-                  %end
-               %end
-
+               %plugin = webui.find_plugin('Hosts groups')
                %for hostgroup in elts:
                   <tr id="#{{hostgroup.id}}" class="table-row-{{hostgroup.status}}">
                      <td title="{{hostgroup.alias}}">
+                        %hs = plugin.get_hostgroup_status(hostgroup.id, no_json=True)
                         {{! hostgroup.get_html_state(text=None)}}
                      </td>
 
                      <td>
-                        <small>{{!hostgroup.get_html_link()}}</small>
+                        {{!hostgroup.get_html_link()}}
                      </td>
 
                      <td>
-                        <small>{{hostgroup.alias}}</small>
+                        {{hostgroup.alias}}
                      </td>
 
                      <td>
-                        <small>{{hostgroup.level}}</small>
+                        {{hostgroup.level}}
                      </td>
 
                      <td>
                         %if hostgroup._parent and hostgroup._parent != 'hostgroup':
-                        <small>{{hostgroup._parent.alias}}</small>
+                        {{hostgroup._parent.alias}}
                         %end
                      </td>
                   </tr>

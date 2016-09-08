@@ -59,6 +59,9 @@ class HostGroup(BackendElement):
 
         super(HostGroup, self)._create(params, date_format, embedded)
 
+        if not hasattr(self, '_real_state'):
+            setattr(self, '_real_state', 0)
+
     @property
     def members(self):
         """ Return linked object """
@@ -85,3 +88,25 @@ class HostGroup(BackendElement):
         if not hasattr(self, '_level'):
             return -1
         return self._level
+
+    @property
+    def status(self):
+        """Return real status string from the real state identifier"""
+        return self.real_status
+
+    @property
+    def real_state(self):
+        """Return real state identifier"""
+        return self._real_state
+
+    @real_state.setter
+    def real_state(self, real_state):
+        """
+        Set Item object real_state
+        """
+        self._real_state = real_state
+
+    @property
+    def real_status(self):
+        """Return real status string from the real state identifier"""
+        return self.real_state_to_status[self._real_state]

@@ -484,6 +484,11 @@ class BackendElement(object):
                         "as it should be, instead of being: %s",
                         key, self.get_type(), value
                     )
+                else:
+                    logger.debug(
+                        " no value for link parameter: %s (%s), for: %s, %s",
+                        key, params[key].__class__, self.get_type(), params['name']
+                    )
 
         logger.debug(" --- created %s (%s)", self.__class__, self[id_property])
 
@@ -763,7 +768,7 @@ class BackendElement(object):
         Get Item object alias
         A class inheriting from an Item can define its own `name_property`
         """
-        if hasattr(self, 'alias') and getattr(self, '_alias', None):
+        if hasattr(self, '_alias') and getattr(self, '_alias', None):
             return getattr(self, '_alias', None)
         return getattr(self, 'name', '')
 
