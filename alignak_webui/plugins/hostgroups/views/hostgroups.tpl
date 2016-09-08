@@ -51,9 +51,9 @@
             <tbody>
                %plugin = webui.find_plugin('Hosts groups')
                %for hostgroup in elts:
+                  %hs = plugin.get_hostgroup_status(hostgroup.id, no_json=True)
                   <tr id="#{{hostgroup.id}}" class="table-row-{{hostgroup.status}}">
                      <td title="{{hostgroup.alias}}">
-                        %hs = plugin.get_hostgroup_status(hostgroup.id, no_json=True)
                         {{! hostgroup.get_html_state(text=None)}}
                      </td>
 

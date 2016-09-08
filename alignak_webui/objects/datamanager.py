@@ -921,7 +921,7 @@ class DataManager(object):
             })
 
         try:
-            logger.warning("get_hosts, search: %s", search)
+            logger.debug("get_hosts, search: %s", search)
             items = self.find_object('host', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1064,7 +1064,7 @@ class DataManager(object):
             })
 
         try:
-            logger.warning("get_services, search: %s", search)
+            logger.debug("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
