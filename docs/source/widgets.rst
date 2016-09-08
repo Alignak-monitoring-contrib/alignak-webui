@@ -22,27 +22,26 @@ Hosts chart
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Displays a pie chart for the monitored hosts with their current status.
 
-Livestate table
+Services table
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Displays a simple list of the monitored hosts with their current status and business impact. Some command buttons allow to send an acknowledge, schedule a downtime or request a re-check.
+Displays a simple list of the monitored services with their current status, business impact and check command.
 
 Options:
 
     - number of elements
-    - filter on host name and alias
-    - filter on host parameters
+    - filter on service name and alias
+    - filter on service parameters
 
-Livestate chart
+Services chart
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Displays a pie chart for the monitored hosts with their current status (same as Hosts chart).
-
+Displays a pie chart for the monitored services with their current status.
 
 Tables
 ---------------
 All the elements have a table to display them. The table name is build with this simple rule: name_table. As examples:
 
     * hosts_table
-    * livestate_table
+    * services_table
     * logcheckresults_table
     * ...
 
@@ -61,4 +60,5 @@ Available host widgets are:
     * timeline
     * history
     * metrics
+    * location
 

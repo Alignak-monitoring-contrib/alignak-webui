@@ -63,7 +63,7 @@
                %end
 
                %for hostgroup in elts:
-                  <tr id="#{{hostgroup.id}}">
+                  <tr id="#{{hostgroup.id}}" class="table-row-{{hostgroup.status}}">
                      <td title="{{hostgroup.alias}}">
                         {{! hostgroup.get_html_state(text=None)}}
                      </td>

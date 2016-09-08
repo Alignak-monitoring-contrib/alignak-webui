@@ -81,7 +81,6 @@ class PluginHostsGroups(Plugin):
             logger.debug("Group member: %s", host)
 
             if isinstance(host, basestring):
-                real_state='X'
                 continue
 
             group_state = max(group_state, datamgr.get_host_real_state(host.id))

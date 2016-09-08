@@ -852,7 +852,7 @@ class DataManager(object):
         real_state = 0
         for host in hostgroup.members:
             host_real_state = self.get_host_real_state(
-                search={'where': {'host': host.id}}, embedded=False
+                search={'where': {'host': host.id}}
             )
             real_state = max(real_state, host_real_state)
 
