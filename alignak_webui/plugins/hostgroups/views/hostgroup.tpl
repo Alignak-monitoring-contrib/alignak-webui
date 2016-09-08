@@ -184,7 +184,7 @@
                %end
                <tr id="#{{elt.id}}">
                   <td title="{{elt.alias}}">
-                     %hs = plugin.get_hostgroup_status(elt.id, no_json=True)
+                     %hs = plugin.get_real_status(group=elt, no_json=True)
                      {{! elt.get_html_state(text=None)}}
                   </td>
 

@@ -48,13 +48,13 @@ class PluginHostsGroups(Plugin):
         self.backend_endpoint = 'hostgroup'
 
         self.pages = {
-            'get_hostgroup_members': {
+            'get_group_members': {
                 'name': 'Host group members',
-                'route': '/hostgroup/members/<hostgroup_id>'
+                'route': '/hostgroup/members/<group_id>'
             },
-            'get_hostgroup_status': {
+            'get_real_status': {
                 'name': 'Host group status',
-                'route': '/hostgroup/status/<hostgroup_id>'
+                'route': '/hostgroup/status/<group_id>'
             },
         }
 
@@ -79,33 +79,34 @@ class PluginHostsGroups(Plugin):
                 self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
-        group_members = element.hostgroups
+        groups = element.hostgroups
         if element.level == 0:
-            group_members = datamgr.get_hostgroups(search={'where': {'_level': 1}})
+            groups = datamgr.get_hostgroups(search={'where': {'_level': 1}})
 
         return {
             'object_type': self.backend_endpoint,
             'element': element,
-            'groups': group_members
+            'groups': groups
         }
 
-    def get_hostgroup_status(self, hostgroup_id, hostgroup=None, no_json=False):
+    def get_real_status(self, group_id=None, group=None, no_json=False):
         """
         Get the hostgroup overall status
         """
         datamgr = request.app.datamgr
 
+        hostgroup = group
         if not hostgroup:
-            hostgroup = datamgr.get_hostgroup(hostgroup_id)
+            hostgroup = datamgr.get_hostgroup(group_id)
             if not hostgroup:
                 hostgroup = datamgr.get_hostgroup(
-                    search={'max_results': 1, 'where': {'name': hostgroup_id}}
+                    search={'max_results': 1, 'where': {'name': group_id}}
                 )
                 if not hostgroup:
                     return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                                  % hostgroup_id)
+                                                                  % group_id)
 
-        logger.debug("get_hostgroup_status: %s", hostgroup.name)
+        logger.debug("get_real_status: %s", hostgroup.name)
         # Hosts group real state from hosts
         hostgroup.real_state = 0
         hostgroup._status = 'unknown'
@@ -140,32 +141,33 @@ class PluginHostsGroups(Plugin):
         response.content_type = 'application/json'
         return json.dumps({'status': hostgroup.real_state, 'status': hostgroup.status})
 
-    def get_hostgroup_members(self, hostgroup_id):
+    def get_group_members(self, group_id):
         """
         Get the hostgroup hosts list
         """
         datamgr = request.app.datamgr
 
-        hostgroup = datamgr.get_hostgroup(hostgroup_id)
+        hostgroup = datamgr.get_hostgroup(group_id)
         if not hostgroup:
             hostgroup = datamgr.get_hostgroup(
-                search={'max_results': 1, 'where': {'name': hostgroup_id}}
+                search={'max_results': 1, 'where': {'name': group_id}}
             )
             if not hostgroup:
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % hostgroup_id)
+                                                              % group_id)
 
         items = []
-        for host in hostgroup.members:
-            logger.debug("Group member: %s", host)
+        if not isinstance(hostgroup.members, basestring):
+            for host in hostgroup.members:
+                logger.debug("Group member: %s", host)
 
-            items.append({
-                'id': host.id,
-                'name': host.name,
-                'alias': host.alias,
-                'icon': host.get_html_state(text=None, title=host.alias),
-                'url': host.get_html_link()
-            })
+                items.append({
+                    'id': host.id,
+                    'name': host.name,
+                    'alias': host.alias,
+                    'icon': host.get_html_state(text=None, title=host.alias),
+                    'url': host.get_html_link()
+                })
 
         response.status = 200
         response.content_type = 'application/json'

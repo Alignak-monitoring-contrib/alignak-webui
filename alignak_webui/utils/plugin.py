@@ -37,6 +37,7 @@ import bottle
 
 from alignak_webui import _
 from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.datatable import Datatable
 
@@ -482,7 +483,63 @@ class Plugin(object):
         total = datamgr.get_objects_count(
             self.backend_endpoint, search=where, refresh=True
         )
-        count = min(count, total)
+        # count = min(count, total)
+
+        # Get elements from the data manager
+        f_get_real_status = getattr(self, 'get_real_status')
+
+        # Get element state configuration
+        items_states = ElementState()
+
+        tree_items = []
+        for item in elts:
+            real_status = 'unknown'
+            if f_get_real_status:
+                real_status = f_get_real_status(group=item, no_json=True)
+
+            cfg_state = items_states.get_icon_state(self.backend_endpoint, real_status)
+            logger.debug("State: %s", cfg_state)
+            # icon = cfg_state['icon']
+
+            parent='#'
+            if item['_parent'] and not isinstance(item['_parent'], basestring):
+                parent=item['_parent'].id
+
+            level=item['level']
+
+            tree_item = {
+                'id': item.id,
+                'parent': '#' if parent=='#' else item._parent.id,
+                'type': 'root' if parent=='#' else 'node',
+                'text': item.alias,
+                'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                'state': {
+                    "opened": True,
+                    "selected": False,
+                    "disabled": False
+                },
+                'data': {
+                    'status': real_status,
+                    'name': item.name,
+                    'alias': item.alias,
+                    '_level': item._level,
+                },
+                'li_attr': {
+                    "item_id" : '{{item.id}}'
+                },
+                'a_attr': {}
+            }
+
+            if parent == '#':
+                tree_item.update({'parent': parent})
+                tree_item.update({'type': 'root'})
+                # tree_item.update({'icon': 'fa fa-w fa-sitemap'})
+            else:
+                tree_item.update({'parent': item._parent.id})
+                tree_item.update({'type': 'node'})
+                # tree_item.update({'icon': 'fa fa-w fa-list'})
+
+            tree_items.append(tree_item)
 
         # Define contextual menu
         context_menu = {
@@ -512,6 +569,7 @@ class Plugin(object):
 
         return {
             'tree_type': self.backend_endpoint,
+            'tree_items': tree_items,
             'elts': elts,
             'context_menu': context_menu,
             'pagination': Helper.get_pagination_control(

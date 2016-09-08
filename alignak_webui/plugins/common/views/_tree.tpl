@@ -103,43 +103,9 @@
 
    // Build tree data...
    var jsTreeData = [];
-   %for item in elts:
-      %parent='#'
-      %if item['_parent'] and not isinstance(item['_parent'], basestring):
-      %  parent=item['_parent'].id
-      %end
-      %level=item['level']
-      jsTreeData.push( {
-         "id": '{{item.id}}',
-         "parent" : '{{'#' if parent=='#' else item._parent.id}}',
-         "type" : '{{'root' if parent=='#' else 'node'}}',
-         "text": '{{item.alias}}',
-         %if parent=='#':
-         "icon": 'fa fa-w fa-sitemap',
-         %else:
-         "icon": 'fa fa-w fa-list',
-         %end
-         "state": {
-            "opened": true,
-            "selected": false,
-            "disabled": false
-         },
-         "data": {
-            %for key in item.__dict__:
-            %try:
-            "{{key}}": {{! json.dumps(item[key])}},
-            %except TypeError:
-            %pass
-            %end
-            %end
-         },
-         li_attr: {
-            "item_id" : '{{item.id}}'
-         },
-         a_attr: {
-         }
-      });
-      if (debugTree) console.log('Added: ', '{{item.id}}', '{{item.name}}', '{{item['level']}}', '{{parent}}');
+   %for item in tree_items:
+      jsTreeData.push({{! json.dumps(item)}})
+      if (debugTree) console.log('Added: {{! json.dumps(item)}}');
    %end
 
    $(document).ready(function(){
@@ -166,7 +132,7 @@
                //"types",
                "sort",
                %if selectable:
-               "checkbox",
+               //"checkbox",
                %end
                "search",
                %if context_menu:
@@ -231,19 +197,6 @@
             if (action.action == 'select_node') {
                if (debugTree) console.log('Selected :', action.node);
 
-
-               $.ajax({
-                  "url": "/{{tree_type}}/status/" + action.node.id,
-                  "dataType": "json",
-                  "type": "GET",
-                  "success": function (data) {
-                     if (debugTree) console.debug("Got status:", data);
-                  },
-                  "error": function (jqXHR, textStatus, errorThrown) {
-                     console.error("Get list error: ", textStatus, jqXHR);
-                  }
-               });
-
                $.ajax( {
                   "url": "/{{tree_type}}/members/" + action.node.id,
                   "dataType": "json",
@@ -251,7 +204,7 @@
                   "success": function (data) {
                      if (debugTree) console.debug("Got data:", data);
 
-                     $("#members_list").slideUp('fast', function() {
+                     $("#members_list").slideUp(50, function() {
                         $(this).empty();
 
                         $(data).each(function(idx, elt){
