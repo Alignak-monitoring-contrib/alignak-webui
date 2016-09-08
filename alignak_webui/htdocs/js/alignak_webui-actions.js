@@ -20,8 +20,10 @@
 
 var actions_logs=false;
 var refresh_delay_after_action=1000;
+var alert_info_delay=2;
 var alert_success_delay=3;
-var alert_error_delay=8;
+var alert_warning_delay=5;
+var alert_error_delay=0;
 
 /**
  * Get current user preference value:
@@ -141,12 +143,25 @@ function save_common_preference(key, value, callback) {
    });
 }
 
+/*
+ * Waiting box part
+ */
+function wait_message(text, show) {
+    $('#waitingModal').find('.modal-title').text(text);
+    if (show) {
+        refresh_suspended = true;
+        $('#waitingModal').modal('show');
+    } else {
+        $('#waitingModal').modal('hide');
+        refresh_suspended = false;
+    }
+}
 
 /*
  * Message raise part
  */
-function raise_message_info(text, persist){
-   alertify.message(text, alert_success_delay);
+function raise_message_info(text){
+   alertify.message(text, alert_info_delay);
 }
 
 function raise_message_ok(text){
@@ -154,7 +169,7 @@ function raise_message_ok(text){
 }
 
 function raise_message_warning(text){
-   alertify.warning(text, alert_success_delay);
+   alertify.warning(text, alert_warning_delay);
 }
 
 function raise_message_ko(text){

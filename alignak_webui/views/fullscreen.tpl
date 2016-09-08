@@ -108,6 +108,8 @@
       </div>
       %include("_footer", commands=True)
 
+      %include("_modalWaiting")
+
       <!-- Specific scripts ... -->
       %# Specific Js files ...
       %for f in js:

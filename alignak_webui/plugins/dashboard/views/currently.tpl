@@ -114,6 +114,7 @@
                   playAlertSound();
                }
             }
+            raise_message_info("Refresh...");
             if (old_hosts_problems < hosts_problems) {
                var message = (hosts_problems - old_hosts_problems) + " more " + ((hosts_problems - old_hosts_problems)==1 ? "hosts problem" : "hosts problems") + " since last "+app_refresh_period+" seconds."
                raise_message_ko(message);
@@ -382,6 +383,8 @@
                   }
                });
             }
+
+            wait_message('', false);
          });
       });
    }
@@ -776,6 +779,8 @@ div.pull-right a, div.pull-right div {
 <script>
    // Panels collapse state
    $('.panel').on('hidden.bs.collapse', function () {
+      wait_message('{{_('Saving configuration...')}}', true)
+
       panels[$(this).parent().attr('id')].collapsed = true;
       $(this).find('.fa-minus-square').removeClass('fa-minus-square').addClass('fa-plus-square');
       save_user_preference('currently_panels', JSON.stringify(panels), function() {
@@ -784,6 +789,8 @@ div.pull-right a, div.pull-right div {
       });
    });
    $('.panel').on('shown.bs.collapse', function () {
+      wait_message('{{_('Saving configuration...')}}', true)
+
       panels[$(this).parent().attr('id')].collapsed = false;
       $(this).find('.fa-plus-square').removeClass('fa-plus-square').addClass('fa-minus-square');
       save_user_preference('currently_panels', JSON.stringify(panels), function() {
@@ -794,6 +801,8 @@ div.pull-right a, div.pull-right div {
 
    // Graphs options
    $('[data-action="toggle-title"]').on('click', function () {
+      wait_message('{{_('Saving configuration...')}}', true)
+
       if (dashboard_logs) console.debug('Toggle title', graphs[$(this).data('graph')]);
       graphs[$(this).data('graph')].title = ! graphs[$(this).data('graph')].title;
       if (graphs[$(this).data('graph')].title) {
@@ -807,6 +816,8 @@ div.pull-right a, div.pull-right div {
       });
    });
    $('[data-action="toggle-legend"]').on('click', function () {
+      wait_message('{{_('Saving configuration...')}}', true)
+
       if (dashboard_logs) console.debug('Toggle legend', graphs[$(this).data('graph')]);
       graphs[$(this).data('graph')].legend = ! graphs[$(this).data('graph')].legend;
       if (graphs[$(this).data('graph')].legend) {
@@ -820,6 +831,8 @@ div.pull-right a, div.pull-right div {
       });
    });
    $('[data-action="toggle-state"]').on('click', function () {
+      wait_message('{{_('Saving configuration...')}}', true)
+
       if (dashboard_logs) console.debug('Toggle state', graphs[$(this).data('graph')]);
       graphs[$(this).data('graph')]['display_states'][$(this).data('state')] = ! graphs[$(this).data('graph')]['display_states'][$(this).data('state')];
       if (graphs[$(this).data('graph')]['display_states'][$(this).data('state')]) {

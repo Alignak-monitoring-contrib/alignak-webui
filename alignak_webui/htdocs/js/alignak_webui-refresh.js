@@ -23,12 +23,14 @@ var refresh_logs=false;
 
 // By default, we set the page to reload each period defined in configuration
 var refresh_timeout = app_refresh_period;
-// Check refresh period (seconds)
+// Check refresh period (number of seconds)
 var check_period = 1;
 // Ping period (seconds) - Set this value to 0 to disable periodical server ping.
 var ping_period = 0;
 // Refresh required
 var refresh_required=false;
+// Refresh suspended
+var refresh_suspended=false;
 
 
 if (refresh_logs) console.debug("Refresh period is :", refresh_timeout);
@@ -196,6 +198,12 @@ function check_UI_backend(){
  */
 function check_refresh(){
    refresh_timeout = refresh_timeout - check_period;
+
+   // If refresh is suspended ... skip this one.
+   if (refresh_suspended) {
+      if (refresh_logs) console.debug("Postpone ping due to a refresh suspended...");
+      return;
+   }
 
    // If a refresh is required ... skip this one.
    if (refresh_required && processing_refresh) {

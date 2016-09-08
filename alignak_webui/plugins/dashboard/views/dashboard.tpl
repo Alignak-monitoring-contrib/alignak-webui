@@ -148,8 +148,9 @@
    %end
 
    <div class="container-fluid">
-      <!-- Widgets loading indicator -->
+      <!-- Widgets loading indicator
       <div id="widgets_loading"></div>
+      -->
 
       <!-- Widgets grid -->
       <div class="grid-stack">
@@ -179,17 +180,19 @@
    </div>
 </div>
 <script type="text/javascript">
-   var dashboard_logs = true;
+   var dashboard_logs = false;
 
    $('.grid-stack').on('change', function (e, items) {
       if (dashboard_logs) console.log("Grid layout changed:", items);
       if (items === undefined) {
          // No more widgets
+         wait_message('{{_('Saving configuration...')}}', true)
+
          var to_save = []
          save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
             if (dashboard_logs) console.log("Saved {{widgets_place}} widgets grid", to_save)
-            // Page refresh required
-            refresh_required = true;
+
+            wait_message('', false)
          });
          return;
       }
@@ -223,16 +226,17 @@
          }
       }
       if (widgets.length > 0) {
+         wait_message('{{_('Saving configuration...')}}', true)
+
          var to_save = widgets
          save_user_preference('{{widgets_place}}_widgets', JSON.stringify(to_save), function(){
             if (dashboard_logs) console.log("Saved {{widgets_place}} widgets grid", to_save)
-            // Page refresh required
-            refresh_required = true;
+
+            wait_message('', false)
          });
       }
    });
 
-/*
    $('.grid-stack').on('removed', function(event, items) {
       for (var i = 0; i < items.length; i++) {
          if (dashboard_logs) console.log('Item removed from grid:', items[i]);
@@ -240,7 +244,14 @@
       // Page refresh required
       refresh_required = true;
    });
-*/
+
+   $('.grid-stack').on('added', function(event, items) {
+      for (var i = 0; i < items.length; i++) {
+         if (dashboard_logs) console.log('Item added to grid:', items[i]);
+      }
+      // Page refresh required
+      refresh_required = true;
+   });
 
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
@@ -257,9 +268,7 @@
          $('#propose-widgets').hide();
 
          // Loading indicator ...
-         $("#widgets_loading").
-            html('<i class="fa fa-spinner fa-spin fa-3x"></i> <span class="lead">{{_('Loading widgets ... ')}}</span>').
-            show();
+         wait_message('{{_('Loading dashboard widgets...')}}', true)
 
          nb_widgets_loading = 0;
       %end
@@ -302,7 +311,7 @@
             function(response, status, xhr) {
                nb_widgets_loading -= 1;
                if (nb_widgets_loading==0){
-                  $('#widgets_loading').hide();
+                  wait_message('', false)
                }
 
                if (status == "error") {

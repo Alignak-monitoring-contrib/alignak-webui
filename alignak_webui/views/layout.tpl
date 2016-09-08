@@ -209,6 +209,8 @@
 
       %include("_footer", commands=True)
 
+      %include("_modalWaiting")
+
       <!-- A modal div that will be filled and shown when we want forms ... -->
       <div id="mainModal" class="modal fade" role="dialog" aria-labelledby="{{_('Generic modal box')}}" aria-hidden="true">
          <div class="modal-dialog">
