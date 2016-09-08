@@ -312,10 +312,10 @@ class TestNavigation(unittest2.TestCase):
         self.assertEqual(len(s), 4)
         s = helper.get_pagination_control('test', 76, 0)
         print("Result:", s)
-        # More than 5 pages ... must have forward controls (2 more elements than expected).
-        self.assertEqual(len(s), 7)
+        self.assertEqual(len(s), 5)
         s = helper.get_pagination_control('test', 101, 0)
         print("Result:", s)
+        # More than 5 pages ... must have forward controls (2 more elements than expected).
         self.assertEqual(len(s), 8)
 
         # first page, default pagination: 5 elements/page, 5 pages/sequence
@@ -344,20 +344,20 @@ class TestNavigation(unittest2.TestCase):
         # Current page no more in the page sequence ... must have also backward controls.
         s = helper.get_pagination_control('test', 40, 15, 5)
         print("Result:", s)
-        self.assertEqual(len(s), 8)
+        self.assertEqual(len(s), 10)
         s = helper.get_pagination_control('test', 40, 20, 5)
         print("Result:", s)
-        self.assertEqual(len(s), 8)
+        self.assertEqual(len(s), 10)
         # Last page is now in the page sequence ... no more forward controls.
         s = helper.get_pagination_control('test', 40, 25, 5)
         print("Result:", s)
-        self.assertEqual(len(s), 10)
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 30, 5)
         print("Result:", s)
-        self.assertEqual(len(s), 10)
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 35, 5)
         print("Result:", s)
-        self.assertEqual(len(s), 10)
+        self.assertEqual(len(s), 8)
         s = helper.get_pagination_control('test', 40, 40, 5)
         print("Result:", s)
         self.assertEqual(len(s), 8)
