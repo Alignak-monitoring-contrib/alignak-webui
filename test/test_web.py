@@ -130,8 +130,6 @@ class TestDashboard(unittest2.TestCase):
             '<div id="dashboard">',
             '<div id="dashboard-synthesis"',
             '<div id="propose-widgets" ',
-            '<!-- Widgets loading indicator -->',
-            '<div id="widgets_loading"></div>',
             '<!-- Widgets grid -->',
             '<!-- Page footer -->'
         )
