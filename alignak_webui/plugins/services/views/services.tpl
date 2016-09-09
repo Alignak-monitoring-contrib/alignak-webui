@@ -79,7 +79,11 @@
                   </td>
 
                   <td>
+                     %if service.check_command != 'command':
                      <small>{{! service.check_command.get_html_link()}}</small>
+                     %else:
+                     <small>{{_('Unknown command')}}</small>
+                     %end
                   </td>
 
                   <td>
