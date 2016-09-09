@@ -347,7 +347,7 @@ def external(widget_type, identifier, action=None):
     if widget_type in ['host', 'service', 'user']:
         if not action:
             logger.warning(
-                "External application requested %s widget without widget name" % widget_type
+                "External application requested %s widget without widget name", widget_type
             )
             response.status = 409
             response.content_type = 'text/html'

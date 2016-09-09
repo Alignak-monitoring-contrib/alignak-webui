@@ -91,6 +91,7 @@ class PluginHostsGroups(Plugin):
         }
 
     def get_real_status(self, group_id=None, group=None, no_json=False):
+        # pylint: disable=protected-access
         """
         Get the hostgroup overall status
         """

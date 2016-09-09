@@ -161,7 +161,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             if not object_type or not status:
                 return None
 
-            status=status.lower()
+            status = status.lower()
 
             if status not in self.get_icon_states(object_type):
                 return None

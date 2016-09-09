@@ -453,7 +453,7 @@ class Plugin(object):
 
     def get_tree(self):
         # Because the fields are named as _parent and _level ...
-        # pylint: protected-access
+        # pylint: disable=protected-access, too-many-locals
         """
             Show list of elements
         """
@@ -506,8 +506,6 @@ class Plugin(object):
             parent = '#'
             if item['_parent'] and not isinstance(item['_parent'], basestring):
                 parent = item['_parent'].id
-
-            level = item['level']
 
             tree_item = {
                 'id': item.id,

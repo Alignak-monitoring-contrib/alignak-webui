@@ -606,7 +606,7 @@ class Datatable(object):
                     # Get elements from the data manager
                     f_get_real_state = getattr(self.datamgr, 'get_%s_real_state' % self.object_type)
                     if f_get_real_state:
-                        real_state = f_get_real_state(bo_object)
+                        f_get_real_state(bo_object)
 
                         # Get element state configuration
                         row[field['data']] = ElementState().get_html_state(
