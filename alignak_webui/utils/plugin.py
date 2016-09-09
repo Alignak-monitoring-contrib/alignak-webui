@@ -501,16 +501,16 @@ class Plugin(object):
             logger.debug("State: %s", cfg_state)
             # icon = cfg_state['icon']
 
-            parent='#'
+            parent = '#'
             if item['_parent'] and not isinstance(item['_parent'], basestring):
-                parent=item['_parent'].id
+                parent = item['_parent'].id
 
-            level=item['level']
+            level = item['level']
 
             tree_item = {
                 'id': item.id,
-                'parent': '#' if parent=='#' else item._parent.id,
-                'type': 'root' if parent=='#' else 'node',
+                'parent': '#' if parent == '#' else item._parent.id,
+                'type': 'root' if parent == '#' else 'node',
                 'text': item.alias,
                 'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                 'state': {
@@ -525,7 +525,7 @@ class Plugin(object):
                     '_level': item._level,
                 },
                 'li_attr': {
-                    "item_id" : '{{item.id}}'
+                    "item_id": item.id
                 },
                 'a_attr': {}
             }

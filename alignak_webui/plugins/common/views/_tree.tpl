@@ -129,7 +129,6 @@
                "data" : jsTreeData
             },
             "plugins" : [
-               //"types",
                "sort",
                %if selectable:
                //"checkbox",
@@ -142,20 +141,6 @@
             "search": {
                "show_only_matches": true
             },
-            /*
-            "types" : {
-               "#" : {
-                  "icon" : "fa fa-tree",
-                  "max_depth" : 4
-               },
-               "root" : {
-                  "icon" : "fa fa-w fa-sitemap"
-               },
-               "default" : {
-                  "icon" : "fa fa-w fa-list"
-               }
-            },
-            */
             %if context_menu:
             "contextmenu": {
                "items": function(node) {
