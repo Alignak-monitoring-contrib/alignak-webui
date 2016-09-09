@@ -323,15 +323,16 @@ class TestHostgroups(unittest2.TestCase):
 
         print('get page /hostgroups/tree')
         response = self.app.get('/hostgroups/tree')
-        # Search for: "id": '57bebb4006fd4b149768dc3f' to find a group id
-        matches = re.findall(r"""\"id\": '([0-9a-f].*)'""", response.body)
+        print(response)
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
+        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
                 self.group_id = match
         assert self.group_id
 
-        print('get page /hostgroup/members')
+        print('get page /hostgroup/members for %s' % self.group_id)
         assert self.group_id
         response = self.app.get('/hostgroup/members/' + self.group_id)
         print(response.json)
@@ -398,8 +399,8 @@ class TestServicegroups(unittest2.TestCase):
 
         print('get page /servicegroups/tree')
         response = self.app.get('/servicegroups/tree')
-        # Search for: "id": '57bebb4006fd4b149768dc3f' to find a group id
-        matches = re.findall(r"""\"id\": '([0-9a-f].*)'""", response.body)
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
+        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
@@ -471,8 +472,8 @@ class TestUsergroups(unittest2.TestCase):
         print('test usergroups members')
 
         response = self.app.get('/usergroups/tree')
-        # Search for: "id": '57bebb4006fd4b149768dc3f' to find a group id
-        matches = re.findall(r"""\"id\": '([0-9a-f].*)'""", response.body)
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
+        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
