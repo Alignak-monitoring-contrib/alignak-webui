@@ -38,6 +38,7 @@ from datetime import datetime
 from bottle import request
 
 from alignak_webui import _
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.objects.element import BackendElement
 
@@ -599,6 +600,22 @@ class Datatable(object):
                 if field['data'] == self.status_property:
                     row[self.status_property] = bo_object.get_html_state(text=None)
                     row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
+                    continue
+
+                if field['data'] == 'real_status':
+                    # Get elements from the data manager
+                    f_get_real_state = getattr(self.datamgr, 'get_%s_real_state' % self.object_type)
+                    if f_get_real_state:
+                        real_state = f_get_real_state(bo_object)
+
+                        # Get element state configuration
+                        row[field['data']] = ElementState().get_html_state(
+                            self.object_type, bo_object,
+                            text=None, status_field='real_status'
+                        )
+                        row['DT_RowClass'] = "table-row-%s" % (bo_object[field['data']].lower())
+                    else:
+                        row[field['data']] = 'XxX'
                     continue
 
                 if field['data'] == "alias":

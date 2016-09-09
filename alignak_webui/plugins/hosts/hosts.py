@@ -24,8 +24,6 @@
 """
 from logging import getLogger
 
-from copy import deepcopy
-
 from bottle import request, template, response
 
 from alignak_webui import _
@@ -331,15 +329,20 @@ class PluginHosts(Plugin):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals,too-many-arguments
         """
-        Display an host
+        Display an host widget
         """
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
+        logger.debug("get_host_widget: %s, %s", element_id, widget_id)
+
         # Get host
         host = datamgr.get_host(element_id)
-        if not host:  # pragma: no cover, should not happen
-            return self.webui.response_invalid_parameters(_('Host does not exist'))
+        if not host:
+            # Test if we got a name instead of an id
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': element_id}})
+            if not host:
+                return self.webui.response_invalid_parameters(_('Host does not exist'))
 
         # Get host services
         services = datamgr.get_services(search={'where': {'host': element_id}})
@@ -352,14 +355,13 @@ class PluginHosts(Plugin):
         count = int(request.params.get('count', elts_per_page))
         where = self.webui.helper.decode_search(request.params.get('search', ''))
         search = {
-            'where': {'host': element_id}
+            'where': {'host': host.id}
         }
 
         # Find known history types
         history_plugin = self.webui.find_plugin('Histories')
         history_types = []
         if history_plugin and 'type' in history_plugin.table:
-            logger.warning("History types: %s", history_plugin.table['type'].get('allowed', []))
             history_types = history_plugin.table['type'].get('allowed', [])
             history_types = history_types.split(',')
 
@@ -377,7 +379,7 @@ class PluginHosts(Plugin):
         if selected_types:
             datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
             search['where'].update({'type': {'$in': selected_types}})
-        logger.warning("History selected types: %s", selected_types)
+        logger.debug("Host widget search: %s", search)
 
         history = datamgr.get_history(search=search)
         if history is None:
@@ -412,7 +414,7 @@ class PluginHosts(Plugin):
             'services': services,
             'history': history,
             'timeline_pagination': self.webui.helper.get_pagination_control(
-                '/host/' + element_id, total, start, count
+                '/host/' + host.id, total, start, count
             ),
             'types': history_types,
             'selected_types': selected_types,

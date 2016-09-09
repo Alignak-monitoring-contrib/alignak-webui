@@ -29,6 +29,7 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
@@ -50,37 +51,48 @@ class PluginServicesGroups(Plugin):
         self.pages = {
             'get_servicegroup_members': {
                 'name': 'Services group members',
-                'route': '/servicegroup/members/<servicegroup_id>'
+                'route': '/servicegroup/members/<group_id>'
             },
         }
 
         super(PluginServicesGroups, self).__init__(app, cfg_filenames)
 
-    def get_servicegroup_members(self, servicegroup_id):
+    def get_servicegroup_members(self, group_id):
         """
         Get the servicegroup services list
         """
         datamgr = request.app.datamgr
 
-        servicegroup = datamgr.get_servicegroup(servicegroup_id)
+        servicegroup = datamgr.get_servicegroup(group_id)
         if not servicegroup:
             servicegroup = datamgr.get_servicegroup(
-                search={'max_results': 1, 'where': {'name': servicegroup_id}}
+                search={'max_results': 1, 'where': {'name': group_id}}
             )
             if not servicegroup:
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % servicegroup_id)
+                                                              % group_id)
 
         items = []
-        for service in servicegroup.services:
+        if not isinstance(servicegroup.members, basestring):
+            # Get element state configuration
+            items_states = ElementState()
 
-            items.append({
-                'id': service.id,
-                'name': service.name,
-                'alias': service.alias,
-                'icon': service.get_html_state(text=None, title=service.alias),
-                'url': service.get_html_link()
-            })
+            for member in servicegroup.members:
+                logger.debug("Group member: %s", member)
+
+                cfg_state = items_states.get_icon_state('service', member.status)
+                logger.debug("Group member: %s", cfg_state)
+
+                items.append({
+                    'id': member.id,
+                    'type': 'service',
+                    'name': "%s/%s" % (member.host.name, member.name),
+                    'alias': "%s/%s" % (member.host.alias, member.alias),
+                    'status': member.status,
+                    'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                    'state': member.get_html_state(text=None, title=member.alias),
+                    'url': member.get_html_link()
+                })
 
         response.status = 200
         response.content_type = 'application/json'

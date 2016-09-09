@@ -487,7 +487,8 @@ class BackendElement(object):
                 else:
                     logger.debug(
                         " no value for link parameter: %s (%s), for: %s, %s",
-                        key, params[key].__class__, self.get_type(), params['name']
+                        key, params[key].__class__, self.get_type(),
+                        params['name'] if 'name' in params else params['_id']
                     )
 
         logger.debug(" --- created %s (%s)", self.__class__, self[id_property])
@@ -848,7 +849,7 @@ class BackendElement(object):
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False, object_type=None, object_item=None,
-                       size=''):
+                       size='', status_field=None):
         # pylint: disable=too-many-arguments
         """
         Uses the ElementState singleton to display HTML state for an item
@@ -860,7 +861,8 @@ class BackendElement(object):
             object_item = self
 
         return ElementState().get_html_state(object_type, object_item,
-                                             extra, icon, text, title, disabled, size)
+                                             extra, icon, text, title, disabled, size,
+                                             status_field)
 
     def get_date(self, _date, fmt=None, duration=False):
         """

@@ -452,6 +452,8 @@ class Plugin(object):
         }
 
     def get_tree(self):
+        # Because the fields are named as _parent and _level ...
+        # pylint: protected-access
         """
             Show list of elements
         """
@@ -486,7 +488,7 @@ class Plugin(object):
         # count = min(count, total)
 
         # Get elements from the data manager
-        f_get_real_status = getattr(self, 'get_real_status')
+        f_get_real_status = getattr(self, 'get_real_status', None)
 
         # Get element state configuration
         items_states = ElementState()
@@ -510,7 +512,6 @@ class Plugin(object):
             tree_item = {
                 'id': item.id,
                 'parent': '#' if parent == '#' else item._parent.id,
-                'type': 'root' if parent == '#' else 'node',
                 'text': item.alias,
                 'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                 'state': {
@@ -523,10 +524,13 @@ class Plugin(object):
                     'name': item.name,
                     'alias': item.alias,
                     '_level': item._level,
+                    'type': 'root' if parent == '#' else self.backend_endpoint,
                 },
-                'li_attr': {
-                    "item_id": item.id
-                },
+                # 'li_attr': {
+                # "item_id": item.id,
+                # The result with a class to color the lines is not very nice :/
+                # "class" : "table-row-%s" % (real_status)
+                # },
                 'a_attr': {}
             }
 

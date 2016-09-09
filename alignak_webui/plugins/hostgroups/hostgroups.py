@@ -29,6 +29,7 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
@@ -158,15 +159,24 @@ class PluginHostsGroups(Plugin):
 
         items = []
         if not isinstance(hostgroup.members, basestring):
-            for host in hostgroup.members:
-                logger.debug("Group member: %s", host)
+            # Get element state configuration
+            items_states = ElementState()
+
+            for member in hostgroup.members:
+                logger.debug("Group member: %s", member)
+
+                cfg_state = items_states.get_icon_state('host', member.status)
+                logger.debug("Group member: %s", cfg_state)
 
                 items.append({
-                    'id': host.id,
-                    'name': host.name,
-                    'alias': host.alias,
-                    'icon': host.get_html_state(text=None, title=host.alias),
-                    'url': host.get_html_link()
+                    'id': member.id,
+                    'type': 'host',
+                    'name': member.name,
+                    'alias': member.alias,
+                    'status': member.status,
+                    'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                    'state': member.get_html_state(text=None, title=member.alias),
+                    'url': member.get_html_link()
                 })
 
         response.status = 200

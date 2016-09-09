@@ -55,6 +55,11 @@ class ServiceGroup(BackendElement):
         super(ServiceGroup, self)._create(params, date_format, embedded)
 
     @property
+    def members(self):
+        """ Return linked object """
+        return self._linked_services
+
+    @property
     def services(self):
         """ Return linked object """
         return self._linked_services
