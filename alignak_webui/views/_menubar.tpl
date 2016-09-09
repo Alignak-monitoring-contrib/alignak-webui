@@ -131,6 +131,12 @@
                   <span>{{_('Minemap')}}</span>
                </a>
             </li>
+            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Hosts groups tree')}}">
+               <a href="{{ webui.get_url('Hosts groups tree') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span>{{_('Hosts groups')}}</span>
+               </a>
+            </li>
          </ul>
       </li>
 

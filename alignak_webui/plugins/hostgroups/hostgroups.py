@@ -141,7 +141,7 @@ class PluginHostsGroups(Plugin):
 
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps({'status': hostgroup.real_state, 'status': hostgroup.status})
+        return json.dumps({'state': hostgroup.real_state, 'status': hostgroup.status})
 
     def get_group_members(self, group_id):
         """
