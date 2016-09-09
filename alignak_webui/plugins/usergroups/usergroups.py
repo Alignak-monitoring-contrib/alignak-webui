@@ -29,6 +29,7 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
@@ -50,36 +51,48 @@ class PluginServicesGroups(Plugin):
         self.pages = {
             'get_usergroup_members': {
                 'name': 'Users group members',
-                'route': '/usergroup/members/<usergroup_id>'
+                'route': '/usergroup/members/<group_id>'
             },
         }
 
         super(PluginServicesGroups, self).__init__(app, cfg_filenames)
 
-    def get_usergroup_members(self, usergroup_id):
+    def get_usergroup_members(self, group_id):
         """
         Get the usergroup users list
         """
         datamgr = request.app.datamgr
 
-        usergroup = datamgr.get_usergroup(usergroup_id)
+        usergroup = datamgr.get_usergroup(group_id)
         if not usergroup:
             usergroup = datamgr.get_usergroup(
-                search={'max_results': 1, 'where': {'name': usergroup_id}}
+                search={'max_results': 1, 'where': {'name': group_id}}
             )
             if not usergroup:
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % usergroup_id)
+                                                              % group_id)
 
         items = []
-        for user in usergroup.users:
-            items.append({
-                'id': user.id,
-                'name': user.name,
-                'alias': user.alias,
-                'icon': user.get_html_state(text=None, title=user.alias),
-                'url': user.get_html_link()
-            })
+        if not isinstance(usergroup.members, basestring):
+            # Get element state configuration
+            items_states = ElementState()
+
+            for member in usergroup.members:
+                logger.debug("Group member: %s", member)
+
+                cfg_state = items_states.get_icon_state('user', member.status)
+                logger.debug("Group member: %s", cfg_state)
+
+                items.append({
+                    'id': member.id,
+                    'type': 'user',
+                    'name': member.name,
+                    'alias': member.alias,
+                    'status': member.status,
+                    'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                    'state': member.get_html_state(text=None, title=member.alias),
+                    'url': member.get_html_link()
+                })
 
         response.status = 200
         response.content_type = 'application/json'

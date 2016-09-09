@@ -7,12 +7,9 @@
     Plugin Users
 """
 
-import json
-
-from collections import OrderedDict
-
 from logging import getLogger
-from bottle import request, response
+
+from bottle import request, template, response
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
@@ -68,6 +65,25 @@ class PluginUsers(Plugin):
                     '03': (_('User'), 'role:user'),
                     '04': (_('Guest'), 'name:anonymous'),
                 }
+            },
+
+            'get_user_widget': {
+                'name': 'User widget',
+                'route': '/user_widget/<element_id>/<widget_id>',
+                'view': 'user',
+                'widgets': [
+                    {
+                        'id': 'information',
+                        'for': ['user'],
+                        'name': _('Information'),
+                        'template': 'user_information_widget',
+                        'icon': 'info',
+                        'description': _(
+                            'User information: displays user general information.'
+                        ),
+                        'options': {}
+                    },
+                ]
             },
         }
 
@@ -194,3 +210,53 @@ class PluginUsers(Plugin):
         # datamgr.require_refresh()
 
         return self.webui.response_ok(message=_('User deleted'))
+
+    def get_user_widget(self, element_id, widget_id,
+                        embedded=False, identifier=None, credentials=None):
+        # Because there are many locals needed :)
+        # pylint: disable=too-many-locals,too-many-arguments
+        """
+        Display a user widget
+        """
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        logger.debug("get_user_widget: %s, %s", element_id, widget_id)
+
+        # Get user
+        user = datamgr.get_user(element_id)
+        if not user:
+            # Test if we got a name instead of an id
+            user = datamgr.get_user(search={'max_results': 1, 'where': {'name': element_id}})
+            if not user:
+                return self.webui.response_invalid_parameters(_('User does not exist'))
+
+        widget_place = request.params.get('widget_place', 'user')
+        widget_template = request.params.get('widget_template', 'user_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        title = request.params.get('title', _('User: %s') % user.name)
+
+        # Use required template to render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'user': user,
+
+            'title': title,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })

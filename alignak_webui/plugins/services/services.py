@@ -43,6 +43,60 @@ class PluginServices(Plugin):
         self.backend_endpoint = 'service'
 
         self.pages = {
+            'get_service_widget': {
+                'name': 'Service widget',
+                'route': '/service_widget/<element_id>/<widget_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'information',
+                        'for': ['service'],
+                        'name': _('Information'),
+                        'template': 'service_information_widget',
+                        'icon': 'info',
+                        'description': _(
+                            'Service information: service general information.'
+                        ),
+                        'options': {}
+                    },
+                    {
+                        'id': 'configuration',
+                        'for': ['service'],
+                        'name': _('Configuration'),
+                        'template': 'service_configuration_widget',
+                        'icon': 'gear',
+                        'read_only': True,
+                        'description': _(
+                            'Service configuration: service customs configuration variables.'
+                        ),
+                        'options': {}
+                    },
+                    {
+                        'id': 'metrics',
+                        'for': ['service'],
+                        'name': _('Metrics'),
+                        'template': 'service_metrics_widget',
+                        'icon': 'line-chart',
+                        'description': _(
+                            '<h4>service metrics widget</h4>Displays service (and its services) '
+                            'last received metrics.'
+                        ),
+                        'picture': 'htdocs/img/service_metrics_widget.png',
+                        'options': {}
+                    },
+                    {
+                        'id': 'grafana',
+                        'for': ['service'],
+                        'name': _('Grafana'),
+                        'template': 'service_grafana_widget',
+                        'icon': 'area-chart',
+                        'description': _(
+                            '<h4>service grafana widget</h4>Displays service Grafana panel.'
+                        ),
+                        'options': {}
+                    }
+                ]
+            },
             'get_services_widget': {
                 'routes': [
                     ('/services/widget', 'Services widget')
@@ -92,53 +146,6 @@ class PluginServices(Plugin):
                             'services states.'
                         ),
                         'picture': 'htdocs/img/services_chart_widget.png',
-                        'options': {}
-                    },
-                    {
-                        'id': 'information',
-                        'for': ['service'],
-                        'name': _('Information'),
-                        'template': 'service_information_widget',
-                        'icon': 'info',
-                        'description': _(
-                            'Service information: service general information.'
-                        ),
-                        'options': {}
-                    },
-                    {
-                        'id': 'configuration',
-                        'for': ['service'],
-                        'name': _('Configuration'),
-                        'template': 'service_configuration_widget',
-                        'icon': 'gear',
-                        'read_only': True,
-                        'description': _(
-                            'Service configuration: service customs configuration variables.'
-                        ),
-                        'options': {}
-                    },
-                    {
-                        'id': 'metrics',
-                        'for': ['service'],
-                        'name': _('Metrics'),
-                        'template': 'service_metrics_widget',
-                        'icon': 'line-chart',
-                        'description': _(
-                            '<h4>service metrics widget</h4>Displays service (and its services) '
-                            'last received metrics.'
-                        ),
-                        'picture': 'htdocs/img/service_metrics_widget.png',
-                        'options': {}
-                    },
-                    {
-                        'id': 'grafana',
-                        'for': ['service'],
-                        'name': _('Grafana'),
-                        'template': 'service_grafana_widget',
-                        'icon': 'area-chart',
-                        'description': _(
-                            '<h4>service grafana widget</h4>Displays service Grafana panel.'
-                        ),
                         'options': {}
                     }
                 ]
@@ -254,3 +261,108 @@ class PluginServices(Plugin):
             'selected_types': selected_types,
             'title': request.params.get('title', _('Service view'))
         }
+
+    def get_service_widget(self, element_id, widget_id,
+                           embedded=False, identifier=None, credentials=None):
+        # Because there are many locals needed :)
+        # pylint: disable=too-many-locals,too-many-arguments
+        """
+        Display a service widget
+        """
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        logger.debug("get_service_widget: %s, %s", element_id, widget_id)
+
+        # Get service
+        service = datamgr.get_service(element_id)
+        if not service:
+            # Test if we got a name instead of an id
+            service = datamgr.get_service(search={'max_results': 1, 'where': {'name': element_id}})
+            if not service:
+                return self.webui.response_invalid_parameters(_('Service does not exist'))
+
+        # Get service host
+        host = datamgr.get_host(search={'where': {'_id': service.host.id}})
+
+        # Get service history (timeline)
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+
+        # Service history pagination and search parameters
+        start = int(request.params.get('start', '0'))
+        count = int(request.params.get('count', elts_per_page))
+        where = self.webui.helper.decode_search(request.params.get('search', ''))
+        search = {
+            'page': (start // count) + 1,
+            'max_results': count,
+            'where': {'service': service.id}
+        }
+
+        # Find known history types
+        history_plugin = self.webui.find_plugin('Histories')
+        history_types = []
+        if history_plugin and 'type' in history_plugin.table:
+            history_types = history_plugin.table['type'].get('allowed', [])
+            history_types = history_types.split(',')
+
+        # Fetch timeline filters preference for user, default is []
+        selected_types = datamgr.get_user_preferences(user, 'timeline_filters', [])
+        # selected_types = selected_types['value']
+        for selected_type in history_types:
+            if request.params.get(selected_type) == 'true':
+                if selected_type not in selected_types:
+                    selected_types.append(selected_type)
+            elif request.params.get(selected_type) == 'false':
+                if selected_type in selected_types:
+                    selected_types.remove(selected_type)
+
+        datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
+        if selected_types:
+            search['where'].update({'type': {'$in': selected_types}})
+        logger.debug("Service widget search: %s", search)
+
+        # Get service history
+        history = datamgr.get_history(search=search)
+        if history is None:
+            history = []
+
+        # Get last total elements count
+        total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+        widget_place = request.params.get('widget_place', 'service')
+        widget_template = request.params.get('widget_template', 'service_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        title = request.params.get('title', _('Service : %s') % service.name)
+
+        # Use required template to render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'host',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'host': host,
+            'service': service,
+            'history': history,
+            'timeline_pagination': self.webui.helper.get_pagination_control(
+                '/host/' + service.id, total, start, count
+            ),
+            'types': history_types,
+            'selected_types': selected_types,
+
+            'title': title,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })

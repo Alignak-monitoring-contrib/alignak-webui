@@ -243,7 +243,7 @@ def external(widget_type, identifier, action=None):
         "External request, element type: %s", widget_type
     )
 
-    if widget_type not in ['files', 'widget', 'table', 'list', 'host']:
+    if widget_type not in ['files', 'widget', 'table', 'list', 'host', 'service', 'user']:
         logger.warning("External application requested unknown type: %s", widget_type)
         response.status = 409
         response.content_type = 'text/html'
@@ -344,9 +344,11 @@ def external(widget_type, identifier, action=None):
                 '<p>The required list is not available.</p></div>' % identifier
             )
 
-    if widget_type == 'host':
+    if widget_type in ['host', 'service', 'user']:
         if not action:
-            logger.warning("External application requested host widget without widget name")
+            logger.warning(
+                "External application requested %s widget without widget name" % widget_type
+            )
             response.status = 409
             response.content_type = 'text/html'
             return _(
@@ -354,9 +356,9 @@ def external(widget_type, identifier, action=None):
                 '<p>You must provide a widget name</p></div>'
             )
 
-        # Identifier is the host identifier, not the widget one !
+        # Identifier is the element identifier, not the widget one !
         found_widget = None
-        for widget in get_app_webui().get_widgets_for('host'):
+        for widget in get_app_webui().get_widgets_for(widget_type):
             if action == widget['id']:
                 found_widget = widget
                 break
@@ -368,7 +370,7 @@ def external(widget_type, identifier, action=None):
                 '<div><h1>Unknown required widget: %s.</h1>'
                 '<p>The required widget is not available.</p></div>' % action
             )
-        logger.debug("Found host widget: %s", found_widget)
+        logger.debug("Found %s widget: %s", widget_type, found_widget)
 
         if request.params.get('page', 'no') == 'no':
             return found_widget['function'](

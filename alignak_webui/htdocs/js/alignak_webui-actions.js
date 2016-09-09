@@ -424,10 +424,10 @@ $(document).ready(function() {
    $('body').on("click", '[data-action="acknowledge"]', function () {
       if (actions_logs) console.debug("Required an acknowledge for:", $(this).data('element'));
 
-      var url = "/acknowledge/form/add?";
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
-      url += "livestate_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      var elt_type = $(this).data('type');
+      var url = "/acknowledge/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
       }, 50);
@@ -436,10 +436,10 @@ $(document).ready(function() {
    $('body').on("click", '[data-action="recheck"]', function () {
       if (actions_logs) console.debug("Required a recheck for:", $(this).data('element'));
 
-      var url = "/recheck/form/add?";
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
-      url += "livestate_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      var elt_type = $(this).data('type');
+      var url = "/recheck/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
       }, 50);
@@ -448,10 +448,10 @@ $(document).ready(function() {
    $('body').on("click", '[data-action="downtime"]', function () {
       if (actions_logs) console.debug("Required a downtime for:", $(this).data('element'));
 
-      var url = "/downtime/form/add?";
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
-      url += "livestate_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      var elt_type = $(this).data('type');
+      var url = "/downtime/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
       }, 50);

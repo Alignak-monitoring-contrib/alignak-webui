@@ -74,12 +74,12 @@
 
          <div class="panel-body">
             <div class="row">
-               <div class="col-sm-6 col-xs-12">
+               <div class="col-md-4 col-sm-6 col-xs-12">
                   <!-- Tree structure to display items -->
                   <div id="{{tree_type}}_tree"></div>
                </div>
-               <div id="members_list" class="col-sm-6 col-xs-12">
-                  <div class="alert alert-dismissible alert-info">
+               <div id="right_panel" class="col-md-8 col-sm-6 col-xs-12">
+                  <div class="card alert alert-dismissible alert-info">
                      <button type="button" class="close" data-dismiss="alert">×</button>
                      <h4>{{_('Select an item in the left tree to display more elements.')}}</h4>
                   </div>
@@ -125,10 +125,11 @@
       $("#{{tree_type}}_tree")
          .jstree({
             "core" : {
-               "check_callback" : true,
+               "check_callback" : true,   // Allow to change the tree
                "data" : jsTreeData
             },
             "plugins" : [
+               "state",
                "sort",
                %if selectable:
                //"checkbox",
@@ -138,6 +139,9 @@
                "contextmenu"
                %end
             ],
+            "state": {
+               "key": "{{tree_type}}_tree"
+            },
             "search": {
                "show_only_matches": true
             },
@@ -182,37 +186,88 @@
             if (action.action == 'select_node') {
                if (debugTree) console.log('Selected :', action.node);
 
-               $.ajax( {
-                  "url": "/{{tree_type}}/members/" + action.node.id,
-                  "dataType": "json",
-                  "type": "GET",
-                  "success": function (data) {
-                     if (debugTree) console.debug("Got data:", data);
+               if (action.node.data.type == '{{tree_type}}') {
+                  wait_message('{{_('Loading members data...')}}', true);
 
-                     $("#members_list").slideUp(50, function() {
-                        $(this).empty();
+                  // Try to get node members
+                  $.ajax( {
+                     "url": "/{{tree_type}}/members/" + action.node.id,
+                     "dataType": "json",
+                     "type": "GET",
+                     "success": function (data) {
+                        if (debugTree) console.debug("Got data:", data);
 
-                        $(data).each(function(idx, elt){
-                           if (debugTree) console.debug("Element:", elt);
+                        $("#right_panel").slideUp(50, function() {
+                           $(this).empty();
 
-                           $('<div id="member_' + elt.id + '" />')
-                              .append(elt.icon)
-                              .append(elt.url)
-                              .appendTo('#members_list');
+                           $(data).each(function(idx, elt){
+                              if (debugTree) console.debug("Element:", elt);
+
+                              // Iterates through the selected node children...
+                              var found = false;
+                              $.each(action.node.children, function (index, child) {
+                                 var node = $('#{{tree_type}}_tree').jstree(true).get_node(child);
+                                 if (node.id == elt.id) found = true;
+                              });
+                              if (! found) {
+                                 // Create a new child node
+                                 var nodeID = $('#{{tree_type}}_tree').jstree(true).create_node(
+                                    action.node,
+                                    {
+                                       "id": elt.id,
+                                       "icon": elt.icon,
+                                       "text": elt.alias,
+                                       "data": elt
+                                    },
+                                    "last",
+                                    function (node) {
+                                       if (debugTree) console.log('Created :', node);
+                                 });
+                              }
+
+                              var o = $('<div class="card" style="padding:10px;">')
+                                 .appendTo('#right_panel');
+                              $('<div id="member_' + elt.id + '" />')
+                                 .append(elt.state)
+                                 .append(elt.url)
+                                 .appendTo(o);
+                           });
+
+                           $("#right_panel")
+                              .slideDown('slow');
                         });
 
-                        $("#members_list")
-                           .slideDown('slow');
-                     });
+                        wait_message('', false)
+                     },
+                     "error": function (jqXHR, textStatus, errorThrown) {
+                        console.error("Get list error: ", textStatus, jqXHR);
+                        wait_message('', false)
+                     }
+                  });
+               } else {
+                  $("#right_panel").slideUp(50, function() {
+                     $(this).empty();
 
-                  },
-                  "error": function (jqXHR, textStatus, errorThrown) {
-                     console.error("Get list error: ", textStatus, jqXHR);
-                  }
-               });
+                     var o = $('<div class="card" style="padding:10px;">')
+                        .appendTo('#right_panel');
+
+                     $.ajax({
+                        url: '/external/'+action.node.data.type+'/'+action.node.id+'/information'
+                     })
+                     .done(function(content, textStatus, jqXHR) {
+                        $('#right_panel div.card').html(content);
+
+                        $("#right_panel")
+                           .slideDown('slow');
+                     })
+                     .fail(function( jqXHR, textStatus, errorThrown ) {
+                        console.error('get tree element, error: ', jqXHR, textStatus, errorThrown);
+                        raise_message_ko(errorThrown + ': '+ textStatus);
+                     });
+                  });
+               }
             }
-            if (action.node.children.length === 0 && action.node.host_name) {
-               // Node has no child...
+            if (action.node.children.length === 0) {
             } else {
                // Node has children ...
                $.each(action.node.children, function (index, child) {

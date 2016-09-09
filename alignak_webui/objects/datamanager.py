@@ -815,7 +815,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_parent': 1, 'hostgroups': 1, 'hosts': 1
+                    '_realm': 1, '_parent': 1, 'hostgroups': 1, 'hosts': 1
                 }
             })
 
@@ -845,17 +845,39 @@ class DataManager(object):
         Returns -1 if any problem
         """
 
-        hostgroup = self.get_hostgroup(search)
-        if not hostgroup:
-            return -1
+        if not isinstance(search, BackendElement):
+            hostgroup = self.get_hostgroup(search)
+            if not hostgroup:
+                return -1
+        else:
+            hostgroup = search
+
+        logger.debug("get_hostgroup_real_state, group: %s", hostgroup)
+        if hostgroup.members == 'host':
+            hostgroup.real_state = 0
+            return 0
 
         real_state = 0
-        for host in hostgroup.members:
-            host_real_state = self.get_host_real_state(
-                search={'where': {'host': host.id}}
-            )
+        for member in hostgroup.members:
+            if isinstance(member, basestring):
+                continue
+
+            host_real_state = self.get_host_real_state(member)
             real_state = max(real_state, host_real_state)
 
+        group_members = hostgroup.hostgroups
+        if hostgroup.level == 0:
+            group_members = self.get_hostgroups(search={'where': {'_level': 1}})
+
+        # Hosts group real state from group members
+        for group in group_members:
+            if isinstance(group, basestring):
+                continue
+
+            real_state = max(real_state, group.real_state)
+
+        logger.info("get_hostgroup_real_state, state: %s", real_state)
+        hostgroup.real_state = real_state
         return real_state
 
     ##
@@ -946,9 +968,12 @@ class DataManager(object):
         Returns -1 if any problem
         """
 
-        host = self.get_host(search, embedded=False)
-        if not host:
-            return -1
+        if not isinstance(search, BackendElement):
+            host = self.get_host(search, embedded=False)
+            if not host:
+                return -1
+        else:
+            host = search
 
         real_state = host.real_state
         if real_state > 2:
@@ -962,6 +987,7 @@ class DataManager(object):
         for service in services:
             real_state = max(real_state, service.real_state)
 
+        host.real_state = real_state
         return real_state
 
     ##
@@ -976,7 +1002,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1
+                    '_realm': 1, '_parent': 1, 'hostgroups': 1, 'hosts': 1
                 }
             })
 

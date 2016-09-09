@@ -21,7 +21,7 @@
    %if host.real_state != host.ls_state_id:
    <div>
       {{! host.get_html_state(text=None, size="fa-5x")}}
-      <legend>{{_('Host real state, including services')}}</legend>
+      <p>{{_('Host real state, without services')}}</p>
    </div>
    %end
    %if services:
