@@ -580,6 +580,8 @@ class TestHtmlList(unittest2.TestCase):
     def test_01_html_list(self):
         print("---")
 
+        self.maxDiff = None
+
         # Empty list
         s = helper.get_html_item_list('id', 'type', [])
         print("Result:", s)
@@ -589,30 +591,28 @@ class TestHtmlList(unittest2.TestCase):
         s = helper.get_html_item_list('id', 'type', ['1', '2'])
         print("Result:", s)
         self.assertEqual(s,
-                         '<button class="btn btn-xs btn-block btn-raised" '
+                         '<button class="btn btn-xs btn-raised" '
                          'data-toggle="collapse" data-target="#list_type_id" aria-expanded="false">'
                          'type'
                          '</button>'
-                         '<div class="collapse" id="list_type_id"><div class="well">'
+                         '<div class="collapse" id="list_type_id">'
                          '<ul class="list-group">'
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</li>'
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</li>'
                          '</ul>'
-                         '</div>'
                          '</div>')
 
         # Default
         s = helper.get_html_item_list('id', 'type', ['1', '2'], 'title')
         print("Result:", s)
         self.assertEqual(s,
-                         '<button class="btn btn-xs btn-block btn-raised" '
+                         '<button class="btn btn-xs btn-raised" '
                          'data-toggle="collapse" data-target="#list_type_id" aria-expanded="false">'
                          'title'
                          '</button>'
-                         '<div class="collapse" id="list_type_id"><div class="well">'
+                         '<div class="collapse" id="list_type_id">'
                          '<ul class="list-group">'
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</li>'
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</li>'
                          '</ul>'
-                         '</div>'
                          '</div>')
