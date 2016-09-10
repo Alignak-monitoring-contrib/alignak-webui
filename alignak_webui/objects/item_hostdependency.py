@@ -53,6 +53,7 @@ class HostDependency(BackendElement):
         self._linked_dependent_hostgroups = 'hostgroup'
         self._linked_hosts = 'host'
         self._linked_hostgroups = 'hostgroup'
+        self._linked_dependency_period = 'timeperiod'
 
         super(HostDependency, self)._create(params, date_format, embedded)
 
@@ -80,3 +81,8 @@ class HostDependency(BackendElement):
     def dependent_hostgroups(self):
         """ Return concerned dependent hosts groups """
         return self._linked_dependent_hostgroups
+
+    @property
+    def dependency_period(self):
+        """ Return concerned dependency timeperiod """
+        return self._linked_dependency_period

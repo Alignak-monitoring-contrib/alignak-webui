@@ -893,8 +893,9 @@ class DataManager(object):
             search.update({
                 'embedded': {
                     '_realm': 1,
+                    'hosts': 1, 'hostgroups': 1,
                     'dependent_hosts': 1, 'dependent_hostgroups': 1,
-                    'hosts': 1, 'hostgroups': 1
+                    'dependency_period': 1
                 }
             })
 
@@ -1039,8 +1040,10 @@ class DataManager(object):
             search.update({
                 'embedded': {
                     '_realm': 1,
-                    'dependent_services': 1, 'dependent_servicegroups': 1,
-                    'services': 1, 'servicegroups': 1
+                    'hosts': 1, 'hostgroups': 1,
+                    'dependent_hosts': 1, 'dependent_hostgroups': 1,
+                    'services': 1, 'dependent_services': 1,
+                    'dependency_period': 1
                 }
             })
 
