@@ -596,6 +596,7 @@ class Helper(object):
             buttons = []
             button = app_config.get('buttons.livestate_command')
             button = button.replace("##id##", bo_object.id)
+            button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'acknowledge')
             button = button.replace("##title##", _('Acknowledge this problem'))
@@ -611,6 +612,7 @@ class Helper(object):
 
             button = app_config.get('buttons.livestate_command')
             button = button.replace("##id##", bo_object.id)
+            button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'recheck')
             button = button.replace("##title##", _('Re-check this element'))
@@ -619,6 +621,7 @@ class Helper(object):
 
             button = app_config.get('buttons.livestate_command')
             button = button.replace("##id##", bo_object.id)
+            button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'downtime')
             button = button.replace("##title##", _('Schedule a downtime'))
