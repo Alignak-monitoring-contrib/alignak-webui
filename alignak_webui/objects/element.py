@@ -396,10 +396,6 @@ class BackendElement(object):
                     logger.debug(
                         "__init__, link parameter: %s (%s) = %s", key, params[key].__class__, value
                     )
-                    if self.get_type() == 'service' and key == 'host':
-                        logger.error(
-                            "__init__, link parameter: %s (%s) = %s", key, params[key].__class__, value
-                        )
 
                     object_type = getattr(self, '_linked_' + key, None)
                     if object_type is None:
