@@ -8,6 +8,8 @@
 
 <div id="service_view_information" class="col-lg-4 col-sm-4 text-center">
    {{! service.get_html_state(text=None, size="fa-5x")}}
+
+   {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
    <div>
       <strong>{{service.alias}}</strong>
    </div>

@@ -50,6 +50,12 @@
                {{_('Command not fetched from the backend')}}
                %end
             </td>
+
+            <td>
+               %if current_user.is_power():
+                  {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+               %end
+            </td>
          </tr>
        %end
       </tbody>

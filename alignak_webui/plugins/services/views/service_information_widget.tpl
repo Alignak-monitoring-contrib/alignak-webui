@@ -70,6 +70,14 @@
                {{! Helper.print_duration(service.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
+         <tr>
+            <td><strong>{{_('Actions:')}}</strong></td>
+            <td>
+               %if current_user.is_power():
+                  {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+               %end
+            </td>
+         </tr>
       </tbody>
    </table>
 

@@ -711,6 +711,27 @@ class BackendElement(object):
             return self._total
         return 0
 
+    @property
+    def is_problem(self):
+        """
+        An element is never a problem except if it overloads this method
+        """
+        return False
+
+    @property
+    def acknowledged(self):
+        """
+        An element is never acknowledged except if it overloads this method
+        """
+        return False
+
+    @property
+    def downtime(self):
+        """
+        An element is never in a downtime except if it overloads this method
+        """
+        return False
+
     def get_state(self):
         """
         Get Item object state

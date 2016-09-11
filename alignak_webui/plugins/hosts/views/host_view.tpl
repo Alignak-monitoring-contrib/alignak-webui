@@ -17,8 +17,9 @@
    <div>
       {{! Host({'ls_state': host.real_status}).get_html_state(text=None, size="fa-5x")}}
       <legend><strong>{{host.alias}}</strong></legend>
-
-      {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
+      %if current_user.is_power():
+         {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
+      %end
    </div>
    %if host.real_state != host.ls_state_id:
    <div>
@@ -47,7 +48,9 @@
                </td>
 
                <td>
-                     {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
+                  %if current_user.is_power():
+                     {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+                  %end
                </td>
             </tr>
             %end

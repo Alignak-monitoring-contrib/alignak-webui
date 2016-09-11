@@ -50,6 +50,7 @@
                <th>{{_('Host')}}</th>
                <th>{{_('Service')}}</th>
                <th>{{_('Business impact')}}</th>
+               <th></th>
                <th>{{_('Check command')}}</th>
                <th>{{_('Last check output')}}</th>
             </tr></thead>
@@ -76,6 +77,12 @@
 
                   <td>
                      <small>{{! Helper.get_html_business_impact(service.business_impact)}}</small>
+                  </td>
+
+                  <td>
+                     %if current_user.is_power():
+                        {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+                     %end
                   </td>
 
                   <td>
