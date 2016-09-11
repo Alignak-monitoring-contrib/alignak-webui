@@ -840,7 +840,7 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_hostgroup_real_state(self, search):
-        """ Get a hosts group real state (including services states).
+        """ Get a hosts group real state (including hosts states).
 
         Returns -1 if any problem
         """
@@ -865,20 +865,14 @@ class DataManager(object):
             host_real_state = self.get_host_real_state(member)
             real_state = max(real_state, host_real_state)
 
-        group_members = hostgroup.hostgroups
-        if hostgroup.level == 0:
-            group_members = self.get_hostgroups(search={'where': {'_level': 1}})
-
         # Hosts group real state from group members
+        group_members = self.get_hostgroups(search={'where': {'_parent': hostgroup.id}}, all_elements=True)
         for group in group_members:
-            if isinstance(group, basestring):
-                continue
+            real_state = max(real_state, self.get_hostgroup_real_state(group))
 
-            real_state = max(real_state, group.real_state)
-
-        logger.info("get_hostgroup_real_state, state: %s", real_state)
+        logger.debug("get_hostgroup_real_state, state: %s", real_state)
         hostgroup.real_state = real_state
-        return real_state
+        return hostgroup.real_state
 
     ##
     # Hosts dependencies
@@ -1406,6 +1400,36 @@ class DataManager(object):
 
         items = self.get_realms(search=search)
         return items[0] if items else None
+
+    def get_realm_real_state(self, search):
+        """ Get a realm real state (including realm hosts states).
+
+        Returns -1 if any problem
+        """
+        logger.info("get_realm_real_state, search: %s", search)
+        if not isinstance(search, BackendElement):
+            realm = self.get_realm(search)
+            if not realm:
+                return -1
+        else:
+            realm = search
+
+        members = self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
+
+        real_state = 0
+        # Realm real state from hosts
+        for member in members:
+            host_real_state = self.get_host_real_state(member)
+            real_state = max(real_state, host_real_state)
+
+        # Realm real state from sub-realms
+        realm_members = self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
+        for realm in realm_members:
+            real_state = max(real_state, self.get_realm_real_state(realm))
+
+        logger.info("get_realm_real_state, state: %s", real_state)
+        realm.real_state = real_state
+        return real_state
 
     ##
     # timeperiods

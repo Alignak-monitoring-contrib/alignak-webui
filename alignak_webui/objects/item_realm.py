@@ -41,6 +41,11 @@ class Realm(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
+    # Converting real state identifier to text status
+    real_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+    ]
+
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a realm (called only once when an object is newly created)
@@ -50,7 +55,7 @@ class Realm(BackendElement):
         super(Realm, self).__init__(params, date_format, embedded)
 
     @property
-    def parent(self):
+    def _parent(self):
         """ Return group parent """
         return self._linked__parent
 
@@ -58,3 +63,20 @@ class Realm(BackendElement):
     def level(self):
         """ Return group level """
         return self._level
+
+    @property
+    def real_state(self):
+        """Return real state identifier"""
+        return self._real_state
+
+    @real_state.setter
+    def real_state(self, real_state):
+        """
+        Set Item object real_state
+        """
+        self._real_state = real_state
+
+    @property
+    def real_status(self):
+        """Return real status string from the real state identifier"""
+        return self.real_state_to_status[self._real_state]

@@ -17,7 +17,7 @@
    <div>
       {{! Host({'ls_state': host.real_status}).get_html_state(text=None, size="fa-5x")}}
       <legend><strong>{{host.alias}}</strong></legend>
-      {{host.real_state}} - {{host.ls_state_id}}
+
       {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
    </div>
    %if host.real_state != host.ls_state_id:

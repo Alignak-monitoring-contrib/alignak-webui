@@ -79,9 +79,7 @@ class PluginServicesGroups(Plugin):
 
             for member in usergroup.members:
                 logger.debug("Group member: %s", member)
-
                 cfg_state = items_states.get_icon_state('user', member.status)
-                logger.debug("Group member: %s", cfg_state)
 
                 items.append({
                     'id': member.id,

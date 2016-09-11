@@ -51,11 +51,11 @@ class PluginHostsGroups(Plugin):
         self.pages = {
             'get_group_members': {
                 'name': 'Host group members',
-                'route': '/hostgroup/members/<group_id>'
+                'route': '/hostgroup/members/<element_id>'
             },
             'get_real_status': {
                 'name': 'Host group status',
-                'route': '/hostgroup/status/<group_id>'
+                'route': '/hostgroup/status/<element_id>'
             },
         }
 
@@ -90,73 +90,48 @@ class PluginHostsGroups(Plugin):
             'groups': groups
         }
 
-    def get_real_status(self, group_id=None, group=None, no_json=False):
+    def get_real_status(self, element_id=None, element=None, no_json=False):
         # pylint: disable=protected-access
         """
         Get the hostgroup overall status
         """
         datamgr = request.app.datamgr
 
-        hostgroup = group
+        hostgroup = element
         if not hostgroup:
-            hostgroup = datamgr.get_hostgroup(group_id)
+            hostgroup = datamgr.get_hostgroup(element_id)
             if not hostgroup:
                 hostgroup = datamgr.get_hostgroup(
-                    search={'max_results': 1, 'where': {'name': group_id}}
+                    search={'max_results': 1, 'where': {'name': element_id}}
                 )
                 if not hostgroup:
                     return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                                  % group_id)
+                                                                  % element_id)
 
-        logger.debug("get_real_status: %s", hostgroup.name)
-        # Hosts group real state from hosts
-        hostgroup.real_state = 0
-        hostgroup._status = 'unknown'
-        for host in hostgroup.members:
-            if isinstance(host, basestring):
-                continue
-
-            host_state = datamgr.get_host_real_state(host.id)
-            logger.debug(" - host: %s, state: %d", host.name, host_state)
-            hostgroup.real_state = max(hostgroup.real_state, host_state)
-
-        logger.debug(" - state from hosts: %d -> %s", hostgroup.real_state, hostgroup.real_status)
-
-        group_members = hostgroup.hostgroups
-        if hostgroup.level == 0:
-            group_members = datamgr.get_hostgroups(search={'where': {'_level': 1}})
-
-        # Hosts group real state from group members
-        for group in group_members:
-            if isinstance(group, basestring):
-                continue
-
-            logger.debug(" - group: %s, state: %d", group.name, group.real_state)
-            hostgroup.real_state = max(hostgroup.real_state, group.real_state)
-
-        logger.debug(" - state from groups: %d -> %s", hostgroup.real_state, hostgroup.real_status)
+        hostgroup.real_state = datamgr.get_hostgroup_real_state(hostgroup)
+        logger.debug(" - hostgroup real state: %d -> %s", hostgroup.real_state, hostgroup.real_status)
 
         if no_json:
-            return hostgroup.status
+            return hostgroup.real_status
 
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps({'state': hostgroup.real_state, 'status': hostgroup.status})
+        return json.dumps({'state': hostgroup.real_state, 'status': hostgroup.real_status})
 
-    def get_group_members(self, group_id):
+    def get_group_members(self, element_id):
         """
         Get the hostgroup hosts list
         """
         datamgr = request.app.datamgr
 
-        hostgroup = datamgr.get_hostgroup(group_id)
+        hostgroup = datamgr.get_hostgroup(element_id)
         if not hostgroup:
             hostgroup = datamgr.get_hostgroup(
-                search={'max_results': 1, 'where': {'name': group_id}}
+                search={'max_results': 1, 'where': {'name': element_id}}
             )
             if not hostgroup:
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % group_id)
+                                                              % element_id)
 
         items = []
         if not isinstance(hostgroup.members, basestring):
@@ -165,9 +140,7 @@ class PluginHostsGroups(Plugin):
 
             for member in hostgroup.members:
                 logger.debug("Group member: %s", member)
-
                 cfg_state = items_states.get_icon_state('host', member.status)
-                logger.debug("Group member: %s", cfg_state)
 
                 items.append({
                     'id': member.id,

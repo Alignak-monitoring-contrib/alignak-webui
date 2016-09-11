@@ -5,10 +5,10 @@
  */
 
 /* Teals */
-.item_realm,
 .turquoise { color: #1abc9c; }
 .item_user,
 .item_hostgroup_unknown,
+.item_realm_unknown,
 .green-sea { color: #16a085; }
 
 /* Greens */
@@ -23,6 +23,7 @@
 .item_logcheckresult_up,
 .item_logcheckresult_ok,
 .item_hostgroup_ok,
+.item_realm_ok,
 .nephritis { color: #27ae60; }
 
 /* Blues */
@@ -34,6 +35,7 @@
 
 /* Purples */
 .item_hostgroup_in_downtime,
+.item_realm_in_downtime,
 .item_host_in_downtime,
 .item_service_in_downtime,
 .item_logcheckresult_in_downtime,
@@ -64,6 +66,7 @@
 
 /* Oranges */
 .item_hostgroup_warning,
+.item_realm_warning,
 .item_close,
 .item_inactive,
 .sla_hosts_warning,
@@ -78,6 +81,7 @@
 
 /* Reds */
 .item_hostgroup_critical,
+.item_realm_critical,
 .item_host_down,
 .item_host_critical,
 .item_service_critical,
@@ -94,6 +98,7 @@
 
 /* Grays */
 .item_hostgroup_acknowledged,
+.item_realm_acknowledged,
 .item_host_acknowledged,
 .item_service_acknowledged,
 .item_logcheckresult_acknowledged,

@@ -29,6 +29,7 @@ from logging import getLogger
 from bottle import request, template, response
 
 from alignak_webui import _
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
@@ -50,26 +51,54 @@ class PluginRealms(Plugin):
         self.pages = {
             'get_realm_members': {
                 'name': 'Realm members',
-                'route': '/realm/members/<realm_id>'
+                'route': '/realm/members/<element_id>'
             },
         }
 
         super(PluginRealms, self).__init__(app, cfg_filenames)
 
-    def get_realm_members(self, realm_id):
+    def get_real_status(self, element_id=None, element=None, no_json=False):
+        # pylint: disable=protected-access
+        """
+        Get the realm overall status
+        """
+        datamgr = request.app.datamgr
+
+        realm = element
+        if not realm:
+            realm = datamgr.get_realm(element_id)
+            if not realm:
+                realm = datamgr.get_realm(
+                    search={'max_results': 1, 'where': {'name': element_id}}
+                )
+                if not realm:
+                    return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                                  % element_id)
+
+        realm.real_state = datamgr.get_realm_real_state(realm)
+        logger.debug(" - realm real state: %d -> %s", realm.real_state, realm.real_status)
+
+        if no_json:
+            return realm.real_status
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps({'state': realm.real_state, 'status': realm.real_status})
+
+    def get_realm_members(self, element_id):
         """
         Get the realm hosts list
         """
         datamgr = request.app.datamgr
 
-        realm = datamgr.get_realm(realm_id)
+        realm = datamgr.get_realm(element_id)
         if not realm:
             realm = datamgr.get_realm(
-                search={'max_results': 1, 'where': {'name': realm_id}}
+                search={'max_results': 1, 'where': {'name': element_id}}
             )
             if not realm:
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % realm_id)
+                                                              % element_id)
 
         # Get elements from the data manager
         search = {
@@ -77,16 +106,23 @@ class PluginRealms(Plugin):
         }
         hosts = datamgr.get_hosts(search)
 
+        # Get element state configuration
+        items_states = ElementState()
+
         items = []
-        for host in hosts:
-            logger.debug("Realm member: %s", host)
+        for member in hosts:
+            logger.debug("Realm member: %s", member)
+            cfg_state = items_states.get_icon_state('host', member.status)
 
             items.append({
-                'id': host.id,
-                'name': host.name,
-                'alias': host.alias,
-                'icon': host.get_html_state(text=None, title=host.alias),
-                'url': host.get_html_link()
+                'id': member.id,
+                'type': 'host',
+                'name': member.name,
+                'alias': member.alias,
+                'status': member.status,
+                'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                'state': member.get_html_state(text=None, title=member.alias),
+                'url': member.get_html_link()
             })
 
         response.status = 200

@@ -497,15 +497,18 @@ class Plugin(object):
         for item in elts:
             real_status = 'unknown'
             if f_get_real_status:
-                real_status = f_get_real_status(group=item, no_json=True)
+                real_status = f_get_real_status(element=item, no_json=True)
 
             cfg_state = items_states.get_icon_state(self.backend_endpoint, real_status)
-            logger.debug("State: %s", cfg_state)
+            logger.debug("Item state: %s", cfg_state)
+            if not cfg_state:
+                cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
             # icon = cfg_state['icon']
 
             parent = '#'
-            if item['_parent'] and not isinstance(item['_parent'], basestring):
+            if item._parent and not isinstance(item._parent, basestring):
                 parent = item['_parent'].id
+            # logger.debug("Item parent: %s", parent)
 
             tree_item = {
                 'id': item.id,
@@ -522,7 +525,7 @@ class Plugin(object):
                     'name': item.name,
                     'alias': item.alias,
                     '_level': item._level,
-                    'type': 'root' if parent == '#' else self.backend_endpoint,
+                    'type': self.backend_endpoint,
                 },
                 # 'li_attr': {
                 # "item_id": item.id,
