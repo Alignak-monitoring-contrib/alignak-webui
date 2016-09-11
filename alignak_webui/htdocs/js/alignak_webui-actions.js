@@ -426,7 +426,7 @@ $(document).ready(function() {
 
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
-      var elt_type = $(this).data('type');
+      var elt_type = $(this).data('element_type');
       var url = "/acknowledge/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
@@ -438,7 +438,7 @@ $(document).ready(function() {
 
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
-      var elt_type = $(this).data('type');
+      var elt_type = $(this).data('element_type');
       var url = "/recheck/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
@@ -450,7 +450,7 @@ $(document).ready(function() {
 
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
-      var elt_type = $(this).data('type');
+      var elt_type = $(this).data('element_type');
       var url = "/downtime/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
