@@ -49,7 +49,7 @@ class HostGroup(BackendElement):
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
-    def _create(self, params, date_format, embedded):
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a hostgroup (called only once when an object is newly created)
         """
@@ -57,7 +57,7 @@ class HostGroup(BackendElement):
         self._linked__parent = 'hostgroup'
         self._linked_hosts = 'host'
 
-        super(HostGroup, self)._create(params, date_format, embedded)
+        super(HostGroup, self).__init__(params, date_format, embedded)
 
         if not hasattr(self, '_real_state'):
             setattr(self, '_real_state', 0)

@@ -44,7 +44,7 @@ class ServiceDependency(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format, embedded):
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a hostdependency (called only once when an object is newly created)
         """
@@ -57,7 +57,7 @@ class ServiceDependency(BackendElement):
         self._linked_dependent_services = 'service'
         self._linked_dependency_period = 'timeperiod'
 
-        super(ServiceDependency, self)._create(params, date_format, embedded)
+        super(ServiceDependency, self).__init__(params, date_format, embedded)
 
     @property
     def _realm(self):

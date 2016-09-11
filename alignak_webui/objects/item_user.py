@@ -51,18 +51,19 @@ class User(BackendElement):
         "administrator": _("Administrator")
     }
 
-    def _create(self, params, date_format, embedded):
-        # Not that bad ... because _create is called from __new__
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
         Create a user (called only once when an object is newly created)
         """
+        self._linked__realm = 'realm'
         self._linked_host_notification_period = 'timeperiod'
         self._linked_host_notification_commands = 'command'
         self._linked_service_notification_period = 'timeperiod'
         self._linked_service_notification_commands = 'command'
 
-        super(User, self)._create(params, date_format, embedded)
+        super(User, self).__init__(params, date_format, embedded)
 
         self.authenticated = False
 
@@ -111,6 +112,11 @@ class User(BackendElement):
         return "<%s, id: %s, name: %s, role: %s>" % (
             self.__class__._type, self.id, self.name, self.get_role()
         )
+
+    @property
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm
 
     @property
     def endpoint(self):

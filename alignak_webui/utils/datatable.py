@@ -665,6 +665,10 @@ class Datatable(object):
                             {"object_%s" % field['data']: bo_object[field['data']].name}
                         )
                     else:
+                        logger.critical(
+                            "Table field object is not an object: %s = %s for %s",
+                            field['data'], getattr(bo_object, field['data']), bo_object.name
+                        )
                         row[field['data']] = getattr(bo_object, field['data'])
                         if row[field['data']] == field['resource']:
                             row[field['data']] = '...'

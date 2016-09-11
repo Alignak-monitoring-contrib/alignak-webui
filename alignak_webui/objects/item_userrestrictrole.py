@@ -41,13 +41,13 @@ class UserRestrictRole(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format, embedded):
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a userrestrictrole (called only once when an object is newly created)
         """
         self._linked_user = 'user'
 
-        super(UserRestrictRole, self)._create(params, date_format, embedded)
+        super(UserRestrictRole, self).__init__(params, date_format, embedded)
 
     @property
     def user(self):

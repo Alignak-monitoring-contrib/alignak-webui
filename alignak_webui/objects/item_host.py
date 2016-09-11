@@ -57,8 +57,8 @@ class Host(BackendElement):
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
-    def _create(self, params, date_format, embedded):
-        # Not that bad ... because _create is called from __new__
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
         Create a host (called only once when an object is newly created)
@@ -75,7 +75,7 @@ class Host(BackendElement):
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 
-        super(Host, self)._create(params, date_format, embedded)
+        super(Host, self).__init__(params, date_format, embedded)
 
         if not hasattr(self, '_real_state'):
             setattr(self, '_real_state', 0)

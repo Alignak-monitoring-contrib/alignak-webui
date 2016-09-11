@@ -41,13 +41,13 @@ class Realm(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format, embedded):
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a realm (called only once when an object is newly created)
         """
         self._linked__parent = 'realm'
 
-        super(Realm, self)._create(params, date_format, embedded)
+        super(Realm, self).__init__(params, date_format, embedded)
 
     @property
     def parent(self):

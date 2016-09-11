@@ -89,7 +89,7 @@ class BackendElement(object):
 
     An Item is created from a dictionary with some specific features:
     - an item has an identifier, a name, an alias and a comment (notes)
-    - some specific treatments are applied on some specific fields (see _create method doc)
+    - some specific treatments are applied on some specific fields (see __init__ method doc)
     - all objects are cached internally to avoid creating several instances for the same element
 
     If no identifier attribute exists in the provided data an automatic identifier is assigned.
@@ -289,7 +289,7 @@ class BackendElement(object):
             # print " ... new: %s" % cls._cache[_id]
 
             # Call the new object create function
-            cls._cache[_id]._create(params, date_format, embedded)
+            cls._cache[_id].__init__(params, date_format, embedded)
             cls._count += 1
 
         try:
@@ -325,6 +325,8 @@ class BackendElement(object):
         # Yes, but we need those locals!
         # pylint: disable=too-many-locals
         # pylint:disable=too-many-nested-blocks
+        # Yes, but it is the base object and it needs those arguments!
+        # pylint: disable=unused-argument
         """
         Create an object (called only once when an object is newly created)
 
@@ -358,139 +360,6 @@ class BackendElement(object):
             params
         )
 
-        for key, value in sorted(params.items()):
-            logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
-
-            # Object must have declared a _linked_ attribute ...
-            if hasattr(self, '_linked_' + key) and value and self.get_known_classes():
-                # Not yet the linked objects...
-                continue
-
-            # If the property is a known date, make it a timestamp...
-            if key.endswith('date') or key in self.__class__._dates:
-                if params[key]:
-                    # Convert date to timestamp
-                    new_date = get_ts_date(params[key], date_format)
-                    if new_date:
-                        setattr(self, key, new_date)
-                        continue
-
-                setattr(self, key, self.__class__._default_date)
-                continue
-
-            try:
-                if params[key]:
-                    setattr(self, key, params[key])
-            except Exception as e:
-                logger.critical(
-                    "_create parameter exception: %s, %s = %s, %s",
-                    self.__class__, key, params[key], str(e)
-                )
-
-        if embedded:
-            for key, value in sorted(params.items()):
-                logger.debug(" parameter: %s (%s) = %s", key, params[key].__class__, params[key])
-
-                if not hasattr(self, '_linked_' + key):
-                    # Only the linked objects...
-                    continue
-
-                # Object must have declared a _linked_ attribute ...
-                if value and self.get_known_classes():
-                    logger.debug(
-                        " link parameter: %s (%s) = %s", key, params[key].__class__, value
-                    )
-
-                    # Linked resource type
-                    object_type = getattr(self, '_linked_' + key, None)
-                    if object_type and isinstance(object_type, BackendElement):
-                        logger.debug(
-                            "_create, already linked with an object, %s/%s: %s",
-                            self.get_type(), key, object_type
-                        )
-                        continue
-                    if object_type and isinstance(object_type, list):
-                        if object_type[0] and isinstance(object_type[0], BackendElement):
-                            logger.debug(
-                                "_create, already linked with an object list, %s/%s: %s",
-                                self.get_type(), key, object_type
-                            )
-                            continue
-
-                    if not isinstance(object_type, dict) and \
-                            object_type not in [kc.get_type() for kc in self.get_known_classes()]:
-                        logger.error(
-                            "_create, unknown %s for %s, as %s for %s",
-                            key, self.get_type(), object_type, params[key]
-                        )
-                        continue
-
-                    object_class = [kc for kc in self.get_known_classes()
-                                    if kc.get_type() == object_type][0]
-
-                    # Dictionary from a backend embedded object
-                    if isinstance(params[key], dict):
-                        linked_object = object_class(params[key])
-                        setattr(self, '_linked_' + key, linked_object)
-                        continue
-
-                    # String - object id
-                    if isinstance(params[key], basestring) and self.get_backend():
-                        # we need to load the object from the backend
-                        result = self.get_backend().get(object_type + '/' + params[key])
-                        if not result:  # pragma: no cover, should not happen
-                            logger.error(
-                                "_create, item not found for %s, %s", object_type, value
-                            )
-                            continue
-
-                        # Create a new object
-                        linked_object = object_class(result)
-                        setattr(self, '_linked_' + key, linked_object)
-                        logger.debug("_create, linked with %s (%s)", key, linked_object['_id'])
-                        continue
-
-                    # List - list of objects id
-                    if isinstance(params[key], list):
-                        objects_list = []
-                        for element in params[key]:
-                            if isinstance(element, basestring) and self.get_backend():
-                                # we need to load the object from the backend
-                                result = self.get_backend().get(object_type + '/' + element)
-                                if not result:  # pragma: no cover, should not happen
-                                    logger.error(
-                                        "_create, item not found for %s, %s", object_type, value
-                                    )
-                                    continue
-
-                                # Create a new object
-                                objects_list.append(object_class(result))
-                            elif isinstance(element, dict):
-                                # Create a new object from a dict
-                                objects_list.append(object_class(element))
-                            else:  # pragma: no cover, should not happen
-                                logger.critical(
-                                    "_create, list element %s is not a string nor a dict: %s",
-                                    key, element
-                                )
-                                continue
-
-                        setattr(self, '_linked_' + key, objects_list)
-                        logger.debug("_create, linked with %s (%s)", key, [o for o in objects_list])
-                        continue
-
-                    logger.debug(
-                        "Parameter: %s for %s is not a dict or a list or an object id "
-                        "as it should be, instead of being: %s",
-                        key, self.get_type(), value
-                    )
-                else:
-                    logger.debug(
-                        " no value for link parameter: %s (%s), for: %s, %s",
-                        key, params[key].__class__, self.get_type(),
-                        params['name'] if 'name' in params else params['_id']
-                    )
-
         logger.debug(" --- created %s (%s)", self.__class__, self[id_property])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
@@ -502,18 +371,24 @@ class BackendElement(object):
         """
         Initialize an object
 
-        Beware: always called, even if the object is not newly created! Use _create function for
+        Beware: always called, even if the object is not newly created! Use __init__ function for
         initializing newly created objects.
         """
         logger.debug(" --- __init__ %s", self.__class__)
-        if not isinstance(params, dict):  # pragma: no cover, specific case for protection...
+        if params is None:
+            logger.warning(
+                "__init__, cannot update an object (%s) with no parameters. ", self.__class__
+            )
+            return
+
+        if not isinstance(params, dict):
             if self.__class__ == params.__class__:
                 params = params.__dict__
             elif self.get_known_classes() and params.__class__ in self.get_known_classes():
                 params = params.__dict__
             else:
-                logger.debug(
-                    "__init__, cannot update an object (%s) with: %s (%s)"
+                logger.warning(
+                    "__init__, cannot update an object (%s) with: %s (%s). "
                     "Updated object is a second level object, else "
                     "you should try to embed this object from the backend",
                     self.__class__, params, params.__class__
@@ -553,84 +428,65 @@ class BackendElement(object):
                     continue
                 logger.debug(" --- linked parameter %s = %s", key, params[key])
 
-                logger.debug(
-                    "link parameter: %s (%s) = %s", key, params[key].__class__, value
-                )
-                object_type = getattr(self, '_linked_' + key, None)
-
-                # Already contains an object, so update object ...
-                # Currently, DO NOTHING!
-                if isinstance(object_type, BackendElement):
-                    object_class = object_type.__class__
-                    if object_class == self.__class__:
-                        # logger.warning(
-                        # "__init__, update same object %s (%s) (DO NOTHING!): %s = %s",
-                        # self.__class__, self.id, key, params[key]
-                        # )
-                        break
-
+                # Object must have declared a _linked_ attribute ...
+                if value is not None and self.get_known_classes():
                     logger.debug(
-                        "__init__, update with an object: %s = %s", key, object_type
+                        "__init__, link parameter: %s (%s) = %s", key, params[key].__class__, value
                     )
-                    setattr(self, '_linked_' + key, object_type)
-                    logger.debug("__init__, updated with %s (%s)", key, object_type)
-                    continue
 
-                # Linked resource type
-                logger.debug(
-                    "__init__, must create a link for %s -> %s with %s ",
-                    self.object_type, key, value
-                )
-
-                if isinstance(object_type, list):
-                    # Some objects are linked through a list
-                    if not object_type:
-                        logger.debug("__init__, empty list")
-                        continue
-                    object_class = object_type[0].__class__
-                    object_type = object_type[0].get_type()
-
-                elif object_type in [kc.get_type() for kc in self.get_known_classes()]:
-                    # No object yet linked... find its class thanks to the known type
-                    object_class = [kc for kc in self.get_known_classes()
-                                    if kc.get_type() == object_type][0]
-
-                else:  # pragma: no cover, should not happen
-                    logger.error("__init__, unknown %s for %s", object_type, params[key])
-                    continue
-
-                # String - object id
-                if isinstance(params[key], basestring) and self.get_backend():
-                    # Object link is a string, so it contains the object type
                     object_type = getattr(self, '_linked_' + key, None)
-                    if object_type not in [kc.get_type() for kc in self.get_known_classes()]:
-                        logger.error("__init__, unknown %s for %s", object_type, params[key])
-                        continue
-
-                    object_class = [kc for kc in self.get_known_classes()
-                                    if kc.get_type() == object_type][0]
-
-                    # Object link is a string, so we need to load the object from the backend
-                    result = self.get_backend().get(object_type + '/' + params[key])
-                    if not result:  # pragma: no cover, should not happen
+                    if object_type is None:
                         logger.error(
-                            "__init__, item not found for %s, %s", object_type, value
+                            "__init__, object_type is None, key %s for %s, as %s for %s",
+                            key, self.get_type(), object_type, params[key]
                         )
                         continue
 
-                    # Create a new object
-                    linked_object = object_class(result)
-                    setattr(self, '_linked_' + key, linked_object)
-                    logger.debug("__init__, linked with %s (%s)", key, linked_object['_id'])
-                    continue
+                    # Already contains an object, so update object ...
+                    # Currently, DO NOTHING!
+                    if isinstance(object_type, BackendElement):
+                        logger.debug(
+                            "__init__, already linked with an object, %s/%s: %s",
+                            self.get_type(), key, object_type
+                        )
+                        continue
+                    elif isinstance(object_type, list):
+                        if object_type and object_type[0] \
+                                and isinstance(object_type[0], BackendElement):
+                            logger.debug(
+                                "__init__, already linked with an object list, %s/%s: %s",
+                                self.get_type(), key, object_type
+                            )
+                        continue
+                    elif not isinstance(object_type, dict) and \
+                            object_type not in [kc.get_type() for kc
+                                                in self.get_known_classes()]:
+                        logger.error(
+                            "__init__, unknown %s for %s, as %s for %s",
+                            key, self.get_type(), object_type, params[key]
+                        )
+                        continue
 
-                # List - list of objects id
-                if isinstance(params[key], list):
-                    objects_list = []
-                    for element in params[key]:
-                        if isinstance(element, basestring) and self.get_backend():
-                            # we need to load the object from the backend
-                            result = self.get_backend().get(object_type + '/' + element)
+                    object_class = [kc for kc in self.get_known_classes()
+                                    if kc.get_type() == object_type][0]
+
+                    # Linked resource type
+                    logger.debug(
+                        "__init__, must create a link for %s -> %s with %s ",
+                        self.object_type, key, value
+                    )
+
+                    # Dictionary from a backend embedded object
+                    if isinstance(params[key], dict):
+                        linked_object = object_class(params[key])
+                        setattr(self, '_linked_' + key, linked_object)
+                        continue
+
+                    # String - object id
+                    if isinstance(params[key], basestring) and self.get_backend():
+                        if params[key] not in object_class._cache:
+                            # Object link is a string, so we load the object from the backend
+                            result = self.get_backend().get(object_type + '/' + params[key])
                             if not result:  # pragma: no cover, should not happen
                                 logger.error(
                                     "__init__, item not found for %s, %s", object_type, value
@@ -638,20 +494,61 @@ class BackendElement(object):
                                 continue
 
                             # Create a new object
-                            objects_list.append(object_class(result))
-                        elif isinstance(element, dict):
-                            # Create a new object from a dict
-                            objects_list.append(object_class(element))
-                        else:  # pragma: no cover, should not happen
-                            logger.critical(
-                                "__init__, list element %s is not a string nor a dict: %s",
-                                key, element
+                            linked_object = object_class(result)
+                            setattr(self, '_linked_' + key, linked_object)
+                            logger.debug(
+                                "__init__, linked with %s (%s)",
+                                key, linked_object['_id']
                             )
-                            continue
+                        else:
+                            setattr(self, '_linked_' + key, object_class._cache[params[key]])
+                            logger.debug(
+                                "__init__, linked with %s (%s)",
+                                key, object_class._cache[params[key]]
+                            )
+                        continue
 
-                    setattr(self, '_linked_' + key, objects_list)
-                    logger.debug("__init__, linked with %s (%s)", key, [o for o in objects_list])
-                    continue
+                    # List - list of objects id
+                    if isinstance(params[key], list):
+                        objects_list = []
+                        for element in params[key]:
+                            if isinstance(element, basestring) and self.get_backend():
+                                if element not in object_class._cache:
+                                    # we need to load the object from the backend
+                                    result = self.get_backend().get(object_type + '/' + element)
+                                    if not result:  # pragma: no cover, should not happen
+                                        logger.error(
+                                            "__init__, item not found for %s, %s",
+                                            object_type, value
+                                        )
+                                        continue
+
+                                    # Create a new object
+                                    objects_list.append(object_class(result))
+                                else:
+                                    objects_list.append(object_class._cache[element])
+                            elif isinstance(element, dict):
+                                # Create a new object from a dict
+                                objects_list.append(object_class(element))
+                            else:  # pragma: no cover, should not happen
+                                logger.critical(
+                                    "__init__, list element %s is not a string nor a dict: %s",
+                                    key, element
+                                )
+                                continue
+
+                        setattr(self, '_linked_' + key, objects_list)
+                        logger.debug(
+                            "__init__, linked with %s (%s)", key, [o for o in objects_list]
+                        )
+                        continue
+                else:
+                    logger.warning(
+                        "__init__, no value for link parameter: %s (%s), for: %s, %s, value: %s",
+                        key, params[key].__class__, self.get_type(),
+                        params['name'] if 'name' in params else params['_id'],
+                        value
+                    )
 
         logger.debug(" --- __init__ end")
 

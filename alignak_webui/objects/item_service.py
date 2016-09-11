@@ -54,10 +54,11 @@ class Service(BackendElement):
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
-    def _create(self, params, date_format, embedded):
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a service (called only once when an object is newly created)
         """
+        self._linked__realm = 'realm'
         self._linked__templates = 'service'
         self._linked_host = 'host'
         self._linked_check_command = 'command'
@@ -70,7 +71,7 @@ class Service(BackendElement):
         self._linked_users = 'user'
         self._linked_usergroups = 'usergroup'
 
-        super(Service, self)._create(params, date_format, embedded)
+        super(Service, self).__init__(params, date_format, embedded)
 
         if not hasattr(self, '_real_state'):
             setattr(self, '_real_state', 0)
@@ -81,6 +82,11 @@ class Service(BackendElement):
         Get Item endpoint (page url)
         """
         return '/service/%s' % (self.id)
+
+    @property
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm
 
     @property
     def _templates(self):

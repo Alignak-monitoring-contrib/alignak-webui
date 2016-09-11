@@ -55,8 +55,8 @@ class Log(BackendElement):
     # Status property
     status_property = 'state'
 
-    def _create(self, params, date_format, embedded):
-        # Not that bad ... because _create is called from __new__
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
         """
         Create a log (called only once when an object is newly created)
@@ -64,7 +64,7 @@ class Log(BackendElement):
         self._linked_host = 'host'
         self._linked_service = 'service'
 
-        super(Log, self)._create(params, date_format, embedded)
+        super(Log, self).__init__(params, date_format, embedded)
 
     @property
     def host(self):
