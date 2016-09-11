@@ -17,11 +17,13 @@
    <div>
       {{! Host({'ls_state': host.real_status}).get_html_state(text=None, size="fa-5x")}}
       <legend><strong>{{host.alias}}</strong></legend>
+      {{host.real_state}} - {{host.ls_state_id}}
+      {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
    </div>
    %if host.real_state != host.ls_state_id:
    <div>
       {{! host.get_html_state(text=None, size="fa-5x")}}
-      <p>{{_('Host real state, without services')}}</p>
+      <p>{{_('Host real state, excluding services')}}</p>
    </div>
    %end
    %if services:
@@ -42,6 +44,10 @@
 
                <td>
                   <small>{{! service.get_html_link()}}</small>
+               </td>
+
+               <td>
+                     {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
                </td>
             </tr>
             %end

@@ -66,6 +66,11 @@
                {{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
+         <tr>
+            <td><strong>{{_('Actions:')}}</strong></td>
+            <td>
+               {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
+         </tr>
       </tbody>
    </table>
 

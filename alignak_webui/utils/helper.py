@@ -600,8 +600,8 @@ class Helper(object):
             button = button.replace("##action##", 'acknowledge')
             button = button.replace("##title##", _('Acknowledge this problem'))
             button = button.replace("##icon##", 'check')
-            if getattr(bo_object, 'state_id', 0) in [1, 2]:
-                if getattr(bo_object, 'acknowledged', False):
+            if getattr(bo_object, 'ls_state_id', 0) in [1, 2]:
+                if getattr(bo_object, 'ls_acknowledged', False):
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
                     button = button.replace("##disabled##", '')
@@ -613,7 +613,7 @@ class Helper(object):
             button = button.replace("##id##", bo_object.id)
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'recheck')
-            button = button.replace("##title##", _('Re-check this host/service'))
+            button = button.replace("##title##", _('Re-check this element'))
             button = button.replace("##icon##", 'refresh')
             buttons.append(button)
 
@@ -623,8 +623,8 @@ class Helper(object):
             button = button.replace("##action##", 'downtime')
             button = button.replace("##title##", _('Schedule a downtime'))
             button = button.replace("##icon##", 'ambulance')
-            if getattr(bo_object, 'state_id', 0) in [1, 2]:
-                if getattr(bo_object, 'in_downtime', False):
+            if getattr(bo_object, 'ls_state_id', 0) in [1, 2]:
+                if getattr(bo_object, 'ls_downtimed', False):
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
                     button = button.replace("##disabled##", '')
