@@ -964,7 +964,7 @@ class DataManager(object):
         """
 
         if not isinstance(search, BackendElement):
-            host = self.get_host(search, embedded=False)
+            host = self.get_host(search)
             if not host:
                 return -1
         else:
@@ -976,7 +976,7 @@ class DataManager(object):
 
         # Get host services
         services = self.get_services(
-            search={'where': {'host': host.id}}, embedded=False, all_elements=True
+            search={'where': {'host': host.id}}, all_elements=True
         )
 
         for service in services:
@@ -1087,7 +1087,7 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_services, search: %s", search)
+            logger.error("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen

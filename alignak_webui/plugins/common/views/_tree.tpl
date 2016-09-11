@@ -1,6 +1,6 @@
 %import json
 
-%setdefault('debug', False)
+%setdefault('debug', True)
 %setdefault('selectable', True)
 %setdefault('context_menu', True)
 
@@ -140,7 +140,10 @@
                %end
             ],
             "state": {
-               "key": "{{tree_type}}_tree"
+               "key": "{{tree_type}}_tree",
+               "filter": function(state) {
+                  if (debugTree) console.log('Restoring saved state: ', state);
+               }
             },
             "search": {
                "show_only_matches": true

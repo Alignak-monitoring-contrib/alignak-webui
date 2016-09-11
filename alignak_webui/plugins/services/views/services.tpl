@@ -66,7 +66,7 @@
                      %if service.host != 'host':
                      <small>{{! service.host.get_html_link()}}</small>
                      %else:
-                     <small>{{_('Unknown host')}}</small>
+                     <small>{{_('Unknown host')}} - {{service.host}}</small>
                      %end
                   </td>
 

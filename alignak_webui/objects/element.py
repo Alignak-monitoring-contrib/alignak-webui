@@ -237,7 +237,7 @@ class BackendElement(object):
                     # params = params.__dict__
                     # Do not copy, build a new object...
                     if params.id in cls._cache:
-                        logger.info(
+                        logger.warning(
                             "New %s, id: %s, cache copy of an object", cls, cls._cache[params.id]
                         )
                         return cls._cache[params.id]
@@ -291,6 +291,10 @@ class BackendElement(object):
             # Call the new object create function
             cls._cache[_id].__init__(params, date_format, embedded)
             cls._count += 1
+        else:
+            logger.debug(
+                "New %s, id: %s, object exists in cache", cls, cls._cache[_id]
+            )
 
         try:
             logger.debug("New end, object: %s", cls._cache[_id]['name'])
@@ -320,47 +324,6 @@ class BackendElement(object):
                 "Removed. Remaining in cache: %d / %d",
                 cls.get_count(), len(cls.get_cache())
             )
-
-    def _create(self, params, date_format, embedded):
-        # Yes, but we need those locals!
-        # pylint: disable=too-many-locals
-        # pylint:disable=too-many-nested-blocks
-        # Yes, but it is the base object and it needs those arguments!
-        # pylint: disable=unused-argument
-        """
-        Create an object (called only once when an object is newly created)
-
-        Some specificities:
-        1/ dates
-            Parameters which name ends with date are considered as dates.
-            _created and _updated parameters also.
-
-            Accept dates as:
-             - float (time.now()) as timestamp
-             - formatted string as '%a, %d %b %Y %H:%M:%S %Z' (Tue, 01 Mar 2016 14:15:38 GMT)
-             - else use date_format parameter to specify date string format
-
-            If date can not be converted, parameter is set to a default date defined in the class
-
-        2/ dicts
-            If the object has declared some '_linked_XXX' prefixed attributes and the paramaters
-            contain an 'XXX' field, this function creates a new object in the '_linked_XXX'
-            attribute. The initial '_linked_XXX' attribute must contain the new object type!
-
-            If the attribute is a simple dictionary, the new attribute contains the dictionary.
-
-            This feature allows to create links between embedded objects of the backend.
-        """
-        id_property = getattr(self.__class__, 'id_property', '_id')
-        if id_property not in params:  # pragma: no cover, should never happen
-            raise ValueError('No %s attribute in the provided parameters' % id_property)
-        logger.debug(
-            " --- creating a %s (%s - %s): %s",
-            self.get_type(), params[id_property], params['name'] if 'name' in params else '',
-            params
-        )
-
-        logger.debug(" --- created %s (%s)", self.__class__, self[id_property])
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Yes, but we need those locals!
@@ -433,6 +396,10 @@ class BackendElement(object):
                     logger.debug(
                         "__init__, link parameter: %s (%s) = %s", key, params[key].__class__, value
                     )
+                    if self.get_type() == 'service' and key == 'host':
+                        logger.error(
+                            "__init__, link parameter: %s (%s) = %s", key, params[key].__class__, value
+                        )
 
                     object_type = getattr(self, '_linked_' + key, None)
                     if object_type is None:
@@ -478,8 +445,19 @@ class BackendElement(object):
 
                     # Dictionary from a backend embedded object
                     if isinstance(params[key], dict):
-                        linked_object = object_class(params[key])
-                        setattr(self, '_linked_' + key, linked_object)
+                        if '_id' in params[key] and params[key]['_id'] not in object_class._cache:
+                            linked_object = object_class(params[key])
+                            setattr(self, '_linked_' + key, linked_object)
+                        else:
+                            logger.warning(
+                                "__init__ %s: %s, object exists in cache",
+                                key, object_class._cache[params[key]['_id']]
+                            )
+                            setattr(self, '_linked_' + key, object_class._cache[params[key]['_id']])
+                            logger.debug(
+                                "__init__, linked with %s (%s)",
+                                key, object_class._cache[params[key]['_id']]
+                            )
                         continue
 
                     # String - object id
@@ -501,6 +479,10 @@ class BackendElement(object):
                                 key, linked_object['_id']
                             )
                         else:
+                            logger.debug(
+                                "__init__ %s: %s, object exists in cache",
+                                key, object_class._cache[params[key]]
+                            )
                             setattr(self, '_linked_' + key, object_class._cache[params[key]])
                             logger.debug(
                                 "__init__, linked with %s (%s)",
@@ -526,6 +508,10 @@ class BackendElement(object):
                                     # Create a new object
                                     objects_list.append(object_class(result))
                                 else:
+                                    logger.debug(
+                                        "__init__ %s: %s, object exists in cache",
+                                        key, object_class._cache[element]
+                                    )
                                     objects_list.append(object_class._cache[element])
                             elif isinstance(element, dict):
                                 # Create a new object from a dict

@@ -83,7 +83,7 @@ class PluginMinemap(Plugin):
 
         # Get elements from the data manager
         # Do not include the embedded fields to improve the loading time...
-        hosts = datamgr.get_hosts(search, embedded=False)
+        hosts = datamgr.get_hosts(search)
 
         minemap = []
         columns = []
@@ -96,8 +96,7 @@ class PluginMinemap(Plugin):
                 search={
                     'where': {'host': host.id}
                 },
-                all_elements=True,
-                embedded=False
+                all_elements=True
             )
             for service in services:
                 columns.append(service.alias)

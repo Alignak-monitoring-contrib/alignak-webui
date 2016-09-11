@@ -21,7 +21,7 @@
         %end
         %lat = pos['coordinates'][0]
         %lng = pos['coordinates'][1]
-        %services = datamgr.get_services(search={'where': {'host':host.id}}, all_elements=True, embedded=False)
+        %services = datamgr.get_services(search={'where': {'host':host.id}}, all_elements=True)
         new Host(
             '{{ host.id }}', '{{ host.name }}',
             '{{ host.status }}', '{{ ! host.get_html_state(text=None)}}',
