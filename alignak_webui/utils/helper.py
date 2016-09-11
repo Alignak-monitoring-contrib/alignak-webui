@@ -601,7 +601,7 @@ class Helper(object):
             button = button.replace("##action##", 'acknowledge')
             button = button.replace("##title##", _('Acknowledge this problem'))
             button = button.replace("##icon##", 'check')
-            if bo_object.is_problem:
+            if bo_object.state_id > 0:
                 if bo_object.acknowledged:
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
@@ -626,7 +626,7 @@ class Helper(object):
             button = button.replace("##action##", 'downtime')
             button = button.replace("##title##", _('Schedule a downtime'))
             button = button.replace("##icon##", 'ambulance')
-            if bo_object.is_problem:
+            if bo_object.state_id > 0:
                 if bo_object.downtime:
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:

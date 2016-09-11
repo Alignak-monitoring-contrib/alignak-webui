@@ -274,7 +274,7 @@ class Service(BackendElement):
         """
         An element is_problem if not ok / unknwown and hard state type
         """
-        if self.state_id in [1, 2] and self.state_type == "HARD":
+        if self.state_id in [1, 2, 3] and self.state_type == "HARD":
             return True
         return False
 
