@@ -131,7 +131,7 @@ class PluginActions(Plugin):
             for element_id in element_ids:
                 element = f(element_id)
                 if not element:
-                    status += _('%s element %s does not exist') % (elements_type, element_id)
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
                     continue
 
                 # Prepare post request ...
@@ -148,16 +148,17 @@ class PluginActions(Plugin):
                 if elements_type == 'service':
                     data.update({'host': element.host.id, 'service': element.id})
 
+                logger.info("Request an acknowledge, data: %s", data)
                 if not datamgr.add_acknowledge(data=data):
-                    status += _("Failed adding an acknowledge for %s") % element.name
+                    status += _("Failed adding an acknowledge for %s. ") % element.name
                     problem = True
                 else:
                     if elements_type == 'service':
                         data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Acknowledge sent for %s/%s.') % \
+                        status += _('Acknowledge sent for %s/%s. ') % \
                             (element.host.name, element.name)
                     else:
-                        status += _('Acknowledge sent for %s.') % \
+                        status += _('Acknowledge sent for %s. ') % \
                             element.name
 
         logger.info("Request an acknowledge, result: %s", status)
@@ -207,7 +208,7 @@ class PluginActions(Plugin):
             for element_id in element_ids:
                 element = f(element_id)
                 if not element:
-                    status += _('%s element %s does not exist') % (elements_type, element_id)
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
                     continue
 
                 # Prepare post request ...
@@ -220,16 +221,17 @@ class PluginActions(Plugin):
                 if elements_type == 'service':
                     data.update({'host': element.host.id, 'service': element.id})
 
+                logger.info("Request a recheck, data: %s", data)
                 if not datamgr.add_recheck(data=data):
-                    status += _("Failed adding a check request for %s") % element.name
+                    status += _("Failed adding a check request for %s. ") % element.name
                     problem = True
                 else:
                     if elements_type == 'service':
                         data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Check request sent for %s/%s.') % \
+                        status += _('Check request sent for %s/%s. ') % \
                             (element.host.name, element.name)
                     else:
-                        status += _('Check request sent for %s.') % \
+                        status += _('Check request sent for %s. ') % \
                             element.name
 
         logger.info("Request a re-check, result: %s", status)
@@ -284,7 +286,7 @@ class PluginActions(Plugin):
             for element_id in element_ids:
                 element = f(element_id)
                 if not element:
-                    status += _('%s element %s does not exist') % (elements_type, element_id)
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
                     continue
 
                 # Prepare post request ...
@@ -302,17 +304,17 @@ class PluginActions(Plugin):
                 if elements_type == 'service':
                     data.update({'host': element.host.id, 'service': element.id})
 
-                logger.critical("Request a downtime, data: %s", data)
+                logger.info("Request a downtime, data: %s", data)
                 if not datamgr.add_downtime(data=data):
-                    status += _("Failed adding a downtime for %s") % element.name
+                    status += _("Failed adding a downtime for %s. ") % element.name
                     problem = True
                 else:
                     if elements_type == 'service':
                         data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Downtime sent for %s/%s.') % \
+                        status += _('Downtime sent for %s/%s. ') % \
                             (element.host.name, element.name)
                     else:
-                        status += _('Downtime sent for %s.') % \
+                        status += _('Downtime sent for %s. ') % \
                             element.name
 
         logger.info("Request a downtime, result: %s", status)

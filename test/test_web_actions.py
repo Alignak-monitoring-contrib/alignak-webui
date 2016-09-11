@@ -179,8 +179,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/acknowledge/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Acknowledge sent for webui."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Acknowledge sent for webui. ")
 
         # Acknowledge a service
         service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -195,8 +195,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/acknowledge/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Acknowledge sent for webui/Shinken2-arbiter. ")
 
         # Acknowledge several services
         service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -212,20 +212,26 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/acknowledge/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Acknowledge sent for webui/Shinken2-arbiter.Acknowledge sent for webui/Shinken2-reactionner."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Acknowledge sent for webui/Shinken2-arbiter. Acknowledge sent for webui/Shinken2-reactionner. ")
 
-        print 'get page /downtime/form/add'
-        response = self.app.get('/downtime/form/add')
-        response.mustcontain(
-            '<form data-item="downtime" data-action="add"'
-        )
+        # Acknowledge several services
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
+        data = {
+            "action": "add",
+            "elements_type": 'service',
+            "element_id": [service1.id, service2.id, 'test'],
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "comment": "User comment",
+        }
+        response = self.app.post('/acknowledge/add', data)
+        print response
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Acknowledge sent for webui/Shinken2-arbiter. Acknowledge sent for webui/Shinken2-reactionner. service element test does not exist. ")
 
-        print 'get page /recheck/form/add'
-        response = self.app.get('/recheck/form/add')
-        response.mustcontain(
-            '<form data-item="recheck" data-action="recheck" '
-        )
 
     def test_downtime(self):
         print ''
@@ -284,8 +290,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/downtime/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Downtime sent for webui."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Downtime sent for webui. ")
 
         # downtime a service
         service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -301,8 +307,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/downtime/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Downtime sent for webui/Shinken2-arbiter."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Downtime sent for webui/Shinken2-arbiter. ")
 
         # downtime several services
         service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -310,7 +316,7 @@ class tests_actions(unittest2.TestCase):
         data = {
             "action": "add",
             "elements_type": 'service',
-            "element_id": [service1.id, service2.id],
+            "element_id": [service1.id, service2.id, 'test'],
             "start_time": now,
             "end_time": later,
             "fixed": False,
@@ -319,20 +325,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/downtime/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Downtime sent for webui/Shinken2-arbiter.Downtime sent for webui/Shinken2-reactionner."
-
-        print 'get page /downtime/form/add'
-        response = self.app.get('/downtime/form/add')
-        response.mustcontain(
-            '<form data-item="downtime" data-action="add"'
-        )
-
-        print 'get page /recheck/form/add'
-        response = self.app.get('/recheck/form/add')
-        response.mustcontain(
-            '<form data-item="recheck" data-action="recheck" '
-        )
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Downtime sent for webui/Shinken2-arbiter. Downtime sent for webui/Shinken2-reactionner. service element test does not exist. ")
 
     def test_recheck(self):
         print ''
@@ -380,8 +374,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/recheck/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Check request sent for webui. ")
 
         # Recheck a service
         service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -392,8 +386,8 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/recheck/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Check request sent for webui/Shinken2-arbiter. ")
 
         # Recheck several services
         service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -401,13 +395,13 @@ class tests_actions(unittest2.TestCase):
         data = {
             "action": "add",
             "elements_type": 'service',
-            "element_id": [service1.id, service2.id],
+            "element_id": [service1.id, service2.id, 'test'],
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)
         print response
-        assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter.Check request sent for webui/Shinken2-reactionner."
+        self.assertEqual(response.json['status'], "ok")
+        self.assertEqual(response.json['message'], "Check request sent for webui/Shinken2-arbiter. Check request sent for webui/Shinken2-reactionner. service element test does not exist. ")
 
 
 if __name__ == '__main__':
