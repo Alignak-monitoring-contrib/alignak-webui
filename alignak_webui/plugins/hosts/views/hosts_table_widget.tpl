@@ -53,7 +53,7 @@
 
             <td>
                %if current_user.is_power():
-                  {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+                  {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
                %end
             </td>
          </tr>
