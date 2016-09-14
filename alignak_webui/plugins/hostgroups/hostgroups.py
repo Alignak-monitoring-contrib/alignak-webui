@@ -109,7 +109,9 @@ class PluginHostsGroups(Plugin):
                                                                   % element_id)
 
         hostgroup.real_state = datamgr.get_hostgroup_real_state(hostgroup)
-        logger.debug(" - hostgroup real state: %d -> %s", hostgroup.real_state, hostgroup.real_status)
+        logger.debug(
+            " - hostgroup real state: %d -> %s", hostgroup.real_state, hostgroup.real_status
+        )
 
         if no_json:
             return hostgroup.real_status

@@ -866,7 +866,9 @@ class DataManager(object):
             real_state = max(real_state, host_real_state)
 
         # Hosts group real state from group members
-        group_members = self.get_hostgroups(search={'where': {'_parent': hostgroup.id}}, all_elements=True)
+        group_members = self.get_hostgroups(
+            search={'where': {'_parent': hostgroup.id}}, all_elements=True
+        )
         for group in group_members:
             real_state = max(real_state, self.get_hostgroup_real_state(group))
 
