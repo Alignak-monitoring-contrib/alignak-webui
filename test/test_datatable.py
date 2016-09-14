@@ -601,7 +601,7 @@ class TestDatatableRealms(unittest2.TestCase):
             '<th data-name="alias" data-type="string">Realm alias</th>',
             '<th data-name="default" data-type="boolean">Default realm</th>',
             '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="parent" data-type="objectid">Parent</th>',
+            '<th data-name="_parent" data-type="objectid">Parent</th>',
             '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
             '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
             '<th data-name="services_critical_threshold" data-type="integer">Services critical threshold</th>',
