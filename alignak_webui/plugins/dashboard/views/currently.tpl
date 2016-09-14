@@ -784,6 +784,7 @@ div.pull-right a, div.pull-right div {
       panels[$(this).parent().attr('id')].collapsed = true;
       $(this).find('.fa-minus-square').removeClass('fa-minus-square').addClass('fa-plus-square');
       save_user_preference('currently_panels', JSON.stringify(panels), function() {
+         wait_message('', false)
          // Page refresh required
          refresh_required = true;
       });
@@ -794,6 +795,7 @@ div.pull-right a, div.pull-right div {
       panels[$(this).parent().attr('id')].collapsed = false;
       $(this).find('.fa-plus-square').removeClass('fa-plus-square').addClass('fa-minus-square');
       save_user_preference('currently_panels', JSON.stringify(panels), function() {
+         wait_message('', false)
          // Page refresh required
          refresh_required = true;
       });
@@ -811,6 +813,7 @@ div.pull-right a, div.pull-right div {
          $(this).children('i').hide();
       }
       save_user_preference('currently_graphs', JSON.stringify(graphs), function() {
+         wait_message('', false)
          // Page refresh required
          refresh_required = true;
       });
@@ -826,6 +829,7 @@ div.pull-right a, div.pull-right div {
          $(this).children('i').hide();
       }
       save_user_preference('currently_graphs', JSON.stringify(graphs), function() {
+         wait_message('', false)
          // Page refresh required
          refresh_required = true;
       });
@@ -841,6 +845,7 @@ div.pull-right a, div.pull-right div {
          $(this).children('i').hide();
       }
       save_user_preference('currently_graphs', JSON.stringify(graphs), function() {
+         wait_message('', false)
          // Page refresh required
          refresh_required = true;
       });
