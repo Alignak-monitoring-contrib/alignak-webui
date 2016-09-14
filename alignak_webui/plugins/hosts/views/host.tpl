@@ -289,8 +289,6 @@
       <div class="panel panel-default">
          <div class="panel-body">
             <i class="fa fa-2x fa-spin fa-gear"></i>
-            %disabled_ack = '' if host.is_problem and not host.acknowledged else 'disabled'
-            %disabled_fix = '' if host.is_problem and host.event_handler_enabled and host.event_handler else 'disabled'
             <span class="alert alert-danger">
                {{_('This element has an important impact on your business, you may acknowledge it or try to fix it.')}}
             </span>

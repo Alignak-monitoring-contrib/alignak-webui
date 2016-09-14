@@ -33,9 +33,11 @@
       %panel_id = service.ls_grafana_panelid
       <iframe class="embed-responsive-item" src="{{grafana_url}}/dashboard-solo/db/host_{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="240" frameborder="0"></iframe>
       %else:
+      <!--
       <div class="alert alert-info">
          <p class="font-blue">{{_('No Grafana panel available for %s.' % service.name)}}</p>
       </div>
+      -->
       %end
    %end
 %end
