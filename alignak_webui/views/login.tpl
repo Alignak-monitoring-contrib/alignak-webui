@@ -44,7 +44,7 @@
 
    <body>
       <div class="container" style="padding-top: 10vh;">
-         <div class="col-sm-6 col-sm-offset-3">
+         <div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3">
             <div class="login-panel panel panel-default" style="padding: 2vh;">
                <div class="panel-heading">
                   <h2>{{request.app.config.get('about_name', manifest['name'])}}</h2>
