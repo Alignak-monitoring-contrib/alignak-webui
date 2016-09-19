@@ -162,7 +162,6 @@ def enable_cors(fn):
     return _enable_cors
 
 
-# noinspection PyUnusedLocal
 @route('/external/<widget_type>/<identifier>/<action:path>', method=['GET', 'POST', 'OPTIONS'])
 @route('/external/<widget_type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
 @enable_cors

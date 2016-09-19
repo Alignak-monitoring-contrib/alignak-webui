@@ -57,6 +57,7 @@ Use cases:
 from __future__ import print_function
 
 import os
+import sys
 import traceback
 
 # Logs
@@ -94,13 +95,22 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
     cfg_file = os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE')
     print("Application configuration file name from environment: %s" % cfg_file)
 
-# Read configuration file
+# Read configuration file (let cfg_file as None to get from several dirs)
 app_config = Settings(cfg_file)
 config_file = app_config.read(manifest['name'])
 print("Configuration read from: %s" % config_file)
 if not app_config:  # pragma: no cover, should never happen
     print("Required configuration file not found.")
     exit(1)
+
+# Depending upon installed platform
+log_dir = "/usr/local/var/log/alignak-webui"
+if not os.path.isdir(log_dir):
+    log_dir = "/var/log/alignak-webui"
+
+# Store application name in the configuration
+if not app_config.get('logs.dir', None):
+    app_config['logs.dir'] = log_dir
 
 # Store application name in the configuration
 app_config['name'] = manifest['name']
@@ -148,13 +158,14 @@ def main():  # pragma: no cover, not mesured by coverage!
     if '<cfg_file>' in args:
         cfg_file = args['<cfg_file>']
 
+        # Only the first file if a list is provided
         if cfg_file and isinstance(cfg_file, list):
             cfg_file = cfg_file[0]
 
         # Read configuration file
         app_config = Settings(cfg_file)
-        new_config_file = app_config.read(manifest['name'])
-        print("Configuration read from: %s" % new_config_file)
+        read_config_file = app_config.read(manifest['name'])
+        print("Configuration read from: %s" % read_config_file)
         if not app_config:  # pragma: no cover, should never happen
             print("Required configuration file not found.")
             exit(1)
