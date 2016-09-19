@@ -7,25 +7,30 @@ The application runs without any extra configuration file with default parameter
 
 Application user interface layout
 ---------------------------------
+Material design:
+
+    - htdocs/css/material directory contains the files used to configure the material look and
+    feel of the application. Those files may be changed with the result of the rebuild explained in
+    the develop part of this documentation (see `Application UI design`_).
+
 Css files:
 
-    - alignak_webui.css
-    - alignak_webui-items.css, items icons styles
+    - alignak_webui.css, contains the main classes used by the Web UI
+    - alignak_webui-items.css, contains the CSS classes used for the items icons styles as declared
+    in the application configuration file (see hereunder)
 
 Javascript files:
 
     - alignak_webui-layout.js, contains some colors definitions for the externally embedded widgets
 
-Images:
-    -
-    -
-    TO BE COMPLETED!
-
 Configuration file location
 ---------------------------
-The application can be configured thanks to a configuration file. When installed for an end user, the configuration file ``settings.cfg`` is installed on your system in a directory according to whether your system is a Linux (Debian) or Unix (FreeBSD) distribution.
+The application can be configured thanks to a configuration file. When installed for an end user,
+the configuration file ``settings.cfg`` is located on your system in a directory according to
+whether your system is a Linux (Debian) or Unix (FreeBSD) distribution. This location is determined
+by the Python setup.py script.
 
-The application searches in several location for a configuration file:
+Thus, the application searches in several location for a configuration file:
 
     - /usr/local/etc/alignak-webui/settings.cfg
     - /etc/alignak-webui/settings.cfg
@@ -34,12 +39,16 @@ The application searches in several location for a configuration file:
     - ./alignak-webui/etc/settings.cfg
     - ./settings.cfg
 
-Each file found takes precedence over the previous files. As of it, for the same parameter with different values in */usr/local/etc/alignak-webui/settings.cfg* and *./settings.cfg*, the retained value will be the one configured in *./settings.cfg*.
+Each file found takes precedence over the previous files. As of it, for the same parameter with
+different values in */usr/local/etc/alignak-webui/settings.cfg* and *./settings.cfg*, the retained
+value will be the one configured in *./settings.cfg*.
 
 
 Configuration file environment variable
 ---------------------------------------
-If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by the application as the only configuration file name to be loaded by the application. As of it, it allows to override the default file list.
+If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by
+the application as the only configuration file name to be loaded by the application. As of it, it
+allows to override the default file list.
 
 
 Configuration file format
@@ -82,10 +91,14 @@ This section contains parameters to configure the application.
 
     * **port**, TCP port the application listens to (default: *8868*)
 
-    * **about_name**, application name in About modal box (default is defined in Alignak WebUI package __init__.py)
-    * **about_version**, application name in About modal box (default is defined in Alignak WebUI package __init__.py)
-    * **about_copyright**, application copyright in About modal box (default is defined in Alignak WebUI package __init__.py)
-    * **about_release**, application release notes in About modal box (default is defined in Alignak WebUI package __init__.py)
+    * **about_name**, application name in About modal box (default is defined in Alignak WebUI
+    package __init__.py)
+    * **about_version**, application name in About modal box (default is defined in Alignak WebUI
+    package __init__.py)
+    * **about_copyright**, application copyright in About modal box (default is defined in Alignak
+    WebUI package __init__.py)
+    * **about_release**, application release notes in About modal box (default is defined in
+    Alignak WebUI package __init__.py)
 
     * **port**, TCP port the application listens to (default: *8868*)
 
@@ -109,15 +122,23 @@ This section contains parameters to configure the application.
 
     * **cors_acao**, CORS Access Control Allow Origin for external application access (default: *127.0.0.1*).
 
+    * **grafana**, Grafana application URL (default: empty value). When this parameter is present,
+    the WebUI will try to display Grafana panels for the hosts/services if a panel definition exists
+in the data fetched form the Alignak Backend.
+
 
 [logs] section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section contains parameters to configure the application logs. This section is commented to understand how the parameters may be changed.
+This section contains parameters to configure the application logs. This section is commented to
+understand how the parameters may be changed.
 
-The default logging is storing INFO level logs in a file named *alignak-webui.log* in the */var/log/alignak-webui* directory. A log file is built each day on a 6 days rotating schema.
+The default logging is storing INFO level logs in a file named *alignak-webui.log* in the
+*/user/local/var/log/alignak-webui* (first) or */var/log/alignak-webui* (second) directory.
+A log file is built each day on a 6 days rotating schema.
 
-**Note**: if the required log directory is not writable for the application, the log file is built in the current working directory.
+**Note**: if the log directory does not exist or is not writable for the application, the log
+file is built in the current working directory.
 
 
 [buttons] section

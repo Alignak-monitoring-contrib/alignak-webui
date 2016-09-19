@@ -64,18 +64,12 @@ install_requires = [
 # Define paths
 if 'linux' in sys.platform or 'sunos5' in sys.platform:
     installation_paths = {
-        'bin':     "/usr/bin",
-        'var':     "/var/lib/alignak-webui/",
         'etc':     "/etc/alignak-webui",
-        'run':     "/var/run/alignak-webui",
         'log':     "/var/log/alignak-webui"
     }
 elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
     installation_paths = {
-        'bin':     "/usr/local/bin",
-        'var':     "/usr/local/libexec/alignak-webui",
         'etc':     "/usr/local/etc/alignak-webui",
-        'run':     "/usr/local/var/run/alignak-webui",
         'log':     "/usr/local/var/log/alignak-webui"
     }
 else:
