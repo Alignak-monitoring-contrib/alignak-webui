@@ -74,7 +74,7 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
     """
     Configure handler for file logging ...
     """
-    # Log file directory
+    # Log file directory exists
     if not os.path.isdir(path):
         # noinspection PyBroadException
         try:  # pragma: no cover - not testable
@@ -82,7 +82,9 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
         except Exception:
             path = '.'
 
-    # logger = getLogger(__pkg_name__)
+    # and log file directory is writeable
+    if not os.access(path, os.W_OK):
+        path = '.'
 
     # Store logs in a daily file, keeping 6 days along ...
     fh = TimedRotatingFileHandler(
