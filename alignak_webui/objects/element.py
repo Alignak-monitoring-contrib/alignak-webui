@@ -445,7 +445,7 @@ class BackendElement(object):
                             linked_object = object_class(params[key])
                             setattr(self, '_linked_' + key, linked_object)
                         else:
-                            logger.warning(
+                            logger.debug(
                                 "__init__ %s: %s, object exists in cache",
                                 key, object_class._cache[params[key]['_id']]
                             )

@@ -1089,11 +1089,11 @@ class DataManager(object):
             })
 
         try:
-            logger.error("get_services, search: %s", search)
+            logger.debug("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
-            logger.debug("get_services, none found")
+            logger.error("get_services, none found")
 
         return []
 
