@@ -52,7 +52,7 @@ Releases
 Documentation
 =============
 
-You can find online documentation on `Read The Docs <http://alignak-web-ui.readthedocs.org/en/latest/index.html>`_ and in the */docs* directory.
+You can find online documentation on `Read The Docs <http://alignak-web-ui.readthedocs.io/?badge=latest>`_ and in the */docs* directory.
 
 
 Bugs, issues and contributing
