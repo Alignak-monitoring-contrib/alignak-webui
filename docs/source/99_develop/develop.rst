@@ -1,3 +1,7 @@
+.. raw:: LaTeX
+
+    \newpage
+
 .. _develop:
 
 Development

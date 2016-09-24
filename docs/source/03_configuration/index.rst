@@ -1,27 +1,13 @@
-.. _config:
+.. raw:: LaTeX
+
+    \newpage
+
+.. _configuration:
 
 Configuration
 =============
 
 The application runs without any extra configuration file with default parameters. Nevertheless, the application is best used when suited to user's neeeds.
-
-Application user interface layout
----------------------------------
-Material design:
-
-    - htdocs/css/material directory contains the files used to configure the material look and
-    feel of the application. Those files may be changed with the result of the rebuild explained in
-    the develop part of this documentation (see `Application UI design`_).
-
-Css files:
-
-    - alignak_webui.css, contains the main classes used by the Web UI
-    - alignak_webui-items.css, contains the CSS classes used for the items icons styles as declared
-    in the application configuration file (see hereunder)
-
-Javascript files:
-
-    - alignak_webui-layout.js, contains some colors definitions for the externally embedded widgets
 
 Configuration file location
 ---------------------------
@@ -43,12 +29,9 @@ Each file found takes precedence over the previous files. As of it, for the same
 different values in */usr/local/etc/alignak-webui/settings.cfg* and *./settings.cfg*, the retained
 value will be the one configured in *./settings.cfg*.
 
-
-Configuration file environment variable
----------------------------------------
 If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by
-the application as the only configuration file name to be loaded by the application. As of it, it
-allows to override the default file list.
+the application as the only configuration file name to be loaded by the application. It allows to
+**override the default file list**.
 
 
 Configuration file format
@@ -72,14 +55,14 @@ A percent sign can be inserted with %%.
 
 
 Configuration parameters
--------------------------
+------------------------
 
 **Note**: The default configuration file contains a commented copy of all the available parameters.
 
 **Note**: please do not change these parameters unless you know what you're doing!
 
 [Alignak-WebUI] section
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 This section contains parameters to configure the application.
 
@@ -91,14 +74,13 @@ This section contains parameters to configure the application.
 
     * **port**, TCP port the application listens to (default: *8868*)
 
-    * **about_name**, application name in About modal box (default is defined in Alignak WebUI
-    package __init__.py)
-    * **about_version**, application name in About modal box (default is defined in Alignak WebUI
-    package __init__.py)
-    * **about_copyright**, application copyright in About modal box (default is defined in Alignak
-    WebUI package __init__.py)
-    * **about_release**, application release notes in About modal box (default is defined in
-    Alignak WebUI package __init__.py)
+    * **about_name**, application name in About modal box (default is defined in source code)
+
+    * **about_version**, application name in About modal box (default is defined in source code)
+
+    * **about_copyright**, application copyright in About modal box (default is defined in source code)
+
+    * **about_release**, application release notes in About modal box (default is defined in source code)
 
     * **port**, TCP port the application listens to (default: *8868*)
 
@@ -124,11 +106,11 @@ This section contains parameters to configure the application.
 
     * **grafana**, Grafana application URL (default: empty value). When this parameter is present,
     the WebUI will try to display Grafana panels for the hosts/services if a panel definition exists
-in the data fetched form the Alignak Backend.
+    in the data fetched from the Alignak Backend.
 
 
 [logs] section
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 This section contains parameters to configure the application logs. This section is commented to
 understand how the parameters may be changed.
@@ -142,13 +124,32 @@ file is built in the current working directory.
 
 
 [buttons] section
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 This section defines patterns used by the application to build the buttons commands toolbar.
 **TO BE COMPLETED**
 
 [items] section
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 This section defines patterns used by the application to build the elements icons.
 **TO BE COMPLETED**
+
+Application interface layout
+----------------------------
+Material design:
+
+    - htdocs/css/material directory contains the files used to configure the material look and
+    feel of the application. Those files may be changed with the result of the rebuild explained in
+    the develop part of this documentation (see `Application UI design`_).
+
+Css files:
+
+    - alignak_webui.css, contains the main classes used by the Web UI
+    - alignak_webui-items.css, contains the CSS classes used for the items icons styles as declared
+    in the application configuration file (see hereunder)
+
+Javascript files:
+
+    - alignak_webui-layout.js, contains some colors definitions for the externally embedded widgets
+

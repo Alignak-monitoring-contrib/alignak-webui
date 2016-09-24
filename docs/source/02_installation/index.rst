@@ -1,4 +1,8 @@
-.. _install:
+.. raw:: LaTeX
+
+    \newpage
+
+.. _02_installation:
 
 Installation
 ============
@@ -9,7 +13,7 @@ Requirements
 
 To use this application, you first need to install some Python modules that are listed in the ``requirements.txt`` file:
 
-    .. literalinclude:: ../../requirements.txt
+    .. literalinclude:: ../../../requirements.txt
 
 **Note**: if you proceed to an end-user installation with pip, the required modules are automatically installed.
 
