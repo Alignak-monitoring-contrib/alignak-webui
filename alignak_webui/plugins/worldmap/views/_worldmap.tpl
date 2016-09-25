@@ -61,7 +61,11 @@
                 text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
             } else {
                 %if current_user.is_power():
-                text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.id+'"><i class="fa fa-check"></i></button>';
+                text += '<button class="btn btn-raised btn-xs"';
+                text += 'data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top"';
+                text += 'title="{{_('Acknowledge this problem')}}"';
+                text += 'data-element_type="host" data-name="'+this.name+'" data-element="'+this.id+'">';
+                text += '<i class="fa fa-check"></i></button>';
                 %else:
                 text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
                 %end
@@ -167,7 +171,11 @@
                 text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
             } else {
                 %if current_user.is_power():
-                text += '<button class="btn btn-default btn-xs" data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top" title="{{_('Acknowledge this problem')}}" data-name="'+this.name+'" data-element="'+this.id+'"><i class="fa fa-check"></i></button>';
+                text += '<button class="btn btn-raised btn-xs" ';
+                text += 'data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top"';
+                text += 'title="{{_('Acknowledge this problem')}}"';
+                text += 'data-element_type="service" data-name="'+this.name+'" data-element="'+this.id+'">';
+                text += '<i class="fa fa-check"></i></button>';
                 %else:
                 text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
                 %end
