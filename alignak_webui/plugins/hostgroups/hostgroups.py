@@ -53,7 +53,7 @@ class PluginHostsGroups(Plugin):
                 'name': 'Host group members',
                 'route': '/hostgroup/members/<element_id>'
             },
-            'get_real_status': {
+            'get_overall_state': {
                 'name': 'Host group status',
                 'route': '/hostgroup/status/<element_id>'
             },
@@ -90,7 +90,7 @@ class PluginHostsGroups(Plugin):
             'groups': groups
         }
 
-    def get_real_status(self, element_id=None, element=None, no_json=False):
+    def get_overall_state(self, element_id=None, element=None, no_json=False):
         # pylint: disable=protected-access
         """
         Get the hostgroup overall status
@@ -108,17 +108,17 @@ class PluginHostsGroups(Plugin):
                     return self.webui.response_invalid_parameters(_('Element does not exist: %s')
                                                                   % element_id)
 
-        hostgroup.real_state = datamgr.get_hostgroup_real_state(hostgroup)
+        hostgroup.overall_state = datamgr.get_hostgroup_overall_state(hostgroup)
         logger.debug(
-            " - hostgroup real state: %d -> %s", hostgroup.real_state, hostgroup.real_status
+            " - hostgroup real state: %d -> %s", hostgroup.overall_state, hostgroup.overall_state
         )
 
         if no_json:
-            return hostgroup.real_status
+            return hostgroup.overall_state
 
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps({'state': hostgroup.real_state, 'status': hostgroup.real_status})
+        return json.dumps({'state': hostgroup.overall_state, 'status': hostgroup.overall_state})
 
     def get_group_members(self, element_id):
         """

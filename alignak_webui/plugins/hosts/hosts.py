@@ -241,6 +241,9 @@ class PluginHosts(Plugin):
             search={'where': {'host': host.id}}, embedded=True, all_elements=True
         )
 
+        # Update host overall state
+        datamgr.get_host_overall_state(host)
+
         # Get host dependencies
         children = datamgr.get_hostdependencys(
             search={'where': {'hosts': host.id}}

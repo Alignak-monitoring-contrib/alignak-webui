@@ -57,7 +57,7 @@ class PluginRealms(Plugin):
 
         super(PluginRealms, self).__init__(app, cfg_filenames)
 
-    def get_real_status(self, element_id=None, element=None, no_json=False):
+    def get_overall_state(self, element_id=None, element=None, no_json=False):
         # pylint: disable=protected-access
         """
         Get the realm overall status
@@ -75,15 +75,15 @@ class PluginRealms(Plugin):
                     return self.webui.response_invalid_parameters(_('Element does not exist: %s')
                                                                   % element_id)
 
-        realm.real_state = datamgr.get_realm_real_state(realm)
-        logger.debug(" - realm real state: %d -> %s", realm.real_state, realm.real_status)
+        realm.overall_state = datamgr.get_realm_overall_state(realm)
+        logger.debug(" - realm real state: %d -> %s", realm.overall_state, realm.overall_state)
 
         if no_json:
-            return realm.real_status
+            return realm.overall_state
 
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps({'state': realm.real_state, 'status': realm.real_status})
+        return json.dumps({'state': realm.overall_state, 'status': realm.overall_state})
 
     def get_realm_members(self, element_id):
         """

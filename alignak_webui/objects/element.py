@@ -749,7 +749,7 @@ class BackendElement(object):
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False, object_type=None, object_item=None,
-                       size='', status_field=None):
+                       size='', use_status=None):
         # pylint: disable=too-many-arguments
         """
         Uses the ElementState singleton to display HTML state for an item
@@ -762,7 +762,7 @@ class BackendElement(object):
 
         return ElementState().get_html_state(object_type, object_item,
                                              extra, icon, text, title, disabled, size,
-                                             status_field)
+                                             use_status)
 
     def get_date(self, _date, fmt=None, duration=False):
         """

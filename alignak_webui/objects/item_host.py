@@ -53,7 +53,7 @@ class Host(BackendElement):
     _dates = BackendElement._dates + ['ls_last_state_change', 'ls_last_check', 'ls_next_check']
 
     # Converting real state identifier to text status
-    real_state_to_status = [
+    overall_state_to_status = [
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
@@ -77,8 +77,8 @@ class Host(BackendElement):
 
         super(Host, self).__init__(params, date_format, embedded)
 
-        if not hasattr(self, '_real_state'):
-            setattr(self, '_real_state', 0)
+        if not hasattr(self, '_overall_state'):
+            setattr(self, '_overall_state', 0)
 
     @property
     def members(self):
@@ -284,7 +284,7 @@ class Host(BackendElement):
         return False
 
     @property
-    def real_state(self):
+    def overall_state(self):
         """
         Get the element real worst state, including:
         - the acknowledged state
@@ -297,31 +297,31 @@ class Host(BackendElement):
         - an host acknowledged
         - an host up
         """
-        self._real_state = 0
+        self._overall_state = 0
 
         if self.acknowledged:
-            self._real_state = 1
+            self._overall_state = 1
         elif self.downtime:
-            self._real_state = 2
+            self._overall_state = 2
         else:
             if self.state == 'UNREACHABLE':
-                self._real_state = 3
+                self._overall_state = 3
             elif self.state == 'DOWN':
-                self._real_state = 4
+                self._overall_state = 4
 
-        return self._real_state
+        return self._overall_state
 
-    @real_state.setter
-    def real_state(self, real_state):
+    @overall_state.setter
+    def overall_state(self, overall_state):
         """
-        Set Item object real_state
+        Set Item object overall_state
         """
-        self._real_state = real_state
+        self._overall_state = overall_state
 
     @property
-    def real_status(self):
+    def overall_status(self):
         """Return real status string from the real state identifier"""
-        return self.real_state_to_status[self._real_state]
+        return self.overall_state_to_status[self._overall_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

@@ -602,18 +602,22 @@ class Datatable(object):
                     row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
                     continue
 
-                if field['data'] == 'real_status':
+                if field['data'] == 'overall_state':
                     # Get elements from the data manager
-                    f_get_real_state = getattr(self.datamgr, 'get_%s_real_state' % self.object_type)
-                    if f_get_real_state:
-                        f_get_real_state(bo_object)
+                    f_get_overall_state = getattr(
+                        self.datamgr, 'get_%s_overall_state' % self.object_type
+                    )
+                    if f_get_overall_state:
+                        overall_state = f_get_overall_state(bo_object)
 
                         # Get element state configuration
                         row[field['data']] = ElementState().get_html_state(
                             self.object_type, bo_object,
-                            text=None, status_field='real_status'
+                            text=None, use_status=bo_object.overall_state_to_status[overall_state]
                         )
-                        row['DT_RowClass'] = "table-row-%s" % (bo_object[field['data']].lower())
+                        row['DT_RowClass'] = "table-row-%s" % (
+                            bo_object.overall_state_to_status[overall_state].lower()
+                        )
                     else:
                         row[field['data']] = 'XxX'
                     continue

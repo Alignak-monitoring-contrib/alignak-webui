@@ -50,7 +50,7 @@ class Service(BackendElement):
     status_property = 'ls_state'
 
     # Converting real state identifier to text status
-    real_state_to_status = [
+    overall_state_to_status = [
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
@@ -73,8 +73,8 @@ class Service(BackendElement):
 
         super(Service, self).__init__(params, date_format, embedded)
 
-        if not hasattr(self, '_real_state'):
-            setattr(self, '_real_state', 0)
+        if not hasattr(self, '_overall_state'):
+            setattr(self, '_overall_state', 0)
 
     @property
     def endpoint(self):
@@ -279,7 +279,7 @@ class Service(BackendElement):
         return False
 
     @property
-    def real_state(self):
+    def overall_state(self):
         """
         Get the element real worst state, including:
         - the acknowledged state
@@ -294,30 +294,30 @@ class Service(BackendElement):
 
         Note that unknown state services are considered as warning!
         """
-        real_state = 0
+        overall_state = 0
 
         if self.acknowledged:
-            real_state = 1
+            overall_state = 1
         elif self.downtime:
-            real_state = 2
+            overall_state = 2
         else:
             if self.state == 'WARNING':
-                real_state = 3
+                overall_state = 3
             elif self.state == 'CRITICAL':
-                real_state = 4
+                overall_state = 4
             elif self.state != 'UNKNOWN':
-                real_state = 3
+                overall_state = 3
 
-        return real_state
+        return overall_state
 
-    @real_state.setter
-    def real_state(self, real_state):
+    @overall_state.setter
+    def overall_state(self, overall_state):
         """
-        Set Item object real_state
+        Set Item object overall_state
         """
-        self._real_state = real_state
+        self._overall_state = overall_state
 
     @property
-    def real_status(self):
+    def overall_status(self):
         """Return real status string from the real state identifier"""
-        return self.real_state_to_status[self._real_state]
+        return self.overall_state_to_status[self._overall_state]

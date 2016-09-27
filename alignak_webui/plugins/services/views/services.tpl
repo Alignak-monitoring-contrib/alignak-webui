@@ -1,6 +1,8 @@
 %setdefault('debug', False)
 %# When layout is False, this template is embedded
 %setdefault('layout', True)
+%# When in_host_view is True, list the services in the host view (do not include the host column)
+%setdefault('in_host_view', False)
 
 %from bottle import request
 %search_string = request.query.get('search', '')
@@ -47,7 +49,9 @@
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
+               %if not in_host_view:
                <th>{{_('Host')}}</th>
+               %end
                <th>{{_('Service')}}</th>
                <th>{{_('Business impact')}}</th>
                <th></th>
@@ -59,10 +63,18 @@
                %for service in elts:
                <tr id="#{{service.id}}">
                   <td title="{{service.alias}}">
+                     %extra=''
+                     %if service.acknowledged:
+                     %extra += _(' and acknowledged')
+                     %end
+                     %if service.downtime:
+                     %extra += _(' and in scheduled downtime')
+                     %end
                      %title = "%s - %s (%s)" % (service.state, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
-                     {{! service.get_html_state(text=None, title=title)}}
+                     {{! service.get_html_state(text=None, title=title, extra=extra)}}
                   </td>
 
+                  %if not in_host_view:
                   <td>
                      %if service.host != 'host':
                      <small>{{! service.host.get_html_link()}}</small>
@@ -70,6 +82,7 @@
                      <small>{{_('Unknown host')}} - {{service.host}}</small>
                      %end
                   </td>
+                  %end
 
                   <td>
                      <small>{{! service.get_html_link()}}</small>

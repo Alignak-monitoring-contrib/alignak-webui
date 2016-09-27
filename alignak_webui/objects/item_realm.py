@@ -42,7 +42,7 @@ class Realm(BackendElement):
     _cache = {}
 
     # Converting real state identifier to text status
-    real_state_to_status = [
+    overall_state_to_status = [
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
@@ -65,18 +65,18 @@ class Realm(BackendElement):
         return self._level
 
     @property
-    def real_state(self):
+    def overall_state(self):
         """Return real state identifier"""
-        return self._real_state
+        return self._overall_state
 
-    @real_state.setter
-    def real_state(self, real_state):
+    @overall_state.setter
+    def overall_state(self, overall_state):
         """
-        Set Item object real_state
+        Set Item object overall_state
         """
-        self._real_state = real_state
+        self._overall_state = overall_state
 
     @property
-    def real_status(self):
+    def overall_state(self):
         """Return real status string from the real state identifier"""
-        return self.real_state_to_status[self._real_state]
+        return self.overall_state_to_status[self._overall_state]

@@ -96,21 +96,21 @@
          </tr>
          <tr>
             <td><strong>{{_('Output:')}}</strong></td>
-            <td class="popover-dismiss popover-large"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s check output') % host.output}}"
-                  data-content="{{_('%s<br/>%s') % (host.output, host.long_output.replace('\n', '<br/>') if host.long_output else '')}}"
-                  >
+            <td>
                {{! host.output}}
             </td>
          </tr>
+         %if host.long_output:
+         <tr>
+            <td><strong>{{_('Long output:')}}</strong></td>
+            <td>
+               {{! host.long_output}}
+            </td>
+         </tr>
+         %end
          <tr>
             <td><strong>{{_('Performance data:')}}</strong></td>
-            <td class="popover-dismiss popover-large ellipsis"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s performance data') % host.perf_data}}"
-                  data-content=" {{host.perf_data if host.perf_data else '(none)'}}"
-                  >
+            <td>
                 {{host.perf_data if host.perf_data else '(none)'}}
             </td>
          </tr>

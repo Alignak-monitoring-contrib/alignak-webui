@@ -173,7 +173,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             return None
 
         def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
-                           title='', disabled=False, size='', status_field=None):
+                           title='', disabled=False, size='', use_status=None):
             # pylint: disable=too-many-arguments
             # Yes, but it is needed ;)
             # pylint: disable=too-many-locals, too-many-return-statements
@@ -218,8 +218,8 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
                 return 'n/a - icon/text'
 
             status = object_item.status
-            if status_field:
-                status = object_item[status_field]
+            if use_status:
+                status = use_status
             status = status.replace('.', '_').lower()
             if object_type in self.get_objects_types():
                 if status not in self.get_icon_states(object_type):
@@ -310,11 +310,11 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
         return ElementState.instance
 
     def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
-                       title='', disabled=False, size='', status_field=None):
+                       title='', disabled=False, size='', use_status=None):
         # pylint: disable=too-many-arguments
         """
         Base function used by Item objects
         """
         return self.instance.get_html_state(object_type, object_item,
                                             extra, icon, text, title, disabled, size,
-                                            status_field)
+                                            use_status)

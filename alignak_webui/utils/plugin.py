@@ -488,18 +488,18 @@ class Plugin(object):
         # count = min(count, total)
 
         # Get elements from the data manager
-        f_get_real_status = getattr(self, 'get_real_status', None)
+        f_get_overall_state = getattr(self, 'get_overall_state', None)
 
         # Get element state configuration
         items_states = ElementState()
 
         tree_items = []
         for item in elts:
-            real_status = 'unknown'
-            if f_get_real_status:
-                real_status = f_get_real_status(element=item, no_json=True)
+            overall_state = 'unknown'
+            if f_get_overall_state:
+                overall_state = f_get_overall_state(element=item, no_json=True)
 
-            cfg_state = items_states.get_icon_state(self.backend_endpoint, real_status)
+            cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_state)
             logger.debug("Item state: %s", cfg_state)
             if not cfg_state:
                 cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
@@ -521,7 +521,7 @@ class Plugin(object):
                     "disabled": False
                 },
                 'data': {
-                    'status': real_status,
+                    'status': overall_state,
                     'name': item.name,
                     'alias': item.alias,
                     '_level': item._level,
@@ -530,7 +530,7 @@ class Plugin(object):
                 # 'li_attr': {
                 # "item_id": item.id,
                 # The result with a class to color the lines is not very nice :/
-                # "class" : "table-row-%s" % (real_status)
+                # "class" : "table-row-%s" % (overall_state)
                 # },
                 'a_attr': {}
             }
@@ -618,7 +618,7 @@ class Plugin(object):
             services = datamgr.get_services(search={'where': {'host': host.id}})
 
             # Get host overall state (0, 1, 2, 3)
-            state = host.get_real_state(services)
+            state = host.get_overall_state(services)
             group_state = max(state, group_state)
 
         logger.debug("Group state: %d", group_state)

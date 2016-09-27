@@ -15,15 +15,17 @@
 
 <div id="host_view_information" class="col-lg-4 col-sm-4 text-center">
    <div>
-      {{! Host({'ls_state': host.real_status}).get_html_state(text=None, size="fa-5x")}}
+      %host_state = datamgr.get_host_overall_state(host)
+      %host_status = host.overall_state_to_status[host_state]
+      {{! host.get_html_state(text=None, size="fa-5x", use_status=host_status)}}
       <legend><strong>{{host.alias}}</strong></legend>
       %if current_user.is_power():
          {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
       %end
    </div>
-   %if host.real_state != host.ls_state_id:
+   %if host_state != 0:
    <div>
-      {{! host.get_html_state(text=None, size="fa-5x")}}
+      {{! host.get_html_state(text=None, size="fa-3x")}}
       <p>{{_('Host real state, excluding services')}}</p>
    </div>
    %end
@@ -39,8 +41,15 @@
             %for service in services:
             <tr id="#{{service.id}}">
                <td title="{{service.alias}}">
+                  %extra=''
+                  %if service.acknowledged:
+                  %extra += _(' and acknowledged')
+                  %end
+                  %if service.downtime:
+                  %extra += _(' and in scheduled downtime')
+                  %end
                   %title = "%s - %s (%s)" % (service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
-                  {{! service.get_html_state(text=None, title=title)}}
+                  {{! service.get_html_state(text=None, title=title, extra=extra)}}
                </td>
 
                <td>
@@ -60,6 +69,36 @@
    %end
 </div>
 <div id="host_view_graphes" class="col-lg-8 col-sm-8">
+   <table class="table table-condensed table-nowrap">
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Last check:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Last check:')}}</strong></td>
+            <td>
+               {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
+            </td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Output:')}}</strong></td>
+            <td>
+               {{! host.output}}
+            </td>
+         </tr>
+         %if host.long_output:
+         <tr>
+            <td><strong>{{_('Long output:')}}</strong></td>
+            <td>
+               {{! host.long_output}}
+            </td>
+         </tr>
+         %end
+      </tbody>
+   </table>
+
    %if not services:
    <center>
       <h3>{{_('No services defined for this host.')}}</h3>

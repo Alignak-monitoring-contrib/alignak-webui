@@ -839,7 +839,7 @@ class DataManager(object):
         items = self.get_hostgroups(search=search)
         return items[0] if items else None
 
-    def get_hostgroup_real_state(self, search):
+    def get_hostgroup_overall_state(self, search):
         """ Get a hosts group real state (including hosts states).
 
         Returns -1 if any problem
@@ -852,29 +852,29 @@ class DataManager(object):
         else:
             hostgroup = search
 
-        logger.debug("get_hostgroup_real_state, group: %s", hostgroup)
+        logger.debug("get_hostgroup_overall_state, group: %s", hostgroup)
         if hostgroup.members == 'host':
-            hostgroup.real_state = 0
+            hostgroup.overall_state = 0
             return 0
 
-        real_state = 0
+        overall_state = 0
         for member in hostgroup.members:
             if isinstance(member, basestring):
                 continue
 
-            host_real_state = self.get_host_real_state(member)
-            real_state = max(real_state, host_real_state)
+            host_overall_state = self.get_host_overall_state(member)
+            overall_state = max(overall_state, host_overall_state)
 
         # Hosts group real state from group members
         group_members = self.get_hostgroups(
             search={'where': {'_parent': hostgroup.id}}, all_elements=True
         )
         for group in group_members:
-            real_state = max(real_state, self.get_hostgroup_real_state(group))
+            overall_state = max(overall_state, self.get_hostgroup_overall_state(group))
 
-        logger.debug("get_hostgroup_real_state, state: %s", real_state)
-        hostgroup.real_state = real_state
-        return hostgroup.real_state
+        logger.debug("get_hostgroup_overall_state, state: %s", overall_state)
+        hostgroup.overall_state = overall_state
+        return hostgroup.overall_state
 
     ##
     # Hosts dependencies
@@ -959,7 +959,7 @@ class DataManager(object):
         items = self.get_hosts(search=search, embedded=embedded)
         return items[0] if items else None
 
-    def get_host_real_state(self, search):
+    def get_host_overall_state(self, search):
         """ Get a host real state (including services states).
 
         Returns -1 if any problem
@@ -972,9 +972,9 @@ class DataManager(object):
         else:
             host = search
 
-        real_state = host.real_state
-        if real_state > 2:
-            return real_state
+        overall_state = host.overall_state
+        if overall_state > 2:
+            return overall_state
 
         # Get host services
         services = self.get_services(
@@ -982,10 +982,10 @@ class DataManager(object):
         )
 
         for service in services:
-            real_state = max(real_state, service.real_state)
+            overall_state = max(overall_state, service.overall_state)
+        logger.critical("get_host_overall_state: %s", overall_state)
 
-        host.real_state = real_state
-        return real_state
+        return overall_state
 
     ##
     # Services groups
@@ -1107,6 +1107,21 @@ class DataManager(object):
 
         items = self.get_services(search=search)
         return items[0] if items else None
+
+    def get_service_overall_state(self, search):
+        """ Get a service real state (including services states).
+
+        Returns -1 if any problem
+        """
+
+        if not isinstance(search, BackendElement):
+            service = self.get_service(search)
+            if not service:
+                return -1
+        else:
+            service = search
+
+        return service.overall_state
 
     def get_services_synthesis(self, elts=None):
         """
@@ -1403,12 +1418,12 @@ class DataManager(object):
         items = self.get_realms(search=search)
         return items[0] if items else None
 
-    def get_realm_real_state(self, search):
+    def get_realm_overall_state(self, search):
         """ Get a realm real state (including realm hosts states).
 
         Returns -1 if any problem
         """
-        logger.info("get_realm_real_state, search: %s", search)
+        logger.info("get_realm_overall_state, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
             if not realm:
@@ -1418,20 +1433,20 @@ class DataManager(object):
 
         members = self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
 
-        real_state = 0
+        overall_state = 0
         # Realm real state from hosts
         for member in members:
-            host_real_state = self.get_host_real_state(member)
-            real_state = max(real_state, host_real_state)
+            host_overall_state = self.get_host_overall_state(member)
+            overall_state = max(overall_state, host_overall_state)
 
         # Realm real state from sub-realms
         realm_members = self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
         for realm in realm_members:
-            real_state = max(real_state, self.get_realm_real_state(realm))
+            overall_state = max(overall_state, self.get_realm_overall_state(realm))
 
-        logger.info("get_realm_real_state, state: %s", real_state)
-        realm.real_state = real_state
-        return real_state
+        logger.info("get_realm_overall_state, state: %s", overall_state)
+        realm.overall_state = overall_state
+        return overall_state
 
     ##
     # timeperiods

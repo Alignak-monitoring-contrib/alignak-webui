@@ -100,14 +100,18 @@
          </tr>
          <tr>
             <td><strong>{{_('Output:')}}</strong></td>
-            <td class="popover-dismiss popover-large"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s check output') % service.output}}"
-                  data-content="{{_('%s<br/>%s') % (service.output, service.long_output.replace('\n', '<br/>') if service.long_output else '')}}"
-                  >
+            <td>
                {{! service.output}}
             </td>
          </tr>
+         %if service.long_output:
+         <tr>
+            <td><strong>{{_('Long output:')}}</strong></td>
+            <td>
+               {{! service.long_output}}
+            </td>
+         </tr>
+         %end
          <tr>
             <td><strong>{{_('Performance data:')}}</strong></td>
             <td class="popover-dismiss popover-large ellipsis"

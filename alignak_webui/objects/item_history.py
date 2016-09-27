@@ -89,7 +89,7 @@ class History(BackendElement):
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False, object_type=None, object_item=None,
-                       size='', status_field=None):
+                       size='', use_status=None):
         # pylint: disable=too-many-arguments
         """
         Uses the ElementState singleton to display HTML state for an item
