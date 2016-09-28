@@ -872,9 +872,7 @@ class DataManager(object):
         for group in group_members:
             overall_state = max(overall_state, self.get_hostgroup_overall_state(group))
 
-        logger.debug("get_hostgroup_overall_state, state: %s", overall_state)
-        hostgroup.overall_state = overall_state
-        return hostgroup.overall_state
+        return overall_state
 
     ##
     # Hosts dependencies
@@ -983,7 +981,6 @@ class DataManager(object):
 
         for service in services:
             overall_state = max(overall_state, service.overall_state)
-        logger.critical("get_host_overall_state: %s", overall_state)
 
         return overall_state
 
@@ -1444,8 +1441,6 @@ class DataManager(object):
         for realm in realm_members:
             overall_state = max(overall_state, self.get_realm_overall_state(realm))
 
-        logger.info("get_realm_overall_state, state: %s", overall_state)
-        realm.overall_state = overall_state
         return overall_state
 
     ##
