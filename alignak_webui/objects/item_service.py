@@ -305,7 +305,7 @@ class Service(BackendElement):
                 overall_state = 3
             elif self.state == 'CRITICAL':
                 overall_state = 4
-            elif self.state != 'UNKNOWN':
+            elif self.state == 'UNKNOWN':
                 overall_state = 3
 
         return overall_state
