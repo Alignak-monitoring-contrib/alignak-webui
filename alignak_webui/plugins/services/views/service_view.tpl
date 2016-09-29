@@ -22,8 +22,36 @@
    {{! host.html_state_link}}
 </div>
 <div id="service_view_graphes" class="col-lg-8 col-sm-8">
-
-
+   <!-- Last check output -->
+   <table class="table table-condensed table-nowrap">
+      <thead>
+         <tr>
+            <th colspan="2">{{_('Last check:')}}</th>
+         </tr>
+      </thead>
+      <tbody style="font-size:x-small;">
+         <tr>
+            <td><strong>{{_('Last check:')}}</strong></td>
+            <td>
+               {{Helper.print_duration(service.last_check, duration_only=False, x_elts=0)}}
+            </td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Output:')}}</strong></td>
+            <td>
+               {{! service.output}}
+            </td>
+         </tr>
+         %if service.long_output:
+         <tr>
+            <td><strong>{{_('Long output:')}}</strong></td>
+            <td>
+               {{! service.long_output}}
+            </td>
+         </tr>
+         %end
+      </tbody>
+   </table>
 
    %from alignak_webui.utils.helper import Helper
    %from alignak_webui.utils.perfdata import PerfDatas

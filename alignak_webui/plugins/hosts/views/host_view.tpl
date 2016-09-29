@@ -69,6 +69,7 @@
    %end
 </div>
 <div id="host_view_graphes" class="col-lg-8 col-sm-8">
+   <!-- Last check output -->
    <table class="table table-condensed table-nowrap">
       <thead>
          <tr>
