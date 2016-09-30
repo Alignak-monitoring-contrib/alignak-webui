@@ -217,7 +217,6 @@ class Helper(object):
         text = "%s %s" % (bi_texts.get(business_impact, _('Unknown')), stars)
         return text.strip()
 
-    # noinspection PyBroadException
     @staticmethod
     def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
         """
@@ -550,6 +549,20 @@ class Helper(object):
         # Get global configuration
         app_config = get_app_config()
 
+        content = ''
+        if len(objects_list) == 1:
+            item = objects_list[0]
+            list_item = app_config.get('tables.lists.unique')
+            if isinstance(item, basestring):
+                content = list_item.replace("##content##", item)
+            elif isinstance(item, dict):
+                content = list_item.replace("##content##", str(item))
+            elif hasattr(item, '_type'):
+                content = list_item.replace("##content##", item.get_html_state_link())
+            else:
+                content = list_item.replace("##content##", item)
+            return content
+
         button = app_config.get('tables.lists.button')
         button = button.replace("##id##", object_id)
         button = button.replace("##type##", object_type)
@@ -557,7 +570,6 @@ class Helper(object):
 
         items_list = app_config.get('tables.lists.list')
 
-        content = ''
         if len(objects_list) > max_items:
             objects_list = objects_list[:max_items]
             list_item = app_config.get('tables.lists.item')
@@ -565,15 +577,15 @@ class Helper(object):
             content += list_item.replace("##content##", _('-- / --'))
 
         for item in objects_list:
+            list_item = app_config.get('tables.lists.item')
             if isinstance(item, basestring):
-                list_item = app_config.get('tables.lists.item')
                 content += list_item.replace("##content##", item)
             elif isinstance(item, dict):
-                list_item = app_config.get('tables.lists.item')
                 content += list_item.replace("##content##", str(item))
+            elif hasattr(item, '_type'):
+                content = list_item.replace("##content##", item.get_html_state_link())
             else:
-                list_item = app_config.get('tables.lists.item')
-                content += list_item.replace("##content##", item.get_html_state_link())
+                content = list_item.replace("##content##", item)
 
         content = items_list.replace("##content##", content)
         content = button.replace("##content##", content)
