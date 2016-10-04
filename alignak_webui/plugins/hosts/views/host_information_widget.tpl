@@ -89,6 +89,15 @@
       </thead>
       <tbody style="font-size:x-small;">
          <tr>
+            <td><strong>{{_('Check command:')}}</strong></td>
+            <td>
+               {{! host.check_command.get_html_state_link()}}
+            </td>
+            <td>
+            </td>
+         </tr>
+
+         <tr>
             <td><strong>{{_('Last check:')}}</strong></td>
             <td>
                {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
@@ -184,15 +193,6 @@
             </td>
          </tr>
          %end
-
-         <tr>
-            <td><strong>{{_('Check command:')}}</strong></td>
-            <td>
-               {{! host.check_command.get_html_state_link()}}
-            </td>
-            <td>
-            </td>
-         </tr>
 
          <tr>
             <td><strong>{{_('Process performance data:')}}</strong></td>
