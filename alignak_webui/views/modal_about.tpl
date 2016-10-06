@@ -11,24 +11,31 @@
    <fieldset>
       <div class="form-group">
         <label class="control-label" for="app_version">{{_('Application version')}}</label>
-           <input readonly="" name="app_version" type="text" class="form-control" placeholder="Not set" class="input-medium" value="{{request.app.config.get('about_name', manifest['name'])}}, version: {{request.app.config.get('about_version', manifest['version'])}}">
+        <input readonly="" id="app_version" type="text" class="form-control" placeholder="Not set" class="input-medium" value="{{request.app.config.get('about_name', manifest['name'])}}, version: {{request.app.config.get('about_version', manifest['version'])}}">
       </div>
 
       <div class="form-group">
         <label class="control-label" for="app_copyright">{{_('Copyright')}}</label>
-        <input readonly="" name="app_copyright" type="text" class="form-control" placeholder="Not set" class="input-medium" value="{{request.app.config.get('about_copyright', manifest['copyright'])}}">
+        <input readonly="" id="app_copyright" type="text" class="form-control" placeholder="Not set" class="input-medium" value="{{request.app.config.get('about_copyright', manifest['copyright'])}}">
       </div>
 
       <div class="form-group">
         <label class="control-label" for="app_url">{{_('Home page')}}</label>
         <p>
-        <a href="{{request.app.config.get('about_url', manifest['doc'])}}">{{request.app.config.get('about_url', manifest['doc'])}}</a>
+        <a id="app_url" href="{{request.app.config.get('about_url', manifest['doc'])}}">{{request.app.config.get('about_url', manifest['url'])}}</a>
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="app_doc">{{_('User documentation')}}</label>
+        <p>
+        <a id="app_doc" href="">{{request.app.config.get('about_doc', manifest['doc'])}}</a>
         </p>
       </div>
 
       <div class="form-group">
         <label class="control-label" for="app_release">{{_('Release notes')}}</label>
-        <textarea readonly="" name="app_release" rows="5" class="form-control">{{request.app.config.get('about_release', manifest['release'])}}</textarea>
+        <textarea id="app_release" readonly="" rows="5" class="form-control">{{request.app.config.get('about_release', manifest['release'])}}</textarea>
       </div>
    </fieldset>
    </form>

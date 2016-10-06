@@ -65,4 +65,3 @@ License
 =======
 
 Alignak WebUI is available under the `GPL version 3 <http://opensource.org/licenses/GPL-3.0>`_.
-

@@ -51,7 +51,7 @@ logger = getLogger(__name__)
 _ = gettext.gettext
 
 # Application manifest
-VERSION = (0, 5, 1)
+VERSION = (0, 5, 2)
 __application__ = u"Alignak-WebUI"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
@@ -60,7 +60,8 @@ __copyright__ = u"2015-2016 - %s" % __author__
 __license__ = u"GNU Affero General Public License, version 3"
 __description__ = u"Alignak monitoring framework Web User Interface"
 __releasenotes__ = u"""Alignak monitoring framework Web User Interface"""
-__doc_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-webui"
+__project_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-webui"
+__doc_url__ = "http://alignak-web-ui.readthedocs.io/?badge=latest"
 
 # Application manifest
 manifest = {
@@ -71,6 +72,7 @@ manifest = {
     'copyright': __copyright__,
     'license': __license__,
     'release': __releasenotes__,
+    'url': __project_url__,
     'doc': __doc_url__
 }
 

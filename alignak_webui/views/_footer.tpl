@@ -11,7 +11,7 @@
       </a>
       %end
 
-      <a href="{{request.app.config.get('about_url', manifest['doc'])}}" target="_blank">
+      <a href="{{request.app.config.get('about_url', manifest['url'])}}" target="_blank">
       <span><em class="text-muted">
          {{! _('%s, version %s, &copy;&nbsp;%s') % (request.app.config.get('about_name', manifest['name']), request.app.config.get('about_version', manifest['version']), request.app.config.get('about_copyright', manifest['copyright']))}}
       </em></span>
