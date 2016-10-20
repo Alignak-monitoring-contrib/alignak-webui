@@ -95,7 +95,7 @@
          <tr>
             <td><strong>{{_('Check command:')}}</strong></td>
             <td>
-               {{! service.check_command.get_html_state_link()}}
+               {{! service.check_command.get_html_state_link(title=host.check_command.command_line)}}
             </td>
             <td>
             </td>
