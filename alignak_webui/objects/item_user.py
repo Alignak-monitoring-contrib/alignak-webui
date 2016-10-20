@@ -119,13 +119,6 @@ class User(BackendElement):
         return self._linked__realm
 
     @property
-    def endpoint(self):
-        """
-        Overload default property. Link to the main objects page with an anchor.
-        """
-        return '/%ss#%s' % (self.object_type, self.id)
-
-    @property
     def host_notification_period(self):
         """ Return linked object """
         return self._linked_host_notification_period

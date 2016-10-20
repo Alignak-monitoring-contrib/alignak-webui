@@ -61,10 +61,10 @@
                <th>{{_('Username')}}</th>
                <th>{{_('Administrator')}}</th>
                <th>{{_('Commands')}}</th>
+               <!--
                <th>{{_('Widgets')}}</th>
-               %if commands and current_user.is_power():
-               <th class="hidden-sm hidden-xs" width="50px">{{_('Commands')}}</th>
-               %end
+               -->
+               <th>{{_('Email')}}</th>
             </tr></thead>
 
             <tbody>
@@ -90,35 +90,15 @@
                      <small>{{! webui.helper.get_on_off(user.is_power())}}</small>
                   </td>
 
+                  <!--
                   <td>
                      <small>{{! webui.helper.get_on_off(user.can_change_dashboard())}}</small>
                   </td>
+                  -->
 
-                  %if commands and current_user.is_power():
-                  <td align="right">
-                     <div class="navbar" role="toolbar" aria-label="{{_('Select a user to change dashboard layout')}}">
-                        <form class="form-inline" role="search">
-                           <!-- Open a session for this service -->
-                           <div class="btn-group" role="group" data-type="actions" aria-label="{{_('User actions')}}">
-                              <button class="btn btn-default btn-sm navbar-btn"
-                                   data-type="action" data-action="delete-user"
-                                   data-toggle="tooltip" data-placement="bottom" title="{{_('Delete this user')}}"
-                                   data-element="{{user.id}}"
-                                   >
-                                   <i class="fa fa-remove"></i>
-                              </button>
-                              <button class="btn btn-default btn-sm navbar-btn"
-                                   data-type="action" data-action="edit-user"
-                                   data-toggle="tooltip" data-placement="bottom" title="{{_('Edit this user')}}"
-                                   data-element="{{user.id}}"
-                                   >
-                                   <i class="fa fa-edit"></i>
-                              </button>
-                           </div>
-                        </form>
-                     </div>
+                  <td>
+                     {{! user.email}}
                   </td>
-                  %end
                </tr>
             %end
             </tbody>

@@ -50,7 +50,7 @@
                %for usergroup in elts:
                <tr id="#{{usergroup.id}}">
                   <td title="{{usergroup.alias}}">
-                     {{! usergroup.get_html_state(text=None, title=usergroup.alias)}}
+                     {{! usergroup.get_html_state(text=None, size="fa-2x", title=usergroup.alias)}}
                   </td>
 
                   <td>
