@@ -53,7 +53,7 @@
                   <tr id="#{{hostgroup.id}}" class="table-row-{{hostgroup.status}}">
                      <td title="{{hostgroup.alias}}">
                         %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(hostgroup)
-                        {{! hostgroup.get_html_state(text=None, size="fa-5x", use_status=hg_status)}}
+                        {{! hostgroup.get_html_state(text=None, size="fa-2x", use_status=hg_status)}}
                      </td>
 
                      <td>

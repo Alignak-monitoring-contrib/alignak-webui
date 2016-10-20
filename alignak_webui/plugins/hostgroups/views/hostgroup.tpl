@@ -1,5 +1,5 @@
 %setdefault('debug', False)
-%setdefault('title', _('Hostgroup view'))
+%setdefault('title', _('Hosts group view'))
 
 %from bottle import request
 %search_string = request.query.get('search', '')
@@ -95,7 +95,7 @@
    </div>
    %end
 
-   %if element._parent and element._parent != 'hostgroup':
+   %if element._parent and element._parent is not None and element._parent != 'hostgroup':
    <div class="btn-group" role="group" aria-label="{{_('Group navigation')}}">
       <a class="btn btn-default btn-raised" href="{{element._parent.endpoint}}" role="button">
          <span class="fa fa-arrow-up"></span>
@@ -107,8 +107,7 @@
    <div class="panel panel-default">
       <div class="panel-body">
          <div class="col-xs-6 col-sm-2 text-center">
-            %hg_state = datamgr.get_hostgroup_overall_state(element)
-            %hg_status = element.overall_state_to_status[hg_state]
+            %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(element)
             {{! element.get_html_state(text=None, size="fa-3x", use_status=hg_status)}}
             <legend><strong>{{element.alias}}</strong></legend>
          </div>

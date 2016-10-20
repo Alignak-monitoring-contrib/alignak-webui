@@ -15,8 +15,7 @@
 
 <div id="host_view_information" class="col-lg-4 col-sm-4 text-center">
    <div>
-      %host_state = datamgr.get_host_overall_state(host)
-      %host_status = host.overall_state_to_status[host_state]
+      %(host_state, host_status) = datamgr.get_host_overall_state(host)
       {{! host.get_html_state(text=None, size="fa-5x", use_status=host_status)}}
       <legend><strong>{{host.alias}}</strong></legend>
       %if current_user.is_power():
