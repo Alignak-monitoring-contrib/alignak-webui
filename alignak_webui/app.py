@@ -217,6 +217,7 @@ def main():  # pragma: no cover, not mesured by coverage!
         logger.info("stopping backend livestate thread...")
         exit(2)
 
+
 def main_old():
     """
     Main function - deprecated script name

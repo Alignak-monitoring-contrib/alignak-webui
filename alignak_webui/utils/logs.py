@@ -32,7 +32,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 # Color logs when in console mode ...
 from sys import stdout
-from termcolor import cprint
+from alignak_webui.utils.termcolor import cprint
 
 
 # Declare a coloured stream handler for console mode ...

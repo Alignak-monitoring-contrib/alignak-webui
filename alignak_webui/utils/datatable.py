@@ -45,6 +45,7 @@ from alignak_webui.objects.element import BackendElement
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
 
+
 class Datatable(object):
     """ jQuery  Datatable plugin interface for backend elements """
 
@@ -608,7 +609,7 @@ class Datatable(object):
                         self.datamgr, 'get_%s_overall_state' % self.object_type
                     )
                     if f_get_overall_state:
-                        (overall_state, overall_status) = f_get_overall_state(bo_object)
+                        (_, overall_status) = f_get_overall_state(bo_object)
 
                         # Get element state configuration
                         row[field['data']] = ElementState().get_html_state(
