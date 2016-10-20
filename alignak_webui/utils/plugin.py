@@ -495,11 +495,11 @@ class Plugin(object):
 
         tree_items = []
         for item in elts:
-            overall_state = 'unknown'
+            overall_status = 'unknown'
             if f_get_overall_state:
-                overall_state = f_get_overall_state(element=item, no_json=True)
+                (overall_state, overall_status) = f_get_overall_state(element=item)
 
-            cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_state)
+            cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_status)
             logger.debug("Item state: %s", cfg_state)
             if not cfg_state:
                 cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
@@ -521,7 +521,7 @@ class Plugin(object):
                     "disabled": False
                 },
                 'data': {
-                    'status': overall_state,
+                    'status': overall_status,
                     'name': item.name,
                     'alias': item.alias,
                     '_level': item._level,

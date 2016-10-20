@@ -217,5 +217,14 @@ def main():  # pragma: no cover, not mesured by coverage!
         logger.info("stopping backend livestate thread...")
         exit(2)
 
+def main_old():
+    """
+    Main function - deprecated script name
+    """
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("alignak_webui is deprecated. Use the new 'alignak-webui' script.")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    exit(1)
+
 if __name__ == "__main__":  # pragma: no cover, not mesured by coverage!
     main()

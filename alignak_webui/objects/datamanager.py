@@ -957,6 +957,24 @@ class DataManager(object):
         items = self.get_hosts(search=search, embedded=embedded)
         return items[0] if items else None
 
+    def get_host_services(self, search):
+        """ Get a host real state (including services states).
+
+        Returns -1 if any problem
+        """
+
+        if not isinstance(search, BackendElement):
+            host = self.get_host(search)
+            if not host:
+                return -1
+        else:
+            host = search
+
+        # Get host services
+        return self.get_services(
+            search={'where': {'host': host.id}}, all_elements=True
+        )
+
     def get_host_overall_state(self, search):
         """ Get a host real state (including services states).
 
@@ -983,6 +1001,24 @@ class DataManager(object):
             overall_state = max(overall_state, service.overall_state)
 
         return overall_state
+
+    def get_host_services_hierarchy(self, search):
+        """ Get a host real state (including services states).
+
+        Returns -1 if any problem
+        """
+
+        if not isinstance(search, BackendElement):
+            host = self.get_host(search)
+            if not host:
+                return -1
+        else:
+            host = search
+
+        # Get host services
+        return self.get_services(
+            search={'where': {'host': host.id}}, all_elements=True
+        )
 
     ##
     # Services groups

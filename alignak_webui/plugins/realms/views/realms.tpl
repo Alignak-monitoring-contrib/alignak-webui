@@ -52,7 +52,9 @@
                %for realm in elts:
                <tr id="#{{realm.id}}">
                   <td title="{{realm.alias}}">
-                     {{! realm.get_html_state(text=None, title=realm.alias)}}
+                     %realm_state = datamgr.get_realm_overall_state(realm)
+                     %realm_status = realm.overall_state_to_status[realm_state]
+                     {{! realm.get_html_state(text=None, size="fa-5x", use_status=realm_status)}}
                   </td>
 
                   <td>

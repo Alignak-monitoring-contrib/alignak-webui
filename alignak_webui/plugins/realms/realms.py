@@ -26,18 +26,18 @@
 import json
 from logging import getLogger
 
-from bottle import request, template, response
+from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
-from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
 
 
 class PluginRealms(Plugin):
-    """ Services groups plugin """
+    """ Realms plugin """
 
     def __init__(self, app, cfg_filenames=None):
         """
@@ -57,33 +57,32 @@ class PluginRealms(Plugin):
 
         super(PluginRealms, self).__init__(app, cfg_filenames)
 
-    def get_overall_state(self, element_id=None, element=None, no_json=False):
-        # pylint: disable=protected-access
+    def get_overall_state(self, element):
         """
-        Get the realm overall status
+        Get the realm overall state
+
+        Args:
+            element:
+
+        Returns:
+            state (int) or -1 if any problem
         """
         datamgr = request.app.datamgr
 
-        realm = element
-        if not realm:
-            realm = datamgr.get_realm(element_id)
+        if not isinstance(element, BackendElement):
+            realm = datamgr.get_realm(element)
             if not realm:
-                realm = datamgr.get_realm(
-                    search={'max_results': 1, 'where': {'name': element_id}}
-                )
-                if not realm:
-                    return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                                  % element_id)
+                return -1
+        else:
+            realm = element
 
-        realm.overall_state = datamgr.get_realm_overall_state(realm)
-        logger.debug(" - realm real state: %d -> %s", realm.overall_state, realm.overall_state)
+        overall_state = datamgr.get_realm_overall_state(realm)
+        overall_status = realm.overall_state_to_status[overall_state]
+        logger.debug(
+            " - realm overall state: %d -> %s", overall_state, overall_status
+        )
 
-        if no_json:
-            return realm.overall_state
-
-        response.status = 200
-        response.content_type = 'application/json'
-        return json.dumps({'state': realm.overall_state, 'status': realm.overall_state})
+        return (overall_state, overall_status)
 
     def get_realm_members(self, element_id):
         """

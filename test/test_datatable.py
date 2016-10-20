@@ -86,27 +86,25 @@ def setup_module():
         # No console output for the applications backend ...
         print("Starting Alignak backend...")
         fnull = open(os.devnull, 'w')
-        pid = subprocess.Popen(
-            shlex.split('alignak_backend')
-        )
+        pid = subprocess.Popen([
+            'uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+            '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads', '--pidfile',
+            '/tmp/uwsgi.pid'
+        ], stdout=fnull)
         time.sleep(1)
 
         print("Feeding backend...")
+        fnull = open(os.devnull, 'w')
         q = subprocess.Popen(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg'), stdout=fnull
+            shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
         )
         (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
 
 
 def teardown_module(module):
-    print("")
-    print("stop applications backend")
-
-    if backend_address == "http://127.0.0.1:5000/":
-        global pid
-        pid.kill()
-
+    subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+    time.sleep(2)
 
 
 class TestDataTable(unittest2.TestCase):
@@ -166,17 +164,15 @@ class TestDataTable(unittest2.TestCase):
         for x in range(0, self.items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print(response.json['data'][x])
-                assert response.json['data'][x]
-                assert response.json['data'][x]['name']
-                assert response.json['data'][x]['definition_order']
-                assert response.json['data'][x]['enable_environment_macros']
-                assert response.json['data'][x]['command_line']
-                assert response.json['data'][x]['timeout']
-                assert response.json['data'][x]['poller_tag']
-                assert response.json['data'][x]['reactionner_tag']
-                assert response.json['data'][x]['enable_environment_macros']
-                # No more ui in the backend
-                # self.assertTrue(response.json['data'][x]['ui'])
+                self.assertIsNotNone(response.json['data'][x])
+                self.assertIsNotNone(response.json['data'][x]['name'])
+                self.assertIsNotNone(response.json['data'][x]['definition_order'])
+                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
+                self.assertIsNotNone(response.json['data'][x]['command_line'])
+                self.assertIsNotNone(response.json['data'][x]['timeout'])
+                self.assertIsNotNone(response.json['data'][x]['poller_tag'])
+                self.assertIsNotNone(response.json['data'][x]['reactionner_tag'])
+                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
 
         # Specify count number ...
         response = self.app.post('/commands/table_data', {
@@ -549,16 +545,15 @@ class TestDatatableCommands(unittest2.TestCase):
         assert response.json['data']
         for x in range(0, items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
-                assert response.json['data'][x]
-                assert response.json['data'][x]['name']
-                assert response.json['data'][x]['definition_order']
-                assert response.json['data'][x]['command_line']
-                assert response.json['data'][x]['enable_environment_macros']
-                assert response.json['data'][x]['timeout']
-                assert response.json['data'][x]['poller_tag']
-                assert response.json['data'][x]['reactionner_tag']
-                # No more ui in the backend
-                # assert response.json['data'][x]['ui'] == True
+                self.assertIsNotNone(response.json['data'][x])
+                self.assertIsNotNone(response.json['data'][x]['name'])
+                self.assertIsNotNone(response.json['data'][x]['definition_order'])
+                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
+                self.assertIsNotNone(response.json['data'][x]['command_line'])
+                self.assertIsNotNone(response.json['data'][x]['timeout'])
+                self.assertIsNotNone(response.json['data'][x]['poller_tag'])
+                self.assertIsNotNone(response.json['data'][x]['reactionner_tag'])
+                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
 
 
 class TestDatatableRealms(unittest2.TestCase):
@@ -627,8 +622,6 @@ class TestDatatableRealms(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['definition_order'] is not None
                 assert response.json['data'][x]['alias'] is not None
-                # assert 'hosts' in response.json['data'][x]
-                # assert 'realms' in response.json['data'][x] is not None
 
 
 class TestDatatableHosts(unittest2.TestCase):

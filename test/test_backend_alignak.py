@@ -61,26 +61,24 @@ def setup_module():
 
         # No console output for the applications backend ...
         print("Starting Alignak backend...")
-        fnull = open(os.devnull, 'w')
-        pid = subprocess.Popen(
-            shlex.split('alignak_backend'), stdout=fnull
-        )
+        pid = subprocess.Popen([
+            'uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+            '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads', '--pidfile',
+            '/tmp/uwsgi.pid'
+        ])
         time.sleep(1)
 
         print("Feeding backend...")
+        fnull = open(os.devnull, 'w')
         q = subprocess.Popen(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
+            shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
         )
         (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
 
-
-def teardown_module():
-    print("stop applications backend")
-
-    if backend_address == "http://127.0.0.1:5000/":
-        global pid
-        pid.kill()
+def teardown_module(module):
+    subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+    time.sleep(2)
 
 
 class TestCreation(unittest2.TestCase):

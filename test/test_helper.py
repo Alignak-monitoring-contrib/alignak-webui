@@ -597,8 +597,8 @@ class TestHtmlList(unittest2.TestCase):
                          '</button>'
                          '<div class="collapse" id="list_type_id">'
                          '<ul class="list-group">'
-                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</li>'
-                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</li>'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</span></li>'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>'
                          '</ul>'
                          '</div>')
 
@@ -612,7 +612,7 @@ class TestHtmlList(unittest2.TestCase):
                          '</button>'
                          '<div class="collapse" id="list_type_id">'
                          '<ul class="list-group">'
-                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</li>'
-                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</li>'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</span></li>'
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>'
                          '</ul>'
                          '</div>')

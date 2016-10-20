@@ -525,7 +525,7 @@ class BackendElement(object):
                         )
                         continue
                 else:
-                    logger.warning(
+                    logger.debug(
                         "__init__, no value for link parameter: %s (%s), for: %s, %s, value: %s",
                         key, params[key].__class__, self.get_type(),
                         params['name'] if 'name' in params else params['_id'],

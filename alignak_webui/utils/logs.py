@@ -32,7 +32,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 # Color logs when in console mode ...
 from sys import stdout
-from alignak_webui.utils.termcolor import cprint
+from termcolor import cprint
 
 
 # Declare a coloured stream handler for console mode ...
@@ -49,9 +49,10 @@ class ColorStreamHandler(StreamHandler):  # pragma: no cover
                 'CRITICAL': 'magenta', 'ERROR': 'red'
             }
             cprint(msg, colors[record.levelname])
-        except UnicodeEncodeError:  # pragma: no cover, should never happen ...
-            # noinspection PyUnboundLocalVariable
+        except UnicodeEncodeError:
             print(msg.encode('ascii', 'ignore'))
+        except TypeError:
+            self.handleError(record)
 
 
 def set_console_logger(logger):
@@ -70,7 +71,7 @@ def set_console_logger(logger):
 # Yes, but we need it
 # pylint: disable=too-many-arguments
 def set_file_logger(logger, path='/var/log', filename='application.log',
-                    when="D", interval=1, backup_count=6):
+                    when="midnight", interval=1, backup_count=6):
     """
     Configure handler for file logging ...
     """

@@ -262,7 +262,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
                 res_extra = extra
             res_opacity = ""
             if extra:
-                res_opacity = 'style="opacity: 0.7"'
+                res_opacity = 'style="opacity: 0.5"'
 
             # Assembling ...
             item_id = object_item.id

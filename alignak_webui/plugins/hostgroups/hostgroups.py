@@ -29,8 +29,8 @@ from logging import getLogger
 from bottle import request, response
 
 from alignak_webui import _
+from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
-from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
 logger = getLogger(__name__)
@@ -90,35 +90,32 @@ class PluginHostsGroups(Plugin):
             'groups': groups
         }
 
-    def get_overall_state(self, element_id=None, element=None, no_json=False):
-        # pylint: disable=protected-access
+    def get_overall_state(self, element):
         """
-        Get the hostgroup overall status
+        Get the hostgroup overall state
+
+        Args:
+            element:
+
+        Returns:
+            state (int) or -1 if any problem
         """
         datamgr = request.app.datamgr
 
-        hostgroup = element
-        if not hostgroup:
-            hostgroup = datamgr.get_hostgroup(element_id)
+        if not isinstance(element, BackendElement):
+            hostgroup = datamgr.get_hostgroup(element)
             if not hostgroup:
-                hostgroup = datamgr.get_hostgroup(
-                    search={'max_results': 1, 'where': {'name': element_id}}
-                )
-                if not hostgroup:
-                    return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                                  % element_id)
+                return -1
+        else:
+            hostgroup = element
 
-        hostgroup.overall_state = datamgr.get_hostgroup_overall_state(hostgroup)
+        overall_state = datamgr.get_hostgroup_overall_state(hostgroup)
+        overall_status = hostgroup.overall_state_to_status[overall_state]
         logger.debug(
-            " - hostgroup real state: %d -> %s", hostgroup.overall_state, hostgroup.overall_state
+            " - hostgroup overall state: %d -> %s", overall_state, overall_status
         )
 
-        if no_json:
-            return hostgroup.overall_state
-
-        response.status = 200
-        response.content_type = 'application/json'
-        return json.dumps({'state': hostgroup.overall_state, 'status': hostgroup.overall_state})
+        return (overall_state, overall_status)
 
     def get_group_members(self, element_id):
         """

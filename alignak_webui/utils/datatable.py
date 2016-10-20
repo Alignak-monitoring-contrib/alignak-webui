@@ -31,7 +31,7 @@
     contains a property which is a Datatable object.
 """
 import json
-from logging import getLogger
+from logging import getLogger, DEBUG
 
 from datetime import datetime
 
@@ -43,7 +43,7 @@ from alignak_webui.utils.helper import Helper
 from alignak_webui.objects.element import BackendElement
 
 logger = getLogger(__name__)
-
+logger.setLevel(DEBUG)
 
 class Datatable(object):
     """ jQuery  Datatable plugin interface for backend elements """
@@ -250,7 +250,7 @@ class Datatable(object):
                     '_': _('Show %d rows')
                 },
 
-                'collection': _('<span class="fa fa-external-link"></span>'),
+                'collection': _('<span class="fa fa-download"></span>'),
                 'csv': _('CSV'),
                 'excel': _('Excel'),
                 'pdf': _('PDF'),
@@ -608,16 +608,14 @@ class Datatable(object):
                         self.datamgr, 'get_%s_overall_state' % self.object_type
                     )
                     if f_get_overall_state:
-                        overall_state = f_get_overall_state(bo_object)
+                        (overall_state, overall_status) = f_get_overall_state(bo_object)
 
                         # Get element state configuration
                         row[field['data']] = ElementState().get_html_state(
                             self.object_type, bo_object,
-                            text=None, use_status=bo_object.overall_state_to_status[overall_state]
+                            text=None, use_status=overall_status
                         )
-                        row['DT_RowClass'] = "table-row-%s" % (
-                            bo_object.overall_state_to_status[overall_state].lower()
-                        )
+                        row['DT_RowClass'] = "table-row-%s" % (overall_status)
                     else:
                         row[field['data']] = 'XxX'
                     continue
@@ -669,9 +667,9 @@ class Datatable(object):
                             {"object_%s" % field['data']: bo_object[field['data']].name}
                         )
                     else:
-                        logger.critical(
-                            "Table field object is not an object: %s = %s for %s",
-                            field['data'], getattr(bo_object, field['data']), bo_object.name
+                        logger.debug(
+                            "Table field object is not an object: %s, %s = %s",
+                            bo_object.name, field['data'], getattr(bo_object, field['data'])
                         )
                         row[field['data']] = getattr(bo_object, field['data'])
                         if row[field['data']] == field['resource']:

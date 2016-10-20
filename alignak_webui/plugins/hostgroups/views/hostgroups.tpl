@@ -51,7 +51,7 @@
             <tbody>
                %plugin = webui.find_plugin('Hosts groups')
                %for hostgroup in elts:
-                  %hs = plugin.get_overall_state(element=hostgroup, no_json=True)
+                  %hs = plugin.get_overall_state(element=hostgroup)
                   <tr id="#{{hostgroup.id}}" class="table-row-{{hostgroup.status}}">
                      <td title="{{hostgroup.alias}}">
                         {{! hostgroup.get_html_state(text=None)}}

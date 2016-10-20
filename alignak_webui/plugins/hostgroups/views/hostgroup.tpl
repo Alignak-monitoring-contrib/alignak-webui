@@ -10,7 +10,7 @@
 %from alignak_webui.objects.item_command import Command
 
 <!-- hosts filtering and display -->
-<div id="hostgroup">
+<div id="hostgroup_{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -106,68 +106,78 @@
 
    <div class="panel panel-default">
       <div class="panel-body">
-      %if not element.members or isinstance(element.members, basestring):
-         <div class="text-center alert alert-warning">
-            <h4>{{_('No hosts found in this group.')}}</h4>
+         <div class="col-xs-6 col-sm-2 text-center">
+            %hg_state = datamgr.get_hostgroup_overall_state(element)
+            %hg_status = element.overall_state_to_status[hg_state]
+            {{! element.get_html_state(text=None, size="fa-3x", use_status=hg_status)}}
+            <legend><strong>{{element.alias}}</strong></legend>
          </div>
-      %else:
-         <table class="table table-condensed">
-            <thead><tr>
-               <th style="width: 40px"></th>
-               <th>{{_('Host name')}}</th>
-               <th>{{_('Address')}}</th>
-               <th>{{_('Check command')}}</th>
-               <th>{{_('Active checks enabled')}}</th>
-               <th>{{_('Passive checks enabled')}}</th>
-               <th>{{_('Business impact')}}</th>
-            </tr></thead>
+         <div class="col-xs-6 col-sm-10">
+         %if not element.members or isinstance(element.members, basestring):
+            <div class="text-center alert alert-warning">
+               <h4>{{_('No hosts found in this group.')}}</h4>
+            </div>
+         %else:
+            <table class="table table-condensed">
+               <thead><tr>
+                  <th style="width: 40px"></th>
+                  <th>{{_('Host name')}}</th>
+                  <th>{{_('Address')}}</th>
+                  <th>{{_('Check command')}}</th>
+                  <th>{{_('Active checks enabled')}}</th>
+                  <th>{{_('Passive checks enabled')}}</th>
+                  <th>{{_('Business impact')}}</th>
+               </tr></thead>
 
-            <tbody>
-            %for elt in element.members:
-               <tr id="#{{elt.id}}">
-                  <td title="{{elt.alias}}">
-                     %title = "%s - %s (%s)" % (elt.state, Helper.print_duration(elt.last_check, duration_only=True, x_elts=0), elt.output)
-                     {{! elt.get_html_state(text=None, title=title)}}
-                  </td>
+               <tbody>
+               %for elt in element.members:
+                  <tr id="#{{elt.id}}">
+                     <td title="{{elt.alias}}">
+                        %title = "%s - %s (%s)" % (elt.state, Helper.print_duration(elt.last_check, duration_only=True, x_elts=0), elt.output)
+                        {{! elt.get_html_state(text=None, title=title)}}
+                     </td>
 
-                  <td title="{{elt.alias}}">
-                     <small>{{!elt.get_html_link()}}</small>
-                  </td>
+                     <td title="{{elt.alias}}">
+                        <small>{{!elt.get_html_link()}}</small>
+                     </td>
 
-                  <td>
-                     <small>{{elt.address}}</small>
-                  </td>
+                     <td>
+                        <small>{{elt.address}}</small>
+                     </td>
 
-                  <td>
-                     {{! elt.check_command.get_html_state_link() if elt.check_command != 'command' else ''}}
-                  </td>
+                     <td>
+                        {{! elt.check_command.get_html_state_link() if elt.check_command != 'command' else ''}}
+                     </td>
 
-                  <td>
-                     <small>{{! Helper.get_on_off(elt.active_checks_enabled)}}</small>
-                  </td>
+                     <td>
+                        {{Helper.print_duration(elt.last_check, duration_only=False, x_elts=0)}}
+                     </td>
 
-                  <td>
-                     <small>{{! Helper.get_on_off(elt.passive_checks_enabled)}}</small>
-                  </td>
+                     <td>
+                        <small>{{! Helper.get_on_off(elt.passive_checks_enabled)}}</small>
+                     </td>
 
-                  <td>
-                     <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
-                  </td>
-               </tr>
-            %end
-            </tbody>
-         </table>
-      %end
+                     <td>
+                        <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
+                     </td>
+                  </tr>
+               %end
+               </tbody>
+            </table>
+         %end
+            </div>
       </div>
    </div>
 
    <div class="panel panel-default">
-      <div class="panel-body">
       %if not groups or groups == 'hostgroup':
+         <!--
          <div class="text-center alert alert-warning">
             <h4>{{_('No groups found in this group.')}}</h4>
          </div>
+         -->
       %else:
+      <div class="panel-body">
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
@@ -182,10 +192,11 @@
                %if isinstance(elt, basestring):
                %continue
                %end
-               <tr id="#{{elt.id}}">
+               <tr id="hostgroup_{{elt.id}}">
                   <td title="{{elt.alias}}">
-                     %hs = plugin.get_overall_state(group=elt, no_json=True)
-                     {{! elt.get_html_state(text=None)}}
+                     %hg_state = datamgr.get_hostgroup_overall_state(element)
+                     %hg_status = element.overall_state_to_status[hg_state]
+                     {{! elt.get_html_state(text=None, use_status=hg_status)}}
                   </td>
 
                   <td>
@@ -203,7 +214,7 @@
             %end
             </tbody>
          </table>
-      %end
       </div>
+      %end
    </div>
  </div>
