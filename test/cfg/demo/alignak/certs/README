@@ -1,7 +1,0 @@
-# Store your KPI/Certs in this directory as it is referenced in the daemons
-# configuration files
-
-# To generate new keys:
-openssl req -new -nodes -out server-req.pem -keyout private/server-key.pem -config /etc/ssl/openssl.cnf
-openssl ca -config openssl.conf -out server-cert.pem -infiles server-req.pem
-
