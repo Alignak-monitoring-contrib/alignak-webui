@@ -32,8 +32,8 @@ from nose.tools import *
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            'settings.cfg')
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 # To load application configuration used by the objects
 import alignak_webui.app
@@ -56,7 +56,7 @@ loggerDm.setLevel(INFO)
 loggerItems = getLogger('alignak_webui.objects.element')
 loggerItems.setLevel(INFO)
 loggerBackend = getLogger('alignak_webui.objects.backend')
-loggerBackend.setLevel(DEBUG)
+loggerBackend.setLevel(INFO)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -82,74 +82,29 @@ def setup_module():
         )
         assert exit_code == 0
 
-        # No console output for the applications backend ...
         print("Starting Alignak backend...")
-        pid = subprocess.Popen([
-            'uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
-            '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads', '--pidfile',
-            '/tmp/uwsgi.pid'
-        ])
+        # No console output for the applications backend ...
+        fnull = open(os.devnull, 'w')
+        pid = subprocess.Popen(
+            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 --protocol=http --enable-threads --pidfile /tmp/uwsgi.pid --logto /tmp/uwsgi.log'), stdout=fnull
+        )
         time.sleep(1)
 
         print("Feeding backend...")
-        fnull = open(os.devnull, 'w')
         q = subprocess.Popen(
             shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
         )
         (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
 
-    def teardown_module(module):
-        subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
-        time.sleep(2)
+
+def teardown_module(module):
+    print("Stopping Alignak backend...")
+    subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+    time.sleep(2)
 
 
-class Test1FindAndSearch(unittest2.TestCase):
-    @unittest2.skip("This test has no more reason to exist ...")
-    def test_1_1_find_objects(self):
-        print('test find_objects - no objects in cache')
-
-        # Create new datamanager - do not use default backend address
-        datamanager = DataManager(backend_endpoint=backend_address)
-        self.assertIsNotNone(datamanager.backend)
-        self.assertFalse(datamanager.loaded )
-        self.assertIsNone(datamanager.logged_in_user)
-        # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), 18)
-
-        # Login ...
-        assert datamanager.backend.login('admin', 'admin')
-        assert datamanager.loaded == False
-        assert datamanager.backend.connected
-        print('logged in as admin in the backend')
-        # Datamanager is not yet aware of the user login !!!
-        assert datamanager.logged_in_user is None
-
-        # Get current user in the alignak backend
-        parameters = {'where': {"name": "admin"}}
-        items = datamanager.backend.get('user', params=parameters)
-        assert len(items) == 1
-        assert items[0]["_id"]
-        admin_id = items[0]["_id"]
-
-        ##### Cannot find any object when no user is logged-in ...
-        ##### An error is raised !!!
-        users = datamanager.find_object('user', admin_id)
-        print("Items: %s" % users)
-        assert len(users) == 1
-        # New user object created in the DM cache ...
-        self.assertEqual(datamanager.get_objects_count('user', refresh=True), 1)
-
-        # Unknown user not found
-        with assert_raises(ValueError) as cm:
-            datamanager.find_object('user', 'fake_id')
-        ex = cm.exception
-        print(ex)
-        assert str(
-            ex) == """user, search: {'max_results': 50, 'where': '{"_id": "%s"}', 'page': 0} was not found in the backend""" % 'fake_id'
-
-
-class Test2Creation(unittest2.TestCase):
+class TestCreation(unittest2.TestCase):
     def test_2_1_creation_load(self):
         print('------------------------------')
         print('test creation')
@@ -243,7 +198,7 @@ class Test2Creation(unittest2.TestCase):
         assert datamanager.logged_in_user.authenticated
 
 
-class Test3LoadCreate(unittest2.TestCase):
+class TestLoadCreate(unittest2.TestCase):
     def setUp(self):
         print("")
 
@@ -292,7 +247,7 @@ class Test3LoadCreate(unittest2.TestCase):
         assert not item
 
 
-class Test4NotAdmin(unittest2.TestCase):
+class TestNotAdmin(unittest2.TestCase):
     def setUp(self):
         print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -453,7 +408,7 @@ class Test4NotAdmin(unittest2.TestCase):
         assert result
 
 
-class Test5Basic(unittest2.TestCase):
+class TestBasic(unittest2.TestCase):
     def setUp(self):
         print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
@@ -552,44 +507,6 @@ class Test5Basic(unittest2.TestCase):
                 self.assertIsInstance(item._parent, UserGroup) # Must be an object
         self.assertEqual(len(items), 3)
 
-    @unittest2.skip("Skipped because not very useful and often change :/")
-    def test_5_2_total_count(self):
-        print("")
-        print('test objects count')
-
-        # Get each object type count
-        self.assertEqual(self.dmg.count_objects('realm'), 5)
-        self.assertEqual(self.dmg.count_objects('command'), 103)
-        self.assertEqual(self.dmg.count_objects('timeperiod'), 4)
-        self.assertEqual(self.dmg.count_objects('user'), 5)
-        self.assertEqual(self.dmg.count_objects('host'), 13)
-        self.assertEqual(self.dmg.count_objects('service'), 94)
-        self.assertEqual(self.dmg.count_objects('servicegroup'), 6)
-        self.assertEqual(self.dmg.count_objects('hostgroup'), 9)
-        # self.assertEqual(self.dmg.count_objects('livesynthesis'), 1)
-
-        # Use global method
-        self.assertEqual(self.dmg.get_objects_count(object_type=None, refresh=True, log=True), 350)
-
-        # No refresh so get current cached objects count
-        self.assertEqual(self.dmg.get_objects_count('realm'), 5)
-        self.assertEqual(self.dmg.get_objects_count('command'), 50)
-        self.assertEqual(self.dmg.get_objects_count('timeperiod'), 4)
-        self.assertEqual(self.dmg.get_objects_count('user'), 5)
-        # Not loaded on login in the data manager ... so 0
-        self.assertEqual(self.dmg.get_objects_count('host'), 0)
-        self.assertEqual(self.dmg.get_objects_count('service'), 0)
-        # self.assertEqual(self.dmg.get_objects_count('livesynthesis'), 1)  # Not loaded on login ...
-
-        # With refresh to get total backend objects count
-        self.assertEqual(self.dmg.get_objects_count('realm', refresh=True), 5)
-        self.assertEqual(self.dmg.get_objects_count('command', refresh=True), 103)
-        self.assertEqual(self.dmg.get_objects_count('timeperiod', refresh=True), 4)
-        self.assertEqual(self.dmg.get_objects_count('user', refresh=True), 5)
-        self.assertEqual(self.dmg.get_objects_count('host', refresh=True), 13)
-        self.assertEqual(self.dmg.get_objects_count('service', refresh=True), 94)
-        # self.assertEqual(self.dmg.get_objects_count('livesynthesis', refresh=True), 1)
-
     def test_5_3_livesynthesis(self):
         print("")
         print('test livesynthesis')
@@ -643,7 +560,7 @@ class Test5Basic(unittest2.TestCase):
         self.assertEqual(self.dmg.get_livesynthesis(), expected_ls)
 
 
-class Test6Relations(unittest2.TestCase):
+class TestRelations(unittest2.TestCase):
     def setUp(self):
         print("")
         print("setting up ...")
@@ -659,7 +576,7 @@ class Test6Relations(unittest2.TestCase):
         # Logout
         self.dmg.reset(logout=True)
 
-    def test_01_host_command(self):
+    def test_relation_host_command(self):
         print("--- test Item")
 
         # Get main realm
@@ -676,7 +593,7 @@ class Test6Relations(unittest2.TestCase):
         assert isinstance(host.check_command, Command)
         assert host.check_command
 
-    def test_02_host_service(self):
+    def test_relation_host_service(self):
         print("--- test Item")
 
         # Get main realm
@@ -692,3 +609,106 @@ class Test6Relations(unittest2.TestCase):
         # Get services of this host
         service = self.dmg.get_service({'where': {'name': 'Shinken2-broker', 'host_name': host.id}})
         print("Services: ", service)
+
+
+class TestHosts(unittest2.TestCase):
+    def setUp(self):
+        print("")
+        print("setting up ...")
+        self.dmg = DataManager(backend_endpoint=backend_address)
+        print('Data manager', self.dmg)
+
+        # Initialize and do not load
+        assert self.dmg.user_login('admin', 'admin', load=False)
+
+    def tearDown(self):
+        print("")
+        print("tearing down ...")
+        # Logout
+        self.dmg.reset(logout=True)
+
+    def test_hosts(self):
+        print("Get all hosts")
+
+        # Get main realm
+        self.dmg.get_realm({'where': {'name': 'All'}})
+
+        # Get main TP
+        self.dmg.get_timeperiod({'where': {'name': '24x7'}})
+
+        # Get all hosts
+        hosts = self.dmg.get_hosts()
+        self.assertEqual(13, len(hosts))
+        print("---")
+        for host in hosts:
+            print("Got host: %s" % host)
+
+        # Get all hosts (really all...)
+        hosts = self.dmg.get_hosts(all_elements=True)
+        self.assertEqual(13, len(hosts))
+        print("---")
+        for host in hosts:
+            print("Got host: %s" % host)
+
+        # Get all hosts (with all embedded relations)
+        hosts = self.dmg.get_hosts(embedded=True)
+        self.assertEqual(13, len(hosts))
+        print("---")
+        for host in hosts:
+            print("Got host: %s" % host)
+
+        # Get all hosts templates
+        hosts = self.dmg.get_hosts(template=True)
+        self.assertEqual(1, len(hosts))
+        print("---")
+        for host in hosts:
+            print("Got host template: %s" % host)
+
+        # Get one host
+        hosts = self.dmg.get_hosts({'where': {'name': 'webui'}})
+        self.assertEqual(1, len(hosts))
+        print("---")
+        for host in hosts:
+            print("Got host: %s" % host)
+        self.assertEqual(hosts[0].name, 'webui')
+
+        # Get one host
+        host = self.dmg.get_host({'where': {'name': 'webui'}})
+        self.assertEqual(host.name, 'webui')
+
+        # Get one host
+        host = self.dmg.get_host(host._id)
+        self.assertEqual(host.name, 'webui')
+
+        # Get host services
+        services = self.dmg.get_host_services({'where': {'name': 'webui'}})
+        print("---")
+        for service in services:
+            print("Got service: %s" % service)
+        self.assertGreater(len(services), 1)
+        services = self.dmg.get_host_services(host)
+        print("---")
+        for service in services:
+            print("Got service: %s" % service)
+        self.assertGreater(len(services), 1)
+
+        # Get host overall state
+        state = self.dmg.get_host_overall_state(host)
+        self.assertEqual(state, 3)
+
+    def test_host(self):
+        print("--- test Item")
+
+        # Get main realm
+        self.dmg.get_realm({'where': {'name': 'All'}})
+
+        # Get main TP
+        self.dmg.get_timeperiod({'where': {'name': '24x7'}})
+
+        # Get host
+        host = self.dmg.get_host({'where': {'name': 'webui'}})
+
+        print(host.__dict__)
+        print(host.check_period)
+        assert isinstance(host.check_command, Command)
+        assert host.check_command

@@ -71,18 +71,15 @@ def setup_module(module):
         assert exit_code == 0
         time.sleep(1)
 
-        # No console output for the applications backend ...
         print("Starting Alignak backend...")
+        # No console output for the applications backend ...
         fnull = open(os.devnull, 'w')
-        pid = subprocess.Popen([
-            'uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
-            '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads', '--pidfile',
-            '/tmp/uwsgi.pid'
-        ], stdout=fnull)
+        pid = subprocess.Popen(
+            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 --protocol=http --enable-threads --pidfile /tmp/uwsgi.pid --logto /tmp/uwsgi.log'), stdout=fnull
+        )
         time.sleep(1)
 
         print("Feeding backend...")
-        fnull = open(os.devnull, 'w')
         q = subprocess.Popen(
             shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
         )
