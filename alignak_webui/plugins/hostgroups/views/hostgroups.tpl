@@ -49,12 +49,11 @@
             </tr></thead>
 
             <tbody>
-               %plugin = webui.find_plugin('Hosts groups')
                %for hostgroup in elts:
-                  %hs = plugin.get_overall_state(element=hostgroup)
                   <tr id="#{{hostgroup.id}}" class="table-row-{{hostgroup.status}}">
                      <td title="{{hostgroup.alias}}">
-                        {{! hostgroup.get_html_state(text=None)}}
+                        %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(hostgroup)
+                        {{! hostgroup.get_html_state(text=None, size="fa-5x", use_status=hg_status)}}
                      </td>
 
                      <td>

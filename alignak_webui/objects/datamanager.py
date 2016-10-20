@@ -862,7 +862,7 @@ class DataManager(object):
             if isinstance(member, basestring):
                 continue
 
-            host_overall_state = self.get_host_overall_state(member)
+            (host_overall_state, host_overall_status) = self.get_host_overall_state(member)
             overall_state = max(overall_state, host_overall_state)
 
         # Hosts group real state from group members
@@ -870,9 +870,11 @@ class DataManager(object):
             search={'where': {'_parent': hostgroup.id}}, all_elements=True
         )
         for group in group_members:
-            overall_state = max(overall_state, self.get_hostgroup_overall_state(group))
+            (ov_state, ov_status) = self.get_hostgroup_overall_state(group)
+            overall_state = max(overall_state, ov_state)
 
-        return overall_state
+        overall_status = HostGroup.overall_state_to_status[overall_state]
+        return (overall_state, overall_status)
 
     ##
     # Hosts dependencies
@@ -990,7 +992,8 @@ class DataManager(object):
 
         overall_state = host.overall_state
         if overall_state > 2:
-            return overall_state
+            overall_status = Host.overall_state_to_status[overall_state]
+            return (overall_state, overall_status)
 
         # Get host services
         services = self.get_services(
@@ -1000,7 +1003,8 @@ class DataManager(object):
         for service in services:
             overall_state = max(overall_state, service.overall_state)
 
-        return overall_state
+        overall_status = Host.overall_state_to_status[overall_state]
+        return (overall_state, overall_status)
 
     def get_host_services_hierarchy(self, search):
         """ Get a host real state (including services states).
@@ -1154,7 +1158,7 @@ class DataManager(object):
         else:
             service = search
 
-        return service.overall_state
+        return (service.overall_state, service.overall_status)
 
     def get_services_synthesis(self, elts=None):
         """
@@ -1469,15 +1473,17 @@ class DataManager(object):
         overall_state = 0
         # Realm real state from hosts
         for member in members:
-            host_overall_state = self.get_host_overall_state(member)
+            (host_overall_state, host_overall_status) = self.get_host_overall_state(member)
             overall_state = max(overall_state, host_overall_state)
 
         # Realm real state from sub-realms
         realm_members = self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
         for realm in realm_members:
-            overall_state = max(overall_state, self.get_realm_overall_state(realm))
+            (ov_state, ov_status) = self.get_realm_overall_state(realm)
+            overall_state = max(overall_state, ov_state)
 
-        return overall_state
+        overall_status = Realm.overall_state_to_status[overall_state]
+        return (overall_state, overall_status)
 
     ##
     # timeperiods

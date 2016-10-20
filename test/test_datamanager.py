@@ -86,7 +86,9 @@ def setup_module():
         # No console output for the applications backend ...
         fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 --protocol=http --enable-threads --pidfile /tmp/uwsgi.pid --logto /tmp/uwsgi.log'), stdout=fnull
+            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 '
+                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid '
+                        '--logto /tmp/uwsgi.log'), stdout=fnull
         )
         time.sleep(1)
 
@@ -693,8 +695,9 @@ class TestHosts(unittest2.TestCase):
         self.assertGreater(len(services), 1)
 
         # Get host overall state
-        state = self.dmg.get_host_overall_state(host)
+        (state, status) = self.dmg.get_host_overall_state(host)
         self.assertEqual(state, 3)
+        self.assertEqual(status, 'warning')
 
     def test_host(self):
         print("--- test Item")

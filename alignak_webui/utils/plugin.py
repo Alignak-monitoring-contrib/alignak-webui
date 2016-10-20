@@ -497,7 +497,7 @@ class Plugin(object):
         for item in elts:
             overall_status = 'unknown'
             if f_get_overall_state:
-                (_, overall_status) = f_get_overall_state(element=item)
+                (dummy, overall_status) = f_get_overall_state(element=item)
 
             cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_status)
             logger.debug("Item state: %s", cfg_state)

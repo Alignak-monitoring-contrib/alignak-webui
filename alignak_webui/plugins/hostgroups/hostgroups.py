@@ -109,8 +109,7 @@ class PluginHostsGroups(Plugin):
         else:
             hostgroup = element
 
-        overall_state = datamgr.get_hostgroup_overall_state(hostgroup)
-        overall_status = hostgroup.overall_state_to_status[overall_state]
+        (overall_state, overall_status) = datamgr.get_hostgroup_overall_state(hostgroup)
         logger.debug(
             " - hostgroup overall state: %d -> %s", overall_state, overall_status
         )

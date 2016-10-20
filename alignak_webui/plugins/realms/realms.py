@@ -76,8 +76,7 @@ class PluginRealms(Plugin):
         else:
             realm = element
 
-        overall_state = datamgr.get_realm_overall_state(realm)
-        overall_status = realm.overall_state_to_status[overall_state]
+        (overall_state, overall_status) = datamgr.get_realm_overall_state(realm)
         logger.debug(
             " - realm overall state: %d -> %s", overall_state, overall_status
         )

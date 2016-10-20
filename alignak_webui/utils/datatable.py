@@ -538,7 +538,7 @@ class Datatable(object):
                 parameters['where'] = {'_is_template': False}
 
         # Request objects from the backend ...
-        logger.warning("table data get parameters: %s", parameters)
+        logger.info("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
         logger.info("table data got %d items", len(items))
         if not items:
@@ -584,6 +584,7 @@ class Datatable(object):
         rows = []
         for item in items:
             bo_object = object_class(item)
+            logger.debug("table data object: %s", bo_object)
 
             row = {}
             row['DT_RowData'] = {}
@@ -609,7 +610,7 @@ class Datatable(object):
                         self.datamgr, 'get_%s_overall_state' % self.object_type
                     )
                     if f_get_overall_state:
-                        (_, overall_status) = f_get_overall_state(bo_object)
+                        (dummy, overall_status) = f_get_overall_state(bo_object)
 
                         # Get element state configuration
                         row[field['data']] = ElementState().get_html_state(

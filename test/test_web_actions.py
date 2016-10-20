@@ -78,7 +78,9 @@ def setup_module(module):
         # No console output for the applications backend ...
         fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 --protocol=http --enable-threads --pidfile /tmp/uwsgi.pid --logto /tmp/uwsgi.log'), stdout=fnull
+            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 '
+                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid '
+                        '--logto /tmp/uwsgi.log'), stdout=fnull
         )
         time.sleep(1)
 
