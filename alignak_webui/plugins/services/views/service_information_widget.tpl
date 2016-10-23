@@ -247,6 +247,10 @@
             <td><strong>{{_('Freshness threshold:')}}</strong></td>
             <td>{{service.freshness_threshold}} seconds</td>
          </tr>
+         <tr>
+            <td><strong>{{_('Freshness state:')}}</strong></td>
+            <td>{{host.freshness_state}} seconds</td>
+         </tr>
          %end
          %end
       </tbody>
