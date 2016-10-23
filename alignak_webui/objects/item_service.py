@@ -289,14 +289,12 @@ class Service(BackendElement):
             return True
         return False
 
-    @property
     def get_initial_state(self):
         """
         Get the element initial state
         """
         return self.short_state_to_status[self.initial_state]
 
-    @property
     def get_freshness_state(self):
         """
         Get the element freshness state
