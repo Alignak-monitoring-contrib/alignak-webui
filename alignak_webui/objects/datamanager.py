@@ -1189,6 +1189,35 @@ class DataManager(object):
         logger.debug("get_services_synthesis: %s", synthesis)
         return synthesis
 
+    def get_services_aggregated(self, elts=None):
+        """
+        Services by aggregation
+        """
+        if elts:
+            services = [item for item in elts if item.get_type() == 'service']
+        else:
+            services = self.get_services()
+        logger.debug("get_services_aggregated, %d services", len(services))
+
+        synthesis = dict()
+        synthesis['nb_elts'] = len(services)
+        synthesis['nb_problem'] = 0
+        if services:
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
+                synthesis['nb_' + state] = sum(
+                    1 for service in services if service.status.lower() == state
+                )
+                synthesis['pct_' + state] = round(
+                    100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
+                )
+        else:
+            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
+                synthesis['nb_' + state] = 0
+                synthesis['pct_' + state] = 0
+
+        logger.debug("get_services_synthesis: %s", synthesis)
+        return synthesis
+
     ##
     # Logs
     ##
@@ -1235,8 +1264,9 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1, 'logcheckresult': 1}})
 
         try:
-            logger.debug("get_history, search: %s", search)
+            logger.info("get_history, search: %s", search)
             items = self.find_object('history', search)
+            logger.info("get_history, got %s items", len(items))
             return items
         except ValueError:
             logger.debug("get_history, none found")

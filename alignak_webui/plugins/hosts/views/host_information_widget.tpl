@@ -91,7 +91,11 @@
          <tr>
             <td><strong>{{_('Check command:')}}</strong></td>
             <td>
-               {{! host.check_command.get_html_state_link(title=host.check_command.command_line)}}
+               %if host.check_command != 'command':
+               {{! host.check_command.get_html_state_link(title=getattr(host.check_command, 'command_line', ''))}}
+               %else:
+               {{ host.check_command }}
+               %end
             </td>
             <td>
             </td>
