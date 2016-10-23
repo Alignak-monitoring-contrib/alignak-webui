@@ -53,7 +53,7 @@
                <tr id="#{{realm.id}}">
                   <td title="{{realm.alias}}">
                      %(realm_state, realm_status) = datamgr.get_realm_overall_state(realm)
-                     {{! realm.get_html_state(text=None, size="fa-5x", use_status=realm_status)}}
+                     {{! realm.get_html_state(text=None, size="fa-2x", use_status=realm_status)}}
                   </td>
 
                   <td>

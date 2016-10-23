@@ -57,6 +57,35 @@ class PluginRealms(Plugin):
 
         super(PluginRealms, self).__init__(app, cfg_filenames)
 
+    def get_one(self, element_id):
+        """
+            Show one element
+        """
+        datamgr = request.app.datamgr
+
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+
+        logger.debug("get_one, search: %s", element_id)
+        element = f(element_id)
+        if not element:
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            if not element:
+                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+        logger.debug("get_one, found: %s - %s", element, element.__dict__)
+
+        groups = element.hostgroups
+        if element.level == 0:
+            groups = datamgr.get_hostgroups(search={'where': {'_level': 1}})
+
+        return {
+            'object_type': self.backend_endpoint,
+            'element': element,
+            'groups': groups
+        }
+
     def get_overall_state(self, element):
         """
         Get the realm overall state
