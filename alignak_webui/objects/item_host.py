@@ -294,14 +294,14 @@ class Host(BackendElement):
         return False
 
     @property
-    def initial_state(self):
+    def get_initial_state(self):
         """
         Get the element initial state
         """
         return self.short_state_to_status[self.initial_state]
 
     @property
-    def freshness_state(self):
+    def get_freshness_state(self):
         """
         Get the element freshness state
         """

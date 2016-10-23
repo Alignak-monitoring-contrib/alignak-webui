@@ -249,7 +249,7 @@
          </tr>
          <tr>
             <td><strong>{{_('Freshness state:')}}</strong></td>
-            <td>{{host.freshness_state}}</td>
+            <td>{{service.get_freshness_state()}}</td>
          </tr>
          %end
          %end
