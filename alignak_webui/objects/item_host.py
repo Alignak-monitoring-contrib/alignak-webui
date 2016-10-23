@@ -57,6 +57,16 @@ class Host(BackendElement):
         'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
 
+    # Converting short state character to text status (used for initial_state and freshness_state)
+    short_state_to_status = {
+        'o': _('Up'),
+        'd': _('Down'),
+        'u': _('Unreachable'),
+        'r': _('Recovery'),
+        'f': _('Flapping'),
+        's': _('Downtime'),
+    }
+
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -282,6 +292,20 @@ class Host(BackendElement):
         if self.state_id in [1, 2] and self.state_type == "HARD":
             return True
         return False
+
+    @property
+    def initial_state(self):
+        """
+        Get the element initial state
+        """
+        return self.short_state_to_status[self.initial_state]
+
+    @property
+    def freshness_state(self):
+        """
+        Get the element freshness state
+        """
+        return self.short_state_to_status[self.freshness_state]
 
     @property
     def overall_state(self):

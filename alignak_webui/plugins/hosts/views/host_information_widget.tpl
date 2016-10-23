@@ -241,7 +241,7 @@
          </tr>
          <tr>
             <td><strong>{{_('Freshness state:')}}</strong></td>
-            <td>{{host.freshness_state}} seconds</td>
+            <td>{{host.freshness_state}}</td>
          </tr>
          %end
          %end
