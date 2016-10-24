@@ -76,7 +76,6 @@ class Log(BackendElement):
         """ Return linked object """
         return self._linked_service
 
-
     @property
     def acknowledged(self):
         """

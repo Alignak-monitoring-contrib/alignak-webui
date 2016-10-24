@@ -76,7 +76,7 @@ class Realm(BackendElement):
 
     @property
     def level(self):
-        """ Return group level """
+        """ Return realm level """
         return self._level
 
     # @property

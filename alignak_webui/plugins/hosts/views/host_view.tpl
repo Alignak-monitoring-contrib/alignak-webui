@@ -68,36 +68,42 @@
    %end
 </div>
 <div id="host_view_graphes" class="col-lg-8 col-sm-8">
-   <!-- Last check output -->
-   <table class="table table-condensed table-nowrap">
-      <thead>
-         <tr>
-            <th colspan="2">{{_('Last check:')}}</th>
-         </tr>
-      </thead>
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Last check:')}}</strong></td>
-            <td>
-               {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
-            </td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Output:')}}</strong></td>
-            <td>
-               {{! host.output}}
-            </td>
-         </tr>
-         %if host.long_output:
-         <tr>
-            <td><strong>{{_('Long output:')}}</strong></td>
-            <td>
-               {{! host.long_output}}
-            </td>
-         </tr>
-         %end
-      </tbody>
-   </table>
+   <div class="panel panel-default">
+      <div class="panel-heading">
+         {{ _('My last check') }}
+      </div>
+
+      <div class="panel-body">
+         <!-- Last check output -->
+         <table class="table table-condensed table-nowrap">
+            <tbody style="font-size:x-small;">
+               <tr>
+                  <td><strong>{{_('Last check:')}}</strong></td>
+                  <td>
+                     {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
+                  </td>
+               </tr>
+               <tr>
+                  <td><strong>{{_('Output:')}}</strong></td>
+                  <td>
+                     {{! host.output}}
+                  </td>
+               </tr>
+               %if host.long_output:
+               <tr>
+                  <td><strong>{{_('Long output:')}}</strong></td>
+                  <td>
+                     {{! host.long_output}}
+                  </td>
+               </tr>
+               %end
+            </tbody>
+         </table>
+      </div>
+   </div>
+
+   <!-- Service tree view -->
+   %include("services_tree.tpl", tree_items=tree_items, elts=services, tree_type='service', in_host_view=True, title=_('My services tree'), layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
 
    %if not services:
    <center>

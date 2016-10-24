@@ -32,7 +32,7 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response, template, route, view, redirect
+from bottle import request, response, template, view, redirect
 import bottle
 
 from alignak_webui import _
@@ -462,7 +462,6 @@ class Plugin(object):
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Pagination and search
         start = int(request.query.get('start', '0'))
@@ -485,7 +484,6 @@ class Plugin(object):
         total = datamgr.get_objects_count(
             self.backend_endpoint, search=where, refresh=True
         )
-        # count = min(count, total)
 
         # Get elements from the data manager
         f_get_overall_state = getattr(self, 'get_overall_state', None)

@@ -28,6 +28,7 @@ from bottle import request, template, response
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.objects.element_state import ElementState
 
 logger = getLogger(__name__)
 
@@ -239,6 +240,9 @@ class PluginHosts(Plugin):
         # Get host services
         services = datamgr.get_host_services(host)
 
+        # Aggregate host services in a tree
+        tree_items = datamgr.get_services_aggregated(services)
+
         # Update host overall state
         datamgr.get_host_overall_state(host)
 
@@ -311,6 +315,7 @@ class PluginHosts(Plugin):
             'host': host,
             'plugin_parameters': self.plugin_parameters,
             'services': services,
+            'tree_items': tree_items,
             'history': history,
             'events': events,
             'parents': parents,

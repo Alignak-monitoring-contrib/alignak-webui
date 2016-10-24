@@ -1197,26 +1197,95 @@ class DataManager(object):
             services = [item for item in elts if item.get_type() == 'service']
         else:
             services = self.get_services()
-        logger.debug("get_services_aggregated, %d services", len(services))
+        logger.info("get_services_aggregated, %d services", len(services))
 
-        synthesis = dict()
-        synthesis['nb_elts'] = len(services)
-        synthesis['nb_problem'] = 0
-        if services:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
-                synthesis['nb_' + state] = sum(
-                    1 for service in services if service.status.lower() == state
-                )
-                synthesis['pct_' + state] = round(
-                    100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
-                )
-        else:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
-                synthesis['nb_' + state] = 0
-                synthesis['pct_' + state] = 0
+        aggregations = {}
+        for service in services:
+            if service.aggregation in aggregations:
+                service._level = aggregations[service.aggregation]['level']
+                service._parent = service.aggregation
+                continue
 
-        logger.debug("get_services_synthesis: %s", synthesis)
-        return synthesis
+            if '/' not in service.aggregation:
+                aggregations[service.aggregation] = {'level': 1, 'parent': '#'}
+                service._level = aggregations[service.aggregation]['level']
+                service._parent = service.aggregation
+                continue
+
+            splitted = service.aggregation.split('/')
+            if len(splitted) > 2:
+                logger.warning("Services aggregation only manages two levels. "
+                               "Service %s will be aggregated with %s/%s",
+                               service.name, splitted[0], splitted[1])
+
+            if splitted[0] not in aggregations:
+                aggregations[splitted[0]] = {'level': 1, 'parent': '#'}
+
+            if splitted[1] not in aggregations:
+                aggregations[splitted[1]] = {'level': 2, 'parent': splitted[0]}
+
+            service._level = max(len(splitted), 2)
+            service._parent = splitted[1]
+
+        # Build tree for aggregations hierarchy
+        tree_items = []
+        for aggregation in aggregations:
+            tree_item = {
+                'id': aggregation,
+                'parent': aggregations[aggregation]['parent'],
+                'text': aggregation,
+                'icon': 'fa fa-sitemap',
+                'state': {
+                    "opened": True,
+                    "selected": False,
+                    "disabled": False
+                },
+                'data': {
+                    'status': 'sqdsq',
+                    'name': aggregation,
+                    'alias': aggregation,
+                    '_level': aggregations[aggregation]['level'],
+                    'type': 'node'
+                }
+            }
+            tree_items.append(tree_item)
+
+        # Get element state configuration
+        items_states = ElementState()
+
+        for service in services:
+            cfg_state = items_states.get_icon_state('service', service.status)
+            if not cfg_state:
+                cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
+
+            parent = 'host'
+            if service._parent:
+                parent = service._parent
+
+            tree_item = {
+                'id': service.id,
+                'parent': parent,
+                'text': service.alias,
+                'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                'state': {
+                    "opened": True,
+                    "selected": False,
+                    "disabled": False
+                },
+                'data': {
+                    'status': service.status,
+                    'name': service.name,
+                    'alias': service.alias,
+                    '_level': service._level,
+                    'type': 'service'
+                },
+                'a_attr': {}
+            }
+
+            tree_items.append(tree_item)
+
+        logger.info("get_services_aggregated: %s", tree_items)
+        return tree_items
 
     ##
     # Logs
@@ -1239,9 +1308,9 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
-            logger.info("get_logcheckresult, search: %s", search)
+            logger.debug("get_logcheckresult, search: %s", search)
             items = self.find_object('logcheckresult', search)
-            logger.info("get_logcheckresult, got %s items", len(items))
+            logger.debug("get_logcheckresult, got %s items", len(items))
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_logcheckresult, none found")
@@ -1265,9 +1334,9 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1, 'logcheckresult': 1}})
 
         try:
-            logger.info("get_history, search: %s", search)
+            logger.debug("get_history, search: %s", search)
             items = self.find_object('history', search)
-            logger.info("get_history, got %s items", len(items))
+            logger.debug("get_history, got %s items", len(items))
             return items
         except ValueError:
             logger.debug("get_history, none found")

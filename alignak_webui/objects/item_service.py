@@ -289,6 +289,16 @@ class Service(BackendElement):
             return True
         return False
 
+    @property
+    def level(self):
+        """ Return service level (in services aggregation) """
+        return self._level
+
+    @property
+    def parent(self):
+        """ Return service parent (in services aggregation) """
+        return self._parent
+
     def get_initial_state(self):
         """
         Get the element initial state
