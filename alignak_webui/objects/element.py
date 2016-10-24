@@ -378,11 +378,11 @@ class BackendElement(object):
 
             try:
                 setattr(self, key, params[key])
-            except Exception as e:
+            except Exception as exp:
                 logger.critical(
-                    "__init__ parameter exception: %s, %s = %s, %s",
-                    self.__class__, key, params[key], str(e)
+                    "__init__ parameter exception: %s, %s = %s", self.__class__, key, params[key]
                 )
+                logger.exception("exception: %s", exp)
 
         if embedded:
             for key, value in sorted(params.items()):

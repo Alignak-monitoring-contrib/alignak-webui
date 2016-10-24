@@ -76,6 +76,21 @@ class Log(BackendElement):
         """ Return linked object """
         return self._linked_service
 
+
+    @property
+    def acknowledged(self):
+        """
+        Get the inner object propery acknowledged
+        """
+        return self._acknowledged
+
+    @acknowledged.setter
+    def acknowledged(self, acknowledged):
+        """
+        Set Item property acknowledged
+        """
+        self._acknowledged = acknowledged
+
     def get_check_date(self, timestamp=False, fmt=None, duration=False):
         """
         Returns a string formatted data

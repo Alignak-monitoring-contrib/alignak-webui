@@ -260,7 +260,7 @@ class PluginHosts(Plugin):
         search = {
             'page': (start // count) + 1,
             'max_results': count,
-            'where': {'host': element_id}
+            'where': {'host': host.id}
         }
 
         # Find known history types
@@ -299,7 +299,7 @@ class PluginHosts(Plugin):
         search = {
             'page': (start // count) + 1,
             'max_results': count,
-            'where': {'host': element_id, 'type': {'$nin': excluded}}
+            'where': {'host': host.id, 'type': {'$nin': excluded}}
         }
 
         # Get host events
@@ -311,8 +311,6 @@ class PluginHosts(Plugin):
             'host': host,
             'plugin_parameters': self.plugin_parameters,
             'services': services,
-            # 'livestate': livestate,
-            # 'livestate_services': livestate_services,
             'history': history,
             'events': events,
             'parents': parents,
@@ -346,7 +344,7 @@ class PluginHosts(Plugin):
                 return self.webui.response_invalid_parameters(_('Host does not exist'))
 
         # Get host services
-        services = datamgr.get_services(search={'where': {'host': element_id}})
+        services = datamgr.get_services(search={'where': {'host': host.id}})
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)

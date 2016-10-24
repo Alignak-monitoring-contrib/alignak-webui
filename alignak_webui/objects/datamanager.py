@@ -518,7 +518,7 @@ class DataManager(object):
         :return: True / False
         :rtype: boolean
         """
-        logger.info("set_user_preferences, key: %s, for: %s", preference_key, user)
+        logger.debug("set_user_preferences, key: %s, for: %s", preference_key, user)
         # logger.debug("set_user_preferences, value = %s", value)
 
         # Get user stored value
@@ -1239,8 +1239,9 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1}})
 
         try:
-            logger.debug("get_logcheckresult, search: %s", search)
+            logger.info("get_logcheckresult, search: %s", search)
             items = self.find_object('logcheckresult', search)
+            logger.info("get_logcheckresult, got %s items", len(items))
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_logcheckresult, none found")
