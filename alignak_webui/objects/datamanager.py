@@ -1190,6 +1190,7 @@ class DataManager(object):
         return synthesis
 
     def get_services_aggregated(self, elts=None):
+        # pylint: disable=protected-access
         """
         Services by aggregation
         """
