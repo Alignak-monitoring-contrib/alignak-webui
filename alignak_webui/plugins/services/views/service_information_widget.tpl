@@ -402,9 +402,10 @@
          </tr>
          %if service.flap_detection_enabled:
             %message = {}
-            %message['o'] = {'title': _('Flapping enabled on Up state'), 'message': _('UP')}
-            %message['d'] = {'title': _('Flapping enabled on Down state'), 'message': _('DOWN')}
-            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+            %message['o'] = {'title': _('Flapping enabled on Ok state'), 'message': _('OK')}
+            %message['w'] = {'title': _('Flapping enabled on Down state'), 'message': _('WARNING')}
+            %message['c'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('CRITICAL')}
+            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNKNOWN')}
             %first=True
             %for m in message:
                <tr>
