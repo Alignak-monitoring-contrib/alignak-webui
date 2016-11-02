@@ -1,4 +1,4 @@
-<!-- Hosts table widget -->
+<!-- Alignak widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request
@@ -7,11 +7,10 @@
 %setdefault('credentials', None)
 
 %from alignak_webui.utils.helper import Helper
-%from alignak_webui.objects.item_command import Command
 
 %if not elements:
    <center>
-      <h4>{{_('No hosts matching the filter...')}}</h4>
+      <h4>{{_('No Alignak state available...')}}</h4>
    </center>
 %else:
    <table class="table table-condensed">

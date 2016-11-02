@@ -8,7 +8,7 @@
 
 %if not elements:
    <center>
-      <h3>{{_('No hosts matching the filter...')}}</h3>
+      <h4>{{_('No hosts matching the filter...')}}</h4>
    </center>
 %else:
    %hs = datamgr.get_livesynthesis()['hosts_synthesis']

@@ -27,17 +27,13 @@
     This module contains an Alignek Web services interface class
 """
 
-import json
-import traceback
 import logging
-import requests
-
-from future.moves.urllib.parse import urljoin
 
 import requests
 from requests import Timeout, HTTPError
 from requests import ConnectionError as RequestsConnectionError
-from requests.auth import HTTPBasicAuth
+
+from future.moves.urllib.parse import urljoin
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 logger = logging.getLogger(__name__)

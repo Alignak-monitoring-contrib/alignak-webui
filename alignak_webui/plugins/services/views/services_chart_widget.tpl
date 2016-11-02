@@ -8,7 +8,7 @@
 
 %if not elements:
    <center>
-      <h3>{{_('No services matching the filter...')}}</h3>
+      <h4>{{_('No services matching the filter...')}}</h4>
    </center>
 %else:
    %ss = datamgr.get_livesynthesis()['services_synthesis']
