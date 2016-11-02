@@ -178,8 +178,9 @@ class PluginActions(Plugin):
                         status += _("Failed adding a check request for %s. ") % element.name
                     else:
                         if elements_type == 'service':
-                            status += _('Check request sent for %s/%s. ') % \
-                                      (element.host.name, element.name)
+                            status += _('Check request sent for %s/%s. ') % (
+                                element.host.name, element.name
+                            )
                         else:
                             status += _('Check request sent for %s. ') % element.name
 
@@ -354,8 +355,9 @@ class PluginActions(Plugin):
                         status += _("Failed adding a check request for %s. ") % element.name
                     else:
                         if elements_type == 'service':
-                            status += _('Check request sent for %s/%s. ') % \
-                                      (element.host.name, element.name)
+                            status += _('Check request sent for %s/%s. ') % (
+                                element.host.name, element.name
+                            )
                         else:
                             status += _('Check request sent for %s. ') % element.name
 

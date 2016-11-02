@@ -28,6 +28,14 @@ test_mode=1
 ; alignak_backend = http://127.0.0.1:5000
 
 
+; Alignak information:
+; ------------------------------------------------------------------------------------------
+; # Alignak arbiter endpoint
+; # Configure this value to get information from the Alignak Arbiter
+; Default is http://127.0.0.1:7770
+; alignak_arbiter = http://127.0.0.1:7770
+
+
 ; # Web server configuration
 ; ------------------------------------------------------------------------------------------
 ; Default is listening on TCP port 5001 on local loop interface
@@ -255,6 +263,7 @@ text: Inactive
 icon: close
 
 ; Host: up/down/unreachable
+; Host live state: from the monitoring framework
 [items.host.up]
 class: host_up
 text: Host is up
@@ -301,7 +310,7 @@ class: host_in_downtime
 text: Host or at least one of its services is in a scheduled downtime
 icon: ambulance
 
-; Service: ok/warning/critical
+; Service: ok/warning/critical/unknown/unreachable
 [items.service.ok]
 class: service_ok
 text: Service is ok or problems are handled
@@ -320,7 +329,12 @@ icon: cube
 [items.service.unknown]
 class: service_unknown
 text: Service is unknown
-icon: cube
+icon: question
+
+[items.service.unreachable]
+class: service_unreachable
+text: Service is unreachable
+icon: question
 
 [items.service.acknowledged]
 class: service_acknowledged
@@ -349,14 +363,159 @@ class: logcheckresult_unreachable
 text: Host is unreachable
 icon: question
 
+[items.logcheckresult.unknown]
+class: logcheckresult_unknown
+text: Element is unknown
+icon: question
+
+[items.logcheckresult.acknowledged]
+class: logcheckresult_acknowledged
+text: Element is problem and acknowledged
+icon: check
+
+[items.logcheckresult.in_downtime]
+class: logcheckresult_in_downtime
+text: Element is in a scheduled downtime
+icon: ambulance
+
+; Service: ok/warning/critical
+[items.logcheckresult.ok]
+class: logcheckresult_ok
+text: Service is ok
+icon: check
+
+[items.logcheckresult.critical]
+class: logcheckresult_critical
+text: Service is critical
+icon: close
+
+[items.logcheckresult.warning]
+class: logcheckresult_warning
+text: Service is warning
+icon: question
+
+
+; History
+[items.history.check_result]
+class: historyCheckResult
+text: Check result
+icon: bolt
+[items.history.check_request]
+class: historyCheckRequest
+text: Check request
+icon: send
+[items.history.check_requested]
+class: historyCheckRequested
+text: Check requested
+icon: reply
+
+[items.history.ack_add]
+class: historyAckAdd
+text: Request to add an acknowledge
+icon: send
+[items.history.ack_processed]
+class: historyAckProcessed
+text: Acknowledge set
+icon: reply
+[items.history.ack_delete]
+class: historyAckDelete
+text: Request to delete an acknowledge
+icon: trash
+
+[items.history.downtime_add]
+class: historyDowntimeAdd
+text: Request to add a downtime
+icon: send
+[items.history.downtime_processed]
+class: historyDowntimeProcessed
+text: Downtime set
+icon: reply
+[items.history.downtime_delete]
+class: historyDowntimeDelete
+text: Request to delete a downtime
+icon: trash
+
 ; Commands
 [items.command.unknown]
 class: command
 text:
 icon: bolt
 
+; Timeperiods
+[items.timeperiod.unknown]
+class: timeperiod
+text:
+icon: calendar
+
 ; User states: unknown only! Needs refactoring user/user ...
 [items.user.unknown]
 class: user
 text:
 icon: user
+
+; Users groups
+[items.usergroup.unknown]
+class: usergroup
+text:
+icon: users
+
+; Hosts groups
+; Real state is computed from the real state of the group members
+[items.hostgroup.unknown]
+class: hostgroup_unknown
+text: Hosts group do not have any members.
+icon: server
+[items.hostgroup.ok]
+class: hostgroup_ok
+text: All hosts group members are ok
+icon: server
+[items.hostgroup.acknowledged]
+class: hostgroup_acknowledged
+text: Hosts group worst state is Acknowledge. At least an host or service is an acknowledeged problem.
+icon: check
+[items.hostgroup.in_downtime]
+class: hostgroup_in_downtime
+text: Hosts group worst state is Downtime. At least an host or service is in a scheduled downtime.
+icon: ambulance
+[items.hostgroup.warning]
+class: hostgroup_warning
+text: Hosts group worst state is Warning. Some hosts are unreachable and/or some services are warning.
+icon: server
+[items.hostgroup.critical]
+class: hostgroup_critical
+text: Hosts group worst state is Critical. Some hosts are down and/or some services are critical.
+icon: server
+
+; Services groups
+[items.servicegroup.unknown]
+class: servicegroup
+text:
+icon: cubes
+
+; Realms
+; Real state is computed from the real state of the realm hosts
+[items.realm.unknown]
+class: realm
+text: Realm do not have any members
+icon: sitemap
+[items.realm.ok]
+class: realm_ok
+text: All realm hosts are ok
+icon: sitemap
+[items.realm.acknowledged]
+class: realm_acknowledged
+text: Realm worst state is Acknowledge. At least an host or service is an acknowledeged problem.
+icon: check
+[items.realm.in_downtime]
+class: realm_in_downtime
+text: Realm worst state is Downtime. At least an host or service is in a scheduled downtime.
+icon: ambulance
+[items.realm.warning]
+class: realm_warning
+text: Realm worst state is Warning. Some hosts are unreachable and/or some services are warning.
+icon: sitemap
+[items.realm.critical]
+class: realm_critical
+text: Realm worst state is Critical. Some hosts are down and/or some services are critical.
+icon: sitemap
+
