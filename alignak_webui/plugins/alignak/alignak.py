@@ -61,9 +61,6 @@ class PluginAlignak(Plugin):
         """
         Get the Alignak information and build a view from it
         """
-        # Yes, but that's how it is made, and it suits ;)
-        # pylint: disable=too-many-locals
-        user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
         # Get Alignak state from the data manager
