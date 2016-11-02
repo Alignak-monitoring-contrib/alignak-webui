@@ -51,7 +51,7 @@ class Service(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'unknown', 'unreachable'
     ]
 
     # Converting short state character to text status (used for initial_state and freshness_state)
@@ -60,6 +60,7 @@ class Service(BackendElement):
         'w': _('Warning'),
         'c': _('Critical'),
         'u': _('Unknown'),
+        'x': _('Unreachable'),
         'r': _('Recovery'),
         'f': _('Flapping'),
         's': _('Downtime'),
@@ -340,6 +341,8 @@ class Service(BackendElement):
                 overall_state = 4
             elif self.state == 'UNKNOWN':
                 overall_state = 3
+            elif self.state == 'UNREACHABLE':
+                overall_state = 4
 
         return overall_state
 
