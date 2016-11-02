@@ -44,6 +44,7 @@ appli = None
 
 class TestInitialization(unittest2.TestCase):
     def test_0(self):
+        """ Default initialization - production mode, no test mode configuration """
         print('Default initialization - production mode, no test mode configuration')
 
         # Application configuration is already loaded
@@ -64,6 +65,7 @@ class TestInitialization(unittest2.TestCase):
         assert self.alignak_webui.widgets is not None
 
     def test_1(self):
+        """ Define settings """
         print('Settings fixed')
 
         # Get configuration from only one file ...
@@ -89,6 +91,7 @@ class TestInitialization(unittest2.TestCase):
         assert self.alignak_webui
 
     def test_2(self):
+        """ Defined settings (fr """
         print('Settings fixed (2)')
 
         # Get configuration from only one file ...
@@ -117,7 +120,6 @@ class TestInitialization(unittest2.TestCase):
 
 class TestMethods(unittest2.TestCase):
     def setUp(self):
-        print("")
         print("setting up ...")
 
         # Application configuration is loaded
@@ -130,12 +132,8 @@ class TestMethods(unittest2.TestCase):
         print(self.alignak_webui)
         assert self.alignak_webui
 
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
     def test_1_1(self):
-        print('')
+        """ Application configuration (manifest) """
         print('test configuration')
 
         manifest = alignak_webui.manifest
@@ -159,7 +157,7 @@ class TestMethods(unittest2.TestCase):
         # assert False
 
     def test_1_2_plugins(self):
-        print('')
+        """ Application plugins """
         print('test plugins')
 
         print('plugins count:', self.alignak_webui.plugins_count)

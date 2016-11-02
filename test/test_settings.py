@@ -30,7 +30,8 @@ from alignak_webui.utils.settings import Settings
 
 
 class TestSettings(unittest2.TestCase):
-    def test_1_found_not_found(self):
+    def test_found_not_found(self):
+        """ Settings - configuration file not found"""
         print('test configuration file')
 
         # Default configuration - not found because of test directory location !
@@ -74,7 +75,8 @@ class TestSettings(unittest2.TestCase):
         print('Found:', found_cfg_files)
         assert found_cfg_files is None
 
-    def test_2_found(self):
+    def test_found(self):
+        """ Settings - configuration file found"""
         # Relative file path
         cfg_file = "settings.cfg"
         print('Required configuration file:', cfg_file)

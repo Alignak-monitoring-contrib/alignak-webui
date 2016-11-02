@@ -14,24 +14,27 @@ print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 
 class TestStart(unittest2.TestCase):
-    def test_3_0_start_application_uwsgi(self):
+    def test_start_application_uwsgi(self):
+        """ Start application with uwsgi"""
         print('test application start error')
 
         os.getcwd()
         print ("Launching application with UWSGI ...")
-        # uwsgi process is not stoppable ...
-        # os.chdir("..")
-        # FNULL = open(os.devnull, 'w')
-        # pid = subprocess.Popen(
-        # shlex.split('bash run.sh')
-        # )
-        # print ("PID: %s" % pid)
-        # time.sleep(5)
 
-        # pid.kill()
-        # os.chdir(mydir)
+        # No console output for the applications backend ...
+        fnull = open(os.devnull, 'w')
+        pid = subprocess.Popen(
+            shlex.split('uwsgi --plugin python -w alignakwebui:app --socket 0.0.0.0:5000 '
+                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid '
+                        '--logto /tmp/uwsgi.log'), stdout=fnull
+        )
+        time.sleep(5)
 
-    def test_3_1_start_application_error(self):
+        subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        time.sleep(1)
+
+    def test_start_application_error(self):
+        """ Start application with errors"""
         print('test application start error')
 
         mydir = os.getcwd()
@@ -43,7 +46,8 @@ class TestStart(unittest2.TestCase):
         assert exit_code == 64
         os.chdir(mydir)
 
-    def test_3_2_start_application_version(self):
+    def test_start_application_version(self):
+        """ Start application to get version"""
         print('test application version start')
 
         mydir = os.getcwd()
@@ -80,7 +84,8 @@ class TestStart(unittest2.TestCase):
         assert exit_code == 99
         os.chdir(mydir)
 
-    def test_3_3_start_application(self):
+    def test_start_application(self):
+        """ Start application stand alone"""
         print('test application default start')
 
         mydir = os.getcwd()
@@ -104,7 +109,8 @@ class TestStart(unittest2.TestCase):
         process.terminate()
         os.chdir(mydir)
 
-    def test_3_4_start_application_configuration(self):
+    def test_start_application_configuration(self):
+        """ Start application with configuration"""
         print('test application configuration start')
 
         mydir = os.getcwd()

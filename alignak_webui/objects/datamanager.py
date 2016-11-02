@@ -1303,6 +1303,8 @@ class DataManager(object):
         """
         if not search:
             search = {}
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
         if "sort" not in search:
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
@@ -1329,6 +1331,8 @@ class DataManager(object):
         """
         if not search:
             search = {}
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
         if "sort" not in search:
             search.update({'sort': '-_id'})
         if 'embedded' not in search:

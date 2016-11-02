@@ -108,6 +108,7 @@ def teardown_module(module):
 
 class TestCreation(unittest2.TestCase):
     def test_2_1_creation_load(self):
+        """ Datamanager creation and load """
         print('------------------------------')
         print('test creation')
 
@@ -202,8 +203,6 @@ class TestCreation(unittest2.TestCase):
 
 class TestLoadCreate(unittest2.TestCase):
     def setUp(self):
-        print("")
-
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -211,7 +210,7 @@ class TestLoadCreate(unittest2.TestCase):
         print("")
 
     def test_3_1_load(self):
-        print("")
+        """ Datamanager load """
         print('test load as admin')
 
         # Initialize and load ... no reset
@@ -227,7 +226,7 @@ class TestLoadCreate(unittest2.TestCase):
         # self.assertEqual(result, 0)
 
     def test_3_3_get_errors(self):
-        print("")
+        """ Datamanager objects get errors """
         print('test get errors')
 
         # Initialize and load ... no reset
@@ -236,31 +235,43 @@ class TestLoadCreate(unittest2.TestCase):
         print("Result:", result)
         assert result == 0  # No new objects created ...
 
-        # Get users error
+        # Get elements error
         item = self.dmg.get_user('unknown')
+        assert not item
+        item = self.dmg.get_userrestrictrole('unknown')
         assert not item
         item = self.dmg.get_realm('unknown')
         assert not item
         item = self.dmg.get_host('unknown')
         assert not item
+        item = self.dmg.get_hostgroup('unknown')
+        assert not item
+        item = self.dmg.get_hostdependency('unknown')
+        assert not item
         item = self.dmg.get_service('unknown')
         assert not item
+        item = self.dmg.get_servicegroup('unknown')
+        assert not item
+        item = self.dmg.get_servicedependency('unknown')
+        assert not item
         item = self.dmg.get_command('unknown')
+        assert not item
+        item = self.dmg.get_history('unknown')
+        assert not item
+        item = self.dmg.get_logcheckresult('unknown')
+        assert not item
+        item = self.dmg.get_timeperiod('unknown')
         assert not item
 
 
 class TestNotAdmin(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
-    def tearDown(self):
-        print("")
-
     @unittest2.skip("Skipped because creating a new user do not allow him to get its own data (timeperiod get is 404)!")
     def test_4_1_load(self):
-        print("")
+        """ Datamanager load, not admin user """
         print('test load not admin user')
 
         # Initialize and load ... no reset
@@ -412,7 +423,6 @@ class TestNotAdmin(unittest2.TestCase):
 
 class TestBasic(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -421,7 +431,6 @@ class TestBasic(unittest2.TestCase):
         result = self.dmg.load()
 
     def tearDown(self):
-        print("")
         # Logout
         self.dmg.reset(logout=True)
         assert not self.dmg.backend.connected
@@ -429,7 +438,7 @@ class TestBasic(unittest2.TestCase):
         assert self.dmg.loaded == False
 
     def test_5_1_get_simple(self):
-        print("")
+        """ Datamanager objects get - simple elements """
         print('test objects get simple objects')
 
         # Get realms
@@ -457,7 +466,7 @@ class TestBasic(unittest2.TestCase):
         self.assertEqual(len(items), 4)
 
     def test_5_1_get_linked(self):
-        print("")
+        """ Datamanager objects get - linked elements """
         print('test objects get linked')
 
         # Get hosts
@@ -479,7 +488,7 @@ class TestBasic(unittest2.TestCase):
         self.assertEqual(len(items), 50)  # Backend pagination limit ...
 
     def test_5_1_get_linked_groups(self):
-        print("")
+        """ Datamanager objects get - group elements """
         print('test objects get self linked')
 
         # Get hostgroups
@@ -510,7 +519,7 @@ class TestBasic(unittest2.TestCase):
         self.assertEqual(len(items), 3)
 
     def test_5_3_livesynthesis(self):
-        print("")
+        """ Datamanager objects get - livesynthesis """
         print('test livesynthesis')
 
         self.maxDiff = None
@@ -564,7 +573,6 @@ class TestBasic(unittest2.TestCase):
 
 class TestRelations(unittest2.TestCase):
     def setUp(self):
-        print("")
         print("setting up ...")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
@@ -573,12 +581,12 @@ class TestRelations(unittest2.TestCase):
         assert self.dmg.user_login('admin', 'admin', load=False)
 
     def tearDown(self):
-        print("")
         print("tearing down ...")
         # Logout
         self.dmg.reset(logout=True)
 
     def test_relation_host_command(self):
+        """ Datamanager objects get - host/command relation """
         print("--- test Item")
 
         # Get main realm
@@ -596,6 +604,7 @@ class TestRelations(unittest2.TestCase):
         assert host.check_command
 
     def test_relation_host_service(self):
+        """ Datamanager objects get - host/services relation """
         print("--- test Item")
 
         # Get main realm
@@ -615,7 +624,6 @@ class TestRelations(unittest2.TestCase):
 
 class TestHosts(unittest2.TestCase):
     def setUp(self):
-        print("")
         print("setting up ...")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
@@ -624,12 +632,12 @@ class TestHosts(unittest2.TestCase):
         assert self.dmg.user_login('admin', 'admin', load=False)
 
     def tearDown(self):
-        print("")
         print("tearing down ...")
         # Logout
         self.dmg.reset(logout=True)
 
     def test_hosts(self):
+        """ Datamanager objects get - hosts """
         print("Get all hosts")
 
         # Get main realm
@@ -700,6 +708,7 @@ class TestHosts(unittest2.TestCase):
         self.assertEqual(status, 'warning')
 
     def test_host(self):
+        """ Datamanager objects get - host """
         print("--- test Item")
 
         # Get main realm

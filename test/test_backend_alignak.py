@@ -79,6 +79,7 @@ def teardown_module(module):
 
 class TestCreation(unittest2.TestCase):
     def test_creation(self):
+        """ Backend creation """
         print("--- creation")
 
         be = BackendConnection(backend_address)
@@ -95,6 +96,7 @@ class TestCreation(unittest2.TestCase):
 
 class TestLogin(unittest2.TestCase):
     def test_login(self):
+        """ Backend login """
         print("--- login")
 
         be = BackendConnection(backend_address)
@@ -119,6 +121,7 @@ class TestGet(unittest2.TestCase):
         print("Logged in")
 
     def test_count(self):
+        """ Backend couent elements """
         print("--- count")
 
         # Count all users
@@ -147,6 +150,7 @@ class TestGet(unittest2.TestCase):
         self.assertEqual(result, 1)
 
     def test_get(self):
+        """ Backend get elements """
         print("--- get")
 
         # Get all users
@@ -183,6 +187,7 @@ class TestGet(unittest2.TestCase):
         self.assertEqual(result['_id'], admin_id)
 
     def test_get_all(self):
+        """ Backend get all elements """
         print("--- get all")
 
         # Get one page of services

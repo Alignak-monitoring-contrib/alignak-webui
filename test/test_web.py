@@ -56,7 +56,6 @@ pid = None
 backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
-    print ("")
     print ("start alignak backend")
 
     global pid
@@ -109,8 +108,8 @@ class TestDashboard(unittest2.TestCase):
     def tearDown(self):
         response = self.app.get('/logout')
 
-    def test_3_1_dashboard(self):
-        print('')
+    def test_dashboard(self):
+        """ Web - dashboard """
         print('test dashboard')
 
         print('get page /dashboard')
@@ -154,8 +153,8 @@ class TestUsers(unittest2.TestCase):
     def tearDown(self):
         response = self.app.get('/logout')
 
-    def test_3_2_users(self):
-        print('')
+    def test_users(self):
+        """ Web - users """
         print('test users')
 
         print('get page /users')
@@ -165,11 +164,11 @@ class TestUsers(unittest2.TestCase):
             '5 elements out of 5',
         )
 
-        response = self.app.get('/users/config')
+        self.app.get('/users/config')
 
-        response = self.app.get('/users/list')
+        self.app.get('/users/list')
 
-        response = self.app.get('/users/table')
+        self.app.get('/users/table')
 
 
 class TestCommands(unittest2.TestCase):
@@ -181,10 +180,10 @@ class TestCommands(unittest2.TestCase):
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_3_3_commands(self):
-        print('')
+    def test_commands(self):
+        """ Web - commands """
         print('test commands')
 
         print('get page /commands')
@@ -193,9 +192,9 @@ class TestCommands(unittest2.TestCase):
             '<div id="commands">',
             '25 elements out of ',
         )
-        response = self.app.get('/commands/config')
-        response = self.app.get('/commands/list')
-        response = self.app.get('/commands/table')
+        self.app.get('/commands/config')
+        self.app.get('/commands/list')
+        self.app.get('/commands/table')
 
 
 class TestTimeperiods(unittest2.TestCase):
@@ -204,13 +203,13 @@ class TestTimeperiods(unittest2.TestCase):
         self.app = TestApp(
             webapp
         )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_3_6_timeperiods(self):
-        print('')
+    def test_timeperiods(self):
+        """ Web - timeperiods """
         print('test timeperiods')
 
         print('get page /timeperiods')
@@ -219,10 +218,10 @@ class TestTimeperiods(unittest2.TestCase):
             '<div id="timeperiods">',
             '4 elements out of 4',
         )
-        response = self.app.get('/timeperiods/config')
-        response = self.app.get('/timeperiods/list')
-        response = self.app.get('/timeperiods/table')
-        response = self.app.get('/timeperiods/templates')
+        self.app.get('/timeperiods/config')
+        self.app.get('/timeperiods/list')
+        self.app.get('/timeperiods/table')
+        self.app.get('/timeperiods/templates')
 
 
 class TestRealms(unittest2.TestCase):
@@ -231,13 +230,13 @@ class TestRealms(unittest2.TestCase):
         self.app = TestApp(
             webapp
         )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_1_realms(self):
-        print('')
+    def test_realms(self):
+        """ Web - realms """
         print('test realms')
 
         print('get page /realms')
@@ -247,24 +246,17 @@ class TestRealms(unittest2.TestCase):
             # '5 elements out of 5'
         )
 
+        self.app.get('/realms/config')
+        self.app.get('/realms/list')
+        self.app.get('/realms/table')
+        # self.app.get('/realms/all')
+
         print('get page /realms/tree')
         response = self.app.get('/realms/tree')
         response.mustcontain(
             '<div id="realms_tree_view">',
             # '5 elements out of 5'
         )
-
-    def test_1_realms_list(self):
-        print('')
-        print('test realms')
-
-        print('get page /realms/list')
-        response = self.app.get('/realms/list')
-        print(response.json)
-        for item in response.json:
-            assert 'id' in item
-            assert 'name' in item
-            assert 'alias' in item
 
 
 class TestHostgroups(unittest2.TestCase):
@@ -279,10 +271,10 @@ class TestHostgroups(unittest2.TestCase):
         self.group_id = None
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_1_hostgroups(self):
-        print('')
+    def test_hostgroups(self):
+        """ Web - hostgroups"""
         print('test hostgroups')
 
         print('get page /hostgroups')
@@ -291,11 +283,11 @@ class TestHostgroups(unittest2.TestCase):
             '<div id="hostgroups">',
             # '8 elements out of 8'
         )
-        response = self.app.get('/hostgroups/config')
-        response = self.app.get('/hostgroups/list')
-        response = self.app.get('/hostgroups/table')
-        response = self.app.get('/hostgroups/templates')
-        response = self.app.get('/hostgroup/all')
+        self.app.get('/hostgroups/config')
+        self.app.get('/hostgroups/list')
+        self.app.get('/hostgroups/table')
+        self.app.get('/hostgroups/templates')
+        self.app.get('/hostgroup/all')
 
         print('get page /hostgroups/tree')
         response = self.app.get('/hostgroups/tree')
@@ -304,8 +296,8 @@ class TestHostgroups(unittest2.TestCase):
             # '8 elements out of 8'
         )
 
-    def test_1_hostgroups_list(self):
-        print('')
+    def test_hostgroups_list(self):
+        """ Web - hostgroups list"""
         print('test hostgroups')
 
         print('get page /hostgroups/list')
@@ -316,8 +308,8 @@ class TestHostgroups(unittest2.TestCase):
             assert 'name' in item
             assert 'alias' in item
 
-    def test_1_hostgroups_members(self):
-        print('')
+    def test_hostgroups_members(self):
+        """ Web - hostgroups members"""
         print('test hostgroups members')
 
         print('get page /hostgroups/tree')
@@ -355,10 +347,10 @@ class TestServicegroups(unittest2.TestCase):
         self.group_id = None
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_1_servicegroups(self):
-        print('')
+    def test_servicegroups(self):
+        """ Web - servicegroups"""
         print('test servicegroups')
 
         print('get page /servicegroups')
@@ -367,11 +359,11 @@ class TestServicegroups(unittest2.TestCase):
             '<div id="servicegroups">',
             # '5 elements out of 5'
         )
-        response = self.app.get('/servicegroups/config')
-        response = self.app.get('/servicegroups/list')
-        response = self.app.get('/servicegroups/table')
-        response = self.app.get('/servicegroups/templates')
-        response = self.app.get('/servicegroup/all')
+        self.app.get('/servicegroups/config')
+        self.app.get('/servicegroups/list')
+        self.app.get('/servicegroups/table')
+        self.app.get('/servicegroups/templates')
+        self.app.get('/servicegroup/all')
 
         print('get page /servicegroups/tree')
         response = self.app.get('/servicegroups/tree')
@@ -380,8 +372,8 @@ class TestServicegroups(unittest2.TestCase):
             # '5 elements out of 5'
         )
 
-    def test_1_servicegroups_list(self):
-        print('')
+    def test_servicegroups_list(self):
+        """ Web - servicegroups list"""
         print('test servicegroups')
 
         print('get page /servicegroups/list')
@@ -392,8 +384,8 @@ class TestServicegroups(unittest2.TestCase):
             assert 'name' in item
             assert 'alias' in item
 
-    def test_1_servicegroups_members(self):
-        print('')
+    def test_servicegroups_members(self):
+        """ Web - servicegroups members"""
         print('test servicegroups members')
 
         print('get page /servicegroups/tree')
@@ -429,10 +421,10 @@ class TestUsergroups(unittest2.TestCase):
         self.group_id = None
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_1_usergroups(self):
-        print('')
+    def test_usergroups(self):
+        """ Web - usergroups"""
         print('test usergroups')
 
         print('get page /usergroups')
@@ -454,8 +446,8 @@ class TestUsergroups(unittest2.TestCase):
             # '5 elements out of 5'
         )
 
-    def test_1_usergroups_list(self):
-        print('')
+    def test_usergroups_list(self):
+        """ Web - usergroups list"""
         print('test usergroups')
 
         print('get page /usergroups/list')
@@ -466,8 +458,8 @@ class TestUsergroups(unittest2.TestCase):
             assert 'name' in item
             assert 'alias' in item
 
-    def test_1_usergroups_members(self):
-        print('')
+    def test_usergroups_members(self):
+        """ Web - usergroups members"""
         print('test usergroups members')
 
         response = self.app.get('/usergroups/tree')
@@ -496,13 +488,13 @@ class TestHosts(unittest2.TestCase):
         self.app = TestApp(
             webapp
         )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_3_4_hosts(self):
-        print('')
+    def test_hosts(self):
+        """ Web - hosts"""
         print('test hosts')
 
         print('get page /hosts')
@@ -511,15 +503,15 @@ class TestHosts(unittest2.TestCase):
             '<div id="hosts">',
             '13 elements out of 13',
         )
-        response = self.app.get('/hosts/config')
-        response = self.app.get('/hosts/list')
-        response = self.app.get('/hosts/table')
-        response = self.app.get('/hosts/templates')
-        response = self.app.get('/host/localhost')
+        self.app.get('/hosts/config')
+        self.app.get('/hosts/list')
+        self.app.get('/hosts/table')
+        self.app.get('/hosts/templates')
+        self.app.get('/host/localhost')
 
         print('get page /hosts/widget')
-        response = self.app.post('/hosts/widget', status=204)
-        response = self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=204)
+        self.app.post('/hosts/widget', status=204)
+        self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=204)
 
         # Hosts table
         response = self.app.post('/hosts/widget', {
@@ -547,13 +539,13 @@ class TestServices(unittest2.TestCase):
         self.app = TestApp(
             webapp
         )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_3_5_services(self):
-        print('')
+    def test_services(self):
+        """ Web - services"""
         print('test services')
 
         print('get page /services')
@@ -595,13 +587,13 @@ class TestWorldmap(unittest2.TestCase):
         self.app = TestApp(
             webapp
         )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_3_8_worldmap(self):
-        print('')
+    def test_worldmap(self):
+        """ Web - worldmap"""
         print('test worldmap')
 
         print('get page /worldmap')
@@ -626,13 +618,13 @@ class TestMinemap(unittest2.TestCase):
         self.app = TestApp(
             webapp
         )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
-    def test_3_9_minemap(self):
-        print('')
+    def test_minemap(self):
+        """ Web - minemap"""
         print('test minemap')
 
         print('get page /min')

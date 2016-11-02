@@ -43,7 +43,6 @@ print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 import alignak_webui.app
 
 from alignak_webui import webapp
-# import alignak_webui.utils.datatable
 
 import bottle
 from bottle import BaseTemplate, TEMPLATE_PATH
@@ -54,7 +53,6 @@ pid = None
 backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
-    print ("")
     print ("start alignak backend")
 
     global pid
@@ -94,10 +92,9 @@ def teardown_module(module):
     time.sleep(2)
 
 
-class Test0NoLogin(unittest2.TestCase):
+class TestNoLogin(unittest2.TestCase):
 
     def setUp(self):
-        print("")
         print("setting up ...")
 
         # Test application
@@ -105,12 +102,8 @@ class Test0NoLogin(unittest2.TestCase):
             webapp
         )
 
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
     def test_1_1_ping_pong(self):
-        print('')
+        """ Login - ping/pong"""
         print('ping/pong server alive')
 
         # Default ping
@@ -148,10 +141,9 @@ class Test0NoLogin(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class Test1Login(unittest2.TestCase):
+class TestLogin(unittest2.TestCase):
 
     def setUp(self):
-        print("")
         print("setting up ...")
 
         # Test application
@@ -159,12 +151,8 @@ class Test1Login(unittest2.TestCase):
             webapp
         )
 
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
     def test_login_refused(self):
-        print('')
+        """ Login - refused"""
         print('test login/logout process - login refused')
 
         print('get login page')
@@ -187,7 +175,7 @@ class Test1Login(unittest2.TestCase):
         response.mustcontain('Session expired')
 
     def test_login_accepted_session(self):
-        print('')
+        """ Login - accepted session """
         print('test login accepted')
 
         print('get login page')
@@ -211,7 +199,7 @@ class Test1Login(unittest2.TestCase):
         assert session['current_user'].name == 'admin'
 
     def test_login_accepted(self):
-        print('')
+        """ Login - accepted"""
         print('test login accepted')
 
         print('get login page')
@@ -264,8 +252,8 @@ class Test1Login(unittest2.TestCase):
         response = self.app.get('/heartbeat', status=401)
         response.mustcontain('Session expired')
 
-    def test_1_4_dashboard_logout(self):
-        print('')
+    def test_dashboard_logout(self):
+        """ Logout dashboard"""
         print('test dashboard logout')
 
         print('login accepted - got to home page')
@@ -316,10 +304,9 @@ class Test1Login(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
-class Test2StaticFiles(unittest2.TestCase):
+class TestStaticFiles(unittest2.TestCase):
 
     def setUp(self):
-        print("")
         print("setting up ...")
 
         # Test application
@@ -340,15 +327,14 @@ class Test2StaticFiles(unittest2.TestCase):
         assert self.app.cookies['Alignak-WebUI']
 
     def tearDown(self):
-        print("")
         print("tearing down ...")
 
         response = self.app.get('/logout')
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
-    def test_2_1_static_files(self):
-        print('')
+    def test_static_files(self):
+        """ Static files"""
         print('test static files')
 
         print('get favicon')

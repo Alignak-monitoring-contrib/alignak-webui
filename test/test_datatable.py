@@ -47,16 +47,16 @@ from alignak_webui.objects.backend import BackendConnection
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.datamanager import DataManager
 
-loggerDm = getLogger('alignak_webui.application')
-loggerDm.setLevel(WARNING)
-loggerDm = getLogger('alignak_webui.utils.datatable')
-loggerDm.setLevel(INFO)
-loggerDm = getLogger('alignak_webui.objects.datamanager')
-loggerDm.setLevel(WARNING)
-loggerDm = getLogger('alignak_webui.objects.item')
-loggerDm.setLevel(ERROR)
-loggerDm = getLogger('alignak_webui.objects.backend')
-loggerDm.setLevel(WARNING)
+# loggerDm = getLogger('alignak_webui.application')
+# loggerDm.setLevel(WARNING)
+# loggerDm = getLogger('alignak_webui.utils.datatable')
+# loggerDm.setLevel(INFO)
+# loggerDm = getLogger('alignak_webui.objects.datamanager')
+# loggerDm.setLevel(WARNING)
+# loggerDm = getLogger('alignak_webui.objects.item')
+# loggerDm.setLevel(ERROR)
+# loggerDm = getLogger('alignak_webui.objects.backend')
+# loggerDm.setLevel(WARNING)
 
 pid = None
 backend_address = "http://127.0.0.1:5000/"
@@ -108,7 +108,6 @@ def teardown_module(module):
 
 class TestDataTable(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -127,7 +126,7 @@ class TestDataTable(unittest2.TestCase):
         self.items_count = 0
 
     def test_01_get(self):
-        print('')
+        """ Datatable - get table """
         print('test get table')
 
         print('get page /commands/table')
@@ -148,7 +147,7 @@ class TestDataTable(unittest2.TestCase):
         )
 
     def test_02_change(self):
-        print('')
+        """ Datatable - change content """
         print('test get table')
 
         print('change content with /commands/table_data')
@@ -229,7 +228,7 @@ class TestDataTable(unittest2.TestCase):
         self.assertEqual(response.json['data'], [])
 
     def test_03_sort(self):
-        print('')
+        """ Datatable - sort table """
         print('test sort table')
 
         # Sort ascending ...
@@ -289,7 +288,7 @@ class TestDataTable(unittest2.TestCase):
         # TODO : check order of element ?
 
     def test_04_filter(self):
-        print('')
+        """ Datatable - filter table """
         print('test filter table')
 
         print('change content with /commands/table_data')
@@ -508,7 +507,7 @@ class TestDatatableCommands(unittest2.TestCase):
         redirected_response = redirected_response.follow()
 
     def test_01_commands(self):
-        print('')
+        """ Datatable - commands table """
         print('test commands table')
 
         global items_count
@@ -557,7 +556,6 @@ class TestDatatableCommands(unittest2.TestCase):
 
 class TestDatatableRealms(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -575,11 +573,8 @@ class TestDatatableRealms(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_01_realms(self):
-        print('')
+        """ Datatable - realms table """
         print('test realm table')
 
         global items_count
@@ -625,7 +620,6 @@ class TestDatatableRealms(unittest2.TestCase):
 
 class TestDatatableHosts(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -643,11 +637,8 @@ class TestDatatableHosts(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_02_hosts(self):
-        print('')
+        """ Datatable - hosts table """
         print('test hosts table')
 
         global items_count
@@ -690,7 +681,6 @@ class TestDatatableHosts(unittest2.TestCase):
 
 class TestDatatableHostgroups(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -708,11 +698,8 @@ class TestDatatableHostgroups(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_01_hosts_groups(self):
-        print('')
+        """ Datatable - hosts groups table """
         print('test hostgroup table')
 
         global items_count
@@ -756,7 +743,6 @@ class TestDatatableHostgroups(unittest2.TestCase):
 
 class TestDatatableServices(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -774,11 +760,8 @@ class TestDatatableServices(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_02_services(self):
-        print('')
+        """ Datatable - services table """
         print('test services table')
 
         global items_count
@@ -840,7 +823,6 @@ class TestDatatableServices(unittest2.TestCase):
 
 class TestDatatableervicegroups(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -858,11 +840,8 @@ class TestDatatableervicegroups(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_01_services_groups(self):
-        print('')
+        """ Datatable - services groups table """
         print('test servicegroup table')
 
         global items_count
@@ -906,7 +885,6 @@ class TestDatatableervicegroups(unittest2.TestCase):
 
 class TestDatatableUsers(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -924,11 +902,8 @@ class TestDatatableUsers(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_03_users(self):
-        print('')
+        """ Datatable - users table """
         print('test users table')
 
         global items_count
@@ -962,7 +937,6 @@ class TestDatatableUsers(unittest2.TestCase):
 
 class TestDatatableUserGroups(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -980,11 +954,8 @@ class TestDatatableUserGroups(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_usergroups(self):
-        print('')
+        """ Datatable - users groups table """
         print('test usergroup table')
 
         global items_count
@@ -1028,7 +999,6 @@ class TestDatatableUserGroups(unittest2.TestCase):
 
 class TestDatatableTimeperiod(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -1046,11 +1016,8 @@ class TestDatatableTimeperiod(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_timeperiod(self):
-        print('')
+        """ Datatable - timeperiods table """
         print('test timeperiod table')
 
         global items_count
@@ -1091,7 +1058,6 @@ class TestDatatableTimeperiod(unittest2.TestCase):
 
 class TestDatatableUserRestrictRole(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -1109,11 +1075,8 @@ class TestDatatableUserRestrictRole(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_userrestrictrole(self):
-        print('')
+        """ Datatable - users restrictions table """
         print('test userrestrictrole table')
 
         global items_count
@@ -1155,7 +1118,6 @@ class TestDatatableUserRestrictRole(unittest2.TestCase):
 
 class TestDatatableLog(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -1173,11 +1135,8 @@ class TestDatatableLog(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_05_logcheckresult(self):
-        print('')
+        """ Datatable - logs table """
         print('test logcheckresult table')
 
         global items_count
@@ -1214,7 +1173,6 @@ class TestDatatableLog(unittest2.TestCase):
 
 class TestDatatableHistory(unittest2.TestCase):
     def setUp(self):
-        print("")
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
 
@@ -1232,11 +1190,8 @@ class TestDatatableHistory(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
 
-    def tearDown(self):
-        print("")
-
     def test_history(self):
-        print('')
+        """ Datatable - history table """
         print('test history table')
 
         global items_count

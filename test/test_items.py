@@ -45,8 +45,6 @@ loggerDm.setLevel(logging.DEBUG)
 
 
 def setup_module(module):
-    print ("")
-
     # Get configuration from only one file ...
     print ("read configuration")
     cfg = Settings(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg'))
@@ -55,18 +53,9 @@ def setup_module(module):
     set_app_config(cfg)
 
 
-def teardown_module(module):
-    print ("")
-
-
-class Test0(unittest2.TestCase):
-    def setUp(self):
-        print("")
-
-    def tearDown(self):
-        print("")
-
-    def test_00_class(self):
+class TestClassElements(unittest2.TestCase):
+    def test_class(self):
+        """ Items - class variables """
         print("--- test class variables")
 
         # Create basic object
@@ -198,7 +187,8 @@ class Test0(unittest2.TestCase):
         assert item.__class__._count == 3
         assert item == item2
 
-    def test_01_cache(self):
+    def test_cache(self):
+        """ Items - cache """
         print("--- test class cache")
 
         # Clean generic Item cache and reset counter to 0
@@ -249,18 +239,13 @@ class Test0(unittest2.TestCase):
 
 class TestElementStates(unittest2.TestCase):
     def setUp(self):
-        print("")
         print("setting up ...")
         # Application configuration is loaded
         self.config = get_app_config()
         assert self.config
 
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
-    def test_01_items_states(self):
-        print("---")
+    def test_items_states(self):
+        """ Items - states """
 
         items_states = ElementState()
         assert items_states.object_types_states
@@ -301,8 +286,8 @@ class TestElementStates(unittest2.TestCase):
                         assert s[2] in items_states.states[s[1]]
                         print(s[1], items_states.states[s[1]])
 
-    def test_02_items_states(self):
-        print("---")
+    def test_items_states_2(self):
+        """ Items - states (2) """
 
         items_states = ElementState()
         assert items_states.object_types_states
@@ -338,8 +323,8 @@ class TestElementStates(unittest2.TestCase):
             for object_type in items_states.object_types_states:
                 assert items_states.get_icon_states(object_type)
 
-    def test_03_html_states(self):
-        print("---")
+    def test_html_states(self):
+        """ Items - HTML states """
 
         self.maxDiff = None
 
@@ -444,17 +429,13 @@ class TestElementStates(unittest2.TestCase):
 
 class TestItems(unittest2.TestCase):
     def setUp(self):
-        print("")
         print("setting up ...")
         # Application configuration is loaded
         self.config = get_app_config()
         assert self.config
 
-    def tearDown(self):
-        print("")
-        print("tearing down ...")
-
-    def test_01_items(self):
+    def test_items(self):
+        """ Items - items """
         print("--- test Item")
 
         # Clean generic Item cache and reset counter to 0
@@ -619,7 +600,8 @@ class TestItems(unittest2.TestCase):
         assert item.notes == 'Item notes'
         assert item.status == 'unknown'
 
-    def test_02_users(self):
+    def test_users(self):
+        """ Items - users"""
         print("--- test User")
         self.maxDiff = None
 
@@ -782,7 +764,8 @@ class TestItems(unittest2.TestCase):
         # assert item.is_power() == True
         # assert item.can_change_dashboard() == True
 
-    def test_03_commands(self):
+    def test_commands(self):
+        """ Items - commands"""
         print("--- test Command")
         self.maxDiff = None
 
@@ -824,7 +807,8 @@ class TestItems(unittest2.TestCase):
         print(item.get_html_state())
         self.assertEqual(item.get_html_state(), '''<div class="item-state item_command " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="command" data-item-state="" title=""><span class="fa-stack " ><i class="fa fa-circle fa-stack-2x item_command"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item.id)
 
-    def test_04_hosts(self):
+    def test_hosts(self):
+        """ Items - hosts """
         print("--- test Host")
         self.maxDiff = None
 

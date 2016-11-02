@@ -35,8 +35,6 @@ helper = Helper()
 
 
 def setup_module():
-    print("")
-
     # Get configuration from only one file ...
     print("read configuration")
     cfg = Settings("settings.cfg")
@@ -46,8 +44,8 @@ def setup_module():
 
 
 class TestDate(unittest2.TestCase):
-    def test_01_print_date(self):
-        print("---")
+    def test_print_date(self):
+        """ Helper - date """
 
         now = time.time()
 
@@ -77,9 +75,8 @@ class TestDate(unittest2.TestCase):
 
 
 class TestDuration(unittest2.TestCase):
-    def test_02_print_duration(self):
-        print("---")
-
+    def test_print_duration(self):
+        """ Helper - duration """
         now = time.time()
 
         # Timestamp errors
@@ -234,8 +231,8 @@ class TestDuration(unittest2.TestCase):
 
 
 class TestOnOff(unittest2.TestCase):
-    def test_03_print_on_off(self):
-        print("---")
+    def test_print_on_off(self):
+        """ Helper - on/off """
 
         # Call errors
         s = helper.get_on_off()
@@ -285,8 +282,8 @@ class TestOnOff(unittest2.TestCase):
 
 
 class TestNavigation(unittest2.TestCase):
-    def test_04_navigation_control(self):
-        print("---")
+    def test_navigation_control(self):
+        """ Helper - navigation """
 
         # Parameters: page, total, start, count, nb_max_items
         s = helper.get_pagination_control('test', 0, 0, 0, 0)
@@ -364,8 +361,8 @@ class TestNavigation(unittest2.TestCase):
 
 
 class TestSearch(unittest2.TestCase):
-    def test_05_search(self):
-        print("---")
+    def test_search(self):
+        """ Helper - decode search """
 
         s = helper.decode_search("")
         print("Result:", s)
@@ -388,90 +385,9 @@ class TestSearch(unittest2.TestCase):
         assert s == {'$in': {'state_id': ['1', '2', '3']}}
 
 
-class TestBI1(unittest2.TestCase):
-    @unittest2.skip("Replaced by another test because of stars :)")
-    def test_06_print_business_impact(self):
-        print("---")
-
-        # Invalid values
-        s = helper.get_html_business_impact(-1, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(s == 'n/a - value')
-        s = helper.get_html_business_impact(6, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'n/a - value')
-        s = helper.get_html_business_impact(0, icon=False, text=False)
-        print("Result:", s)
-        self.assert_(s == 'n/a - parameters')
-
-        # Default with stars
-        s = helper.get_html_business_impact(0, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(s == '')  # Nothing
-        s = helper.get_html_business_impact(1, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(s == '')  # Nothing
-        s = helper.get_html_business_impact(2, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(s == '')  # Nothing
-        s = helper.get_html_business_impact(3, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(s == '<i class="fa fa-star text-primary"></i>')  # 1 star
-        s = helper.get_html_business_impact(4, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(
-            s == '<i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i>')  # 2 stars
-        s = helper.get_html_business_impact(5, icon=True, text=False)
-        print("Result:", s)
-        self.assert_(
-            s == '<i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i>')  # 3 stars
-
-        # Default with text
-        s = helper.get_html_business_impact(0, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'None')
-        s = helper.get_html_business_impact(1, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Low')
-        s = helper.get_html_business_impact(2, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Normal')
-        s = helper.get_html_business_impact(3, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Important')
-        s = helper.get_html_business_impact(4, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Very important')
-        s = helper.get_html_business_impact(5, icon=False, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Business critical')
-
-        # Default with icon and text
-        s = helper.get_html_business_impact(0, icon=True, text=True)
-        print("Result:", s)
-        self.assert_(s == 'None')
-        s = helper.get_html_business_impact(1, icon=True, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Low')
-        s = helper.get_html_business_impact(2, icon=True, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Normal')
-        s = helper.get_html_business_impact(3, icon=True, text=True)
-        print("Result:", s)
-        self.assert_(s == 'Important <i class="fa fa-star text-primary"></i>')
-        s = helper.get_html_business_impact(4, icon=True, text=True)
-        print("Result:", s)
-        self.assert_(
-            s == 'Very important <i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i>')
-        s = helper.get_html_business_impact(5, icon=True, text=True)
-        print("Result:", s)
-        self.assert_(
-            s == 'Business critical <i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i><i class="fa fa-star text-primary"></i>')
-
-
 class TestBI(unittest2.TestCase):
-    def test_06_bis_print_business_impact(self):
-        print("---")
+    def test_print_business_impact(self):
+        """ Helper - business impact """
 
         # Invalid values
         s = helper.get_html_business_impact(-1, icon=True, text=False)
@@ -546,8 +462,8 @@ class TestBI(unittest2.TestCase):
 
 
 class TestTP(unittest2.TestCase):
-    def test_07_print_timeperiod(self):
-        print("---")
+    def test_print_timeperiod(self):
+        """ Helper - timeperiod """
 
         # Invalid values
         s = helper.get_html_timeperiod(None)
@@ -577,8 +493,8 @@ class TestTP(unittest2.TestCase):
 
 
 class TestHtmlList(unittest2.TestCase):
-    def test_01_html_list(self):
-        print("---")
+    def test_html_list(self):
+        """ Helper - HTML list """
 
         self.maxDiff = None
 

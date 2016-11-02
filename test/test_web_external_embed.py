@@ -104,7 +104,8 @@ class TestsExternal(unittest2.TestCase):
             webapp
         )
 
-    def test_1_1_refused(self):
+    def test_refused(self):
+        """ External - refused"""
         print('refused external access')
 
         # Refused - no credentials
@@ -169,7 +170,8 @@ class TestsExternal(unittest2.TestCase):
         )
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
-    def test_1_2_allowed_widgets(self):
+    def test_allowed_widgets(self):
+        """ External - allowed widgets"""
         print('allowed widgets external access')
 
         # Allowed - default widgets parameters: widget_id and widget_template
@@ -239,7 +241,8 @@ class TestsExternal(unittest2.TestCase):
             '<div id="pc_hosts_hosts_chart">'
         )
 
-    def test_1_3_allowed_tables(self):
+    def test_allowed_tables(self):
+        """ External - allowed tables"""
         print('allowed tables external access')
 
         # Allowed - default table parameters: none
@@ -304,7 +307,8 @@ class TestsExternal(unittest2.TestCase):
             '"url": "http://localhost:80/external/table/hosts_table/hosts/table_data",'
         )
 
-    def test_1_4_host_widgets(self):
+    def test_host_widgets(self):
+        """ External - host widgets"""
         print('allowed host widgets external access')
 
         # Log in to get Data manager in the session
@@ -519,7 +523,8 @@ class TestAllWidgets(unittest2.TestCase):
             webapp
         )
 
-    def test_2_widgets(self):
+    def test_widgets(self):
+        """ External - allowed widgets"""
         print('allowed widgets')
 
         # Hosts table
@@ -575,6 +580,7 @@ class TestExternalFiles(unittest2.TestCase):
         )
 
     def test_request_unknown_files(self):
+        """ External - request list of js files - unknown files"""
         print('Request list of js files')
 
         # Allowed - default widgets parameters: widget_id and widget_template
@@ -590,6 +596,7 @@ class TestExternalFiles(unittest2.TestCase):
         assert response.json['message']
 
     def test_request_js_files(self):
+        """ External - request list of js files"""
         print('Request list of js files')
 
         # Allowed - default widgets parameters: widget_id and widget_template
@@ -625,6 +632,7 @@ class TestExternalFiles(unittest2.TestCase):
         self.assertEqual(reference, response.json['files'])
 
     def test_request_css_files(self):
+        """ External - request list of js files - CSS files"""
         print('Request list of css files')
 
         # Allowed - default widgets parameters: widget_id and widget_template

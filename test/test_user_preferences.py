@@ -57,7 +57,6 @@ pid = None
 backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
-    print ("")
     print ("start alignak backend")
 
     global pid
@@ -127,7 +126,8 @@ class tests_preferences(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
-    def test_1_1_global_preferences(self):
+    def test_global_preferences(self):
+        """ User preferences - global preferences """
         print('test global user preferences page')
 
         # /ping, still sends a status 200, but refresh is required
@@ -143,8 +143,9 @@ class tests_preferences(unittest2.TestCase):
             'admin', 'Administrator',
         )
 
-    @unittest2.skip("Broken test ...")
-    def test_1_2_common(self):
+    @unittest2.skip("Broken test ... no more actual?")
+    def test_common(self):
+        """ User preferences - common preferences """
         print('test common preferences')
 
         ### Common preferences
@@ -228,7 +229,8 @@ class tests_preferences(unittest2.TestCase):
         assert len(user_prefs) == 0
 
     @unittest2.skip("To be refactored test ...")
-    def test_1_3_user(self):
+    def test_user(self):
+        """ User preferences - user preferences """
         print('test user preferences')
 
         ### User's preferences
@@ -340,7 +342,8 @@ class tests_preferences(unittest2.TestCase):
         self.assertEqual(len(user_prefs), 5)
 
     @unittest2.skip("To be refactored test ...")
-    def test_1_4_all(self):
+    def test_all(self):
+        """ User preferences - all preferences """
         print('test all preferences')
 
         ### User's preferences

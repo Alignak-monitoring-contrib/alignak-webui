@@ -20,8 +20,8 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
+from __future__ import print_function
 import os
-import json
 import time
 import shlex
 import unittest2
@@ -29,14 +29,13 @@ import subprocess
 from calendar import timegm
 from datetime import datetime, timedelta
 
-from nose import with_setup
 from nose.tools import *
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
 os.environ['WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print "Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE']
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 import alignak_webui.app
 from alignak_webui import webapp
@@ -56,7 +55,6 @@ pid = None
 backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
-    print ("")
     print ("start alignak backend")
 
     global pid
@@ -101,7 +99,7 @@ def teardown_module(module):
 class tests_actions(unittest2.TestCase):
 
     def setUp(self):
-        print "setting up ..."
+        print("setting up ...")
 
         # Test application
         self.app = TestApp(
@@ -111,7 +109,6 @@ class tests_actions(unittest2.TestCase):
         response = self.app.get('/login')
         response.mustcontain('<form role="form" method="post" action="/login">')
 
-        print 'login accepted - go to home page'
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
@@ -121,18 +118,17 @@ class tests_actions(unittest2.TestCase):
         assert self.app.cookies['Alignak-WebUI']
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
+        print("tearing down ...")
 
         response = self.app.get('/logout')
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
     def test_acknowledge(self):
-        print ''
-        print 'test actions'
+        """ Actions - acknowledge"""
+        print('test actions')
 
-        print 'get page /acknowledge/form/add'
+        print('get page /acknowledge/form/add')
         response = self.app.get('/acknowledge/form/add')
         response.mustcontain(
             '<form data-item="acknowledge" data-action="add"'
@@ -164,7 +160,7 @@ class tests_actions(unittest2.TestCase):
             "notify": True,
             "comment": "User comment",
         }
-        response = self.app.post('/acknowledge/add', data, status=204)
+        self.app.post('/acknowledge/add', data, status=204)
 
         # Acknowledge an host
         data = {
@@ -177,7 +173,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/acknowledge/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Acknowledge sent for webui. Check request sent for webui. ")
@@ -194,7 +189,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/acknowledge/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Acknowledge sent for webui/Shinken2-arbiter. "
@@ -213,7 +207,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/acknowledge/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Acknowledge sent for webui/Shinken2-arbiter. "
@@ -234,7 +227,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/acknowledge/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Acknowledge sent for webui/Shinken2-arbiter. "
@@ -243,12 +235,11 @@ class tests_actions(unittest2.TestCase):
                          "Check request sent for webui/Shinken2-reactionner. "
                          "service element test does not exist. ")
 
-
     def test_downtime(self):
-        print ''
-        print 'test actions'
+        """ Actions - downtime"""
+        print('test actions')
 
-        print 'get page /downtime/form/add'
+        print('get page /downtime/form/add')
         response = self.app.get('/downtime/form/add')
         response.mustcontain(
             '<form data-item="downtime" data-action="add"'
@@ -287,7 +278,7 @@ class tests_actions(unittest2.TestCase):
             'duration': 86400,
             "comment": "User comment",
         }
-        response = self.app.post('/downtime/add', data, status=204)
+        self.app.post('/downtime/add', data, status=204)
 
         # downtime an host
         data = {
@@ -300,7 +291,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/downtime/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Downtime sent for webui. Check request sent for webui. ")
@@ -318,7 +308,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/downtime/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Downtime sent for webui/Shinken2-arbiter. "
@@ -338,7 +327,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/downtime/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'],
                          "Downtime sent for webui/Shinken2-arbiter. "
@@ -348,10 +336,10 @@ class tests_actions(unittest2.TestCase):
                          "service element test does not exist. ")
 
     def test_recheck(self):
-        print ''
-        print 'test recheck'
+        """ Actions - recheck"""
+        print('test recheck')
 
-        print 'get page /recheck/form/add'
+        print('get page /recheck/form/add')
         response = self.app.get('/recheck/form/add')
         response.mustcontain(
             '<form data-item="recheck" data-action="recheck" '
@@ -392,7 +380,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'], "Check request sent for webui. ")
 
@@ -404,7 +391,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'], "Check request sent for webui/Shinken2-arbiter. ")
 
@@ -418,7 +404,6 @@ class tests_actions(unittest2.TestCase):
             "comment": "User comment",
         }
         response = self.app.post('/recheck/add', data)
-        print response
         self.assertEqual(response.json['status'], "ok")
         self.assertEqual(response.json['message'], "Check request sent for webui/Shinken2-arbiter. Check request sent for webui/Shinken2-reactionner. service element test does not exist. ")
 
