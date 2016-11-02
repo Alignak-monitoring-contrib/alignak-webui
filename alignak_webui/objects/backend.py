@@ -34,7 +34,8 @@ from logging import getLogger, WARNING
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT
 from alignak_backend_client.client import Backend, BackendException
 
-# Set logger level to WARNING, this to allow global application DEBUG logs without being spammed... ;)
+# Set logger level to WARNING, this to allow global
+# application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
 logger.setLevel(WARNING)
 

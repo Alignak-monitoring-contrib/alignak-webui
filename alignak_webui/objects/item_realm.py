@@ -51,7 +51,7 @@ class Realm(BackendElement):
         Create a realm (called only once when an object is newly created)
         """
         self._linked__parent = 'realm'
-        self._linked__children= 'realm'
+        self._linked__children = 'realm'
 
         super(Realm, self).__init__(params, date_format, embedded)
 

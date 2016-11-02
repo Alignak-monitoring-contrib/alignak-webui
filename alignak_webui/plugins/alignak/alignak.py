@@ -73,7 +73,8 @@ class PluginAlignak(Plugin):
         # for daemon_type in alignak_state:
         #     logger.info("Got Alignak state for: %s", daemon_type)
         #     if daemon_type == '_status':
-        #         logger.info("Got Alignak state for: %s / %s", daemon_type, alignak_state.get(daemon_type))
+        #         logger.info("Got Alignak state for: %s / %s",
+        #                     daemon_type, alignak_state.get(daemon_type))
         #         continue
         #     daemons = alignak_state.get(daemon_type)
         #     for daemon_name in daemons:

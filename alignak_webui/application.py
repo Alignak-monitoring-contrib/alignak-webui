@@ -128,7 +128,7 @@ def before_request():
             'alignak_backend',
             'http://127.0.0.1:5000'
         ),
-        alignak_endpoint = request.app.config.get(
+        alignak_endpoint=request.app.config.get(
             'alignak_arbiter',
             'http://127.0.0.1:7070'
         )
@@ -624,7 +624,7 @@ def user_authentication(username, password):
                 'alignak_backend',
                 'http://127.0.0.1:5000'
             ),
-            alignak_endpoint = request.app.config.get(
+            alignak_endpoint=request.app.config.get(
                 'alignak_arbiter',
                 'http://127.0.0.1:7070'
             )

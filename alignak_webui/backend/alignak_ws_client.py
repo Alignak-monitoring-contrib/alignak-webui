@@ -202,7 +202,6 @@ class AlignakConnection(object):    # pylint: disable=too-few-public-methods
 
             return resp
 
-
     instance = None
 
     def __new__(cls, backend_endpoint):
