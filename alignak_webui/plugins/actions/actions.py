@@ -23,6 +23,7 @@
     Plugin actions
 """
 
+import time
 from logging import getLogger
 
 from bottle import request
@@ -161,6 +162,23 @@ class PluginActions(Plugin):
                         status += _('Acknowledge sent for %s. ') % \
                             element.name
 
+                    # Request a recheck for the element ...
+                    time.sleep(0.3)
+                    data = {
+                        'host': element.id,
+                        'service': None,
+                        'user': user.id,
+                        'comment': request.forms.get('comment', _('No comment'))
+                    }
+                    if elements_type == 'service':
+                        data.update({'host': element.host.id, 'service': element.id})
+
+                    logger.info("Request a recheck, data: %s", data)
+                    if not datamgr.add_recheck(data=data):
+                        status += _("Failed adding a check request for %s. ") % element.name
+                    else:
+                        status += _('Check request sent for %s. ') % element.name
+
         logger.info("Request an acknowledge, result: %s", status)
 
         if not problem:
@@ -231,8 +249,7 @@ class PluginActions(Plugin):
                         status += _('Check request sent for %s/%s. ') % \
                             (element.host.name, element.name)
                     else:
-                        status += _('Check request sent for %s. ') % \
-                            element.name
+                        status += _('Check request sent for %s. ') % element.name
 
         logger.info("Request a re-check, result: %s", status)
 
@@ -317,6 +334,22 @@ class PluginActions(Plugin):
                         status += _('Downtime sent for %s. ') % \
                             element.name
 
+                    # Request a recheck for the element ...
+                    time.sleep(0.3)
+                    data = {
+                        'host': element.id,
+                        'service': None,
+                        'user': user.id,
+                        'comment': request.forms.get('comment', _('No comment'))
+                    }
+                    if elements_type == 'service':
+                        data.update({'host': element.host.id, 'service': element.id})
+
+                    logger.info("Request a recheck, data: %s", data)
+                    if not datamgr.add_recheck(data=data):
+                        status += _("Failed adding a check request for %s. ") % element.name
+                    else:
+                        status += _('Check request sent for %s. ') % element.name
         logger.info("Request a downtime, result: %s", status)
 
         if not problem:
