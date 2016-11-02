@@ -177,7 +177,11 @@ class PluginActions(Plugin):
                     if not datamgr.add_recheck(data=data):
                         status += _("Failed adding a check request for %s. ") % element.name
                     else:
-                        status += _('Check request sent for %s. ') % element.name
+                        if elements_type == 'service':
+                            status += _('Check request sent for %s/%s. ') % \
+                                      (element.host.name, element.name)
+                        else:
+                            status += _('Check request sent for %s. ') % element.name
 
         logger.info("Request an acknowledge, result: %s", status)
 
@@ -349,7 +353,12 @@ class PluginActions(Plugin):
                     if not datamgr.add_recheck(data=data):
                         status += _("Failed adding a check request for %s. ") % element.name
                     else:
-                        status += _('Check request sent for %s. ') % element.name
+                        if elements_type == 'service':
+                            status += _('Check request sent for %s/%s. ') % \
+                                      (element.host.name, element.name)
+                        else:
+                            status += _('Check request sent for %s. ') % element.name
+
         logger.info("Request a downtime, result: %s", status)
 
         if not problem:
