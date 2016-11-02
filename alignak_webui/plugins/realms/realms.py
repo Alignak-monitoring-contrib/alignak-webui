@@ -76,14 +76,10 @@ class PluginRealms(Plugin):
                 self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
-        groups = element.hostgroups
-        if element.level == 0:
-            groups = datamgr.get_hostgroups(search={'where': {'_level': 1}})
-
         return {
             'object_type': self.backend_endpoint,
             'element': element,
-            'groups': groups
+            'groups': None
         }
 
     def get_overall_state(self, element):

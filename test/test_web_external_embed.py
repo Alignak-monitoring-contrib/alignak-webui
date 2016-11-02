@@ -331,7 +331,7 @@ class TestsExternal(unittest2.TestCase):
             backend_endpoint='http://127.0.0.1:5000'
         )
 
-        # Get host, user and realm in the backend
+        # Get host in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
 
         # Get external host widget - no widget identifier
@@ -510,6 +510,205 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain(
             '<div id="wd_panel_history" class="panel panel-default alignak_webui_widget embedded">',
             '<!-- Hosts history widget -->',
+        )
+
+    def test_service_widgets(self):
+        """ External - service widgets"""
+        print('allowed service widgets external access')
+
+        # Log in to get Data manager in the session
+        response = self.app.get('/login')
+        response.mustcontain('<form role="form" method="post" action="/login">')
+
+        print('login accepted - go to home page')
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+        redirected_response.mustcontain('<div id="dashboard">')
+
+        session = redirected_response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+
+        datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint='http://127.0.0.1:5000'
+        )
+
+        # Get host and service in the backend
+        host = datamgr.get_host({'where': {'name': 'webui'}})
+        service = datamgr.get_service({'where': {'name': 'Load', 'host': host.id}})
+
+        # Get external service widget - no widget identifier
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s' % service.id,
+            status=409
+        )
+        response.mustcontain('<div><h1>Missing service widget name.</h1><p>You must provide a widget name</p></div>')
+
+        # Get external service widget - unknown widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/unknown' % service.id,
+            status=409
+        )
+        response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
+
+        # Service information
+        # Get external service widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/information?page' % service.id
+        )
+        print(response)
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_information" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service information widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external service widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/information' % service.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_information" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service information widget -->',
+        )
+
+        # service configuration
+        # Get external service widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/configuration?page' % service.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_configuration" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service configuration widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external service widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/configuration' % service.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_configuration" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service configuration widget -->',
+        )
+
+        # service metrics
+        # Get external service widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/metrics?page' % service.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_metrics" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service metrics widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external service widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/metrics' % service.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_metrics" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service metrics widget -->',
+        )
+
+    def test_user_widgets(self):
+        """ External - user widgets"""
+        print('allowed user widgets external access')
+
+        # Log in to get Data manager in the session
+        response = self.app.get('/login')
+        response.mustcontain('<form role="form" method="post" action="/login">')
+
+        print('login accepted - go to home page')
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        # Redirected twice: /login -> / -> /dashboard !
+        redirected_response = response.follow()
+        redirected_response = redirected_response.follow()
+        redirected_response.mustcontain('<div id="dashboard">')
+
+        session = redirected_response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+
+        datamgr = DataManager(
+            user=session['current_user'],
+            backend_endpoint='http://127.0.0.1:5000'
+        )
+
+        # Get user in the backend
+        user = datamgr.get_user({'where': {'name': 'imported_admin'}})
+
+        # Get external user widget - no widget identifier
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/user/%s' % user.id,
+            status=409
+        )
+        response.mustcontain(
+            '<div><h1>Missing user widget name.</h1><p>You must provide a widget name</p></div>')
+
+        # Get external user widget - unknown widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/user/%s/unknown' % user.id,
+            status=409
+        )
+        response.mustcontain(
+            '<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
+
+        # Service information
+        # Get external user widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/user/%s/information?page' % user.id
+        )
+        print(response)
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_information" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- User information widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external user widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/user/%s/information' % user.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_information" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- User information widget -->',
         )
 
 

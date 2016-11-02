@@ -131,10 +131,28 @@
                   <span>{{_('Minemap')}}</span>
                </a>
             </li>
+
+            <li class="divider"></li>
+
+            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Realms tree')}}">
+               <a href="{{ webui.get_url('Realms tree') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span>{{_('Realms')}}</span>
+               </a>
+            </li>
             <li data-toggle="tooltip" data-placement="bottom" title="{{_('Hosts groups tree')}}">
                <a href="{{ webui.get_url('Hosts groups tree') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Hosts groups')}}</span>
+               </a>
+            </li>
+
+            <li class="divider"></li>
+
+            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Alignak status')}}">
+               <a href="{{ webui.get_url('Alignak status') }}">
+                  <span class="fa fa-w fa-sitemap"></span>
+                  <span>{{_('Alignak status')}}</span>
                </a>
             </li>
          </ul>

@@ -17,7 +17,7 @@
 %from alignak_webui.objects.item_service import Service
 
 <!-- Host view -->
-<div id="host">
+<div id="host-{{host.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">

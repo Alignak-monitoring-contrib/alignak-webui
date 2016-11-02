@@ -51,6 +51,7 @@ class Realm(BackendElement):
         Create a realm (called only once when an object is newly created)
         """
         self._linked__parent = 'realm'
+        self._linked__children= 'realm'
 
         super(Realm, self).__init__(params, date_format, embedded)
 
@@ -65,9 +66,9 @@ class Realm(BackendElement):
         return self._linked_hosts
 
     @property
-    def hostgroups(self):
+    def realms(self):
         """ Return linked object """
-        return self._linked_hostgroups
+        return self._linked__children
 
     @property
     def _parent(self):
@@ -78,20 +79,3 @@ class Realm(BackendElement):
     def level(self):
         """ Return realm level """
         return self._level
-
-    # @property
-    # def overall_state(self):
-    #     """Return real state identifier"""
-    #     return self._overall_state
-    #
-    # @overall_state.setter
-    # def overall_state(self, overall_state):
-    #     """
-    #     Set Item object overall_state
-    #     """
-    #     self._overall_state = overall_state
-    #
-    # @property
-    # def overall_status(self):
-    #     """Return real status string from the real state identifier"""
-    #     return self.overall_state_to_status[self._overall_state]

@@ -127,6 +127,10 @@ def before_request():
         backend_endpoint=request.app.config.get(
             'alignak_backend',
             'http://127.0.0.1:5000'
+        ),
+        alignak_endpoint = request.app.config.get(
+            'alignak_arbiter',
+            'http://127.0.0.1:7070'
         )
     )
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
@@ -234,6 +238,10 @@ def external(widget_type, identifier, action=None):
             backend_endpoint=request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
+            ),
+            alignak_endpoint=request.app.config.get(
+                'alignak_arbiter',
+                'http://127.0.0.1:7070'
             )
         )
         BaseTemplate.defaults['datamgr'] = request.app.datamgr
@@ -351,8 +359,8 @@ def external(widget_type, identifier, action=None):
             response.status = 409
             response.content_type = 'text/html'
             return _(
-                '<div><h1>Missing host widget name.</h1>'
-                '<p>You must provide a widget name</p></div>'
+                '<div><h1>Missing %s widget name.</h1>'
+                '<p>You must provide a widget name</p></div>' % widget_type
             )
 
         # Identifier is the element identifier, not the widget one !
@@ -615,6 +623,10 @@ def user_authentication(username, password):
             backend_endpoint=request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
+            ),
+            alignak_endpoint = request.app.config.get(
+                'alignak_arbiter',
+                'http://127.0.0.1:7070'
             )
         )
 
@@ -680,9 +692,16 @@ def get_user_preference():
         - default, default value if parameter does not exist
     """
     user = request.environ['beaker.session']['current_user']
-    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
-        'alignak_backend', 'http://127.0.0.1:5000'
-    ))
+    datamgr = DataManager(
+        user=user,
+        backend_endpoint=request.app.config.get(
+            'alignak_backend', 'http://127.0.0.1:5000'
+        ),
+        alignak_endpoint=request.app.config.get(
+            'alignak_arbiter',
+            'http://127.0.0.1:7070'
+        )
+    )
 
     key = request.query.get('key', None)
     if not key:
@@ -705,9 +724,16 @@ def delete_user_preference():
         - key, string identifying the parameter
     """
     user = request.environ['beaker.session']['current_user']
-    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
-        'alignak_backend', 'http://127.0.0.1:5000'
-    ))
+    datamgr = DataManager(
+        user=user,
+        backend_endpoint=request.app.config.get(
+            'alignak_backend', 'http://127.0.0.1:5000'
+        ),
+        alignak_endpoint=request.app.config.get(
+            'alignak_arbiter',
+            'http://127.0.0.1:7070'
+        )
+    )
 
     key = request.query.get('key', None)
     if not key:
@@ -727,9 +753,16 @@ def set_user_preference():
         - value, as a JSON formatted string
     """
     user = request.environ['beaker.session']['current_user']
-    datamgr = DataManager(user=user, backend_endpoint=request.app.config.get(
-        'alignak_backend', 'http://127.0.0.1:5000'
-    ))
+    datamgr = DataManager(
+        user=user,
+        backend_endpoint=request.app.config.get(
+            'alignak_backend', 'http://127.0.0.1:5000'
+        ),
+        alignak_endpoint=request.app.config.get(
+            'alignak_arbiter',
+            'http://127.0.0.1:7070'
+        )
+    )
 
     key = request.forms.get('key', None)
     value = request.forms.get('value', None)

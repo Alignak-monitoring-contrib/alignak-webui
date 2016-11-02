@@ -121,7 +121,7 @@ class TestGet(unittest2.TestCase):
         print("Logged in")
 
     def test_count(self):
-        """ Backend couent elements """
+        """ Backend count elements """
         print("--- count")
 
         # Count all users

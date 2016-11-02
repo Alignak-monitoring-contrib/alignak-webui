@@ -61,7 +61,7 @@
 
             <tbody>
                %for service in elts:
-               <tr id="#{{service.id}}">
+               <tr id="#service-{{service.id}}">
                   <td title="{{service.alias}}">
                      %extra=''
                      %if service.acknowledged:

@@ -433,6 +433,7 @@ class TestItems(unittest2.TestCase):
         # Application configuration is loaded
         self.config = get_app_config()
         assert self.config
+        self.maxDiff = None
 
     def test_items(self):
         """ Items - items """
@@ -603,16 +604,15 @@ class TestItems(unittest2.TestCase):
     def test_users(self):
         """ Items - users"""
         print("--- test User")
-        self.maxDiff = None
 
         # Global (Item) objects count
         global_objects_count = BackendElement().get_count()
         print(global_objects_count, "objects")
         print("--- cache:")
         print(User.get_cache())
-        assert len(User.get_cache()) == 0
 
         # Base item
+        User.clean_cache()
         item = User()
         assert item
         print("--- cache:")
@@ -767,7 +767,6 @@ class TestItems(unittest2.TestCase):
     def test_commands(self):
         """ Items - commands"""
         print("--- test Command")
-        self.maxDiff = None
 
         # Global (Item) objects count
         global_objects_count = BackendElement().get_count()
@@ -775,6 +774,7 @@ class TestItems(unittest2.TestCase):
         print(BackendElement().get_cache())
 
         # Base item
+        Command.clean_cache()
         item = Command()
         print(item.__dict__)
         print(item)
@@ -810,7 +810,6 @@ class TestItems(unittest2.TestCase):
     def test_hosts(self):
         """ Items - hosts """
         print("--- test Host")
-        self.maxDiff = None
 
         # Global (Item) objects count
         global_objects_count = BackendElement().get_count()
@@ -818,6 +817,7 @@ class TestItems(unittest2.TestCase):
         print("Global cache: ", BackendElement().get_cache())
 
         # Base item
+        Host.clean_cache()
         item = Host()
         print(item.__dict__)
         print(item)

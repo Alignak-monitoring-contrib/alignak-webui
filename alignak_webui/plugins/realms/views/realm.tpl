@@ -10,7 +10,7 @@
 %from alignak_webui.objects.item_command import Command
 
 <!-- hosts filtering and display -->
-<div id="realm_{{element.id}}">
+<div id="realm-{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -95,11 +95,11 @@
    </div>
    %end
 
-   %if element._parent and element._parent is not None and element._parent != 'hostgroup':
+   %if element._parent and element._parent is not None and element._parent != 'realm':
    <div class="btn-group" role="group" aria-label="{{_('Group navigation')}}">
       <a class="btn btn-default btn-raised" href="{{element._parent.endpoint}}" role="button">
          <span class="fa fa-arrow-up"></span>
-         {{_('Parent group')}}
+         {{_('Parent realm')}}
       </a>
    </div>
    %end
@@ -107,14 +107,15 @@
    <div class="panel panel-default">
       <div class="panel-body">
          <div class="col-xs-6 col-sm-2 text-center">
-            %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(element)
-            {{! element.get_html_state(text=None, size="fa-3x", use_status=hg_status)}}
+            %(realm_state, realm_status) = datamgr.get_realm_overall_state(element)
+            {{! element.get_html_state(text=None, size="fa-3x", use_status=realm_status)}}
             <legend><strong>{{element.alias}}</strong></legend>
          </div>
          <div class="col-xs-6 col-sm-10">
-         %if not element.members or isinstance(element.members, basestring):
+         %members = datamgr.get_realm_members(element)
+         %if not members:
             <div class="text-center alert alert-warning">
-               <h4>{{_('No hosts found in this group.')}}</h4>
+               <h4>{{_('No hosts found in this realm.')}}</h4>
             </div>
          %else:
             <table class="table table-condensed">
@@ -129,7 +130,7 @@
                </tr></thead>
 
                <tbody>
-               %for elt in element.members:
+               %for elt in members:
                   <tr id="#{{elt.id}}">
                      <td title="{{elt.alias}}">
                         %title = "%s - %s (%s)" % (elt.state, Helper.print_duration(elt.last_check, duration_only=True, x_elts=0), elt.output)
@@ -169,10 +170,11 @@
    </div>
 
    <div class="panel panel-default">
-      %if not groups or groups == 'hostgroup':
+      %children = datamgr.get_realm_children(element)
+      %if not children:
          <!--
          <div class="text-center alert alert-warning">
-            <h4>{{_('No groups found in this group.')}}</h4>
+            <h4>{{_('No children found in this realm.')}}</h4>
          </div>
          -->
       %else:
@@ -186,16 +188,14 @@
             </tr></thead>
 
             <tbody>
-            %plugin = webui.find_plugin('Hosts groups')
-            %for elt in groups:
+            %for elt in children:
                %if isinstance(elt, basestring):
                %continue
                %end
-               <tr id="hostgroup_{{elt.id}}">
+               <tr id="realm-{{elt.id}}">
                   <td title="{{elt.alias}}">
-                     %hg_state = datamgr.get_hostgroup_overall_state(element)
-                     %hg_status = element.overall_state_to_status[hg_state]
-                     {{! elt.get_html_state(text=None, use_status=hg_status)}}
+                     %(realm_state, realm_status) = datamgr.get_realm_overall_state(elt)
+                     {{! elt.get_html_state(text=None, use_status=realm_status)}}
                   </td>
 
                   <td>

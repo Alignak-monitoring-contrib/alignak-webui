@@ -51,7 +51,7 @@ logger = getLogger(__name__)
 _ = gettext.gettext
 
 # Application manifest
-VERSION = (0, 5, 3)
+VERSION = (0, 5, 4)
 __application__ = u"Alignak-WebUI"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
@@ -166,9 +166,14 @@ def set_app_config(config):
         app_config.get('debug', '0') == '1'
     )
     logger.info(
-        "%s, using alignak backend on %s",
+        "%s, using Alignak Backend on %s",
         app_config.get('name', 'Test'),
         app_config.get('alignak_backend', 'http://127.0.0.1:5000')
+    )
+    logger.info(
+        "%s, using Alignak Web Services on %s",
+        app_config.get('name', 'Test'),
+        app_config.get('alignak_arbiter', 'http://127.0.0.1:7770')
     )
     logger.info(
         "--------------------------------------------------------------------------------"

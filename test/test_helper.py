@@ -77,7 +77,7 @@ class TestDate(unittest2.TestCase):
 class TestDuration(unittest2.TestCase):
     def test_print_duration(self):
         """ Helper - duration """
-        now = time.time()
+        now = int(time.time())
 
         # Timestamp errors
         s = helper.print_duration(None)

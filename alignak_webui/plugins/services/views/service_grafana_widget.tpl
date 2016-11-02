@@ -1,4 +1,4 @@
-<!-- Hosts Grafana widget -->
+<!-- Service Grafana widget -->
 %# embedded is True if the widget is got from an external application
 %setdefault('embedded', False)
 %from bottle import request

@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 
 # Get plugin's parameters from configuration file
 # Define service/perfdata name for each element in graph
-class HostMetrics(object):
+class HostMetrics(object):  # pragma: no cover, not with unit tests ...
     """
     Host metrics functions
     """

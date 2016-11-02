@@ -172,10 +172,7 @@ class PluginServices(Plugin):
         # Get service
         service = datamgr.get_service(element_id)
         if not service:
-            # Test if we got a name instead of an id
-            service = datamgr.get_service(search={'max_results': 1, 'where': {'name': element_id}})
-            if not service:
-                return self.webui.response_invalid_parameters(_('Service does not exist'))
+            return self.webui.response_invalid_parameters(_('Service does not exist'))
 
         # Get service host
         host = datamgr.get_host(search={'where': {'_id': service.host.id}})
@@ -276,14 +273,17 @@ class PluginServices(Plugin):
 
         # Get service
         service = datamgr.get_service(element_id)
+        logger.debug("get_service_widget: service: %s", service)
         if not service:
             # Test if we got a name instead of an id
             service = datamgr.get_service(search={'max_results': 1, 'where': {'name': element_id}})
             if not service:
                 return self.webui.response_invalid_parameters(_('Service does not exist'))
+        logger.debug("get_service_widget: found service: %s", service.name)
 
         # Get service host
         host = datamgr.get_host(search={'where': {'_id': service.host.id}})
+        logger.debug("get_service_widget: found host: %s", host.name)
 
         # Get service history (timeline)
         # Fetch elements per page preference for user, default is 25
@@ -342,6 +342,7 @@ class PluginServices(Plugin):
             logger.info("Widget identifier not found: using default template and no options")
 
         title = request.params.get('title', _('Service : %s') % service.name)
+        logger.debug("get_service_widget: widget title: %s", title)
 
         # Use required template to render the widget
         return template('_widget', {

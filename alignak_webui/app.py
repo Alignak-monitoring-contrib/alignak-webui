@@ -20,12 +20,13 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 """
 Usage:
-    {command} [-h] [-v] [-d] [-x] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
+    {command} [-h] [-v] [-d] [-x] [-a=url] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
 
 Options:
     -h, --help                  Show this screen.
     -v, --version               Show application version.
     -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
+    -a, --alignak url           Specify alignak URL [default: http://127.0.0.1:7770]
     -n, --hostname host         Specify WebUI host (or ip address) [default: 127.0.0.1]
     -p, --port port             Specify WebUI port [default: 5001]
     -d, --debug                 Run in debug mode (more info to display) [default: False]
@@ -83,14 +84,29 @@ from alignak_webui.application import WebUI
 # Application logger
 logger = getLogger(__pkg_name__)
 
-cfg_file = None
-
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
     print("Application is in test mode")
+
+    # Code coverage for the application
+    try:
+        if os.environ.get('COVERAGE_PROCESS_START'):
+            print("***")
+            print("* Executing test with code coverage enabled")
+            if 'coverage' not in sys.modules:
+                print("* coverage module is not loaded! Trying to import coverage module...")
+                import coverage
+
+                coverage.process_startup()
+                print("* coverage process started.")
+            print("***")
+    except Exception as exp:  # pylint: disable=broad-except
+        print("Exception: %s", str(exp))
+        sys.exit(3)
 else:  # pragma: no cover - tests are run in test mode...
     print("Application is in production mode")
 
+cfg_file = None
 if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
     cfg_file = os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE')
     print("Application configuration file name from environment: %s" % cfg_file)
@@ -146,12 +162,12 @@ def main():  # pragma: no cover, not mesured by coverage!
         '--exit': False
     }
 
-    if __name__ == "__main__":  # pragma: no cover, not mesured by coverage!
-        try:
-            args = docopt(__doc__, version=manifest['version'])
-        except DocoptExit:
-            print("Command line parsing error")
-            exit(64)
+    try:
+        args = docopt(__doc__, version=manifest['version'])
+    except DocoptExit:
+        print("Command line parsing error")
+        exit(64)
+
     # Application settings
     # ----------------------------------------------------------------------------------------------
     # Configuration file path in command line parameters
@@ -165,7 +181,7 @@ def main():  # pragma: no cover, not mesured by coverage!
         # Read configuration file
         app_config = Settings(cfg_file)
         read_config_file = app_config.read(manifest['name'])
-        print("Configuration read from: %s" % read_config_file)
+        print("CLI - Configuration read from: %s" % read_config_file)
         if not app_config:  # pragma: no cover, should never happen
             print("Required configuration file not found.")
             exit(1)
@@ -173,22 +189,26 @@ def main():  # pragma: no cover, not mesured by coverage!
     # Store application name in the configuration
     app_config['name'] = manifest['name']
 
-    if '--debug' in args and args['--debug']:  # pragma: no cover, not mesured by coverage!
+    if '--debug' in args and args['--debug']:
         app_config['debug'] = '1'
         print("Application is in debug mode from command line")
 
-    if os.environ.get('WEBUI_DEBUG'):  # pragma: no cover, not mesured by coverage!
+    if os.environ.get('WEBUI_DEBUG'):
         app_config['debug'] = '1'
         print("Application is in debug mode from environment")
 
     # Applications backend URL
-    if args['--backend']:  # pragma: no cover, not mesured by coverage!
+    if app_config.get('alignak_backend', None) is None and args['--backend']:
         app_config['alignak_backend'] = args['--backend']
 
+    # Alignak URL
+    if app_config.get('alignak_arbiter', None) is None and args['--alignak']:
+        app_config['alignak_arbiter'] = args['--alignak']
+
     # WebUI server configuration
-    if args['--hostname']:  # pragma: no cover, not mesured by coverage!
+    if app_config.get('host', None) is None and args['--hostname']:
         app_config['host'] = args['--hostname']
-    if args['--port']:  # pragma: no cover, not mesured by coverage!
+    if app_config.get('port', None) is None and args['--port']:
         app_config['port'] = args['--port']
 
     # Make the configuration available globally for the package

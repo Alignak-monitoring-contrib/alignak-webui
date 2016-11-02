@@ -8,7 +8,7 @@
 
 %from alignak_webui.utils.helper import Helper
 
-<div id="minemap" class="card" style="padding:10px">
+<div id="minemap" class="card" style="padding:10px; margin-top: 10px">
    %if not minemap:
       %include("_nothing_found.tpl", search_string=search_string)
    %else:

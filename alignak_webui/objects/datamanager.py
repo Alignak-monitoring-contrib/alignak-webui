@@ -40,6 +40,8 @@ from alignak_webui import _
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
 
+from alignak_webui.backend.alignak_ws_client import AlignakConnection, AlignakWSException
+
 # Import all objects we will need
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_user import *
@@ -72,9 +74,15 @@ class DataManager(object):
     """
     id = 1
 
-    def __init__(self, user=None, backend_endpoint='http://127.0.0.1:5000'):
+    def __init__(self, user=None, backend_endpoint='http://127.0.0.1:5000',
+                 alignak_endpoint='http://127.0.0.1:5000'):
         """
-        Create an instance
+        Initialize a DataManager instance
+
+        Args:
+            user: logged-in user
+            backend_endpoint: Alignak backend URL endpoint
+            alignak_endpoint: Alignak Web service URL endpoint
         """
         # Set a unique id for each DM object
         self.__class__.id += 1
@@ -82,6 +90,9 @@ class DataManager(object):
         # Associated backend object
         self.backend_endpoint = backend_endpoint
         self.backend = BackendConnection(backend_endpoint)
+
+        # Alignak Web services client
+        self.alignak_ws = AlignakConnection(alignak_endpoint)
 
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
@@ -556,6 +567,75 @@ class DataManager(object):
         # Get user stored value
         result = user.get_ui_preference(preference_key)
         return result if result else default
+
+    ##
+    # Alignak
+    ##
+    def get_alignak_state(self):
+        """ Get Alignak overall state
+
+            Example response::
+            {
+                reactionner: {},
+                broker: {},
+                arbiter: {
+                    arbiter-master: {
+                        passive: false,
+                        realm: "",
+                        polling_interval: 1,
+                        alive: true,
+                        manage_arbiters: false,
+                        manage_sub_realms: false,
+                        is_sent: false,
+                        spare: false,
+                        check_interval: 60,
+                        address: "127.0.0.1",
+                        reachable: true,
+                        max_check_attempts: 3,
+                        last_check: 0,
+                        port: 7770
+                    }
+                },
+                scheduler: {
+                    scheduler-master: {
+                        passive: false,
+                        realm: "83596f2b6e254e7ea28467a1fe5627ef",
+                        polling_interval: 1,
+                        alive: true,
+                        manage_arbiters: false,
+                        manage_sub_realms: false,
+                        is_sent: true,
+                        spare: false,
+                        check_interval: 60,
+                        address: "127.0.0.1",
+                        reachable: true,
+                        max_check_attempts: 3,
+                        last_check: 1478064129.016136,
+                        port: 7768
+                    },
+                    scheduler-south: {},
+                    scheduler-north: {}
+                },
+                receiver: {},
+                poller: {}
+            }
+
+            :return: hosts and services live state synthesis in a dictionary
+            :rtype: dict
+        """
+        result = {}
+
+        try:
+            logger.debug("get_alignak_state")
+            result = self.alignak_ws.get('alignak_map')
+        except AlignakWSException:
+            return result
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_alignak_state, none found")
+            return result
+
+        logger.debug("Alignak status map, %s", result)
+        return result
 
     ##
     # Live synthesis
@@ -1560,6 +1640,37 @@ class DataManager(object):
         items = self.get_realms(search=search)
         return items[0] if items else None
 
+    def get_realm_members(self, search):
+        """ Get a realm hosts
+
+        Returns -1 if any problem
+        """
+        logger.info("get_realm_members, search: %s", search)
+        if not isinstance(search, BackendElement):
+            realm = self.get_realm(search)
+            if not realm:
+                return -1
+        else:
+            realm = search
+
+        return self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
+
+    def get_realm_children(self, search):
+        """ Get a realm sub realms
+
+        Returns -1 if any problem
+        """
+        logger.info("get_realm_overall_state, search: %s", search)
+        if not isinstance(search, BackendElement):
+            realm = self.get_realm(search)
+            if not realm:
+                return -1
+        else:
+            realm = search
+
+        # Realm sub-realms
+        return self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
+
     def get_realm_overall_state(self, search):
         """ Get a realm real state (including realm hosts states).
 
@@ -1573,17 +1684,16 @@ class DataManager(object):
         else:
             realm = search
 
-        members = self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
-
         overall_state = 0
         # Realm real state from hosts
-        for member in members:
+        hosts = self.get_realm_members(realm)
+        for member in hosts:
             (host_overall_state, dummy) = self.get_host_overall_state(member)
             overall_state = max(overall_state, host_overall_state)
 
         # Realm real state from sub-realms
-        realm_members = self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
-        for realm in realm_members:
+        subs = self.get_realm_children(realm)
+        for realm in subs:
             (ov_state, dummy) = self.get_realm_overall_state(realm)
             overall_state = max(overall_state, ov_state)
 

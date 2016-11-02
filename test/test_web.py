@@ -232,6 +232,8 @@ class TestRealms(unittest2.TestCase):
         )
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
+        self.realm_id = None
+
     def tearDown(self):
         self.app.get('/logout')
 
@@ -256,6 +258,28 @@ class TestRealms(unittest2.TestCase):
         response.mustcontain(
             '<div id="realms_tree_view">',
             # '5 elements out of 5'
+        )
+
+    def test_realm(self):
+        """ Web - realm"""
+        print('test realm')
+
+        print('get page /realms')
+        response = self.app.get('/realms')
+        print(response)
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
+        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
+        if matches:
+            for match in matches:
+                self.realm_id = match
+                break
+        assert self.realm_id
+
+        print('get page /realm')
+        response = self.app.get('/realm/%s' % self.realm_id)
+        print(response)
+        response.mustcontain(
+            '<div id="realm-%s">' % self.realm_id
         )
 
 
@@ -433,11 +457,11 @@ class TestUsergroups(unittest2.TestCase):
             '<div id="usergroups">',
             # '5 elements out of 5'
         )
-        response = self.app.get('/usergroups/config')
-        response = self.app.get('/usergroups/list')
-        response = self.app.get('/usergroups/table')
-        response = self.app.get('/usergroups/templates')
-        response = self.app.get('/usergroup/all')
+        self.app.get('/usergroups/config')
+        self.app.get('/usergroups/list')
+        self.app.get('/usergroups/table')
+        self.app.get('/usergroups/templates')
+        self.app.get('/usergroup/all')
 
         print('get page /usergroups/tree')
         response = self.app.get('/usergroups/tree')
@@ -490,6 +514,8 @@ class TestHosts(unittest2.TestCase):
         )
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
+        self.host_id = None
+
     def tearDown(self):
         self.app.get('/logout')
 
@@ -532,6 +558,28 @@ class TestHosts(unittest2.TestCase):
             '<div id="wd_panel_hosts_chart_1" class="panel panel-default alignak_webui_widget ">'
         )
 
+    def test_host(self):
+        """ Web - host"""
+        print('test host')
+
+        print('get page /hosts')
+        response = self.app.get('/hosts')
+        print(response)
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
+        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
+        if matches:
+            for match in matches:
+                self.host_id = match
+                break
+        assert self.host_id
+
+        print('get page /host')
+        response = self.app.get('/host/%s' % self.host_id)
+        print(response)
+        response.mustcontain(
+            '<div id="host-%s">' % self.host_id
+        )
+
 
 class TestServices(unittest2.TestCase):
     def setUp(self):
@@ -540,6 +588,9 @@ class TestServices(unittest2.TestCase):
             webapp
         )
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.host_id = None
+        self.service_id = None
 
     def tearDown(self):
         self.app.get('/logout')
@@ -578,6 +629,41 @@ class TestServices(unittest2.TestCase):
         })
         response.mustcontain(
             '<div id="wd_panel_services_chart_1" class="panel panel-default alignak_webui_widget ">'
+        )
+
+    def test_service(self):
+        """ Web - service"""
+        print('test service')
+
+        print('get page /hosts')
+        response = self.app.get('/hosts')
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
+        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
+        if matches:
+            for match in matches:
+                self.host_id = match
+                break
+        assert self.host_id
+
+        print('get page /host')
+        response = self.app.get('/host/%s' % self.host_id)
+        print(response)
+        response.mustcontain(
+            '<div id="host-%s">' % self.host_id
+        )
+
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
+        matches = re.findall(r'<tr id="#service-([0-9a-f].*)">', response.body)
+        if matches:
+            for match in matches:
+                print("Found id: %s" % match)
+                self.service_id = match
+        assert self.service_id
+
+        print('get page /service')
+        response = self.app.get('/service/%s' % self.service_id)
+        response.mustcontain(
+            '<div id="service-%s">' % self.service_id
         )
 
 

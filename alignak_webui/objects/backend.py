@@ -34,7 +34,7 @@ from logging import getLogger, WARNING
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT
 from alignak_backend_client.client import Backend, BackendException
 
-# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
+# Set logger level to WARNING, this to allow global application DEBUG logs without being spammed... ;)
 logger = getLogger(__name__)
 logger.setLevel(WARNING)
 
@@ -66,12 +66,12 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             self.connected = False
 
-            if not username:  # pragma: no cover, should not happen
+            if not username:
                 # Refuse backend login without username
                 logger.warning("No login without username!")
                 return self.connected
 
-            if not password:  # pragma: no cover, should not happen
+            if not password:
                 # Set backend token (no login request).
                 logger.debug("Update backend token")
                 self.backend.token = username

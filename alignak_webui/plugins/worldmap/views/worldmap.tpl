@@ -20,7 +20,7 @@
 </script>
 
 <!-- HTML map container -->
-<div id="worldmap" class="card map_container">
+<div id="worldmap" class="card map_container" style="padding:10px; margin-top: 10px">
    %if not hosts:
       <div class="panel-heading">
          <center class="alert-warning">
