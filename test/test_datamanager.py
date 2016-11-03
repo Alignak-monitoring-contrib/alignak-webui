@@ -62,6 +62,8 @@ pid = None
 backend_address = "http://127.0.0.1:5000/"
 datamgr = None
 
+COUNT_KNOWN_CLASSES = 19
+
 
 def setup_module():
     print("")
@@ -118,7 +120,7 @@ class TestCreation(unittest2.TestCase):
         assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
         # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), 18)
+        self.assertEqual(len(datamanager.known_classes), COUNT_KNOWN_CLASSES)
 
         # Initialize and load fail ...
         print('DM load failed')

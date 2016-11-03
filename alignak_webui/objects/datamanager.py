@@ -446,7 +446,7 @@ class DataManager(object):
         if search is not None:
             params['where'] = search
 
-        # Daemon objects are not currently stored in the backend
+        # Daemon objects are not currently stored in the backend
         if object_type in 'daemon':
             return Daemon.get_total_count()
 
