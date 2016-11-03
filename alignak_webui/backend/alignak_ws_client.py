@@ -182,21 +182,8 @@ class AlignakConnection(object):    # pylint: disable=too-few-public-methods
 
                 logger.error("Backend HTTP error, error: %s", str(e))
                 raise AlignakWSException(1003, "Backend HTTPError: %s / %s" % (type(e), str(e)))
-            resp = response.json()
-            if '_status' in resp:  # pragma: no cover - need specific backend tests
-                # Considering an information is returned if a _status field is present ...
-                logger.debug("backend status: %s", resp['_status'])
-            else:
-                resp['_status'] = 'OK'
 
-            if '_error' in resp:  # pragma: no cover - need specific backend tests
-                # Considering a problem occured is an _error field is present ...
-                error = resp['_error']
-                error['message'] = "Url: %s. Message: %s" % (endpoint, error['message'])
-                logger.error("backend error: %s, %s", error['code'], error['message'])
-                raise AlignakWSException(error['code'], error['message'])
-
-            return resp
+            return response.json()
 
     instance = None
 

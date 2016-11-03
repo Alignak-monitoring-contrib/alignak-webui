@@ -1057,7 +1057,7 @@ class Plugin(object):
                     break
         saved_options = new_options
 
-        title = request.params.get('title', _('Hosts'))
+        title = request.params.get('title', _('Elements'))
         if name_filter:
             title = _('%s (%s)') % (title, name_filter)
 

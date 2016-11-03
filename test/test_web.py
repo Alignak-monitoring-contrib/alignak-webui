@@ -22,15 +22,14 @@
 
 from __future__ import print_function
 import os
-import re
 import time
 import shlex
 import unittest2
 import subprocess
-from calendar import timegm
-from datetime import datetime, timedelta
+import requests
 
-from nose import with_setup
+from mock import Mock, patch
+
 from nose.tools import *
 
 # Test environment variables
@@ -717,6 +716,130 @@ class TestMinemap(unittest2.TestCase):
         response = self.app.get('/minemap')
         response.mustcontain(
             '<div id="minemap"'
+        )
+
+
+# This method will be used by the mock to replace requests.get
+def mocked_requests_get(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def json(self):
+            return self.json_data
+
+        def raise_for_status(self):
+            http_error_msg = ''
+            if 400 <= self.status_code < 500:
+                http_error_msg = u'%s Error' % (self.status_code)
+            elif 500 <= self.status_code < 600:
+                http_error_msg = u'%s Error' % (self.status_code)
+
+            if http_error_msg:
+                raise requests.HTTPError(http_error_msg, response=self)
+
+            return
+
+    if args[0] == 'http://127.0.0.1:8888/alignak_map':
+        data = {
+            'arbiter': {
+                'arbiter-master': {
+                    'passive': False,
+                    'realm_name': "All",
+                    'polling_interval': 1,
+                    'alive': True,
+                    'manage_arbiters': False,
+                    'manage_sub_realms': False,
+                    'is_sent': False,
+                    'spare': False,
+                    'check_interval': 60,
+                    'address': "127.0.0.1",
+                    'reachable': True,
+                    'max_check_attempts': 3,
+                    'last_check': 0,
+                    'port': 7770
+                }
+            },
+            'scheduler': {
+                'scheduler-master': {
+                    'passive': False,
+                    'realm_name': "All",
+                    'polling_interval': 1,
+                    'alive': True,
+                    'manage_arbiters': False,
+                    'manage_sub_realms': False,
+                    'is_sent': False,
+                    'spare': False,
+                    'check_interval': 60,
+                    'address': "127.0.0.1",
+                    'reachable': True,
+                    'max_check_attempts': 3,
+                    'last_check': 1478064129.016136,
+                    'port': 7768
+                },
+                'scheduler-north': {
+                    'passive': False,
+                    'realm_name': "North",
+                    'polling_interval': 1,
+                    'alive': True,
+                    'manage_arbiters': False,
+                    'manage_sub_realms': False,
+                    'is_sent': False,
+                    'spare': False,
+                    'check_interval': 60,
+                    'address': "127.0.0.1",
+                    'reachable': True,
+                    'max_check_attempts': 3,
+                    'last_check': 1478064129.016136,
+                    'port': 7768
+                },
+                'scheduler-south': {
+                    'passive': False,
+                    'realm_name': "All",
+                    'polling_interval': 1,
+                    'alive': True,
+                    'manage_arbiters': False,
+                    'manage_sub_realms': False,
+                    'is_sent': False,
+                    'spare': False,
+                    'check_interval': 60,
+                    'address': "127.0.0.1",
+                    'reachable': True,
+                    'max_check_attempts': 3,
+                    'last_check': 1478064129.016136,
+                    'port': 7768
+                },
+            },
+            # Leave it empty for testing ...
+            'reactionner': {},
+            'broker': {},
+            'receiver': {},
+            'poller': {}
+        }
+        return MockResponse(data, 200)
+
+    return MockResponse({}, 404)
+
+
+class TestAlignakWS(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    @patch('alignak_webui.backend.alignak_ws_client.requests.get', side_effect=mocked_requests_get)
+    def test_daemons(self, mock_login):
+        """ Web - daemons """
+        print('get page /alignak')
+        response = self.app.get('/alignak')
+        response.mustcontain(
+            '<div id="alignak"'
         )
 
 

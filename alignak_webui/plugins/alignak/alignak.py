@@ -33,6 +33,7 @@ from bottle import request
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.objects.item_daemon import Daemon
 
 logger = getLogger(__name__)
 
@@ -52,10 +53,42 @@ class PluginAlignak(Plugin):
                 'name': 'Alignak status',
                 'route': '/alignak',
                 'view': 'alignak'
-            }
+            },
+            'get_alignak_widget': {
+                'name': 'Alignak widget',
+                'route': '/alignak/widget',
+                'method': 'POST',
+                'view': 'alignak_widget',
+                'widgets': [
+                    {
+                        'id': 'alignak_table_widget',
+                        'for': ['external', 'dashboard'],
+                        'name': _('Alignak state widget'),
+                        'template': 'alignak_table_widget',
+                        'icon': 'table',
+                        'description': _(
+                            '<h4>Alignak state widget</h4>Displays a list of the Alignak '
+                            'daemons.<br>'
+                            'This daemons list displays the state of each daemon as seen by the '
+                            'Alignak arbiter.'
+                        ),
+                        'picture': 'htdocs/img/alignak_widget.png',
+                        'options': {}
+                    }
+                ]
+            },
         }
 
         super(PluginAlignak, self).__init__(app, cfg_filenames)
+
+    def get_alignak_widget(self, embedded=False, identifier=None, credentials=None):
+        """
+        Get the Alignak widget
+        """
+        datamgr = request.app.datamgr
+
+        return self.get_widget(datamgr.get_alignak_state, 'daemon',
+                               embedded, identifier, credentials)
 
     def show_alignak(self):
         """
@@ -64,23 +97,14 @@ class PluginAlignak(Plugin):
         datamgr = request.app.datamgr
 
         # Get Alignak state from the data manager
-        alignak_state = datamgr.get_alignak_state()
+        alignak_daemons = datamgr.get_alignak_state()
 
-        # Todo: create a realm sorted list of the daemons to display in a tree view ...
-        # for daemon_type in alignak_state:
-        #     logger.info("Got Alignak state for: %s", daemon_type)
-        #     if daemon_type == '_status':
-        #         logger.info("Got Alignak state for: %s / %s",
-        #                     daemon_type, alignak_state.get(daemon_type))
-        #         continue
-        #     daemons = alignak_state.get(daemon_type)
-        #     for daemon_name in daemons:
-        #         daemon = daemons.get(daemon_name)
-        #         logger.info(" - %s: %s", daemon_name, daemon['alive'])
+        # Sort the daemons list by daemon name
+        alignak_daemons.sort(key=lambda x: x.name, reverse=False)
 
         return {
             'title': _('Alignak framework overall status'),
             'pagination': None,
             'params': self.plugin_parameters,
-            'alignak_state': alignak_state
+            'alignak_daemons': alignak_daemons
         }

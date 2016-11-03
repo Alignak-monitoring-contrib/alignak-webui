@@ -30,7 +30,7 @@
 import time
 import traceback
 from datetime import datetime
-from logging import getLogger
+import logging
 
 from alignak_backend_client.client import BackendException
 # from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
@@ -43,29 +43,30 @@ from alignak_webui.objects.backend import BackendConnection
 from alignak_webui.backend.alignak_ws_client import AlignakConnection, AlignakWSException
 
 # Import all objects we will need
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.element import BackendElement
-from alignak_webui.objects.item_user import *
-from alignak_webui.objects.item_usergroup import *
-from alignak_webui.objects.item_realm import *
-from alignak_webui.objects.item_command import *
-from alignak_webui.objects.item_timeperiod import *
-from alignak_webui.objects.item_host import *
-from alignak_webui.objects.item_hostgroup import *
-from alignak_webui.objects.item_hostdependency import *
-from alignak_webui.objects.item_service import *
-from alignak_webui.objects.item_servicegroup import *
-from alignak_webui.objects.item_servicedependency import *
-from alignak_webui.objects.item_history import *
-from alignak_webui.objects.item_log import *
-from alignak_webui.objects.item_actions import *
-# from alignak_webui.objects.item_livestate import *
-from alignak_webui.objects.item_livesynthesis import *
-from alignak_webui.objects.item_userrestrictrole import *
+from alignak_webui.objects.item_realm import Realm
+from alignak_webui.objects.item_daemon import Daemon
+from alignak_webui.objects.item_command import Command
+from alignak_webui.objects.item_timeperiod import TimePeriod
+from alignak_webui.objects.item_user import User
+from alignak_webui.objects.item_usergroup import UserGroup
+from alignak_webui.objects.item_userrestrictrole import UserRestrictRole
+from alignak_webui.objects.item_host import Host
+from alignak_webui.objects.item_hostgroup import HostGroup
+from alignak_webui.objects.item_hostdependency import HostDependency
+from alignak_webui.objects.item_service import Service
+from alignak_webui.objects.item_servicegroup import ServiceGroup
+from alignak_webui.objects.item_servicedependency import ServiceDependency
+from alignak_webui.objects.item_history import History
+from alignak_webui.objects.item_log import Log
+from alignak_webui.objects.item_actions import ActionAcknowledge, ActionDowntime, ActionForceCheck
+from alignak_webui.objects.item_livesynthesis import LiveSynthesis
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
-logger = getLogger(__name__)
-logger.setLevel(INFO)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class DataManager(object):
@@ -93,6 +94,7 @@ class DataManager(object):
 
         # Alignak Web services client
         self.alignak_ws = AlignakConnection(alignak_endpoint)
+        self.alignak_daemons = []
 
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
@@ -428,13 +430,25 @@ class DataManager(object):
         Request objects from the backend to pick-up total records count.
         Make a simple request for 1 element and we will get back the total count of elements
 
-        search is a dictionary of key / value to search for
+        Note: The 'daemon' (Daemon class) objects are not concerned whereas they are not stored in
+        the backend
+
+        Args:
+            object_type: the object type as a backend endpoint (eg. host, realm, ...)
+            search: dictionary of key / value to search for
+
+        Returns:
+
         """
         params = {
             'page': 0, 'max_results': 1
         }
         if search is not None:
             params['where'] = search
+
+        # Daemon objects are not currently stored in the backend
+        if object_type in 'daemon':
+            return Daemon.get_total_count()
 
         return self.backend.count(object_type, params)
 
@@ -571,8 +585,11 @@ class DataManager(object):
     ##
     # Alignak
     ##
-    def get_alignak_state(self):
-        """ Get Alignak overall state
+    def get_alignak_state(self, search=None):  # pylint: disable=unused-argument
+        """ Get Alignak overall state from the Alignak Web Services module:
+            https://github.com/Alignak-monitoring-contrib/alignak-module-ws
+
+            The search parameter is not used but is kept for get method interface compatibility!
 
             Example response::
             {
@@ -582,6 +599,7 @@ class DataManager(object):
                     arbiter-master: {
                         passive: false,
                         realm: "",
+                        realm_name: "All",
                         polling_interval: 1,
                         alive: true,
                         manage_arbiters: false,
@@ -600,6 +618,7 @@ class DataManager(object):
                     scheduler-master: {
                         passive: false,
                         realm: "83596f2b6e254e7ea28467a1fe5627ef",
+                        realm_name: "All",
                         polling_interval: 1,
                         alive: true,
                         manage_arbiters: false,
@@ -620,22 +639,32 @@ class DataManager(object):
                 poller: {}
             }
 
-            :return: hosts and services live state synthesis in a dictionary
-            :rtype: dict
+            :return: list of the Alignak daemons
+            :rtype: list of Daemon objects
         """
-        result = {}
+        result = []
 
         try:
             logger.debug("get_alignak_state")
             result = self.alignak_ws.get('alignak_map')
         except AlignakWSException:
             return result
-        except ValueError:  # pragma: no cover - should not happen
-            logger.debug("get_alignak_state, none found")
-            return result
 
         logger.debug("Alignak status map, %s", result)
-        return result
+
+        self.alignak_daemons = []
+        for daemon_type in result:
+            logger.debug("Got Alignak state for: %s", daemon_type)
+            daemons = result.get(daemon_type)
+            for daemon_name in daemons:
+                daemon_data = daemons.get(daemon_name)
+                daemon_data['name'] = daemon_name
+                daemon = Daemon(daemon_data)
+                self.alignak_daemons.append(daemon)
+                logger.debug(" - %s: %s", daemon_name, daemon)
+
+        Daemon.set_total_count(len(self.alignak_daemons))
+        return self.alignak_daemons
 
     ##
     # Live synthesis

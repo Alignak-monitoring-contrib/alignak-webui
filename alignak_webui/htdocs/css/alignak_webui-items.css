@@ -17,6 +17,7 @@
 .item_open,
 .sla_hosts_ok,
 .sla_services_ok,
+.item_daemon_up,
 .item_host_up,
 .item_host_ok,
 .item_service_ok,
@@ -71,6 +72,7 @@
 .item_inactive,
 .sla_hosts_warning,
 .sla_services_warning,
+.item_daemon_unreachable,
 .item_host_unreachable,
 .item_host_warning,
 .item_logcheckresult_unreachable,
@@ -82,6 +84,7 @@
 /* Reds */
 .item_hostgroup_critical,
 .item_realm_critical,
+.item_daemon_down,
 .item_host_down,
 .item_host_critical,
 .item_service_critical,
