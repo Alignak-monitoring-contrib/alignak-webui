@@ -45,8 +45,8 @@ Development release (develop branch)
 Releases
 ========
 
-- Version 0.50.5
- First released version
+.. image:: https://badge.fury.io/py/alignak_webui.svg
+    :target: https://badge.fury.io/py/alignak_webui
 
 
 Documentation
