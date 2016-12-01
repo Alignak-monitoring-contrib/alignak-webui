@@ -298,6 +298,7 @@
             %message['r'] = {'title': _('Notifications enabled on Recovery'), 'message': _('RECOVERY')}
             %message['f'] = {'title': _('Notifications enabled on Flapping'), 'message': _('FLAPPING')}
             %message['s'] = {'title': _('Notifications enabled on Downtime'), 'message': _('DOWNTIME')}
+            %message['x'] = {'title': _('Notifications enabled on Unreachable'), 'message': _('UNREACHABLE')}
             %message['n'] = {'title': _('Notifications disabled'), 'message': _('NONE')}
             %first=True
             %for m in message:

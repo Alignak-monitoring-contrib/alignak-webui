@@ -24,7 +24,14 @@
    </div>
    %if host_state != 0:
    <div>
-      {{! host.get_html_state(text=None, size="fa-3x")}}
+      %extra=''
+      %if host.acknowledged:
+      %extra += _(' and acknowledged')
+      %end
+      %if host.downtime:
+      %extra += _(' and in scheduled downtime')
+      %end
+      {{! host.get_html_state(text=None, size="fa-3x", extra=extra)}}
       <p>{{_('Host real state, excluding services')}}</p>
    </div>
    %end

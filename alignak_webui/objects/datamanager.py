@@ -684,9 +684,11 @@ class DataManager(object):
                     'services_warning_hard': 0,
                     'services_warning_soft': 0,
                     'services_critical_hard': 83,
-                    'services_critical_soft': -23,
+                    'services_critical_soft': 23,
                     'services_unknown_hard': 24,
-                    'services_unknown_soft': -3,
+                    'services_unknown_soft': 0,
+                    'services_unreachable_hard': 4,
+                    'services_unreachable_soft': 1,
                     'services_acknowledged': 0,
                     'services_flapping': 0,
                     'services_in_downtime': 0,
@@ -770,6 +772,8 @@ class DataManager(object):
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
                 'nb_unknown': 0, 'pct_unknown': 0.0,
                 'nb_unknown_hard': 0, 'nb_unknown_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
 
                 'nb_problems': 0, 'pct_problems': 0.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
@@ -847,7 +851,7 @@ class DataManager(object):
                 'business_impact': min(services_synthesis['business_impact'],
                                        ls["services_business_impact"]),
             })
-            for state in 'ok', 'warning', 'critical', 'unknown':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
                 services_synthesis.update({
                     "nb_%s_hard" % state:
                     services_synthesis["nb_%s_hard" % state] + ls["services_%s_hard" % state]
@@ -871,7 +875,7 @@ class DataManager(object):
                 "nb_problems":
                 services_synthesis["nb_warning_hard"] + services_synthesis["nb_critical_hard"]
             })
-            for state in 'ok', 'warning', 'critical', 'unknown':
+            for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
                 services_synthesis.update({
                     "pct_" + state: round(
                         100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2

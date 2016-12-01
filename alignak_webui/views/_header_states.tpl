@@ -90,11 +90,11 @@
    <table class="table table-invisible">
       <tbody>
          <tr>
-            %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+            %for state in ['ok', 'warning', 'critical', 'unknown', 'unreachable', 'acknowledged', 'in_downtime']:
             <td>
                %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])
                %label = "%s <i>(%s%%)</i>" % (ss["nb_" + state], ss["pct_" + state])
-               %if state in ['ok', 'warning', 'critical', 'unknown']:
+               %if state in ['ok', 'warning', 'critical', 'unknown', 'unreachable']:
                   <a href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}">
                %elif state in ['acknowledged']:
                   <a href="{{ webui.get_url('Services table') }}?search=ls_acknowledged:yes">

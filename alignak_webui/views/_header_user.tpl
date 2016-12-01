@@ -51,6 +51,7 @@
             <span>{{_('User preferences')}}</span>
          </a>
       </li>
+      <!--
       %if current_user.is_power():
       <li>
          %if edition_mode:
@@ -68,6 +69,7 @@
       <li class="divider">
       </li>
       %end
+      -->
       <li>
          <a href="#" data-action="about-box">
             <span class="fa fa-question"></span>
