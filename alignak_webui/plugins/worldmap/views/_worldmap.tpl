@@ -15,7 +15,7 @@
     %# List hosts and their services
     var hosts = [
     %for host in hosts:
-        %pos = host.position
+        %pos = host.location
         %if 'type' not in pos or pos['type'] != 'Point':
         %continue
         %end
