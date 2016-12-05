@@ -320,11 +320,11 @@ class Service(BackendElement):
         - the downtime state
 
         The worst states is (prioritized):
-        - an host down
-        - an host unreachable
-        - an host downtimed
-        - an host acknowledged
-        - an host up
+        - a service critical or unreachable
+        - a service warning or unknown
+        - a service downtimed
+        - a service acknowledged
+        - an host ok
 
         Note that unknown state services are considered as warning!
         """

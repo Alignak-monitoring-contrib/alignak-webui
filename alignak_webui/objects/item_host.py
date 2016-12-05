@@ -54,7 +54,7 @@ class Host(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+        'ok', 'acknowledged', 'in_downtime', 'unreachable', 'down'
     ]
 
     # Converting short state character to text status (used for initial_state and freshness_state)
