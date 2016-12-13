@@ -319,14 +319,15 @@ class Service(BackendElement):
         - the acknowledged state
         - the downtime state
 
-        The worst states is (prioritized):
+        The worst state is (prioritized):
         - a service critical or unreachable
         - a service warning or unknown
         - a service downtimed
         - a service acknowledged
-        - an host ok
+        - a service ok
 
-        Note that unknown state services are considered as warning!
+        *Note* that services in unknown state are considered as warning, and  unreachable ones
+        are considered as critical!
         """
         overall_state = 0
 

@@ -62,6 +62,7 @@ class Host(BackendElement):
         'o': _('Up'),
         'd': _('Down'),
         'u': _('Unreachable'),
+        'x': _('Unreachable'),
         'r': _('Recovery'),
         'f': _('Flapping'),
         's': _('Downtime'),
@@ -312,7 +313,7 @@ class Host(BackendElement):
         - the acknowledged state
         - the downtime state
 
-        The worst states is (prioritized):
+        The worst state is (prioritized):
         - an host down
         - an host unreachable
         - an host downtimed
