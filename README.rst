@@ -3,47 +3,40 @@ Alignak Web UI
 
 *Web User Interface for Alignak monitoring framework ...*
 
-Build status
-============
-
-Stable release (master branch)
------------------------------
-
-.. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=master
+.. image:: https://api.travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
-
-.. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/master
-   :alt: Code Health
-
-.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=master&service=github
-  :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
-   :alt: Code coverage
-
-.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=latest
-  :target: http://alignak-web-ui.readthedocs.io/?badge=latest
-  :alt: Documentation Status
-
-Development release (develop branch)
-------------------------------------
-
-.. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui.svg?branch=develop
-    :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-webui
+    :alt: Develop branch build status
 
 .. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop/landscape.svg?style=flat
-   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop
-   :alt: Code Health
+    :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop
+    :alt: Development code static analysis
 
-.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop&service=github
-  :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-webui?branch=master
-   :alt: Code coverage
+.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop
+    :target: https://coveralls.io/r/Alignak-monitoring-contrib/alignak-webui
+    :alt: Development code tests coverage
 
-.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
-  :target: http://alignak-web-ui.readthedocs.io/?badge=develop
-  :alt: Documentation Status
+.. image:: https://readthedocs.org/projects/alignak-doc/badge/?version=latest
+    :target: http://alignak-backend-client.readthedocs.org/en/latest/?badge=latest
+    :alt: Lastest documentation Status
+
+.. image:: https://readthedocs.org/projects/alignak-doc/badge/?version=develop
+    :target: http://alignak-doc.readthedocs.org/en/update/?badge=update
+    :alt: Update processing documentation Status
+
+.. image:: https://img.shields.io/badge/IRC-%23alignak-1e72ff.svg?style=flat
+    :target: http://webchat.freenode.net/?channels=%23alignak
+    :alt: Join the chat #alignak on freenode.net
+
+.. image:: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
+    :target: http://www.gnu.org/licenses/agpl-3.0
+    :alt: License AGPL v3
+
 
 Releases
 ========
+
+.. image:: https://img.shields.io/github/release/qubyte/rubidium.svg
+    :target: https://github.com/Alignak-monitoring-contrib/alignak-webui
 
 .. image:: https://badge.fury.io/py/alignak_webui.svg
     :target: https://badge.fury.io/py/alignak_webui
