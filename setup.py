@@ -49,54 +49,6 @@ with open(os.path.join('alignak_webui/version.py')) as fh:
 # Get the package name from the manifest
 package_name = manifest["__pkg_name__"]
 
-# Build list of all installable data files
-# This will get:
-# - all the files from the package `etc` subdir
-# - all the files from the package `libexec` subdir
-# and will define the appropriate target installation directory
-print("\n====================================================")
-print("Searching for data files...")
-data_files = [
-    # ('.', ['LICENSE', 'README.rst', 'requirements.txt', 'version.py'])
-]
-for subdir, dirs, files in os.walk(package_name):
-    target = None
-    # Plugins directory
-    if subdir and 'libexec' in subdir:
-        target = os.path.join('var/libexec/alignak',
-                              re.sub(r"^(%s\/|%s$)" % (
-                                  os.path.join(package_name, 'libexec'),
-                                  os.path.join(package_name, 'libexec')),
-                                     "", subdir))
-    # Configuration directory
-    elif subdir and 'etc' in subdir:
-        target = os.path.join('etc/alignak',
-                              re.sub(r"^(%s\/|%s$)" % (
-                                  os.path.join(package_name, 'etc'),
-                                  os.path.join(package_name, 'etc')),
-                                     "", subdir))
-
-    if target is None:
-        print("Ignoring directory: %s" % (subdir))
-        continue
-
-    package_files = []
-    for file in files:
-        # Ignore files which name starts with __
-        if file.startswith('__'):
-            continue
-
-        package_files.append(os.path.join(subdir, file))
-
-    if package_files:
-        data_files.append((target, package_files))
-
-for (target, origin) in data_files:
-    print("Target directory: %s:" % (target))
-    for file in origin:
-        print(" - %s" % (file))
-print("====================================================\n")
-
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
@@ -143,7 +95,7 @@ setup(
     # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
 
     # Where to install distributed files
-    data_files = data_files,
+    data_files=[('etc/alignak-webui', ['etc/settings.cfg'])],
 
     # Dependencies (if some) ...
     install_requires=install_requires,
