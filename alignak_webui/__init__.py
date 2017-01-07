@@ -41,6 +41,7 @@ import bottle
 from beaker.middleware import SessionMiddleware
 
 # Specific application
+from alignak_webui.version import manifest
 from alignak_webui.utils.logs import set_console_logger, set_file_logger
 
 
@@ -49,32 +50,6 @@ logger = getLogger(__name__)
 
 # Localization
 _ = gettext.gettext
-
-# Application manifest
-VERSION = (0, 6, 0)
-__application__ = u"Alignak-WebUI"
-__short_version__ = '.'.join((str(each) for each in VERSION[:2]))
-__version__ = '.'.join((str(each) for each in VERSION[:4]))
-__author__ = u"Frédéric MOHIER"
-__copyright__ = u"2015-2016 - %s" % __author__
-__license__ = u"GNU Affero General Public License, version 3"
-__description__ = u"Alignak monitoring framework Web User Interface"
-__releasenotes__ = u"""Alignak monitoring framework Web User Interface"""
-__project_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-webui"
-__doc_url__ = "http://alignak-web-ui.readthedocs.io/?badge=latest"
-
-# Application manifest
-manifest = {
-    'name': __application__,
-    'version': __version__,
-    'author': __author__,
-    'description': __description__,
-    'copyright': __copyright__,
-    'license': __license__,
-    'release': __releasenotes__,
-    'url': __project_url__,
-    'doc': __doc_url__
-}
 
 # Application configuration object
 # Global variable to be used with accessor functions ...
@@ -233,8 +208,8 @@ session_opts = {
     'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
     'session.auto': True,
     'session.cookie_expires': 21600,    # 6 hours
-    'session.key': __application__,
-    'sesssion.webtest_varname': __application__,    # For unit tests ...
+    'session.key': manifest['name'],
+    'sesssion.webtest_varname': manifest['name'],    # For unit tests ...
     'session.data_serializer': 'json'   # Default is pickle ... not appropriate for our data!
 }
 webapp = SessionMiddleware(bottle_app, session_opts)

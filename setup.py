@@ -21,8 +21,7 @@
 
 import os
 import sys
-import re
-del os.link
+
 from importlib import import_module
 
 try:
@@ -39,11 +38,70 @@ if python_version < (2, 7):
 elif python_version >= (3,):
     sys.exit("This application is not yet compatible with Python 3.x, sorry!")
 
-from alignak_webui import __application__, __version__, __copyright__
-from alignak_webui import __releasenotes__, __license__, __doc_url__
-from alignak_webui import __name__ as __pkg_name__
+# Better to use exec to load the package information from a version.py file
+# so to not have to import the package. as of it, the setup.py do not need to be modified
+# for each package that is built from this one...
+with open(os.path.join('alignak_webui/version.py')) as fh:
+    manifest = {}
+    exec(fh.read(), manifest)
+# The `manifest` dictionary now contains the package metadata
 
-package = import_module('alignak_webui')
+# Get the package name from the manifest
+package_name = manifest["__pkg_name__"]
+
+# Build list of all installable data files
+# This will get:
+# - all the files from the package `etc` subdir
+# - all the files from the package `libexec` subdir
+# and will define the appropriate target installation directory
+print("\n====================================================")
+print("Searching for data files...")
+data_files = [
+    # ('.', ['LICENSE', 'README.rst', 'requirements.txt', 'version.py'])
+]
+for subdir, dirs, files in os.walk(package_name):
+    target = None
+    # Plugins directory
+    if subdir and 'libexec' in subdir:
+        target = os.path.join('var/libexec/alignak',
+                              re.sub(r"^(%s\/|%s$)" % (
+                                  os.path.join(package_name, 'libexec'),
+                                  os.path.join(package_name, 'libexec')),
+                                     "", subdir))
+    # Configuration directory
+    elif subdir and 'etc' in subdir:
+        target = os.path.join('etc/alignak',
+                              re.sub(r"^(%s\/|%s$)" % (
+                                  os.path.join(package_name, 'etc'),
+                                  os.path.join(package_name, 'etc')),
+                                     "", subdir))
+
+    if target is None:
+        print("Ignoring directory: %s" % (subdir))
+        continue
+
+    package_files = []
+    for file in files:
+        # Ignore files which name starts with __
+        if file.startswith('__'):
+            continue
+
+        package_files.append(os.path.join(subdir, file))
+
+    if package_files:
+        data_files.append((target, package_files))
+
+for (target, origin) in data_files:
+    print("Target directory: %s:" % (target))
+    for file in origin:
+        print(" - %s" % (file))
+print("====================================================\n")
+
+# Specific for Read the docs build process
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    print "RTD build, no data_files"
+    data_files = []
 
 install_requires = [
     'future',
@@ -61,74 +119,40 @@ install_requires = [
     'alignak_backend_client'
 ]
 
-# Define paths
-if 'linux' in sys.platform or 'sunos5' in sys.platform:
-    installation_paths = {
-        'etc':     "/etc/alignak-webui",
-        'log':     "/var/log/alignak-webui"
-    }
-elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    installation_paths = {
-        'etc':     "/usr/local/etc/alignak-webui",
-        'log':     "/usr/local/var/log/alignak-webui"
-    }
-else:
-    print "Unsupported platform, sorry!"
-    exit(1)
-
-data_files = [
-    (installation_paths['etc'], ['etc/settings.cfg'])
-]
-
-# Specific for Read the docs build process
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    print "RTD build, no data_files"
-    data_files = []
-
 setup(
-    name=__pkg_name__,
-    version=__version__,
+    # Package name and version
+    name=manifest["__pkg_name__"],
+    version=manifest["__version__"],
 
-    license=__license__,
-
-    # metadata for upload to PyPI
-    author="Frédéric MOHIER",
-    author_email="frederic.mohier@gmail.com",
-    keywords="alignak web ui",
-    url="https://github.com/Alignak-monitoring-contrib/alignak-webui",
-    description=package.__doc__.strip(),
+    # Metadata for PyPI
+    author=manifest["__author__"],
+    author_email=manifest["__author_email__"],
+    keywords="alignak monitoring webui",
+    url=manifest["__git_url__"],
+    license=manifest["__license__"],
+    description=manifest["__description__"],
     long_description=open('README.rst').read(),
 
+    classifiers = manifest["__classifiers__"],
+
+    # Unzip Egg
     zip_safe=False,
 
+    # Package data
     packages=find_packages(),
-    include_package_data=True,
-    # package_data={
-        # 'sample': ['package_data.dat'],
-    # },
-    data_files=data_files,
+    # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
 
+    # Where to install distributed files
+    data_files = data_files,
+
+    # Dependencies (if some) ...
     install_requires=install_requires,
 
+    # Entry points (if some) ...
     entry_points={
         'console_scripts': [
             'alignak-webui = alignak_webui.app:main',
             'alignak_webui = alignak_webui.app:main_old'
         ],
-    },
-
-    classifiers = [
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Framework :: Bottle',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Customer Service',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Natural Language :: English',
-        'Programming Language :: Python',
-        'Topic :: System :: Monitoring',
-        'Topic :: System :: Systems Administration'
-    ]
+    }
 )
