@@ -22,8 +22,6 @@
 import os
 import sys
 
-from importlib import import_module
-
 try:
     from setuptools import setup, find_packages
 except:
@@ -55,22 +53,6 @@ if on_rtd:
     print "RTD build, no data_files"
     data_files = []
 
-install_requires = [
-    'future',
-    'configparser',
-    'docopt',
-    'bottle>=0.12.9,<0.13',
-    'Beaker==1.8.0',
-    'CherryPy',
-    'pymongo>=3.2',
-    'requests>=2.9.1',
-    'python-gettext',
-    'termcolor',
-    'python-dateutil==2.4.2',
-    'pytz',
-    'alignak_backend_client'
-]
-
 setup(
     # Package name and version
     name=manifest["__pkg_name__"],
@@ -92,13 +74,22 @@ setup(
 
     # Package data
     packages=find_packages(),
+    include_package_data=True,
+    package_data = {'alignak_webui': ['alignak_webui/*']},
     # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
 
     # Where to install distributed files
     data_files=[('etc/alignak-webui', ['etc/settings.cfg'])],
 
     # Dependencies (if some) ...
-    install_requires=install_requires,
+    install_requires=[
+        'future', 'configparser', 'docopt',
+        'bottle>=0.12.9,<0.13', 'Beaker==1.8.0', 'CherryPy',
+        'pymongo>=3.2', 'requests>=2.9.1',
+        'python-gettext', 'termcolor',
+        'python-dateutil==2.4.2', 'pytz',
+        'alignak_backend_client'
+    ],
 
     # Entry points (if some) ...
     entry_points={
