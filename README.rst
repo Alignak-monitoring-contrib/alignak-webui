@@ -15,13 +15,9 @@ Alignak Web UI
     :target: https://coveralls.io/r/Alignak-monitoring-contrib/alignak-webui
     :alt: Development code tests coverage
 
-.. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=latest
-    :target: http://alignak-web-ui.readthedocs.org/en/latest/?badge=latest
-    :alt: Lastest documentation Status
-
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
-    :target: http://alignak-web-ui.readthedocs.org/en/develop/?badge=develop
-    :alt: Current development documentation Status
+    :target: http://alignak-web-ui.readthedocs.io/?badge=develop
+    :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/IRC-%23alignak-1e72ff.svg?style=flat
     :target: http://webchat.freenode.net/?channels=%23alignak
