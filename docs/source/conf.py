@@ -21,7 +21,7 @@ import shlex
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
-from alignak_webui import __version__, __short_version__
+from alignak_webui.version import __version__, __short_version__
 
 
 # -- General configuration ------------------------------------------------

@@ -21,6 +21,7 @@ __checks_type__ = u"demo"
 __application__ = u"Alignak-WebUI"
 
 __version__ = u"0.6.1"
+__short_version__ = u"0.6"
 __author__ = u"Frédéric Mohier"
 __author_email__ = u"frederic.mohier@alignak.net"
 __copyright__ = u"(c) 2015-2017 - %s" % __author__
