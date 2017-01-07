@@ -20,8 +20,8 @@ Alignak Web UI
     :alt: Lastest documentation Status
 
 .. image:: https://readthedocs.org/projects/alignak-doc/badge/?version=develop
-    :target: http://alignak-doc.readthedocs.org/en/update/?badge=update
-    :alt: Update processing documentation Status
+    :target: http://alignak-doc.readthedocs.org/en/develop/?badge=develop
+    :alt: Current development documentation Status
 
 .. image:: https://img.shields.io/badge/IRC-%23alignak-1e72ff.svg?style=flat
     :target: http://webchat.freenode.net/?channels=%23alignak
@@ -32,8 +32,8 @@ Alignak Web UI
     :alt: License AGPL v3
 
 
-Releases
-========
+Github related
+==============
 
 .. image:: https://img.shields.io/github/release/qubyte/rubidium.svg
     :target: https://github.com/Alignak-monitoring-contrib/alignak-webui

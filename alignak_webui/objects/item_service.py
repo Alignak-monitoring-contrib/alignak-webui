@@ -315,37 +315,38 @@ class Service(BackendElement):
     @property
     def overall_state(self):
         """
-        Get the element real worst state, including:
+        Compute the service overall state identifier, including:
         - the acknowledged state
         - the downtime state
 
         The worst state is (prioritized):
-        - a service critical or unreachable
-        - a service warning or unknown
-        - a service downtimed
-        - a service acknowledged
-        - a service ok
+        - a service critical or unreachable (4)
+        - a service warning or unknown (3)
+        - a service downtimed (2)
+        - a service acknowledged (1)
+        - a service ok (0)
 
-        *Note* that services in unknown state are considered as warning, and  unreachable ones
+        *Note* that services in unknown state are considered as warning, and unreachable ones
         are considered as critical!
         """
-        overall_state = 0
-
-        if self.acknowledged:
-            overall_state = 1
-        elif self.downtime:
-            overall_state = 2
-        else:
-            if self.state == 'WARNING':
-                overall_state = 3
-            elif self.state == 'CRITICAL':
-                overall_state = 4
-            elif self.state == 'UNKNOWN':
-                overall_state = 3
-            elif self.state == 'UNREACHABLE':
-                overall_state = 4
-
-        return overall_state
+        # overall_state = 0
+        #
+        # if self.acknowledged:
+        #     overall_state = 1
+        # elif self.downtime:
+        #     overall_state = 2
+        # else:
+        #     if self.state == 'WARNING':
+        #         overall_state = 3
+        #     elif self.state == 'CRITICAL':
+        #         overall_state = 4
+        #     elif self.state == 'UNKNOWN':
+        #         overall_state = 3
+        #     elif self.state == 'UNREACHABLE':
+        #         overall_state = 4
+        #
+        # return overall_state
+        return self._overall_state_id
 
     @overall_state.setter
     def overall_state(self, overall_state):

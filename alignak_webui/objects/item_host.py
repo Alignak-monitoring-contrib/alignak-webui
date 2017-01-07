@@ -309,37 +309,39 @@ class Host(BackendElement):
     @property
     def overall_state(self):
         """
-        Get the element real worst state, including:
+        Compute the host overall state identifier, including:
         - the acknowledged state
         - the downtime state
 
         The worst state is (prioritized):
-        - an host down
-        - an host unreachable
-        - an host downtimed
-        - an host acknowledged
-        - an host up
+        - an host down (4)
+        - an host unreachable (3)
+        - an host downtimed (2)
+        - an host acknowledged (1)
+        - an host up (0)
         """
-        self._overall_state = 0
-
-        if self.acknowledged:
-            self._overall_state = 1
-        elif self.downtime:
-            self._overall_state = 2
-        else:
-            if self.state == 'UNREACHABLE':
-                self._overall_state = 3
-            elif self.state == 'DOWN':
-                self._overall_state = 4
-
-        return self._overall_state
+        # self._overall_state = 0
+        #
+        # if self.acknowledged:
+        #     self._overall_state = 1
+        # elif self.downtime:
+        #     self._overall_state = 2
+        # else:
+        #     if self.state == 'UNREACHABLE':
+        #         self._overall_state = 3
+        #     elif self.state == 'DOWN':
+        #         self._overall_state = 4
+        #
+        # return self._overall_state
+        #
+        return self._overall_state_id
 
     @overall_state.setter
     def overall_state(self, overall_state):
         """
         Set Item object overall_state
         """
-        self._overall_state = overall_state
+        self._overall_state_id = overall_state
 
     @property
     def overall_status(self):

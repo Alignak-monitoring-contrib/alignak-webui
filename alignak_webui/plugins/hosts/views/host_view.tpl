@@ -17,7 +17,7 @@
    <div>
       %(host_state, host_status) = datamgr.get_host_overall_state(host)
       {{! host.get_html_state(text=None, size="fa-5x", use_status=host_status)}}
-      <legend><strong>{{host.alias}}</strong></legend>
+      <legend><strong>{{host.alias}} - {{host._overall_state_id}}</strong></legend>
       %if current_user.is_power():
          {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
       %end
