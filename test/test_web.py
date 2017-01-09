@@ -22,6 +22,7 @@
 
 from __future__ import print_function
 import os
+import re
 import time
 import shlex
 import unittest2
@@ -162,12 +163,10 @@ class TestUsers(unittest2.TestCase):
             '<div id="users">',
             '5 elements out of 5',
         )
-
         self.app.get('/users/config')
-
         self.app.get('/users/list')
-
         self.app.get('/users/table')
+        self.app.get('/users/templates')
 
 
 class TestCommands(unittest2.TestCase):
@@ -818,8 +817,55 @@ def mocked_requests_get(*args, **kwargs):
             'poller': {}
         }
         return MockResponse(data, 200)
-
-    return MockResponse({}, 404)
+    # elif args[0] == 'http://127.0.0.1:5000/user':
+    #     data = {
+    #         u'_items': [
+    #             {u'_templates': [], u'_template_fields': {}, u'service_notifications_enabled': True,
+    #              u'can_submit_commands': False,
+    #              u'_realm': u'587329ab06fd4b0f4e5f5e4f', u'_sub_realm': True,
+    #              u'can_update_livestate': True,
+    #              u'service_notification_options': [u'w', u'u', u'c', u'r', u'f', u's'],
+    #              u'_is_template': False, u'definition_order': 100, u'tags': [], u'address1': u'',
+    #              u'address2': u'', u'address3': u'', u'address4': u'', u'address5': u'',
+    #              u'address6': u'', u'customs': {}, u'is_admin': False,
+    #              u'back_role_super_admin': True,
+    #              u'password': u'pbkdf2:sha1:1000$wgg9w07u$53b213ec7f5a48e05828555e90a3d76197365217',
+    #              u'pager': u'', u'imported_from': u'unknown', u'notificationways': [],
+    #              u'host_notification_period': u'587329ac06fd4b0f4e5f5e53', u'name': u'admin',
+    #              u'host_notifications_enabled': True, u'notes': u'',
+    #              u'service_notification_period': u'587329ac06fd4b0f4e5f5e53',
+    #              u'min_business_impact': 0, u'email': u'', u'alias': u'Administrator',
+    #              u'token': u'1483942317310-b4545669-e5d0-48a9-90fe-7195a6608998',
+    #              u'ui_preferences': {}, u'_created': u'Mon, 09 Jan 2017 06:11:56 GMT',
+    #              u'_id': u'587329ac06fd4b0f4e5f5e58',
+    #              u'host_notification_options': [u'd', u'u', u'r', u'f', u's']}],
+    #         u'_status': u'OK'
+    #     }
+    #     return MockResponse(data, 200)
+    # elif args[0] == 'http://127.0.0.1:5000/realm':
+    #     data = {
+    #         u'_items': [
+    #             {'_notes': u'',
+    #              '_all_children': [u'58732aef06fd4b1039cc0bca', u'58732aef06fd4b1039cc0bcb',
+    #                                u'58732aef06fd4b1039cc0bcc', u'58732aef06fd4b1039cc0bcd'],
+    #              'services_warning_threshold': 3, 'global_critical_threshold': 5, '_name': u'All',
+    #              '_links': {
+    #                  u'self': {u'href': u'realm/58732aed06fd4b1039cc0bbf', u'title': u'Realm'}},
+    #              '_linked__parent': 'realm', '_tree_parents': [], 'services_critical_threshold': 5,
+    #              '_total': 5, '_type': 'realm', 'global_warning_threshold': 3,
+    #              'definition_order': 100, '_default_date': 0, 'hosts_critical_threshold': 5,
+    #              'imported_from': u'unknown', '_updated': 1483942639, '_level': 0, 'default': True,
+    #              'hosts_warning_threshold': 3, '_alias': u'',
+    #              '_created': 1483942637,
+    #              '_id': u'58732aed06fd4b1039cc0bbf',
+    #              '_etag': u'456d8f0de882f108f793277ed4c922a7d02ed41c'
+    #              }
+    #         ],
+    #         u'_status': u'OK'
+    #     }
+    #     return MockResponse(data, 200)
+    #
+    # return MockResponse({}, 404)
 
 
 class TestAlignakWS(unittest2.TestCase):
@@ -833,6 +879,7 @@ class TestAlignakWS(unittest2.TestCase):
     def tearDown(self):
         self.app.get('/logout')
 
+    @unittest2.skip("Too many requests.get to be patched :/")
     @patch('alignak_webui.backend.alignak_ws_client.requests.get', side_effect=mocked_requests_get)
     def test_daemons(self, mock_login):
         """ Web - daemons """

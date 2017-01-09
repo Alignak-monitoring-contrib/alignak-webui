@@ -41,11 +41,9 @@
    <div id="dashboard-synthesis" class="row col-sm-offset-2 col-xs-offset-1">
    -->
    <div id="dashboard-synthesis" class="row">
-      <!--
-      <div class="col-sm-2 col-xs-5">
-      -->
+      %lv = datamgr.get_livesynthesis()
       <div class="col-sm-4 col-xs-6">
-         %hs = datamgr.get_livesynthesis()['hosts_synthesis']
+         %hs = lv['hosts_synthesis']
          %if hs:
          %font='danger' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'success'
          %from alignak_webui.objects.element_state import ElementState
@@ -61,11 +59,9 @@
          </center>
          %end
       </div>
-      <!--
-      <div class="col-sm-2 col-xs-5">
-      -->
+
       <div class="col-sm-4 col-xs-6">
-         %ss = datamgr.get_livesynthesis()['services_synthesis']
+         %ss = lv['services_synthesis']
          %if ss:
          %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
          %from alignak_webui.objects.element_state import ElementState
@@ -81,9 +77,7 @@
          </center>
          %end
       </div>
-      <!--
-      <div class="col-sm-2 col-xs-5">
-      -->
+
       <div class="col-sm-4 col-xs-6">
          %if hs and ss:
          %problems = hs['nb_problems'] + ss['nb_problems']

@@ -133,9 +133,11 @@ def before_request():
             'http://127.0.0.1:7070'
         )
     )
+    # Load initial objects from the DM
+    request.app.datamgr.load()
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
-    # logger.debug("before_request, call function for route: %s", request.urlparts.path)
+    logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -620,14 +622,8 @@ def user_authentication(username, password):
     if 'current_user' not in session or not session['current_user']:
         # Build DM without any user parameter
         datamgr = DataManager(
-            backend_endpoint=request.app.config.get(
-                'alignak_backend',
-                'http://127.0.0.1:5000'
-            ),
-            alignak_endpoint=request.app.config.get(
-                'alignak_arbiter',
-                'http://127.0.0.1:7070'
-            )
+            backend_endpoint=request.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
+            alignak_endpoint=request.app.config.get('alignak_arbiter', 'http://127.0.0.1:7070')
         )
 
         # Set user for the data manager and try to log-in.

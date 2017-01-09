@@ -346,7 +346,7 @@ class Host(BackendElement):
     @property
     def overall_status(self):
         """Return real status string from the real state identifier"""
-        return self.overall_state_to_status[self._overall_state]
+        return self.overall_state_to_status[self.overall_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

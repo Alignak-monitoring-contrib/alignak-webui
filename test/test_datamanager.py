@@ -526,6 +526,7 @@ class TestBasic(unittest2.TestCase):
 
         self.maxDiff = None
         expected_ls = {
+            '_id': self.dmg.my_ls['_id'],
             'hosts_synthesis': {
                 'nb_elts': 13,
                 'business_impact': 0,
@@ -560,6 +561,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
                 'nb_unknown': 94, 'pct_unknown': 100.0,
                 'nb_unknown_hard': 94, 'nb_unknown_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
 
                 'nb_problems': 0, 'pct_problems': 0.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
@@ -569,8 +572,10 @@ class TestBasic(unittest2.TestCase):
         }
 
         # Get livesynthesis
-        self.dmg.get_livesynthesis()
-        self.assertEqual(self.dmg.get_livesynthesis(), expected_ls)
+        got_ls = self.dmg.get_livesynthesis(self.dmg.my_ls['_id'])
+        print(got_ls)
+        self.assertEqual(got_ls['hosts_synthesis'], expected_ls['hosts_synthesis'])
+        self.assertEqual(got_ls['services_synthesis'], expected_ls['services_synthesis'])
 
 
 class TestRelations(unittest2.TestCase):
@@ -691,6 +696,7 @@ class TestHosts(unittest2.TestCase):
         # Get one host
         host = self.dmg.get_host(host._id)
         self.assertEqual(host.name, 'webui')
+        self.assertEqual(host.status, 'UNREACHABLE')
 
         # Get host services
         services = self.dmg.get_host_services({'where': {'name': 'webui'}})
@@ -706,8 +712,9 @@ class TestHosts(unittest2.TestCase):
 
         # Get host overall state
         (state, status) = self.dmg.get_host_overall_state(host)
+        print("Host overall state: %s %s" % (state, status))
         self.assertEqual(state, 3)
-        self.assertEqual(status, 'warning')
+        self.assertEqual(status, 'unreachable')
 
     def test_host(self):
         """ Datamanager objects get - host """

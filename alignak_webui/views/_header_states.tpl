@@ -10,24 +10,8 @@
 %if request.app.config.get('header_refresh_period', '30') != '0':
 
 %lv = datamgr.get_livesynthesis()
-
 %hs = lv['hosts_synthesis']
-%# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
-%hosts_states_queue = datamgr.get_user_preferences(current_user, 'hosts_states_queue', [])
-%hosts_states_queue.append({'date': time.time(), 'hs': hs})
-%if len(hosts_states_queue) > queues_length:
-%hosts_states_queue = hosts_states_queue[:queues_length]
-%end
-%datamgr.set_user_preferences(current_user, 'hosts_states_queue', hosts_states_queue)
-
 %ss = lv['services_synthesis']
-%# Store N last livesynthesis in a user preference ... this to allow charting last minutes activity.
-%services_states_queue = datamgr.get_user_preferences(current_user, 'services_states_queue', [])
-%services_states_queue.append({'date': time.time(), 'ss': ss})
-%if len(services_states_queue) > queues_length:
-%services_states_queue = services_states_queue[:queues_length]
-%end
-%datamgr.set_user_preferences(current_user, 'services_states_queue', services_states_queue)
 
 <div id="hosts-states-popover-content" class="hidden">
    <table class="table table-invisible">

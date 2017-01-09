@@ -806,7 +806,7 @@ class Plugin(object):
             if data:
                 if '_realm' in self.table and '_realm' not in data:
                     data.update(
-                        {'_realm': datamgr.default_realm.id}
+                        {'_realm': datamgr.my_realm.id}
                     )
 
                 result = datamgr.add_object(self.backend_endpoint, data=data)
