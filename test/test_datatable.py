@@ -821,7 +821,7 @@ class TestDatatableServices(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
 
 
-class TestDatatableervicegroups(unittest2.TestCase):
+class TestDatatableServicegroups(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
@@ -935,7 +935,7 @@ class TestDatatableUsers(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
-class TestDatatableUserGroups(unittest2.TestCase):
+class TestDatatableUsergroups(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)

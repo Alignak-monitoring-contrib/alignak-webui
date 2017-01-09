@@ -320,7 +320,7 @@ class DataManager(object):
         # Get the live synthesis identifier for the user's realm
         # This will allow to request the user's specific realm LS for as the backend
         # to concatenate the sub realms live synthesis
-        self.my_ls = self.get_livesynthesis({'where': {'_realm': self.my_realm._id}})
+        self.my_ls = self.get_livesynthesis({'where': {'_realm': self.my_realm.id}})
         logger.info("user's concatenated live synthesis: %s", self.my_ls['_id'])
 
         # Get internal objects count
@@ -1477,7 +1477,7 @@ class DataManager(object):
         if embedded and 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1,
+                    '_realm': 1, '_templates': 1,
                     'host': 1,
                     'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
@@ -1559,10 +1559,13 @@ class DataManager(object):
             services = [item for item in elts if item.get_type() == 'service']
         else:
             services = self.get_services()
-        logger.info("get_services_aggregated, %d services", len(services))
+        logger.debug("get_services_aggregated, %d services", len(services))
 
         aggregations = {}
         for service in services:
+            if not service.aggregation:
+                service.aggregation = _('Global')
+
             if service.aggregation in aggregations:
                 service._level = aggregations[service.aggregation]['level']
                 service._parent = service.aggregation
@@ -1646,7 +1649,7 @@ class DataManager(object):
 
             tree_items.append(tree_item)
 
-        logger.info("get_services_aggregated: %s", tree_items)
+        logger.debug("get_services_aggregated: %s", tree_items)
         return tree_items
 
     ##
@@ -1811,19 +1814,23 @@ class DataManager(object):
         items = self.get_userrestrictroles(search=search)
         return items[0] if items else None
 
-    def get_users(self, search=None, all_elements=False):
+    def get_users(self, search=None, template=False, all_elements=False):
         """ Get a list of known users """
         if not self.logged_in_user.is_administrator():
             return [self.logged_in_user]
 
         if search is None:
             search = {}
+        if 'where' not in search:
+            search.update({'where': {'_is_template': template}})
+        elif '_is_template' not in search['where']:
+            search['where'].update({'_is_template': template})
         if 'sort' not in search:
             search.update({'sort': 'name'})
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1,
+                    '_realm': 1, '_templates': 1,
                     'host_notification_period': 1, 'host_notification_commands': 1,
                     'service_notification_period': 1, 'service_notification_commands': 1
                 }

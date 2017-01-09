@@ -414,8 +414,9 @@
    });
 </script>
 
-%hs = datamgr.get_livesynthesis()['hosts_synthesis']
-%ss = datamgr.get_livesynthesis()['services_synthesis']
+%lv = datamgr.get_livesynthesis()
+%hs = lv['hosts_synthesis']
+%ss = lv['services_synthesis']
 
 <style>
 div.pull-right a, div.pull-right div {

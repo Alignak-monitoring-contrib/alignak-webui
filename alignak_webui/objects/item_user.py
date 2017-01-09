@@ -58,6 +58,7 @@ class User(BackendElement):
         Create a user (called only once when an object is newly created)
         """
         self._linked__realm = 'realm'
+        self._linked__templates = 'user'
         self._linked_host_notification_period = 'timeperiod'
         self._linked_host_notification_commands = 'command'
         self._linked_service_notification_period = 'timeperiod'
@@ -117,6 +118,11 @@ class User(BackendElement):
     def _realm(self):
         """ Return concerned realm """
         return self._linked__realm
+
+    @property
+    def _templates(self):
+        """ Return linked object """
+        return self._linked__templates
 
     @property
     def host_notification_period(self):

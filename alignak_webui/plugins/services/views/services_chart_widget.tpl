@@ -11,7 +11,8 @@
       <h4>{{_('No services matching the filter...')}}</h4>
    </center>
 %else:
-   %ss = datamgr.get_livesynthesis()['services_synthesis']
+   %lv = datamgr.get_livesynthesis()
+   %ss = lv['services_synthesis']
    %if ss:
    <div class="well">
       <!-- Chart -->

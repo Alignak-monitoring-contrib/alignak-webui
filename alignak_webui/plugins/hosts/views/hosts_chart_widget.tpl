@@ -11,7 +11,8 @@
       <h4>{{_('No hosts matching the filter...')}}</h4>
    </center>
 %else:
-   %hs = datamgr.get_livesynthesis()['hosts_synthesis']
+   %lv = datamgr.get_livesynthesis()
+   %hs = lv['hosts_synthesis']
    %if hs:
    <div class="well">
       <!-- Chart -->

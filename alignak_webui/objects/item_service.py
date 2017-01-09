@@ -85,6 +85,9 @@ class Service(BackendElement):
 
         super(Service, self).__init__(params, date_format, embedded)
 
+        if not hasattr(self, 'aggregation'):
+            setattr(self, 'aggregation', 'Global')
+
         if not hasattr(self, '_overall_state'):
             setattr(self, '_overall_state', 0)
 
