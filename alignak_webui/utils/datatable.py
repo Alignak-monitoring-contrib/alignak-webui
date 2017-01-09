@@ -679,6 +679,7 @@ class Datatable(object):
                     continue
 
                 row[field['data']] = getattr(bo_object, field['data'])
+            logger.debug("table data row: %s", row)
 
             # logger.debug("Table row: %s", row)
             rows.append(row)
