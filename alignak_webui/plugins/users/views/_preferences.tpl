@@ -17,7 +17,7 @@
          </div>
 
          <div class="user-body">
-            <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
+            <table class="table table-condensed table-user-identification col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                <colgroup>
                   <col style="width: 40%" />
                   <col style="width: 60%" />
@@ -41,30 +41,7 @@
                </tbody>
             </table>
 
-            <!--
-            <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
-               <colgroup>
-                  <col style="width: 40%" />
-                  <col style="width: 60%" />
-               </colgroup>
-               <thead>
-                  <tr><th colspan="2"></th></tr>
-               </thead>
-               <tbody style="font-size:x-small;">
-                  %for attr, value in sorted(current_user.__dict__.iteritems()):
-                  %if attr in ['password', 'ui_preferences']:
-                  %  continue
-                  %end
-                  <tr>
-                     <td><strong>{{attr}}:</strong></td>
-                     <td>{{value}}</td>
-                  </tr>
-                  %end
-               </tbody>
-            </table>
-            -->
-
-            <table class="table table-condensed col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
+            <table class="table table-condensed table-user-preferences col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                <colgroup>
                   <col class="col-sm-1">
                   <col class="col-sm-3">
@@ -78,7 +55,7 @@
                <tbody style="font-size:x-small;">
                   %preferences = datamgr.get_user_preferences(current_user, None)
                   %if preferences:
-                  %  for key in sorted(preferences):
+                  %for key in sorted(preferences):
                      <tr>
                         <td>
                         %if current_user.is_power():

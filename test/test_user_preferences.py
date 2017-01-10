@@ -107,7 +107,7 @@ class tests_preferences(unittest2.TestCase):
         # A host cookie now exists
         assert self.app.cookies['Alignak-WebUI']
         # Get a data manager
-        self.dmg = DataManager(user=session['current_user'], backend_endpoint=backend_address)
+        self.dmg = DataManager(session=session, backend_endpoint=backend_address)
 
     def tearDown(self):
         response = self.app.get('/logout')
@@ -128,7 +128,33 @@ class tests_preferences(unittest2.TestCase):
         response = self.app.get('/preferences/user')
         response.mustcontain(
             '<div id="user-preferences">',
-            'admin', 'Administratorqs',
+            'admin',
+            """<p class="username">
+              Administrator
+            </p>""",
+            """<p class="usercategory">
+               <small>Administrator</small>
+            </p>""",
+            """<div class="user-header""",
+            """<div class="user-body""",
+            """<table class="table table-condensed table-user-identification""",
+            """<table class="table table-condensed table-user-preferences""",
+            """<tr>
+                        <td>
+                           <a class="btn btn-default btn-xs btn-raised" href="#"
+                              data-action="delete-user-preference"
+                              data-element="dashboard_widgets"
+                              data-message="User preference deleted"
+                              data-toggle="tooltip" data-placement="top"
+                              title="Delete this user preference">
+                              <span class="fa fa-trash"></span>
+                           </a>
+                        </td>
+                        <td>dashboard_widgets</td>
+                        <td>
+                        None
+                        </td>
+                     </tr>"""
         )
 
     @unittest2.skip("Broken test ... no more actual?")
@@ -328,7 +354,11 @@ class tests_preferences(unittest2.TestCase):
         user_prefs = self.dmg.get_user_preferences(self.dmg.logged_in_user, None)
         for pref in user_prefs:
             print("Item: %s: %s" % (pref, user_prefs[pref]))
-        assert len(user_prefs) == 5
+        # {'dashboard_widgets': [],
+        # 'prefs': {'foo': 'bar2', 'foo_int': 2},
+        # 'prefs2': {'foo': 'bar2', 'foo_int': 2},
+        # 'simple': 10}
+        assert len(user_prefs) == 4
 
     @unittest2.skip("To be refactored test ...")
     def test_all(self):
