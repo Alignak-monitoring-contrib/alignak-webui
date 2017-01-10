@@ -122,10 +122,9 @@
                <thead><tr>
                   <th style="width: 40px"></th>
                   <th>{{_('Host name')}}</th>
-                  <th>{{_('Address')}}</th>
-                  <th>{{_('Check command')}}</th>
-                  <th>{{_('Last check')}}</th>
                   <th>{{_('Business impact')}}</th>
+                  <th>{{_('Last check')}}</th>
+                  <th>{{_('Output')}}</th>
                </tr></thead>
 
                <tbody>
@@ -141,11 +140,7 @@
                      </td>
 
                      <td>
-                        <small>{{elt.address}}</small>
-                     </td>
-
-                     <td>
-                        {{! elt.check_command.get_html_state_link() if elt.check_command != 'command' else ''}}
+                        <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
                      </td>
 
                      <td>
@@ -153,7 +148,7 @@
                      </td>
 
                      <td>
-                        <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
+                        {{! elt.output}}
                      </td>
                   </tr>
                %end

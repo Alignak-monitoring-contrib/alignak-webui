@@ -1962,7 +1962,7 @@ class DataManager(object):
 
         Returns -1 if any problem
         """
-        logger.info("get_realm_overall_state, search: %s", search)
+        logger.info("get_realm_children, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
             if not realm:
