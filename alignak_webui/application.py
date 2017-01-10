@@ -680,6 +680,7 @@ def get_user_preference():
         - key, string identifying the parameter
         - default, default value if parameter does not exist
     """
+    user = request.environ['beaker.session']['current_user']
     datamgr = DataManager(
         backend_endpoint=request.app.config.get(
             'alignak_backend', 'http://127.0.0.1:5000'
@@ -713,14 +714,14 @@ def delete_user_preference():
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = DataManager(
-        user=user,
         backend_endpoint=request.app.config.get(
             'alignak_backend', 'http://127.0.0.1:5000'
         ),
         alignak_endpoint=request.app.config.get(
             'alignak_arbiter',
             'http://127.0.0.1:7070'
-        )
+        ),
+        session=request.environ['beaker.session']
     )
 
     key = request.query.get('key', None)
@@ -742,14 +743,14 @@ def set_user_preference():
     """
     user = request.environ['beaker.session']['current_user']
     datamgr = DataManager(
-        user=user,
         backend_endpoint=request.app.config.get(
             'alignak_backend', 'http://127.0.0.1:5000'
         ),
         alignak_endpoint=request.app.config.get(
             'alignak_arbiter',
             'http://127.0.0.1:7070'
-        )
+        ),
+        session=request.environ['beaker.session']
     )
 
     key = request.forms.get('key', None)
