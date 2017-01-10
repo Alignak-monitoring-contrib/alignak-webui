@@ -13,11 +13,11 @@
 %host_name, host_state = services_states[0]
 %services_states = services_states[1:]
 
-<div id="host_view_information" class="col-lg-4 col-sm-4 text-center">
+<div id="host_view_left" class="col-lg-4 col-sm-4 text-center">
    <div>
       %(host_state, host_status) = datamgr.get_host_overall_state(host)
       {{! host.get_html_state(text=None, size="fa-5x", use_status=host_status)}}
-      <legend><strong>{{host.alias}} - {{host._overall_state_id}}</strong></legend>
+      <legend><strong>{{host.alias}}</strong></legend>
       %if current_user.is_power():
          {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
       %end
@@ -37,7 +37,7 @@
    %end
    %if services:
    <div class="text-left">
-      <table class="table table-condensed">
+      <table class="table table-condensed table-invisible">
          <thead><tr>
             <th style="width: 40px"></th>
             <th></th>
@@ -45,7 +45,7 @@
 
          <tbody>
             %for service in services:
-            <tr id="#{{service.id}}">
+            <tr id="#host-service-{{service.name}}">
                <td title="{{service.alias}}">
                   %extra=''
                   %if service.acknowledged:
@@ -62,11 +62,13 @@
                   <small>{{! service.get_html_link()}}</small>
                </td>
 
-               <td>
-                  %if current_user.is_power():
-                     {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
-                  %end
+            </tr>
+            <tr class="host-service-commands">
+               %if current_user.is_power():
+               <td colspan="2" style="align: right; width: 100%">
+                  {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
                </td>
+               %end
             </tr>
             %end
          </tbody>
@@ -74,7 +76,7 @@
    </div>
    %end
 </div>
-<div id="host_view_graphes" class="col-lg-8 col-sm-8">
+<div id="host_view_right" class="col-lg-8 col-sm-8">
    <div class="panel panel-default">
       <div class="panel-heading">
          {{ _('My last check') }}
@@ -117,16 +119,26 @@
       <h3>{{_('No services defined for this host.')}}</h3>
    </center>
    %else:
-      %for svc in metrics.params:
-         %svc_state, svc_name, svc_min, svc_max, svc_warning, svc_critical, svc_metrics = metrics.get_service_metric(svc)
-         %if svc_state == -1:
-         %continue
-         %end
-         <div id="bc_{{svc}}" class="well well-sm test">
-            <div class="graph">
-               <canvas></canvas>
-            </div>
+      %if metrics.params:
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            {{ _('My metrics graphs') }}
          </div>
+
+         <div class="panel-body">
+         %for svc in metrics.params:
+            %svc_state, svc_name, svc_min, svc_max, svc_warning, svc_critical, svc_metrics = metrics.get_service_metric(svc)
+            %if svc_state == -1:
+            %continue
+            %end
+            <div id="bc_{{svc}}" class="well well-sm test">
+               <div class="graph">
+                  <canvas></canvas>
+               </div>
+            </div>
+         %end
+         </div>
+      </div>
       %end
    %end
 </div>

@@ -65,7 +65,8 @@ def setup_module(module):
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+            shlex.split('mongo %s --eval "db.dropDatabase()"'
+                        % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
         time.sleep(1)
@@ -194,9 +195,13 @@ class TestLogin(unittest2.TestCase):
             if cookie.name=='Alignak-WebUI':
                 assert cookie.expires
 
+        # A session exists and it contains: current user, his realm and his live synthesis
         session = response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].name == 'admin'
+        assert 'current_realm' in session and session['current_realm']
+        assert session['current_realm'].name == 'All'
+        assert 'current_ls' in session and session['current_ls']
 
     def test_login_accepted(self):
         """ Login - accepted"""

@@ -127,7 +127,7 @@
    %if host.action_url or tags or groups:
    <div>
       %if groups:
-      <div class="btn-group pull-right">
+      <div class="host-groups btn-group pull-right">
          <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
             <span class="fa fa-sitemap"></span>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
          </button>
@@ -142,7 +142,7 @@
       <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if host.action_url != '':
-      <div class="btn-group pull-right">
+      <div class="host-action-url btn-group pull-right">
          %action_urls = host.action_url.split('|')
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
             <i class="fa fa-external-link"></i> {{_('Action') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
@@ -156,7 +156,7 @@
       <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if tags:
-      <div class="btn-group pull-right">
+      <div class="host-tags btn-group pull-right">
          %if len(tags) > 2:
             <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
                <i class="fa fa-tag"></i>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
@@ -175,21 +175,22 @@
          %end
       </div>
       %end
-      %if templates:
-      <div class="btn-group pull-right">
+      %#todo: edit the host templates!
+      %if False:
+      <div class="host-templates btn-group pull-right">
          %if len(templates) > 2:
             <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
+               <i class="fa fa-edit"></i>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
             </button>
             <ul class="dropdown-menu pull-right">
-               %for tag in sorted(templates):
-               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
+               %for template in sorted(templates):
+               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{template.name}}</button></li>
                %end
             </ul>
          %else:
-            %for tag in sorted(templates):
+            %for template in sorted(templates):
                <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
-                  <span class="fa fa-tag"></span> {{tag}}
+                  <span class="fa edit"></span> {{template.name}}
                </a>
             %end
          %end

@@ -54,6 +54,7 @@ from webtest import TestApp
 pid = None
 backend_address = "http://127.0.0.1:5000/"
 
+
 def setup_module(module):
     print ("start alignak backend")
 
@@ -99,8 +100,6 @@ def teardown_module(module):
 class tests_actions(unittest2.TestCase):
 
     def setUp(self):
-        print("setting up ...")
-
         # Test application
         self.app = TestApp(
             webapp
@@ -114,12 +113,11 @@ class tests_actions(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
         redirected_response.mustcontain('<div id="dashboard">')
+        self.stored_response = redirected_response
         # A host cookie now exists
         assert self.app.cookies['Alignak-WebUI']
 
     def tearDown(self):
-        print("tearing down ...")
-
         response = self.app.get('/logout')
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
