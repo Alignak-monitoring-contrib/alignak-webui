@@ -121,9 +121,8 @@ def before_request():
     BaseTemplate.defaults['current_user'] = session['current_user']
     # Make session edition mode available in the templates
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
-    # Make data manager available in the request and in the templates
+    # Initialize data manager and make it available in the request and in the templates
     request.app.datamgr = DataManager(
-        user=session['current_user'],
         backend_endpoint=request.app.config.get(
             'alignak_backend',
             'http://127.0.0.1:5000'
@@ -131,10 +130,11 @@ def before_request():
         alignak_endpoint=request.app.config.get(
             'alignak_arbiter',
             'http://127.0.0.1:7070'
-        )
+        ),
+        session=request.environ['beaker.session']
     )
-    # Load initial objects from the DM
-    request.app.datamgr.load()
+    # # Load initial objects from the DM
+    # request.app.datamgr.load()
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.debug("before_request, call function for route: %s", request.urlparts.path)
@@ -236,7 +236,6 @@ def external(widget_type, identifier, action=None):
 
         # Make data manager available in the request and in the templates
         request.app.datamgr = DataManager(
-            user=session['current_user'],
             backend_endpoint=request.app.config.get(
                 'alignak_backend',
                 'http://127.0.0.1:5000'
@@ -244,7 +243,8 @@ def external(widget_type, identifier, action=None):
             alignak_endpoint=request.app.config.get(
                 'alignak_arbiter',
                 'http://127.0.0.1:7070'
-            )
+            ),
+            session=request.environ['beaker.session']
         )
         BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
@@ -446,16 +446,6 @@ def ping():
     if action == 'done':
         # Acknowledge UI refresh
         session['refresh_required'] = False
-        if 'datamanager' in session:
-            session['datamanager'].refresh_required = False
-
-            response.status = 200
-            response.content_type = 'application/json'
-            return json.dumps(
-                {
-                    'status': 'ok', 'message': 'pong'
-                }
-            )
         logger.debug("ping, refresh: %s", session['refresh_required'])
     elif action == 'refresh':
         page_template = request.query.get('template', None)
@@ -620,7 +610,7 @@ def user_authentication(username, password):
 
     session['login_message'] = None
     if 'current_user' not in session or not session['current_user']:
-        # Build DM without any user parameter
+        # Build DM without any session or user parameter
         datamgr = DataManager(
             backend_endpoint=request.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
             alignak_endpoint=request.app.config.get('alignak_arbiter', 'http://127.0.0.1:7070')
@@ -633,7 +623,10 @@ def user_authentication(username, password):
             logger.warning("user authentication refused: %s", session['login_message'])
             return False
 
+        # Update session variables
         session['current_user'] = datamgr.logged_in_user
+        session['current_realm'] = datamgr.my_realm
+        session['current_ls'] = datamgr.my_ls
 
     logger.debug("user_authentication, current user authenticated")
     return True
@@ -687,16 +680,15 @@ def get_user_preference():
         - key, string identifying the parameter
         - default, default value if parameter does not exist
     """
-    user = request.environ['beaker.session']['current_user']
     datamgr = DataManager(
-        user=user,
         backend_endpoint=request.app.config.get(
             'alignak_backend', 'http://127.0.0.1:5000'
         ),
         alignak_endpoint=request.app.config.get(
             'alignak_arbiter',
             'http://127.0.0.1:7070'
-        )
+        ),
+        session=request.environ['beaker.session']
     )
 
     key = request.query.get('key', None)

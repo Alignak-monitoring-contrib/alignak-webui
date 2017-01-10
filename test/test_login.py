@@ -93,55 +93,6 @@ def teardown_module(module):
     time.sleep(2)
 
 
-class TestNoLogin(unittest2.TestCase):
-
-    def setUp(self):
-        print("setting up ...")
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-    def test_1_1_ping_pong(self):
-        """ Login - ping/pong"""
-        print('ping/pong server alive')
-
-        # Default ping
-        response = self.app.get('/ping')
-        print(response)
-        response.mustcontain('pong')
-
-        # ping action
-        response = self.app.get('/ping?action=')
-        response = self.app.get('/ping?action=unknown', status=204)
-
-        # Required refresh done
-        response = self.app.get('/ping?action=done')
-        print(response)
-        response.mustcontain('pong')
-
-        # Required refresh done, no more action
-        response = self.app.get('/ping')
-        response.mustcontain('pong')
-
-        # Required refresh done, no more action
-        response = self.app.get('/ping')
-        response.mustcontain('pong')
-
-        # Expect status 401
-        response = self.app.get('/heartbeat', status=401)
-        print(response.status)
-        print(response.json)
-        response.mustcontain('Session expired')
-
-        print('get home page /')
-        response = self.app.get('/', status=302)
-        print(response)
-        redirected_response = response.follow()
-        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
-
-
 class TestLogin(unittest2.TestCase):
 
     def setUp(self):

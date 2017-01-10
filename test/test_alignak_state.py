@@ -159,14 +159,14 @@ class TestAlignakWS(unittest2.TestCase):
         """
         self.dmg = DataManager(alignak_endpoint='http://127.0.0.1:8888')
         print('Data manager: %s' % self.dmg)
-        self.assertEqual(self.dmg.alignak_daemons, [])
+        assert self.dmg.alignak_daemons == []
 
         # Get alignak WS state
         self.dmg.get_alignak_state()
 
         print('Data manager daemons: %s' % self.dmg.alignak_daemons)
-        self.assertNotEqual(self.dmg.alignak_daemons, [])
-        self.assertEqual(len(self.dmg.alignak_daemons), 4)
+        assert self.dmg.alignak_daemons != []
+        assert len(self.dmg.alignak_daemons) == 4
         for daemon in self.dmg.alignak_daemons:
-            self.assertIsInstance(daemon, Daemon)
-            self.assertEqual(daemon.status, 'UP')
+            assert isinstance(daemon, Daemon)
+            assert daemon.status == 'UP'

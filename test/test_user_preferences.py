@@ -139,7 +139,7 @@ class tests_preferences(unittest2.TestCase):
         ### Common preferences
         # Get all the preferences in the database
         session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
+        # datamgr = session['datamanager']
         user_prefs = datamgr.get_user_preferences('common', None)
         for pref in user_prefs:
             print("Common pref: %s: %s" % (pref['type'], pref['data']))
@@ -204,7 +204,7 @@ class tests_preferences(unittest2.TestCase):
 
         # Get all the preferences in the database
         session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
+        # datamgr = session['datamanager']
         user_prefs = datamgr.get_user_preferences('common', None)
         for pref in user_prefs:
             print("Common pref: %s: %s" % (pref['type'], pref['data']))
@@ -230,7 +230,7 @@ class tests_preferences(unittest2.TestCase):
         for pref in prefs:
             self.dmg.delete_user_preferences(self.dmg.logged_in_user, pref)
         user_prefs = self.dmg.get_user_preferences(self.dmg.logged_in_user, None)
-        self.assertIsNone(user_prefs)
+        assert user_prefs is None
 
 
         # Set a user's preference
@@ -306,14 +306,14 @@ class tests_preferences(unittest2.TestCase):
         response_value = response.json
         # When a simple value is stored, it is always returned as a
         # direct 'value' and not as a json object!
-        self.assertEqual(response_value, 10)
+        assert response_value == 10
 
 
         # Get a user preference ; default value, not existing  value name
         default_value = { 'foo': 'bar2', 'foo_int': 2 }
         response = self.app.get('/preference/user', {'key': 'def'})
         # Response do not contain anything ...
-        self.assertEqual(response.body, 'null')
+        assert response.body == 'null'
 
 
         # Get a user preference ; default value
@@ -328,7 +328,7 @@ class tests_preferences(unittest2.TestCase):
         user_prefs = self.dmg.get_user_preferences(self.dmg.logged_in_user, None)
         for pref in user_prefs:
             print("Item: %s: %s" % (pref, user_prefs[pref]))
-        self.assertEqual(len(user_prefs), 5)
+        assert len(user_prefs) == 5
 
     @unittest2.skip("To be refactored test ...")
     def test_all(self):
@@ -338,9 +338,9 @@ class tests_preferences(unittest2.TestCase):
         ### User's preferences
         # Get all the preferences in the database
         session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
+        # datamgr = session['datamanager']
         user_prefs = datamgr.get_user_preferences(None, None)
-        self.assertIsNone(user_prefs)
+        assert user_prefs is None
 
 if __name__ == '__main__':
     unittest.main()

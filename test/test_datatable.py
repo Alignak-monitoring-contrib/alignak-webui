@@ -158,19 +158,19 @@ class TestDataTable(unittest2.TestCase):
         # assert response.json['recordsTotal'] == self.items_count
         # assert response.json['recordsFiltered'] == self.items_count
         # if self.items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
-        self.assertNotEqual(response.json['data'], [])
+        assert response.json['data'] != []
         for x in range(0, self.items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
                 print(response.json['data'][x])
-                self.assertIsNotNone(response.json['data'][x])
-                self.assertIsNotNone(response.json['data'][x]['name'])
-                self.assertIsNotNone(response.json['data'][x]['definition_order'])
-                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
-                self.assertIsNotNone(response.json['data'][x]['command_line'])
-                self.assertIsNotNone(response.json['data'][x]['timeout'])
-                self.assertIsNotNone(response.json['data'][x]['poller_tag'])
-                self.assertIsNotNone(response.json['data'][x]['reactionner_tag'])
-                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['enable_environment_macros'] is not None
+                assert response.json['data'][x]['command_line'] is not None
+                assert response.json['data'][x]['timeout'] is not None
+                assert response.json['data'][x]['poller_tag'] is not None
+                assert response.json['data'][x]['reactionner_tag'] is not None
+                assert response.json['data'][x]['enable_environment_macros'] is not None
 
         # Specify count number ...
         response = self.app.post('/commands/table_data', {
@@ -178,11 +178,11 @@ class TestDataTable(unittest2.TestCase):
             'start': 0,
             'length': 10,
         })
-        self.assertEqual(response.json['recordsTotal'], self.items_count)
+        assert response.json['recordsTotal'] == self.items_count
         # Because no filtering is active ... equals to total records
-        self.assertEqual(response.json['recordsFiltered'], self.items_count)
-        self.assertNotEqual(response.json['data'], [])
-        self.assertEqual(len(response.json['data']), 10)
+        assert response.json['recordsFiltered'] == self.items_count
+        assert response.json['data'] != []
+        assert len(response.json['data']) == 10
 
         # Specify count number ... greater than number of elements
         response = self.app.post('/commands/table_data', {
@@ -190,11 +190,11 @@ class TestDataTable(unittest2.TestCase):
             'start': 0,
             'length': 1000,
         })
-        self.assertEqual(response.json['recordsTotal'], self.items_count)
+        assert response.json['recordsTotal'] == self.items_count
         # Because no filtering is active ... equals to total records
-        self.assertEqual(response.json['recordsFiltered'], self.items_count)
-        self.assertNotEqual(response.json['data'], [])
-        self.assertEqual(len(response.json['data']), BACKEND_PAGINATION_LIMIT)
+        assert response.json['recordsFiltered'] == self.items_count
+        assert response.json['data'] != []
+        assert len(response.json['data']) == BACKEND_PAGINATION_LIMIT
 
         # Rows 5 by 5 ...
         print("Get rows 5 per 5")
@@ -207,14 +207,14 @@ class TestDataTable(unittest2.TestCase):
                 'length': 5
             })
             response_value = response.json
-            self.assertEqual(response.json['draw'], x / 5)
-            self.assertEqual(response.json['recordsTotal'], self.items_count)
+            assert response.json['draw'] == x / 5
+            assert response.json['recordsTotal'] == self.items_count
             # Because no filtering is active ... equals to total records
-            self.assertEqual(response.json['recordsFiltered'], self.items_count)
-            self.assertNotEqual(response.json['data'], [])
-            self.assertIn(len(response.json['data']), [5, self.items_count % 5])
+            assert response.json['recordsFiltered'] == self.items_count
+            assert response.json['data'] != []
+            assert len(response.json['data']) in [5, self.items_count % 5]
             count += len(response.json['data'])
-        self.assertEqual(count, self.items_count)
+        assert count == self.items_count
 
         # Out of scope rows ...
         response = self.app.post('/commands/table_data', {
@@ -223,9 +223,9 @@ class TestDataTable(unittest2.TestCase):
         })
         response_value = response.json
         # No records!
-        self.assertEqual(response.json['recordsTotal'], 0)
-        self.assertEqual(response.json['recordsFiltered'], 0)
-        self.assertEqual(response.json['data'], [])
+        assert response.json['recordsTotal'] == 0
+        assert response.json['recordsFiltered'] == 0
+        assert response.json['data'] == []
 
     def test_03_sort(self):
         """ Datatable - sort table """
@@ -256,7 +256,7 @@ class TestDataTable(unittest2.TestCase):
             ]),
             'order': json.dumps([{"column": 0, "dir": "asc"}])  # Ascending
         })
-        self.assertEqual(len(response.json['data']), 10)
+        assert len(response.json['data']) == 10
 
         # Sort descending ...
         response = self.app.post('/commands/table_data', {
@@ -283,7 +283,7 @@ class TestDataTable(unittest2.TestCase):
             ]),
             'order': json.dumps([{"column": 0, "dir": "desc"}])  # Descending !
         })
-        self.assertEqual(len(response.json['data']), 10)
+        assert len(response.json['data']) == 10
 
         # TODO : check order of element ?
 
@@ -327,9 +327,9 @@ class TestDataTable(unittest2.TestCase):
         })
         response_value = response.json
         # Found items_count records and sent 1
-        self.assertEqual(response.json['recordsTotal'], self.items_count)
-        self.assertEqual(response.json['recordsFiltered'], 1)
-        self.assertEqual(len(response.json['data']), 1)
+        assert response.json['recordsTotal'] == self.items_count
+        assert response.json['recordsFiltered'] == 1
+        assert len(response.json['data']) == 1
 
         response = self.app.post('/commands/table_data', {
             'object_type': 'command',
@@ -543,15 +543,15 @@ class TestDatatableCommands(unittest2.TestCase):
         assert response.json['data']
         for x in range(0, items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
-                self.assertIsNotNone(response.json['data'][x])
-                self.assertIsNotNone(response.json['data'][x]['name'])
-                self.assertIsNotNone(response.json['data'][x]['definition_order'])
-                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
-                self.assertIsNotNone(response.json['data'][x]['command_line'])
-                self.assertIsNotNone(response.json['data'][x]['timeout'])
-                self.assertIsNotNone(response.json['data'][x]['poller_tag'])
-                self.assertIsNotNone(response.json['data'][x]['reactionner_tag'])
-                self.assertIsNotNone(response.json['data'][x]['enable_environment_macros'])
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['enable_environment_macros'] is not None
+                assert response.json['data'][x]['command_line'] is not None
+                assert response.json['data'][x]['timeout'] is not None
+                assert response.json['data'][x]['poller_tag'] is not None
+                assert response.json['data'][x]['reactionner_tag'] is not None
+                assert response.json['data'][x]['enable_environment_macros'] is not None
 
 
 class TestDatatableRealms(unittest2.TestCase):

@@ -127,27 +127,27 @@ class TestGet(unittest2.TestCase):
         # Count all users
         result = self.be.count('user')
         print("Result: %s", result)
-        self.assertEqual(result, 5)
+        assert result == 5
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.count('user', parameters)
         print("Result: %s", result)
-        self.assertEqual(result, 1)
+        assert result == 1
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.count('user', parameters)
         print("Result: %s", result)
-        self.assertEqual(result, 0)  # Not found !
+        assert result == 0  # Not found !
 
         # Get admin user
         parameters = {'where': {"name": "admin"}}
         result = self.be.get('user', parameters)
         print(result)
-        self.assertEqual(len(result), 1)  # Only 1 is admin
+        assert len(result) == 1  # Only 1 is admin
 
         result = self.be.count('user', result[0]['_id'])
         print("Result: %s", result)
-        self.assertEqual(result, 1)
+        assert result == 1
 
     def test_get(self):
         """ Backend get elements """
@@ -157,34 +157,34 @@ class TestGet(unittest2.TestCase):
         result = self.be.get('user')
         print("%s users: " % len(result))
         for user in result:
-            self.assertIn('name', user)
-            self.assertIn('_total', user)  # Each element has an extra _total attribute !
+            assert 'name' in user
+            assert '_total' in user  # Each element has an extra _total attribute !
             print(" - %s (one out of %d)" % (user['name'], user['_total']))
-            self.assertEqual(user['_total'], 5)
-        self.assertEqual(len(result), 5)  # Default configuration has 5 users
+            assert user['_total'] == 5
+        assert len(result) == 5  # Default configuration has 5 users
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.get('user', parameters)
         print(result)
-        self.assertEqual(len(result), 0)  # Not found
+        assert len(result) == 0  # Not found
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.get('user', parameters)
         print(result)
-        self.assertEqual(len(result), 1)  # Only 1 is admin
+        assert len(result) == 1  # Only 1 is admin
         admin_id = result[0]['_id']
         print("Administrator id:", admin_id)
 
         result = self.be.get('user', result[0]['_id'])
         print("Result: %s", result)
-        self.assertEqual(len(result), 1)  # Only 1 is admin
-        self.assertEqual(result[0]['_id'], admin_id)
+        assert len(result) == 1  # Only 1 is admin
+        assert result[0]['_id'] == admin_id
 
         # Directly address object in the backend
         result = self.be.get('user/' + result[0]['_id'])
         print("--- Result: %s", result)
-        self.assertEqual(len(result), 43)  # 40 attributes in the result
-        self.assertEqual(result['_id'], admin_id)
+        assert len(result) == 43  # 40 attributes in the result
+        assert result['_id'] == admin_id
 
     def test_get_all(self):
         """ Backend get all elements """
@@ -208,4 +208,4 @@ class TestGet(unittest2.TestCase):
         print("%s services: " % len(result))
         for service in result:
             print(" - %s" % service['name'])
-        self.assertEqual(len(result), 94)
+        assert len(result) == 94
