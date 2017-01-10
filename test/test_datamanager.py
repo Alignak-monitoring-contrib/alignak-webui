@@ -676,7 +676,7 @@ class TestHosts(unittest2.TestCase):
 
         # Get all hosts templates
         hosts = self.dmg.get_hosts(template=True)
-        assert 1 == len(hosts)
+        assert 24 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host template: %s" % host)
