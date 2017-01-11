@@ -137,7 +137,7 @@ def before_request():
     # request.app.datamgr.load()
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
-    logger.debug("before_request, call function for route: %s", request.urlparts.path)
+    # logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
 
 # --------------------------------------------------------------------------------------------------

@@ -9,7 +9,7 @@
 %from alignak_webui.objects.item_service import Service
 
 <!-- User view -->
-<div id="user">
+<div class="user" id="user_{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -29,7 +29,7 @@
       </div>
    </div>
    %end
-   <!-- Second row : user/service overview ... -->
+   <!-- First row : user/service overview ... -->
    <div class="panel panel-default">
       <div class="panel-heading">
          <h4 class="panel-title">
@@ -80,7 +80,7 @@
       </div>
    </div>
 
-   <!-- Fifth row : user widgets ... -->
+   <!-- Second row : user widgets ... -->
    <div>
       <ul class="nav nav-tabs">
          <li class="active">

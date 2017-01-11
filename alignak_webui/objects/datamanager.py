@@ -763,6 +763,7 @@ class DataManager(object):
             :rtype: dict
         """
 
+        items = None
         default_ls = {
             '_id': None,
             'hosts_synthesis': {
@@ -810,11 +811,18 @@ class DataManager(object):
         }
 
         if search is None:
-            try:
-                item = self.backend.get('livesynthesis/' + self.my_ls['_id'], params=None)
-                items = [item]
-            except BackendException as e:  # pragma: no cover, simple protection
-                logger.exception("get_livesynthesis, exception: %s", e)
+            found = False
+            error = False
+            while not found:
+                try:
+                    item = self.backend.get('livesynthesis/' + self.my_ls['_id'], params=None)
+                    items = [item]
+                    found = True
+                except BackendException as e:  # pragma: no cover, simple protection
+                    logger.exception("get_livesynthesis, exception: %s", e)
+                    if e.code == 404 and not error:
+                        error = True
+                        self.load(reset=True)
         else:
             try:
                 logger.debug("get_livesynthesis, search: %s", search)
