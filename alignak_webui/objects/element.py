@@ -459,11 +459,18 @@ class BackendElement(object):
                     # String - object id
                     if isinstance(params[key], basestring) and self.get_backend():
                         if params[key] not in object_class._cache:
-                            # Object link is a string, so we load the object from the backend
-                            result = self.get_backend().get(object_type + '/' + params[key])
-                            if not result:  # pragma: no cover, should not happen
+                            try:
+                                # Object link is a string, so we load the object from the backend
+                                result = self.get_backend().get(object_type + '/' + params[key])
+                                if not result:  # pragma: no cover, should not happen
+                                    logger.error(
+                                        "__init__, item not found for %s, %s", object_type, value
+                                    )
+                                    continue
+                            except:
                                 logger.error(
-                                    "__init__, item not found for %s, %s", object_type, value
+                                    "__init__, item not existing for %s, %s",
+                                    object_type, value
                                 )
                                 continue
 
@@ -492,11 +499,18 @@ class BackendElement(object):
                         for element in params[key]:
                             if isinstance(element, basestring) and self.get_backend():
                                 if element not in object_class._cache:
-                                    # we need to load the object from the backend
-                                    result = self.get_backend().get(object_type + '/' + element)
-                                    if not result:  # pragma: no cover, should not happen
+                                    try:
+                                        # we need to load the object from the backend
+                                        result = self.get_backend().get(object_type + '/' + element)
+                                        if not result:  # pragma: no cover, should not happen
+                                            logger.error(
+                                                "__init__, item not found for %s, %s",
+                                                object_type, value
+                                            )
+                                            continue
+                                    except:
                                         logger.error(
-                                            "__init__, item not found for %s, %s",
+                                            "__init__, item not existing for %s, %s",
                                             object_type, value
                                         )
                                         continue

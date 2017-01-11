@@ -828,7 +828,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/js/material/material.min.js",
             "/static/js/material/ripples.min.js"
         ]
-        self.assertEqual(reference, response.json['files'])
+        assert reference == response.json['files']
 
     def test_request_css_files(self):
         """ External - request list of js files - CSS files"""
@@ -862,7 +862,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/css/alignak_webui.css",
             "/static/css/alignak_webui-items.css"
         ]
-        self.assertEqual(reference, response.json['files'])
+        assert reference == response.json['files']
 
 
 if __name__ == '__main__':

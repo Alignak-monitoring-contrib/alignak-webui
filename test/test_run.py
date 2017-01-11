@@ -37,15 +37,14 @@ class TestStart(unittest2.TestCase):
         """ Start application with errors"""
         print('test application start error')
 
-        mydir = os.getcwd()
         print("Launching application ...")
-        os.chdir("../alignak_webui")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(os.path.join(dir_path, "../alignak_webui"))
         fnull = open(os.devnull, 'w')
         exit_code = subprocess.call(
             shlex.split('python app.py -X'), stdout=fnull
         )
         assert exit_code == 64
-        os.chdir(mydir)
 
     def test_start_application_version(self):
         """ Start application to get version"""
@@ -53,8 +52,8 @@ class TestStart(unittest2.TestCase):
 
         fnull = open(os.devnull, 'w')
 
-        mydir = os.getcwd()
-        os.chdir("../alignak_webui")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with version number...")
         exit_code = subprocess.call(
             shlex.split('python app.py -v'), stdout=fnull
@@ -85,7 +84,6 @@ class TestStart(unittest2.TestCase):
         )
         print("Launching application with CLI exit...", exit_code)
         assert exit_code == 99
-        os.chdir(mydir)
 
     def test_start_application(self):
         """ Start application stand alone"""
@@ -93,8 +91,8 @@ class TestStart(unittest2.TestCase):
 
         fnull = open(os.devnull, 'w')
 
-        mydir = os.getcwd()
-        os.chdir("../alignak_webui")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application default...")
         process = subprocess.Popen(
             shlex.split('python app.py'), stdout=fnull
@@ -112,7 +110,6 @@ class TestStart(unittest2.TestCase):
         time.sleep(2.0)
         print("Killing application ...")
         process.terminate()
-        os.chdir(mydir)
 
     def test_start_application_configuration(self):
         """ Start application with configuration"""
@@ -120,8 +117,8 @@ class TestStart(unittest2.TestCase):
 
         fnull = open(os.devnull, 'w')
 
-        mydir = os.getcwd()
-        os.chdir("../alignak_webui")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with configuration parameters...")
         process = subprocess.Popen(
             shlex.split('python app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999'), stdout=fnull
@@ -148,8 +145,3 @@ class TestStart(unittest2.TestCase):
         time.sleep(2.0)
         print("Killing application ...")
         process.terminate()
-        os.chdir(mydir)
-
-
-if __name__ == '__main__':
-    unittest2.main()

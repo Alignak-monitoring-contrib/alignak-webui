@@ -23,18 +23,18 @@ script:
   - pep257 --select=D300 alignak_webui
   # Code dynamic analysis
   - cd test
+  # Delete previously existing coverage results
   - coverage erase
-#  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_helper.py test_settings.py test_run.py test_alignak_webui.py
-#  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_items.py test_backend_alignak.py test_datamanager.py test_datatable.py
-#  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_web*.py
-  - nosetests --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_*.py
-  - coverage combine
+  # Run test suite with nosetests running its coverage plugin
+  - nosetests --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_*
+  # Run test suite with py.test running its coverage plugin
+  # - pytest --cov=alignak_webui --cov-config .coveragerc test_*.py
+  # Report about coverage
+  - coverage report -m
   - cd ..
 # specific call to launch coverage data into coveralls.io
 after_success:
   # to get coverage data with relative paths and not absolute we have to
   # execute coveralls from the base directory of the project,
   # so we need to move the .coverage file here :
-  # mv test/.coverage . && coveralls --rcfile=test/.coveragerc -v
-  mv test/.coverage . && coveralls -v
-
+  mv test/.coverage . && coveralls -v --rcfile=test/.coveragerc

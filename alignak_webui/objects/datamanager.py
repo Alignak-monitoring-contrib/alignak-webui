@@ -75,13 +75,23 @@ class DataManager(object):
     """
     id = 1
 
-    def __init__(self, user=None, backend_endpoint='http://127.0.0.1:5000',
+    def __init__(self, session=None, backend_endpoint='http://127.0.0.1:5000',
                  alignak_endpoint='http://127.0.0.1:5000'):
         """
         Initialize a DataManager instance
 
+        The `session` parameter is provided to the data manager when a Web session exists.
+        This to avoid getting the session parameters from the backend. the session parameters
+        are:
+        * the current logged-in user
+        * the logged-in user realm
+        * the logged-in user live synthesis
+
+        If session is None, then the Data manager calls its load method to get the
+        session parameters.
+
         Args:
-            user: logged-in user
+            session: session parameters (logged-in user, realm, ...)
             backend_endpoint: Alignak backend URL endpoint
             alignak_endpoint: Alignak Web service URL endpoint
         """
@@ -124,8 +134,11 @@ class DataManager(object):
         self.my_realm = None
         self.my_ls = None
 
-        if user:
-            self.user_login(user.token, load=False)
+        # Restore session parameters
+        if session:
+            self.user_login(session['current_user'].token, load=False)
+            self.my_realm = session['current_realm']
+            self.my_ls = session['current_ls']
 
     def __repr__(self):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
@@ -499,6 +512,7 @@ class DataManager(object):
 
     ##
     # User's preferences
+    # todo: refactor API to use self.logged_in_user if user is None
     ##
     def delete_user_preferences(self, user, preference_key):
         """
@@ -749,6 +763,7 @@ class DataManager(object):
             :rtype: dict
         """
 
+        items = None
         default_ls = {
             '_id': None,
             'hosts_synthesis': {
@@ -796,11 +811,18 @@ class DataManager(object):
         }
 
         if search is None:
-            try:
-                item = self.backend.get('livesynthesis/' + self.my_ls['_id'], params=None)
-                items = [item]
-            except BackendException as e:  # pragma: no cover, simple protection
-                logger.exception("get_livesynthesis, exception: %s", e)
+            found = False
+            error = False
+            while not found:
+                try:
+                    item = self.backend.get('livesynthesis/' + self.my_ls['_id'], params=None)
+                    items = [item]
+                    found = True
+                except BackendException as e:  # pragma: no cover, simple protection
+                    logger.exception("get_livesynthesis, exception: %s", e)
+                    if e.code == 404 and not error:
+                        error = True
+                        self.load(reset=True)
         else:
             try:
                 logger.debug("get_livesynthesis, search: %s", search)
@@ -1948,7 +1970,7 @@ class DataManager(object):
 
         Returns -1 if any problem
         """
-        logger.info("get_realm_overall_state, search: %s", search)
+        logger.info("get_realm_children, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
             if not realm:

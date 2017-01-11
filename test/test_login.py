@@ -65,7 +65,8 @@ def setup_module(module):
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+            shlex.split('mongo %s --eval "db.dropDatabase()"'
+                        % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
         time.sleep(1)
@@ -90,55 +91,6 @@ def setup_module(module):
 def teardown_module(module):
     subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
     time.sleep(2)
-
-
-class TestNoLogin(unittest2.TestCase):
-
-    def setUp(self):
-        print("setting up ...")
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-    def test_1_1_ping_pong(self):
-        """ Login - ping/pong"""
-        print('ping/pong server alive')
-
-        # Default ping
-        response = self.app.get('/ping')
-        print(response)
-        response.mustcontain('pong')
-
-        # ping action
-        response = self.app.get('/ping?action=')
-        response = self.app.get('/ping?action=unknown', status=204)
-
-        # Required refresh done
-        response = self.app.get('/ping?action=done')
-        print(response)
-        response.mustcontain('pong')
-
-        # Required refresh done, no more action
-        response = self.app.get('/ping')
-        response.mustcontain('pong')
-
-        # Required refresh done, no more action
-        response = self.app.get('/ping')
-        response.mustcontain('pong')
-
-        # Expect status 401
-        response = self.app.get('/heartbeat', status=401)
-        print(response.status)
-        print(response.json)
-        response.mustcontain('Session expired')
-
-        print('get home page /')
-        response = self.app.get('/', status=302)
-        print(response)
-        redirected_response = response.follow()
-        redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
 
 class TestLogin(unittest2.TestCase):
@@ -194,9 +146,13 @@ class TestLogin(unittest2.TestCase):
             if cookie.name=='Alignak-WebUI':
                 assert cookie.expires
 
+        # A session exists and it contains: current user, his realm and his live synthesis
         session = response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].name == 'admin'
+        assert 'current_realm' in session and session['current_realm']
+        assert session['current_realm'].name == 'All'
+        assert 'current_ls' in session and session['current_ls']
 
     def test_login_accepted(self):
         """ Login - accepted"""

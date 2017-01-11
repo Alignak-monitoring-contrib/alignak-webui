@@ -120,7 +120,7 @@ class TestCreation(unittest2.TestCase):
         assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
         # Got known managed elements classes
-        self.assertEqual(len(datamanager.known_classes), COUNT_KNOWN_CLASSES)
+        assert len(datamanager.known_classes) == COUNT_KNOWN_CLASSES
 
         # Initialize and load fail ...
         print('DM load failed')
@@ -449,7 +449,7 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             item.get_html_state()
-        self.assertEqual(len(items), 5)
+        assert len(items) == 5
 
         # Get commands
         items = self.dmg.get_commands()
@@ -457,7 +457,7 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             icon_status = item.get_html_state()
-        self.assertEqual(len(items), 50)  # Backend pagination limit ...
+        assert len(items) == 50  # Backend pagination limit ...
 
         # Get timeperiods
         items = self.dmg.get_timeperiods()
@@ -465,7 +465,7 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             item.get_html_state()
-        self.assertEqual(len(items), 4)
+        assert len(items) == 4
 
     def test_5_1_get_linked(self):
         """ Datamanager objects get - linked elements """
@@ -476,18 +476,18 @@ class TestBasic(unittest2.TestCase):
         for item in items:
             print("Got: ", item)
             assert item.id
-            self.assertIsInstance(item.check_command, Command) # Must be an object
-            self.assertIsInstance(item.check_period, TimePeriod) # Must be an object
-        self.assertEqual(len(items), 13)
+            assert isinstance(item.check_command, Command) # Must be an object
+            assert isinstance(item.check_period, TimePeriod) # Must be an object
+        assert len(items) == 13
 
         # Get services
         items = self.dmg.get_services()
         for item in items:
             print("Got: ", item)
             assert item.id
-            self.assertIsInstance(item.check_command, Command) # Must be an object
-            self.assertIsInstance(item.check_period, TimePeriod) # Must be an object
-        self.assertEqual(len(items), 50)  # Backend pagination limit ...
+            assert isinstance(item.check_command, Command) # Must be an object
+            assert isinstance(item.check_period, TimePeriod) # Must be an object
+        assert len(items) == 50  # Backend pagination limit ...
 
     def test_5_1_get_linked_groups(self):
         """ Datamanager objects get - group elements """
@@ -499,8 +499,8 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             if item.level != 0:
-                self.assertIsInstance(item._parent, HostGroup) # Must be an object
-        self.assertEqual(len(items), 9)
+                assert isinstance(item._parent, HostGroup) # Must be an object
+        assert len(items) == 9
 
         # Get servicegroups
         items = self.dmg.get_servicegroups()
@@ -508,8 +508,8 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             if item.level != 0:
-                self.assertIsInstance(item._parent, ServiceGroup) # Must be an object
-        self.assertEqual(len(items), 6)
+                assert isinstance(item._parent, ServiceGroup) # Must be an object
+        assert len(items) == 6
 
         # Get usergroups
         items = self.dmg.get_usergroups()
@@ -517,8 +517,8 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             if item.level != 0:
-                self.assertIsInstance(item._parent, UserGroup) # Must be an object
-        self.assertEqual(len(items), 3)
+                assert isinstance(item._parent, UserGroup) # Must be an object
+        assert len(items) == 3
 
     def test_5_3_livesynthesis(self):
         """ Datamanager objects get - livesynthesis """
@@ -574,8 +574,8 @@ class TestBasic(unittest2.TestCase):
         # Get livesynthesis
         got_ls = self.dmg.get_livesynthesis(self.dmg.my_ls['_id'])
         print(got_ls)
-        self.assertEqual(got_ls['hosts_synthesis'], expected_ls['hosts_synthesis'])
-        self.assertEqual(got_ls['services_synthesis'], expected_ls['services_synthesis'])
+        assert got_ls['hosts_synthesis'] == expected_ls['hosts_synthesis']
+        assert got_ls['services_synthesis'] == expected_ls['services_synthesis']
 
 
 class TestRelations(unittest2.TestCase):
@@ -655,66 +655,66 @@ class TestHosts(unittest2.TestCase):
 
         # Get all hosts
         hosts = self.dmg.get_hosts()
-        self.assertEqual(13, len(hosts))
+        assert 13 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host: %s" % host)
 
         # Get all hosts (really all...)
         hosts = self.dmg.get_hosts(all_elements=True)
-        self.assertEqual(13, len(hosts))
+        assert 13 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host: %s" % host)
 
         # Get all hosts (with all embedded relations)
         hosts = self.dmg.get_hosts(embedded=True)
-        self.assertEqual(13, len(hosts))
+        assert 13 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host: %s" % host)
 
         # Get all hosts templates
         hosts = self.dmg.get_hosts(template=True)
-        self.assertEqual(1, len(hosts))
+        assert 24 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host template: %s" % host)
 
         # Get one host
         hosts = self.dmg.get_hosts({'where': {'name': 'webui'}})
-        self.assertEqual(1, len(hosts))
+        assert 1 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host: %s" % host)
-        self.assertEqual(hosts[0].name, 'webui')
+        assert hosts[0].name == 'webui'
 
         # Get one host
         host = self.dmg.get_host({'where': {'name': 'webui'}})
-        self.assertEqual(host.name, 'webui')
+        assert host.name == 'webui'
 
         # Get one host
         host = self.dmg.get_host(host._id)
-        self.assertEqual(host.name, 'webui')
-        self.assertEqual(host.status, 'UNREACHABLE')
+        assert host.name == 'webui'
+        assert host.status == 'UNREACHABLE'
 
         # Get host services
         services = self.dmg.get_host_services({'where': {'name': 'webui'}})
         print("---")
         for service in services:
             print("Got service: %s" % service)
-        self.assertGreater(len(services), 1)
+        assert len(services) > 1
         services = self.dmg.get_host_services(host)
         print("---")
         for service in services:
             print("Got service: %s" % service)
-        self.assertGreater(len(services), 1)
+        assert len(services) > 1
 
         # Get host overall state
         (state, status) = self.dmg.get_host_overall_state(host)
         print("Host overall state: %s %s" % (state, status))
-        self.assertEqual(state, 3)
-        self.assertEqual(status, 'unreachable')
+        assert state == 3
+        assert status == 'unreachable'
 
     def test_host(self):
         """ Datamanager objects get - host """

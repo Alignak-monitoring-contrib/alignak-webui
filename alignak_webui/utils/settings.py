@@ -49,7 +49,7 @@ class Settings(OrderedDict):
 
         self.filename = filename
 
-    def read(self, app_name):
+    def read(self, app_name='Alignak-WebUI'):
         # pylint: disable=too-many-nested-blocks
         """ Read configuration file
 
@@ -85,6 +85,7 @@ class Settings(OrderedDict):
                 ]
             else:
                 settings_filenames = self.filename
+            print("Searched filenames: %s" % settings_filenames)
         else:
             settings_filenames = [
                 '/usr/local/etc/%s/settings.cfg' % app_name,

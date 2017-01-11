@@ -77,7 +77,7 @@
                   data-title='{{user.host_notification_period}}'
                   data-content='{{user.host_notification_period}}'
                   >
-               {{! host.host_notification_period.get_html_state_link()}}
+               {{! user.host_notification_period.get_html_state_link()}}
             </td>
          </tr>
 
@@ -130,7 +130,7 @@
                   data-title='{{user.service_notification_period}}'
                   data-content='{{user.service_notification_period}}'
                   >
-               {{! host.service_notification_period.get_html_state_link()}}
+               {{! user.service_notification_period.get_html_state_link()}}
             </td>
          </tr>
 

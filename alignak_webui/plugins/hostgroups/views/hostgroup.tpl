@@ -10,7 +10,7 @@
 %from alignak_webui.objects.item_command import Command
 
 <!-- hosts filtering and display -->
-<div id="hostgroup_{{element.id}}">
+<div class="hostgroup" id="hostgroup_{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -96,7 +96,7 @@
    %end
 
    %if element._parent and element._parent is not None and element._parent != 'hostgroup':
-   <div class="btn-group" role="group" aria-label="{{_('Group navigation')}}">
+   <div class="hostgroup-parent btn-group" role="group" aria-label="{{_('Group navigation')}}">
       <a class="btn btn-default btn-raised" href="{{element._parent.endpoint}}" role="button">
          <span class="fa fa-arrow-up"></span>
          {{_('Parent group')}}
@@ -104,7 +104,7 @@
    </div>
    %end
 
-   <div class="panel panel-default">
+   <div class="hostgroup-members panel panel-default">
       <div class="panel-body">
          <div class="col-xs-6 col-sm-2 text-center">
             %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(element)
@@ -121,11 +121,9 @@
                <thead><tr>
                   <th style="width: 40px"></th>
                   <th>{{_('Host name')}}</th>
-                  <th>{{_('Address')}}</th>
-                  <th>{{_('Check command')}}</th>
-                  <th>{{_('Active checks enabled')}}</th>
-                  <th>{{_('Passive checks enabled')}}</th>
                   <th>{{_('Business impact')}}</th>
+                  <th>{{_('Last check')}}</th>
+                  <th>{{_('Output')}}</th>
                </tr></thead>
 
                <tbody>
@@ -141,11 +139,7 @@
                      </td>
 
                      <td>
-                        <small>{{elt.address}}</small>
-                     </td>
-
-                     <td>
-                        {{! elt.check_command.get_html_state_link() if elt.check_command != 'command' else ''}}
+                        <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
                      </td>
 
                      <td>
@@ -153,11 +147,7 @@
                      </td>
 
                      <td>
-                        <small>{{! Helper.get_on_off(elt.passive_checks_enabled)}}</small>
-                     </td>
-
-                     <td>
-                        <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
+                        {{! elt.output}}
                      </td>
                   </tr>
                %end
@@ -168,7 +158,7 @@
       </div>
    </div>
 
-   <div class="panel panel-default">
+   <div class="hostgroup-children panel panel-default">
       %if not groups or groups == 'hostgroup':
          <!--
          <div class="text-center alert alert-warning">
@@ -193,8 +183,7 @@
                %end
                <tr id="hostgroup_{{elt.id}}">
                   <td title="{{elt.alias}}">
-                     %hg_state = datamgr.get_hostgroup_overall_state(element)
-                     %hg_status = element.overall_state_to_status[hg_state]
+                     %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(element)
                      {{! elt.get_html_state(text=None, use_status=hg_status)}}
                   </td>
 

@@ -23,6 +23,7 @@
 from __future__ import print_function
 
 import os
+import json
 import shlex
 import subprocess
 import time
@@ -67,7 +68,7 @@ def setup_module():
 
         print("Feeding backend...")
         q = subprocess.Popen(
-            shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
+            shlex.split('alignak-backend-import --delete ./cfg/default/_main.cfg'), stdout=fnull
         )
         (stdoutdata, stderrdata) = q.communicate()  # now wait
         assert exit_code == 0
@@ -79,7 +80,7 @@ def teardown_module(module):
 
 class TestCreation(unittest2.TestCase):
     def test_creation(self):
-        """ Backend creation """
+        """ Backend creation - singleton object """
         print("--- creation")
 
         be = BackendConnection(backend_address)
@@ -124,67 +125,72 @@ class TestGet(unittest2.TestCase):
         """ Backend count elements """
         print("--- count")
 
-        # Count all users
+        # Count all users (no templates)
+        result = self.be.count('user', params={'where': {'_is_template': False}})
+        print("Result: %s" % result)
+        assert result == 5
+
+        # Count all users (and templates)
         result = self.be.count('user')
-        print("Result: %s", result)
-        self.assertEqual(result, 5)
+        print("Result: %s" % result)
+        assert result == 7
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.count('user', parameters)
-        print("Result: %s", result)
-        self.assertEqual(result, 1)
+        print("Result: %s" % result)
+        assert result == 1
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.count('user', parameters)
-        print("Result: %s", result)
-        self.assertEqual(result, 0)  # Not found !
+        print("Result: %s" % result)
+        assert result == 0  # Not found !
 
         # Get admin user
         parameters = {'where': {"name": "admin"}}
         result = self.be.get('user', parameters)
         print(result)
-        self.assertEqual(len(result), 1)  # Only 1 is admin
+        assert len(result) == 1  # Only 1 is admin
 
         result = self.be.count('user', result[0]['_id'])
-        print("Result: %s", result)
-        self.assertEqual(result, 1)
+        print("Result: %s" % result)
+        assert result == 1
 
     def test_get(self):
         """ Backend get elements """
         print("--- get")
 
-        # Get all users
-        result = self.be.get('user')
+        # Get all users (no templates)
+        result = self.be.get('user', params={'where': {'_is_template': False}})
         print("%s users: " % len(result))
         for user in result:
-            self.assertIn('name', user)
-            self.assertIn('_total', user)  # Each element has an extra _total attribute !
+            assert 'name' in user
+            assert '_total' in user  # Each element has an extra _total attribute !
             print(" - %s (one out of %d)" % (user['name'], user['_total']))
-            self.assertEqual(user['_total'], 5)
-        self.assertEqual(len(result), 5)  # Default configuration has 5 users
+            assert user['_total'] == 5
+        assert len(result) == 5  # Default configuration has 5 users
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.get('user', parameters)
         print(result)
-        self.assertEqual(len(result), 0)  # Not found
+        assert len(result) == 0  # Not found
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.get('user', parameters)
         print(result)
-        self.assertEqual(len(result), 1)  # Only 1 is admin
+        assert len(result) == 1  # Only 1 is admin
         admin_id = result[0]['_id']
         print("Administrator id:", admin_id)
 
         result = self.be.get('user', result[0]['_id'])
         print("Result: %s", result)
-        self.assertEqual(len(result), 1)  # Only 1 is admin
-        self.assertEqual(result[0]['_id'], admin_id)
+        assert len(result) == 1  # Only 1 is admin
+        assert result[0]['_id'] == admin_id
 
         # Directly address object in the backend
         result = self.be.get('user/' + result[0]['_id'])
         print("--- Result: %s", result)
-        self.assertEqual(len(result), 43)  # 40 attributes in the result
-        self.assertEqual(result['_id'], admin_id)
+        assert len(result) == 43  # 43 attributes in the result
+        assert result['_id'] == admin_id
 
     def test_get_all(self):
         """ Backend get all elements """
@@ -203,9 +209,10 @@ class TestGet(unittest2.TestCase):
         # See https://github.com/Alignak-monitoring-contrib/alignak-backend/issues/52
         # assert len(result) == BACKEND_PAGINATION_DEFAULT # Default backend pagination
 
-        # Get all services
-        result = self.be.get('service', all_elements=True)
+        # Get all services (no templates)
+        result = self.be.get('service', all_elements=True,
+                             params={'where': {'_is_template': False}})
         print("%s services: " % len(result))
         for service in result:
             print(" - %s" % service['name'])
-        self.assertEqual(len(result), 94)
+        assert len(result) == 94
