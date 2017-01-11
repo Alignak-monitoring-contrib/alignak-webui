@@ -25,8 +25,10 @@ script:
   - cd test
   # Delete previously existing coverage results
   - coverage erase
+  # Run test suite with nosetests running its coverage plugin
+  - nosetests --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_webui test_*
   # Run test suite with py.test running its coverage plugin
-  - pytest --cov=alignak_webui --cov-config .coveragerc test_*.py
+  # - pytest --cov=alignak_webui --cov-config .coveragerc test_*.py
   # Report about coverage
   - coverage report -m
   - cd ..
