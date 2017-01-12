@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,10 +30,9 @@
     to implement this interface. The ElementsView class used by (almost ...) all the elements
     contains a property which is a Datatable object.
 """
-import json
-from logging import getLogger, DEBUG
 
-from datetime import datetime
+import json
+from logging import getLogger
 
 from bottle import request
 
@@ -42,12 +41,13 @@ from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.objects.element import BackendElement
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
-logger.setLevel(DEBUG)
 
 
 class Datatable(object):
-    """ jQuery  Datatable plugin interface for backend elements """
+
+    """jQuery  Datatable plugin interface for backend elements """
 
     def __init__(self, object_type, datamgr, schema):
         """
@@ -106,11 +106,9 @@ class Datatable(object):
         else:
             self.records_total = self.backend.count(self.object_type)
 
-    ##
-    # Data model
-    ##
     def get_data_model(self, schema):
-        """ Get the data model for an element type
+
+        """Get the data model for an element type
 
             If the data model specifies that the element is managed in the UI,
             all the fields for this element are provided
@@ -134,6 +132,7 @@ class Datatable(object):
 
             :return: list of fields name/title
         """
+
         if not schema:
             logger.error("get_data_model, missing schema")
             return None
@@ -203,18 +202,16 @@ class Datatable(object):
 
             # logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
-            # Convert data model format to datatables' one ...
-            self.table_columns.append(ui_field)
+            # If not hidden, return field
+            if not model.get('hidden', False):
+                self.table_columns.append(ui_field)
         return None
 
-    ##
-    # Localization
-    ##
     @staticmethod
     def get_language_strings():
-        """
-        Get DataTable language strings
-        """
+
+        """Get DataTable language strings"""
+
         return {
             'decimal': _('.'),
             'thousands': _(','),
@@ -289,6 +286,7 @@ class Datatable(object):
     def table_data(self):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
+
         """
         Return elements data in json format as of Datatables SSP protocol
         More info: https://datatables.net/manual/server-side
@@ -358,6 +356,7 @@ class Datatable(object):
         - error (optional): Error message if an error occurs
             Not included if there is no error.
         """
+
         # Manage request parameters ...
         logger.info("request data for table: %s", request.forms.get('object_type'))
 
@@ -590,6 +589,10 @@ class Datatable(object):
             row['DT_RowData'] = {}
             row['_id'] = bo_object.id
             for field in self.table_columns:
+                if field['hidden']:
+                    logger.critical("field %s is not declared as visible.", field['data'])
+                    continue
+
                 # Specific fields
                 if field['data'] == self.name_property:
                     # item[field] = bo_object.get_html_link(prefix=request.params.get('links'))

@@ -22,10 +22,10 @@
       <!--
          %# Web UI application about content
          %from bottle import request
-         %from alignak_webui import manifest
+         %from alignak_webui import __manifest__
          This file is a part of {{request.app.config.get('name', 'WebUI')}}.
 
-         {{request.app.config.get('about_name', manifest['name'])}} {{request.app.config.get('about_version', manifest['version'])}}, &copy;&nbsp;{{request.app.config.get('about_copyright', manifest['copyright'])}}
+         {{request.app.config.get('about_name', __manifest__['name'])}} {{request.app.config.get('about_version', __manifest__['version'])}}, &copy;&nbsp;{{request.app.config.get('about_copyright', __manifest__['copyright'])}}
       -->
 
       <!--[if lt IE 9]>

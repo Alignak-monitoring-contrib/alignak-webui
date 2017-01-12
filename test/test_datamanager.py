@@ -65,46 +65,40 @@ datamgr = None
 COUNT_KNOWN_CLASSES = 19
 
 
-def setup_module():
-    print("")
-    print("start alignak backend")
+def setup_module(module):
+    # Set test mode for applications backend
+    os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+    os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
-    global pid
-    global backend_address
+    # Delete used mongo DBs
+    exit_code = subprocess.call(
+        shlex.split('mongo %s --eval "db.dropDatabase()"'
+                    % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+    )
+    assert exit_code == 0
+    time.sleep(1)
 
-    if backend_address == "http://127.0.0.1:5000/":
-        # Set test mode for applications backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+    test_dir = os.path.dirname(os.path.realpath(__file__))
+    print("Current test directory: %s" % test_dir)
 
-        # Delete used mongo DBs
-        exit_code = subprocess.call(
-            shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
-        )
-        assert exit_code == 0
+    print("Starting Alignak backend...")
+    fnull = open(os.devnull, 'w')
+    subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    print("Started")
 
-        print("Starting Alignak backend...")
-        # No console output for the applications backend ...
-        fnull = open(os.devnull, 'w')
-        pid = subprocess.Popen(
-            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 '
-                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid '
-                        '--logto /tmp/uwsgi.log'), stdout=fnull
-        )
-        time.sleep(1)
-
-        print("Feeding backend...")
-        q = subprocess.Popen(
-            shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
-        )
-        (stdoutdata, stderrdata) = q.communicate()  # now wait
-        assert exit_code == 0
+    print("Feeding Alignak backend...")
+    exit_code = subprocess.call(
+        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        stdout=fnull
+    )
+    assert exit_code == 0
+    print("Fed")
 
 
 def teardown_module(module):
     print("Stopping Alignak backend...")
-    subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+    subprocess.call(['pkill', 'alignak-backend'])
+    print("Stopped")
     time.sleep(2)
 
 
@@ -676,7 +670,7 @@ class TestHosts(unittest2.TestCase):
 
         # Get all hosts templates
         hosts = self.dmg.get_hosts(template=True)
-        assert 24 == len(hosts)
+        assert 30 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host template: %s" % host)

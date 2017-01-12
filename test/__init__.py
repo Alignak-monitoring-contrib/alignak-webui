@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2015-2017:
-#   Frederic Mohier, frederic.mohier@alignak.net
+#   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
 #
@@ -20,31 +20,5 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin hosts dependencies
+    This directory contains application tests
 """
-
-from logging import getLogger
-
-from alignak_webui.utils.plugin import Plugin
-
-# pylint: disable=invalid-name
-logger = getLogger(__name__)
-
-
-class PluginServicesDependencies(Plugin):
-    """ Services dependencies plugin """
-
-    def __init__(self, app, cfg_filenames=None):
-        """
-        User plugin
-
-        Declare routes for adding, deleting a user
-
-        Overload the default get route to declare filters.
-        """
-        self.name = 'Services dependencies'
-        self.backend_endpoint = 'servicedependency'
-
-        self.pages = {}
-
-        super(PluginServicesDependencies, self).__init__(app, cfg_filenames)

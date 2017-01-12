@@ -46,7 +46,7 @@ __classifiers__ = [
 ]
 
 # Application manifest
-manifest = {
+__manifest__ = {
     'name': __application__,
     'version': __version__,
     'author': __author__,

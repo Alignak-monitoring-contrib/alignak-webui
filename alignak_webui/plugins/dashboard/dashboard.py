@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -23,15 +23,14 @@
     Plugin Dashboard
 """
 
-import json
 from logging import getLogger
 
 from bottle import request
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
-from alignak_webui.objects.datamanager import DataManager
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
@@ -89,7 +88,7 @@ class PluginDashboard(Plugin):
             'message': message
         }
 
-    def get_currently(self):
+    def get_currently(self):  # pylint:disable=no-self-use
         """
         Display currently page
         """

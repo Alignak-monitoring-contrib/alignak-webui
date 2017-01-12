@@ -7,16 +7,11 @@
     Plugin User roles restriction
 """
 
-import json
-
-from collections import OrderedDict
-
 from logging import getLogger
-from bottle import request, response
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 

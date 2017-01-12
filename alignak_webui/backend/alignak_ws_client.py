@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,12 +30,13 @@
 import logging
 
 import requests
-from requests import Timeout, HTTPError
+from requests import HTTPError
 from requests import ConnectionError as RequestsConnectionError
 
 from future.moves.urllib.parse import urljoin
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
+# pylint: disable=invalid-name
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -110,8 +111,8 @@ class AlignakConnection(object):    # pylint: disable=too-few-public-methods
                 self.connected = self.backend.login(username, password)
             except AlignakWSException:  # pragma: no cover, should not happen
                 logger.warning("configured backend is not available!")
-            except Exception as e:  # pragma: no cover, should not happen
-                logger.exception("User login exception: %s", e)
+            except Exception as exp:  # pragma: no cover, should not happen
+                logger.exception("User login exception: %s", exp)
 
             logger.info("login result: %s", self.connected)
             return self.connected
@@ -172,16 +173,16 @@ class AlignakConnection(object):    # pylint: disable=too-few-public-methods
                 logger.debug("get, response: %s", response)
                 response.raise_for_status()
 
-            except RequestsConnectionError as e:
-                logger.error("Backend connection error, error: %s", str(e))
+            except RequestsConnectionError as exp:
+                logger.exception("Backend connection error, error: %s", exp)
                 raise AlignakWSException(1000, "Alignak Web Services connection error")
 
-            except HTTPError as e:  # pragma: no cover - need specific backend tests
-                if e.response.status_code == 404:
+            except HTTPError as exp:  # pragma: no cover - need specific backend tests
+                if exp.response.status_code == 404:
                     raise AlignakWSException(404, 'Not found')
 
-                logger.error("Backend HTTP error, error: %s", str(e))
-                raise AlignakWSException(1003, "Backend HTTPError: %s / %s" % (type(e), str(e)))
+                logger.exception("Backend HTTP error, error: %s", exp)
+                raise AlignakWSException(1003, "Backend HTTPError: %s / %s" % (type(exp), str(exp)))
 
             return response.json()
 

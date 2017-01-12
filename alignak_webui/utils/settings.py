@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -85,7 +85,6 @@ class Settings(OrderedDict):
                 ]
             else:
                 settings_filenames = self.filename
-            print("Searched filenames: %s" % settings_filenames)
         else:
             settings_filenames = [
                 '/usr/local/etc/%s/settings.cfg' % app_name,
@@ -117,8 +116,8 @@ class Settings(OrderedDict):
                                 self[section + '.' + option] = False
 
             return found_cfg_file
-        except Exception as e:
+        except Exception as exp:
             print("Bad formed configuration file.")
-            print("Exception: %s" % str(e))
+            print("Exception: %s" % str(exp))
             print("Traceback: %s" % traceback.format_exc())
             return None

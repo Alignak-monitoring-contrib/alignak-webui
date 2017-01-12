@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=global-statement, global-variable-not-assigned
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -41,11 +41,12 @@ import bottle
 from beaker.middleware import SessionMiddleware
 
 # Specific application
-from alignak_webui.version import manifest
+from alignak_webui.version import __manifest__
 from alignak_webui.utils.logs import set_console_logger, set_file_logger
 
 
 # Application logger
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 # Localization
@@ -103,7 +104,7 @@ def set_app_config(config):
     set_file_logger(
         logger,
         path=app_config.get('logs.dir', '/var/log/'),
-        filename=app_config.get('logs.filename', manifest['name'].lower() + '.log'),
+        filename=app_config.get('logs.filename', __manifest__['name'].lower() + '.log'),
         when=app_config.get('logs.when', 'D'),
         interval=int(app_config.get('logs.interval', '1')),
         backup_count=int(app_config.get('logs.backupCount', '6'))
@@ -119,14 +120,14 @@ def set_app_config(config):
     logger.info(
         "--------------------------------------------------------------------------------"
     )
-    logger.info("%s, version %s", manifest['name'], manifest['version'])
-    logger.info("Copyright %s", manifest['copyright'])
-    logger.info("License: %s", manifest['license'])
+    logger.info("%s, version %s", __manifest__['name'], __manifest__['version'])
+    logger.info("Copyright %s", __manifest__['copyright'])
+    logger.info("License: %s", __manifest__['license'])
     logger.info(
         "--------------------------------------------------------------------------------"
     )
-    logger.debug("Doc: %s", manifest['doc'])
-    logger.debug("Release notes: %s", manifest['release'])
+    logger.debug("Doc: %s", __manifest__['doc'])
+    logger.debug("Release notes: %s", __manifest__['release'])
     logger.debug(
         "--------------------------------------------------------------------------------"
     )
@@ -208,8 +209,8 @@ session_opts = {
     'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
     'session.auto': True,
     'session.cookie_expires': 21600,    # 6 hours
-    'session.key': manifest['name'],
-    'sesssion.webtest_varname': manifest['name'],    # For unit tests ...
+    'session.key': __manifest__['name'],
+    'sesssion.webtest_varname': __manifest__['name'],    # For unit tests ...
     'session.data_serializer': 'json'   # Default is pickle ... not appropriate for our data!
 }
 webapp = SessionMiddleware(bottle_app, session_opts)

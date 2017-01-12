@@ -136,7 +136,7 @@ class TestMethods(unittest2.TestCase):
         """ Application configuration (manifest) """
         print('test configuration')
 
-        manifest = alignak_webui.manifest
+        manifest = alignak_webui.__manifest__
         print('manifest:', manifest)
         assert manifest
         assert manifest['name']

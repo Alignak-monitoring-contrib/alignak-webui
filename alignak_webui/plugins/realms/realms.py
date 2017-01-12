@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -33,6 +33,7 @@ from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
@@ -82,7 +83,7 @@ class PluginRealms(Plugin):
             'groups': None
         }
 
-    def get_overall_state(self, element):
+    def get_overall_state(self, element):  # pylint:disable=no-self-use
         """
         Get the realm overall state
 
