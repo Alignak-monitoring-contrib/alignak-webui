@@ -264,20 +264,19 @@ class TestRealms(unittest2.TestCase):
 
         print('get page /realms')
         response = self.app.get('/realms')
-        print(response)
-        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
+        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a realm id
         matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
         if matches:
             for match in matches:
                 self.realm_id = match
                 break
-        assert self.realm_id
+        assert self.realm_id, "Did not found realm identifier in the data!"
 
         print('get page /realm')
         response = self.app.get('/realm/%s' % self.realm_id)
         print(response)
         response.mustcontain(
-            '<div id="realm-%s">' % self.realm_id
+            '<div class="realm" id="realm-%s">' % self.realm_id
         )
 
 
