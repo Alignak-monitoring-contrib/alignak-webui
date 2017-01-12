@@ -327,7 +327,7 @@ class TestsExternal(unittest2.TestCase):
         assert session['current_user'].get_username() == 'admin'
 
         datamgr = DataManager(
-            user=session['current_user'],
+            session=session,
             backend_endpoint='http://127.0.0.1:5000'
         )
 
