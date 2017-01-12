@@ -42,7 +42,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         fnull = open(os.devnull, 'w')
         exit_code = subprocess.call(
-            shlex.split('python app.py -X'), stdout=fnull
+            shlex.split('python app.py -X'), stdout=fnull, stderr=fnull
         )
         assert exit_code == 64
 
@@ -56,7 +56,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with version number...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -v'), stdout=fnull
+            shlex.split('python app.py -v'), stdout=fnull, stderr=fnull
         )
         assert exit_code == 0
 
@@ -65,7 +65,7 @@ class TestStart(unittest2.TestCase):
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.bad')
         print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
         exit_code = subprocess.call(
-            shlex.split('python app.py settings.bad'), stdout=fnull
+            shlex.split('python app.py settings.bad'), stdout=fnull, stderr=fnull
         )
         assert exit_code == 1
         os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
@@ -74,13 +74,13 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with CLI help...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -h'), stdout=fnull
+            shlex.split('python app.py -h'), stdout=fnull, stderr=fnull
         )
         assert exit_code == 0
 
         print("Launching application with CLI exit...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -x'), stdout=fnull
+            shlex.split('python app.py -x'), stdout=fnull, stderr=fnull
         )
         print("Launching application with CLI exit...", exit_code)
         assert exit_code == 99
@@ -95,7 +95,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application default...")
         process = subprocess.Popen(
-            shlex.split('python app.py'), stdout=fnull
+            shlex.split('python app.py'), stdout=fnull, stderr=fnull
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -104,7 +104,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application debug mode...")
         process = subprocess.Popen(
-            shlex.split('python app.py -d'), stdout=fnull
+            shlex.split('python app.py -d'), stdout=fnull, stderr=fnull
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -121,7 +121,8 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with configuration parameters...")
         process = subprocess.Popen(
-            shlex.split('python app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999'), stdout=fnull
+            shlex.split('python app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999'),
+            stdout = fnull, stderr = fnull
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -130,7 +131,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with configuration file...")
         process = subprocess.Popen(
-            shlex.split('python app.py ../test/settings.cfg'), stdout=fnull
+            shlex.split('python app.py ../test/settings.cfg'), stdout=fnull, stderr=fnull
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -139,7 +140,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with configuration file...")
         process = subprocess.Popen(
-            shlex.split('python app.py ../test/settings.fr'), stdout=fnull
+            shlex.split('python app.py ../test/settings.fr'), stdout=fnull, stderr=fnull
         )
         print('PID = ', process.pid)
         time.sleep(2.0)

@@ -20,7 +20,7 @@ __checks_type__ = u"demo"
 # Application manifest
 __application__ = u"Alignak-WebUI"
 
-__version__ = u"0.6.4"
+__version__ = u"0.6.6"
 __short_version__ = u"0.6"
 __author__ = u"Frédéric Mohier"
 __author_email__ = u"frederic.mohier@alignak.net"
