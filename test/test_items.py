@@ -729,7 +729,7 @@ class TestItems(unittest2.TestCase):
 
         print("State: ", item.get_html_state())
         assert item.get_html_state() == \
-                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="test" data-item-type="user" data-item-state="" title=""><span class="fa-stack " ><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item._id
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="Real name" data-item-type="user" data-item-state="" title=""><span class="fa-stack " ><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item._id
 
         item = User({
             'username': 'test_priority',
