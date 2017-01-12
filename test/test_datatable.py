@@ -1214,7 +1214,7 @@ class TestDatatableHistory(unittest2.TestCase):
             '<th data-name="user" data-type="objectid">User</th>',
             '<th data-name="type" data-type="string">Type</th>',
             '<th data-name="message" data-type="string">Message</th>',
-            '<th data-name="check_result" data-type="objectid">Check result</th>'
+            '<th data-name="logcheckresult" data-type="objectid">Check result</th>'
         )
 
         response = self.app.post('/historys/table_data')
