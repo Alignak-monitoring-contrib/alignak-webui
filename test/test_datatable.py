@@ -997,7 +997,7 @@ class TestDatatableUsergroups(unittest2.TestCase):
                 assert 'usergroups' in response.json['data'][x] is not None
 
 
-class TestDatatableTimeperiod(unittest2.TestCase):
+class TestDatatableTimeperiods(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
@@ -1037,9 +1037,7 @@ class TestDatatableTimeperiod(unittest2.TestCase):
         )
 
         response = self.app.post('/timeperiods/table_data')
-        print(response)
         response_value = response.json
-        print(response_value)
         # Temporary
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
@@ -1056,7 +1054,7 @@ class TestDatatableTimeperiod(unittest2.TestCase):
                 assert response.json['data'][x]['is_active'] is not None
 
 
-class TestDatatableUserRestrictRole(unittest2.TestCase):
+class TestDatatableUserRestrictRoles(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
@@ -1116,7 +1114,7 @@ class TestDatatableUserRestrictRole(unittest2.TestCase):
                 assert response.json['data'][x]['crud'] is not None
 
 
-class TestDatatableLog(unittest2.TestCase):
+class TestDatatableLogs(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
@@ -1177,7 +1175,7 @@ class TestDatatableLog(unittest2.TestCase):
         # No data in the test backend
 
 
-class TestDatatableHistory(unittest2.TestCase):
+class TestDatatableHistorys(unittest2.TestCase):
     def setUp(self):
         self.dmg = DataManager(backend_endpoint=backend_address)
         print('Data manager', self.dmg)
