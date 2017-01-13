@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -25,9 +25,9 @@
 
 from logging import getLogger
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 

@@ -12,13 +12,13 @@ The application loads **plugins**...
     TO BE COMPLETED!
 
 Plugin structure
----------------------------------
+----------------
 A plugin is a sub-directory in the application *plugins* directory (eg *plugin*) which  must
 contain a Python file named *plugin.py* that is imported by the application as a Python module.
 
 All directories that do not match this requirement are ignored by the application.
 
-The *plugin.py* file must declare a globalclass inherited from the application Plugin class::
+The *plugin.py* file must declare a global class inherited from the application Plugin class::
 
     class PluginHosts(Plugin):
         """ Hosts plugin """
@@ -55,7 +55,7 @@ As of it, the plugin logs will be included in the application main log stream.
 
 
 Plugin configuration file
----------------------------
+-------------------------
 A plugin can have its own configuration file.
 
 The application searches in several location for a configuration file:
@@ -76,7 +76,7 @@ The configuration file is built like an Ini file parsed thank to Python ConfigPa
         [timeperiods]
         ; Plugin global configuration
         enabled=False
-        ; A parameter in a section name like the plugin is seen as parameter:
+        ; A parameter in a section named like the plugin is seen as parameter:
         ; timeperiods.enabled is: enabled
         ; else the parameter is section.parameter
 
@@ -103,8 +103,8 @@ The configuration file is built like an Ini file parsed thank to Python ConfigPa
 
 
 Plugin routes
----------------------------------------
-A plugin may declare routes for the application Web server. The routes declaration is made through a global dictionary names *pages*.
+-------------
+A plugin may declare routes for the application Web server. The routes declaration is made through a global dictionary named *pages*.
 
 Main routes:
 

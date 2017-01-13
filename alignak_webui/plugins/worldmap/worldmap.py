@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,6 +30,7 @@ from bottle import request
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 # Will be populated by the UI with it's own value
@@ -143,7 +144,7 @@ class PluginWorldmap(Plugin):
             'title': request.query.get('title', _('Hosts worldmap'))
         }
 
-    def get_valid_elements(self, search):
+    def get_valid_elements(self, search):  # pylint:disable=no-self-use
         """
         Get hosts valid for a map:
         - must have custom variables with GPS coordinates

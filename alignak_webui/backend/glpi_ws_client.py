@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -26,6 +26,7 @@ import xmlrpclib
 
 from logging import getLogger
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 # Define pagination limits according to GLPI's ones!
@@ -102,10 +103,10 @@ class Glpi(object):
         try:
             logger.info("connecting to %s", self.url_endpoint_root)
             self.connection = xmlrpclib.ServerProxy(self.url_endpoint_root)
-        except Exception as e:  # pragma: no cover - security ...
+        except Exception as exp:  # pragma: no cover - security ...
             self.connection = None
-            logger.error("Glpi connection exception, error: %s / %s", type(e), str(e))
-            raise GlpiException(1000, "Glpi exception: %s / %s" % (type(e), str(e)))
+            logger.exception("Glpi connection exception, error: %s / %s", type(exp), exp)
+            raise GlpiException(1000, "Glpi exception: %s / %s" % (type(exp), str(exp)))
 
         try:
             logger.info("authentication in progress...")
@@ -121,9 +122,9 @@ class Glpi(object):
             if isinstance(err.faultString, unicode):
                 err.faultString = err.faultString.encode('utf-8')
             raise GlpiException(1001, err.faultString)
-        except Exception as e:  # pragma: no cover - security ...
+        except Exception as exp:  # pragma: no cover - security ...
             self.connection = None
-            logger.error("Glpi connection exception, error: %s / %s", type(e), str(e))
+            logger.exception("Glpi connection exception, error: %s / %s", type(exp), exp)
             raise GlpiException(1001, "Access denied")
 
         return self.authenticated
@@ -151,9 +152,9 @@ class Glpi(object):
             if isinstance(err.faultString, unicode):
                 err.faultString = err.faultString.encode('utf-8')
             raise GlpiException(1001, err.faultString)
-        except Exception as e:  # pragma: no cover - security ...
-            logger.error("Glpi connection exception, error: %s / %s", type(e), str(e))
-            raise GlpiException(1000, "Glpi exception: %s / %s" % (type(e), str(e)))
+        except Exception as exp:  # pragma: no cover - security ...
+            logger.exception("Glpi connection exception, error: %s / %s", type(exp), exp)
+            raise GlpiException(1000, "Glpi exception: %s / %s" % (type(exp), str(exp)))
 
         self.connection = None
         self.authenticated = False
@@ -196,8 +197,8 @@ class Glpi(object):
             if isinstance(err.faultString, unicode):
                 err.faultString = err.faultString.encode('utf-8')
             raise GlpiException(1001, "methodCall: %s: %s" % (method_name, err.faultString))
-        except Exception as e:  # pragma: no cover - security ...
-            logger.error("Glpi connection exception, error: %s / %s", type(e), str(e))
-            raise GlpiException(1000, "Glpi exception: %s / %s" % (type(e), str(e)))
+        except Exception as exp:  # pragma: no cover - security ...
+            logger.exception("Glpi connection exception, error: %s / %s", type(exp), exp)
+            raise GlpiException(1000, "Glpi exception: %s / %s" % (type(exp), str(exp)))
 
         return resp

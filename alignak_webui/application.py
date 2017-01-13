@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -25,25 +25,23 @@
 
 import json
 import os
-import traceback
 from importlib import import_module
 import inspect
 from logging import getLogger
 
 # Bottle import
-from bottle import hook, route, request, response, redirect, static_file, view, parse_auth
+from bottle import hook, route, request, response, redirect, static_file, parse_auth
 from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
 # Application import
 from alignak_webui import _
 from alignak_webui import get_app_webui
-from alignak_webui.objects.item_user import User
 from alignak_webui.objects.datamanager import DataManager
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.plugin import Plugin
 
-
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
@@ -860,10 +858,10 @@ class WebUI(object):
 
                     for p_class in p_classes:
                         # Create a plugin instance
-                        p = p_class(self, cfg_files)
+                        plugin_instance = p_class(self, cfg_files)
 
                         i += 1
-                        self.plugins.append(p)
+                        self.plugins.append(plugin_instance)
 
                 # Add the views sub-directory of the plugin in the Bottle templates path
                 dir_views = os.path.join(
@@ -879,14 +877,13 @@ class WebUI(object):
 
                 logger.info("registered plugin '%s'", plugin_name)
 
-            except Exception as e:  # pragma: no cover - simple security ...
-                logger.error("loading plugin %s, exception: %s", plugin_name, str(e))
-                logger.error("traceback: %s", traceback.format_exc())
+            except Exception as exp:  # pragma: no cover - simple security ...
+                logger.exception("loading plugin %s, exception: %s", plugin_name, exp)
 
         logger.info("loaded %d plugins from: %s", i, plugins_dir)
         return i
 
-    def get_url(self, name):
+    def get_url(self, name):  # pylint:disable=no-self-use
         """
         Get the URL for a named route
         :param name:

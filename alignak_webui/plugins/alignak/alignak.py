@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -26,15 +26,14 @@
     Web services module to get information from the Alignak arbiter about all the running daemons.
 """
 
-import collections
 from logging import getLogger
 
 from bottle import request
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
-from alignak_webui.objects.item_daemon import Daemon
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 

@@ -21,12 +21,14 @@ class TestStart(unittest2.TestCase):
         os.getcwd()
         print ("Launching application with UWSGI ...")
 
-        # No console output for the applications backend ...
+        test_dir = os.path.dirname(os.path.realpath(__file__))
+        print("Dir: %s" % test_dir)
+
+        print("Starting Alignak WebUI...")
         fnull = open(os.devnull, 'w')
-        subprocess.Popen(
-            shlex.split('uwsgi --plugin python -w alignakwebui:app --socket 0.0.0.0:5000 '
-                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid '
-                        '--logto /tmp/uwsgi.log'), stdout=fnull
+        pid = subprocess.Popen(
+            shlex.split('uwsgi --plugin python -w test.alignakwebui:app --socket 0.0.0.0:5000 '
+                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid'), stdout=fnull
         )
         time.sleep(5)
 
@@ -34,7 +36,7 @@ class TestStart(unittest2.TestCase):
         time.sleep(1)
 
     def test_start_application_error(self):
-        """ Start application with errors"""
+        """ Start application with command line parameters error"""
         print('test application start error')
 
         print("Launching application ...")
@@ -60,27 +62,36 @@ class TestStart(unittest2.TestCase):
         )
         assert exit_code == 0
 
+    def test_start_application_bad_configuration(self):
+        """ Start application with bad configuration file"""
+
         print("Launching application with bad configuration file...")
         os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.bad')
         print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
         exit_code = subprocess.call(
-            shlex.split('python app.py settings.bad'), stdout=fnull, stderr=fnull
+            shlex.split('python app.py settings.bad')
         )
         assert exit_code == 1
         os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
         print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
+    def test_start_application_help(self):
+        """ Start application with help parameter"""
+
         print("Launching application with CLI help...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -h'), stdout=fnull, stderr=fnull
+            shlex.split('python app.py -h')
         )
         assert exit_code == 0
 
+    def test_start_application_exit(self):
+        """ Start application with exit parameter"""
+
         print("Launching application with CLI exit...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -x'), stdout=fnull, stderr=fnull
+            shlex.split('python app.py -x')
         )
         print("Launching application with CLI exit...", exit_code)
         assert exit_code == 99
@@ -102,9 +113,12 @@ class TestStart(unittest2.TestCase):
         print("Killing application ...")
         process.terminate()
 
+    def test_start_application_debug(self):
+        """ Start application stand alone - debug mode"""
+
         print("Launching application debug mode...")
         process = subprocess.Popen(
-            shlex.split('python app.py -d'), stdout=fnull, stderr=fnull
+            shlex.split('python app.py -d')
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -112,7 +126,7 @@ class TestStart(unittest2.TestCase):
         process.terminate()
 
     def test_start_application_configuration(self):
-        """ Start application with configuration"""
+        """ Start application with configuration parameters"""
         print('test application configuration start')
 
         fnull = open(os.devnull, 'w')
@@ -129,9 +143,12 @@ class TestStart(unittest2.TestCase):
         print("Killing application ...")
         process.terminate()
 
+    def test_start_application_configuration_file(self):
+        """ Start application with configuration"""
+
         print("Launching application with configuration file...")
         process = subprocess.Popen(
-            shlex.split('python app.py ../test/settings.cfg'), stdout=fnull, stderr=fnull
+            shlex.split('python app.py ../test/settings.cfg')
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -140,7 +157,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with configuration file...")
         process = subprocess.Popen(
-            shlex.split('python app.py ../test/settings.fr'), stdout=fnull, stderr=fnull
+            shlex.split('python app.py ../test/settings.fr')
         )
         print('PID = ', process.pid)
         time.sleep(2.0)

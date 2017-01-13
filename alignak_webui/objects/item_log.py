@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -36,6 +36,7 @@ from alignak_webui import _
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 from alignak_webui.objects.element import BackendElement
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 

@@ -34,8 +34,8 @@ from webtest import TestApp
 
 # Test environment variables
 os.environ['TEST_WEBUI'] = '1'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            'settings.cfg')
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 # To load application configuration used by the objects
 import alignak_webui.app
@@ -47,68 +47,56 @@ from alignak_webui.objects.backend import BackendConnection
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.datamanager import DataManager
 
-# loggerDm = getLogger('alignak_webui.application')
-# loggerDm.setLevel(WARNING)
-# loggerDm = getLogger('alignak_webui.utils.datatable')
-# loggerDm.setLevel(INFO)
-# loggerDm = getLogger('alignak_webui.objects.datamanager')
-# loggerDm.setLevel(WARNING)
-# loggerDm = getLogger('alignak_webui.objects.item')
-# loggerDm.setLevel(ERROR)
-# loggerDm = getLogger('alignak_webui.objects.backend')
-# loggerDm.setLevel(WARNING)
-
-pid = None
-backend_address = "http://127.0.0.1:5000/"
-
 items_count = 0
 
 
-def setup_module():
-    print("")
-    print("start alignak backend")
+def setup_module(module):
+    # Set test mode for applications backend
+    os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+    os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
-    global pid
-    global backend_address
+    # Delete used mongo DBs
+    exit_code = subprocess.call(
+        shlex.split('mongo %s --eval "db.dropDatabase()"'
+                    % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+    )
+    assert exit_code == 0
+    time.sleep(1)
 
-    if backend_address == "http://127.0.0.1:5000/":
-        # Set test mode for applications backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+    test_dir = os.path.dirname(os.path.realpath(__file__))
+    print("Current test directory: %s" % test_dir)
 
-        # Delete used mongo DBs
-        exit_code = subprocess.call(
-            shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
-        )
-        assert exit_code == 0
+    print("Starting Alignak backend...")
+    fnull = open(os.devnull, 'w')
+    subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    print("Started")
 
-        print("Starting Alignak backend...")
-        # No console output for the applications backend ...
-        fnull = open(os.devnull, 'w')
-        pid = subprocess.Popen(
-            shlex.split('uwsgi --plugin python -w alignakbackend:app --socket 0.0.0.0:5000 '
-                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid '
-                        '--logto /tmp/uwsgi.log'), stdout=fnull
-        )
-        time.sleep(1)
-
-        print("Feeding backend...")
-        q = subprocess.Popen(
-            shlex.split('alignak-backend-import --delete cfg/default/_main.cfg'), stdout=fnull
-        )
-        (stdoutdata, stderrdata) = q.communicate()  # now wait
-        assert exit_code == 0
+    print("Feeding Alignak backend...")
+    exit_code = subprocess.call(
+        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        stdout=fnull
+    )
+    assert exit_code == 0
+    print("Fed")
 
 
 def teardown_module(module):
-    subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+    print("Stopping Alignak backend...")
+    subprocess.call(['pkill', 'alignak-backend'])
+    print("Stopped")
     time.sleep(2)
 
-
+# ---
+# Generic tests for the data tables
+# ---
 class TestDataTable(unittest2.TestCase):
+
+    """Generic datatables tests
+
+    Those tests are done with the commands table. It was needed to use one :)
+    """
     def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
+        self.dmg = DataManager(backend_endpoint='http://127.0.0.1:5000')
         print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
@@ -121,27 +109,31 @@ class TestDataTable(unittest2.TestCase):
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
+        print("Response: %s" % redirected_response)
         redirected_response = redirected_response.follow()
+        print("Response2: %s" % redirected_response)
 
         self.items_count = 0
 
-    def test_01_get(self):
+    def test_get(self):
         """ Datatable - get table """
         print('test get table')
 
         print('get page /commands/table')
         response = self.app.get('/commands/table')
+        # Other fields exist but they are declared as hidden!
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
             '<th data-name="name" data-type="string">Command name</th>',
-            '<th data-name="_realm" data-type="objectid">Realm</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            # '<th data-name="_realm" data-type="objectid">Realm</th>',
+            # '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Command alias</th>',
             '<th data-name="notes" data-type="string">Notes</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
-            '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
+            '<th data-name="timeout" data-type="integer">Timeout</th>',
+            # '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
             '<th data-name="poller_tag" data-type="string">Poller tag</th>',
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>',
         )
@@ -161,16 +153,17 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['data'] != []
         for x in range(0, self.items_count):
             if x < BACKEND_PAGINATION_DEFAULT:
-                print(response.json['data'][x])
                 assert response.json['data'][x] is not None
                 assert response.json['data'][x]['name'] is not None
-                assert response.json['data'][x]['definition_order'] is not None
-                assert response.json['data'][x]['enable_environment_macros'] is not None
+                assert response.json['data'][x]['alias'] is not None
+                assert response.json['data'][x]['notes'] is not None
+                # assert response.json['data'][x]['definition_order'] is not None
+                # assert response.json['data'][x]['enable_environment_macros'] is not None
                 assert response.json['data'][x]['command_line'] is not None
                 assert response.json['data'][x]['timeout'] is not None
                 assert response.json['data'][x]['poller_tag'] is not None
                 assert response.json['data'][x]['reactionner_tag'] is not None
-                assert response.json['data'][x]['enable_environment_macros'] is not None
+                # assert response.json['data'][x]['enable_environment_macros'] is not None
 
         # Specify count number ...
         response = self.app.post('/commands/table_data', {
@@ -496,46 +489,44 @@ class TestDataTable(unittest2.TestCase):
         assert len(response.json['data']) == 5
 
 
-class TestDatatableCommands(unittest2.TestCase):
+# ---
+# then specific tests for each defined table
+# ---
+class TestDatatableBase(unittest2.TestCase):
     def setUp(self):
-        # Test application
         self.app = TestApp(webapp)
 
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
+        redirected_response.follow()
 
-    def test_01_commands(self):
+class TestDatatableCommands(TestDatatableBase):
+    def test_commands(self):
         """ Datatable - commands table """
         print('test commands table')
 
-        global items_count
-
         print('get page /commands/table')
         response = self.app.get('/commands')
-        # print(response)
+
         response = self.app.get('/commands/table')
-        # print(response)
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
             '<th data-name="name" data-type="string">Command name</th>',
-            '<th data-name="_realm" data-type="objectid">Realm</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            # '<th data-name="_realm" data-type="objectid">Realm</th>',
+            # '<th data-name="definition_order" data-type="integer">Definition order</th>',
             '<th data-name="alias" data-type="string">Command alias</th>',
             '<th data-name="notes" data-type="string">Notes</th>',
             '<th data-name="command_line" data-type="string">Command line</th>',
-            '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
+            # '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
             '<th data-name="poller_tag" data-type="string">Poller tag</th>',
             '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>',
         )
 
         print('change content with /commands/table_data')
         response = self.app.post('/commands/table_data')
-        response_value = response.json
-        # Temporary ...
         items_count = response.json['recordsTotal']
         # assert response.json['recordsTotal'] == items_count
         # assert response.json['recordsFiltered'] == items_count
@@ -545,39 +536,21 @@ class TestDatatableCommands(unittest2.TestCase):
             if x < BACKEND_PAGINATION_DEFAULT:
                 assert response.json['data'][x] is not None
                 assert response.json['data'][x]['name'] is not None
-                assert response.json['data'][x]['definition_order'] is not None
-                assert response.json['data'][x]['enable_environment_macros'] is not None
+                assert response.json['data'][x]['alias'] is not None
+                assert response.json['data'][x]['notes'] is not None
+                # assert response.json['data'][x]['definition_order'] is not None
+                # assert response.json['data'][x]['enable_environment_macros'] is not None
                 assert response.json['data'][x]['command_line'] is not None
                 assert response.json['data'][x]['timeout'] is not None
                 assert response.json['data'][x]['poller_tag'] is not None
                 assert response.json['data'][x]['reactionner_tag'] is not None
-                assert response.json['data'][x]['enable_environment_macros'] is not None
+                # assert response.json['data'][x]['enable_environment_macros'] is not None
 
 
-class TestDatatableRealms(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def test_01_realms(self):
+class TestDatatableRealms(TestDatatableBase):
+    def test_realms(self):
         """ Datatable - realms table """
         print('test realm table')
-
-        global items_count
 
         print('get page /realms/table')
         response = self.app.get('/realms/table')
@@ -618,30 +591,10 @@ class TestDatatableRealms(unittest2.TestCase):
                 assert response.json['data'][x]['alias'] is not None
 
 
-class TestDatatableHosts(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def test_02_hosts(self):
+class TestDatatableHosts(TestDatatableBase):
+    def test_hosts(self):
         """ Datatable - hosts table """
         print('test hosts table')
-
-        global items_count
 
         print('get page /hosts/table')
         response = self.app.get('/hosts/table')
@@ -664,7 +617,7 @@ class TestDatatableHosts(unittest2.TestCase):
 
         response = self.app.post('/hosts/table_data')
         response_value = response.json
-        print(response_value)
+
         # Temporary
         items_count = response.json['recordsTotal']
         print("Items count: %s" % items_count)
@@ -679,26 +632,8 @@ class TestDatatableHosts(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
 
 
-class TestDatatableHostgroups(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def test_01_hosts_groups(self):
+class TestDatatableHostgroups(TestDatatableBase):
+    def test_hosts_groups(self):
         """ Datatable - hosts groups table """
         print('test hostgroup table')
 
@@ -741,26 +676,50 @@ class TestDatatableHostgroups(unittest2.TestCase):
                 assert 'hostgroups' in response.json['data'][x] is not None
 
 
-class TestDatatableServices(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
+class TestDatatableHostdependencies(TestDatatableBase):
+    def test_hosts_dependencies(self):
+        """ Datatable - hosts dependencies table """
+        print('test hostdependency table')
 
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
+        global items_count
 
-        # Test application
-        self.app = TestApp(
-            webapp
+        print('get page /hostdependencys/table')
+        response = self.app.get('/hostdependencys/table')
+        response.mustcontain(
+            '<div id="hostdependencys_table" class="alignak_webui_table ">',
+            "$('#tbl_hostdependency').DataTable( {",
+            '<table id="tbl_hostdependency" ',
+            '<th data-name="name" data-type="string">Relation name</th>',
+            '<th data-name="alias" data-type="string">Relation alias</th>',
+            '<th data-name="hosts" data-type="list">Hosts</th>',
+            '<th data-name="hostgroups" data-type="list">Hosts groups</th>',
+            '<th data-name="dependent_hosts" data-type="list">Dependent hosts</th>',
+            '<th data-name="dependent_hostgroups" data-type="list">Dependent hosts groups</th>',
+            '<th data-name="inherits_parent" data-type="boolean">Inherits from parents</th>',
+            '<th data-name="dependency_period" data-type="objectid">Dependency period</th>',
+            '<th data-name="execution_failure_criteria" data-type="list">Execution failure criteria</th>',
+            '<th data-name="notification_failure_criteria" data-type="list">Notification failure criteria</th>'
         )
 
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
+        response = self.app.post('/hostdependencys/table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['alias'] is not None
 
-    def test_02_services(self):
+
+class TestDatatableServices(TestDatatableBase):
+    def test_services(self):
         """ Datatable - services table """
         print('test services table')
 
@@ -821,26 +780,8 @@ class TestDatatableServices(unittest2.TestCase):
                 assert response.json['data'][x]['name'] is not None
 
 
-class TestDatatableServicegroups(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def test_01_services_groups(self):
+class TestDatatableServicegroups(TestDatatableBase):
+    def test_services_groups(self):
         """ Datatable - services groups table """
         print('test servicegroup table')
 
@@ -883,26 +824,8 @@ class TestDatatableServicegroups(unittest2.TestCase):
                 assert 'servicegroups' in response.json['data'][x] is not None
 
 
-class TestDatatableUsers(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def test_03_users(self):
+class TestDatatableUsers(TestDatatableBase):
+    def test_users(self):
         """ Datatable - users table """
         print('test users table')
 
@@ -935,25 +858,7 @@ class TestDatatableUsers(unittest2.TestCase):
                 assert response.json['data'][x]['name']
 
 
-class TestDatatableUsergroups(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
+class TestDatatableUsergroups(TestDatatableBase):
     def test_usergroups(self):
         """ Datatable - users groups table """
         print('test usergroup table')
@@ -997,25 +902,7 @@ class TestDatatableUsergroups(unittest2.TestCase):
                 assert 'usergroups' in response.json['data'][x] is not None
 
 
-class TestDatatableTimeperiods(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
+class TestDatatableTimeperiods(TestDatatableBase):
     def test_timeperiod(self):
         """ Datatable - timeperiods table """
         print('test timeperiod table')
@@ -1054,25 +941,7 @@ class TestDatatableTimeperiods(unittest2.TestCase):
                 assert response.json['data'][x]['is_active'] is not None
 
 
-class TestDatatableUserRestrictRoles(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
+class TestDatatableUserRestrictRoles(TestDatatableBase):
     def test_userrestrictrole(self):
         """ Datatable - users restrictions table """
         print('test userrestrictrole table')
@@ -1114,26 +983,8 @@ class TestDatatableUserRestrictRoles(unittest2.TestCase):
                 assert response.json['data'][x]['crud'] is not None
 
 
-class TestDatatableLogs(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
-    def test_05_logcheckresult(self):
+class TestDatatableLogs(TestDatatableBase):
+    def test_logcheckresult(self):
         """ Datatable - logs table """
         print('test logcheckresult table')
 
@@ -1175,25 +1026,7 @@ class TestDatatableLogs(unittest2.TestCase):
         # No data in the test backend
 
 
-class TestDatatableHistorys(unittest2.TestCase):
-    def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
-        print('Data manager', self.dmg)
-
-        # Initialize and load ... no reset
-        assert self.dmg.user_login('admin', 'admin')
-        result = self.dmg.load()
-
-        # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
-        redirected_response = response.follow()
-        redirected_response = redirected_response.follow()
-
+class TestDatatableHistorys(TestDatatableBase):
     def test_history(self):
         """ Datatable - history table """
         print('test history table')

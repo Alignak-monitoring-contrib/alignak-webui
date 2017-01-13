@@ -9,11 +9,12 @@
 
 from logging import getLogger
 
-from bottle import request, template, response
+from bottle import request, template
 
 from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
@@ -89,7 +90,7 @@ class PluginUsers(Plugin):
 
         super(PluginUsers, self).__init__(app, cfg_filenames)
 
-    def show_user_add(self):  # pragma: no cover - not yet implemented
+    def show_user_add(self):  # pylint:disable=no-self-use
         """
             Show form to add a user
         """

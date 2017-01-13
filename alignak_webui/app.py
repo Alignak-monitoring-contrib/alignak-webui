@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -58,7 +58,7 @@ Use cases:
 from __future__ import print_function
 
 import os
-import sys
+# import sys
 import traceback
 
 # Logs
@@ -75,34 +75,35 @@ from docopt import DocoptExit
 from alignak_webui.utils.settings import Settings
 
 # Application
-from alignak_webui import manifest, webapp
+from alignak_webui import __manifest__, webapp
 from alignak_webui import set_app_config, set_app_webui
 from alignak_webui import __name__ as __pkg_name__
 from alignak_webui.application import WebUI
 
 # --------------------------------------------------------------------------------------------------
 # Application logger
+# pylint: disable=invalid-name
 logger = getLogger(__pkg_name__)
 
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
     print("Application is in test mode")
 
-    # Code coverage for the application
-    try:
-        if os.environ.get('COVERAGE_PROCESS_START'):
-            print("***")
-            print("* Executing test with code coverage enabled")
-            if 'coverage' not in sys.modules:
-                print("* coverage module is not loaded! Trying to import coverage module...")
-                import coverage
-
-                coverage.process_startup()
-                print("* coverage process started.")
-            print("***")
-    except Exception as exp:  # pylint: disable=broad-except
-        print("Exception: %s", str(exp))
-        sys.exit(3)
+    # # Code coverage for the application
+    # try:
+    #     if os.environ.get('COVERAGE_PROCESS_START'):
+    #         print("***")
+    #         print("* Executing test with code coverage enabled")
+    #         if 'coverage' not in sys.modules:
+    #             print("* coverage module is not loaded! Trying to import coverage module...")
+    #             import coverage
+    #
+    #             coverage.process_startup()
+    #             print("* coverage process started.")
+    #         print("***")
+    # except Exception as exp:
+    #     print("Exception: %s", str(exp))
+    #     sys.exit(3)
 else:  # pragma: no cover - tests are run in test mode...
     print("Application is in production mode")
 
@@ -113,7 +114,7 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
 
 # Read configuration file (let cfg_file as None to get from several dirs)
 app_config = Settings(cfg_file)
-config_file = app_config.read(manifest['name'])
+config_file = app_config.read(__manifest__['name'])
 print("Configuration read from: %s" % config_file)
 if not app_config:  # pragma: no cover, should never happen
     print("Required configuration file not found.")
@@ -129,7 +130,7 @@ if not app_config.get('logs.dir', None):
     app_config['logs.dir'] = log_dir
 
 # Store application name in the configuration
-app_config['name'] = manifest['name']
+app_config['name'] = __manifest__['name']
 
 # Debug mode for the application (run Bottle in debug mode)
 app_config['debug'] = (app_config.get('debug', '0') == '1')
@@ -163,7 +164,7 @@ def main():  # pragma: no cover, not mesured by coverage!
     }
 
     try:
-        args = docopt(__doc__, version=manifest['version'])
+        args = docopt(__doc__, version=__manifest__['version'])
     except DocoptExit:
         print("Command line parsing error")
         exit(64)
@@ -180,14 +181,14 @@ def main():  # pragma: no cover, not mesured by coverage!
 
         # Read configuration file
         app_config = Settings(cfg_file)
-        read_config_file = app_config.read(manifest['name'])
+        read_config_file = app_config.read(__manifest__['name'])
         print("CLI - Configuration read from: %s" % read_config_file)
         if not app_config:  # pragma: no cover, should never happen
             print("Required configuration file not found.")
             exit(1)
 
     # Store application name in the configuration
-    app_config['name'] = manifest['name']
+    app_config['name'] = __manifest__['name']
 
     if '--debug' in args and args['--debug']:
         app_config['debug'] = '1'

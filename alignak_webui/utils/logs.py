@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -62,10 +62,11 @@ def set_console_logger(logger):
     if stdout.isatty():  # pragma: no cover - not testable
         # logger = getLogger(__pkg_name__)
 
-        ch = ColorStreamHandler(stdout)
-        ch.setFormatter(Formatter('%(asctime)s - %(name)-12s - %(levelname)s - %(message)s'))
-        ch.setLevel(DEBUG)
-        logger.addHandler(ch)
+        console_handler = ColorStreamHandler(stdout)
+        console_handler.setFormatter(
+            Formatter('%(asctime)s - %(name)-12s - %(levelname)s - %(message)s'))
+        console_handler.setLevel(DEBUG)
+        logger.addHandler(console_handler)
 
 
 # Yes, but we need it
@@ -88,13 +89,14 @@ def set_file_logger(logger, path='/var/log', filename='application.log',
         path = '.'
 
     # Store logs in a daily file, keeping 6 days along ...
-    fh = TimedRotatingFileHandler(
+    file_handler = TimedRotatingFileHandler(
         filename=os.path.join(path, filename),
         when=when, interval=interval,
         backupCount=backup_count
     )
 
     # create formatter and add it to the handler
-    fh.setFormatter(Formatter('[%(asctime)s] - %(name)-12s - %(levelname)s - %(message)s'))
-    fh.setLevel(DEBUG)
-    logger.addHandler(fh)
+    file_handler.setFormatter(
+        Formatter('[%(asctime)s] - %(name)-12s - %(levelname)s - %(message)s'))
+    file_handler.setLevel(DEBUG)
+    logger.addHandler(file_handler)

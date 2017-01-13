@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -29,6 +29,7 @@ from logging import getLogger
 from bottle import request
 from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
@@ -52,7 +53,7 @@ class PluginLookup(Plugin):
 
         super(PluginLookup, self).__init__(app, cfg_filenames)
 
-    def lookup(self):
+    def lookup(self):  # pylint:disable=no-self-use
         """
         Search in the livestate for an element name
         """

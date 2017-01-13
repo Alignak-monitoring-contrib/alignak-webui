@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -31,6 +31,7 @@ from gettext import GNUTranslations, NullTranslations, gettext as _
 
 # Logs
 from logging import getLogger
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -44,16 +44,18 @@ from alignak_webui.utils.datatable import Datatable
 # Settings
 from alignak_webui.utils.settings import Settings
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
 class Plugin(object):
+
     """ WebUI base plugin """
 
     def __init__(self, app, cfg_filenames):
-        """
-        Create a new plugin:
-        """
+
+        """Create a new plugin:"""
+
         self.webui = app
         if not hasattr(self, 'name'):  # pragma: no cover - plugin should declare
             self.name = 'Unknown'
@@ -76,7 +78,7 @@ class Plugin(object):
         self.load_routes(bottle.app())
         logger.info("Plugin %s is installed and enabled.", self.name)
 
-    def send_user_message(self, message, status='ko'):
+    def send_user_message(self, message, status='ko'):  # pylint:disable=no-self-use
         """
         Send a user message:
         - store a message in the current session
@@ -322,6 +324,7 @@ class Plugin(object):
                         )
 
     def load_config(self, cfg_filenames=None, initialization=False):
+
         """
         Load plugin configuration
 
@@ -337,6 +340,7 @@ class Plugin(object):
         When the initialization parameter is set, the function returns True / False instead of a
         JSON formatted response.
         """
+
         if not cfg_filenames:
             cfg_filenames = self.plugin_filenames
         else:
@@ -362,10 +366,8 @@ class Plugin(object):
                 continue
             if len(p) < 3:
                 # Table global configuration [self.table]
-                logger.debug(
-                    "table global configuration: %s = %s",
-                    param, self.plugin_parameters[param]
-                )
+                logger.debug("table global configuration: %s = %s",
+                             param, self.plugin_parameters[param])
                 if '_table' not in self.table:
                     self.table['_table'] = {}
                 self.table['_table'][p[1]] = self.plugin_parameters[param]
@@ -375,9 +377,8 @@ class Plugin(object):
             if p[1] not in self.table:
                 self.table[p[1]] = {}
             self.table[p[1]][p[2]] = self.plugin_parameters[param]
-            logger.debug(
-                "table field configuration: %s = %s", param, self.plugin_parameters[param]
-            )
+            logger.debug("table field configuration: %s = %s",
+                         param, self.plugin_parameters[param])
 
         if initialization:
             return True

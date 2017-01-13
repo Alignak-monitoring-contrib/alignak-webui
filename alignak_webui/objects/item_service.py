@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -35,9 +35,9 @@ from alignak_webui.objects.element import BackendElement
 class Service(BackendElement):
     # Because there are many methods needed :)
     # pylint: disable=too-many-public-methods
-    """
-    Object representing a service
-    """
+
+    """Object representing a service"""
+
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -67,9 +67,9 @@ class Service(BackendElement):
     }
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a service (called only once when an object is newly created)
-        """
+
+        """Create a service (called only once when an object is newly created)"""
+
         self._linked__realm = 'realm'
         self._linked__templates = 'service'
         self._linked_host = 'host'
