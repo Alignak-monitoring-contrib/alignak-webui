@@ -20,8 +20,10 @@ __checks_type__ = u"demo"
 # Application manifest
 __application__ = u"Alignak-WebUI"
 
-__version__ = u"0.6.6"
-__short_version__ = u"0.6"
+VERSION = (0, 6, 7)
+__version__ = '.'.join((str(each) for each in VERSION[:4]))
+__short_version__ = '.'.join((str(each) for each in VERSION[:2]))
+
 __author__ = u"Frédéric Mohier"
 __author_email__ = u"frederic.mohier@alignak.net"
 __copyright__ = u"(c) 2015-2017 - %s" % __author__
