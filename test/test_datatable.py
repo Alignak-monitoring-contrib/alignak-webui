@@ -605,10 +605,10 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="name" data-type="string">Host name</th>',
             '<th data-name="ls_state" data-type="string">Status</th>',
             '<th data-name="overall_state" data-type="string">Overall status</th>',
+            '<th data-name="_is_template" data-type="boolean">Template</th>',
             '<th data-name="tags" data-type="list">Tags</th>',
             '<th data-name="alias" data-type="string">Host alias</th>',
             '<th data-name="address" data-type="string">Address</th>',
-            '<th data-name="check_command" data-type="objectid">Check command</th>',
             '<th data-name="check_period" data-type="objectid">Check period</th>',
             '<th data-name="active_checks_enabled" data-type="boolean">Active checks enabled</th>',
             '<th data-name="passive_checks_enabled" data-type="boolean">Passive checks enabled</th>',
@@ -634,7 +634,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_last_state" data-type="string">Last state</th>',
             '<th data-name="ls_last_state_type" data-type="string">Last state type</th>',
             '<th data-name="ls_latency" data-type="float">Latency</th>',
-            '<th data-name="ls_execution_time" data-type="float">Execution time</th>',
+            '<th data-name="ls_execution_time" data-type="float">Execution time</th>'
         )
 
         response = self.app.post('/hosts/table_data')
@@ -843,6 +843,54 @@ class TestDatatableServicegroups(TestDatatableBase):
                 assert '_level' in response.json['data'][x] is not None
                 assert '_parent' in response.json['data'][x] is not None
                 assert 'servicegroups' in response.json['data'][x] is not None
+
+
+class TestDatatableServicedependencies(TestDatatableBase):
+    def test_services_dependencies(self):
+        """ Datatable - services dependencies table """
+        print('test servicedependency table')
+
+        global items_count
+
+        print('get page /servicedependencys/table')
+        response = self.app.get('/servicedependencys/table')
+        response.mustcontain(
+            '<div id="servicedependencys_table" class="alignak_webui_table ">',
+            "$('#tbl_servicedependency').DataTable( {",
+            '<table id="tbl_servicedependency" ',
+            '<th data-name="name" data-type="string">Relation name</th>',
+            '<th data-name="_realm" data-type="objectid">Realm</th>',
+            '<th data-name="definition_order" data-type="integer">Definition order</th>',
+            '<th data-name="alias" data-type="string">Relation alias</th>',
+            '<th data-name="notes" data-type="string">Notes</th>',
+            '<th data-name="hosts" data-type="list">Hosts</th>',
+            '<th data-name="hostgroups" data-type="list">Hosts groups</th>',
+            '<th data-name="dependent_hosts" data-type="list">Dependent hosts</th>',
+            '<th data-name="dependent_hostgroups" data-type="list">Dependent hosts groups</th>',
+            '<th data-name="services" data-type="list">Services</th>',
+            '<th data-name="dependent_services" data-type="list">Dependent services</th>',
+            '<th data-name="inherits_parent" data-type="boolean">Inherits from parents</th>',
+            '<th data-name="dependency_period" data-type="objectid">Dependency period</th>',
+            '<th data-name="execution_failure_criteria" data-type="list">Execution failure criteria</th>',
+            '<th data-name="notification_failure_criteria" data-type="list">Notification failure criteria</th>'
+        )
+
+        response = self.app.post('/servicedependencys/table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
 
 
 class TestDatatableUsers(TestDatatableBase):
