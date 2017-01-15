@@ -20,23 +20,23 @@
       </div>
 
       <div class="form-group">
-        <label class="control-label" for="app_url">{{_('Alignak')}}</label>
+        <label class="control-label" for="alignak_url">{{_('Alignak')}}</label>
         <p>
-        <a id="app_url" href="http://alignak-monitoring.github.io/">http://alignak-monitoring.github.io/</a>
+        <a id="alignak_url" href="http://alignak-monitoring.github.io/" target="_blank">http://alignak-monitoring.github.io/</a>
         </p>
       </div>
 
       <div class="form-group">
         <label class="control-label" for="app_url">{{_('Home page')}}</label>
         <p>
-        <a id="app_url" href="{{request.app.config.get('about_url', __manifest__['doc'])}}">{{request.app.config.get('about_url', __manifest__['url'])}}</a>
+        <a id="app_url" href="{{request.app.config.get('about_url', __manifest__['url'])}}" target="_blank">{{request.app.config.get('about_url', __manifest__['url'])}}</a>
         </p>
       </div>
 
       <div class="form-group">
         <label class="control-label" for="app_doc">{{_('User documentation')}}</label>
         <p>
-        <a id="app_doc" href="">{{request.app.config.get('about_doc', __manifest__['doc'])}}</a>
+        <a id="app_doc" href="{{request.app.config.get('about_doc', __manifest__['doc'])}}" target="_blank">{{request.app.config.get('about_doc', __manifest__['doc'])}}</a>
         </p>
       </div>
 
