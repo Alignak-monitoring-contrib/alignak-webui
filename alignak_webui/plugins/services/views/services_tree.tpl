@@ -96,7 +96,6 @@
    var jsTreeData = [];
    %for item in tree_items:
       jsTreeData.push({{! json.dumps(item)}})
-      if (debugTree) console.log('Added: {{! json.dumps(item)}}');
    %end
 
    $(document).ready(function(){

@@ -20,6 +20,13 @@
       </div>
 
       <div class="form-group">
+        <label class="control-label" for="app_url">{{_('Alignak')}}</label>
+        <p>
+        <a id="app_url" href="http://alignak-monitoring.github.io/">http://alignak-monitoring.github.io/</a>
+        </p>
+      </div>
+
+      <div class="form-group">
         <label class="control-label" for="app_url">{{_('Home page')}}</label>
         <p>
         <a id="app_url" href="{{request.app.config.get('about_url', __manifest__['doc'])}}">{{request.app.config.get('about_url', __manifest__['url'])}}</a>
