@@ -333,7 +333,8 @@ class DataManager(object):
         # Get the live synthesis identifier for the user's realm
         # This will allow to request the user's specific realm LS for as the backend
         # to concatenate the sub realms live synthesis
-        self.my_ls = self.get_livesynthesis({'where': {'_realm': self.my_realm.id}})
+        self.my_ls = self.get_livesynthesis({'concatenation': '1',
+                                             'where': {'_realm': self.my_realm.id}})
         logger.info("user's concatenated live synthesis: %s", self.my_ls['_id'])
 
         # Get internal objects count
@@ -692,6 +693,7 @@ class DataManager(object):
     # Live synthesis
     ##
     def get_livesynthesis(self, search=None):
+
         """ Get live state synthesis for hosts and services
 
             Example backend response::
@@ -816,7 +818,8 @@ class DataManager(object):
             error = False
             while not found:
                 try:
-                    item = self.backend.get('livesynthesis/' + self.my_ls['_id'], params=None)
+                    item = self.backend.get('livesynthesis/' + self.my_ls['_id'] +
+                                            '?concatenation=1', params=None)
                     items = [item]
                     found = True
                 except BackendException as exp:  # pragma: no cover, simple protection
@@ -826,7 +829,7 @@ class DataManager(object):
                         self.load(reset=True)
         else:
             try:
-                logger.debug("get_livesynthesis, search: %s", search)
+                logger.warning("get_livesynthesis, search: %s", search)
                 items = self.find_object('livesynthesis', search)
             except ValueError:  # pragma: no cover - should not happen
                 logger.debug("get_livesynthesis, none found")
