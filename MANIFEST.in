@@ -3,5 +3,8 @@ include AUTHORS
 include LICENSE
 include requirements.txt
 include etc/settings.cfg
+include etc/uwsgi.ini
+include bin/alignak-webui-uwsgi
+include bin/rc.d/alignak-webui
 recursive-include alignak_webui *.*
 global-exclude *.pyc
