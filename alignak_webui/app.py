@@ -88,22 +88,6 @@ logger = getLogger(__pkg_name__)
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
     print("Application is in test mode")
-
-    # # Code coverage for the application
-    # try:
-    #     if os.environ.get('COVERAGE_PROCESS_START'):
-    #         print("***")
-    #         print("* Executing test with code coverage enabled")
-    #         if 'coverage' not in sys.modules:
-    #             print("* coverage module is not loaded! Trying to import coverage module...")
-    #             import coverage
-    #
-    #             coverage.process_startup()
-    #             print("* coverage process started.")
-    #         print("***")
-    # except Exception as exp:
-    #     print("Exception: %s", str(exp))
-    #     sys.exit(3)
 else:  # pragma: no cover - tests are run in test mode...
     print("Application is in production mode")
 
@@ -238,15 +222,6 @@ def main():  # pragma: no cover, not mesured by coverage!
         logger.info("stopping backend livestate thread...")
         exit(2)
 
-
-def main_old():
-    """
-    Main function - deprecated script name
-    """
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("alignak_webui is deprecated. Use the new 'alignak-webui' script.")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    exit(1)
 
 if __name__ == "__main__":  # pragma: no cover, not mesured by coverage!
     main()

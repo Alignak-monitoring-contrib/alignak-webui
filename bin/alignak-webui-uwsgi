@@ -1,0 +1,1 @@
+uwsgi --ini /usr/local/etc/alignak-webui/uwsgi.ini

@@ -103,8 +103,8 @@ def set_app_config(config):
     # Store logs in a daily file, keeping 6 days along ... as default!
     set_file_logger(
         logger,
-        path=app_config.get('logs.dir', '/var/log/'),
-        filename=app_config.get('logs.filename', __manifest__['name'].lower() + '.log'),
+        path=app_config.get('logs.dir', '/usr/local/var/log/'),
+        filename=app_config.get('logs.filename', 'alignak-%s.log' % __manifest__['name'].lower()),
         when=app_config.get('logs.when', 'D'),
         interval=int(app_config.get('logs.interval', '1')),
         backup_count=int(app_config.get('logs.backupCount', '6'))

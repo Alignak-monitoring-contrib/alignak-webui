@@ -79,7 +79,8 @@ setup(
     # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
 
     # Where to install distributed files
-    data_files=[('etc/alignak-webui', ['etc/settings.cfg'])],
+    data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini']),
+                ('bin', ['bin/alignak-webui-uwsgi'])],
 
     # Dependencies (if some) ...
     install_requires=[
@@ -88,14 +89,14 @@ setup(
         'pymongo>=3.2', 'requests>=2.9.1',
         'python-gettext', 'termcolor',
         'python-dateutil==2.4.2', 'pytz',
-        'alignak_backend_client'
+        'uwsgi',
+        'alignak-backend-client'
     ],
 
     # Entry points (if some) ...
     entry_points={
         'console_scripts': [
-            'alignak-webui = alignak_webui.app:main',
-            'alignak_webui = alignak_webui.app:main_old'
+            'alignak-webui = alignak_webui.app:main'
         ],
     }
 )
