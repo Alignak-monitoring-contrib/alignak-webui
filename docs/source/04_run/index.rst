@@ -7,14 +7,37 @@
 Run
 ===
 
+Production mode
+---------------
+
+The alignak WebUI installation script used when you install with pip:
+
+* creates a *alignak-webui-uwsgi* launch script located in */usr/local/bin*
+
+* stores the *uwsgi.ini* configuration file in */usr/local/etc/alignak-webui*
+
+Thanks to this, you can simply run:
+::
+
+    alignak-webui-uwsgi
+
+The Alignak webui logs its activity in two files that are located in */usr/local/var/log*:
+
+* *alignak-webui-access.log* contains all the API HTTP requests
+
+* *alignak-webui-error.log* contains the other messages: start, stop, activity log, ...
+
+.. warning:: If you do not have those files when the WebUI is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log* directory ;)
+
+
 Developer mode
 --------------
 
 To run in developper mode (single threaded Web server with few connections), you can start the application with::
 
-    alignak_webui
+    alignak-webui
 
-The default configuration parameter make the application start on your localhost, port 5001, so you can point your Web browser to::
+The default configuration parameter makes the application start on your localhost, port 5001, so you can point your Web browser to::
 
     http://localhost:5001/
 
@@ -28,22 +51,3 @@ All the command line options::
 
     ./app.py -h
 
-
-Production mode
----------------
-
-You can use many possibilities to start the application, but we suggest you use ``uwsgi``.
-
-With socket (+ nginx / apache as a front-end)::
-
-   uwsgi --wsgi-file alignak_webui.py --callable app -s /tmp/uwsgi.sock --enable-threads
-
-With direct HTTP connexion::
-
-   uwsgi --wsgi-file alignak_webui.py --callable app --socket 0.0.0.0:8090 --protocol=http --enable-threads
-
-Alignak WebUI runs on port 8090 like specified in arguments, so you can point your Web browser to::
-
-    http://server-ip-address:8090
-
-**Note**: As you may have guessed, the application installed a file called ``alignak_webui.py`` that imports the callable Python object named app.
