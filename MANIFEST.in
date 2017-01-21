@@ -8,3 +8,4 @@ include bin/alignak-webui-uwsgi
 include bin/rc.d/alignak-webui
 recursive-include alignak_webui *.*
 global-exclude *.pyc
+global-exclude *.log
