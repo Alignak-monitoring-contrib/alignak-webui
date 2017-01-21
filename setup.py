@@ -85,7 +85,7 @@ setup(
     # Dependencies (if some) ...
     install_requires=[
         'future', 'configparser', 'docopt',
-        'bottle>=0.12.9,<0.13', 'Beaker==1.8.0', 'CherryPy',
+        'bottle>=0.12.9,<0.13', 'Beaker==1.8.0', 'CherryPy<9.0.0',
         'pymongo>=3.2', 'requests>=2.9.1',
         'python-gettext', 'termcolor',
         'python-dateutil==2.4.2', 'pytz',
