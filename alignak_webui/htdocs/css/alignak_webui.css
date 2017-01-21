@@ -59,7 +59,7 @@ header {
 }
 
 /*
- * Header - company logo
+ * Header - app logo
  */
 .navbar-brand {
     float: left;
@@ -68,8 +68,8 @@ header {
 .navbar-brand img {
     height: 100%;
     padding: 3px;
-    background-color: rgba(255,255,255,0.8);
-    border-radius: 5px;
+    background-color: transparent;
+    border-radius: 0;
 }
 
 /*

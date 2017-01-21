@@ -50,7 +50,7 @@
                   <h2>{{request.app.config.get('about_name', __manifest__['name'])}}</h2>
                   <h3><small>{{_('Version ')}}{{request.app.config.get('about_version', __manifest__['version'])}}</small></h3>
                   <center>
-                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 90%"/>
+                     <img src="{{app_logo}}" alt="{{_('Alignak WebUI Logo')}}" style="width: 90%"/>
                   </center>
                </div>
                <div class="panel-body">

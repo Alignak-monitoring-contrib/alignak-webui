@@ -108,7 +108,7 @@ div.user-header > img {
   border-color: transparent;
   border-color: rgba(255, 255, 255, 0.2);
 }
-div.user-header > img.company-logo {
+div.user-header > img.app-logo {
   float: left;
   height: 80px;
   width: 80px;

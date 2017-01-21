@@ -512,8 +512,8 @@ def user_login():
             'login_text': request.app.config.get(
                 'login_text', _('Welcome!<br> Log-in to use the application')
             ),
-            'company_logo': request.app.config.get(
-                'company_logo', '/static/images/default_company.png'
+            'app_logo': request.app.config.get(
+                'app_logo', '/static/images/alignak_white_logo.png'
             ),
             'message': message
         }
