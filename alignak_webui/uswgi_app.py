@@ -18,5 +18,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
+"""
+This file is imported by the alignak-webui-uwsgi script to load and start Web UI application
+"""
+# pylint: disable=unused-import
 import app
-from . import webapp as app
+from alignak_webui.app import webapp as app
