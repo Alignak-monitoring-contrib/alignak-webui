@@ -50,6 +50,7 @@ logger = getLogger(__name__)
 # --------------------------------------------------------------------------------------------------
 @hook('before_request')
 def before_request():
+    # pylint: disable=unsupported-membership-test, unsubscriptable-object
     """
     Function called since an HTTP request is received, and before any other function.
 
@@ -74,14 +75,14 @@ def before_request():
     if 'Authorization' in request.headers and request.headers['Authorization']:
         # Get HTTP authentication
         authentication = request.headers.get('Authorization')
-        username, password = parse_auth(authentication)
+        username, _ = parse_auth(authentication)
         logger.warning("Authorization header: %s", username)
 
         if not user_authentication(username, None):
             # Redirect to application login page
             logger.warning(
                 "The provided credentials (%s) are not authenticated."
-                " Redirecting to the login page..." % (username)
+                " Redirecting to the login page...", username
             )
             redirect('/login')
 

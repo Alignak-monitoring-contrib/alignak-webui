@@ -139,8 +139,9 @@ class TestStaticFiles(unittest2.TestCase):
         # response = self.app.get('/opensearch.xml')
 
         print('get logo')
-        response = self.app.get('/static/images/default_company.png')
-        response = self.app.get('/static/imeages/other_company.png', status=404)
+        response = self.app.get('/static/images/alignak_blue_logo.png')
+        response = self.app.get('/static/images/alignak_white_logo.png')
+        response = self.app.get('/static/images/other_company.png', status=404)
 
         print('get users pictures')
         response = self.app.get('/static/images/user_default.png')
