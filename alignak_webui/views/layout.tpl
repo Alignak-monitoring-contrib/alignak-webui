@@ -116,6 +116,18 @@
                         <strong>Request</strong>:
                         <div class="panel panel-default">
                            <div class="panel-heading">
+                              <a data-toggle="collapse" href="#panel4">request['headers']:</a>
+                           </div>
+                           <div id="panel4" class="panel-collapse collapse">
+                              <ul class="list-group">
+                                 %for k in request.headers:
+                                    <li class="list-group-item"><small>{{k}} - {{request.headers[k]}}</small></li>
+                                 %end
+                              </ul>
+                           </div>
+                        </div>
+                        <div class="panel panel-default">
+                           <div class="panel-heading">
                               <a data-toggle="collapse" href="#panel2">request['environ']:</a>
                            </div>
                            <div id="panel2" class="panel-collapse collapse">

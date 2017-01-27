@@ -54,8 +54,15 @@ class Host(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'unreachable', 'down'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
     ]
+    # overall_state_to_title = [
+    #     _('Host is up and all its services are ok or acknowledged'),
+    #     _('Host or some of its services are problems but acknowledged'),
+    #     _('Host or some of its services are in a downtime period'),
+    #     _('Host or some of its services are warning or state are unknown'),
+    #     _('Host or some of its services are critical')
+    # ]
 
     # Converting short state character to text status (used for initial_state and freshness_state)
     short_state_to_status = {
@@ -308,8 +315,8 @@ class Host(BackendElement):
 
     @property
     def overall_state(self):
-        """
-        Compute the host overall state identifier, including:
+
+        """The host overall state is computed by the alignak backend, including:
         - the acknowledged state
         - the downtime state
 
@@ -319,34 +326,42 @@ class Host(BackendElement):
         - an host downtimed (2)
         - an host acknowledged (1)
         - an host up (0)
-        """
-        # self._overall_state = 0
-        #
-        # if self.acknowledged:
-        #     self._overall_state = 1
-        # elif self.downtime:
-        #     self._overall_state = 2
-        # else:
-        #     if self.state == 'UNREACHABLE':
-        #         self._overall_state = 3
-        #     elif self.state == 'DOWN':
-        #         self._overall_state = 4
-        #
-        # return self._overall_state
-        #
-        return self._overall_state_id
 
-    @overall_state.setter
-    def overall_state(self, overall_state):
+        If the host overall state is <= 2, then the host overall state is the maximum value
+        of the host overall state and all the host services overall states.
+
+        The overall state of an host is:
+        - 0 if the host is UP and all its services are OK
+        - 1 if the host is DOWN or UNREACHABLE and acknowledged or
+            at least one of its services is acknowledged and
+            no other services are WARNING or CRITICAL
+        - 2 if the host is DOWN or UNREACHABLE and in a scheduled downtime or
+            at least one of its services is in a scheduled downtime and no
+            other services are WARNING or CRITICAL
+        - 3 if the host is UNREACHABLE or
+            at least one of its services is WARNING
+        - 4 if the host is DOWN or
+            at least one of its services is CRITICAL
+
         """
-        Set Item object overall_state
-        """
-        self._overall_state_id = overall_state
+        return self._overall_state_id
+    #
+    # @overall_state.setter
+    # def overall_state(self, overall_state):
+    #     """
+    #     Set Item object overall_state
+    #     """
+    #     self._overall_state_id = overall_state
 
     @property
     def overall_status(self):
         """Return real status string from the real state identifier"""
         return self.overall_state_to_status[self.overall_state]
+    #
+    # @property
+    # def overall_status_text(self):
+    #     """Return real status title from the real state identifier"""
+    #     return self.overall_state_to_title[self.overall_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

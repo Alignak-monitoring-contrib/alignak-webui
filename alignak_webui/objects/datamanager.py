@@ -1024,8 +1024,7 @@ class DataManager(object):
             if isinstance(member, basestring):
                 continue
 
-            (host_overall_state, dummy) = self.get_host_overall_state(member)
-            overall_state = max(overall_state, host_overall_state)
+            overall_state = max(overall_state, member.overall_state)
 
         # Hosts group real state from group members
         group_members = self.get_hostgroups(
@@ -1153,21 +1152,6 @@ class DataManager(object):
             host = search
 
         return (host.overall_state, host.overall_status)
-        # overall_state = host.overall_state
-        # if overall_state > 2:
-        #     overall_status = Host.overall_state_to_status[overall_state]
-        #     return (overall_state, overall_status)
-        #
-        # # Get host services
-        # services = self.get_services(
-        #     search={'where': {'host': host.id}}, all_elements=True
-        # )
-        #
-        # for service in services:
-        #     overall_state = max(overall_state, service.overall_state)
-        #
-        # overall_status = Host.overall_state_to_status[overall_state]
-        # return (overall_state, overall_status)
 
     def get_host_services_hierarchy(self, search):
         """ Get a host real state (including services states).
@@ -1778,8 +1762,7 @@ class DataManager(object):
         # Realm real state from hosts
         hosts = self.get_realm_members(realm)
         for member in hosts:
-            (host_overall_state, dummy) = self.get_host_overall_state(member)
-            overall_state = max(overall_state, host_overall_state)
+            overall_state = max(overall_state, member.overall_state)
 
         # Realm real state from sub-realms
         subs = self.get_realm_children(realm)

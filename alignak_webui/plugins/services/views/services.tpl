@@ -71,7 +71,7 @@
                      %extra += _(' and in scheduled downtime')
                      %end
                      %title = "%s - %s (%s)" % (service.state, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
-                     {{service.overall_status}} - {{! service.get_html_state(text=None, title=title, extra=extra, use_status=service.overall_status)}}
+                     {{! service.get_html_state(text=None, title=title, extra=extra, use_status=service.overall_status)}}
                   </td>
 
                   %if not in_host_view:

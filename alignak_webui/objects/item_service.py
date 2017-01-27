@@ -51,8 +51,15 @@ class Service(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'unknown', 'unreachable'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'  #, 'unknown', 'unreachable'
     ]
+    # overall_state_to_title = [
+    #     _('Service is ok'),
+    #     _('Service has a problem but is acknowledged'),
+    #     _('Service is in a downtime period'),
+    #     _('Service is warning or state is unknown'),
+    #     _('Service is critical')
+    # ]
 
     # Converting short state character to text status (used for initial_state and freshness_state)
     short_state_to_status = {
@@ -317,8 +324,8 @@ class Service(BackendElement):
 
     @property
     def overall_state(self):
-        """
-        Compute the service overall state identifier, including:
+
+        """The service overall state is computed by the alignak backend, including:
         - the acknowledged state
         - the downtime state
 
@@ -332,33 +339,21 @@ class Service(BackendElement):
         *Note* that services in unknown state are considered as warning, and unreachable ones
         are considered as critical!
         """
-        # overall_state = 0
-        #
-        # if self.acknowledged:
-        #     overall_state = 1
-        # elif self.downtime:
-        #     overall_state = 2
-        # else:
-        #     if self.state == 'WARNING':
-        #         overall_state = 3
-        #     elif self.state == 'CRITICAL':
-        #         overall_state = 4
-        #     elif self.state == 'UNKNOWN':
-        #         overall_state = 3
-        #     elif self.state == 'UNREACHABLE':
-        #         overall_state = 4
-        #
-        # return overall_state
         return self._overall_state_id
 
-    @overall_state.setter
-    def overall_state(self, overall_state):
-        """
-        Set Item object overall_state
-        """
-        self._overall_state = overall_state
+    # @overall_state.setter
+    # def overall_state(self, overall_state):
+    #     """
+    #     Set Item object overall_state
+    #     """
+    #     self._overall_state = overall_state
 
     @property
     def overall_status(self):
         """Return real status string from the real state identifier"""
         return self.overall_state_to_status[self.overall_state]
+    #
+    # @property
+    # def overall_status_test(self):
+    #     """Return real status title from the real state identifier"""
+    #     return self.overall_state_to_title[self.overall_state]
