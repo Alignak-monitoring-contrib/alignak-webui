@@ -454,10 +454,10 @@
             headerOffset: $('#topbar').outerHeight()
          },
          /* Fixed leftmost column and scrolling mode: #74
-         "scrollX": true,*/
+         "scrollX": true,
          "fixedColumns": {
             leftColumns: 1
-         },
+         },*/
 
          // Server side processing: request new data
          "processing": true,
