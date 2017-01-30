@@ -13,6 +13,7 @@ coveralls
 pylint
 pep8
 pep257
+# uWSGI server
 uwsgi
 # alignak (most recent develop)
 -e git+git://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
