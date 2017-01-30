@@ -168,7 +168,7 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/acknowledge/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Acknowledge sent for webui. Check request sent for webui. "
+                         "Acknowledge sent for webui. "
 
         # Acknowledge a service
         service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -184,8 +184,7 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/acknowledge/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Acknowledge sent for webui/Shinken2-arbiter. " \
-                         "Check request sent for webui/Shinken2-arbiter. "
+                         "Acknowledge sent for webui/Shinken2-arbiter. "
 
         # Acknowledge several services
         service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -203,9 +202,7 @@ class tests_actions(unittest2.TestCase):
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
                          "Acknowledge sent for webui/Shinken2-arbiter. " \
-                         "Check request sent for webui/Shinken2-arbiter. " \
                          "Acknowledge sent for webui/Shinken2-reactionner. " \
-                         "Check request sent for webui/Shinken2-reactionner. "
 
         # Acknowledge several services
         service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -223,9 +220,7 @@ class tests_actions(unittest2.TestCase):
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
                          "Acknowledge sent for webui/Shinken2-arbiter. " \
-                         "Check request sent for webui/Shinken2-arbiter. " \
                          "Acknowledge sent for webui/Shinken2-reactionner. " \
-                         "Check request sent for webui/Shinken2-reactionner. " \
                          "service element test does not exist. "
 
     def test_downtime(self):
@@ -286,7 +281,7 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Downtime sent for webui. Check request sent for webui. "
+                         "Downtime sent for webui. "
 
         # downtime a service
         service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -303,8 +298,7 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Downtime sent for webui/Shinken2-arbiter. " \
-                         "Check request sent for webui/Shinken2-arbiter. "
+                         "Downtime sent for webui/Shinken2-arbiter. "
 
         # downtime several services
         service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
@@ -323,9 +317,7 @@ class tests_actions(unittest2.TestCase):
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
                          "Downtime sent for webui/Shinken2-arbiter. " \
-                         "Check request sent for webui/Shinken2-arbiter. " \
                          "Downtime sent for webui/Shinken2-reactionner. " \
-                         "Check request sent for webui/Shinken2-reactionner. " \
                          "service element test does not exist. "
 
     def test_recheck(self):

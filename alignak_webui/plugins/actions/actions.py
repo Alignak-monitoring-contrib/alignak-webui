@@ -23,7 +23,6 @@
     Plugin actions
 """
 
-import time
 from logging import getLogger
 
 from bottle import request
