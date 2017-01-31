@@ -83,7 +83,7 @@ def setup_module(module):
 
     print("Starting Alignak backend...")
     fnull = open(os.devnull, 'w')
-    subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    subprocess.Popen(shlex.split('alignak-backend'))
     print("Started")
 
     print("Feeding Alignak backend...")
