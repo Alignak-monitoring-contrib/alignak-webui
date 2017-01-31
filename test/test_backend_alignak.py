@@ -214,4 +214,4 @@ class TestGet(unittest2.TestCase):
         print("%s services: " % len(result))
         for service in result:
             print(" - %s" % service['name'])
-        assert len(result) == 94
+        assert len(result) == 76
