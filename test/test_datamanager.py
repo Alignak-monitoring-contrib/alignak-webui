@@ -84,8 +84,9 @@ def setup_module(module):
     print("Starting Alignak backend...")
     fnull = open(os.devnull, 'w')
     global backend_process
-    backend_process = subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
-    print("Started")
+    # backend_process = subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    backend_process = subprocess.Popen(shlex.split('alignak-backend'))
+    print("Started: %s" % backend_process.pid)
 
     print("Feeding Alignak backend...")
     exit_code = subprocess.call(
