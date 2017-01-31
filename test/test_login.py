@@ -49,6 +49,7 @@ from bottle import BaseTemplate, TEMPLATE_PATH
 
 from webtest import TestApp
 
+backend_process =  None
 
 def setup_module(module):
     # Set test mode for applications backend
@@ -68,7 +69,8 @@ def setup_module(module):
 
     print("Starting Alignak backend...")
     fnull = open(os.devnull, 'w')
-    subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    global backend_process
+    backend_process = subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
     print("Started")
 
     print("Feeding Alignak backend...")
@@ -82,7 +84,9 @@ def setup_module(module):
 
 def teardown_module(module):
     print("Stopping Alignak backend...")
-    subprocess.call(['pkill', 'alignak-backend'])
+    global backend_process
+    backend_process.kill()
+    # subprocess.call(['pkill', 'alignak-backend'])
     print("Stopped")
     time.sleep(2)
 

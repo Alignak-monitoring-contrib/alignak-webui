@@ -33,7 +33,7 @@ from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGI
 
 from alignak_webui.objects.backend import BackendConnection
 
-pid = None
+backend_process = None
 backend_address = "http://127.0.0.1:5000/"
 
 
@@ -54,8 +54,9 @@ def setup_module(module):
     print("Current test directory: %s" % test_dir)
 
     print("Starting Alignak backend...")
+    global backend_process
     fnull = open(os.devnull, 'w')
-    subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    backend_process = subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
     print("Started")
 
     print("Feeding Alignak backend...")
@@ -69,7 +70,9 @@ def setup_module(module):
 
 def teardown_module(module):
     print("Stopping Alignak backend...")
-    subprocess.call(['pkill', 'alignak-backend'])
+    global backend_process
+    backend_process.kill()
+    # subprocess.call(['pkill', 'alignak-backend'])
     print("Stopped")
     time.sleep(2)
 
