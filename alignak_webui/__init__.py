@@ -104,13 +104,16 @@ def set_app_config(config):
     set_file_logger(
         logger,
         path=app_config.get('logs.dir', '/usr/local/var/log/'),
-        filename=app_config.get('logs.filename', 'alignak-%s.log' % __manifest__['name'].lower()),
+        filename=app_config.get('logs.filename', '%s.log' % __manifest__['name'].lower()),
         when=app_config.get('logs.when', 'D'),
         interval=int(app_config.get('logs.interval', '1')),
         backup_count=int(app_config.get('logs.backupCount', '6'))
     )
 
     # Set application log level (default is INFO (20))
+    print("Logging to file: %s/%s" % (app_config.get('logs.dir', '/usr/local/var/log/'),
+                                      app_config.get('logs.filename',
+                                                     '%s.log' % __manifest__['name'].lower())))
     print("Activate logs level: %d" % int(app_config.get('logs.level', '20')))
     logger.setLevel(int(app_config.get('logs.level', '20')))
     if app_config.get('debug', '0') == '1':  # pragma: no cover - not testable easily...
