@@ -25,9 +25,8 @@
          %for host in elements:
          <tr id="{{host.id}}">
             <td title="{{host.alias}}">
-            %(host_state, host_status) = datamgr.get_host_overall_state(host)
-            %label = "%s - %s (%s)" % (host_status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
-            {{! host.get_html_state(text=None, use_status=host_status, title=label)}}
+            %label = "%s - %s (%s)" % (host.overall_status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
+            {{! host.get_html_state(text=None, use_status=host.overall_status, title=label)}}
             </td>
 
             %if not embedded:

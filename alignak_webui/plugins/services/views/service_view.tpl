@@ -7,10 +7,11 @@
 %setdefault('credentials', None)
 
 <div id="service_view_information" class="col-lg-4 col-sm-4 text-center">
-   %(service_state, service_status) = datamgr.get_service_overall_state(service)
-   {{! service.get_html_state(text=None, size="fa-5x", use_status=service_status)}}
+   {{! service.get_html_state(text=None, size="fa-5x", use_status=service.overall_status)}}
 
-   {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+   %if current_user.is_power():
+      {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+   %end
    <div>
       <strong>{{service.alias}}</strong>
    </div>

@@ -243,9 +243,6 @@ class PluginHosts(Plugin):
         # Aggregate host services in a tree
         tree_items = datamgr.get_services_aggregated(services)
 
-        # Update host overall state
-        datamgr.get_host_overall_state(host)
-
         # Get host dependencies
         children = datamgr.get_hostdependencys(
             search={'where': {'hosts': host.id}}

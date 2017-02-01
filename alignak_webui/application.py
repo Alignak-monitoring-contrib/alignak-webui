@@ -71,21 +71,6 @@ def before_request():
     if request.urlparts.path.startswith('/external'):
         return
 
-    # Authenticate external access...
-    if 'Authorization' in request.headers and request.headers['Authorization']:
-        # Get HTTP authentication
-        authentication = request.headers.get('Authorization')
-        username, _ = parse_auth(authentication)
-        logger.warning("Authorization header: %s", username)
-
-        if not user_authentication(username, None):
-            # Redirect to application login page
-            logger.warning(
-                "The provided credentials (%s) are not authenticated."
-                " Redirecting to the login page...", username
-            )
-            redirect('/login')
-
     # Get the server session (if it exists ...)
     session = request.environ['beaker.session']
 
@@ -110,6 +95,23 @@ def before_request():
         return
 
     logger.debug("before_request, url: %s", request.urlparts.path)
+
+    # # Authenticate external access...
+    # logger.debug("Authorization header: %s", request.headers.__dict__)
+    # if 'Authorization' in request.headers and request.headers['Authorization']:
+    #     # Get HTTP authentication
+    #     authentication = request.headers.get('Authorization')
+    #     username, _ = parse_auth(authentication)
+    #     logger.debug("Authorization header: %s", username)
+    #
+    #     if not user_authentication(username, None):
+    #         # Redirect to application login page
+    #         logger.warning(
+    #             "The provided credentials (%s) are not authenticated."
+    #             " Redirecting to the login page...", username
+    #         )
+    #         redirect('/login')
+    #
 
     # Session authentication ...
     if 'current_user' not in session:

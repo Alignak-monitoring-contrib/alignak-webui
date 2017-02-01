@@ -15,8 +15,7 @@
 
 <div id="host_view_left" class="col-lg-4 col-sm-4 text-center">
    <div>
-      %(host_state, host_status) = datamgr.get_host_overall_state(host)
-      {{! host.get_html_state(text=None, size="fa-5x", use_status=host_status)}}
+      {{! host.get_html_state(text=None, size="fa-4x", use_status=host.overall_status)}}
       <legend><strong>{{host.alias}}</strong></legend>
       %if current_user.is_power():
          {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
@@ -24,14 +23,7 @@
    </div>
    %if host_state != 0:
    <div>
-      %extra=''
-      %if host.acknowledged:
-      %extra += _(' and acknowledged')
-      %end
-      %if host.downtime:
-      %extra += _(' and in scheduled downtime')
-      %end
-      {{! host.get_html_state(text=None, size="fa-3x", extra=extra)}}
+      {{! host.get_html_state(text=None, size="fa-3x")}}
       <p>{{_('Host real state, excluding services')}}</p>
    </div>
    %end
@@ -62,10 +54,8 @@
                   <small>{{! service.get_html_link()}}</small>
                </td>
 
-            </tr>
-            <tr class="host-service-commands">
                %if current_user.is_power():
-               <td colspan="2" style="align: right; width: 100%">
+               <td>
                   {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
                </td>
                %end
