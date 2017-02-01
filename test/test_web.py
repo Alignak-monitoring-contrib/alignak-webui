@@ -598,8 +598,7 @@ class TestServices(unittest2.TestCase):
         print('get page /services')
         response = self.app.get('/services')
         response.mustcontain(
-            '<div id="services">',
-            '25 elements out of 94',
+            '<div id="services">'
         )
         response = self.app.get('/services/config')
         response = self.app.get('/services/list')
