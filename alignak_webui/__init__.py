@@ -101,19 +101,36 @@ def set_app_config(config):
     set_console_logger(logger)
 
     # Store logs in a daily file, keeping 6 days along ... as default!
-    set_file_logger(
-        logger,
-        path=app_config.get('logs.dir', '/usr/local/var/log/'),
-        filename=app_config.get('logs.filename', '%s.log' % __manifest__['name'].lower()),
-        when=app_config.get('logs.when', 'D'),
-        interval=int(app_config.get('logs.interval', '1')),
-        backup_count=int(app_config.get('logs.backupCount', '6'))
-    )
+    log_file = os.path.join(app_config.get('logs.dir', '/usr/local/var/log/'),
+                            app_config.get('logs.filename', '%s.log'
+                                           % __manifest__['name'].lower()))
+    print("Configured log file: %s" % log_file)
+    try:
+        set_file_logger(
+            logger,
+            path=app_config.get('logs.dir', '/usr/local/var/log/'),
+            filename=app_config.get('logs.filename', '%s.log' % __manifest__['name'].lower()),
+            when=app_config.get('logs.when', 'D'),
+            interval=int(app_config.get('logs.interval', '1')),
+            backup_count=int(app_config.get('logs.backupCount', '6'))
+        )
+    except IOError:
+        print("Configured log file is not available")
+        set_file_logger(
+            logger,
+            path='/tmp',
+            filename=app_config.get('logs.filename', '%s.log' % __manifest__['name'].lower()),
+            when=app_config.get('logs.when', 'D'),
+            interval=int(app_config.get('logs.interval', '1')),
+            backup_count=int(app_config.get('logs.backupCount', '6'))
+        )
+        log_file = os.path.join('/tmp', app_config.get('logs.filename', '%s.log' %
+                                                       __manifest__['name'].lower()))
+    except Exception as e:  # pragma: no cover - should not happen
+        print("Log file creation error. Exception: %s" % str(e))
+    print("Logging to file: %s" % log_file)
 
     # Set application log level (default is INFO (20))
-    print("Logging to file: %s/%s" % (app_config.get('logs.dir', '/usr/local/var/log/'),
-                                      app_config.get('logs.filename',
-                                                     '%s.log' % __manifest__['name'].lower())))
     print("Activate logs level: %d" % int(app_config.get('logs.level', '20')))
     logger.setLevel(int(app_config.get('logs.level', '20')))
     if app_config.get('debug', '0') == '1':  # pragma: no cover - not testable easily...
@@ -209,7 +226,7 @@ bottle.TEMPLATE_PATH.append(
 session_opts = {
     # Important: somedata stored in the session cannot be pickled. Using file is not allowed!
     'session.type': 'file',
-    'session.data_dir': os.path.join('/tmp', __name__, 'sessions'),
+    'session.data_dir': os.path.join('/tmp', __manifest__['name'], 'sessions'),
     'session.auto': True,
     'session.cookie_expires': 21600,    # 6 hours
     'session.key': __manifest__['name'],

@@ -22,7 +22,7 @@
       <div class="form-group">
         <label class="control-label" for="alignak_url">{{_('Alignak')}}</label>
         <p>
-        <a id="alignak_url" href="http://www.alignak.net" target="_blank">http://alignak-monitoring.github.io/</a>
+        <a id="alignak_url" href="http://www.alignak.net" target="_blank">http://www.alignak.net/</a>
         </p>
       </div>
 
