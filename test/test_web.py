@@ -73,12 +73,17 @@ def setup_module(module):
     print("Current test directory: %s" % test_dir)
 
     print("Starting Alignak backend...")
-    fnull = open(os.devnull, 'w')
     global backend_process
-    backend_process = subprocess.Popen(shlex.split('alignak-backend'), stdout=fnull)
+    fnull = open(os.devnull, 'w')
+    backend_process = subprocess.Popen(['uwsgi', '--plugin', 'python',
+                                        '-w', 'alignak_backend.app:app',
+                                        '--socket', '0.0.0.0:5000',
+                                        '--protocol=http', '--enable-threads', '--pidfile',
+                                        '/tmp/uwsgi.pid'],
+                                       stdout=fnull)
     print("Started")
 
-    print("Feeding Alignak backend...")
+    print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
         shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
         stdout=fnull
