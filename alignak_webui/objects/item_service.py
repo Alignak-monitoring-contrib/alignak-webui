@@ -51,7 +51,7 @@ class Service(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'  #, 'unknown', 'unreachable'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'  # 'unknown', 'unreachable'
     ]
     # overall_state_to_title = [
     #     _('Service is ok'),
