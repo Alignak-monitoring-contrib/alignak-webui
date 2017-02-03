@@ -47,6 +47,10 @@ with open(os.path.join('alignak_webui/version.py')) as fh:
 # Get the package name from the manifest
 package_name = manifest["__pkg_name__"]
 
+data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini']),
+            ('bin', ['bin/alignak-webui-uwsgi']),
+            ('var/log/alignak', [])]
+
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
@@ -79,13 +83,12 @@ setup(
     # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
 
     # Where to install distributed files
-    data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini']),
-                ('bin', ['bin/alignak-webui-uwsgi'])],
+    data_files=data_files,
 
     # Dependencies (if some) ...
     install_requires=[
         'future', 'configparser', 'docopt',
-        'bottle>=0.12.9,<0.13', 'Beaker==1.8.0', 'CherryPy<9.0.0',
+        'bottle>=0.12.0,<0.13', 'Beaker>=1.8.0,<1.9.0', 'CherryPy<9.0.0',
         'pymongo>=3.2', 'requests>=2.9.1',
         'python-gettext', 'termcolor',
         'python-dateutil==2.4.2', 'pytz',
