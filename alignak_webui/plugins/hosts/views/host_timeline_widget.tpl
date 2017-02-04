@@ -156,7 +156,9 @@
                      {{! item.service.get_html_link() if item.service and item.service!='service' else ''}}
                      </small>
                   </p>
-                  %message = "%s - %s" % (item.logcheckresult.get_html_state(text=None), item.logcheckresult.output)
+                  %if item.logcheckresult:
+                     %message = "%s - %s" % (item.logcheckresult.get_html_state(text=None), item.logcheckresult.output)
+                  %end
                   <p>
                      <small>{{! message}}</small>
                   </p>

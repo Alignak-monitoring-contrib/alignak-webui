@@ -82,7 +82,6 @@
 
 <script>
    var debugTree = {{'true' if debug else 'false'}};
-   debugTree = true;
 
    // Navigate to the table view
    $('[data-action="navigate-table"][data-element="{{tree_type}}"]').on("click", function () {

@@ -94,7 +94,7 @@ def before_request():
        request.urlparts.path == '/logout':
         return
 
-    logger.debug("before_request, url: %s", request.urlparts.path)
+    # logger.debug("before_request, url: %s", request.urlparts.path)
 
     # # Authenticate external access...
     # logger.debug("Authorization header: %s", request.headers.__dict__)
@@ -131,7 +131,7 @@ def before_request():
         )
         redirect('/login')
 
-    logger.debug("before_request, session authenticated user: %s", session['current_user'])
+    # logger.debug("before_request, session authenticated user: %s", session['current_user'])
 
     # Make session current user available in the templates
     BaseTemplate.defaults['current_user'] = session['current_user']
@@ -949,6 +949,7 @@ class WebUI(object):
         else:
             js_list += [
                 "/static/js/datatables.min.js"
+                # "/static/js/datatables.js"
             ]
 
         js_list += [

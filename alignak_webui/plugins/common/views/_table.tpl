@@ -42,11 +42,6 @@
       <thead>
          <tr>
             %for column in dt.table_columns:
-            %if debug:
-            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}
-            {{column.get('visible','###')}} - {{column.get('orderable','###')}} - {{column.get('searchable','###')}}
-            </th>
-            %end
             <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}</th>
             %end
          </tr>
@@ -221,7 +216,6 @@
 <script>
    var debugTable = {{'true' if debugLogs else 'false'}};
    var where = {{! json.dumps(where)}};
-   var columns = '';
    var selectedRows = [];
 
    function resetFilters() {
@@ -337,7 +331,7 @@
 
       $('#tbl_{{object_type}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
          var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
-         if (debugTable) console.debug('Datatable event, saved state loaded ...');
+         if (debugTable) console.debug('Datatable event, stateLoaded.dt...');
          if (debugTable) console.debug('Saved filters:', where['saved_filters']);
 
          // Disable the clear filter button
@@ -539,7 +533,7 @@
          stateSave: true,
          // Saved parameters
          "stateSaveParams": function (settings, data) {
-            //if (debugTable) console.debug("state saved data", data);
+            if (debugTable) console.debug("state saved data", data);
             // Ignore global search parameter ...
             data.search.search = "";
          },
@@ -569,7 +563,7 @@
          %end
          // Save table configuration
          stateSaveCallback: function (settings, data) {
-            //if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);
+            if (debugTable) console.debug("state saving for 'tbl_{{object_type}}' ...", settings);
 
             // Post table data to the server ...
             $.ajax({

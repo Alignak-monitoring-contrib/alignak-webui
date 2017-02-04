@@ -159,7 +159,7 @@ class Datatable(object):
                 self.commands = model.get('commands', self.commands)
                 self.css = model.get('css', "display nowrap")
 
-                self.initial_sort = model.get('initial_sort', [[1, 'asc']])
+                self.initial_sort = model.get('initial_sort', [[0, 'desc']])
                 continue
 
             # logger.debug("get_data_model, visible field: %s = %s", field, model)
