@@ -29,12 +29,14 @@
 
 import time
 from datetime import datetime
+from copy import deepcopy
 import logging
 
 from alignak_backend_client.client import BackendException
 
 # noinspection PyProtectedMember
 from alignak_webui import _
+from alignak_webui.objects.element import get_ts_date
 # Import the backend interface class
 from alignak_webui.objects.backend import BackendConnection
 
@@ -734,22 +736,6 @@ class DataManager(object):
                     ... / ...
                 }
 
-            Returns an hosts_synthesis dictionary containing:
-            - number of elements
-            - business impact
-            - count for each state (hard and soft)
-            - percentage for each state (hard and soft)
-            - number of problems (down and unreachable, only hard state)
-            - percentage of problems
-
-            Returns a services_synthesis dictionary containing:
-            - number of elements
-            - business impact
-            - count for each state (hard and soft)
-            - percentage for each state (hard and soft)
-            - number of problems (down and unreachable, only hard state)
-            - percentage of problems
-
             The new backend (as of 08/01/2017) introduces a new API, with two parameters:
                 * *history=1*: get the history in field *history* with all
                 history for the last minutes
@@ -761,6 +747,25 @@ class DataManager(object):
             the current realm to let the backend compute the sub realms counters.
             As such if more than one item is received it is because the current user
             can view several realms wich are not in the same realms hierarchy.
+
+            Returns a dictionary containing:
+                - livesynthesis backend _id
+                - hosts_synthesis dictionary containing:
+                    - number of elements
+                    - business impact
+                    - count for each state (hard and soft)
+                    - percentage for each state (hard and soft)
+                    - number of problems (down and unreachable, only hard state)
+                    - percentage of problems
+
+                - services_synthesis dictionary containing:
+                    - number of elements
+                    - business impact
+                    - count for each state (hard and soft)
+                    - percentage for each state (hard and soft)
+                    - number of problems (down and unreachable, only hard state)
+                    - percentage of problems
+
 
             :return: hosts and services live state synthesis in a dictionary
             :rtype: dict
@@ -831,6 +836,7 @@ class DataManager(object):
             try:
                 logger.warning("get_livesynthesis, search: %s", search)
                 items = self.find_object('livesynthesis', search)
+                logger.warning("get_livesynthesis, got: %s", items)
             except ValueError:  # pragma: no cover - should not happen
                 logger.debug("get_livesynthesis, none found")
                 return default_ls
@@ -943,6 +949,302 @@ class DataManager(object):
 
         logger.debug("live synthesis, %s", synthesis)
         return synthesis
+
+    def get_livesynthesis_history(self):
+
+        """ Get live state synthesis history for hosts and services
+
+            This function gets the live synthesis with the concatenation and history parameters
+            for the current realm to let the backend compute the sub realms counters.
+            As such if more than one item is received it is because the current user
+            can view several realms wich are not in the same realms hierarchy.
+
+            :return: a tuple containing a livesynthesis as get_livesynthesis function and an
+            array of livesynthesis for each timestamp
+            :rtype: tuple
+        """
+
+        item = None
+        default_ls = {
+            '_created': None,
+            'hosts_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_up': 0, 'pct_up': 0.0,
+                'nb_up_hard': 0, 'nb_up_soft': 0,
+                'nb_down': 0, 'pct_down': 0.0,
+                'nb_down_hard': 0, 'nb_down_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
+            },
+            'services_synthesis': {
+                'nb_elts': 0,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_ok': 0, 'pct_ok': 0.0,
+                'nb_ok_hard': 0, 'nb_ok_soft': 0,
+                'nb_warning': 0, 'pct_warning': 0.0,
+                'nb_warning_hard': 0, 'nb_warning_soft': 0,
+                'nb_critical': 0, 'pct_critical': 0.0,
+                'nb_critical_hard': 0, 'nb_critical_soft': 0,
+                'nb_unknown': 0, 'pct_unknown': 0.0,
+                'nb_unknown_hard': 0, 'nb_unknown_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0
+            }
+        }
+
+        try:
+            logger.debug("get_livesynthesis_history, history...")
+            item = self.backend.get('livesynthesis/' + self.my_ls['_id'] +
+                                    '?concatenation=1&history=1', params=None)
+            logger.debug("get_livesynthesis_history, got: %s", item)
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_livesynthesis_history, none found")
+            return []
+
+        if not item:
+            return []
+
+        # Manage global live synthesis
+        synthesis = {
+            '_id': item['_id']
+        }
+        hosts_synthesis = default_ls['hosts_synthesis']
+        services_synthesis = default_ls['services_synthesis']
+
+        # Hosts synthesis
+        hosts_synthesis.update({
+            "nb_elts": hosts_synthesis['nb_elts'] + item["hosts_total"]
+        })
+        hosts_synthesis.update({
+            'business_impact': min(hosts_synthesis['business_impact'],
+                                   item["hosts_business_impact"]),
+        })
+        for state in 'up', 'down', 'unreachable':
+            hosts_synthesis.update({
+                "nb_%s_hard" % state:
+                hosts_synthesis["nb_%s_hard" % state] + item["hosts_%s_hard" % state]
+            })
+            hosts_synthesis.update({
+                "nb_%s_soft" % state:
+                hosts_synthesis["nb_%s_soft" % state] + item["hosts_%s_soft" % state]
+            })
+            hosts_synthesis.update({
+                "nb_" + state:
+                hosts_synthesis["nb_%s_hard" % state] + hosts_synthesis["nb_%s_soft" % state]
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping':
+            hosts_synthesis.update({
+                "nb_" + state:
+                hosts_synthesis["nb_%s" % state] + item["hosts_%s" % state]
+            })
+        hosts_synthesis.update({
+            "nb_problems":
+            hosts_synthesis["nb_down_hard"] + hosts_synthesis["nb_unreachable_hard"]
+        })
+        for state in 'up', 'down', 'unreachable':
+            hosts_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                ) if hosts_synthesis['nb_elts'] else 0.0
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+            hosts_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                ) if hosts_synthesis['nb_elts'] else 0.0
+            })
+
+        # Services synthesis
+        services_synthesis.update({
+            "nb_elts": services_synthesis['nb_elts'] + item["services_total"]
+        })
+        services_synthesis.update({
+            'business_impact': min(services_synthesis['business_impact'],
+                                   item["services_business_impact"]),
+        })
+        for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
+            services_synthesis.update({
+                "nb_%s_hard" % state:
+                services_synthesis["nb_%s_hard" % state] +
+                item["services_%s_hard" % state]
+            })
+            services_synthesis.update({
+                "nb_%s_soft" % state:
+                services_synthesis["nb_%s_soft" % state] +
+                item["services_%s_soft" % state]
+            })
+            services_synthesis.update({
+                "nb_" + state:
+                services_synthesis["nb_%s_hard" % state] +
+                    services_synthesis["nb_%s_soft" % state]
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping':
+            services_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                ) if services_synthesis['nb_elts'] else 0.0
+            })
+        services_synthesis.update({
+            "nb_problems":
+            services_synthesis["nb_warning_hard"] + services_synthesis["nb_critical_hard"]
+        })
+        for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
+            services_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                ) if services_synthesis['nb_elts'] else 0.0
+            })
+        for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+            services_synthesis.update({
+                "pct_" + state: round(
+                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                ) if services_synthesis['nb_elts'] else 0.0
+            })
+
+        synthesis['hosts_synthesis'] = hosts_synthesis
+        synthesis['services_synthesis'] = services_synthesis
+
+        logger.debug("Global live synthesis, %s", synthesis)
+
+        # Manage livesynthesis history
+        history = []
+        for livesynthesis in item['history']:
+            logger.debug("livesynthesis item: %s", livesynthesis['_created'])
+            synthesis = deepcopy(default_ls)
+            synthesis['_created'] = livesynthesis['_created']
+            synthesis['_timestamp'] = get_ts_date(livesynthesis['_created'],
+                                                  date_format='%a, %d %b %Y %H:%M:%S %Z')
+            # Hosts synthesis
+            hosts_synthesis = synthesis['hosts_synthesis']
+            # Services synthesis
+            services_synthesis = synthesis['services_synthesis']
+
+            # Hosts synthesis
+            hosts_synthesis.update({
+                "nb_elts": hosts_synthesis['nb_elts'] + livesynthesis["hosts_total"]
+            })
+            hosts_synthesis.update({
+                'business_impact': min(hosts_synthesis['business_impact'],
+                                       livesynthesis["hosts_business_impact"]),
+            })
+            for state in 'up', 'down', 'unreachable':
+                hosts_synthesis.update({
+                    "nb_%s_hard" % state:
+                    hosts_synthesis["nb_%s_hard" % state] + livesynthesis["hosts_%s_hard" % state]
+                })
+                hosts_synthesis.update({
+                    "nb_%s_soft" % state:
+                    hosts_synthesis["nb_%s_soft" % state] + livesynthesis["hosts_%s_soft" % state]
+                })
+                hosts_synthesis.update({
+                    "nb_" + state:
+                    hosts_synthesis["nb_%s_hard" % state] + hosts_synthesis["nb_%s_soft" % state]
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping':
+                hosts_synthesis.update({
+                    "nb_" + state:
+                    hosts_synthesis["nb_%s" % state] + livesynthesis["hosts_%s" % state]
+                })
+            hosts_synthesis.update({
+                "nb_problems":
+                hosts_synthesis["nb_down_hard"] + hosts_synthesis["nb_unreachable_hard"]
+            })
+            for state in 'up', 'down', 'unreachable':
+                hosts_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                    ) if hosts_synthesis['nb_elts'] else 0.0
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+                hosts_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * hosts_synthesis['nb_' + state] / hosts_synthesis['nb_elts'], 2
+                    ) if hosts_synthesis['nb_elts'] else 0.0
+                })
+
+            # Services synthesis
+            services_synthesis.update({
+                "nb_elts": services_synthesis['nb_elts'] + livesynthesis["services_total"]
+            })
+            services_synthesis.update({
+                'business_impact': min(services_synthesis['business_impact'],
+                                       livesynthesis["services_business_impact"]),
+            })
+            for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
+                services_synthesis.update({
+                    "nb_%s_hard" % state:
+                    services_synthesis["nb_%s_hard" % state] +
+                    livesynthesis["services_%s_hard" % state]
+                })
+                services_synthesis.update({
+                    "nb_%s_soft" % state:
+                    services_synthesis["nb_%s_soft" % state] +
+                    livesynthesis["services_%s_soft" % state]
+                })
+                services_synthesis.update({
+                    "nb_" + state:
+                    services_synthesis["nb_%s_hard" % state] +
+                        services_synthesis["nb_%s_soft" % state]
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping':
+                services_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                    ) if services_synthesis['nb_elts'] else 0.0
+                })
+            services_synthesis.update({
+                "nb_problems":
+                services_synthesis["nb_warning_hard"] + services_synthesis["nb_critical_hard"]
+            })
+            for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
+                services_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                    ) if services_synthesis['nb_elts'] else 0.0
+                })
+            for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
+                services_synthesis.update({
+                    "pct_" + state: round(
+                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
+                    ) if services_synthesis['nb_elts'] else 0.0
+                })
+
+            # Update history
+            history.append(synthesis)
+            logger.debug("livesynthesis hosts: %s, %d/%d/%d/%d/%d", synthesis['_timestamp'],
+                         synthesis['hosts_synthesis']['nb_up'],
+                         synthesis['hosts_synthesis']['nb_down'],
+                         synthesis['hosts_synthesis']['nb_unreachable'],
+                         synthesis['hosts_synthesis']['nb_acknowledged'],
+                         synthesis['hosts_synthesis']['nb_in_downtime'])
+            logger.debug("livesynthesis service: %s, %d/%d/%d/%d/%d/%d", synthesis['_timestamp'],
+                         synthesis['services_synthesis']['nb_ok'],
+                         synthesis['services_synthesis']['nb_warning'],
+                         synthesis['services_synthesis']['nb_critical'],
+                         synthesis['services_synthesis']['nb_unreachable'],
+                         synthesis['services_synthesis']['nb_acknowledged'],
+                         synthesis['services_synthesis']['nb_in_downtime'])
+
+        return (synthesis, history)
 
     ##
     # Actions

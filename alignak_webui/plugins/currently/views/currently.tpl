@@ -1,7 +1,7 @@
 %from bottle import request
 
 %setdefault('refresh', True)
-%rebase("fullscreen", css=['dashboard/htdocs/css/currently.css'], js=[], title=title)
+%rebase("fullscreen", css=[], js=[], title=title)
 
 %import json
 %from alignak_webui.utils.helper import Helper
@@ -24,7 +24,7 @@
 
 %setdefault('currently_graphs', None)
 %setdefault('hosts_states', ['up','down','unreachable'])
-%setdefault('services_states', ['ok','warning','critical','unknown'])
+%setdefault('services_states', ['ok','warning','critical','unreachable','unknown'])
 
 %#Set this to True to reset saved parameters
 %create_graphs_preferences = False
@@ -38,7 +38,7 @@
 %end
 
 %#Set this to True to reset saved parameters
-%create_graphs_preferences = False
+%create_graphs_preferences = True
 %if create_graphs_preferences or not 'display_states' in currently_graphs['pie_graph_hosts']:
 %currently_graphs['pie_graph_hosts']['display_states'] = {}
 %currently_graphs['line_graph_hosts']['display_states'] = {}
@@ -55,12 +55,9 @@
 %create_graphs_preferences = True
 %end
 
-%setdefault('hosts_states_queue_length', 30)
-%setdefault('services_states_queue_length', 30)
-
 <div id="currently">
 <script type="text/javascript">
-   var dashboard_logs = false;
+   var dashboard_logs = true;
 
    // Application globals
    dashboard_currently = true;
@@ -183,15 +180,15 @@
             if ($("#panel_line_graph_hosts").is(":visible") && ! panels["panel_line_graph_hosts"].collapsed) {
                if (dashboard_logs) console.debug('Refresh: panel_line_graph_hosts', graphs['line_graph_hosts']);
                var labels=[];
-               %idx=len(hosts_states_queue)
-               %for ls in hosts_states_queue:
-                  labels.push('{{ls['date']}}');
+               %idx=len(history)
+               %for ls in history:
+                  labels.push('{{ls['_timestamp']}}');
                   %idx=idx-1
                %end
                %for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
                   var data_{{state}}=[];
-                  %for ls in hosts_states_queue:
-                  data_{{state}}.push({{ls["hs"]["nb_" + state]}});
+                  %for ls in history:
+                  data_{{state}}.push({{ls["hosts_synthesis"]["nb_" + state]}});
                   %end
                %end
                var data = {
@@ -307,21 +304,21 @@
             if ($("#panel_line_graph_services").is(":visible") && ! panels["panel_line_graph_services"].collapsed) {
                if (dashboard_logs) console.debug('Refresh: panel_line_graph_services', graphs['line_graph_services']);
                var labels=[];
-               %idx=len(services_states_queue)
-               %for ls in services_states_queue:
-                  labels.push('{{ls['date']}}');
+               %idx=len(history)
+               %for ls in history:
+                  labels.push('{{ls['_timestamp']}}');
                   %idx=idx-1
                %end
-               %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+               %for state in ['ok', 'warning', 'critical', 'unreachable', 'unknown', 'acknowledged', 'in_downtime']:
                   var data_{{state}}=[];
-                  %for ls in services_states_queue:
-                  data_{{state}}.push({{ls["ss"]["nb_" + state]}});
+                  %for ls in history:
+                  data_{{state}}.push({{ls["services_synthesis"]["nb_" + state]}});
                   %end
                %end
                var data = {
                   labels: labels,
                   datasets: [
-                     %for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+                     %for state in ['ok', 'warning', 'critical', 'unreachable', 'unknown', 'acknowledged', 'in_downtime']:
                      {
                         label: g_services_states["{{state.lower()}}"]['label'],
                         fill: false,
@@ -414,19 +411,15 @@
    });
 </script>
 
-%lv = datamgr.get_livesynthesis()
-%hs = lv['hosts_synthesis']
-%ss = lv['services_synthesis']
-
 <style>
 div.pull-right a, div.pull-right div {
    margin-top: 0px; margin-bottom: 0px;
 }
 .hosts-count, .services-count {
-   font-size: 32px;
+   font-size: 24px;
 }
 .hosts-state, .services-state {
-   font-size: 16px;
+   font-size: 12px;
 }
 </style>
 <nav id="topbar" class="navbar navbar-fixed-top">
@@ -493,13 +486,12 @@ div.pull-right a, div.pull-right div {
             </div>
             <div id="p_panel_counters_hosts" class="panel-collapse collapse {{'in' if not currently_panels['panel_counters_hosts']['collapsed'] else ''}}">
                <div class="panel-body">
-                  %for state in 'up', 'unreachable', 'down':
-                  <div class="col-xs-6 col-md-3 text-center">
-                     %label = "%d<br/><em>(%s)</em>" % (hs['nb_' + state], state)
-                     <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}">
+                  %for state in 'up', 'unreachable', 'down', 'acknowledged', 'in_downtime':
+                  <div class="col-xs-4 col-sm-4 col-md-2 text-center">
+                     <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
                         <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['nb_' + state] }}</span>
-                        <br/>
-                        <span class="hosts-state">{{ state }}</span>
+                        <!-- <br/>
+                        <span class="hosts-state">{{ state }}</span> -->
                      </a>
                   </div>
                   %end
@@ -520,13 +512,13 @@ div.pull-right a, div.pull-right div {
              </div>
             <div id="p_panel_counters_services" class="panel-collapse collapse {{'in' if not currently_panels['panel_counters_services']['collapsed'] else ''}}">
                <div class="panel-body">
-                  %for state in 'ok', 'warning', 'critical', 'unknown':
-                  <div class="col-xs-6 col-md-3 text-center">
+                  %for state in 'ok', 'warning', 'critical', 'unreachable', 'unknown', 'acknowledged', 'in_downtime':
+                  <div class="col-xs-4 col-sm-4 col-md-2 text-center">
                      %label = "%d<br/><em>(%s)</em>" % (ss['nb_' + state], state)
-                     <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
+                     <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}" title="{{ state }}">
                         <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['nb_' + state] }}</span>
-                        <br/>
-                        <span class="services-state">{{ state }}</span>
+                        <!-- <br/>
+                        <span class="services-state">{{ state }}</span> -->
                      </a>
                   </div>
                   %end
@@ -573,12 +565,12 @@ div.pull-right a, div.pull-right div {
                      </div>
                   </div>
 
-                  %for state in 'up', 'unreachable', 'down':
-                  <div class="col-xs-4 col-sm-4 text-center">
-                     <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}">
+                  %for state in 'up', 'unreachable', 'down', 'acknowledged', 'in_downtime':
+                  <div class="col-xs-4 col-sm-4 col-md-2 text-center">
+                     <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
                         <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['pct_' + state] }}%</span>
-                        <br/>
-                        <span class="hosts-state">{{ state }}</span>
+                        <!-- <br/>
+                        <span class="hosts-state">{{ state }}</span> -->
                      </a>
                   </div>
                   %end
@@ -622,7 +614,7 @@ div.pull-right a, div.pull-right div {
                      </div>
                   </div>
 
-                  %for state in 'ok', 'warning', 'critical', 'unknown':
+                  %for state in 'ok', 'warning', 'critical', 'unreachable', 'unknown', 'acknowledged', 'in_downtime':
                   <div class="col-xs-4 col-sm-4 text-center">
                       <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
                           <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['pct_' + state] }}%</span>
@@ -777,7 +769,7 @@ div.pull-right a, div.pull-right div {
    </div>
 </div>
 
-<script>
+<script type="text/javascript">
    // Panels collapse state
    $('.panel').on('hidden.bs.collapse', function () {
       wait_message('{{_('Saving configuration...')}}', true)
