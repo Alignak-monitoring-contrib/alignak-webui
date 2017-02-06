@@ -31,8 +31,8 @@ Alignak Web UI
 Github related
 ==============
 
-.. image:: https://img.shields.io/github/release/qubyte/rubidium.svg
-    :target: https://github.com/Alignak-monitoring-contrib/alignak-webui
+.. image:: https://badge.fury.io/gh/Alignak-monitoring-contrib%2Falignak-webui.svg
+    :target: https://badge.fury.io/gh/Alignak-monitoring-contrib%2Falignak-webui
 
 .. image:: https://badge.fury.io/py/alignak_webui.svg
     :target: https://badge.fury.io/py/alignak_webui

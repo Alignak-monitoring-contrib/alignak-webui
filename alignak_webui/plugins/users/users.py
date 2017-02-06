@@ -38,21 +38,6 @@ class PluginUsers(Plugin):
                 'route': '/user/form/add',
                 'view': 'user_form_add'
             },
-            'add_user': {
-                'name': 'User add',
-                'route': '/user/add',
-                'method': 'POST'
-            },
-            'show_user_delete': {
-                'name': 'User delete form',
-                'route': '/user/form/delete',
-                'view': 'user_form_delete'
-            },
-            'delete_user': {
-                'name': 'User delete',
-                'route': '/user/delete',
-                'method': 'POST'
-            },
 
             'get_all': {
                 'name': '%s' % self.name,

@@ -1076,20 +1076,24 @@ class TestDatatableLogs(TestDatatableBase):
             """<tr>
             <th data-name="last_check" data-type="datetime">Last check</th>
             <th data-name="host" data-type="objectid">Host</th>
-            <th data-name="service" data-type="objectid">Service</th>
+            <th data-name="service_name" data-type="string">Service</th>
             <th data-name="state" data-type="string">State</th>
             <th data-name="state_type" data-type="string">State type</th>
             <th data-name="state_id" data-type="integer">State id</th>
-            <th data-name="latency" data-type="float">False</th>
-            <th data-name="execution_time" data-type="float">Execution time</th>
-            <th data-name="state_changed" data-type="boolean">State changed</th>
+            <th data-name="passive_check" data-type="boolean">Passive check</th>
             <th data-name="acknowledged" data-type="boolean">Acknowledged</th>
+            <th data-name="acknowledgement_type" data-type="integer">Ack type</th>
+            <th data-name="downtimed" data-type="boolean">Downtimed</th>
+            <th data-name="state_changed" data-type="boolean">State changed</th>
             <th data-name="last_state" data-type="string">Last state</th>
             <th data-name="last_state_type" data-type="string">Last state type</th>
             <th data-name="last_state_id" data-type="integer">Last state id</th>
+            <th data-name="last_state_changed" data-type="boolean">Last state changed</th>
             <th data-name="output" data-type="string">Output</th>
             <th data-name="long_output" data-type="string">Long output</th>
             <th data-name="perf_data" data-type="string">Performance data</th>
+            <th data-name="latency" data-type="float">Latency</th>
+            <th data-name="execution_time" data-type="float">Execution time</th>
          </tr>""",
 
         )
