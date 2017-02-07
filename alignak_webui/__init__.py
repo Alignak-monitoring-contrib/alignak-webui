@@ -26,8 +26,7 @@ from __future__ import print_function
 import os
 
 # Logs
-from logging import DEBUG
-from logging import getLogger
+import logging
 
 # Localization
 import gettext
@@ -42,12 +41,13 @@ from beaker.middleware import SessionMiddleware
 
 # Specific application
 from alignak_webui.version import __manifest__
-from alignak_webui.utils.logs import set_console_logger, set_file_logger
+from alignak_webui.utils.logs import setup_logger
 
 
+# --------------------------------------------------------------------------------------------------
 # Application logger
 # pylint: disable=invalid-name
-logger = getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 # Localization
 _ = gettext.gettext
@@ -97,45 +97,36 @@ def set_app_config(config):
     app_config = config
     bottle_app.config.update(config)
 
-    # Set logging options for the application
-    set_console_logger(logger)
+    # Set application log level (default is INFO (20))
+    print("Configured log level: %d" % int(app_config.get('logs.level', '20')))
+    log_level = int(app_config.get('logs.level', '20'))
+    if app_config.get('debug', '0') == '1':  # pragma: no cover - not testable easily...
+        print("-> Activated DEBUG log")
+        log_level = logging.DEBUG
 
     # Store logs in a daily file, keeping 6 days along ... as default!
-    log_file = os.path.join(app_config.get('logs.dir', '/usr/local/var/log/'),
+    log_file = os.path.join(app_config.get('logs.dir', '/usr/local/var/log/alignak'),
                             app_config.get('logs.filename', '%s.log'
                                            % __manifest__['name'].lower()))
     print("Configured log file: %s" % log_file)
+    logger = None
     try:
-        set_file_logger(
-            logger,
-            path=app_config.get('logs.dir', '/usr/local/var/log/'),
-            filename=app_config.get('logs.filename', '%s.log' % __manifest__['name'].lower()),
-            when=app_config.get('logs.when', 'D'),
-            interval=int(app_config.get('logs.interval', '1')),
-            backup_count=int(app_config.get('logs.backupCount', '6'))
-        )
+        logger = setup_logger(logger, log_level, log_file, True,
+                              when=app_config.get('logs.when', 'D'),
+                              interval=int(app_config.get('logs.interval', '1')),
+                              backup_count=int(app_config.get('logs.backupCount', '6')))
     except IOError:
         print("Configured log file is not available")
-        set_file_logger(
-            logger,
-            path='/tmp',
-            filename=app_config.get('logs.filename', '%s.log' % __manifest__['name'].lower()),
-            when=app_config.get('logs.when', 'D'),
-            interval=int(app_config.get('logs.interval', '1')),
-            backup_count=int(app_config.get('logs.backupCount', '6'))
-        )
-        log_file = os.path.join('/tmp', app_config.get('logs.filename', '%s.log' %
-                                                       __manifest__['name'].lower()))
+        log_file = os.path.join('/tmp/',
+                                app_config.get('logs.filename', '%s.log'
+                                               % __manifest__['name'].lower()))
+        logger = setup_logger(logger, log_level, log_file, True,
+                              when=app_config.get('logs.when', 'D'),
+                              interval=int(app_config.get('logs.interval', '1')),
+                              backup_count=int(app_config.get('logs.backupCount', '6')))
     except Exception as e:  # pragma: no cover - should not happen
         print("Log file creation error. Exception: %s" % str(e))
     print("Logging to file: %s" % log_file)
-
-    # Set application log level (default is INFO (20))
-    print("Activate logs level: %d" % int(app_config.get('logs.level', '20')))
-    logger.setLevel(int(app_config.get('logs.level', '20')))
-    if app_config.get('debug', '0') == '1':  # pragma: no cover - not testable easily...
-        print("Activate DEBUG logs")
-        logger.setLevel(DEBUG)
 
     logger.info(
         "--------------------------------------------------------------------------------"

@@ -42,7 +42,8 @@ from alignak_webui.objects.backend import BackendConnection
 
 from alignak_webui.backend.alignak_ws_client import AlignakConnection, AlignakWSException
 
-# Import all objects we will need
+# Import all objects we will need -
+# NOTE that all the objects types need to be imported else some errors will raise!
 # pylint:disable=unused-import
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.element import BackendElement
