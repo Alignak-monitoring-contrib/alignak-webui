@@ -22,32 +22,49 @@
     Application logs
 """
 from __future__ import print_function
-
 import os
+import sys
 
 # Logs
-from logging import DEBUG
+import logging
 from logging import Formatter, StreamHandler
 from logging.handlers import TimedRotatingFileHandler
 
-# Color logs when in console mode ...
-from sys import stdout
-from alignak_webui.utils.termcolor import cprint
+from termcolor import cprint
+
+# Default values for root logger
+ROOT_LOGGER_NAME = 'alignak_webui'
+ROOT_LOGGER_LEVEL = logging.INFO
+
+# Default ISO8601 UTC date formatting:
+HUMAN_DATE_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
+
+# Default log formatter (no human timestamp)
+DEFAULT_FORMATTER_NAMED = Formatter('[%(created)i] %(levelname)s: [%(name)s] %(message)s')
+
+# Human timestamped log formatter
+HUMAN_FORMATTER_NAMED = Formatter('[%(asctime)s] %(levelname)s: [%(name)s] %(message)s',
+                                  HUMAN_DATE_FORMAT)
+
+# Time rotation for file logger
+ROTATION_WHEN = 'midnight'
+ROTATION_INTERVAL = 1
+ROTATION_COUNT = 5
 
 
-# Declare a coloured stream handler for console mode ...
-class ColorStreamHandler(StreamHandler):  # pragma: no cover
+logger = logging.getLogger(ROOT_LOGGER_NAME)  # pylint: disable=C0103
+logger.setLevel(ROOT_LOGGER_LEVEL)
+
+
+class ColorStreamHandler(StreamHandler):
     """
-    Color logs ...
+    This log handler provides colored logs when logs are emitted to a tty.
     """
     def emit(self, record):
-        # noinspection PyBroadException
         try:
             msg = self.format(record)
-            colors = {
-                'DEBUG': 'cyan', 'INFO': 'green', 'WARNING': 'yellow',
-                'CRITICAL': 'magenta', 'ERROR': 'red'
-            }
+            colors = {'DEBUG': 'cyan', 'INFO': 'green', 'WARNING': 'yellow',
+                      'CRITICAL': 'magenta', 'ERROR': 'red'}
             cprint(msg, colors[record.levelname])
         except UnicodeEncodeError:
             print(msg.encode('ascii', 'ignore'))
@@ -55,48 +72,67 @@ class ColorStreamHandler(StreamHandler):  # pragma: no cover
             self.handleError(record)
 
 
-def set_console_logger(logger):
-    """
-    Set a console logger only if application output is sent to a terminal
-    """
-    if stdout.isatty():  # pragma: no cover - not testable
-        # logger = getLogger(__pkg_name__)
-
-        console_handler = ColorStreamHandler(stdout)
-        console_handler.setFormatter(
-            Formatter('%(asctime)s - %(name)-12s - %(levelname)s - %(message)s'))
-        console_handler.setLevel(DEBUG)
-        logger.addHandler(console_handler)
-
-
-# Yes, but we need it
 # pylint: disable=too-many-arguments
-def set_file_logger(logger, path='/var/log', filename='application.log',
-                    when="midnight", interval=1, backup_count=6):
+def setup_logger(logger_, level=logging.INFO, log_file=None, log_console=True,
+                 when=ROTATION_WHEN, interval=ROTATION_INTERVAL, backup_count=ROTATION_COUNT,
+                 human_log=True, human_date_format=HUMAN_DATE_FORMAT):
     """
-    Configure handler for file logging ...
+    Configure the provided logger
+    - appends a ColorStreamHandler if it is not yet present
+    - manages the formatter according to the required timestamp
+    - appends a TimedRotatingFileHandler if it is not yet present for the same file
+    - update level and formatter for already existing handlers
+
+    :param logger_: logger object to configure. If None, configure the root logger
+    :param level: log level
+    :param log_file:
+    :param log_console: True to configure the console stream handler
+    :param human_log: use a human readeable date format
+    :param when:
+    :param interval:
+    :param backup_count:
+    :param human_date_format
+    :return: the modified logger object
     """
-    # Log file directory exists
-    if not os.path.isdir(path):
-        # noinspection PyBroadException
-        try:  # pragma: no cover - not testable
-            os.makedirs(path)
-        except Exception:
-            path = '.'
+    if logger_ is None:
+        logger_ = logging.getLogger(ROOT_LOGGER_NAME)
 
-    # and log file directory is writeable
-    if not os.access(path, os.W_OK):
-        path = '.'
+    # Set logger level
+    if level is not None:
+        if not isinstance(level, int):
+            level = getattr(logging, level, None)
+        logger_.setLevel(level)
 
-    # Store logs in a daily file, keeping 6 days along ...
-    file_handler = TimedRotatingFileHandler(
-        filename=os.path.join(path, filename),
-        when=when, interval=interval,
-        backupCount=backup_count
-    )
+    formatter = DEFAULT_FORMATTER_NAMED
+    if human_log:
+        formatter = Formatter('[%(asctime)s] %(levelname)s: [%(name)s] %(message)s',
+                              human_date_format)
 
-    # create formatter and add it to the handler
-    file_handler.setFormatter(
-        Formatter('[%(asctime)s] - %(name)-12s - %(levelname)s - %(message)s'))
-    file_handler.setLevel(DEBUG)
-    logger.addHandler(file_handler)
+    if log_console and hasattr(sys.stdout, 'isatty'):
+        for handler in logger_.handlers:
+            if isinstance(handler, ColorStreamHandler):
+                if handler.level != level:
+                    handler.setLevel(level)
+                handler.setFormatter(formatter)
+                break
+        else:
+            csh = ColorStreamHandler(sys.stdout)
+            csh.setFormatter(formatter)
+            logger_.addHandler(csh)
+
+    if log_file:
+        for handler in logger_.handlers:
+            if isinstance(handler, TimedRotatingFileHandler) \
+                    and handler.baseFilename == os.path.abspath(log_file):
+                if handler.level != level:
+                    handler.setLevel(level)
+                handler.setFormatter(formatter)
+                break
+        else:
+            file_handler = TimedRotatingFileHandler(log_file,
+                                                    when=when, interval=interval,
+                                                    backupCount=backup_count)
+            file_handler.setFormatter(formatter)
+            logger_.addHandler(file_handler)
+
+    return logger_

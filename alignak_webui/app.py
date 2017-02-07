@@ -58,18 +58,14 @@ Use cases:
 from __future__ import print_function
 
 import os
-# import sys
 import traceback
 
-# Logs
-from logging import getLogger
-
 # Bottle import
+# pylint: disable=wrong-import-order
 from bottle import run
 
 # Command line interpreter
-from docopt import docopt
-from docopt import DocoptExit
+from docopt import docopt, DocoptExit
 
 # Settings
 from alignak_webui.utils.settings import Settings
@@ -77,13 +73,12 @@ from alignak_webui.utils.settings import Settings
 # Application
 from alignak_webui import __manifest__, webapp
 from alignak_webui import set_app_config, set_app_webui
-from alignak_webui import __name__ as __pkg_name__
 from alignak_webui.application import WebUI
 
 # --------------------------------------------------------------------------------------------------
 # Application logger
 # pylint: disable=invalid-name
-logger = getLogger(__pkg_name__)
+# logger = logging.getLogger(__pkg_name__)
 
 # Test mode for the application
 if os.environ.get('TEST_WEBUI'):
@@ -103,15 +98,6 @@ print("Configuration read from: %s" % config_file)
 if not app_config:  # pragma: no cover, should never happen
     print("Required configuration file not found.")
     exit(1)
-
-# Depending upon installed platform
-log_dir = "/usr/local/var/log/alignak-webui"
-if not os.path.isdir(log_dir):
-    log_dir = "/var/log/alignak-webui"
-
-# Store application name in the configuration
-if not app_config.get('logs.dir', None):
-    app_config['logs.dir'] = log_dir
 
 # Store application name in the configuration
 app_config['name'] = __manifest__['name']
@@ -202,24 +188,23 @@ def main():  # pragma: no cover, not mesured by coverage!
     # Make the application available globally for the package
     app_webui = set_app_webui(WebUI(app_config))
 
-    try:
-        if args['--exit']:
-            print("Application exit because of command line parameter")
-            exit(99)
+    if args['--exit']:
+        print("Application exit because of command line parameter")
+        exit(99)
 
+    try:
         # Run application server...
         run(
             app=webapp,
             host=app_config.get('host', '127.0.0.1'),
             port=int(app_config.get('port', 5001)),
-            # debug=(app_config.get('debug', '0') == '1'),
-            debug=True,
+            debug=(app_config.get('debug', '0') == '1'),
             server=app_config.get('http_backend', 'cherrypy')
         )
     except Exception as e:
-        logger.error("Application run failed, exception: %s / %s", type(e), str(e))
-        logger.info("Backtrace: %s", traceback.format_exc())
-        logger.info("stopping backend livestate thread...")
+        print("Application run failed, exception: %s / %s", type(e), str(e))
+        print("Backtrace: %s", traceback.format_exc())
+        print("stopping backend livestate thread...")
         exit(2)
 
 
