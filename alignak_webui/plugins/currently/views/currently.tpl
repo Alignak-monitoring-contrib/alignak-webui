@@ -38,7 +38,7 @@
 %end
 
 %#Set this to True to reset saved parameters
-%create_graphs_preferences = True
+%create_graphs_preferences = False
 %if create_graphs_preferences or not 'display_states' in currently_graphs['pie_graph_hosts']:
 %currently_graphs['pie_graph_hosts']['display_states'] = {}
 %currently_graphs['line_graph_hosts']['display_states'] = {}
@@ -55,9 +55,21 @@
 %create_graphs_preferences = True
 %end
 
+<style>
+div.pull-right a, div.pull-right div {
+   margin-top: 0px; margin-bottom: 0px;
+}
+.hosts-count, .services-count {
+   font-size: 24px;
+}
+.hosts-state, .services-state {
+   font-size: 12px;
+}
+</style>
+
 <div id="currently">
 <script type="text/javascript">
-   var dashboard_logs = true;
+   var dashboard_logs = false;
 
    // Application globals
    dashboard_currently = true;
@@ -136,8 +148,8 @@
             sessionStorage.setItem("services_problems", services_problems);
 
             // Hosts pie chart
-            if ($("#panel_pie_graph_hosts").is(":visible") && ! panels["panel_pie_graph_hosts"].collapsed) {
-               if (dashboard_logs) console.debug('Refresh: panel_pie_graph_hosts', graphs['pie_graph_hosts']);
+            if (panels && $("#panel_pie_graph_hosts").is(":visible") && ! panels["panel_pie_graph_hosts"].collapsed) {
+               if (dashboard_logs) console.debug('Refresh: panel_pie_graph_hosts', panels["panel_pie_graph_hosts"]);
                var data=[], labels=[], colors=[], hover_colors=[];
                $.each(graphs['pie_graph_hosts']['display_states'], function(state, active) {
                   if (! active) return;
@@ -177,8 +189,8 @@
             }
 
             // Hosts line chart
-            if ($("#panel_line_graph_hosts").is(":visible") && ! panels["panel_line_graph_hosts"].collapsed) {
-               if (dashboard_logs) console.debug('Refresh: panel_line_graph_hosts', graphs['line_graph_hosts']);
+            if (panels && $("#panel_line_graph_hosts").is(":visible") && ! panels["panel_line_graph_hosts"].collapsed) {
+               if (dashboard_logs) console.debug('Refresh: panel_line_graph_hosts', panels["panel_line_graph_hosts"]);
                var labels=[];
                %idx=len(history)
                %for ls in history:
@@ -259,8 +271,8 @@
             }
 
             // Services pie chart
-            if ($("#panel_pie_graph_services").is(":visible") && ! panels["panel_pie_graph_services"].collapsed) {
-               if (dashboard_logs) console.debug('Refresh: panel_pie_graph_services', graphs['pie_graph_services']);
+            if (panels && $("#panel_pie_graph_services").is(":visible") && ! panels["panel_pie_graph_services"].collapsed) {
+               if (dashboard_logs) console.debug('Refresh: panel_pie_graph_services', panels["panel_pie_graph_services"]);
                var data=[], labels=[], colors=[], hover_colors=[];
                $.each(graphs['pie_graph_services']['display_states'], function(state, active) {
                   if (! active) return;
@@ -301,8 +313,8 @@
             }
 
             // Services line chart
-            if ($("#panel_line_graph_services").is(":visible") && ! panels["panel_line_graph_services"].collapsed) {
-               if (dashboard_logs) console.debug('Refresh: panel_line_graph_services', graphs['line_graph_services']);
+            if (panels && $("#panel_line_graph_services").is(":visible") && ! panels["panel_line_graph_services"].collapsed) {
+               if (dashboard_logs) console.debug('Refresh: panel_line_graph_services', panels["panel_line_graph_services"]);
                var labels=[];
                %idx=len(history)
                %for ls in history:
@@ -411,17 +423,6 @@
    });
 </script>
 
-<style>
-div.pull-right a, div.pull-right div {
-   margin-top: 0px; margin-bottom: 0px;
-}
-.hosts-count, .services-count {
-   font-size: 24px;
-}
-.hosts-state, .services-state {
-   font-size: 12px;
-}
-</style>
 <nav id="topbar" class="navbar navbar-fixed-top">
    <div id="one-eye-toolbar" class="col-xs-12">
       <ul class="nav navbar-nav navbar-left">
@@ -486,7 +487,7 @@ div.pull-right a, div.pull-right div {
             </div>
             <div id="p_panel_counters_hosts" class="panel-collapse collapse {{'in' if not currently_panels['panel_counters_hosts']['collapsed'] else ''}}">
                <div class="panel-body">
-                  %for state in 'up', 'unreachable', 'down', 'acknowledged', 'in_downtime':
+                  %for state in 'up', 'unreachable', 'down':
                   <div class="col-xs-4 col-sm-4 col-md-2 text-center">
                      <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
                         <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['nb_' + state] }}</span>
@@ -495,6 +496,17 @@ div.pull-right a, div.pull-right div {
                      </a>
                   </div>
                   %end
+                  <div class="col-xs-4 col-sm-4 col-md-2 text-center">
+                     %state='acknowledged'
+                     <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
+                        <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['nb_' + state] }}</span>
+                     </a>
+                     <span>/</span>
+                     %state='in_downtime'
+                     <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
+                        <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['nb_' + state] }}</span>
+                     </a>
+                  </div>
                </div>
             </div>
          </div>
@@ -512,16 +524,24 @@ div.pull-right a, div.pull-right div {
              </div>
             <div id="p_panel_counters_services" class="panel-collapse collapse {{'in' if not currently_panels['panel_counters_services']['collapsed'] else ''}}">
                <div class="panel-body">
-                  %for state in 'ok', 'warning', 'critical', 'unreachable', 'unknown', 'acknowledged', 'in_downtime':
+                  %for state in 'ok', 'warning', 'critical', 'unreachable', 'unknown':
                   <div class="col-xs-4 col-sm-4 col-md-2 text-center">
-                     %label = "%d<br/><em>(%s)</em>" % (ss['nb_' + state], state)
                      <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}" title="{{ state }}">
                         <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['nb_' + state] }}</span>
-                        <!-- <br/>
-                        <span class="services-state">{{ state }}</span> -->
                      </a>
                   </div>
                   %end
+                  <div class="col-xs-4 col-sm-4 col-md-2 text-center">
+                     %state='acknowledged'
+                     <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}" title="{{ state }}">
+                        <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['nb_' + state] }}</span>
+                     </a>
+                     <span>/</span>
+                     %state='in_downtime'
+                     <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}" title="{{ state }}">
+                        <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['nb_' + state] }}</span>
+                     </a>
+                  </div>
                </div>
             </div>
          </div>
@@ -542,38 +562,54 @@ div.pull-right a, div.pull-right div {
             </div>
             <div id="p_panel_percentage_hosts" class="panel-collapse collapse {{'in' if not currently_panels['panel_percentage_hosts']['collapsed'] else ''}}">
                <div class="panel-body">
-                  <!-- Hosts SLA icons -->
-                  <div class="col-xs-4 col-sm-4 text-center">
-                     <div class="col-xs-12 text-center">
-                        %sla = (100 - hs['pct_up'])
-                        %font='ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
-                        <a href="{{ webui.get_url('Hosts table') }}" class="sla_hosts_{{font}}">
-                           <div>{{sla}}%</div>
+                   <div class="row">
+                      <!-- Hosts SLA icons -->
+                      <div class="col-xs-3 col-sm-3 text-center">
+                         <div class="col-xs-12 text-center">
+                            %sla = hs['pct_up']
+                            %font='ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
+                            <a href="{{ webui.get_url('Hosts table') }}" class="sla_hosts_{{font}}">
+                               <div>{{sla}}%</div>
+                               <i class="fa fa-4x fa-server"></i>
+                               <p>{{_('Hosts SLA')}}</p>
+                            </a>
+                         </div>
+                      </div>
 
-                           <i class="fa fa-4x fa-server"></i>
-                           <p>{{_('Hosts SLA')}}</p>
-                        </a>
-                     </div>
-                     %known_problems=hs['nb_acknowledged']+hs['nb_in_downtime']+hs['nb_problems']
-                     %pct_known_problems=round(100.0 * known_problems / hs['nb_elts'], 2) if hs['nb_elts'] else -1
-                     <div class="col-xs-12 text-center">
-                        <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:down" class="sla_hosts_problems">
-                           <span class="hosts-count" data-count="{{ known_problems }}" data-state="problem">{{ pct_known_problems }}%</span>
-                           <br/>
-                           <span class="hosts-state">{{_('Known problems')}}</span>
-                        </a>
-                     </div>
-                  </div>
+                      %for state in 'up', 'unreachable', 'down':
+                      <div class="col-xs-3 col-sm-3 col-md-3 text-center">
+                         <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
+                            <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['pct_' + state] }}%</span>
+                            <br/>
+                            <span class="hosts-state">{{ state }}</span>
+                         </a>
+                      </div>
+                      %end
+                   </div>
+                   <div class="row">
+                      <!-- Hosts SLA icons -->
+                      <div class="col-xs-3 col-sm-3 text-center">
+                         %unmanaged_problems=hs['nb_problems'] - (hs['nb_acknowledged']+hs['nb_in_downtime'])
+                         %pct_unmanaged_problems=round(100.0 * unmanaged_problems / hs['nb_elts'], 2) if hs['nb_elts'] else -1
+                         <div class="col-xs-12 text-center">
+                            <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:down" class="sla_hosts_problems">
+                               <span class="hosts-count" data-count="{{ hs['nb_problems'] }}" data-state="problem">{{ pct_unmanaged_problems }}%</span>
+                               <br/>
+                               <span class="hosts-state">{{_('Unmanaged problems')}}</span>
+                            </a>
+                         </div>
+                      </div>
 
-                  %for state in 'up', 'unreachable', 'down', 'acknowledged', 'in_downtime':
-                  <div class="col-xs-4 col-sm-4 col-md-2 text-center">
-                     <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
-                        <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['pct_' + state] }}%</span>
-                        <!-- <br/>
-                        <span class="hosts-state">{{ state }}</span> -->
-                     </a>
-                  </div>
-                  %end
+                      %for state in 'acknowledged', 'in_downtime':
+                      <div class="col-xs-3 col-sm-3 col-md-3 text-center">
+                         <a role="button" href="{{ webui.get_url('Hosts table') }}?search=ls_state:{{state.upper()}}" class="item_host_{{state}}" title="{{ state }}">
+                            <span class="hosts-count" data-count="{{ hs['nb_' + state] }}" data-state="{{ state }}">{{ hs['pct_' + state] }}%</span>
+                            <br/>
+                            <span class="hosts-state">{{ state }}</span>
+                         </a>
+                      </div>
+                      %end
+                   </div>
                </div>
             </div>
             </div>
@@ -592,37 +628,53 @@ div.pull-right a, div.pull-right div {
             <div id="p_panel_percentage_services" class="panel-collapse collapse {{'in' if not currently_panels['panel_percentage_services']['collapsed'] else ''}}">
                <div class="panel-body">
                   <!-- Services SLA icons -->
-                  <div class="col-xs-4 col-sm-4 text-center">
-                     <div class="col-xs-12 text-center">
-                        %sla = (100 - ss['pct_ok'])
-                        %font='ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
-                        <a href="/all?search=type:service" class="sla_services_{{font}}">
-                           <div>{{sla}}%</div>
+                  <div class="row">
+                      <div class="col-xs-3 col-sm-3 text-center">
+                         <div class="col-xs-12 text-center">
+                            %sla = ss['pct_ok']
+                            %font='ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
+                            <a href="/all?search=type:service" class="sla_services_{{font}}">
+                               <div>{{sla}}%</div>
 
-                           <i class="fa fa-4x fa-server font-{{font}}"></i>
-                           <p>{{_('Services SLA')}}</p>
-                        </a>
-                     </div>
-                     %known_problems=ss['nb_acknowledged']+ss['nb_in_downtime']+ss['nb_problems']
-                     %pct_known_problems=round(100.0 * known_problems / ss['nb_elts'], 2) if ss['nb_elts'] else -1
-                     <div class="col-xs-12 text-center">
-                         <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:down" class="sla_services_problems">
-                             <span class="services-count" data-count="{{ known_problems }}" data-state="problem">{{ pct_known_problems }}%</span>
-                             <br/>
-                             <span class="services-state">{{_('Known problems')}}</span>
-                         </a>
-                     </div>
-                  </div>
+                               <i class="fa fa-4x fa-server font-{{font}}"></i>
+                               <p>{{_('Services SLA')}}</p>
+                            </a>
+                         </div>
+                      </div>
 
-                  %for state in 'ok', 'warning', 'critical', 'unreachable', 'unknown', 'acknowledged', 'in_downtime':
-                  <div class="col-xs-4 col-sm-4 text-center">
-                      <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
-                          <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['pct_' + state] }}%</span>
-                          <br/>
-                          <span class="services-state">{{ state }}</span>
-                      </a>
+                      %for state in 'ok', 'warning', 'critical', 'unreachable', 'unknown':
+                      <div class="col-xs-3 col-sm-3 col-md-3 text-center">
+                          <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
+                              <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['pct_' + state] }}%</span>
+                              <br/>
+                              <span class="services-state">{{ state }}</span>
+                          </a>
+                      </div>
+                      %end
                   </div>
-                  %end
+                  <div class="row">
+                      <div class="col-xs-3 col-sm-3 text-center">
+                         %unmanaged_problems=ss['nb_problems'] - (ss['nb_acknowledged']+ss['nb_in_downtime'])
+                         %pct_unmanaged_problems=round(100.0 * unmanaged_problems / ss['nb_elts'], 2) if ss['nb_elts'] else -1
+                         <div class="col-xs-12 text-center">
+                             <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:down" class="sla_services_problems">
+                                 <span class="services-count" data-count="{{ ss['nb_problems'] }}" data-state="problem">{{ pct_unmanaged_problems }}%</span>
+                                 <br/>
+                                 <span class="services-state">{{_('Unmanaged problems')}}</span>
+                             </a>
+                         </div>
+                      </div>
+
+                      %for state in 'acknowledged', 'in_downtime':
+                      <div class="col-xs-3 col-sm-3 col-md-3 text-center">
+                          <a role="button" href="{{ webui.get_url('Services table') }}?search=ls_state:{{state.upper()}}" class="item_service_{{state}}">
+                              <span class="services-count" data-count="{{ ss['nb_' + state] }}" data-state="{{ state }}">{{ ss['pct_' + state] }}%</span>
+                              <br/>
+                              <span class="services-state">{{ state }}</span>
+                          </a>
+                      </div>
+                      %end
+                  </div>
                </div>
             </div>
          </div>

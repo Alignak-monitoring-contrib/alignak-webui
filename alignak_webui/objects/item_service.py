@@ -77,7 +77,7 @@ class Service(BackendElement):
 
         """Create a service (called only once when an object is newly created)"""
 
-        self._linked__realm = 'realm'
+        # self._linked__realm = 'realm'
         self._linked__templates = 'service'
         self._linked_host = 'host'
         self._linked_check_command = 'command'
@@ -105,10 +105,10 @@ class Service(BackendElement):
         """
         return '/service/%s' % (self.id)
 
-    @property
-    def _realm(self):
-        """ Return concerned realm """
-        return self._linked__realm
+    # @property
+    # def _realm(self):
+    #     """ Return concerned realm """
+    #     return self._linked__realm
 
     @property
     def _templates(self):

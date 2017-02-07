@@ -394,7 +394,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 5
+        assert response.json['recordsFiltered'] == 90
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -492,7 +492,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 5
+        assert response.json['recordsFiltered'] == 88
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -631,7 +631,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_state_type" data-type="string">State type</th>',
             '<th data-name="ls_state_id" data-type="integer">State id</th>',
             '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="ls_downtime" data-type="boolean">In scheduled downtime</th>',
+            '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
             '<th data-name="ls_output" data-type="string">Output</th>',
             '<th data-name="ls_long_output" data-type="string">Long output</th>',
             '<th data-name="ls_perf_data" data-type="string">Performance data</th>',
@@ -779,7 +779,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="ls_state_type" data-type="string">State type</th>',
             '<th data-name="ls_state_id" data-type="integer">State id</th>',
             '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="ls_downtime" data-type="boolean">In scheduled downtime</th>',
+            '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
             '<th data-name="ls_output" data-type="string">Output</th>',
             '<th data-name="ls_long_output" data-type="string">Long output</th>',
             '<th data-name="ls_perf_data" data-type="string">Performance data</th>',

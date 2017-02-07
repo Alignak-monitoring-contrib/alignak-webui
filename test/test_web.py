@@ -136,17 +136,8 @@ class TestDashboard(unittest2.TestCase):
             '<!-- Page footer -->'
         )
 
-        print('get page /currently')
-        redirected_response = self.app.get('/currently')
-        redirected_response.mustcontain(
-            '<div id="currently">',
-            '<div id="one-eye-toolbar"',
-            '<div id="one-eye-overall" ',
-            '<div id="one-eye-icons" ',
-        )
 
-
-class TestUsers(unittest2.TestCase):
+class TestCurrently(unittest2.TestCase):
     def setUp(self):
         # Test application
         self.app = TestApp(
@@ -157,20 +148,19 @@ class TestUsers(unittest2.TestCase):
     def tearDown(self):
         response = self.app.get('/logout')
 
-    def test_users(self):
-        """ Web - users """
-        print('test users')
+    def test_dashboard(self):
+        """ Web - dashboard """
+        print('test currently')
 
-        print('get page /users')
-        response = self.app.get('/users')
-        response.mustcontain(
-            '<div id="users">',
-            '5 elements out of 5',
+        print('get page /currently')
+        redirected_response = self.app.get('/currently')
+        redirected_response.mustcontain(
+            '<div id="currently">',
+            '<div id="one-eye-toolbar"',
+            '<div id="one-eye-overall" ',
+            '<div id="one-eye-icons" ',
+            '<div id="livestate-graphs" ',
         )
-        self.app.get('/users/config')
-        self.app.get('/users/list')
-        self.app.get('/users/table')
-        self.app.get('/users/templates')
 
 
 class TestCommands(unittest2.TestCase):
@@ -665,6 +655,33 @@ class TestServices(unittest2.TestCase):
         response.mustcontain(
             '<div id="service-%s">' % self.service_id
         )
+
+
+class TestUsers(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(
+            webapp
+        )
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        response = self.app.get('/logout')
+
+    def test_users(self):
+        """ Web - users """
+        print('test users')
+
+        print('get page /users')
+        response = self.app.get('/users')
+        response.mustcontain(
+            '<div id="users">',
+            '5 elements out of 5',
+        )
+        self.app.get('/users/config')
+        self.app.get('/users/list')
+        self.app.get('/users/table')
+        self.app.get('/users/templates')
 
 
 class TestWorldmap(unittest2.TestCase):

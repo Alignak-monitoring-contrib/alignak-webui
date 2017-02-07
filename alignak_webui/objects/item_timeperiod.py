@@ -55,14 +55,14 @@ class TimePeriod(BackendElement):
         """
         Create a timeperiod (called only once when an object is newly created)
         """
-        self._linked__realm = 'realm'
+        # self._linked__realm = 'realm'
 
         super(TimePeriod, self).__init__(params, date_format, embedded)
 
-    @property
-    def _realm(self):
-        """ Return group parent """
-        return self._linked__realm
+    # @property
+    # def _realm(self):
+    #     """ Return group parent """
+    #     return self._linked__realm
 
     @property
     def endpoint(self):

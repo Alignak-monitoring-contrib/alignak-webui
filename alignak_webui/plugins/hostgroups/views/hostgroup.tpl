@@ -122,6 +122,7 @@
                   <th style="width: 40px"></th>
                   <th>{{_('Host name')}}</th>
                   <th>{{_('Business impact')}}</th>
+                  <th>{{_('Host check')}}</th>
                   <th>{{_('Last check')}}</th>
                   <th>{{_('Output')}}</th>
                </tr></thead>
@@ -130,8 +131,7 @@
                %for elt in element.members:
                   <tr id="#{{elt.id}}">
                      <td title="{{elt.alias}}">
-                        %title = "%s - %s (%s)" % (elt.state, Helper.print_duration(elt.last_check, duration_only=True, x_elts=0), elt.output)
-                        {{! elt.get_html_state(text=None, title=title)}}
+                        {{! elt.get_html_state(text=None, size="fa-1x", use_status=elt.overall_status)}}
                      </td>
 
                      <td title="{{elt.alias}}">
@@ -140,6 +140,10 @@
 
                      <td>
                         <small>{{! Helper.get_html_business_impact(elt.business_impact)}}</small>
+                     </td>
+
+                     <td>
+                        {{! elt.get_html_state(text=None)}}
                      </td>
 
                      <td>
