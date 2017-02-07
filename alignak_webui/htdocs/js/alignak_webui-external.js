@@ -74,6 +74,11 @@ var g_services_states = {
       'background': 'rgba(41, 128, 185, 0.2)',
       'label': 'Unknown'
    },
+   'unreachable': {
+      'color': 'rgba(41, 128, 185, 1)',
+      'background': 'rgba(41, 128, 185, 0.2)',
+      'label': 'Unreachable'
+   },
    'acknowledged': {
       'color': 'rgba(149, 165, 166, 1)',
       'background': 'rgba(149, 165, 166, 0.2)',

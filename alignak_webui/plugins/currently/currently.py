@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin Dashboard
+    Plugin Currently
 """
 
 from logging import getLogger
@@ -34,51 +34,48 @@ from alignak_webui.utils.plugin import Plugin
 logger = getLogger(__name__)
 
 
-class PluginDashboard(Plugin):
-    """ Dashboard plugin """
+class PluginCurrently(Plugin):
+    """ Currently plugin """
 
     def __init__(self, app, cfg_filenames=None):
         """
-        Dashboard plugin
+        Currently plugin
         """
-        self.name = 'Dashboard'
+        self.name = 'Currently'
         self.backend_endpoint = None
 
         self.pages = {
-            'get_page': {
-                'name': 'Dashboard',
-                'route': '/dashboard',
-                'view': 'dashboard'
+            'get_currently': {
+                'name': 'Currently',
+                'route': '/currently',
+                'view': 'currently'
             }
         }
 
-        super(PluginDashboard, self).__init__(app, cfg_filenames)
+        super(PluginCurrently, self).__init__(app, cfg_filenames)
 
-    def get_page(self):
+    def get_currently(self):  # pylint:disable=no-self-use
         """
-        Display dashboard page
+        Display currently page
         """
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
-        # Search for the dashboard widgets
-        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
-        if not saved_widgets:
-            datamgr.set_user_preferences(user, 'dashboard_widgets', [])
+        # Get the stored panels
+        currently_panels = datamgr.get_user_preferences(user, 'currently_panels', None)
 
-        for widget in saved_widgets:
-            logger.debug("Dashboard widget, got: %s", widget)
+        # Get the stored graphs
+        currently_graphs = datamgr.get_user_preferences(user, 'currently_graphs', None)
 
-        message = None
-        session = request.environ['beaker.session']
-        if 'user_message' in session and session['user_message']:
-            message = session['user_message']
-            session['user_message'] = None
+        # Live state global and history
+        (livesynthesis, ls_history) = datamgr.get_livesynthesis_history()
+        ls_history = sorted(ls_history, key=lambda x: x['_timestamp'], reverse=False)
 
         return {
-            'widgets_bar': len(self.webui.get_widgets_for('dashboard')) != 0,
-            'widgets_place': 'dashboard',
-            'dashboard_widgets': saved_widgets,
-            'title': request.query.get('title', _('Dashboard')),
-            'message': message
+            'currently_panels': currently_panels,
+            'currently_graphs': currently_graphs,
+            'history': ls_history,
+            'hs': livesynthesis['hosts_synthesis'],
+            'ss': livesynthesis['services_synthesis'],
+            'title': request.query.get('title', _('Keep an eye'))
         }
