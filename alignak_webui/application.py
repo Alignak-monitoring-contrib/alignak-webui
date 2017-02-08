@@ -848,7 +848,7 @@ class WebUI(object):
         # Try to import all found supposed modules
         i = 0
         for plugin_name in plugin_names:
-            logger.info("trying to load plugin '%s' ...", plugin_name)
+            logger.debug("trying to load plugin '%s' ...", plugin_name)
             try:
                 # Import the module in the package namespace
                 plugin = import_module(
@@ -862,7 +862,7 @@ class WebUI(object):
                 # Find "Plugin" sub classes in imported module ...
                 p_classes = [co for dummy, co in classes if issubclass(co, Plugin) and co != Plugin]
                 if p_classes:
-                    logger.info("Found plugins classes: %s", p_classes)
+                    logger.debug("Found plugins classes: %s", p_classes)
                     cfg_files = [
                         '/usr/local/etc/%s/plugin_%s.cfg' % (
                             self.app_config['name'].lower(), plugin_name

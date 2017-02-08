@@ -41,7 +41,7 @@ from beaker.middleware import SessionMiddleware
 
 # Specific application
 from alignak_webui.version import __manifest__
-from alignak_webui.utils.logs import setup_logger
+from alignak_webui.utils.logs import logger, setup_logger
 
 
 # --------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ def set_app_config(config):
     """
     Update global application configuration
     """
-    global bottle_app, app_config, _
+    global bottle_app, app_config, _, logger
 
     # Localization
     try:
@@ -104,7 +104,7 @@ def set_app_config(config):
         print("-> Activated DEBUG log")
         log_level = logging.DEBUG
 
-    # Store logs in a daily file, keeping 6 days along ... as default!
+    # Define log file name
     log_file = os.path.join(app_config.get('logs.dir', '/usr/local/var/log/alignak'),
                             app_config.get('logs.filename', '%s.log'
                                            % __manifest__['name'].lower()))
