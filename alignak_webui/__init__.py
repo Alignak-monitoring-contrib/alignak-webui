@@ -105,7 +105,7 @@ def set_app_config(config):
         log_level = logging.DEBUG
 
     # Define log file name
-    log_file = os.path.join(app_config.get('logs.dir', '/usr/local/var/log/alignak'),
+    log_file = os.path.join(app_config.get('logs.dir', '/usr/local/var/log/alignak-webui'),
                             app_config.get('logs.filename', '%s.log'
                                            % __manifest__['name'].lower()))
     print("Configured log file: %s" % log_file)

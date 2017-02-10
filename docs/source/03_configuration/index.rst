@@ -120,7 +120,7 @@ The default logging is storing INFO level logs in a file named *alignak-webui.lo
 A log file is built each day on a 6 days rotating schema.
 
 **Note**: if the log directory does not exist or is not writable for the application, the log
-file is built in the current working directory.
+file is built in the */tmp* directory.
 
 
 [buttons] section

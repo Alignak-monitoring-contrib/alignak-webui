@@ -49,7 +49,7 @@ package_name = manifest["__pkg_name__"]
 
 data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini']),
             ('bin', ['bin/alignak-webui-uwsgi']),
-            ('var/log/alignak', [])]
+            ('var/log/alignak-webui', [])]
 
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
