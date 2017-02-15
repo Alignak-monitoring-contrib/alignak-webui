@@ -20,7 +20,7 @@
    %if service.ls_grafana and service.ls_grafana_panelid:
    %dashboard_name = service.host.name.replace('.', '-')
    %panel_id = service.ls_grafana_panelid
-   <iframe src="{{grafana_url}}/dashboard-solo/db/host_{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="320" frameborder="0"></iframe>
+   <iframe src="{{grafana_url}}/dashboard-solo/db/host-{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="320" frameborder="0"></iframe>
    %else:
    <!--
    <div class="alert alert-info">
