@@ -1566,7 +1566,8 @@ class DataManager(object):
         if embedded and 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1, '_templates': 1,
+                    # '_realm': 1,
+                    '_templates': 1,
                     'host': 1,
                     'check_command': 1, 'snapshot_command': 1, 'event_handler': 1,
                     'check_period': 1, 'notification_period': 1,
@@ -1808,12 +1809,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
-        if 'embedded' not in search:
-            search.update({
-                'embedded': {
-                    '_realm': 1
-                }
-            })
+        # if 'embedded' not in search:
+        #     search.update({
+        #         'embedded': {
+        #             '_realm': 1
+        #         }
+        #     })
 
         try:
             logger.debug("get_commands, search: %s", search)
@@ -1847,7 +1848,7 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1,
+                    # '_realm': 1,
                     '_parent': 1
                 }
             })
@@ -2085,12 +2086,12 @@ class DataManager(object):
             search = {}
         if 'sort' not in search:
             search.update({'sort': 'name'})
-        if 'embedded' not in search:
-            search.update({
-                'embedded': {
-                    '_realm': 1
-                }
-            })
+        # if 'embedded' not in search:
+        #     search.update({
+        #         'embedded': {
+        #             '_realm': 1
+        #         }
+        #     })
 
         try:
             logger.debug("get_timeperiods, search: %s", search)

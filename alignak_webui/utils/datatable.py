@@ -581,9 +581,13 @@ class Datatable(object):
 
         # Change item content ...
         rows = []
+        # Total number of filtered records
+        self.records_filtered = self.records_total
         for item in items:
             bo_object = object_class(item)
             logger.debug("table data object: %s", bo_object)
+            # Each item contains the toal number of records matching the search filter
+            self.records_filtered = item['_total']
 
             row = {}
             row['DT_RowData'] = {}
@@ -687,14 +691,8 @@ class Datatable(object):
             # logger.debug("Table row: %s", row)
             rows.append(row)
 
-        # Total number of filtered records
-        self.records_filtered = self.records_total
-        if 'where' in parameters and parameters['where'] != {}:
-            logger.debug("update filtered records: %s", parameters['where'])
-            self.records_filtered = len(items)
-        logger.info(
-            "filtered records: %d out of total: %d", self.records_filtered, self.records_total
-        )
+        logger.debug("filtered records: %d out of total: %d",
+                     self.records_filtered, self.records_total)
 
         # Prepare response
         rsp = {
