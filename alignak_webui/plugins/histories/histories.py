@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 class PluginHistorys(Plugin):
     """ History plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         User plugin
 
@@ -47,4 +47,4 @@ class PluginHistorys(Plugin):
 
         self.pages = {}
 
-        super(PluginHistorys, self).__init__(app, cfg_filenames)
+        super(PluginHistorys, self).__init__(app, webui, cfg_filenames)

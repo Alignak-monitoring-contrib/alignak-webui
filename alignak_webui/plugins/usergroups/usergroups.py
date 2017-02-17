@@ -28,7 +28,6 @@ from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui import _
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 
@@ -39,7 +38,7 @@ logger = getLogger(__name__)
 class PluginServicesGroups(Plugin):
     """ Services groups plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Services groups plugin
 
@@ -47,6 +46,7 @@ class PluginServicesGroups(Plugin):
         """
         self.name = 'Users groups'
         self.backend_endpoint = 'usergroup'
+        _ = app.config['_']
 
         self.pages = {
             'get_usergroup_members': {
@@ -55,7 +55,7 @@ class PluginServicesGroups(Plugin):
             },
         }
 
-        super(PluginServicesGroups, self).__init__(app, cfg_filenames)
+        super(PluginServicesGroups, self).__init__(app, webui, cfg_filenames)
 
     def get_one(self, element_id):
         """

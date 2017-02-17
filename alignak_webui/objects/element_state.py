@@ -42,7 +42,8 @@ logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class ElementState(object):    # pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
+class ElementState(object):
     """
     Singleton design pattern ...
     """

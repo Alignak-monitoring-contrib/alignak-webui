@@ -3,6 +3,7 @@ include AUTHORS
 include LICENSE
 include requirements.txt
 include etc/settings.cfg
+include etc/logging.json
 include etc/uwsgi.ini
 include bin/alignak-webui-uwsgi
 include bin/rc.d/alignak-webui

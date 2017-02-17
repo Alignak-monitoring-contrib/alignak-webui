@@ -1,4 +1,5 @@
 %from bottle import request
+
 %# If current page defines its own search criteria...
 %search_filters = {}
 %if 'search_engine' in request.route.config and request.route.config['search_engine']:

@@ -26,9 +26,6 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
@@ -66,13 +63,13 @@ class Host(BackendElement):
 
     # Converting short state character to text status (used for initial_state and freshness_state)
     short_state_to_status = {
-        'o': _('Up'),
-        'd': _('Down'),
-        'u': _('Unreachable'),
-        'x': _('Unreachable'),
-        'r': _('Recovery'),
-        'f': _('Flapping'),
-        's': _('Downtime'),
+        'o': 'Up',
+        'd': 'Down',
+        'u': 'Unreachable',
+        'x': 'Unreachable',
+        'r': 'Recovery',
+        'f': 'Flapping',
+        's': 'Downtime',
     }
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
@@ -286,7 +283,7 @@ class Host(BackendElement):
         return self.ls_acknowledged
 
     @property
-    def downtime(self):
+    def downtimed(self):
         """
         Return host live state downtime
         """

@@ -18,7 +18,7 @@
       {{! host.get_html_state(text=None, size="fa-4x", use_status=host.overall_status)}}
       <legend><strong>{{host.alias}}</strong></legend>
       %if current_user.is_power():
-         {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
+         {{! Helper.get_html_commands_buttons(host, title='Actions')}}
       %end
    </div>
    %if host_state != 0:
@@ -43,7 +43,7 @@
                   %if service.acknowledged:
                   %extra += _(' and acknowledged')
                   %end
-                  %if service.downtime:
+                  %if service.downtimed:
                   %extra += _(' and in scheduled downtime')
                   %end
                   %title = "%s - %s (%s)" % (service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)

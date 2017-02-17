@@ -26,7 +26,6 @@ from logging import getLogger
 
 from bottle import request, template
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -36,7 +35,7 @@ logger = getLogger(__name__)
 class PluginHosts(Plugin):
     """ Hosts plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Hosts plugin
 
@@ -44,6 +43,7 @@ class PluginHosts(Plugin):
         """
         self.name = 'Hosts'
         self.backend_endpoint = 'host'
+        _ = app.config['_']
 
         self.pages = {
             'get_host_widget': {
@@ -107,7 +107,7 @@ class PluginHosts(Plugin):
                             '<h4>Host metrics widget</h4>Displays host (and its services) last '
                             'received metrics.'
                         ),
-                        'picture': 'htdocs/img/host_metrics_widget.png',
+                        'picture': 'static/img/host_metrics_widget.png',
                         'options': {}
                     },
                     {
@@ -119,7 +119,7 @@ class PluginHosts(Plugin):
                         'description': _(
                             '<h4>Host timeline widget</h4>Displays host timeline.'
                         ),
-                        'picture': 'htdocs/img/host_timeline_widget.png',
+                        'picture': 'static/img/host_timeline_widget.png',
                         'options': {}
                     },
                     {
@@ -176,7 +176,7 @@ class PluginHosts(Plugin):
                             'The number of hosts in this list can be defined in the widget options.'
                             'The list of hosts can be filtered thanks to regex on the host name'
                         ),
-                        'picture': 'htdocs/img/hosts_table_widget.png',
+                        'picture': 'static/img/hosts_table_widget.png',
                         'options': {
                             'search': {
                                 'value': '',
@@ -205,14 +205,14 @@ class PluginHosts(Plugin):
                             '<h4>Hosts chart widget</h4>Displays a pie chart with the system '
                             'hosts states.'
                         ),
-                        'picture': 'htdocs/img/hosts_chart_widget.png',
+                        'picture': 'static/img/hosts_chart_widget.png',
                         'options': {}
                     }
                 ]
             },
         }
 
-        super(PluginHosts, self).__init__(app, cfg_filenames)
+        super(PluginHosts, self).__init__(app, webui, cfg_filenames)
 
     def get_hosts_widget(self, embedded=False, identifier=None, credentials=None):
         """

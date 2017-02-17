@@ -37,9 +37,9 @@ from datetime import datetime
 from logging import getLogger, INFO
 
 # noinspection PyProtectedMember
-from alignak_webui import get_app_config, _
+# from alignak_webui import get_app_config, _
 # Import the backend interface class
-from alignak_webui.objects.backend import BackendConnection
+from alignak_webui.backend.backend import BackendConnection
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 
@@ -363,7 +363,7 @@ class BackendElement(object):
             if hasattr(self, '_linked_' + key):
                 # Not yet the linked objects...
                 continue
-            logger.debug(" --- parameter %s = %s", key, params[key])
+            # logger.debug(" --- parameter %s = %s", key, params[key])
 
             # If the property is a date, make it a timestamp...
             if key.endswith('date') or key in self.__class__._dates:

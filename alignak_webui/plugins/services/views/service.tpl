@@ -149,7 +149,8 @@
          %end
       </div>
       %end
-      %if templates:
+      %#todo: edit the service templates!
+      %if False:
       <div class="btn-group pull-right">
          %if len(templates) > 2:
             <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">

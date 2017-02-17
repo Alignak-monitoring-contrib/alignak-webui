@@ -10,7 +10,7 @@
 
 %hosts = [host]
 <script>
-   var cssfiles=['/static/plugins/worldmap/htdocs/css/worldmap.css', '/static/plugins/worldmap/htdocs/css/leaflet.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.Default.css', '/static/plugins/worldmap/htdocs/css/leaflet.label.css'];
+   var cssfiles=['/static/plugins/worldmap/static/css/worldmap.css', '/static/plugins/worldmap/static/css/leaflet.css', '/static/plugins/worldmap/static/css/MarkerCluster.css', '/static/plugins/worldmap/static/css/MarkerCluster.Default.css', '/static/plugins/worldmap/static/css/leaflet.label.css'];
 
    $.getCssFiles(cssfiles, function(){
       // do something, e.g.

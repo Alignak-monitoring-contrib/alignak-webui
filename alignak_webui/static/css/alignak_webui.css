@@ -1,0 +1,389 @@
+/**
+* Copyright (c) 2015-2017 F. Mohier
+*
+**/
+
+html, body {
+    background: #f9f9f9;
+}
+
+/*
+ * Because of the fixed footer
+ */
+body {
+    padding-bottom: 25px;
+}
+
+/*
+ * ------------------------------------------------------------------------
+ * Minimize table layout ...
+ * ------------------------------------------------------------------------
+ */
+.table-invisible > thead > tr > th,
+.table-invisible > tbody > tr > th,
+.table-invisible > tfoot > tr > th,
+.table-invisible > thead > tr > td,
+.table-invisible > tbody > tr > td,
+.table-invisible > tfoot > tr > th {
+    border-top: 0;
+}
+.table-invisible {
+    margin:1;
+}
+
+/*
+ * ------------------------------------------------------------------------
+ * Page layout
+ * ------------------------------------------------------------------------
+ */
+/*
+ * Page content - the debug row ...
+ */
+.debug {
+    position: absolute;
+    top: 70px;
+    right: 10px;
+    z-index: 10000;
+}
+
+/*
+ * Page content - header
+ */
+header {
+    height: 60px;
+/*
+    z-index: 2000;
+*/
+}
+#topbar {
+}
+
+/*
+ * Header - app logo
+ */
+.navbar-brand {
+    float: left;
+    padding: 5px;
+}
+.navbar-brand img {
+    height: 100%;
+    padding: 3px;
+    background-color: transparent;
+    border-radius: 0;
+}
+
+/*
+ * Header - Hosts and services states icons
+ */
+#hosts-states-popover,
+#services-states-popover {
+    width: 44px;
+    height: 50px;
+}
+
+/*
+#hosts-states-popover-content,
+#services-states-popover-content {
+    width: 440px;
+}
+*/
+
+/*
+ * Header - Hosts and services popovers
+
+   Hack because current Bootstrap material design (V3) does not deal correctly with popovers ...
+ */
+.popover-hosts {
+    max-width: 100%;
+    width: 350px;
+    background: #eee;
+    color: #fff;
+    border-radius: 3px;
+}
+.popover-services {
+    max-width: 100%;
+    width: 500px;
+    background: #eee;
+    color: #fff;
+    border-radius: 3px;
+}
+.popover-title {
+    /* blue-grey-400 */
+    background-color: #78909c;
+    color: #FFF;
+}
+
+/*
+ * Header - Hosts and services states popovers
+ * Styles declared in _header_hosts_states.tpl and _header_services_states.tpl ... because styles
+ * of the popovers are not considered when declared here!
+ */
+
+header span.label {
+    position: relative;
+    left: +10px;
+    top: -30px;
+    font-size: 0.7em;
+}
+
+
+/*
+ * Navigation bar
+ */
+#navbar-collapsible-part {
+    margin-left: 15px;
+    margin-right: 5px;
+}
+
+.navbar-right {
+    margin-right: 0 !important;
+}
+
+/*
+ * Application menu bar - for small devices, menu items are floating and
+ * the menu is positionned in the header navigation bar collapsable part.
+ */
+@media (max-width: 767px) {
+    #topbar ul.navbar-right > li {
+        float:left;
+    }
+
+    #navbar-collapsible-part nav,
+    #navbar-collapsible-part ul.navbar-left,
+    #navbar-collapsible-part form {
+        float:left;
+    }
+    #navbar-collapsible-part ul.navbar-right {
+        float:right;
+    }
+    #header-search {
+        float:left;
+    }
+
+    #menu-bar > ul > li {
+        float:left;
+    }
+    #menu-bar .dropdown-menu .open {
+        min-width: 50px;
+        background-color: #fff;
+    }
+    #menu-bar a.navbar-link {
+        padding-top: 15px;
+        padding-bottom: 5px;
+        width: 40px;
+    }
+}
+
+/*
+ * Application actions buttons
+ */
+div[data-type="actions"] {
+    margin: 0px;
+}
+
+div[data-type="actions"] ul.dropdown-menu {
+    opacity: 1;
+    background-color: light-grey;
+}
+
+/*
+ * Application tables
+ */
+/* Set fixed position for table buttons */
+div.dt-buttons {
+   position: fixed;
+}
+div.dataTables_wrapper div.row.table {
+    margin-top: 45px;
+}
+
+div.dataTables_paginate {
+    text-align: center !important;
+}
+
+/* Set smaller font for table content */
+tbody > tr {
+   /*font-size:11px;*/
+}
+/* Modal opening button position adjusted */
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+   top: 3px;
+}
+/* Selected line */
+table.dataTable tr.selected,
+table.dataTable .sorting_1 {
+   color: #aaa !important;
+   background-color:lightyellow !important;
+}
+table.dataTable th div.form-group-sm {
+    margin-top: 0;
+}
+/* Copy of the MD class to modify it */
+.selectize-control.single .selectize-dropdown,
+.selectize-control.multi .selectize-dropdown {
+  position: absolute;
+  z-index: 1000;
+  border: 0;
+  width: auto !important;
+  left: 0 !important;
+  height: auto;
+  background-color: #FFF;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 2px;
+  padding: 0;
+  margin-top: 3px;
+}
+.selectize-control.single .selectize-input:after,
+.selectize-control.multi .selectize-input:after,
+.selectize-control.single .selectize-input.input-active:after,
+.selectize-control.multi .selectize-input.input-active:after {
+    right: -10px /*5px*/;
+    position: absolute;
+    font-size: 24px;
+    content: "\e5c5";
+    font-family: 'Material Icons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+/*
+ * Page content - the header navigation bar is fixed, page content must
+ * be shifted to the bottom if the header bar is present (not present on fullscreen pages).
+#page-wrapper.header-page > div.row {
+    margin-top: 60px;
+    padding: 0px;
+    margin-bottom: 30px;
+}
+ */
+
+/*
+ * Page content - padding for all the sections (header, page and footer).
+#page-content > section {
+}
+
+#page-content > section.content-header {
+    padding: 5px;
+}
+
+#page-content > section.content {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#page-content > section.content-footer {
+}
+ */
+
+/*
+ * Pagination control elements
+ */
+.elts_per_page {
+    margin-left: 5px;
+}
+.elts_per_page input {
+    max-width: 70px;
+}
+@media (max-width: 768px) {
+    .elts_per_page {
+        display: inline-table;
+        vertical-align: middle;
+    }
+}
+
+/*
+ * Sidebar fixed width management - not used anymore... leave it if necessary ;)
+ */
+.col-sidebar {
+    margin-left: 0;
+    width:200px;
+    height: 100%;
+    float:left;
+}
+
+.col-offset-sidebar {
+    width:calc(100% - 200px);
+    float:left;
+}
+
+/*
+ * On small device and extra small devices:
+ * - more or less shifting the page...
+ * - hide the sidebar column
+ */
+@media (max-width: 992px) {
+    /*
+    #page-wrapper.header-page {
+        margin-top: 130px;
+    }
+    */
+}
+@media (max-width: 768px) {
+    /*
+    #page-wrapper.header-page {
+        margin-top: 65px;
+    }
+    */
+}
+
+/*
+ * Menu bar
+ */
+#topbar form {
+padding: 0;
+}
+
+/*
+ * Navigation bar, user dropdown menu
+ */
+.user-menu > .dropdown-menu {
+    border-top-width: 0;
+    width: 320px;
+    text-align: center;
+    margin-right: 5px;
+}
+.user-menu > .dropdown-menu .panel {
+    margin-bottom: 0px;
+    margin: 0; padding: 0;
+}
+.user-menu > .dropdown-menu .username {
+    color: black;
+    font-size: 1.2em;
+}
+.user-menu > .dropdown-menu .usercategory {
+    color: black;
+    font-size: 1em;
+}
+
+/*
+ * Footer navigation bar
+ */
+footer.page-footer {
+    position: fixed;
+    height: 25px;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255,255,255,0.7);
+}
+footer.page-footer img {
+    height: 16px;
+}
+footer.page-footer span {
+    font-size: 0.8em;
+}
+
+
+/*
+ * Element forms
+ */
+form.element_form {
+    padding: 25px;
+}
+form.template_form {
+    background-color: #eee;
+}

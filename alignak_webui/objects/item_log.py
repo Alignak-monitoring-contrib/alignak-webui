@@ -29,11 +29,7 @@
 
 from logging import getLogger, INFO
 
-# noinspection PyProtectedMember
-from alignak_webui import _
 # Import the backend interface class
-
-# Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 from alignak_webui.objects.element import BackendElement
 
 # pylint: disable=invalid-name

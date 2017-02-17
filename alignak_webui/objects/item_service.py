@@ -26,9 +26,6 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
@@ -63,21 +60,21 @@ class Service(BackendElement):
 
     # Converting short state character to text status (used for initial_state and freshness_state)
     short_state_to_status = {
-        'o': _('Ok'),
-        'w': _('Warning'),
-        'c': _('Critical'),
-        'u': _('Unknown'),
-        'x': _('Unreachable'),
-        'r': _('Recovery'),
-        'f': _('Flapping'),
-        's': _('Downtime'),
+        'o': 'Ok',
+        'w': 'Warning',
+        'c': 'Critical',
+        'u': 'Unknown',
+        'x': 'Unreachable',
+        'r': 'Recovery',
+        'f': 'Flapping',
+        's': 'Downtime'
     }
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
 
         """Create a service (called only once when an object is newly created)"""
 
-        self._linked__realm = 'realm'
+        # self._linked__realm = 'realm'
         self._linked__templates = 'service'
         self._linked_host = 'host'
         self._linked_check_command = 'command'
@@ -105,10 +102,10 @@ class Service(BackendElement):
         """
         return '/service/%s' % (self.id)
 
-    @property
-    def _realm(self):
-        """ Return concerned realm """
-        return self._linked__realm
+    # @property
+    # def _realm(self):
+    #     """ Return concerned realm """
+    #     return self._linked__realm
 
     @property
     def _templates(self):
@@ -285,7 +282,7 @@ class Service(BackendElement):
         return self.ls_acknowledged
 
     @property
-    def downtime(self):
+    def downtimed(self):
         """
         Return host live state downtime
         """

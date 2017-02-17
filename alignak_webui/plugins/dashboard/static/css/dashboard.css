@@ -1,0 +1,97 @@
+/**
+* Copyright (c) 2015-2017 F. Mohier
+*
+**/
+
+/*
+ * Widget loading information
+ */
+#widgets_loading {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+/*
+ * Widget styles
+ */
+.widget_desc {
+   background-color : white;
+   margin : 5px;
+   padding : 10px;
+   border-radius: 4px;
+   color : black;
+   min-height : 160px !important;
+   position: relative; /* To be sure absolute item will b where they should be*/
+}
+
+.widget_desc .add_button{
+   bottom:0px;
+   position:absolute;
+}
+
+/*
+ * Widget styles informations
+-------------------------------------------------------
+ This is the widgets basic CSS. Note that you can change
+ the classes names using the plugin settings. But you can
+ use directly the default classes names, this names. */
+
+.widget-place {
+   height: auto;
+   min-height: 120px;
+}
+
+.widget-menu {
+   float:right;
+}
+
+.widget-menu a {
+   margin: 0 0 0 0.5em;
+}
+
+
+.widget-placeholder {
+   border: #000 dashed 1px;
+   color: #000;
+   margin: 1em;
+   background-color: #FAFAFA;
+}
+
+.widget {
+   margin: 1em;
+   border-left: #ebebeb solid 1px;
+   border-right: #ebebeb solid 1px;
+   border-bottom: #ebebeb solid 1px;
+   border-radius: 4px;
+}
+
+.widget-header {
+   padding: 0.4em 0.6em;
+
+   color: #505050;
+   background-color: #D9DCDF;
+   background-image: -webkit-gradient(linear, left top, left bottom, from(#FAFAFA), to(#EAEAEA)); /* Saf4+, Chrome */
+   background-image: -webkit-linear-gradient(top, #FAFAFA, #EAEAEA); /* Chrome 10+, Saf5.1+, iOS 5+ */
+   background-image:    -moz-linear-gradient(top, #FAFAFA, #EAEAEA); /* FF3.6 */
+   background-image:     -ms-linear-gradient(top, #FAFAFA, #EAEAEA); /* IE10 */
+   background-image:      -o-linear-gradient(top, #FAFAFA, #EAEAEA); /* Opera 11.10+ */
+   background-image:         linear-gradient(top, #FAFAFA, #EAEAEA);
+   filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#FAFAFA', EndColorStr='#EAEAEA'); /* IE6-IE9 */
+
+   border-bottom: solid 1px #EAEAEA;
+}
+
+.widget-editbox {
+   color: #000;
+   margin: 0.2em;
+   padding: 0.2em;
+}
+
+.widget-content {
+   padding: 0.6em;
+}
+
+.table-result {
+   border-top: 4px double #ebebeb !important;
+}

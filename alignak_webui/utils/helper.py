@@ -30,7 +30,7 @@ import time
 import traceback
 from logging import getLogger, INFO
 
-from alignak_webui import _
+# from alignak_webui import _
 from alignak_webui import get_app_config
 
 # pylint: disable=invalid-name
@@ -44,7 +44,7 @@ class Helper(object):
     """
     def __init__(self):
         """ Empty ... """
-        self.config = get_app_config()
+        # self.config = get_app_config()
 
     @staticmethod
     def print_date(timestamp, fmt='%Y-%m-%d %H:%M:%S'):
@@ -207,7 +207,7 @@ class Helper(object):
         }
 
         # nb_stars = max(0, business_impact - 2)
-        stars = '<i class="fa fa-star text-primary"></i>' * business_impact
+        stars = '<i class="fa fa-star"></i>' * business_impact
 
         if not text:
             return stars
@@ -607,6 +607,20 @@ class Helper(object):
             app_config = get_app_config()
 
             buttons = []
+            if bo_object.event_handler_enabled:
+                button = app_config.get('buttons.livestate_command')
+                button = button.replace("##id##", bo_object.id)
+                button = button.replace("##type##", bo_object.get_type())
+                button = button.replace("##name##", bo_object.name)
+                button = button.replace("##action##", 'event_handler')
+                button = button.replace("##title##", _('Try to fix this problem'))
+                button = button.replace("##icon##", 'magic')
+                if getattr(bo_object, 'state_id', 0) > 0:
+                    button = button.replace("##disabled##", 'disabled="disabled"')
+                else:
+                    button = button.replace("##disabled##", '')
+                buttons.append(button)
+
             button = app_config.get('buttons.livestate_command')
             button = button.replace("##id##", bo_object.id)
             button = button.replace("##type##", bo_object.get_type())
@@ -630,6 +644,11 @@ class Helper(object):
             button = button.replace("##action##", 'recheck')
             button = button.replace("##title##", _('Re-check this element'))
             button = button.replace("##icon##", 'refresh')
+            if getattr(bo_object, 'active_checks_enabled', None) is not None:
+                if not getattr(bo_object, 'active_checks_enabled'):
+                    button = button.replace("##disabled##", 'disabled="disabled"')
+            else:
+                button = button.replace("##disabled##", 'disabled="disabled"')
             buttons.append(button)
 
             button = app_config.get('buttons.livestate_command')
@@ -639,13 +658,10 @@ class Helper(object):
             button = button.replace("##action##", 'downtime')
             button = button.replace("##title##", _('Schedule a downtime'))
             button = button.replace("##icon##", 'ambulance')
-            if getattr(bo_object, 'state_id', 0) > 0:
-                if bo_object.downtime:
-                    button = button.replace("##disabled##", 'disabled="disabled"')
-                else:
-                    button = button.replace("##disabled##", '')
-            else:
+            if bo_object.downtimed:
                 button = button.replace("##disabled##", 'disabled="disabled"')
+            else:
+                button = button.replace("##disabled##", '')
             buttons.append(button)
 
             content = app_config.get('buttons.livestate_commands')
@@ -658,3 +674,623 @@ class Helper(object):
             logger.error("traceback: %s", traceback.format_exc())
 
         return content
+
+    @staticmethod
+    def get_html_hosts_count_panel(hs, url, collapsed=False, percentage=False):
+        """
+
+        :param hs: hosts livesynthesis as provided by the get_livesynthesis or
+                   get_livesynthesis_history functions
+        :param url: url to use for the links to an host table
+        :param collapsed: True if the panel is collapsed
+        :param percentage: True to build a percentage panel, else build a count panel
+        :return:
+        """
+        content = ''
+
+        sla = hs['pct_up']
+        font = 'ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
+        # unmanaged_problems = hs['nb_problems'] - (hs['nb_acknowledged'] + hs['nb_in_downtime'])
+        # pct_unmanaged_problems = round(100.0 * unmanaged_problems / hs['nb_elts'], 2) \
+        #     if hs['nb_elts'] else -1
+        # _('Unmanaged problems')
+
+        if percentage:
+            pp_h = """
+            <div id="panel_percentage_hosts">
+              <div class="panel panel-default">
+                <div class="panel-heading clearfix">
+                  <i class="fa fa-server"></i>
+                  <span class="hosts-all"
+                      data-count="#hs_nb_elts#"
+                      data-problems="#hs_nb_problems#">
+                    #hs_nb_elts# hosts (#hs_nb_problems# problems).
+                    </span>
+
+                  <div class="pull-right">
+                    <a href="#p_pp_h" class="btn btn-xs btn-raised"
+                       data-toggle="collapse">
+                       <i class="fa fa-fw %s"></i>
+                    </a>
+                  </div>
+                </div>
+                <div id="p_pp_h" class="panel-collapse collapse %s">
+                  <div class="panel-body">
+                    <div class="row">
+                      <div class="col-xs-3 col-sm-3 text-center">
+                        <div class="col-xs-12 text-center">
+                          <a href="#hosts_table_url#" class="sla_hosts_%s">
+                            <div>#hs_pct_sla#%%</div>
+                            <i class="fa fa-4x fa-server"></i>
+                            <p>%s</p>
+                          </a>
+                        </div>
+                      </div>
+
+                      <div class="col-xs-9 col-sm-9 text-center">
+                        <div class="row">
+                          <div class="col-xs-4 text-center">
+                            <a href="#hosts_table_url#?search=ls_state:UP"
+                              class="item_host_up" title="Up">
+                              <span class="hosts-count">#hs_pct_up#%%</span>
+                            </a>
+                          </div>
+                          <div class="col-xs-4 text-center">
+                            <a href="#hosts_table_url#?search=ls_state:DOWN"
+                              class="item_host_down" title="Down">
+                              <span class="hosts-count">#hs_pct_down#%%</span>
+                            </a>
+                          </div>
+                          <div class="col-xs-4 text-center">
+                            <a href="#hosts_table_url#?search=ls_state:UNREACHABLE"
+                              class="item_host_unreachable" title="Unreachable">
+                              <span class="hosts-count">#hs_pct_unreachable#%%</span>
+                            </a>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <br/>
+                        </div>
+                        <div class="row">
+                          <div class="col-xs-12 text-center">
+                            <a href="#hosts_table_url#?search=ls_state:acknowledged"
+                              class="item_host_acknowledged" title="Acknowledged">
+                              <span class="hosts-count">#hs_pct_acknowledged#%%</span>
+                            </a>
+                            <span>/</span>
+                            <a href="#hosts_table_url#?search=ls_state:IN_DOWNTIME"
+                              class="item_host_in_downtime" title="In downtime">
+                              <span class="hosts-count">#hs_pct_in_downtime#%%</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+                   'in' if not collapsed else '',
+                   font, _('Hosts SLA'))
+
+            pp_h = pp_h.replace("#hs_nb_elts#", "%d" % hs['nb_elts'])
+            pp_h = pp_h.replace("#hs_nb_problems#", "%d" % hs['nb_problems'])
+            pp_h = pp_h.replace("#hs_pct_sla#", "%d" % hs['pct_up'])
+            pp_h = pp_h.replace("#hs_pct_up#", "%d" % hs['pct_up'])
+            pp_h = pp_h.replace("#hs_pct_down#", "%d" % hs['pct_down'])
+            pp_h = pp_h.replace("#hs_pct_unreachable#", "%d" % hs['pct_unreachable'])
+            pp_h = pp_h.replace("#hs_pct_acknowledged#", "%d" % hs['pct_acknowledged'])
+            pp_h = pp_h.replace("#hs_pct_in_downtime#", "%d" % hs['pct_in_downtime'])
+            pp_h = pp_h.replace("#hosts_table_url#", url)
+            content = pp_h
+        else:
+            pc_h = """
+            <div id="panel_counters_hosts">
+              <div class="panel panel-default">
+                <div class="panel-heading clearfix">
+                  <i class="fa fa-server"></i>
+                  <span class="hosts-all"
+                      data-count="#hs_nb_elts#"
+                      data-problems="#hs_nb_problems#">
+                    #hs_nb_elts# hosts (#hs_nb_problems# problems).
+                    </span>
+
+                  <div class="pull-right">
+                    <a href="#p_pc_h" class="btn btn-xs btn-raised"
+                       data-toggle="collapse">
+                       <i class="fa fa-fw %s"></i>
+                    </a>
+                  </div>
+                </div>
+                <div id="p_pc_h" class="panel-collapse collapse %s">
+                  <div class="panel-body">
+                    <div class="col-xs-12 col-sm-9 text-center">
+                      <div class="col-xs-4 text-center">
+                        <a href="#hosts_table_url#?search=ls_state:UP"
+                          class="item_host_up" title="Up">
+                          <span class="hosts-count">#hs_nb_up#</span>
+                        </a>
+                      </div>
+                      <div class="col-xs-4 text-center">
+                        <a href="#hosts_table_url#?search=ls_state:DOWN"
+                          class="item_host_down" title="Down">
+                          <span class="hosts-count">#hs_nb_down#</span>
+                        </a>
+                      </div>
+                      <div class="col-xs-4 text-center">
+                        <a href="#hosts_table_url#?search=ls_state:UNREACHABLE"
+                          class="item_host_unreachable" title="Unreachable">
+                          <span class="hosts-count">#hs_nb_unreachable#</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-3 text-center">
+                      <a href="#hosts_table_url#?search=ls_state:acknowledged"
+                        class="item_host_acknowledged" title="Acknowledged">
+                        <span class="hosts-count">#hs_nb_acknowledged#</span>
+                      </a>
+                      <span>/</span>
+                      <a href="#hosts_table_url#?search=ls_state:IN_DOWNTIME"
+                        class="item_host_in_downtime" title="In downtime">
+                        <span class="hosts-count">#hs_nb_in_downtime#</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+                   'in' if not collapsed else '')
+            pc_h = pc_h.replace("#hs_nb_elts#", "%d" % hs['nb_elts'])
+            pc_h = pc_h.replace("#hs_nb_problems#", "%d" % hs['nb_problems'])
+            pc_h = pc_h.replace("#hs_nb_up#", "%d" % hs['nb_up'])
+            pc_h = pc_h.replace("#hs_nb_down#", "%d" % hs['nb_down'])
+            pc_h = pc_h.replace("#hs_nb_unreachable#", "%d" % hs['nb_unreachable'])
+            pc_h = pc_h.replace("#hs_nb_acknowledged#", "%d" % hs['nb_acknowledged'])
+            pc_h = pc_h.replace("#hs_nb_in_downtime#", "%d" % hs['nb_in_downtime'])
+            pc_h = pc_h.replace("#hosts_table_url#", url)
+            content = pc_h
+
+        return content
+
+    @staticmethod
+    def get_html_services_count_panel(ss, url, collapsed=False, percentage=False):
+        """
+
+        :param hs: services livesynthesis as provided by the get_livesynthesis or
+                   get_livesynthesis_history functions
+        :param url: url to use for the links to an host table
+        :param collapsed: True if the panel is collapsed
+        :param percentage: True to build a percentage panel, else build a count panel
+        :return:
+        """
+        content = ''
+
+        sla = ss['pct_ok']
+        font = 'ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
+        # unmanaged_problems = ss['nb_problems'] - (ss['nb_acknowledged'] + ss['nb_in_downtime'])
+        # pct_unmanaged_problems = round(100.0 * unmanaged_problems / ss['nb_elts'], 2) \
+        #     if ss['nb_elts'] else -1
+        # _('Unmanaged problems')
+
+        if percentage:
+            pp_s = """
+            <div id="panel_percentage_services">
+              <div class="panel panel-default">
+                <div class="panel-heading clearfix">
+                  <i class="fa fa-server"></i>
+                  <span class="services-all"
+                      data-count="#ss_nb_elts#"
+                      data-problems="#ss_nb_problems#">
+                    #ss_nb_elts# services (#ss_nb_problems# problems).
+                    </span>
+
+                  <div class="pull-right">
+                    <a href="#p_pp_s" class="btn btn-xs btn-raised"
+                       data-toggle="collapse">
+                       <i class="fa fa-fw %s"></i>
+                    </a>
+                  </div>
+                </div>
+                <div id="p_pp_s" class="panel-collapse collapse %s">
+                  <div class="panel-body">
+                    <div class="row">
+                      <div class="col-xs-3 col-sm-3 text-center">
+                        <div class="col-xs-12 text-center">
+                          <a href="#services_table_url#" class="sla_services_%s">
+                            <div>#ss_pct_ok#%%</div>
+                            <i class="fa fa-4x fa-server"></i>
+                            <p>%s</p>
+                          </a>
+                        </div>
+                      </div>
+
+                      <div class="col-xs-9 col-sm-9 text-center">
+                        <div class="row">
+                          <div class="col-xs-4 text-center">
+                            <a href="#services_table_url#?search=ls_state:OK"
+                              class="item_service_ok" title="ok">
+                              <span class="services-count">#ss_pct_ok#%%</span>
+                            </a>
+                          </div>
+                          <div class="col-xs-4 text-center">
+                            <a href="#services_table_url#?search=ls_state:WARNING"
+                              class="item_service_warning" title="warning">
+                              <span class="services-count">#ss_pct_warning#%%</span>
+                            </a>
+                          </div>
+                          <div class="col-xs-4 text-center">
+                            <a href="#services_table_url#?search=ls_state:CRITICAL"
+                              class="item_service_critical" title="critical">
+                              <span class="services-count">#ss_pct_critical#%%</span>
+                            </a>
+                          </div>
+                          <div class="col-xs-4 text-center">
+                            <a href="#services_table_url#?search=ls_state:UNKNONW"
+                              class="item_service_unknown" title="unknown">
+                              <span class="services-count">#ss_pct_unknown#%%</span>
+                            </a>
+                          </div>
+                          <div class="col-xs-4 text-center">
+                            <a href="#services_table_url#?search=ls_state:UNREACHABLE"
+                              class="item_service_unreachable" title="unreachable">
+                              <span class="services-count">#ss_pct_unreachable#%%</span>
+                            </a>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <br/>
+                        </div>
+                        <div class="row">
+                          <div class="col-xs-12 text-center">
+                            <a href="#services_table_url#?search=ls_state:ACKNOWLEDGED"
+                              class="item_service_acknowledged" title="acknowledged">
+                              <span class="services-count">#ss_pct_acknowledged#%%</span>
+                            </a>
+                            <span>/</span>
+                            <a href="#services_table_url#?search=ls_state:IN_DOWNTIME"
+                              class="item_service_in_downtime" title="in_downtime">
+                              <span class="services-count">#ss_pct_in_downtime#%%</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+                   'in' if not collapsed else '',
+                   font, _('Services SLA'))
+
+            pp_s = pp_s.replace("#ss_nb_elts#", "%d" % ss['nb_elts'])
+            pp_s = pp_s.replace("#ss_nb_problems#", "%d" % ss['nb_problems'])
+            pp_s = pp_s.replace("#ss_pct_ok#", "%d" % ss['pct_ok'])
+            pp_s = pp_s.replace("#ss_pct_warning#", "%d" % ss['pct_warning'])
+            pp_s = pp_s.replace("#ss_pct_critical#", "%d" % ss['pct_critical'])
+            pp_s = pp_s.replace("#ss_pct_unknown#", "%d" % ss['pct_unknown'])
+            pp_s = pp_s.replace("#ss_pct_unreachable#", "%d" % ss['pct_unreachable'])
+            pp_s = pp_s.replace("#ss_pct_acknowledged#", "%d" % ss['pct_acknowledged'])
+            pp_s = pp_s.replace("#ss_pct_in_downtime#", "%d" % ss['pct_in_downtime'])
+            pp_s = pp_s.replace("#services_table_url#", url)
+            content = pp_s
+        else:
+            pc_s = """
+            <div id="panel_counters_services">
+              <div class="panel panel-default">
+                <div class="panel-heading clearfix">
+                  <i class="fa fa-server"></i>
+                  <span class="services-all"
+                      data-count="#ss_nb_elts#"
+                      data-problems="#ss_nb_problems#">
+                    #ss_nb_elts# services (#ss_nb_problems# problems).
+                    </span>
+
+                  <div class="pull-right">
+                    <a href="#p_pc_s" class="btn btn-xs btn-raised"
+                       data-toggle="collapse">
+                       <i class="fa fa-fw %s"></i>
+                    </a>
+                  </div>
+                </div>
+                <div id="p_pc_s" class="panel-collapse collapse %s">
+                  <div class="panel-body">
+                    <div class="col-xs-12 col-sm-9 text-center">
+                      <div class="col-xs-2 text-center">
+                        <a href="#services_table_url#?search=ls_state:OK"
+                          class="item_service_ok" title="Ok">
+                          <span class="services-count">#ss_nb_ok#</span>
+                        </a>
+                      </div>
+                      <div class="col-xs-2 text-center">
+                        <a href="#services_table_url#?search=ls_state:WARNING"
+                          class="item_service_critical" title="Warning">
+                          <span class="services-count">#ss_nb_warning#</span>
+                        </a>
+                      </div>
+                      <div class="col-xs-2 text-center">
+                        <a href="#services_table_url#?search=ls_state:CRITICAL"
+                          class="item_service_critical" title="Critical">
+                          <span class="services-count">#ss_nb_critical#</span>
+                        </a>
+                      </div>
+                      <div class="col-xs-2 text-center">
+                        <a href="#services_table_url#?search=ls_state:UNKNOWN"
+                          class="item_service_unknown" title="Unknown">
+                          <span class="services-count">#ss_nb_unknown#</span>
+                        </a>
+                      </div>
+                      <div class="col-xs-2 text-center">
+                        <a href="#services_table_url#?search=ls_state:UNREACHABLE"
+                          class="item_service_unreachable" title="Unreachable">
+                          <span class="services-count">#ss_nb_unreachable#</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-3 text-center">
+                      <a href="#services_table_url#?search=ls_state:acknowledged"
+                        class="item_service_acknowledged" title="Acknowledged">
+                        <span class="services-count">#ss_nb_acknowledged#</span>
+                      </a>
+                      <span>/</span>
+                      <a href="#services_table_url#?search=ls_state:IN_DOWNTIME"
+                        class="item_service_in_downtime" title="In downtime">
+                        <span class="services-count">#ss_nb_in_downtime#</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+                   'in' if not collapsed else '')
+
+            pc_s = pc_s.replace("#ss_nb_elts#", "%d" % ss['nb_elts'])
+            pc_s = pc_s.replace("#ss_nb_problems#", "%d" % ss['nb_problems'])
+            pc_s = pc_s.replace("#ss_nb_ok#", "%d" % ss['nb_ok'])
+            pc_s = pc_s.replace("#ss_nb_warning#", "%d" % ss['nb_warning'])
+            pc_s = pc_s.replace("#ss_nb_critical#", "%d" % ss['nb_critical'])
+            pc_s = pc_s.replace("#ss_nb_unreachable#", "%d" % ss['nb_unreachable'])
+            pc_s = pc_s.replace("#ss_nb_unknown#", "%d" % ss['nb_unknown'])
+            pc_s = pc_s.replace("#ss_nb_acknowledged#", "%d" % ss['nb_acknowledged'])
+            pc_s = pc_s.replace("#ss_nb_in_downtime#", "%d" % ss['nb_in_downtime'])
+            pc_s = pc_s.replace("#services_table_url#", url)
+            content = pc_s
+
+        return content
+
+    @staticmethod
+    def get_html_id(obj_type, name):
+        """
+        Returns an host/service/contact ... HTML identifier
+
+        If parameters are not valid, returns 'n/a'
+
+        obj_type specifies object type
+        name specifes the object name
+
+        :param obj_type: host, service, contact
+        :type obj_type: string
+        :param name: object name
+        :type name: string
+
+        :return: valid HTML identifier
+        :rtype: string
+        """
+        if not obj_type or not name:
+            return 'n/a'
+
+        return re.sub('[^A-Za-z0-9-_]', '', "%s-%s" % (obj_type, name))
+
+    @staticmethod
+    # pylint: disable=too-many-locals
+    def get_html_livestate(datamgr, panels, bi=-1, search=None, actions=False):
+        """
+        Get HTML formatted live state
+
+        Update system live synthesis and build header elements
+
+        :param bi: business impact
+        :type bi: int
+
+        :return: hosts_states and services_states HTML strings in a dictionary
+        :rtype: dict
+        """
+        logger.info("get_html_livestate, BI: %d, search: '%s'", bi, search)
+        if search is None or not isinstance(search, dict):
+            search = {}
+        if 'where' not in search:
+            search.update({'where': {"ls_state_id": {"$ne": 0}}})
+            search['where'].update({'ls_acknowledged': False})
+            search['where'].update({'ls_downtimed': False})
+        if 'sort' not in search:
+            search.update({'sort': '-_overall_state_id'})
+        if bi != -1:
+            search['where'].update({'business_impact': bi})
+
+        items = []
+        # Copy because the search filter is updated by the function ...
+        search_hosts = search.copy()
+        hosts = datamgr.get_hosts(search=search_hosts, embedded=False)
+        items.extend(hosts)
+        logger.debug("get_html_livestate, livestate %d (%s), %d hosts", bi, search, len(items))
+
+        # Copy because the search filter is updated by the function ...
+        if 'embedded' not in search:
+            search.update({'embedded': {'host': 1}})
+        search_services = search.copy()
+        services = datamgr.get_services(search=search_services, embedded=True)
+        items.extend(services)
+        logger.debug("get_html_livestate, livestate %d (%s), %d services", bi, search, len(items))
+
+        rows = []
+        count = 0
+        current_host = ''
+        for item in items:
+            logger.debug("get_html_livestate, item: %s", item)
+            count += 1
+            elt_id = Helper.get_html_id("host", item.name)
+
+            host_url = ''
+            if current_host != item.name:
+                current_host = item.name
+                host_url = item.html_link
+
+            service_url = ''
+            if item.object_type == "service":
+                service_url = item.html_link
+                host_url = item.host.html_link
+
+            long_output = ''
+            if item.long_output:
+                long_output = """
+                    <button
+                        type="button"
+                        class="btn btn-xs btn-info"
+                        data-toggle="popover"
+                        title="Long output"
+                        data-content="Long check output ...">
+                        %s
+                        </button>
+                """ % item.long_output
+
+            extra = ''
+            if item.acknowledged:
+                extra += _(' and acknowledged')
+            if item.downtimed:
+                extra += _(' and in scheduled downtime')
+            title = "%s - %s (%s)" \
+                    % (item.status,
+                       Helper.print_duration(item.last_check, duration_only=True, x_elts=0),
+                       item.output)
+
+            tr = """
+            <tr data-toggle="collapse" data-target="#details-%s" class="accordion-toggle">
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td class="hidden-xs">%s</td>
+                <td class="hidden-sm hidden-xs">%s%s</td>
+            </tr>""" % (
+                elt_id,
+                item.get_html_state(text=None, title=title, extra=extra),
+                Helper.get_html_commands_buttons(item, title=_("Actions")) if actions else '',
+                host_url, service_url,
+                Helper.print_duration(item.last_check, duration_only=True, x_elts=0),
+                item.output, long_output
+            )
+            rows.append(tr)
+
+            # tr2 = """
+            # <tr id="details-%s" class="collapse">
+            #     <td colspan="20">
+            # """ % (elt_id)
+            # tr2 += """
+            # <div class="pull-left">
+            # """
+            # if item.passive_checks_enabled:
+            #     tr2 += """
+            #     <span>
+            #         <span class="fa fa-arrow-left" title="Passive checks are enabled."></span>"""
+            # if item.check_freshness:
+            #     tr2 += """
+            #         <span title="Freshness check is enabled">(Freshness: %s seconds)</span>
+            #     </span>""" % (item.freshness_threshold)
+            # else:
+            #     tr2 += """</span>"""
+            #
+            # if item.active_checks_enabled:
+            #     tr2 += """
+            #     <span>
+            #         <i class="fa fa-arrow-right" title="Active checks are enabled."></i>
+            #         <i>
+            #             Last check <strong>%s</strong>,
+            #             next check in <strong>%s</strong>,
+            #             attempt <strong>%d / %d</strong>
+            #         </i>
+            #     </span>""" % (
+            #         Helper.print_duration(item.last_check, duration_only=True, x_elts=2),
+            #         Helper.print_duration(item.next_check, duration_only=True, x_elts=2),
+            #         int(item.current_attempt),
+            #         int(item.max_attempts)
+            #     )
+            # tr2 += """
+            # </div>
+            # """
+            #
+            # tr2 += """
+            #     </td>
+            # </tr>"""
+            #
+            # rows.append(tr2)
+
+        collapsed = False
+        if 'livestate-bi-%d' % bi in panels:
+            collapsed = panels['livestate-bi-%d' % bi]['collapsed']
+        if not rows:
+            collapsed = True
+
+        panel_bi = """
+        <div id="livestate-bi-#bi-id#" class="livestate-panel panel panel-default">
+            <div class="panel-heading clearfix">
+              <strong>
+              <i class="fa fa-heartbeat"></i>
+              <span class="livestate-all text-%s" data-count="#nb_problems#">
+                &nbsp;#bi-text# - #nb_problems# problems.
+              </span>
+              </strong>
+
+              <div class="pull-right">
+                <a href="#p_livestate-#bi-id#" class="btn btn-xs btn-raised"
+                   data-toggle="collapse">
+                   <i class="fa fa-fw %s"></i>
+                </a>
+              </div>
+            </div>
+            <div id="p_livestate-#bi-id#" class="panel-collapse collapse %s">
+              <div class="panel-body">
+        """ % ('success' if count == 0 else 'danger',
+               'fa-caret-up' if collapsed else 'fa-caret-down',
+               'in' if not collapsed else '')
+
+        if count > 0:
+            panel_bi += """
+            <table class="table table-invisible table-condensed" data-business-impact="#bi-id#" >
+              <thead><tr>
+                <th width="10px"></th>
+                <th width="30px"></th>
+                <th width="60px">%s</th>
+                <th width="90px">%s</th>
+                <th width="30px">%s</th>
+                <th class="hidden-sm hidden-xs" width="100%%">%s</th>
+              </tr></thead>
+
+              <tbody>
+              </tbody>
+            </table>
+            """ % (
+                _("Host"), _("Service"), _("Duration"), _("Output")
+            )
+        else:
+            panel_bi += """
+            <div class="alert alert-success"><p>%s</p></div>
+            """ % (_("No problems."))
+
+        panel_bi += """
+              </div>
+            </div>
+        </div>
+        """
+
+        # Update panel templating fields
+        panel_bi = panel_bi.replace("#bi-id#", "%d" % (bi))
+        panel_bi = panel_bi.replace("#bi-text#",
+                                    Helper.get_html_business_impact(bi, icon=True, text=True))
+        panel_bi = panel_bi.replace("#nb_problems#", "%s" % count if count > 0 else 'no')
+
+        return {'bi': bi, 'rows': rows, 'panel_bi': panel_bi}

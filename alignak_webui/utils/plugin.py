@@ -35,7 +35,6 @@ from logging import getLogger
 from bottle import request, response, template, view, redirect
 import bottle
 
-from alignak_webui import _
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
@@ -52,11 +51,17 @@ class Plugin(object):
 
     """ WebUI base plugin """
 
-    def __init__(self, app, cfg_filenames):
+    def __init__(self, app, webui, cfg_filenames):
 
-        """Create a new plugin:"""
+        """Create a new plugin
 
-        self.webui = app
+        :param app: bottle application
+        :param webui: WebUI instance
+        :param cfg_filenames: list of configuration file names
+        """
+
+        self.app = app
+        self.webui = webui
         if not hasattr(self, 'name'):  # pragma: no cover - plugin should declare
             self.name = 'Unknown'
         if not hasattr(self, 'backend_endpoint'):  # pragma: no cover - plugin should declare
@@ -75,7 +80,7 @@ class Plugin(object):
             logger.warning("Plugin %s is installed but disabled.", self.name)
             return
 
-        self.load_routes(bottle.app())
+        self.load_routes(app)
         logger.info("Plugin %s is installed and enabled.", self.name)
 
     def send_user_message(self, message, status='ko'):  # pylint:disable=no-self-use
@@ -236,6 +241,7 @@ class Plugin(object):
                 page_route = [(page_route, page_name)]
 
             for route_url, name in page_route:
+                logger.debug("route: %s -> %s", route_url, name)
                 f = app.route(
                     route_url, callback=f, method=methods, name=name,
                     search_engine=entry.get('search_engine', False),
@@ -250,7 +256,7 @@ class Plugin(object):
                         'base_uri': route_url,
                         'function': f
                     }
-                    logger.info(
+                    logger.debug(
                         "Found list '%s' for %s", route_url, self.backend_endpoint
                     )
 
@@ -282,7 +288,7 @@ class Plugin(object):
                             'base_uri': route_url,
                             'function': f
                         })
-                        logger.info(
+                        logger.debug(
                             "Found widget '%s' for %s", widget['id'], place
                         )
 
@@ -319,7 +325,7 @@ class Plugin(object):
                                 action: f
                             })
                         self.tables[place].append(table_dict)
-                        logger.info(
+                        logger.debug(
                             "Found table '%s' for %s", table['id'], place
                         )
 

@@ -27,8 +27,6 @@
     This module contains the classes used to manage the backend history elements
     with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
 # Import the backend interface class
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
@@ -107,7 +105,7 @@ class History(BackendElement):
         Returns a string formatted data
         """
         if self.date == self.__class__._default_date and not timestamp:
-            return _('Never dated!')
+            return 'XxX'
 
         if timestamp:
             return self.date

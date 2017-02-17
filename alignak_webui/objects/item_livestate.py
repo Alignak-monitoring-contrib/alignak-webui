@@ -93,7 +93,7 @@ class LiveState(BackendElement):
         """
         if self.is_problem and self.acknowledged:
             return 'acknowledged'
-        if self.is_problem and self.downtime:
+        if self.is_problem and self.downtimed:
             return 'in_downtime'
         return super(LiveState, self).status
 

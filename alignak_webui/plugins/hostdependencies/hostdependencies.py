@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 class PluginHostsDependencies(Plugin):
     """ Hosts dependencies plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         User plugin
 
@@ -47,4 +47,4 @@ class PluginHostsDependencies(Plugin):
 
         self.pages = {}
 
-        super(PluginHostsDependencies, self).__init__(app, cfg_filenames)
+        super(PluginHostsDependencies, self).__init__(app, webui, cfg_filenames)

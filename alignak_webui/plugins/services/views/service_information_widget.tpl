@@ -58,7 +58,7 @@
                %if service.acknowledged:
                %extra += _(' and acknowledged')
                %end
-               %if service.downtime:
+               %if service.downtimed:
                %extra += _(' and in scheduled downtime')
                %end
                {{! service.get_html_state(extra=extra)}}

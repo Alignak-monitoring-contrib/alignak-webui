@@ -54,7 +54,7 @@
                %if host.acknowledged:
                %extra += _(' and acknowledged')
                %end
-               %if host.downtime:
+               %if host.downtimed:
                %extra += _(' and in scheduled downtime')
                %end
                {{! host.get_html_state(extra=extra)}}
