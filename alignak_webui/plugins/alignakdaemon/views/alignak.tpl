@@ -31,7 +31,7 @@
                 </td>
 
                 <td>
-                    {{daemon.name}} - {{daemon.status}}
+                    {{daemon.name}}
                 </td>
 
                 <td>

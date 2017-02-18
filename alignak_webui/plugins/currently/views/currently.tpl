@@ -26,49 +26,6 @@ div.pull-right a, div.pull-right div {
         panels = {{ ! json.dumps(panels) }};
     </script>
 
-    <nav id="topbar" class="navbar navbar-fixed-top">
-       <div id="one-eye-toolbar" class="col-xs-12">
-          <ul class="nav navbar-nav navbar-left">
-             <li>
-                <a tabindex="0" role="button"
-                   data-toggle="tooltip" data-placement="bottom"
-                   title="{{_('Go back to the dashboard')}}" href="/dashboard">
-                   <span class="fa fa-home"></span>
-                   <span class="sr-only">{{_('Go back to the main dashboard')}}</span>
-                </a>
-             </li>
-             <li>
-                <a tabindex="0" role="button"
-                   data-action="fullscreen-request"
-                   data-toggle="tooltip" data-placement="bottom"
-                   title="{{_('Fullscreen page')}}" href="#">
-                   <span class="fa fa-desktop"></span>
-                   <span class="sr-only">{{_('Fullscreen page')}}</span>
-                </a>
-             </li>
-             %if request.app.config.get('play_sound', 'no') == 'yes':
-             <li id="sound_alerting">
-                <a tabindex="0" role="button"
-                   data-action="toggle-sound-alert"
-                   data-toggle="tooltip" data-placement="bottom"
-                   title="{{_('Sound alert on/off')}}" href="#">
-                   <span class="fa fa-music"></span>
-                   <span class="sr-only">{{_('Change sound playing state')}}</span>
-                </a>
-             </li>
-             %end
-          </ul>
-
-          <ul class="nav navbar-nav navbar-right">
-             <li>
-                <p class="navbar-text font-darkgrey">
-                   <span id="date"></span>&nbsp;&hyphen;&nbsp;<span id="clock"></span>
-                </p>
-             </li>
-          </ul>
-       </div>
-    </nav>
-
     %if request.app.config.get('play_sound', 'no') == 'yes':
        %include("_sound_play.tpl")
     %end
@@ -100,6 +57,8 @@ div.pull-right a, div.pull-right div {
     </div>
 
     <script type="text/javascript">
+        var debug_logs = false;
+
         // Function called on each page refresh ... update graphs!
         function on_page_refresh(forced) {
         };
@@ -129,26 +88,38 @@ div.pull-right a, div.pull-right div {
         });
 
         // Panels collapse state
-        $('.panel').on('hidden.bs.collapse', function () {
+        $('.panel').on('hidden.bs.collapse', function (e) {
+            if (debug_logs) console.debug("Hide:", $(this).attr('id'));
+
             wait_message('{{_('Saving configuration...')}}', true)
 
-            panels[$(this).parent().attr('id')].collapsed = true;
-            $(this).find('.fa-caret-up').removeClass('fa-caret-up').addClass('fa-caret-down');
-            save_user_preference('panels', JSON.stringify(panels), function() {
-                wait_message('', false)
-                // Page refresh required
-                refresh_required = true;
-            });
-        });
-        $('.panel').on('shown.bs.collapse', function () {
-            wait_message('{{_('Saving configuration...')}}', true)
-
-            panels[$(this).parent().attr('id')].collapsed = false;
+            try {
+                panels[$(this).attr('id')].collapsed = true;
+            } catch(e) {
+                panels[$(this).attr('id')] = {'collapsed': true}
+            }
             $(this).find('.fa-caret-down').removeClass('fa-caret-down').addClass('fa-caret-up');
             save_user_preference('panels', JSON.stringify(panels), function() {
                 wait_message('', false)
                 // Page refresh required
-                refresh_required = true;
+                //refresh_required = true;
+            });
+        });
+        $('.panel').on('shown.bs.collapse', function (e) {
+            if (debug_logs) console.debug("Show:", $(this).attr('id'));
+
+            wait_message('{{_('Saving configuration...')}}', true)
+
+            try {
+                panels[$(this).attr('id')].collapsed = false;
+            } catch(e) {
+                panels[$(this).attr('id')] = {'collapsed': false}
+            }
+            $(this).find('.fa-caret-up').removeClass('fa-caret-up').addClass('fa-caret-down');
+            save_user_preference('panels', JSON.stringify(panels), function() {
+                wait_message('', false)
+                // Page refresh required
+                //refresh_required = true;
             });
         });
     </script>

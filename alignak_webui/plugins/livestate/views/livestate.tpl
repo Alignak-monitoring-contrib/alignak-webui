@@ -154,9 +154,10 @@
         // Panels collapse state
         $('#livestate').on('hidden.bs.collapse', 'div.livestate-panel', function (e) {
             if (debug_logs) console.debug("Hide:", $(this).attr('id'));
-
+            /*
             if (e.target !== this)
                 return;
+            */
             wait_message('{{_('Saving configuration...')}}', true)
 
             try {
@@ -173,8 +174,10 @@
         });
         $('#livestate').on('shown.bs.collapse', 'div.livestate-panel', function (e) {
             if (debug_logs) console.debug("Show:", $(this).attr('id'));
+            /*
             if (e.target !== this)
                 return;
+            */
 
             wait_message('{{_('Saving configuration...')}}', true)
 

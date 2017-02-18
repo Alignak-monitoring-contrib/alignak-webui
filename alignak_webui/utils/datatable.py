@@ -359,10 +359,6 @@ class Datatable(object):
         # Manage request parameters ...
         logger.info("request data for table: %s", request.forms.get('object_type'))
 
-        for field in self.table_columns:
-            if field['data'] == '_is_template':
-                logger.warning("table_data, model: %s: %s", field['data'], field)
-
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
@@ -534,6 +530,9 @@ class Datatable(object):
                 parameters['where'].update({'_is_template': False})
             else:
                 parameters['where'] = {'_is_template': False}
+
+        if self.object_type == 'logcheckresult':
+            parameters.update({'where': {"last_check": {"$ne": 0}}})
 
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)

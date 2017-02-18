@@ -697,8 +697,7 @@ class Helper(object):
 
         if percentage:
             pp_h = """
-            <div id="panel_percentage_hosts">
-              <div class="panel panel-default">
+            <div id="panel_percentage_hosts" class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <i class="fa fa-server"></i>
                   <span class="hosts-all"
@@ -768,9 +767,8 @@ class Helper(object):
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
-            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+            """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '',
                    font, _('Hosts SLA'))
 
@@ -786,8 +784,7 @@ class Helper(object):
             content = pp_h
         else:
             pc_h = """
-            <div id="panel_counters_hosts">
-              <div class="panel panel-default">
+            <div id="panel_counters_hosts" class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <i class="fa fa-server"></i>
                   <span class="hosts-all"
@@ -839,9 +836,8 @@ class Helper(object):
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
-            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+            """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '')
             pc_h = pc_h.replace("#hs_nb_elts#", "%d" % hs['nb_elts'])
             pc_h = pc_h.replace("#hs_nb_problems#", "%d" % hs['nb_problems'])
@@ -868,6 +864,7 @@ class Helper(object):
         """
         content = ''
 
+        logger.info("Services synthesis: %s", ss)
         sla = ss['pct_ok']
         font = 'ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
         # unmanaged_problems = ss['nb_problems'] - (ss['nb_acknowledged'] + ss['nb_in_downtime'])
@@ -877,8 +874,7 @@ class Helper(object):
 
         if percentage:
             pp_s = """
-            <div id="panel_percentage_services">
-              <div class="panel panel-default">
+            <div id="panel_percentage_services" class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <i class="fa fa-server"></i>
                   <span class="services-all"
@@ -960,9 +956,8 @@ class Helper(object):
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
-            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+            """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '',
                    font, _('Services SLA'))
 
@@ -979,8 +974,7 @@ class Helper(object):
             content = pp_s
         else:
             pc_s = """
-            <div id="panel_counters_services">
-              <div class="panel panel-default">
+            <div id="panel_counters_services" class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <i class="fa fa-server"></i>
                   <span class="services-all"
@@ -1044,9 +1038,8 @@ class Helper(object):
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
-            """ % ('fa-caret-down' if not collapsed else 'fa-caret-up',
+            """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '')
 
             pc_s = pc_s.replace("#ss_nb_elts#", "%d" % ss['nb_elts'])
@@ -1100,7 +1093,7 @@ class Helper(object):
         :return: hosts_states and services_states HTML strings in a dictionary
         :rtype: dict
         """
-        logger.info("get_html_livestate, BI: %d, search: '%s'", bi, search)
+        logger.debug("get_html_livestate, BI: %d, search: '%s'", bi, search)
         if search is None or not isinstance(search, dict):
             search = {}
         if 'where' not in search:
@@ -1128,11 +1121,18 @@ class Helper(object):
         logger.debug("get_html_livestate, livestate %d (%s), %d services", bi, search, len(items))
 
         rows = []
-        count = 0
+        problems_count = 0
         current_host = ''
+        hosts_problems = -1
+        services_problems = -1
         for item in items:
             logger.debug("get_html_livestate, item: %s", item)
-            count += 1
+            problems_count += 1
+            if item.object_type == "service" and services_problems == -1:
+                services_problems = item.get_total_count()
+            if item.object_type == "host" and hosts_problems == -1:
+                hosts_problems = item.get_total_count()
+
             elt_id = Helper.get_html_id("host", item.name)
 
             host_url = ''
@@ -1241,7 +1241,7 @@ class Helper(object):
               <strong>
               <i class="fa fa-heartbeat"></i>
               <span class="livestate-all text-%s" data-count="#nb_problems#">
-                &nbsp;#bi-text# - #nb_problems# problems.
+                &nbsp;#bi-text# - #problems#.
               </span>
               </strong>
 
@@ -1254,11 +1254,18 @@ class Helper(object):
             </div>
             <div id="p_livestate-#bi-id#" class="panel-collapse collapse %s">
               <div class="panel-body">
-        """ % ('success' if count == 0 else 'danger',
+        """ % ('success' if problems_count == 0 else 'danger',
                'fa-caret-up' if collapsed else 'fa-caret-down',
                'in' if not collapsed else '')
 
-        if count > 0:
+        if problems_count > 0:
+            problems = _("#nb_problems# problems")
+            if hosts_problems > 0 and services_problems > 0:
+                problems += _(" (hosts: #nb_hosts_problems#, services: #nb_services_problems#)")
+            elif hosts_problems > 0:
+                problems += _(" (hosts: #nb_hosts_problems#)")
+            elif services_problems > 0:
+                problems += _(" (services: #nb_services_problems#)")
             panel_bi += """
             <table class="table table-invisible table-condensed" data-business-impact="#bi-id#" >
               <thead><tr>
@@ -1277,6 +1284,7 @@ class Helper(object):
                 _("Host"), _("Service"), _("Duration"), _("Output")
             )
         else:
+            problems = _("no problems")
             panel_bi += """
             <div class="alert alert-success"><p>%s</p></div>
             """ % (_("No problems."))
@@ -1291,6 +1299,9 @@ class Helper(object):
         panel_bi = panel_bi.replace("#bi-id#", "%d" % (bi))
         panel_bi = panel_bi.replace("#bi-text#",
                                     Helper.get_html_business_impact(bi, icon=True, text=True))
-        panel_bi = panel_bi.replace("#nb_problems#", "%s" % count if count > 0 else 'no')
+        panel_bi = panel_bi.replace("#problems#", "%s" % problems)
+        panel_bi = panel_bi.replace("#nb_problems#", "%s" % problems_count)
+        panel_bi = panel_bi.replace("#nb_hosts_problems#", "%s" % hosts_problems)
+        panel_bi = panel_bi.replace("#nb_services_problems#", "%s" % services_problems)
 
         return {'bi': bi, 'rows': rows, 'panel_bi': panel_bi}

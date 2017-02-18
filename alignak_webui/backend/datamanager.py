@@ -863,9 +863,8 @@ class DataManager(object):
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 services_synthesis.update({
-                    "pct_" + state: round(
-                        100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
-                    ) if services_synthesis['nb_elts'] else 0.0
+                    "nb_" + state:
+                        services_synthesis["nb_%s" % state] + livesynthesis["services_%s" % state]
                 })
             services_synthesis.update({
                 "nb_problems":
@@ -1039,9 +1038,8 @@ class DataManager(object):
             })
         for state in 'acknowledged', 'in_downtime', 'flapping':
             services_synthesis.update({
-                "pct_" + state: round(
-                    100.0 * services_synthesis['nb_' + state] / services_synthesis['nb_elts'], 2
-                ) if services_synthesis['nb_elts'] else 0.0
+                "nb_" + state:
+                    services_synthesis["nb_%s" % state] + item["services_%s" % state]
             })
         services_synthesis.update({
             "nb_problems":
@@ -1698,6 +1696,8 @@ class DataManager(object):
             search = {}
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
+        if "where" not in search:
+            search.update({'where': {"last_check": {"$ne": 0}}})
         if "sort" not in search:
             search.update({'sort': '-business_impact,-state_id'})
         if 'embedded' not in search:
