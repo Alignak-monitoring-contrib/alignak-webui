@@ -44,6 +44,23 @@ Documentation
 You can find online documentation on `Read The Docs <http://alignak-web-ui.readthedocs.io/?badge=latest>`_ and in the */docs* directory.
 
 
+Installation
+============
+
+The Alignak WebUI is easily installed and started thanks to the Python Package:
+::
+
+    # Installing...
+    pip install alignak-webui
+    # Running...
+    alignak-webui-uwsgi
+    # Using!
+    http://127.0.0.1:5001
+
+
+**Note**: *Please note that you need to have a running Alignak framework reporting the live state to the Alignak backend.*
+
+
 Bugs, issues and contributing
 =============================
 
