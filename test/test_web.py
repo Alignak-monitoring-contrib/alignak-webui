@@ -33,17 +33,13 @@ from mock import Mock, patch
 
 from nose.tools import *
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '0'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'settings.cfg'
-)
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
-# To load application configuration used by the objects
+
 import alignak_webui.app
 
-from alignak_webui import webapp
 from alignak_webui.backend.datamanager import DataManager
 import alignak_webui.utils.datatable
 
@@ -101,61 +97,88 @@ def teardown_module(module):
     time.sleep(2)
 
 
+class TestLivestate(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_currently(self):
+        """ Web - livestate """
+        print('get page /livestate')
+        redirected_response = self.app.get('/livestate')
+        print(redirected_response)
+        redirected_response.mustcontain(
+            '<div id="livestate">',
+            '<div id="livestate-bi-5"></div>',
+            '<div id="livestate-bi-4"></div>',
+            '<div id="livestate-bi-3"></div>',
+            '<div id="livestate-bi-2"></div>',
+            '<div id="livestate-bi-1"></div>',
+            '<div id="livestate-bi-0"></div>',
+        )
+
+
+class TestCurrently(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_currently(self):
+        """ Web - currently """
+        print('get page /currently')
+        redirected_response = self.app.get('/currently')
+        print(redirected_response)
+        redirected_response.mustcontain(
+            '<div id="currently">',
+            '<div id="one-eye-toosdlbar"',
+            '<div id="one-eye-overall" ',
+            '<div id="one-eye-icons" ',
+        )
+
+
 class TestDashboard(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
     def test_dashboard(self):
         """ Web - dashboard """
-        print('test dashboard')
-
         print('get page /dashboard')
         redirected_response = self.app.get('/dashboard')
+        print(redirected_response)
         redirected_response.mustcontain(
-            'This file is a part of Alignak-WebUI.',
-            '<!-- Page header -->',
-            '<header>',
-            '<nav id="menu-bar">',
-            '<!-- Dashboard widgets bar -->',
-            '<a data-action="display-currently"',
-            '<a data-action="toggle-page-refresh"',
-            '<!-- User info -->',
-            '<div id="page-wrapper" class="container-fluid header-page">',
-
             '<div id="dashboard">',
-            '<div id="dashboard-synthesis"',
-            '<div id="propose-widgets" ',
+            '<div id="problems-synthesis"',
+            '<div id="propose-widgets"',
             '<!-- Widgets grid -->',
-            '<!-- Page footer -->'
-        )
-
-        print('get page /currently')
-        redirected_response = self.app.get('/currently')
-        redirected_response.mustcontain(
-            '<div id="currently">',
-            '<div id="one-eye-toolbar"',
-            '<div id="one-eye-overall" ',
-            '<div id="one-eye-icons" ',
+            '<div class="grid-stack">'
         )
 
 
 class TestUsers(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
-        response = self.app.get('/logout')
+        self.app.get('/logout')
 
     def test_users(self):
         """ Web - users """
@@ -176,10 +199,9 @@ class TestUsers(unittest2.TestCase):
 class TestCommands(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
         self.app.get('/logout')
@@ -202,9 +224,8 @@ class TestCommands(unittest2.TestCase):
 class TestTimeperiods(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
@@ -229,9 +250,8 @@ class TestTimeperiods(unittest2.TestCase):
 class TestRealms(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
         self.realm_id = None
@@ -287,9 +307,8 @@ class TestRealms(unittest2.TestCase):
 class TestHostgroups(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         self.session = response.request.environ['beaker.session']
 
@@ -363,9 +382,8 @@ class TestHostgroups(unittest2.TestCase):
 class TestServicegroups(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         self.session = response.request.environ['beaker.session']
 
@@ -437,9 +455,8 @@ class TestServicegroups(unittest2.TestCase):
 class TestUsergroups(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         self.session = response.request.environ['beaker.session']
 
@@ -510,9 +527,8 @@ class TestUsergroups(unittest2.TestCase):
 class TestHosts(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
         self.host_id = None
@@ -585,9 +601,8 @@ class TestHosts(unittest2.TestCase):
 class TestServices(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
         self.host_id = None
@@ -670,9 +685,8 @@ class TestServices(unittest2.TestCase):
 class TestWorldmap(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
@@ -701,9 +715,8 @@ class TestWorldmap(unittest2.TestCase):
 class TestMinemap(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):
@@ -873,9 +886,8 @@ def mocked_requests_get(*args, **kwargs):
 class TestAlignakWS(unittest2.TestCase):
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
+
         self.app.post('/login', {'username': 'admin', 'password': 'admin'})
 
     def tearDown(self):

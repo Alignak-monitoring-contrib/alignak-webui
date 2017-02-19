@@ -88,7 +88,7 @@
                 <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
                 <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Hosts')}}</span>
                 <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
-                <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of hosts in problem')}}">{{hs["nb_problems"]}}</span>
+                <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of unhandled hosts problems')}}">{{hs["nb_problems"]}}</span>
             </a>
         </center>
         %end
@@ -106,7 +106,7 @@
                 <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
                 <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Services')}}</span>
                 <div class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored services')}}">{{ss["nb_elts"]}}</div>
-                <div class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of services in problems')}}">{{ss["nb_problems"]}}</div>
+                <div class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of unhandled services problems')}}">{{ss["nb_problems"]}}</div>
             </a>
         </center>
         %end

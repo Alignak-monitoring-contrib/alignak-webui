@@ -75,7 +75,7 @@ class PluginDashboard(Plugin):
             message = session['user_message']
             session['user_message'] = None
 
-        # Get live synthesis
+        # Get live synthesis
         ls = datamgr.get_livesynthesis()
 
         return {

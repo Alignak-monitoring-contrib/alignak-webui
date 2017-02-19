@@ -28,7 +28,6 @@ from logging import getLogger
 from bottle import request
 
 from alignak_webui.utils.plugin import Plugin
-from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)

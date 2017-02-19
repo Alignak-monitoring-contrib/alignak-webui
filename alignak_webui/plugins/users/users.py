@@ -97,10 +97,11 @@ class PluginUsers(Plugin):
         }
 
     def show_user_preferences(self):
+        # pylint: disable=no-self-use
         """
             Show the user preferences view
         """
-        return ({})
+        return {}
 
     def get_user_widget(self, element_id, widget_id,
                         embedded=False, identifier=None, credentials=None):

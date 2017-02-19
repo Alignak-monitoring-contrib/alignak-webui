@@ -68,17 +68,17 @@ app_config = None
 
 
 def get_app_config():
-    """
-    Return global application configuration
-    """
+    # pylint: disable=global-variable-not-assigned
+
+    """Return global application configuration"""
     global app_config
     return app_config
 
 
 def set_app_config(config):
-    """
-    Update global application configuration
-    """
+    # pylint: disable=global-statement
+
+    """Update global application configuration"""
     global app_config
 
     app_config = config

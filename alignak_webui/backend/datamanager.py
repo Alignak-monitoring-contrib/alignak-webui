@@ -202,7 +202,7 @@ class DataManager(object):
             self.connected = False
 
         logger.info("user_login, connection message: %s / %s",
-                       self.connected, self.connection_message)
+                    self.connected, self.connection_message)
         return self.connected
 
     def user_logout(self):

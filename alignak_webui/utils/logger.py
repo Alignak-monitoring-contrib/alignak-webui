@@ -57,11 +57,7 @@ class ColorStreamHandler(StreamHandler):
             self.handleError(record)
 
 
-def setup_logging(
-        default_path='logging.json',
-        default_level=logging.INFO,
-        env_key='WEBUI_LOG_CFG',
-        default_logger=False):
+def setup_logging(default_path='logging.json', default_level=logging.INFO, env_key='WEBUI_LOG_CFG'):
     """Setup logging configuration
 
     Get the logger configuration from a file which name is specified in `default_path`.

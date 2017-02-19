@@ -1,3 +1,4 @@
+% import json
 %setdefault('worldmap_parameters', {'default_zoom': 6, 'default_lng': 1.87528, 'default_lat': 46.60611, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
 
 <script>
@@ -36,7 +37,7 @@
                     new Service(
                         '{{ host.id }}', '{{ host.name }}',
                         '{{ service.id }}', '{{ service.name }}',
-                        '{{ service.status }}', '{{ ! service.get_html_state(text=None, use_status=service.overall_status)}}',
+                        '{{ service.status }}', '{{ json.dumps(service.get_html_state(text=None, use_status=service.overall_status)) }}',
                         '{{ service.business_impact }}', '{{ ! Helper.get_html_business_impact(service.business_impact) if service.business_impact != host.business_impact else '' }}',
                         {{ str(service.is_problem).lower() }},
                         {{ str(service.is_problem).lower() }} && {{ str(service.acknowledged).lower() }},

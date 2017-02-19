@@ -4,7 +4,6 @@
 <!-- Page footer -->
 <footer class="page-footer navbar-default navbar-fixed-bottom">
    <div class="container-fluid">
-      <!-- Page footer -->
       %if request.app.config.get('webui_logo', '/static/images/logo_webui_xxs.png'):
       <a href="{{request.app.config.get('about_url', __manifest__['doc'])}}" target="_blank">
          <img src="{{request.app.config.get('webui_logo', '/static/images/logo_webui_xxs.png')}}" alt="{{_('WebUI Logo')}}" style="height: 18px">

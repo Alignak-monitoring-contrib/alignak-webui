@@ -33,7 +33,6 @@ from alignak_webui.utils.helper import Helper
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# http://pasteboard.co/3v02lUhG1.png
 
 class PluginCurrently(Plugin):
     """ Currently plugin """

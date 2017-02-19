@@ -32,9 +32,6 @@ from alignak_webui.utils.plugin import Plugin
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
-
 # Plugin's parameters
 worldmap_parameters = {
     'default_zoom': 6,

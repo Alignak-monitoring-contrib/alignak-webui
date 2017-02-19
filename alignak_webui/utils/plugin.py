@@ -33,7 +33,6 @@ from collections import OrderedDict
 
 from logging import getLogger
 from bottle import request, response, template, view, redirect
-import bottle
 
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
