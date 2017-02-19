@@ -40,7 +40,7 @@ print ("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 # To load application configuration used by the objects
 import alignak_webui.app
 
-from alignak_webui import webapp
+# from alignak_webui import webapp
 from alignak_webui.backend.datamanager import DataManager
 
 from webtest import TestApp

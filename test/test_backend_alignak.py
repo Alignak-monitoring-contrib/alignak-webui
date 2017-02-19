@@ -31,7 +31,7 @@ import time
 import unittest2
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
-from alignak_webui.objects.backend import BackendConnection
+from alignak_webui.backend.backend import BackendConnection
 
 backend_process = None
 backend_address = "http://127.0.0.1:5000/"
