@@ -26,21 +26,14 @@ import time
 
 import unittest2
 
-from alignak_webui import set_app_config
+import alignak_webui.app
+
+# from alignak_webui import set_app_config
 from alignak_webui.objects.item_timeperiod import TimePeriod
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.settings import Settings
 
 helper = Helper()
-
-
-def setup_module():
-    # Get configuration from only one file ...
-    print("read configuration")
-    cfg = Settings("settings.cfg")
-    found_cfg_files = cfg.read('Alignak-WebUI')
-    assert found_cfg_files
-    set_app_config(cfg)
 
 
 class TestDate(unittest2.TestCase):
@@ -406,19 +399,19 @@ class TestBI(unittest2.TestCase):
         assert s == ''  # Nothing
         s = helper.get_html_business_impact(1, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star text-primary"></i>'  # 1 star
+        assert s == '<i class="fa fa-star"></i>'  # 1 star
         s = helper.get_html_business_impact(2, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star text-primary"></i>' * 2  # 2 stars
+        assert s == '<i class="fa fa-star"></i>' * 2  # 2 stars
         s = helper.get_html_business_impact(3, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star text-primary"></i>' * 3  # 3 stars
+        assert s == '<i class="fa fa-star"></i>' * 3  # 3 stars
         s = helper.get_html_business_impact(4, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star text-primary"></i>' * 4  # 3 stars
+        assert s == '<i class="fa fa-star"></i>' * 4  # 3 stars
         s = helper.get_html_business_impact(5, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star text-primary"></i>' * 5  # 3 stars
+        assert s == '<i class="fa fa-star"></i>' * 5  # 3 stars
 
         # Default with text
         s = helper.get_html_business_impact(0, icon=False, text=True)
@@ -446,19 +439,19 @@ class TestBI(unittest2.TestCase):
         assert s == 'None'
         s = helper.get_html_business_impact(1, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Low ' + '<i class="fa fa-star text-primary"></i>' * 1
+        assert s == 'Low ' + '<i class="fa fa-star"></i>' * 1
         s = helper.get_html_business_impact(2, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Normal ' + '<i class="fa fa-star text-primary"></i>' * 2
+        assert s == 'Normal ' + '<i class="fa fa-star"></i>' * 2
         s = helper.get_html_business_impact(3, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Important ' + '<i class="fa fa-star text-primary"></i>' * 3
+        assert s == 'Important ' + '<i class="fa fa-star"></i>' * 3
         s = helper.get_html_business_impact(4, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Very important ' + '<i class="fa fa-star text-primary"></i>' * 4
+        assert s == 'Very important ' + '<i class="fa fa-star"></i>' * 4
         s = helper.get_html_business_impact(5, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Business critical ' + '<i class="fa fa-star text-primary"></i>' * 5
+        assert s == 'Business critical ' + '<i class="fa fa-star"></i>' * 5
 
 
 class TestTP(unittest2.TestCase):

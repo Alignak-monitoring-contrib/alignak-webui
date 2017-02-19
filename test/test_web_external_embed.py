@@ -37,7 +37,7 @@ print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 import alignak_webui.app
 from alignak_webui import webapp
-from alignak_webui.objects.datamanager import DataManager
+from alignak_webui.backend.datamanager import DataManager
 import alignak_webui.utils.datatable
 
 # from logging import getLogger, DEBUG, INFO

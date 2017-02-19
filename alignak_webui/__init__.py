@@ -63,6 +63,7 @@ __manifest__ = {
 # Application configuration object
 # Global variable to be used with accessor functions ...
 # ... to make it package/module global!
+# pylint: disable=invalid-name
 app_config = None
 
 

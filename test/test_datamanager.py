@@ -28,14 +28,12 @@ import subprocess
 import time
 
 import unittest2
-from nose.tools import *
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
-# To load application configuration used by the objects
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+
 import alignak_webui.app
 
 from alignak_webui.objects.element import BackendElement
@@ -47,7 +45,7 @@ from alignak_webui.objects.item_service import Service
 from alignak_webui.objects.item_timeperiod import TimePeriod
 from alignak_webui.objects.item_hostgroup import HostGroup
 from alignak_webui.objects.item_servicegroup import ServiceGroup
-from alignak_webui.objects.datamanager import DataManager
+from alignak_webui.backend.datamanager import DataManager
 
 from logging import getLogger, DEBUG, INFO, WARNING
 
@@ -550,7 +548,7 @@ class TestBasic(unittest2.TestCase):
             },
             'services_synthesis': {
                 # 'nb_elts': 76, Travis says 74 whereas it is 76 !
-                'nb_elts': 74,
+                'nb_elts': 76,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -562,8 +560,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                'nb_unknown': 74, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 74, 'nb_unknown_soft': 0,
+                'nb_unknown': 76, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 76, 'nb_unknown_soft': 0,
                 # Travis says 74 whereas it is 76 !
                 # 'nb_unknown': 76, 'pct_unknown': 100.0,
                 # 'nb_unknown_hard': 76, 'nb_unknown_soft': 0,

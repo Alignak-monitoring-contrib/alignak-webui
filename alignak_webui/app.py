@@ -49,7 +49,7 @@ from bottle import RouteBuildError
 # from bottle import default_app
 
 # Application import
-from alignak_webui import __pkg_name__, __manifest__, set_app_config
+from alignak_webui import __manifest__, set_app_config
 from alignak_webui.utils.logger import setup_logging
 from alignak_webui.utils.helper import Helper
 from alignak_webui.backend.backend import BackendException
@@ -100,7 +100,8 @@ else:
 # Check application configuration file change
 # -----
 if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):
-    def check_config(app, filename, interval=5):
+    def check_config(_app, filename, interval=5):
+        """Thread to check if configuration file changed"""
         print("Thread for checking configuration file change, file: %s" % filename)
         modification_time = os.path.getmtime(filename)
         while True:
@@ -109,7 +110,7 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):
             if modification_time < os.path.getmtime(filename):
                 print("Application configuration file changed, reloading configuration...")
                 modification_time = os.path.getmtime(filename)
-                app.config.load_config(filename)
+                _app.config.load_config(filename)
     cfg_check_thread = threading.Thread(target=check_config,
                                         name='application_configuration_check',
                                         args=(app, app_configuration_file, 10))
@@ -194,7 +195,7 @@ logger.debug("Application settings: ")
 add_to_config = {}
 for key, value in sorted(app.config.items()):
     if key.startswith(app_name):
-        add_to_config[key.replace(app_name+'.', '')] = value
+        add_to_config[key.replace(app_name + '.', '')] = value
     logger.debug(" %s = %s", key, value)
 logger.debug("--------------------------------------------------------------------------------")
 logger.debug("Webui settings: ")
@@ -245,6 +246,7 @@ app.config['webui'] = webapp
 # -----
 set_app_config(app.config)
 
+
 # -----
 # Application static files
 # -----
@@ -280,11 +282,13 @@ def give_modal(modal_name):
 # WebUI hooks
 # --------------------------------------------------------------------------------------------------
 @app.hook('config')
-def on_config_change(key, value):
-    logger.warning("application configuration changed, key: %s = %s", key, value)
-    if key.startswith(app_name):
-        app.config[key.replace(app_name+'.', '')] = value
-        logger.warning("application configuration changed, *** key: %s = %s", key.replace(app_name+'.', ''), value)
+def on_config_change(_key, _value):
+    """Hook called if configuration dictionary changed"""
+    logger.warning("application configuration changed, key: %s = %s", _key, _value)
+    if _key.startswith(app_name):
+        app.config[_key.replace(app_name + '.', '')] = _value
+        logger.warning("application configuration changed, *** key: %s = %s",
+                       _key.replace(app_name + '.', ''), _value)
 
 
 @app.hook('before_request')
@@ -434,10 +438,11 @@ def user_logout():
     redirect('/login')
 
 
-def check_backend_connection(app, token=None, interval=10):
+def check_backend_connection(_app, token=None, interval=10):
+    """Thread to check if backend connection is alive"""
     print("Thread for checking backend connection is alive with %s" % app.config['alignak_backend'])
 
-    backend = app.datamgr.backend
+    backend = _app.datamgr.backend
     object_type = 'user'
     params = {}
     while True:
@@ -482,6 +487,7 @@ def user_auth():
     # -----
     # Start Alignak backend thread
     # -----
+    # pylint: disable=fixme
     # TODO: run backend connection check thread
     # cfg_backend_thread = threading.Thread(target=check_backend_connection,
     #                                       name='backend_connection_check',
@@ -620,10 +626,8 @@ def livestate():
 
     panels = datamgr.get_user_preferences(user, 'livestate', {})
 
-    ls = Helper.get_html_livestate(datamgr, panels,
-                                   int(request.query.get('bi', -1)),
-                                   request.query.get('search', {}),
-                                   actions=user.is_power())
+    ls = Helper.get_html_livestate(datamgr, panels, int(request.query.get('bi', -1)),
+                                   request.query.get('search', {}), actions=user.is_power())
 
     response.status = 200
     response.content_type = 'application/json'

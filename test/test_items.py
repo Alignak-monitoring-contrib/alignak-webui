@@ -256,8 +256,9 @@ class TestElementStates(unittest2.TestCase):
         print("Items states", items_states.states)
 
         for s in self.config:
+            print(s)
             s = s.split('.')
-            if s[0] not in ['items'] and len(s) > 1:
+            if s[0] not in ['items', 'bottle'] and len(s) > 1:
                 assert s[1] not in items_states.object_types_states
                 assert s[1] not in items_states.default_states
                 assert s[1] not in items_states.states
@@ -646,7 +647,7 @@ class TestItems(unittest2.TestCase):
         assert item.is_admin == False
 
         assert item.get_role() == 'user'
-        assert item.get_role(display=True) == 'User'
+        assert item.get_role(display=True) == 'user'
         assert item.is_administrator() == False
         assert item.is_anonymous() == True
         assert item.can_submit_commands == False
@@ -670,7 +671,7 @@ class TestItems(unittest2.TestCase):
         assert item._id == 'user_1'  # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.get_role() == 'power'
-        assert item.get_role(display=True) == 'Power user'
+        assert item.get_role(display=True) == 'power'
         assert item.is_administrator() == False
         assert item.is_anonymous() == False
         assert item.is_power() == True
@@ -694,7 +695,7 @@ class TestItems(unittest2.TestCase):
         assert item.name == 'test'
         assert item.friendly_name == 'Friendly name'
         assert item.get_role() == 'administrator'
-        assert item.get_role(display=True) == 'Administrator'
+        assert item.get_role(display=True) == 'administrator'
         assert item.is_administrator() == True
         assert item.is_anonymous() == False
         assert item.is_power() == True
@@ -720,7 +721,7 @@ class TestItems(unittest2.TestCase):
         assert item.alias == 'Real name'
         assert item.get_username() == 'test_priority'
         assert item.get_role() == 'user'
-        assert item.get_role(display=True) == 'User'
+        assert item.get_role(display=True) == 'user'
         assert item.is_administrator() == False
         assert item.is_anonymous() == False
         assert item.is_power() == False

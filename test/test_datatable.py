@@ -27,25 +27,23 @@ import os
 import shlex
 import subprocess
 import time
-from logging import getLogger, INFO, WARNING, ERROR
 
 import unittest2
-from webtest import TestApp
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
-# To load application configuration used by the objects
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+
 import alignak_webui.app
+
+from webtest import TestApp
 
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT, BACKEND_PAGINATION_DEFAULT
 
-from alignak_webui import webapp
-from alignak_webui.objects.backend import BackendConnection
+from alignak_webui.backend.backend import BackendConnection
 from alignak_webui.objects.item_command import Command
-from alignak_webui.objects.datamanager import DataManager
+from alignak_webui.backend.datamanager import DataManager
 
 items_count = 0
 backend_process = None
@@ -112,7 +110,7 @@ class TestDataTable(unittest2.TestCase):
         result = self.dmg.load()
 
         # Test application
-        self.app = TestApp(webapp)
+        self.app = TestApp(alignak_webui.app.session_app)
 
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
@@ -359,7 +357,6 @@ class TestDataTable(unittest2.TestCase):
             'search': json.dumps({"value": "check_test", "regex": False})
         })
         response_value = response.json
-        print(response_value)
         # Not found!
         assert response.json['recordsTotal'] == 0
         assert response.json['recordsFiltered'] == 0
@@ -394,7 +391,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 5
+        assert response.json['recordsFiltered'] == 90
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -492,7 +489,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 5
+        assert response.json['recordsFiltered'] == 88
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -502,7 +499,8 @@ class TestDataTable(unittest2.TestCase):
 # ---
 class TestDatatableBase(unittest2.TestCase):
     def setUp(self):
-        self.app = TestApp(webapp)
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
 
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
@@ -631,7 +629,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_state_type" data-type="string">State type</th>',
             '<th data-name="ls_state_id" data-type="integer">State id</th>',
             '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="ls_downtime" data-type="boolean">In scheduled downtime</th>',
+            '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
             '<th data-name="ls_output" data-type="string">Output</th>',
             '<th data-name="ls_long_output" data-type="string">Long output</th>',
             '<th data-name="ls_perf_data" data-type="string">Performance data</th>',
@@ -779,7 +777,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="ls_state_type" data-type="string">State type</th>',
             '<th data-name="ls_state_id" data-type="integer">State id</th>',
             '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="ls_downtime" data-type="boolean">In scheduled downtime</th>',
+            '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
             '<th data-name="ls_output" data-type="string">Output</th>',
             '<th data-name="ls_long_output" data-type="string">Long output</th>',
             '<th data-name="ls_perf_data" data-type="string">Performance data</th>',

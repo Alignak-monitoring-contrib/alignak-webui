@@ -36,8 +36,7 @@ from calendar import timegm
 from datetime import datetime
 from logging import getLogger, INFO
 
-# noinspection PyProtectedMember
-# from alignak_webui import get_app_config, _
+from alignak_webui import get_app_config
 # Import the backend interface class
 from alignak_webui.backend.backend import BackendConnection
 from alignak_webui.objects.element_state import ElementState

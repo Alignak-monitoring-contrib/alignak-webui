@@ -32,7 +32,7 @@ import inspect
 from logging import getLogger
 
 # Bottle import
-from bottle import hook, route, request, response, redirect, static_file, parse_auth
+from bottle import route, request, response, redirect, parse_auth
 from bottle import BaseTemplate, template, TEMPLATE_PATH
 import bottle
 
@@ -43,6 +43,7 @@ from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
+
 
 # --------------------------------------------------------------------------------------------------
 # WebUI routes
@@ -89,10 +90,14 @@ def external(widget_type, identifier, action=None):
     Use the 'links' parameter to prefix the navigation URLs.
     """
 
+    # Get the WebUI instance
+    webui = request.app.config['webui']
+
     session = request.environ['beaker.session']
     if 'current_user' in session:
         current_user = session['current_user']
-        if not user_authentication(current_user.token, None):
+
+        if not webui.user_authentication(current_user.token, None):
             # Redirect to application login page
             logger.warning(
                 "user in the session is not authenticated."
@@ -120,7 +125,7 @@ def external(widget_type, identifier, action=None):
         authentication = request.headers.get('Authorization')
         username, password = parse_auth(authentication)
 
-        if not user_authentication(username, password):
+        if not webui.user_authentication(username, password):
             logger.warning("external application access denied for %s", username)
             response.status = 401
             response.content_type = 'text/html'
@@ -144,10 +149,6 @@ def external(widget_type, identifier, action=None):
                 'alignak_backend',
                 'http://127.0.0.1:5000'
             ),
-            alignak_endpoint=request.app.config.get(
-                'alignak_arbiter',
-                'http://127.0.0.1:7070'
-            ),
             session=request.environ['beaker.session']
         )
         BaseTemplate.defaults['datamgr'] = request.app.datamgr
@@ -170,13 +171,13 @@ def external(widget_type, identifier, action=None):
             response.status = 200
             response.content_type = 'application/json'
             return json.dumps(
-                {'status': 'ok', 'files': get_app_webui().js_list}
+                {'status': 'ok', 'files': webui.js_list}
             )
         elif identifier == 'css_list':
             response.status = 200
             response.content_type = 'application/json'
             return json.dumps(
-                {'status': 'ok', 'files': get_app_webui().css_list}
+                {'status': 'ok', 'files': webui.css_list}
             )
         else:
             logger.warning("External application requested unknown files: %s", identifier)
@@ -188,7 +189,7 @@ def external(widget_type, identifier, action=None):
 
     if widget_type == 'widget':
         found_widget = None
-        for widget in get_app_webui().get_widgets_for('external'):
+        for widget in webui.get_widgets_for('external'):
             if identifier == widget['id']:
                 found_widget = widget
                 break
@@ -216,7 +217,7 @@ def external(widget_type, identifier, action=None):
 
     if widget_type == 'table':
         found_table = None
-        for table in get_app_webui().get_tables_for('external'):
+        for table in webui.get_tables_for('external'):
             if identifier == table['id']:
                 found_table = table
                 break
@@ -246,8 +247,8 @@ def external(widget_type, identifier, action=None):
         })
 
     if widget_type == 'list':
-        if identifier in get_app_webui().lists:
-            return get_app_webui().lists[identifier]['function'](embedded=True)
+        if identifier in webui.lists:
+            return webui.lists[identifier]['function'](embedded=True)
         else:
             logger.warning("External application requested unknown list: %s", identifier)
             response.status = 409
@@ -271,7 +272,7 @@ def external(widget_type, identifier, action=None):
 
         # Identifier is the element identifier, not the widget one !
         found_widget = None
-        for widget in get_app_webui().get_widgets_for(widget_type):
+        for widget in webui.get_widgets_for(widget_type):
             if action == widget['id']:
                 found_widget = widget
                 break
@@ -558,9 +559,9 @@ class WebUI(object):
 
         return css_list
 
-    # --------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # User authentication
-    # --------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     def user_authentication(self, username, password):
         """
         Authenticate a user thanks to his username / password
