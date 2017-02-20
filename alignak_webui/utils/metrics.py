@@ -126,15 +126,15 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
                             "metrics, matching metric: '%s' = %s", m.name, m.value
                         )
                         data.append(m)
-                        if m.same_min is not None:
+                        if m.min is not None:
                             if same_min == -1:
-                                same_min = m.same_min
-                            if same_min != -1 and same_min != m.same_min:
+                                same_min = m.min
+                            if same_min != -1 and same_min != m.min:
                                 same_min = -2
-                        if m.same_max is not None:
+                        if m.max is not None:
                             if same_max == -1:
-                                same_max = m.same_max
-                            if same_max != -1 and same_max != m.same_max:
+                                same_max = m.max
+                            if same_max != -1 and same_max != m.max:
                                 same_max = -2
                         if m.warning is not None:
                             if warning == -1:

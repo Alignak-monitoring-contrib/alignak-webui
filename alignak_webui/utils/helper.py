@@ -743,7 +743,7 @@ class Helper(object):
             data[state] = []
             for elt in history:
                 data[state].append(elt["hosts_synthesis"]["nb_" + state])
-            logger.debug("Data state: %s %s" % (state, data[state]))
+            logger.debug("Data state: %s %s", state, data[state])
             content += """
                 var data_%s=%s;""" % (state, data[state])
 
@@ -888,7 +888,7 @@ class Helper(object):
             data[state] = []
             for elt in history:
                 data[state].append(elt["services_synthesis"]["nb_" + state])
-            logger.debug("Data state: %s %s" % (state, data[state]))
+            logger.debug("Data state: %s %s", state, data[state])
             content += """
                 var data_%s=%s;""" % (state, data[state])
 
