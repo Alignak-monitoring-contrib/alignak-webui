@@ -43,7 +43,6 @@ class PluginHosts(Plugin):
         """
         self.name = 'Hosts'
         self.backend_endpoint = 'host'
-        _ = app.config['_']
 
         self.pages = {
             'get_host_widget': {

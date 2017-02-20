@@ -35,7 +35,9 @@ GLPI_PAGINATION_DEFAULT = GLPI_PAGINATION_LIMIT
 
 
 class GlpiException(Exception):  # pragma: no cover, not used currently
+
     """Specific backend exception
+
     Defined error codes:
     - 1000: general exception, message contains more information
     - 1001: backend access denied
@@ -44,8 +46,9 @@ class GlpiException(Exception):  # pragma: no cover, not used currently
     - 1004: backend token not provided on login, user is not yet authorized to log in
     - 1005: If-Match header is required for patching an object
     """
+
     def __init__(self, code, message, response=None):
-        # Call the base class constructor with the parameters it needs
+        """Call the base class constructor with the parameters it needs"""
         super(GlpiException, self).__init__(message)
         self.code = code
         self.message = message
@@ -57,16 +60,16 @@ class GlpiException(Exception):  # pragma: no cover, not used currently
 
 
 class Glpi(object):  # pragma: no cover, not used currently
-    """
-    Glpi class to communicate with alignak-backend
-    """
+
+    """Glpi class to communicate with alignak-backend"""
+
     def __init__(self, endpoint):
-        """
-        Alignak backend
+        """Alignak backend
 
         :param endpoint: root endpoint (API URL)
         :type endpoint: str
         """
+
         self.connection = None
         self.authenticated = False
         if endpoint.endswith('/'):  # pragma: no cover - test url is complying ...
@@ -76,8 +79,8 @@ class Glpi(object):  # pragma: no cover, not used currently
         self.token = None
 
     def login(self, username, password):
-        """
-        Log into the backend and get the token
+
+        """Log into the backend and get the token
 
         if login is:
         - accepted, returns True
@@ -92,6 +95,7 @@ class Glpi(object):  # pragma: no cover, not used currently
         :return: return True if authentication is successfull, otherwise False
         :rtype: bool
         """
+
         logger.info("request backend authentication for: %s", username)
 
         if username is None or password is None:
@@ -130,12 +134,13 @@ class Glpi(object):  # pragma: no cover, not used currently
         return self.authenticated
 
     def logout(self):
-        """
-        Logout from the backend
+
+        """Logout from the backend
 
         :return: return True if logout is successfull, otherwise False
         :rtype: bool
         """
+
         if not self.token or not self.authenticated:
             logger.warning("Unnecessary logout ...")
             return True
@@ -163,13 +168,15 @@ class Glpi(object):  # pragma: no cover, not used currently
         return True
 
     def method_call(self, method_name, parameters=None):
-        """
+
+        """Call the XML RPC method
 
         :param parameters: list of parameters for the backend API
         :param method_name: RPC method name
         :return: list of properties when query item | list of items when get many items
         :rtype: list
         """
+
         if not self.token:
             logger.error("Authentication is required for getting an object.")
             raise GlpiException(

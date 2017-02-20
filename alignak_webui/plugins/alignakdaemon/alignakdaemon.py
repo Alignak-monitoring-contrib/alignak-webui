@@ -45,7 +45,6 @@ class PluginAlignak(Plugin):
         """
         self.name = 'Alignak'
         self.backend_endpoint = 'alignakdaemon'
-        _ = app.config['_']
 
         self.pages = {
             'show_alignak': {

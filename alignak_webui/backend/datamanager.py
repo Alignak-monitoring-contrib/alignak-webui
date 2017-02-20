@@ -43,7 +43,7 @@ from alignak_webui.utils.dates import get_ts_date
 
 # Import all objects we will need -
 # NOTE that all the objects types need to be imported else some errors will raise!
-# pylint:disable=unused-import
+# pylint: disable=unused-import
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_realm import Realm
@@ -73,14 +73,13 @@ logger.setLevel(logging.INFO)
 
 
 class DataManager(object):
-    """
-        Application data manager object
-    """
+
+    """Application data manager object"""
+
     id = 1
 
     def __init__(self, session=None, backend_endpoint='http://127.0.0.1:5000',
                  alignak_endpoint='http://127.0.0.1:8888'):
-
         """Initialize a DataManager instance
 
         The `session` parameter is provided to the data manager when a Web session exists.
@@ -98,7 +97,6 @@ class DataManager(object):
             backend_endpoint: Alignak backend URL endpoint
             alignak_endpoint: Alignak Web service URL endpoint
         """
-
         # Set a unique id for each DM object
         self.__class__.id += 1
 
@@ -156,14 +154,12 @@ class DataManager(object):
     # Connected user
     ##
     def user_login(self, username, password=None, load=True):
-
         """Set the data manager user
 
         If password is provided, use the backend login function to authenticate the user
 
         If no password is provided, the username is assumed to be an authentication token and we
         use the backend connect function."""
-
         logger.debug("user_login, connection requested: %s, load: %s", username, load)
 
         self.connected = False
@@ -213,10 +209,8 @@ class DataManager(object):
         return self.connected
 
     def user_logout(self):
-
         """Logout the data manager user. Do not log-out from the backend. Need to reset the
         datamanager to do it."""
-
         self.logged_in_user = None
         self.connected = False
 
@@ -224,7 +218,6 @@ class DataManager(object):
     # Find objects and load objects cache
     ##
     def find_object(self, object_type, params=None, all_elements=False, embedded=True):
-
         """Find an object ...
 
         Search in internal objects cache for an object matching the required parameters
@@ -243,7 +236,6 @@ class DataManager(object):
         and this property is valued as 'object_type'.
 
         Returns an array of matching objects"""
-
         logger.debug(
             "find_object, %s, params: %s, all: %s, embedded: %s",
             object_type, params, all_elements, embedded
@@ -292,7 +284,6 @@ class DataManager(object):
         return items
 
     def load(self, reset=False, refresh=False):
-
         """Load data in the data manager objects
 
             If reset is set, then all the existing objects are deleted and then created from
@@ -302,7 +293,6 @@ class DataManager(object):
             Get all the users (related to current logged-in user)
 
             :returns: the number of newly created objects"""
-
         if not self.logged_in_user:
             logger.error("load, must be logged-in before loading")
             return False
@@ -362,9 +352,7 @@ class DataManager(object):
         return new_objects_count - objects_count
 
     def reset(self, logout=False):
-
         """Reset data in the data manager objects"""
-
         logger.debug("Data manager reset...")
 
         # Clean internal objects cache
@@ -381,14 +369,11 @@ class DataManager(object):
         self.refresh_required = True
 
     def require_refresh(self):
-
         """Require an immediate refresh"""
-
         self.refresh_required = True
         self.refresh_done = False
 
     def get_objects_count(self, object_type=None, refresh=False, log=False, search=None):
-
         """Get the count of the objects stored in the data manager cache
 
         If an object_type is specified, only returns the count for this object type
@@ -397,7 +382,6 @@ class DataManager(object):
         count is required...
 
         If log is set, an information log is made"""
-
         log_function = logger.debug
         if log:
             log_function = logger.info
@@ -455,8 +439,8 @@ class DataManager(object):
     # Elements add, delete, update, ...
     ##
     def count_objects(self, object_type, search=None):
-        """
-        Request objects from the backend to pick-up total records count.
+        """Request objects from the backend to pick-up total records count.
+
         Make a simple request for 1 element and we will get back the total count of elements
 
         Note: The 'daemon' (Daemon class) objects are not concerned whereas they are not stored in
@@ -482,14 +466,14 @@ class DataManager(object):
         return self.backend.count(object_type, params)
 
     def add_object(self, object_type, data=None, files=None):
-        """ Add an element """
+        """Add an element"""
         logger.info("add_object, request to add a %s: data: %s", object_type, data)
 
         return self.backend.post(object_type, data=data, files=files)
 
     def delete_object(self, object_type, element):
-        """
-        Delete an element
+        """Delete an element
+
         - object_type is the element type
         - element may be a string. In this case it is considered to be the element id
         """
@@ -512,9 +496,7 @@ class DataManager(object):
         return False
 
     def update_object(self, element, data):
-        """
-        Update an element
-        """
+        """Update an element"""
         logger.debug("update_object, request to update: %s", element)
 
         return self.backend.update(element, data)
@@ -524,8 +506,7 @@ class DataManager(object):
     # todo: refactor API to use self.logged_in_user if user is None
     ##
     def delete_user_preferences(self, user, preference_key):
-        """
-        Delete user's preferences
+        """Delete user's preferences
 
         *****
         Currently this sets the value None in the preferences dictionary instead of removing
@@ -554,8 +535,7 @@ class DataManager(object):
         return False
 
     def set_user_preferences(self, user, preference_key, value):
-        """
-        Set user's preferences
+        """Set user's preferences
 
         If an exception occurs, it is raised to the caller.
 
@@ -586,8 +566,7 @@ class DataManager(object):
 
     def get_user_preferences(self, user, preference_key, default=None):
         # pylint:disable=no-self-use
-        """
-        Get user's preferences
+        """Get user's preferences
 
         If the data are not found, and no default value is provided, this function returns None. If
         a default value is provided then this function returns the defaut value after having stored
@@ -617,8 +596,7 @@ class DataManager(object):
     # Alignak
     ##
     def get_alignak_map(self, search=None):  # pylint: disable=unused-argument
-
-        """ Get Alignak overall state from the Alignak Web Services module:
+        """Get Alignak overall state from the Alignak Web Services module:
 
             https://github.com/Alignak-monitoring-contrib/alignak-module-ws
 
@@ -700,7 +678,7 @@ class DataManager(object):
         return self.alignak_daemons
 
     def get_alignak_state(self, search=None, all_elements=False):
-        """ Get a list of all alignak daemons states. """
+        """Get a list of all alignak daemons states."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -726,8 +704,7 @@ class DataManager(object):
     # Live synthesis
     ##
     def get_livesynthesis(self, search=None):
-
-        """ Get live state synthesis for hosts and services
+        """Get live state synthesis for hosts and services
 
             Example backend response::
 
@@ -981,8 +958,7 @@ class DataManager(object):
         return synthesis
 
     def get_livesynthesis_history(self):
-
-        """ Get live state synthesis history for hosts and services
+        """Get live state synthesis history for hosts and services
 
             This function gets the live synthesis with the concatenation and history parameters
             for the current realm to let the backend compute the sub realms counters.
@@ -1279,30 +1255,22 @@ class DataManager(object):
     # Actions
     ##
     def add_acknowledge(self, data):
-
-        """ Request to acknowledge a problem. """
-
+        """Request to acknowledge a problem."""
         logger.info("add_acknowledge, request an acknowledge, data: %s", data)
         return self.add_object('actionacknowledge', data)
 
     def add_recheck(self, data):
-
-        """ Request to re-check an host/service. """
-
+        """Request to re-check an host/service."""
         logger.info("add_recheck, request a recheck, data: %s", data)
         return self.add_object('actionforcecheck', data)
 
     def add_downtime(self, data):
-
-        """ Request to schedule a downtime. """
-
+        """Request to schedule a downtime."""
         logger.info("add_downtime, request a downtime, data: %s", data)
         return self.add_object('actiondowntime', data)
 
     def add_command(self, data):
-
-        """ Send an external command to Alignak. """
-
+        """Send an external command to Alignak."""
         logger.info("add_command, send a command, data: %s", data)
         try:
             logger.debug("get_alignak_state")
@@ -1316,9 +1284,7 @@ class DataManager(object):
     # Hosts groups
     ##
     def get_hostgroups(self, search=None, all_elements=False):
-
-        """ Get a list of all hostgroups. """
-
+        """Get a list of all hostgroups."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1340,9 +1306,7 @@ class DataManager(object):
         return []
 
     def get_hostgroup(self, search):
-
-        """ Get a hostgroup by its id. """
-
+        """Get a hostgroup by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1352,11 +1316,9 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_hostgroup_overall_state(self, search):
-
-        """ Get a hosts group real state (including hosts states).
+        """Get a hosts group real state (including hosts states).
 
         Returns -1 if any problem"""
-
         if not isinstance(search, BackendElement):
             hostgroup = self.get_hostgroup(search)
             if not hostgroup:
@@ -1391,9 +1353,7 @@ class DataManager(object):
     # Hosts dependencies
     ##
     def get_hostdependencys(self, search=None, all_elements=False):
-
-        """ Get a list of all host dependencies. """
-
+        """Get a list of all host dependencies."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1418,9 +1378,7 @@ class DataManager(object):
         return []
 
     def get_hostdependency(self, search):
-
-        """ Get a hostdependency by its id. """
-
+        """Get a hostdependency by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1433,9 +1391,7 @@ class DataManager(object):
     # Hosts
     ##
     def get_hosts(self, search=None, template=False, all_elements=False, embedded=True):
-
-        """ Get a list of all hosts. """
-
+        """Get a list of all hosts."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1465,9 +1421,7 @@ class DataManager(object):
         return []
 
     def get_host(self, search, embedded=True):
-
-        """ Get a host by its id (default). """
-
+        """Get a host by its id (default)."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1477,11 +1431,10 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_host_services(self, search):
+        """Get a host real state (including services states).
 
-        """ Get a host real state (including services states).
-
-        Returns -1 if any problem"""
-
+        Returns -1 if any problem
+        """
         if not isinstance(search, BackendElement):
             host = self.get_host(search)
             if not host:
@@ -1495,12 +1448,10 @@ class DataManager(object):
         )
 
     def get_host_overall_state(self, search):
-
-        """ Get a host real state (including services states).
+        """Get a host real state (including services states).
 
         Returns -1 if any problem
         """
-
         if not isinstance(search, BackendElement):
             host = self.get_host(search)
             if not host:
@@ -1511,11 +1462,10 @@ class DataManager(object):
         return (host.overall_state, host.overall_status)
 
     def get_host_services_hierarchy(self, search):
+        """Get a host real state (including services states).
 
-        """ Get a host real state (including services states).
-
-        Returns -1 if any problem"""
-
+        Returns -1 if any problem
+        """
         if not isinstance(search, BackendElement):
             host = self.get_host(search)
             if not host:
@@ -1532,9 +1482,7 @@ class DataManager(object):
     # Services groups
     ##
     def get_servicegroups(self, search=None, all_elements=False):
-
-        """ Get a list of all servicegroups. """
-
+        """Get a list of all servicegroups."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1556,9 +1504,7 @@ class DataManager(object):
         return []
 
     def get_servicegroup(self, search):
-
-        """ Get a servicegroup by its id. """
-
+        """Get a servicegroup by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1571,9 +1517,7 @@ class DataManager(object):
     # Services dependencies
     ##
     def get_servicedependencys(self, search=None, all_elements=False):
-
-        """ Get a list of all service dependencies. """
-
+        """Get a list of all service dependencies."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1599,9 +1543,7 @@ class DataManager(object):
         return []
 
     def get_servicedependency(self, search):
-
-        """ Get a servicedependency by its id. """
-
+        """Get a servicedependency by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1614,9 +1556,7 @@ class DataManager(object):
     # Services
     ##
     def get_services(self, search=None, template=False, all_elements=False, embedded=True):
-
-        """ Get a list of all services. """
-
+        """Get a list of all services."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1648,9 +1588,7 @@ class DataManager(object):
         return []
 
     def get_service(self, search):
-
-        """ Get a service by its id (default). """
-
+        """Get a service by its id (default)."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1660,12 +1598,10 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_service_overall_state(self, search):
-
-        """ Get a service real state (including services states).
+        """Get a service real state (including services states).
 
         Returns -1 if any problem
         """
-
         if not isinstance(search, BackendElement):
             service = self.get_service(search)
             if not service:
@@ -1676,9 +1612,7 @@ class DataManager(object):
         return (service.overall_state, service.overall_status)
 
     def get_services_synthesis(self, elts=None):
-
         """Services synthesis by status"""
-
         logger.debug("get_services_synthesis, %d elements", len(elts))
         if elts is not None:
             services = [item for item in elts if item.get_type() == 'service']
@@ -1707,9 +1641,7 @@ class DataManager(object):
 
     def get_services_aggregated(self, elts=None):
         # pylint: disable=protected-access
-
         """Services by aggregation"""
-
         if elts:
             services = [item for item in elts if item.get_type() == 'service']
         else:
@@ -1811,16 +1743,15 @@ class DataManager(object):
     # Logs
     ##
     def get_logcheckresult(self, search=None):
-
-        """ Get log for all elements
+        """Get log for all elements
 
             Elements in the log which type is 'host' or 'service'
 
             :param search: backend request search
             :type search: dic
             :return: list of hosts/services live states
-            :rtype: list"""
-
+            :rtype: list
+            """
         if not search:
             search = {}
         if isinstance(search, basestring):
@@ -1844,14 +1775,13 @@ class DataManager(object):
     # History
     ##
     def get_history(self, search=None):
-
-        """ Get history
+        """Get history
 
             :param search: backend request search
             :type search: dic
             :return: list of hosts/services live states
-            :rtype: list"""
-
+            :rtype: list
+        """
         if not search:
             search = {}
         if isinstance(search, basestring):
@@ -1873,9 +1803,7 @@ class DataManager(object):
     # Commands
     ##
     def get_commands(self, search=None, all_elements=False):
-
-        """ Get a list of all commands. """
-
+        """Get a list of all commands."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1897,9 +1825,7 @@ class DataManager(object):
         return []
 
     def get_command(self, search):
-
-        """ Get a command by its id. """
-
+        """Get a command by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1912,9 +1838,7 @@ class DataManager(object):
     # usergroups
     ##
     def get_usergroups(self, search=None, all_elements=False):
-
-        """ Get a list of all usergroups. """
-
+        """Get a list of all usergroups."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1937,9 +1861,7 @@ class DataManager(object):
         return []
 
     def get_usergroup(self, search):
-
-        """ Get a usergroup by its id. """
-
+        """Get a usergroup by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1952,9 +1874,7 @@ class DataManager(object):
     # Users
     ##
     def get_userrestrictroles(self, search=None, all_elements=False):
-
-        """ Get a list of known users """
-
+        """Get a list of known users"""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1970,9 +1890,7 @@ class DataManager(object):
         return []
 
     def get_userrestrictrole(self, search):
-
         """Get a userrestricrole by its id or a search pattern"""
-
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1982,9 +1900,7 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_users(self, search=None, template=False, all_elements=False):
-
-        """ Get a list of known users """
-
+        """Get a list of known users"""
         if not self.logged_in_user.is_administrator():
             return [self.logged_in_user]
 
@@ -2015,9 +1931,7 @@ class DataManager(object):
         return []
 
     def get_user(self, search):
-
         """Get a user by its id or a search pattern"""
-
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -2027,14 +1941,11 @@ class DataManager(object):
         return items[0] if items else None
 
     def add_user(self, data):
-
-        """ Add a user. """
-
+        """Add a user."""
         return self.add_object('user', data)
 
     def delete_user(self, user):
-
-        """ Delete a user.
+        """Delete a user.
 
         Cannot delete the currently logged in user ...
 
@@ -2067,9 +1978,7 @@ class DataManager(object):
     # realms
     ##
     def get_realms(self, search=None, all_elements=False):
-
-        """ Get a list of all realms. """
-
+        """Get a list of all realms."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -2091,9 +2000,7 @@ class DataManager(object):
         return []
 
     def get_realm(self, search):
-
-        """ Get a realm by its id. """
-
+        """Get a realm by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -2103,11 +2010,10 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_realm_members(self, search):
-
         """Get a realm hosts
 
-        Returns -1 if any problem"""
-
+        Returns -1 if any problem
+        """
         logger.debug("get_realm_members, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
@@ -2119,11 +2025,10 @@ class DataManager(object):
         return self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
 
     def get_realm_children(self, search):
+        """Get a realm sub realms
 
-        """ Get a realm sub realms
-
-        Returns -1 if any problem"""
-
+        Returns -1 if any problem
+        """
         logger.debug("get_realm_children, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
@@ -2136,11 +2041,10 @@ class DataManager(object):
         return self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
 
     def get_realm_overall_state(self, search):
+        """Get a realm real state (including realm hosts states).
 
-        """ Get a realm real state (including realm hosts states).
-
-        Returns -1 if any problem"""
-
+        Returns -1 if any problem
+        """
         logger.debug("get_realm_overall_state, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
@@ -2173,7 +2077,7 @@ class DataManager(object):
     # timeperiods
     ##
     def get_timeperiods(self, search=None, all_elements=False):
-        """ Get a list of all timeperiods. """
+        """Get a list of all timeperiods."""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -2195,8 +2099,7 @@ class DataManager(object):
         return []
 
     def get_timeperiod(self, search):
-        """ Get a timeperiod by its id. """
-
+        """Get a timeperiod by its id."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:

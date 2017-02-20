@@ -30,7 +30,6 @@ class PluginUsers(Plugin):
         """
         self.name = 'Users'
         self.backend_endpoint = 'user'
-        _ = app.config['_']
 
         self.pages = {
             'show_user_add': {

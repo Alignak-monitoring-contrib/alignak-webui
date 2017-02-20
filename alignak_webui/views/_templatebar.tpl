@@ -9,11 +9,35 @@
    </a>
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Edition mode menu')}}">
-      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Hosts templates')}}">
-         <a href="{{ webui.get_url('Hosts templates') }}">
+      %try:
+      <li>
+         <a href="{{ webui.get_url('Hosts templates table') }}">
             <span class="fa fa-fw fa-server"></span>
             <span>{{_('Hosts templates')}}</span>
          </a>
       </li>
+      %except RouteBuildError:
+      %print("Missing plugin Hosts")
+      %end
+      %try:
+      <li>
+         <a href="{{ webui.get_url('Services templates table') }}">
+            <span class="fa fa-fw fa-cube"></span>
+            <span>{{_('Services templates')}}</span>
+         </a>
+      </li>
+      %except RouteBuildError:
+      %print("Missing plugin Services")
+      %end
+      %try:
+      <li>
+         <a href="{{ webui.get_url('Users templates table') }}">
+            <span class="fa fa-fw fa-user"></span>
+            <span>{{_('Users templates')}}</span>
+         </a>
+      </li>
+      %except RouteBuildError:
+      %print("Missing plugin Users")
+      %end
    </ul>
 </li>

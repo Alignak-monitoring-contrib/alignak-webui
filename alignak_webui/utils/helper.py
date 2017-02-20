@@ -40,14 +40,12 @@ logger.setLevel(INFO)
 
 
 class Helper(object):
-    """
-    Helper functions
-    """
+    """Helper functions"""
 
     @staticmethod
     def print_date(timestamp, fmt='%Y-%m-%d %H:%M:%S'):
+        """Print date from a timestamp
 
-        """
         For a unix timestamp return something like
         2015-09-18 00:00:00
 
@@ -71,8 +69,8 @@ class Helper(object):
 
     @staticmethod
     def print_duration(timestamp, duration_only=False, x_elts=0, ts_is_duration=False):
+        """Print a duration from a timestamp
 
-        """
         For a unix timestamp return something like
         1h 15m 12s
 
@@ -166,7 +164,6 @@ class Helper(object):
 
     @staticmethod
     def get_on_off(status=False, title=None, message=''):
-
         """Give an enabled/disabled HTML state
 
             The returned HTML element is built from the configuration variables defined as:
@@ -201,17 +198,17 @@ class Helper(object):
 
     @staticmethod
     def get_html_business_impact(business_impact, icon=True, text=False, less=0):
-
         """Give a business impact as text and stars if needed.
-            If text=True, returns text+stars, else returns stars only ...
 
-            The returned HTML element is built from the configuration variables defined as:
-            [business_impact]
-            ; Global element to be included in the HTML and including the items and the text
-            global=<div><span>##items##</span><span>##text##</span></div>
+        If text=True, returns text+stars, else returns stars only ...
 
-            ; Element to be included for each BI count
-            item=<span class="fa fa-star"></span>
+        The returned HTML element is built from the configuration variables defined as:
+        [business_impact]
+        ; Global element to be included in the HTML and including the items and the text
+        global=<div><span>##items##</span><span>##text##</span></div>
+
+        ; Element to be included for each BI count
+        item=<span class="fa fa-star"></span>
         """
 
         if not 0 <= business_impact <= 5:
@@ -248,8 +245,7 @@ class Helper(object):
 
     @staticmethod
     def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
-        """
-        Returns formatted HTML for an element URL
+        """Returns formatted HTML for an element URL
 
         url string may contain a list of urls separated by | (pipe symbol)
 
@@ -338,9 +334,7 @@ class Helper(object):
 
     @staticmethod
     def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
-        """
-        Return list of element action urls
-        """
+        """Return list of element action urls"""
 
         if obj is not None:
             return Helper.get_urls(
@@ -352,9 +346,7 @@ class Helper(object):
 
     @staticmethod
     def get_element_notes_url(obj, default_title="Url", default_icon="globe", popover=False):
-        """
-        Return list of element notes urls
-        """
+        """Return list of element notes urls"""
 
         if obj is not None and obj.notes:
             notes = []
@@ -380,19 +372,20 @@ class Helper(object):
 
     @staticmethod
     def decode_search(search):
-        """
-            Convert string from:
-                isnot:0 isnot:ack isnot:"downtime fred" name "vm fred"
-            to:
-                {
-                    'isnot': 0,
-                    'isnot':'ack',
-                    'name': name,
-                    'name': 'vm fred'
-                }
+        """Decode a search string:
 
-            :search: Search string
-            :returns: list of matching items
+        Convert string from:
+            isnot:0 isnot:ack isnot:"downtime fred" name "vm fred"
+        to:
+            {
+                'isnot': 0,
+                'isnot':'ack',
+                'name': name,
+                'name': 'vm fred'
+            }
+
+        :search: Search string
+        :returns: list of matching items
         """
         logger.debug("decode_search, search string:%s", search)
 
@@ -443,7 +436,8 @@ class Helper(object):
 
     @staticmethod
     def get_pagination_control(page_url, total, start=0, count=25, nb_max_items=5):
-        """
+        """Build page navigation buttons
+
         Build page navigation buttons as a list of elements containing:
         - button label
         - start element (None to create a disabled element)
@@ -526,7 +520,6 @@ class Helper(object):
 
     @staticmethod
     def get_html_timeperiod(tp, title=None):
-
         """Build an html definition list for the timeperiod date ranges and exclusions.
 
             The returned HTML element is built from the configuration variables defined as:
@@ -589,26 +582,25 @@ class Helper(object):
 
     @staticmethod
     def get_html_item_list(object_id, object_type, objects_list, title=None, max_items=10):
-
         """Build an html definition list for the items list
 
-            The returned HTML element is built from the configuration variables defined as:
-            [tables.lists]
+        The returned HTML element is built from the configuration variables defined as:
+        [tables.lists]
 
-            ; Button to display the list
-            button=<button class="btn btn-xs btn-raised" data-toggle="collapse"
-                    data-target="#list_##type##_##id##" aria-expanded="false">##title##
-                    </button><div class="collapse" id="list_##type##_##id##">##content##</div>
+        ; Button to display the list
+        button=<button class="btn btn-xs btn-raised" data-toggle="collapse"
+                data-target="#list_##type##_##id##" aria-expanded="false">##title##
+                </button><div class="collapse" id="list_##type##_##id##">##content##</div>
 
-            ; Global element to be included in the HTML for the list
-            list=<ul class="list-group">##content##</ul>
+        ; Global element to be included in the HTML for the list
+        list=<ul class="list-group">##content##</ul>
 
-            ; Each command element to be included in the HTML list
-            item=<li class="list-group-item"><span class="fa fa-check">
-                    &nbsp;##content##</span></li>
+        ; Each command element to be included in the HTML list
+        item=<li class="list-group-item"><span class="fa fa-check">
+                &nbsp;##content##</span></li>
 
-            ; Unique element to be included in the HTML list if the list contains only one element
-            unique=##content##
+        ; Unique element to be included in the HTML list if the list contains only one element
+        unique=##content##
         """
 
         if not objects_list or not isinstance(objects_list, list):
@@ -662,9 +654,7 @@ class Helper(object):
 
     @classmethod
     def get_html_commands_buttons(cls, bo_object, title=''):
-        """
-        Build an html button bar for a livestate element
-        """
+        """Build an html button group for element actions"""
         if not bo_object:
             return ''
 
@@ -754,7 +744,6 @@ class Helper(object):
 
     @staticmethod
     def get_html_hosts_ls_history(hs, history, collapsed=False):
-
         """Build the HTML content for a live state history of the hosts
 
         :param hs: hosts livesynthesis as provided by the get_livesynthesis or
@@ -932,7 +921,6 @@ class Helper(object):
 
     @staticmethod
     def get_html_services_ls_history(ss, history, collapsed=False):
-
         """Build the HTML content for a live state history of the services
 
         :param ss: services livesynthesis as provided by the get_livesynthesis or
@@ -1109,7 +1097,7 @@ class Helper(object):
 
     @staticmethod
     def get_html_hosts_count_panel(hs, url, collapsed=False, percentage=False):
-        """
+        """Get the html hosts count panel
 
         :param hs: hosts livesynthesis as provided by the get_livesynthesis or
                    get_livesynthesis_history functions
@@ -1293,7 +1281,7 @@ class Helper(object):
 
     @staticmethod
     def get_html_services_count_panel(ss, url, collapsed=False, percentage=False):
-        """
+        """Get the html services count panel
 
         :param ss: services livesynthesis as provided by the get_livesynthesis or
                    get_livesynthesis_history functions
@@ -1506,8 +1494,7 @@ class Helper(object):
     @staticmethod
     # pylint: disable=too-many-locals
     def get_html_livestate(datamgr, panels, bi=-1, search=None, actions=False):
-        """
-        Get HTML formatted live state
+        """Get HTML formatted live state
 
         If bi is -1 (default) then all the items are considered, else this
         function only considers the items with the provided BI.
@@ -1622,7 +1609,7 @@ class Helper(object):
                 service_url,
                 Helper.print_duration(item.last_state_changed, duration_only=True, x_elts=2),
                 Helper.print_duration(item.last_check, duration_only=True, x_elts=2),
-                Helper.print_date(item.last_state_changed),
+                Helper.print_date(item.last_check),
                 item.output, long_output
             )
             rows.append(tr)
@@ -1665,7 +1652,7 @@ class Helper(object):
             elif services_problems > 0:
                 problems += _(" (services: #nb_services_problems# #alert_services_problems#)")
             panel_bi += """
-            <table class="table table-invisible table-condensed" data-business-impact="#bi-id#" >
+            <table class="table table-invisible table-condensed" data-business-impact="#bi-id#">
               <thead><tr>
                 <th></th>
                 <th></th>

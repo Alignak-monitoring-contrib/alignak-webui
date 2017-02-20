@@ -43,13 +43,12 @@ logger.setLevel(WARNING)
 
 
 class BackendConnection(object):    # pylint: disable=too-few-public-methods
-    """
-    Singleton design pattern ...
-    """
+
+    """Singleton design pattern ..."""
+
     class __BackendConnection(object):
-        """
-        Base class for Alignak backend connection
-        """
+
+        """Base class for Alignak backend connection"""
 
         def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
             self.backend_endpoint = backend_endpoint
@@ -57,14 +56,14 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             self.connected = False
 
         def login(self, username, password=None):
-            """
-            Log into the backend
+
+            """Log into the backend
 
             If password is provided, use the backend login function to authenticate the user
 
             If no password is provided, the username is assumed to be an authentication token and we
-            use the backend connect function.
-            """
+            use the backend connect function."""
+
             logger.info("login, connection requested, login: %s", username)
 
             self.connected = False
@@ -96,22 +95,24 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return self.connected
 
         def logout(self):
-            """
-            Log out from the backend
 
-            Do nothing except setting 'connected' attribute to False
-            """
+            """Log out from the backend
+
+            Do nothing except setting 'connected' attribute to False"""
+
             logger.info("logout")
 
             self.connected = False
 
         def count(self, object_type, params=None):
-            """
+
+            """Count backend elements
+
             If params is a string, it is considered to be an object id and params
             is modified to {'_id': params}.
 
-            Else, params is used to 'get' objects from the backend.
-            """
+            Else, params is used to 'get' objects from the backend."""
+
             logger.debug("count, %s, params: %s", object_type, params)
 
             if isinstance(params, basestring):
@@ -167,7 +168,9 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return 0  # pragma: no cover, simple protection
 
         def get(self, object_type, params=None, all_elements=False):
-            """
+
+            """Get backend elements
+
             If params is a string, it is considered to be an object id and params
             is modified to {'_id': params}.
 
@@ -180,8 +183,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             Returns None if the search failed. Do not raise any exception to the caller.
 
             If all_elements is True, it calls the get_all function of the backend client to
-            get all the elements without any pagination activated.
-            """
+            get all the elements without any pagination activated."""
+
             logger.debug("get, %s, params: %s", object_type, params)
 
             if isinstance(params, basestring):
@@ -250,7 +253,9 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return result
 
         def post(self, object_type, data=None, files=None):
-            """ Add an element """
+
+            """Add an element"""
+
             logger.info("post, request to add a %s: data: %s", object_type, data)
 
             # Do not set header to use the client default behavior:
@@ -284,11 +289,11 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return result['_id']
 
         def delete(self, object_type, object_id):
-            """
-            Delete an element
+            """Delete an element
+
             - object_type is the element type
-            - object_id is the element identifier
-            """
+            - object_id is the element identifier"""
+
             logger.info("delete, request to delete the %s: %s", object_type, object_id)
 
             try:
@@ -326,9 +331,9 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return True
 
         def update(self, element, data):
-            """
-            Update an element
-            """
+
+            """Update an element"""
+
             logger.info("update, request to update: %s", element)
 
             try:

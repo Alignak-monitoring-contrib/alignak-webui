@@ -225,7 +225,28 @@ if app.config.get('%s.debug' % app_name, False):  # pragma: no cover - not testa
     print("-> Activated DEBUG log")
     log_level = 'DEBUG'
 
-log_filenames = [
+# Search log file location
+log_locations = [
+    '/usr/local/var/log/%s' % app_name,
+    '/var/log/%s' % app_name,
+    '/tmp/%s' % app_name
+]
+if os.environ.get('ALIGNAK_WEBUI_LOG'):
+    log_locations = [os.environ.get('ALIGNAK_WEBUI_LOG')]
+    print("Application log directory from environment: %s"
+          % os.environ.get('ALIGNAK_WEBUI_LOG'))
+for log_location in log_locations:
+    if os.path.isdir(log_location):
+        print("Log file location: %s" % log_location)
+        break
+else:
+    print("***** Log files location not found.")
+    print("***** Searched in: %s" % log_locations)
+    log_location = '/tmp/%s' % app_name
+    os.mkdir(log_location)
+
+# Search logger configuration
+cfg_log_filenames = [
     '/usr/local/etc/%s/logging.json' % app_name,
     '/etc/%s/logging.json' % app_name,
     '~/%s/logging.json' % app_name,
@@ -234,21 +255,21 @@ log_filenames = [
     os.path.abspath('./logging.json'),
 ]
 if os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE'):
-    log_filenames = [os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE')]
+    cfg_log_filenames = [os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE')]
     print("Application logger configuration file from environment: %s"
           % os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE'))
 
 app_logger_file = None
 logger = None
-for log_filename in log_filenames:
-    if setup_logging(log_filename):
+for cfg_log_filename in cfg_log_filenames:
+    if setup_logging(cfg_log_filename, log_location):
         logger = logging.getLogger(app_name)
         logger.setLevel(log_level)
-        print("Application logger configured from: %s" % log_filename)
+        print("Application logger configured from: %s" % cfg_log_filename)
         break
 else:
     print("***** Application logger configuration file not found.")
-    print("***** Searched in: %s" % log_filenames)
+    print("***** Searched in: %s" % cfg_log_filenames)
     exit(2)
 
 logger.info("--------------------------------------------------------------------------------")
@@ -888,15 +909,6 @@ def external(widget_type, identifier, action=None):
 # --------------------------------------------------------------------------------------------------
 # WebUI user's preferences
 # --------------------------------------------------------------------------------------------------
-# @app.route('/preferences/user')
-# # User preferences page ...
-# def show_user_preferences():
-#     """
-#         Show the user preferences view
-#     """
-#     return template('_preferences')
-
-
 @app.route('/preference/user', 'GET')
 def get_user_preference():
     """
@@ -964,16 +976,32 @@ def set_user_preference():
         )
 
 
-@app.error(403)
-def mistake403(code):  # pylint: disable=unused-argument
-    """HTTP error code 403"""
-    return 'There is a mistake in your url!'
+# --------------------------------------------------------------------------------------------------
+# WebUI edition mode
+# --------------------------------------------------------------------------------------------------
+@app.route('/edition_mode', 'POST')
+# User preferences page ...
+def edition_mode():
+    """
+        Set edition mode on / off
+    """
+    # Session...
+    session = request.environ['beaker.session']
+    logger.debug("edition_mode, session: %s", session)
 
+    current_state = request.params.get('state', 'on')
+    logger.debug("edition_mode, current state: %s", current_state)
 
-@app.error(404)
-def mistake404(code):  # pylint: disable=unused-argument
-    """HTTP error code 404"""
-    return 'Sorry, this page does not exist!'
+    session['edition_mode'] = (current_state == 'off')
+
+    # Make session edition mode available in the templates
+    BaseTemplate.defaults['edition_mode'] = session['edition_mode']
+    logger.debug("edition_mode, session: %s", session)
+
+    if session['edition_mode']:
+        return _('Edition mode enabled')
+    else:
+        return _('Edition mode disabled')
 
 
 # Bottle templates path

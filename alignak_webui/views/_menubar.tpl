@@ -192,7 +192,7 @@
 
          <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Tactical views menu')}}">
             %try:
-            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Livestate')}}">
+            <li>
                <a href="{{ webui.get_url('Livestate') }}">
                   <span class="fa fa-fw fa-heartbeat"></span>
                   <span>{{_('Livestate')}}</span>
@@ -203,7 +203,7 @@
             %end
 
             %try:
-            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Worldmap')}}">
+            <li>
                <a href="{{ webui.get_url('Worldmap') }}">
                   <span class="fa fa-fw fa-globe"></span>
                   <span>{{_('Worldmap')}}</span>
@@ -214,7 +214,7 @@
             %end
 
             %try:
-            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Minemap')}}">
+            <li>
                <a href="{{ webui.get_url('Minemap') }}">
                   <span class="fa fa-fw fa-table"></span>
                   <span>{{_('Minemap')}}</span>
@@ -227,7 +227,7 @@
             <li class="divider"></li>
 
             %try:
-            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Realms tree')}}">
+            <li>
                <a href="{{ webui.get_url('Realms tree') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Realms')}}</span>
@@ -238,7 +238,7 @@
             %end
 
             %try:
-            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Hosts groups tree')}}">
+            <li>
                <a href="{{ webui.get_url('Hosts groups tree') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Hosts groups')}}</span>
@@ -251,7 +251,7 @@
             <li class="divider"></li>
 
             %try:
-            <li data-toggle="tooltip" data-placement="bottom" title="{{_('Alignak status')}}">
+            <li>
                <a href="{{ webui.get_url('Alignak status') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Alignak status')}}</span>

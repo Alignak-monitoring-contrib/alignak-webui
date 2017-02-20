@@ -32,8 +32,7 @@ import inspect
 from logging import getLogger
 
 # Bottle import
-from bottle import route, request, response
-from bottle import BaseTemplate, TEMPLATE_PATH
+from bottle import request, response, TEMPLATE_PATH
 
 # Application import
 from alignak_webui.backend.datamanager import DataManager
@@ -42,34 +41,6 @@ from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
-
-
-# --------------------------------------------------------------------------------------------------
-# WebUI edition mode
-# --------------------------------------------------------------------------------------------------
-@route('/edition_mode', 'POST')
-# User preferences page ...
-def edition_mode():
-    """
-        Set edition mode on / off
-    """
-    # Session...
-    session = request.environ['beaker.session']
-    logger.debug("edition_mode, session: %s", session)
-
-    current_state = request.params.get('state', 'on')
-    logger.debug("edition_mode, current state: %s", current_state)
-
-    session['edition_mode'] = (current_state == 'off')
-
-    # Make session edition mode available in the templates
-    BaseTemplate.defaults['edition_mode'] = session['edition_mode']
-    logger.debug("edition_mode, session: %s", session)
-
-    if session['edition_mode']:
-        return _('Edition mode enabled')
-    else:
-        return _('Edition mode disabled')
 
 
 class WebUI(object):

@@ -43,7 +43,6 @@ class PluginMinemap(Plugin):
         """
         self.name = 'Minemap'
         self.backend_endpoint = None
-        _ = app.config['_']
 
         self.pages = {
             'show_minemap': {

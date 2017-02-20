@@ -49,18 +49,6 @@ class Host(BackendElement):
     # Dates fields: list of the attributes to be considered as dates
     _dates = BackendElement._dates + ['ls_last_state_change', 'ls_last_check', 'ls_next_check']
 
-    # Converting real state identifier to text status
-    overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
-    ]
-    # overall_state_to_title = [
-    #     _('Host is up and all its services are ok or acknowledged'),
-    #     _('Host or some of its services are problems but acknowledged'),
-    #     _('Host or some of its services are in a downtime period'),
-    #     _('Host or some of its services are warning or state are unknown'),
-    #     _('Host or some of its services are critical')
-    # ]
-
     # Converting short state character to text status (used for initial_state and freshness_state)
     short_state_to_status = {
         'o': 'Up',
@@ -75,9 +63,21 @@ class Host(BackendElement):
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
-        """
-        Create a host (called only once when an object is newly created)
-        """
+        """Create a host (called only once when an object is newly created)"""
+
+        # Converting real state identifier to text status
+        self.overall_state_to_status = [
+            'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+        ]
+
+        self.overall_state_to_title = [
+            _('Host is up and all its services are ok or acknowledged'),
+            _('Host or some of its services are problems but acknowledged'),
+            _('Host or some of its services are in a downtime period'),
+            _('Host or some of its services are warning or state are unknown'),
+            _('Host or some of its services are critical')
+        ]
+
         self._linked__realm = 'realm'
         self._linked__templates = 'host'
         self._linked_check_command = 'command'
@@ -342,23 +342,11 @@ class Host(BackendElement):
 
         """
         return self._overall_state_id
-    #
-    # @overall_state.setter
-    # def overall_state(self, overall_state):
-    #     """
-    #     Set Item object overall_state
-    #     """
-    #     self._overall_state_id = overall_state
 
     @property
     def overall_status(self):
         """Return real status string from the real state identifier"""
         return self.overall_state_to_status[self.overall_state]
-    #
-    # @property
-    # def overall_status_text(self):
-    #     """Return real status title from the real state identifier"""
-    #     return self.overall_state_to_title[self.overall_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """

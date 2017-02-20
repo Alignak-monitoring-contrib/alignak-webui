@@ -165,32 +165,6 @@ class TestDashboard(unittest2.TestCase):
         )
 
 
-class TestUsers(unittest2.TestCase):
-    def setUp(self):
-        # Test application
-        self.app = TestApp(alignak_webui.app.session_app)
-
-        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-
-    def tearDown(self):
-        self.app.get('/logout')
-
-    def test_users(self):
-        """ Web - users """
-        print('test users')
-
-        print('get page /users')
-        response = self.app.get('/users')
-        response.mustcontain(
-            '<div id="users">',
-            '5 elements out of 5',
-        )
-        self.app.get('/users/config')
-        self.app.get('/users/list')
-        self.app.get('/users/table')
-        self.app.get('/users/templates')
-
-
 class TestCommands(unittest2.TestCase):
     def setUp(self):
         # Test application
@@ -239,7 +213,6 @@ class TestTimeperiods(unittest2.TestCase):
         self.app.get('/timeperiods/config')
         self.app.get('/timeperiods/list')
         self.app.get('/timeperiods/table')
-        self.app.get('/timeperiods/templates')
 
 
 class TestRealms(unittest2.TestCase):
@@ -304,9 +277,13 @@ class TestRealms(unittest2.TestCase):
         for item in response.json:
             print(item)
             assert "id" in item
-            assert "name" in item
             assert "type" in item
             assert item['type'] == "host"
+
+            if item['id'] == -1:
+                assert "tr" in item
+                continue
+            assert "name" in item
             assert "icon" in item
             assert "alias" in item
             assert "state" in item
@@ -339,7 +316,6 @@ class TestHostgroups(unittest2.TestCase):
         self.app.get('/hostgroups/config')
         self.app.get('/hostgroups/list')
         self.app.get('/hostgroups/table')
-        self.app.get('/hostgroups/templates')
         self.app.get('/hostgroup/all')
 
         print('get page /hostgroups/tree')
@@ -414,7 +390,6 @@ class TestServicegroups(unittest2.TestCase):
         self.app.get('/servicegroups/config')
         self.app.get('/servicegroups/list')
         self.app.get('/servicegroups/table')
-        self.app.get('/servicegroups/templates')
         self.app.get('/servicegroup/all')
 
         print('get page /servicegroups/tree')
@@ -487,7 +462,6 @@ class TestUsergroups(unittest2.TestCase):
         self.app.get('/usergroups/config')
         self.app.get('/usergroups/list')
         self.app.get('/usergroups/table')
-        self.app.get('/usergroups/templates')
         self.app.get('/usergroup/all')
 
         print('get page /usergroups/tree')
@@ -558,7 +532,8 @@ class TestHosts(unittest2.TestCase):
         self.app.get('/hosts/config')
         self.app.get('/hosts/list')
         self.app.get('/hosts/table')
-        self.app.get('/hosts/templates')
+        self.app.get('/hosts/templates/list')
+        self.app.get('/hosts/templates/table')
         self.app.get('/host/localhost')
 
         print('get page /hosts/widget')
@@ -632,7 +607,8 @@ class TestServices(unittest2.TestCase):
         response = self.app.get('/services/config')
         response = self.app.get('/services/list')
         response = self.app.get('/services/table')
-        response = self.app.get('/services/templates')
+        response = self.app.get('/services/templates/list')
+        response = self.app.get('/services/templates/table')
 
         print('get page /services/widget')
         response = self.app.post('/services/widget', status=204)
@@ -689,6 +665,33 @@ class TestServices(unittest2.TestCase):
         response.mustcontain(
             '<div id="service-%s">' % self.service_id
         )
+
+
+class TestUsers(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_users(self):
+        """ Web - users """
+        print('test users')
+
+        print('get page /users')
+        response = self.app.get('/users')
+        response.mustcontain(
+            '<div id="users">',
+            '5 elements out of 5',
+        )
+        self.app.get('/users/config')
+        self.app.get('/users/list')
+        self.app.get('/users/table')
+        self.app.get('/users/templates/list')
+        self.app.get('/users/templates/table')
 
 
 class TestWorldmap(unittest2.TestCase):

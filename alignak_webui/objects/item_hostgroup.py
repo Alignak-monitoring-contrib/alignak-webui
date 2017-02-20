@@ -91,11 +91,11 @@ class HostGroup(BackendElement):
     #     """Return real status string from the real state identifier"""
     #     return self.overall_state
     #
-    # @property
-    # def overall_state(self):
-    #     """Return real state identifier"""
-    #     return self._overall_state
-    #
+    @property
+    def overall_state(self):
+        """Return real state identifier"""
+        return self._overall_state
+
     # @overall_state.setter
     # def overall_state(self, overall_state):
     #     """
