@@ -22,10 +22,11 @@
         %end
         %lat = pos['coordinates'][0]
         %lng = pos['coordinates'][1]
-        %services = datamgr.get_services(search={'where': {'host':host.id}}, all_elements=True)
+        %status = host.get_html_state(text=None, use_status=host.overall_status)
+        %status = status.replace("'", "\'")
         new Host(
-            '{{ host.id }}', '{{ host.name }}',
-            '{{ host.status }}', '{{ ! host.get_html_state(text=None, use_status=host.overall_status)}}',
+            '{{ host.id }}', '{{ host.display_name }}',
+            '{{ host.status }}', '{{ ! status }}',
             '{{ host.business_impact }}',
             '{{ ! Helper.get_html_business_impact(host.business_impact) }}',
             {{ lat }}, {{ lng }},
@@ -33,11 +34,13 @@
             {{ str(host.is_problem).lower() }} && {{ str(host.acknowledged).lower() }},
             {{ str(host.downtimed).lower() }},
             [
-                %for service in services:
+                %for service in host['services']:
+                    %status = service.get_html_state(text=None, use_status=service.overall_status)
+                    %status = status.replace("'", " ")
                     new Service(
-                        '{{ host.id }}', '{{ host.name }}',
-                        '{{ service.id }}', '{{ service.name }}',
-                        '{{ service.status }}', '{{ json.dumps(service.get_html_state(text=None, use_status=service.overall_status)) }}',
+                        '{{ host.id }}', '{{ host.display_name }}',
+                        '{{ service.id }}', '{{ service.display_name }}',
+                        '{{ service.status }}', '{{ ! status }}',
                         '{{ service.business_impact }}', '{{ ! Helper.get_html_business_impact(service.business_impact) if service.business_impact != host.business_impact else '' }}',
                         {{ str(service.is_problem).lower() }},
                         {{ str(service.is_problem).lower() }} && {{ str(service.acknowledged).lower() }},

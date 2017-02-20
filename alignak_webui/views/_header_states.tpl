@@ -2,7 +2,9 @@
 
 %setdefault('ls', None)
 
-%if request.app.get('datamgr', None):
+%webui = request.app.config['webui']
+%datamgr = webui.datamgr
+%if datamgr is not None:
 %import time
 %from alignak_webui.objects.element_state import ElementState
 %from alignak_webui.objects.item_host import Host
