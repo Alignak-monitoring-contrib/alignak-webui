@@ -151,13 +151,23 @@ class PluginCurrently(Plugin):
         pp_s = Helper.get_html_services_count_panel(ss, self.webui.get_url('Services table'),
                                                     collapsed=collapsed, percentage=True)
 
-        # livestate = Helper.get_html_livestate(datamgr)
+        collapsed = False
+        if 'panel_ls_history_hosts' in panels:
+            collapsed = panels['panel_ls_history_hosts']['collapsed']
+        lsh = Helper.get_html_hosts_ls_history(hs, ls_history, collapsed=collapsed)
+
+        collapsed = False
+        if 'panel_ls_history_services' in panels:
+            collapsed = panels['panel_ls_history_services']['collapsed']
+        ssh = Helper.get_html_services_ls_history(ss, ls_history, collapsed=collapsed)
 
         return {
             'panels': panels,
             'panel_counters_hosts': pc_h,
             'panel_percentage_hosts': pc_s,
+            'panel_ls_history_hosts': lsh,
             'panel_counters_services': pp_h,
             'panel_percentage_services': pp_s,
+            'panel_ls_history_services': ssh,
             'title': request.query.get('title', _('Keep an eye'))
         }

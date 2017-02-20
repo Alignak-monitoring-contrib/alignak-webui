@@ -27,6 +27,7 @@
 """
 import re
 import time
+import json
 import traceback
 from logging import getLogger, INFO
 
@@ -676,6 +677,297 @@ class Helper(object):
         return content
 
     @staticmethod
+    def get_html_hosts_ls_history(hs, history, collapsed=False):
+        """
+
+        :param hs: hosts livesynthesis as provided by the get_livesynthesis or
+                   get_livesynthesis_history functions
+        :param history: hosts livesynthesis history as provided by the
+                        get_livesynthesis_history functions
+        :param collapsed: True if the panel is collapsed
+        :return:
+        """
+
+        idx = len(history)
+        labels = []
+        for ls in history:
+            labels.append(ls['_timestamp'])
+            idx = idx - 1
+
+        content = """
+        <div id="panel_ls_history_hosts" class="panel panel-default">
+            <div class="panel-heading clearfix">
+              <i class="fa fa-server"></i>
+              <span class="hosts-all"
+                  data-count="#hs_nb_elts#"
+                  data-problems="#hs_nb_problems#">
+                #hs_nb_elts# hosts (#hs_nb_problems# problems).
+                </span>
+
+              <div class="pull-right">
+                <a href="#p_plsh_hosts" class="btn btn-xs btn-raised"
+                   data-toggle="collapse">
+                   <i class="fa fa-fw %s"></i>
+                </a>
+              </div>
+            </div>
+            <div id="p_plsh_hosts" class="panel-collapse collapse %s">
+              <div class="panel-body">
+                  <!-- Chart -->
+                  <div id="line-graph-hosts">
+                     <canvas></canvas>
+                  </div>
+              </div>
+            </div>
+        </div>
+
+        <script>
+            // Hosts line chart
+            // Graph labels
+            var labels=%s
+            // Graph data
+        """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
+               'in' if not collapsed else '',
+               json.dumps(labels))
+        content = content.replace("#hs_nb_elts#", "%d" % hs['nb_elts'])
+        content = content.replace("#hs_nb_problems#", "%d" % hs['nb_problems'])
+        content = content.replace("#hs_nb_up#", "%d" % hs['nb_up'])
+        content = content.replace("#hs_nb_down#", "%d" % hs['nb_down'])
+        content = content.replace("#hs_nb_unreachable#", "%d" % hs['nb_unreachable'])
+        content = content.replace("#hs_nb_acknowledged#", "%d" % hs['nb_acknowledged'])
+        content = content.replace("#hs_nb_in_downtime#", "%d" % hs['nb_in_downtime'])
+
+        data = {}
+        # for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
+        for state in ['up', 'down', 'acknowledged', 'in_downtime']:
+            data[state] = []
+            for elt in history:
+                data[state].append(elt["hosts_synthesis"]["nb_" + state])
+            logger.debug("Data state: %s %s" % (state, data[state]))
+            content += """
+                var data_%s=%s;""" % (state, data[state])
+
+        content += """
+           var data = {
+              labels: labels,
+              datasets: ["""
+        # do not consider unreachable hosts
+        # for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
+        for state in ['up', 'down', 'acknowledged', 'in_downtime']:
+            content += """
+                 {
+                    label: g_hosts_states["%s"]['label'],
+                    fill: false,
+                    lineTension: 0.1,
+                    borderWidth: 1,
+                    borderColor: g_hosts_states["%s"]['color'],
+                    backgroundColor: g_hosts_states["%s"]['background'],
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    pointBorderColor: g_hosts_states["%s"]['color'],
+                    pointBackgroundColor: g_hosts_states["%s"]['background'],
+                    data: data_%s
+                 },
+                 """ % (state, state, state, state, state, state)
+        content += """
+              ]
+           };
+
+           new Chart($("#line-graph-hosts canvas"), {
+              type: 'line',
+              data: data,
+              options: {
+                 title: {
+                    display: true,
+                    text: "Hosts states history"
+                 },
+                 legend: {
+                    display: true,
+                    position: 'bottom'
+                 },
+                 scales: {
+                    xAxes: [{
+                       type: 'time',
+                       ticks: {
+                          fontSize: 10,
+                          fontFamily: 'HelveticaNeue, HelveticaNeue, Roboto, ArialRounded',
+                          autoSkip: true
+                       },
+                       time: {
+                          parser: 'X',
+                          tooltipFormat: 'LTS',
+                          unit: 'minute',
+                          displayFormats: {
+                             second: 'LTS',
+                             minute: 'LTS',
+                             hour: 'LTS',
+                             day: 'LTS'
+                          }
+                       }
+                    }],
+                    yAxes: [{
+                       ticks: {
+                          fontSize: 10,
+                          fontFamily: 'HelveticaNeue, HelveticaNeue, Roboto, ArialRounded',
+                          autoSkip: false
+                       },
+                       stacked: true
+                    }]
+                 }
+              }
+           });
+        </script>
+        """
+
+        return content
+
+    @staticmethod
+    def get_html_services_ls_history(ss, history, collapsed=False):
+        """
+
+        :param history: services livesynthesis history as provided by the
+                        get_livesynthesis_history functions
+        :param collapsed: True if the panel is collapsed
+        :return:
+        """
+
+        idx = len(history)
+        labels = []
+        for ls in history:
+            labels.append(ls['_timestamp'])
+            idx = idx - 1
+
+        content = """
+        <div id="panel_ls_history_services" class="panel panel-default">
+          <div class="panel-heading clearfix">
+            <i class="fa fa-server"></i>
+            <span class="services-all" data-count="#ss_nb_elts#" data-problems="#ss_nb_problems#">
+              #ss_nb_elts# services (#ss_nb_problems# problems).
+            </span>
+
+            <div class="pull-right">
+              <a href="#p_plsh_services" class="btn btn-xs btn-raised"
+                 data-toggle="collapse">
+                 <i class="fa fa-fw %s"></i>
+              </a>
+            </div>
+            </div>
+          <div id="p_plsh_services" class="panel-collapse collapse %s">
+            <div class="panel-body">
+              <!-- Chart -->
+              <div id="line-graph-services">
+                <canvas></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+            // Services line chart
+            // Graph labels
+            var labels=%s
+            // Graph data
+        """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
+               'in' if not collapsed else '',
+               json.dumps(labels))
+        content = content.replace("#ss_nb_elts#", "%d" % ss['nb_elts'])
+        content = content.replace("#ss_nb_problems#", "%d" % ss['nb_problems'])
+        content = content.replace("#ss_nb_ok#", "%d" % ss['nb_ok'])
+        content = content.replace("#ss_nb_warning#", "%d" % ss['nb_warning'])
+        content = content.replace("#ss_nb_critical#", "%d" % ss['nb_critical'])
+        content = content.replace("#ss_nb_unreachable#", "%d" % ss['nb_unreachable'])
+        content = content.replace("#ss_nb_unknown#", "%d" % ss['nb_unknown'])
+        content = content.replace("#ss_nb_acknowledged#", "%d" % ss['nb_acknowledged'])
+        content = content.replace("#ss_nb_in_downtime#", "%d" % ss['nb_in_downtime'])
+
+        data = {}
+        # do not consider unreachable services
+        # for state in ['ok', 'warning', 'critical', 'unreachable', 'unknown',
+        #               'acknowledged', 'in_downtime']:
+        for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+            data[state] = []
+            for elt in history:
+                data[state].append(elt["services_synthesis"]["nb_" + state])
+            logger.debug("Data state: %s %s" % (state, data[state]))
+            content += """
+                var data_%s=%s;""" % (state, data[state])
+
+        content += """
+           var data = {
+              labels: labels,
+              datasets: ["""
+        # do not consider unreachable services
+        # for state in ['ok', 'warning', 'critical', 'unreachable', 'unknown',
+        #               'acknowledged', 'in_downtime']:
+        for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+            content += """
+                 {
+                    label: g_services_states["%s"]['label'],
+                    fill: false,
+                    lineTension: 0.1,
+                    borderWidth: 1,
+                    borderColor: g_services_states["%s"]['color'],
+                    backgroundColor: g_services_states["%s"]['background'],
+                    pointBorderWidth: 1,
+                    pointRadius: 1,
+                    pointBorderColor: g_services_states["%s"]['color'],
+                    pointBackgroundColor: g_services_states["%s"]['background'],
+                    data: data_%s
+                 },
+                 """ % (state, state, state, state, state, state)
+        content += """
+              ]
+           };
+
+           new Chart($("#line-graph-services canvas"), {
+              type: 'line',
+              data: data,
+              options: {
+                 title: {
+                    display: true,
+                    text: "Services states history"
+                 },
+                 legend: {
+                    display: true,
+                    position: 'bottom'
+                 },
+                 scales: {
+                    xAxes: [{
+                       type: 'time',
+                       ticks: {
+                          fontSize: 10,
+                          fontFamily: 'HelveticaNeue, HelveticaNeue, Roboto, ArialRounded',
+                          autoSkip: true
+                       },
+                       time: {
+                          parser: 'X',
+                          tooltipFormat: 'LTS',
+                          unit: 'minute',
+                          displayFormats: {
+                             second: 'LTS',
+                             minute: 'LTS',
+                             hour: 'LTS',
+                             day: 'LTS'
+                          }
+                       }
+                    }],
+                    yAxes: [{
+                       ticks: {
+                          fontSize: 10,
+                          fontFamily: 'HelveticaNeue, HelveticaNeue, Roboto, ArialRounded',
+                          autoSkip: false
+                       },
+                       stacked: true
+                    }]
+                 }
+              }
+           });
+        </script>
+        """
+
+        return content
+
+    @staticmethod
     def get_html_hosts_count_panel(hs, url, collapsed=False, percentage=False):
         """
 
@@ -855,7 +1147,7 @@ class Helper(object):
     def get_html_services_count_panel(ss, url, collapsed=False, percentage=False):
         """
 
-        :param hs: services livesynthesis as provided by the get_livesynthesis or
+        :param ss: services livesynthesis as provided by the get_livesynthesis or
                    get_livesynthesis_history functions
         :param url: url to use for the links to an host table
         :param collapsed: True if the panel is collapsed
@@ -1097,7 +1389,7 @@ class Helper(object):
         if search is None or not isinstance(search, dict):
             search = {}
         if 'where' not in search:
-            search.update({'where': {"ls_state_id": {"$ne": 0}}})
+            search.update({'where': {"ls_state_id": {"$nin": [0, 4]}}})
             search['where'].update({'ls_acknowledged': False})
             search['where'].update({'ls_downtimed': False})
         if 'sort' not in search:
@@ -1108,6 +1400,7 @@ class Helper(object):
         items = []
         # Copy because the search filter is updated by the function ...
         search_hosts = search.copy()
+        logger.debug("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_hosts)
         hosts = datamgr.get_hosts(search=search_hosts, embedded=False)
         items.extend(hosts)
         logger.debug("get_html_livestate, livestate %d (%s), %d hosts", bi, search, len(items))
@@ -1116,6 +1409,7 @@ class Helper(object):
         if 'embedded' not in search:
             search.update({'embedded': {'host': 1}})
         search_services = search.copy()
+        logger.debug("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_services)
         services = datamgr.get_services(search=search_services, embedded=True)
         items.extend(services)
         logger.debug("get_html_livestate, livestate %d (%s), %d services", bi, search, len(items))

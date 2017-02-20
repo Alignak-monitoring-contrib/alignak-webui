@@ -28,8 +28,8 @@ var g_hosts_states = {
       'label': 'Up'
    },
    'unreachable': {
-      'color': 'rgba(230, 126, 34, 1)',
-      'background': 'rgba(230, 126, 34, 0.2)',
+      'color': 'rgba(155, 89, 182, 1)',
+      'background': 'rgba(155, 89, 182, 0.2)',
       'label': 'Unreachable'
    },
    'down': {
@@ -48,8 +48,8 @@ var g_hosts_states = {
       'label': 'Ack'
    },
    'in_downtime': {
-      'color': 'rgba(155, 89, 182, 1)',
-      'background': 'rgba(155, 89, 182, 0.2)',
+      'color': 'rgba(41, 128, 185, 1)',
+      'background': 'rgba(41, 128, 185, 0.2)',
       'label': 'Downtime'
    }
 };
@@ -75,8 +75,8 @@ var g_services_states = {
       'label': 'Unknown'
    },
    'unreachable': {
-      'color': 'rgba(41, 128, 185, 1)',
-      'background': 'rgba(41, 128, 185, 0.2)',
+      'color': 'rgba(155, 89, 182, 1)',
+      'background': 'rgba(155, 89, 182, 0.2)',
       'label': 'Unreachable'
    },
    'acknowledged': {
@@ -85,8 +85,8 @@ var g_services_states = {
       'label': 'Ack'
    },
    'in_downtime': {
-      'color': 'rgba(155, 89, 182, 1)',
-      'background': 'rgba(155, 89, 182, 0.2)',
+      'color': 'rgba(41, 128, 185, 1)',
+      'background': 'rgba(41, 128, 185, 0.2)',
       'label': 'Downtime'
    }
 };

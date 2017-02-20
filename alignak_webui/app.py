@@ -29,9 +29,9 @@ Usage:
 Options:
     -h, --help                  Show this screen.
     -v, --version               Show application version.
-    -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
-    -n, --hostname host         Specify WebUI host (or ip address) [default: 127.0.0.1]
-    -p, --port port             Specify WebUI port [default: 5001]
+    -b, --backend url           Specify backend URL
+    -n, --hostname host         Specify WebUI host (or ip address)
+    -p, --port port             Specify WebUI port
     -d, --debug                 Run in debug mode (more info to display) [default: False]
 
 Use cases:
@@ -191,10 +191,10 @@ if '--debug' in args and args['--debug']:
 # -----
 if os.environ.get('ALIGNAK_WEBUI_BACKEND'):
     app.config['%s.alignak_backend' % app_name] = os.environ.get('ALIGNAK_WEBUI_BACKEND')
-    print("Application backend from environment")
+    print("Application backend from environment: %s" % os.environ.get('ALIGNAK_WEBUI_BACKEND'))
 if '--backend' in args and args['--backend']:
     app.config['%s.alignak_backend' % app_name] = args['--backend']
-    print("Application backend from command line")
+    print("Application backend from command line: %s" % args['--backend'])
 
 print("Application backend: %s" % app.config.get('%s.alignak_backend' % app_name,
                                                  'http://127.0.0.1:5000'))

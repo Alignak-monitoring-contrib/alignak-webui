@@ -30,7 +30,7 @@ div.pull-right a, div.pull-right div {
        %include("_sound_play.tpl")
     %end
 
-    <div class="row" style="margin-top:60px;">
+    <div class="row">
         <div id="one-eye-hosts-counters" class="col-xs-12 col-md-6">
           {{! panel_counters_hosts }}
         </div>
@@ -46,13 +46,12 @@ div.pull-right a, div.pull-right div {
         </div>
     </div>
 
-    <div class="row" style="margin-top:60px;">
-        <div id="livestate" class="col-xs-12">
+    <div class="row">
+        <div id="ls-history-hosts" class="col-xs-12">
+            {{! panel_ls_history_hosts }}
         </div>
-    </div>
-
-    <div class="row" style="margin-top:60px;">
-        <div id="livestate-graphs" class="col-xs-12">
+        <div id="ls-history-services" class="col-xs-12">
+            {{! panel_ls_history_services}}
         </div>
     </div>
 
