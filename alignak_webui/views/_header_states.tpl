@@ -13,7 +13,6 @@
 %if request.app.config.get('header_refresh_period', '30') != '0':
 
 %if ls is None:
-%print("Getting live synthesis...")
 %ls = datamgr.get_livesynthesis()
 %end
 %hs = ls['hosts_synthesis']
