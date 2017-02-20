@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -54,7 +54,9 @@ class TestNoLogin(unittest2.TestCase):
 
         # ping action
         response = self.app.get('/ping?action=')
+        print(response)
         response = self.app.get('/ping?action=unknown', status=204)
+        print(response)
 
         # Required refresh done
         response = self.app.get('/ping?action=done')
@@ -63,16 +65,17 @@ class TestNoLogin(unittest2.TestCase):
 
         # Required refresh done, no more action
         response = self.app.get('/ping')
+        print(response)
         response.mustcontain('pong')
 
         # Required refresh done, no more action
         response = self.app.get('/ping')
+        print(response)
         response.mustcontain('pong')
 
         # Expect status 401
         response = self.app.get('/heartbeat', status=401)
-        print(response.status)
-        print(response.json)
+        print(response)
         response.mustcontain('Session expired')
 
         print('get home page /')

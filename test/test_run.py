@@ -1,3 +1,25 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2015-2017:
+#   Frederic Mohier, frederic.mohier@gmail.com
+#
+# This file is part of (WebUI).
+#
+# (WebUI) is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# (WebUI) is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
+# import the unit testing module
+
 from __future__ import print_function
 
 import os
@@ -7,10 +29,10 @@ import time
 
 import unittest2
 
-os.environ['TEST_WEBUI'] = '1'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 
 class TestStart(unittest2.TestCase):
@@ -27,7 +49,7 @@ class TestStart(unittest2.TestCase):
         print("Starting Alignak WebUI...")
         fnull = open(os.devnull, 'w')
         pid = subprocess.Popen(
-            shlex.split('uwsgi --plugin python -w test.alignakwebui:app --socket 0.0.0.0:5000 '
+            shlex.split('uwsgi --plugin python -w test.alignakwebui:app --socket 0.0.0.0:5001 '
                         '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid'), stdout=fnull
         )
         time.sleep(5)
@@ -44,7 +66,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         fnull = open(os.devnull, 'w')
         exit_code = subprocess.call(
-            shlex.split('python app.py -X'), stdout=fnull, stderr=fnull
+            shlex.split('python ../alignak_webui/app.py -X'), stdout=fnull, stderr=fnull
         )
         assert exit_code == 64
 
@@ -58,7 +80,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with version number...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -v'), stdout=fnull, stderr=fnull
+            shlex.split('python ../alignak_webui/app.py -v'), stdout=fnull, stderr=fnull
         )
         assert exit_code == 0
 
@@ -70,7 +92,7 @@ class TestStart(unittest2.TestCase):
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.bad')
         print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
         exit_code = subprocess.call(
-            shlex.split('python app.py settings.bad')
+            shlex.split('python ../alignak_webui/app.py settings.bad')
         )
         assert exit_code == 1
         os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
@@ -82,19 +104,9 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with CLI help...")
         exit_code = subprocess.call(
-            shlex.split('python app.py -h')
+            shlex.split('python ../alignak_webui/app.py -h')
         )
         assert exit_code == 0
-
-    def test_start_application_exit(self):
-        """ Start application with exit parameter"""
-
-        print("Launching application with CLI exit...")
-        exit_code = subprocess.call(
-            shlex.split('python app.py -x')
-        )
-        print("Launching application with CLI exit...", exit_code)
-        assert exit_code == 99
 
     def test_start_application(self):
         """ Start application stand alone"""
@@ -106,7 +118,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application default...")
         process = subprocess.Popen(
-            shlex.split('python app.py'), stdout=fnull, stderr=fnull
+            shlex.split('python ../alignak_webui/app.py'), stdout=fnull, stderr=fnull
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -118,7 +130,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application debug mode...")
         process = subprocess.Popen(
-            shlex.split('python app.py -d')
+            shlex.split('python ../alignak_webui/app.py -d')
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -135,7 +147,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with configuration parameters...")
         process = subprocess.Popen(
-            shlex.split('python app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999'),
+            shlex.split('python ../alignak_webui/app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999'),
             stdout = fnull, stderr = fnull
         )
         print('PID = ', process.pid)
@@ -148,7 +160,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with configuration file...")
         process = subprocess.Popen(
-            shlex.split('python app.py ../test/settings.cfg')
+            shlex.split('python ../alignak_webui/app.py ../etc/settings.cfg')
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
@@ -157,7 +169,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with configuration file...")
         process = subprocess.Popen(
-            shlex.split('python app.py ../test/settings.fr')
+            shlex.split('python ../alignak_webui/app.py ../test/settings.fr')
         )
         print('PID = ', process.pid)
         time.sleep(2.0)
