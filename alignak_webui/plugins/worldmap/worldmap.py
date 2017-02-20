@@ -163,7 +163,9 @@ class PluginWorldmap(Plugin):
             if host.position:
                 logger.info("worldmap, host '%s' located: %s", host.name, host.position)
                 # Get host services
-                setattr(host, 'services', datamgr.get_host_services(host))
+                services = datamgr.get_host_services(host)
+                logger.debug("worldmap, host '%s' services: %s", host.name, services)
+                setattr(host, 'services', services)
                 valid_hosts.append(host)
 
         return valid_hosts

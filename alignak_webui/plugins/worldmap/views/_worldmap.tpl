@@ -34,7 +34,12 @@
             {{ str(host.is_problem).lower() }} && {{ str(host.acknowledged).lower() }},
             {{ str(host.downtimed).lower() }},
             [
-                %for service in host['services']:
+                %services = getattr(host, 'services', None)
+                %if services is None:
+                %services = datamgr.get_services(search={'where': {'host':host.id}}, all_elements=True)
+                %end
+
+                %for service in services:
                     %status = service.get_html_state(text=None, use_status=service.overall_status)
                     %status = status.replace("'", " ")
                     new Service(
