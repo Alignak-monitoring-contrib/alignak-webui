@@ -164,9 +164,9 @@ class PluginCurrently(Plugin):
         return {
             'panels': panels,
             'panel_counters_hosts': pc_h,
-            'panel_percentage_hosts': pc_s,
+            'panel_percentage_hosts': pp_h,
             'panel_ls_history_hosts': lsh,
-            'panel_counters_services': pp_h,
+            'panel_counters_services': pc_s,
             'panel_percentage_services': pp_s,
             'panel_ls_history_services': ssh,
             'title': request.query.get('title', _('Keep an eye'))

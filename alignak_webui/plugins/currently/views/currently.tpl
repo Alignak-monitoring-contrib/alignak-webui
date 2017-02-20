@@ -31,18 +31,20 @@ div.pull-right a, div.pull-right div {
     %end
 
     <div class="row">
-        <div id="one-eye-hosts-counters" class="col-xs-12 col-md-6">
-          {{! panel_counters_hosts }}
-        </div>
-        <div id="one-eye-services-counters" class="col-xs-12 col-md-6">
-          {{! panel_counters_services }}
-        </div>
-
         <div id="one-eye-hosts-percentages" class="col-xs-12 col-md-6">
           {{! panel_percentage_hosts }}
         </div>
         <div id="one-eye-services-percentages" class="col-xs-12 col-md-6">
           {{! panel_percentage_services }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="one-eye-hosts-counters" class="col-xs-12 col-md-6">
+          {{! panel_counters_hosts }}
+        </div>
+        <div id="one-eye-services-counters" class="col-xs-12 col-md-6">
+          {{! panel_counters_services }}
         </div>
     </div>
 
