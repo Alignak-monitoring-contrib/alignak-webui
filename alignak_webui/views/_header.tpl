@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
    // Check header refresh period (seconds)
-   var header_refresh_period = {{request.app.config.get('header_refresh_period', '30')}};
+   var header_refresh_period = {{request.app.config.get('%s.header_refresh_period' % webui.name, '30')}};
 
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {

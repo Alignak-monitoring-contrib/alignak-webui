@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -22,27 +22,14 @@
 
 from __future__ import print_function
 import os
-import time
-import shlex
 import unittest2
-import subprocess
-from calendar import timegm
-from datetime import datetime, timedelta
 
-from nose import with_setup
-from nose.tools import *
-
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '0'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'settings.cfg'
-)
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
-# To load application configuration used by the objects
-import alignak_webui.app
 
-from alignak_webui import webapp
+import alignak_webui.app
 
 from webtest import TestApp
 
@@ -53,12 +40,8 @@ backend_address = "http://127.0.0.1:5000/"
 class TestNoLogin(unittest2.TestCase):
 
     def setUp(self):
-        print("setting up ...")
-
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
 
     def test_1_1_ping_pong(self):
         """ Login - ping/pong"""
@@ -71,7 +54,9 @@ class TestNoLogin(unittest2.TestCase):
 
         # ping action
         response = self.app.get('/ping?action=')
+        print(response)
         response = self.app.get('/ping?action=unknown', status=204)
+        print(response)
 
         # Required refresh done
         response = self.app.get('/ping?action=done')
@@ -80,16 +65,17 @@ class TestNoLogin(unittest2.TestCase):
 
         # Required refresh done, no more action
         response = self.app.get('/ping')
+        print(response)
         response.mustcontain('pong')
 
         # Required refresh done, no more action
         response = self.app.get('/ping')
+        print(response)
         response.mustcontain('pong')
 
         # Expect status 401
         response = self.app.get('/heartbeat', status=401)
-        print(response.status)
-        print(response.json)
+        print(response)
         response.mustcontain('Session expired')
 
         print('get home page /')
@@ -102,31 +88,8 @@ class TestNoLogin(unittest2.TestCase):
 class TestStaticFiles(unittest2.TestCase):
 
     def setUp(self):
-        print("setting up ...")
-
         # Test application
-        self.app = TestApp(
-            webapp
-        )
-
-        # response = self.app.get('/login')
-        # response.mustcontain('<form role="form" method="post" action="/login">')
-        #
-        # print('login accepted - go to home page')
-        # response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # # Redirected twice: /login -> / -> /dashboard !
-        # redirected_response = response.follow()
-        # redirected_response = redirected_response.follow()
-        # redirected_response.mustcontain('<div id="dashboard">')
-        # # A host cookie now exists
-        # assert self.app.cookies['Alignak-WebUI']
-
-    def tearDown(self):
-        print("tearing down ...")
-
-        # response = self.app.get('/logout')
-        # redirected_response = response.follow()
-        # redirected_response.mustcontain('<form role="form" method="post" action="/login">')
+        self.app = TestApp(alignak_webui.app.session_app)
 
     def test_static_files(self):
         """ Static files"""

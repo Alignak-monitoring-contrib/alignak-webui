@@ -27,14 +27,10 @@ from logging import getLogger
 
 from bottle import request
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
-
-# Will be populated by the UI with it's own value
-webui = None
 
 # Plugin's parameters
 worldmap_parameters = {
@@ -50,12 +46,13 @@ worldmap_parameters = {
 class PluginWorldmap(Plugin):
     """ Worldmap plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Worldmap plugin
         """
         self.name = 'Worldmap'
         self.backend_endpoint = None
+        _ = app.config['_']
 
         self.pages = {
             'show_worldmap': {
@@ -81,7 +78,7 @@ class PluginWorldmap(Plugin):
                             'options. The list of hosts can be filtered thanks to regex on the '
                             'host name.'
                         ),
-                        'picture': 'htdocs/img/worldmap_widget.png',
+                        'picture': 'static/img/worldmap_widget.png',
                         'options': {
                             'search': {
                                 'value': '',
@@ -104,7 +101,7 @@ class PluginWorldmap(Plugin):
             }
         }
 
-        super(PluginWorldmap, self).__init__(app, cfg_filenames)
+        super(PluginWorldmap, self).__init__(app, webui, cfg_filenames)
 
     def show_worldmap(self):
         """
@@ -115,7 +112,6 @@ class PluginWorldmap(Plugin):
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
 
         # Pagination and search
         start = int(request.query.get('start', '0'))
@@ -155,7 +151,7 @@ class PluginWorldmap(Plugin):
         # Get elements from the data manager
         # Do not include the embedded fields to improve the loading time...
         hosts = datamgr.get_hosts(search)
-        logger.info("worldmap, search valid hosts")
+        logger.info("worldmap, searching valid hosts...")
 
         valid_hosts = []
         for host in hosts:
@@ -166,6 +162,10 @@ class PluginWorldmap(Plugin):
 
             if host.position:
                 logger.info("worldmap, host '%s' located: %s", host.name, host.position)
+                # Get host services
+                services = datamgr.get_host_services(host)
+                logger.debug("worldmap, host '%s' services: %s", host.name, services)
+                setattr(host, 'services', services)
                 valid_hosts.append(host)
 
         return valid_hosts

@@ -2,15 +2,32 @@
 ; Application configuration file formatted as RFC822 standard
 ; ------------------------------------------------------------------------------------------
 
+; ------------------------------------------------------------------------------------------
+; Configure Bottle Web server
+; ------------------------------------------------------------------------------------------
+[bottle]
+host = 0.0.0.0
+port = 5001
+; Set this to True to have the Bottle server in Debug mode (reloader, traceback, ...)
+debug = False
 
-[Alignak-WebUI]
+; ------------------------------------------------------------------------------------------
+; Configure WebUI application
+; ------------------------------------------------------------------------------------------
+[alignak-webui]
 ; Application debug mode
 ; ------------------------------------------------------------------------------------------
 ; Set to '1' to activate debug mode for the application
-; This to allow Bottle server to run in debug mode (only interesting for developers)
-debug=1
+; The application will configure its logger at the DEBUG level to produce
+; more (very verbose...) log
+; debug=1
 
 test_mode=1
+
+test_boolean1=True
+test_boolean2=true
+test_boolean3=False
+test_boolean4=false
 
 ; Application UI design
 ; ------------------------------------------------------------------------------------------
@@ -32,25 +49,19 @@ test_mode=1
 ; ------------------------------------------------------------------------------------------
 ; # Alignak arbiter endpoint
 ; # Configure this value to get information from the Alignak Arbiter
-; Default is http://127.0.0.1:7770
-; alignak_arbiter = http://127.0.0.1:7770
-
-
-; # Web server configuration
-; ------------------------------------------------------------------------------------------
-; Default is listening on TCP port 5001 on local loop interface
-; host=127.0.0.1
-; port=5001
+; Default is http://127.0.0.1:8888
+; alignak_arbiter = http://127.0.0.1:8888
 
 
 ; # WebUI information (about application modal)
 ; ------------------------------------------------------------------------------------------
 ; Overload default information included in the WebUI
-about_name=Alignak-WebUI
-about_version=0.50.0
-about_copyright=2015-2016 - Frédéric MOHIER (frederic.mohier@gmail.com)
-about_release=
-about_url=
+; about_name=Alignak-WebUI
+; about_version=0.0.0
+; about_copyright=2015-2017 - Alignak team
+; about_release=
+; about_url=
+; about_doc=
 
 
 ; # Login form
@@ -58,11 +69,13 @@ about_url=
 ; Welcome text in the login form.
 ; Default is:
 ; Welcome<br> Log-in to use the application
-; login_text=Welcome<br> Log-in to use the application
+; login_text=Welcome to Alignak WebUI<br> Log-in to use the application
+login_text=Welcome to Alignak WebUI<br> Log-in to use the application
 
-; Company logo in the login form
-; Default logo is: /static/images/default_company.png
-;company_logo=/static/images/default_company.png
+; Application logo in the login form
+; Default logo is: /static/images/alignak_white_logo.png
+; Uncomment this line if you wish to use a blue version of the alignak logo, else specify your url
+;app_logo=/static/images/alignak_blue_logo.png
 
 ; # Navigation bar
 ; ------------------------------------------------------------------------------------------
@@ -74,9 +87,10 @@ about_url=
 ; border-radius: 5px;
 ; }
 ; You can change this default Css in this configuration variable
-; company_logo_css=background-color: transparent; border-radius: 0;
+; Uncomment this line if you wish to use the alignak blue logo, else specify your Css
+; app_logo_css=    background-color: rgba(255,255,255,0.8); border-radius: 5px;
 ; Default logo title
-; company_logo_title=Alignak Web User interface
+app_logo_title=Alignak Web User interface
 
 
 ; # Footer bar
@@ -114,6 +128,7 @@ play_sound=yes
 ; Not yet localized ...
 
 ; Preferred locales (default is en_US)
+; locale = fr_FR
 locale = fr_FR
 
 
@@ -138,43 +153,10 @@ locale = fr_FR
 ; Configure this value to activate the Grafana panels when available in the WebUI
 ; Set the Grafana application URL (same as the one defined in the Alignak backend configuration)
 ; Default is '' (no Grafana panels)
-;grafana = http://127.0.0.1:3030
+;grafana = http://127.0.0.1:3000
 ; Important note: currently it is not possible to embed Grafana panels in the WebUI without any
 ; former user authentication on the Grafana application with the Web browser used for the WebUI
 ; With this authentication, Grafana will store cookies to allow embedding the panels
-
-[logs]
-; Application log files
-; ------
-; The application builds a log file
-; Parameters in this section allow to configure logs file rotation
-; ------
-
-# CRITICAL  50
-# ERROR     40
-# WARNING   30
-# INFO      20
-# DEBUG     10
-# Default is INFO (20)
-; level = 20
-level = 10
-
-# Application logs directory
-# Default is /var/log/"application name"
-; dir = .
-
-# Application log filename
-# Default is application name with log extension
-; filename = webui.log
-
-# Rotation period (D for day, W0...W6 for a week day, or midnight)
-; when = midnight
-
-# Rotation period interval
-; interval = 1
-
-# Number of backup files before deletion (0 to disable deletion)
-; backup = 6
 
 ; ------------------------------------------------------------------------------------------
 ; Specific elements configuration
@@ -187,7 +169,7 @@ level = 10
 ; - content
 ; - back
 ; - front
-; In each template a subsitution is made with the live values.
+; In each template a substitution is made with the live values.
 ; ##class## is replaced with the item livestate ... to be used as a class defined in the CSS file
 ; See items_states.css for the classes definition. Class is defined with an 'item_' prefix:
 ; 'item_active' is the class used for the active state.
@@ -199,10 +181,18 @@ level = 10
 [buttons]
 ; Do not remove those variables!
 ; They MUST be present in the configuration file!
+
+; First solution: a buttons group
 ; Global element to be included in the HTML
-livestate_commands: <div class="btn-group btn-group-xs btn-group-raised" role="group" data-type="actions" title="##title##">##commands##</div>
+;livestate_commands=<div class="btn-group btn-group-xs btn-group-raised" role="group" data-type="actions" title="##title##">##commands##</div>
 ; Each command element to be included in the HTML
-livestate_command: <button class="btn btn-default" data-type="action" data-action="##action##" data-toggle="tooltip" data-placement="top" title="##title##" data-element_type="##type##" data-name="##name##" data-element="##id##" ##disabled##><i class="fa fa-##icon##"></i></button>
+;livestate_command=<button class="btn btn-default" data-type="action" data-action="##action##" data-toggle="tooltip" data-placement="top" title="##title##" data-element_type="##type##" data-name="##name##" data-element="##id##" ##disabled##><i class="fa fa-##icon##"></i></button>
+
+; Second solution (preferred one): a buttons dropdown list
+; Global element to be included in the HTML
+livestate_commands=<div class="btn-group btn-group-xs" role="group" data-type="actions" title="##title##"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">##title## <span class="caret"></span></button><ul class="dropdown-menu">##commands##</ul></div>
+; Each command element to be included in the HTML
+livestate_command=<li><button class="btn btn-default" data-type="action" data-action="##action##" data-toggle="tooltip" data-placement="top" title="##title##" data-element_type="##type##" data-name="##name##" data-element="##id##" ##disabled##><i class="fa fa-##icon##"></i>&nbsp;&nbsp;##title##</button></li>
 
 [tables.lists]
 ; Do not remove those variables!
@@ -279,6 +269,7 @@ class: host_unreachable
 text: Host is unreachable
 icon: server
 
+
 [items.host.unknown]
 class: host_unknown
 text: Host is unknown
@@ -287,33 +278,34 @@ icon: server
 ; Host real state: computed from host and its services live states
 [items.host.ok]
 class: host_ok
-text: Host and its services are ok or problems are handled
-icon: server
+text: Host is up and all its services are ok or acknowledged
+icon: cubes
 
 [items.host.warning]
 class: host_warning
-text: Host is unreachable or at least one of its services is warning
-icon: server
+text: Host or some of its services are warning or state are unknown
+icon: cubes
 
 [items.host.critical]
 class: host_critical
-text: text: Host is down or at least one of its services is critical
-icon: server
+text: text: Host or some of its services are critical
+icon: cubes
 
 [items.host.acknowledged]
 class: host_acknowledged
-text: Host or at least one of its services is problem and acknowledged
-icon: check
+text: Host or some of its services are problems but acknowledged
+icon: cubes
 
 [items.host.in_downtime]
 class: host_in_downtime
-text: Host or at least one of its services is in a scheduled downtime
-icon: ambulance
+text: Host or some of its services are in a downtime period
+icon: cubes
+
 
 ; Service: ok/warning/critical/unknown/unreachable
 [items.service.ok]
 class: service_ok
-text: Service is ok or problems are handled
+text: Service is ok or problem is handled
 icon: cube
 
 [items.service.critical]
@@ -519,3 +511,18 @@ class: realm_critical
 text: Realm worst state is Critical. Some hosts are down and/or some services are critical.
 icon: sitemap
 
+; Alignak daemons
+[items.alignakdaemon.up]
+class: alignakdaemon_up
+text: Daemon is up and listening
+icon: tty
+
+[items.alignakdaemon.down]
+class: alignakdaemon_down
+text: Daemon is down
+icon: tty
+
+[items.alignakdaemon.unreachable]
+class: alignakdaemon_unreachable
+text: Daemon is unreachable
+icon: tty

@@ -23,12 +23,12 @@
    <form data-item="{{element}}" data-action="{{action}}" method="post" action="/{{element}}/{{action}}" role="form">
       <div class="form-group" style="display: none">
          %for id in element_id:
-         <input type="text" readonly id="element_id" name="element_id" value="{{id}}">
+         <input type="text" readonly id="element_id" name="element_id" value="{{id}}"/>
          %end
          %for name in element_name:
-         <input type="text" readonly id="element_name" name="element_name" value="{{name}}">
+         <input type="text" readonly id="element_name" name="element_name" value="{{name}}"/>
          %end
-         <input type="text" readonly id="elements_type" name="elements_type" value="{{elements_type}}">
+         <input type="text" readonly id="elements_type" name="elements_type" value="{{elements_type}}"/>
       </div>
 
       <fieldset>
@@ -37,7 +37,7 @@
             <div class="col-md-offset-2 col-md-10">
                <div class="checkbox">
                   <label>
-                     <input id="sticky" name="sticky" type="checkbox" {{'checked="checked"' if sticky else ''}} >
+                     <input id="sticky" name="sticky" type="checkbox" {{'checked="checked"' if sticky else ''}} />
                   </label>
                </div>
                <p class="help-block">{{_('If checked, the acknowledge will remain until the element returns to an OK state.')}}</p>
@@ -48,25 +48,23 @@
             <div class="col-md-offset-2 col-md-10">
                <div class="checkbox">
                   <label>
-                     <input id="notify" name="notify" type="checkbox" {{'checked="checked"' if notify else ''}} >
+                     <input id="notify" name="notify" type="checkbox" {{'checked="checked"' if notify else ''}} />
                   </label>
                </div>
                <p class="help-block">{{_('If checked, a notification will be sent out to the concerned contacts')}}</p>
             </div>
          </div>
-         <div class="form-group">
+         <!--<div class="form-group">
             <label class="col-md-2 control-label" for="persistent">{{_('Acknowledge is persistent:')}}</label>
             <div class="col-md-offset-2 col-md-10">
                <div class="checkbox">
                   <label>
-                     <input id="persistent" name="persistent" type="checkbox"
-                        {{'checked="checked"' if persistent else ''}}
-                        >
+                     <input id="persistent" name="persistent" type="checkbox" {{'checked="checked"' if persistent else ''}} />
                   </label>
                </div>
                <p class="help-block">{{_('If checked, the comment will persist after the acknowledge is no more useful')}}</p>
             </div>
-         </div>
+         </div>-->
 
          <div class="form-group">
             <div class="col-sm-12">

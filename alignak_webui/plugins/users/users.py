@@ -11,7 +11,6 @@ from logging import getLogger
 
 from bottle import request, template
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -21,7 +20,7 @@ logger = getLogger(__name__)
 class PluginUsers(Plugin):
     """ user backend elements management plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         User plugin
 
@@ -31,12 +30,19 @@ class PluginUsers(Plugin):
         """
         self.name = 'Users'
         self.backend_endpoint = 'user'
+        _ = app.config['_']
 
         self.pages = {
             'show_user_add': {
                 'name': 'User add form',
                 'route': '/user/form/add',
                 'view': 'user_form_add'
+            },
+
+            'show_user_preferences': {
+                'name': 'User preferences',
+                'route': '/preferences/user',
+                'view': 'preferences'
             },
 
             'get_all': {
@@ -73,7 +79,7 @@ class PluginUsers(Plugin):
             },
         }
 
-        super(PluginUsers, self).__init__(app, cfg_filenames)
+        super(PluginUsers, self).__init__(app, webui, cfg_filenames)
 
     def show_user_add(self):  # pylint:disable=no-self-use
         """
@@ -89,6 +95,13 @@ class PluginUsers(Plugin):
             'notes': request.query.get('notes', _('User description ...')),
             'title': request.query.get('title', _('Create a new user')),
         }
+
+    def show_user_preferences(self):
+        # pylint: disable=no-self-use
+        """
+            Show the user preferences view
+        """
+        return {}
 
     def get_user_widget(self, element_id, widget_id,
                         embedded=False, identifier=None, credentials=None):

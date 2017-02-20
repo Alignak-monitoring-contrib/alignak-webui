@@ -34,7 +34,7 @@ GLPI_PAGINATION_LIMIT = 50
 GLPI_PAGINATION_DEFAULT = GLPI_PAGINATION_LIMIT
 
 
-class GlpiException(Exception):
+class GlpiException(Exception):  # pragma: no cover, not used currently
     """Specific backend exception
     Defined error codes:
     - 1000: general exception, message contains more information
@@ -56,7 +56,7 @@ class GlpiException(Exception):
         return "Glpi error code %d: %s" % (self.code, self.message)
 
 
-class Glpi(object):
+class Glpi(object):  # pragma: no cover, not used currently
     """
     Glpi class to communicate with alignak-backend
     """

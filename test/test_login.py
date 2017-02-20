@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -26,26 +26,14 @@ import time
 import shlex
 import unittest2
 import subprocess
-from calendar import timegm
-from datetime import datetime, timedelta
 
-from nose import with_setup
-from nose.tools import *
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '0'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'settings.cfg'
-)
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
-# To load application configuration used by the objects
+
 import alignak_webui.app
-
-from alignak_webui import webapp
-
-import bottle
-from bottle import BaseTemplate, TEMPLATE_PATH
 
 from webtest import TestApp
 
@@ -102,9 +90,7 @@ class TestLogin(unittest2.TestCase):
         print("setting up ...")
 
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
 
     def test_login_refused(self):
         """ Login - refused"""
@@ -169,16 +155,12 @@ class TestLogin(unittest2.TestCase):
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         print('Response: %s' % response)
 
-        # Redirected twice: /login -> / -> /dashboard
+        # Redirected twice: /login -> / -> /livestate
         redirected_response = response.follow()
         print('Redirected response: %s' % redirected_response)
         redirected_response = redirected_response.follow()
         print('Redirected response: %s' % redirected_response)
-        redirected_response.mustcontain('<div id="dashboard">')
-
-        print('get home page /dashboard')
-        response = self.app.get('/dashboard')
-        response.mustcontain('<div id="dashboard">')
+        redirected_response.mustcontain('<div id="livestate">')
 
         # /ping, still sends a status 200
         response = self.app.get('/ping')
@@ -211,27 +193,23 @@ class TestLogin(unittest2.TestCase):
         response = self.app.get('/heartbeat', status=401)
         response.mustcontain('Session expired')
 
-    def test_dashboard_logout(self):
-        """ Logout dashboard"""
-        print('test dashboard logout')
+    def test_logout(self):
+        """ Logout from the application"""
+        print('test logout')
 
         print('login accepted - got to home page')
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
+        # Redirected twice: /login -> / -> /livestate !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
+        redirected_response.mustcontain('<div id="livestate">')
         # A host cookie now exists
         assert self.app.cookies['Alignak-WebUI']
 
         print('get home page /')
         response = self.app.get('/')
         redirected_response = response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
-
-        print('get home page /dashboard')
-        response = self.app.get('/dashboard')
-        response.mustcontain('<div id="dashboard">')
+        redirected_response.mustcontain('<div id="livestate">')
 
         # /ping, still sends a status 200, but refresh is required
         print('ping refresh required, data loaded')

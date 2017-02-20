@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -28,14 +28,12 @@ import subprocess
 import time
 
 import unittest2
-from nose.tools import *
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = \
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print("Configuration file: %s" % os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
-# To load application configuration used by the objects
+# Do not set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+
 import alignak_webui.app
 
 from alignak_webui.objects.element import BackendElement
@@ -47,7 +45,7 @@ from alignak_webui.objects.item_service import Service
 from alignak_webui.objects.item_timeperiod import TimePeriod
 from alignak_webui.objects.item_hostgroup import HostGroup
 from alignak_webui.objects.item_servicegroup import ServiceGroup
-from alignak_webui.objects.datamanager import DataManager
+from alignak_webui.backend.datamanager import DataManager
 
 from logging import getLogger, DEBUG, INFO, WARNING
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -26,17 +26,14 @@ import os
 
 import unittest2
 import bottle
-import alignak_webui.app
-from alignak_webui import _
-from alignak_webui import get_app_webui
-from alignak_webui.utils.settings import Settings
-
 
 # Do not set test mode ... application is tested in production mode!
-os.environ['TEST_ALIGNAK_WEBUI'] = '1'
-os.environ['TEST_ALIGNAK_WEBUI_CFG'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                                    'settings.cfg')
-print("Configuration file", os.environ['TEST_ALIGNAK_WEBUI_CFG'])
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+
+import alignak_webui.app
+
 
 pid = None
 appli = None
@@ -53,84 +50,19 @@ class TestInitialization(unittest2.TestCase):
         self.config = alignak_webui.get_app_config()
         print(self.config)
         assert self.config
-        assert self.config.get('host', 'default_value') == 'default_value'
-        assert self.config.get('locale', 'en_US') == 'en_US'
+        # Bottle variables
+        assert self.config.get('host', 'default_value') == '0.0.0.0'
+        assert self.config.get('port', 'default_value') == '5001'
+        # Application variables
+        assert self.config.get('locale', 'default_value') == 'default_value'
         # Variable defined in the settings.cfg test file ...
         assert self.config.get('test_mode') == '1'
 
         # Alignak-WebUI object is initialized
-        self.alignak_webui = get_app_webui()
-        print(self.alignak_webui.__dict__)
-        assert self.alignak_webui
-        assert self.alignak_webui.widgets is not None
-
-    def test_1(self):
-        """ Define settings """
-        print('Settings fixed')
-
-        # Get configuration from only one file ...
-        print("read configuration")
-        cfg = Settings(
-            os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-        )
-        found_cfg_files = cfg.read('Alignak-WebUI')
-        assert found_cfg_files
-        print("Found files:", found_cfg_files)
-        alignak_webui.set_app_config(cfg)
-
-        # Application configuration is loaded
-        self.config = alignak_webui.get_app_config()
-        assert self.config
-        assert self.config.get('host', 'default_value') == 'default_value'
-        assert self.config.get('locale', 'en_US') == 'en_US'
-        # Variable defined in the settings.cfg test file ...
-        assert self.config.get('test_mode') == '1'
-
-        # Alignak-WebUI object is initialized
-        self.alignak_webui = get_app_webui()
-        assert self.alignak_webui
-
-    def test_2(self):
-        """ Defined settings (fr """
-        print('Settings fixed (2)')
-
-        # Get configuration from only one file ...
-        print("read configuration")
-        cfg = Settings(
-            os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.fr')
-        )
-        found_cfg_files = cfg.read('Alignak-WebUI')
-        assert found_cfg_files
-        alignak_webui.set_app_config(cfg)
-
-        # Application configuration is loaded
-        self.config = alignak_webui.get_app_config()
-        assert self.config
-        # Not defined in settings.fr
-        assert self.config.get('alignak_backend', 'default_value') == 'default_value'
-        # Defined in settings.fr
-        assert self.config.get('locale', 'en_US') == 'fr_FR'
-        # Variable defined in the settings.cfg test file ...
-        assert self.config.get('test_mode') == '1'
-
-        # Alignak-WebUI object is initialized
-        self.alignak_webui = get_app_webui()
-        assert self.alignak_webui
-
-
-class TestMethods(unittest2.TestCase):
-    def setUp(self):
-        print("setting up ...")
-
-        # Application configuration is loaded
-        self.config = alignak_webui.get_app_config()
-        print(self.config)
-        assert self.config
-
-        # Alignak-WebUI object is initialized
-        self.alignak_webui = alignak_webui.get_app_webui()
-        print(self.alignak_webui)
-        assert self.alignak_webui
+        self.webui = self.config.get('webui', None)
+        print(self.webui.__dict__)
+        assert self.webui
+        assert self.webui.widgets is not None
 
     def test_1_1(self):
         """ Application configuration (manifest) """
@@ -151,17 +83,18 @@ class TestMethods(unittest2.TestCase):
         assert _
 
         print(alignak_webui.app_config)
-        assert alignak_webui.app_config
-
-        print('alignak_webui:', self.alignak_webui)
-        # assert False
+        self.config = alignak_webui.get_app_config()
+        assert alignak_webui.app_config == self.config
 
     def test_1_2_plugins(self):
         """ Application plugins """
         print('test plugins')
 
-        print('plugins count:', self.alignak_webui.plugins_count)
-        for plugin in self.alignak_webui.plugins:
+        self.config = alignak_webui.get_app_config()
+        self.webui = self.config.get('webui', None)
+
+        print('plugins count:', self.webui.plugins_count)
+        for plugin in self.webui.plugins:
             print("Plugin:", plugin)
 
         print('get plugins routes - route name is present')

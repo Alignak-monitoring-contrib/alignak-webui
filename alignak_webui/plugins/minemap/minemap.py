@@ -28,7 +28,6 @@ from logging import getLogger
 
 from bottle import request
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -38,12 +37,13 @@ logger = getLogger(__name__)
 class PluginMinemap(Plugin):
     """ Minemap plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Minemap plugin
         """
         self.name = 'Minemap'
         self.backend_endpoint = None
+        _ = app.config['_']
 
         self.pages = {
             'show_minemap': {
@@ -53,7 +53,7 @@ class PluginMinemap(Plugin):
             }
         }
 
-        super(PluginMinemap, self).__init__(app, cfg_filenames)
+        super(PluginMinemap, self).__init__(app, webui, cfg_filenames)
 
     def show_minemap(self):
         """
@@ -78,13 +78,12 @@ class PluginMinemap(Plugin):
             'page': (start // count) + 1,
             'max_results': count,
             'where': where,
-            'embedded': {
-            }
+            'sort': '-_overall_state_id'
         }
 
         # Get elements from the data manager
         # Do not include the embedded fields to improve the loading time...
-        hosts = datamgr.get_hosts(search)
+        hosts = datamgr.get_hosts(search, embedded=False)
 
         minemap = []
         columns = []
@@ -95,9 +94,10 @@ class PluginMinemap(Plugin):
             # Do not include the embedded fields to improve the loading time...
             services = datamgr.get_services(
                 search={
-                    'where': {'host': host.id}
+                    'where': {'host': host.id},
+                    'sort': '-_overall_state_id'
                 },
-                all_elements=True
+                all_elements=True, embedded=False
             )
             for service in services:
                 columns.append(service.alias)

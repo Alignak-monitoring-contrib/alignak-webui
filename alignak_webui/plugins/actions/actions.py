@@ -27,7 +27,6 @@ from logging import getLogger
 
 from bottle import request
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -37,7 +36,7 @@ logger = getLogger(__name__)
 class PluginActions(Plugin):
     """ Actions plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Actions plugin
         """
@@ -77,7 +76,7 @@ class PluginActions(Plugin):
             }
         }
 
-        super(PluginActions, self).__init__(app, cfg_filenames)
+        super(PluginActions, self).__init__(app, webui, cfg_filenames)
 
     def show_acknowledge_add(self):  # pylint:disable=no-self-use
         """

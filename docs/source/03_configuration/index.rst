@@ -33,6 +33,8 @@ If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this var
 the application as the only configuration file name to be loaded by the application. It allows to
 **override the default file list**.
 
+If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_THREAD`` exists, the application will check periodically if its configuration file changed. If the configuration file modification time changed, the configuration is reloaded by the application.
+
 
 Configuration file format
 -------------------------

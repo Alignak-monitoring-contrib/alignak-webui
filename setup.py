@@ -39,7 +39,7 @@ elif python_version >= (3,):
 # Better to use exec to load the package information from a version.py file
 # so to not have to import the package. as of it, the setup.py do not need to be modified
 # for each package that is built from this one...
-with open(os.path.join('alignak_webui/version.py')) as fh:
+with open(os.path.join('alignak_webui/__init__.py')) as fh:
     manifest = {}
     exec(fh.read(), manifest)
 # The `manifest` dictionary now contains the package metadata
@@ -47,7 +47,7 @@ with open(os.path.join('alignak_webui/version.py')) as fh:
 # Get the package name from the manifest
 package_name = manifest["__pkg_name__"]
 
-data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini']),
+data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini', 'etc/logging.json']),
             ('bin', ['bin/alignak-webui-uwsgi']),
             ('var/log/alignak-webui', [])]
 
@@ -57,6 +57,7 @@ if on_rtd:
     print "RTD build, no data_files"
     data_files = []
 
+print("Data: %s" % data_files)
 setup(
     # Package name and version
     name=manifest["__pkg_name__"],
@@ -79,7 +80,7 @@ setup(
     # Package data
     packages=find_packages(),
     include_package_data=True,
-    package_data = {'alignak_webui': ['alignak_webui/*']},
+    # package_data = {'alignak_webui': ['alignak_webui/*']},
     # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
 
     # Where to install distributed files

@@ -1,0 +1,1019 @@
+# Translations template for alignak_webui.
+# Copyright (C) 2016 Frederic MOHIER
+# This file is distributed under the same license as the alignak_webui
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: alignak_webui 4.8.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-05-30 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.2.0\n"
+
+#: alignak_webui/__init__.py:123 alignak_webui/utils/locales.py:60
+msgid "Language is English (default)..."
+msgstr ""
+
+#: alignak_webui/application.py:340
+msgid "Welcome!<br> Log-in to use the application"
+msgstr ""
+
+#: alignak_webui/application.py:385
+msgid "Invalid username or password"
+msgstr ""
+
+#: alignak_webui/objects/datamanager.py:126
+msgid "Backend connecting..."
+msgstr ""
+
+#: alignak_webui/objects/datamanager.py:133
+msgid "Backend connected"
+msgstr ""
+
+#: alignak_webui/objects/datamanager.py:144
+msgid "Connection successful"
+msgstr ""
+
+#: alignak_webui/objects/datamanager.py:161
+msgid "Backend connection refused..."
+msgstr ""
+
+#: alignak_webui/objects/item.py:811 alignak_webui/objects/item.py:2009
+#: alignak_webui/objects/item.py:2103
+msgid "Never dated!"
+msgstr ""
+
+#: alignak_webui/objects/item.py:840 alignak_webui/plugins/users/users.py:307
+msgid "User"
+msgstr ""
+
+#: alignak_webui/objects/item.py:841
+msgid "Power user"
+msgstr ""
+
+#: alignak_webui/objects/item.py:842 alignak_webui/plugins/users/users.py:305
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Administrator"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1415 alignak_webui/objects/item.py:1571
+msgid "Never opened!"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1424 alignak_webui/objects/item.py:1580
+msgid "Never closed!"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1764 alignak_webui/objects/item.py:1776
+msgid "Never joined!"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1795
+msgid "No network connection"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1796
+msgid "Service unavailable."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1797
+msgid "Session opening unavailable."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1798
+msgid "Connection established"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1799
+msgid "Connection failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1800
+msgid "Authenticating..."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1802
+msgid "Calling..."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1803
+msgid "An advisor will answer soon."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1804
+msgid "Hold on"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1805
+msgid "In a call"
+msgstr ""
+
+#: alignak_webui/objects/item.py:1806
+msgid "Your advisor is answering."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1807
+msgid "An error occured."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1808
+msgid "Command failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1809
+msgid "Call failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1810
+msgid "Call rejected."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1811
+msgid "All our advisors are busy."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1813
+msgid "Printing..."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1814
+msgid "Printing finished."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1815
+msgid "Document printed succesfullly."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1816
+msgid "Printing failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1817
+msgid "Document printing failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1819
+msgid "Scanning...."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1820
+msgid "Scanning finished."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1821
+msgid "Document scanned succesfully."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1822
+msgid "Scanning failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:1823
+msgid "Document scanning failed."
+msgstr ""
+
+#: alignak_webui/objects/item.py:2120
+msgid "Image host"
+msgstr ""
+
+#: alignak_webui/objects/item.py:2122
+msgid "PDF host"
+msgstr ""
+
+#: alignak_webui/objects/item.py:2124
+msgid "Text host"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:51
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Command name"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:67
+#: alignak_webui/plugins/hosts/hosts.py:67
+msgid "Definition order"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:76
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Command line"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:83
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Module type"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:90
+msgid "Enable environment macros"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:97
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Timeout"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:104
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Poller tag"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:111
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Reactionner tag"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:124
+#, python-format
+msgid "Commands table (%d items)"
+msgstr ""
+
+#: alignak_webui/plugins/commands/commands.py:182
+msgid "All commands"
+msgstr ""
+
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+#: alignak_webui/plugins/users/views/users.tpl:1
+#, python-format
+msgid "%d elements out of %d"
+msgstr ""
+
+#: alignak_webui/plugins/commands/views/commands.tpl:1
+msgid "Environment macros"
+msgstr ""
+
+#: alignak_webui/plugins/common/views/_nothing_found.tpl:1
+msgid "What a bummer! We could not find anything."
+msgstr ""
+
+#: alignak_webui/plugins/common/views/_nothing_found.tpl:1
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+msgid ""
+"Use the filters or the bookmarks to find what you are looking for, or try"
+" a new search query."
+msgstr ""
+
+#: alignak_webui/plugins/common/views/_nothing_found.tpl:1
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+#: alignak_webui/plugins/kiosks/views/widget_kiosks.tpl:1
+msgid "No elements found."
+msgstr ""
+
+#: alignak_webui/plugins/common/views/_select_target_user.tpl:1
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Select a user to change dashboard layout"
+msgstr ""
+
+#: alignak_webui/plugins/common/views/_select_target_user.tpl:1
+msgid "Target"
+msgstr ""
+
+#: alignak_webui/plugins/common/views/_select_target_user.tpl:1
+msgid "Unset"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+#: alignak_webui/views/_sidebar.tpl:1
+msgid "Dashboard"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Hosts"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Number of hosts up"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Number of hosts down"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Services"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Problems"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Impacts"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "You do not have any widgets yet ..."
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Click the "
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+#: alignak_webui/views/_actionbar.tpl:1
+msgid "Add a new widget"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid " buttton in the menu to list all the available widgets."
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Select a proposed widget to view its description."
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "Add widget"
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid " button on top of the description to include the widget in your dashboard."
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "There is no users preferences storage module installed."
+msgstr ""
+
+#: alignak_webui/plugins/dashboard/views/dashboard.tpl:1
+msgid "The Web UI dashboard and user preferences will not be saved."
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:51
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Host name"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:76
+msgid "Host alias"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:83
+msgid "Host display name"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:90
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Address"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:97
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Check command"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:108
+msgid "Check command arguments"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:115
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Active checks enabled"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:122
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Passive checks enabled"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:129
+msgid "Parents"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:140
+msgid "Hosts groups"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:154
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Business impact"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:167
+#, python-format
+msgid "Hosts table (%d items)"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:225
+msgid "All hosts"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:300
+msgid "Hosts up"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:301
+msgid "Hosts down"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/hosts.py:302
+msgid "Hosts unreachable"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Alias"
+msgstr ""
+
+#: alignak_webui/plugins/hosts/views/hosts.tpl:1
+msgid "Display name"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:79
+msgid "All kiosks"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:125
+msgid "Filter (kiosk name)"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:130
+msgid "Maximum number of elements"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:135
+#: alignak_webui/plugins/users/views/users.tpl:1
+#: alignak_webui/views/_sidebar.tpl:1
+msgid "Commands"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:140
+msgid "Kiosks header"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:144
+msgid "User kiosks"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:146
+#, python-format
+msgid "User kiosks (%s)"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:159
+msgid "<h4>Kiosks</h4>List the kiosks"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/kiosks.py:181
+msgid "Kiosks"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+msgid "Serial number"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+msgid "Model"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+msgid "Type"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+msgid "Group"
+msgstr ""
+
+#: alignak_webui/plugins/kiosks/views/kiosks.tpl:1
+msgid "Location"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:35
+msgid "User description ..."
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:36
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Create a new user"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:49
+msgid "Missing user name"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:63
+msgid "User creation failed"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:68
+msgid "User created"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:80
+#: alignak_webui/plugins/users/users.py:103
+msgid "Missing user identifier"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:84
+msgid "User does not exist"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:89
+msgid "Optional comment ..."
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:90
+msgid "Delete a user"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:107
+msgid "User deletion failed"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:112
+msgid "User deleted"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:159
+msgid "All users"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:215
+#: alignak_webui/plugins/users/users.py:234
+#: alignak_webui/plugins/users/users.py:254
+#: alignak_webui/plugins/users/users.py:269
+msgid "Missing mandatory parameters"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:239
+msgid "User's preferences saved"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:249
+msgid "No preferences module installed"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:260
+msgid "Common preferences saved"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:306
+msgid "Power"
+msgstr ""
+
+#: alignak_webui/plugins/users/users.py:308
+msgid "Guest"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+#: alignak_webui/plugins/users/views/user_form_delete.tpl:1
+msgid "User name: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "Password: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "Friendly name: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "Mail address: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "Skype address: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "User profile: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "User is an administrator"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+#: alignak_webui/plugins/users/views/user_pref.tpl:1
+msgid "User is allowed to run commands"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+#: alignak_webui/plugins/users/views/user_pref.tpl:1
+msgid "User can change dashboard widgets"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_add.tpl:1
+msgid "Confirm creation"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_delete.tpl:1
+msgid "User id: "
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_form_delete.tpl:1
+msgid "Confirm deletion"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_pref.tpl:1
+msgid "User identification:"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_pref.tpl:1
+msgid "Is this user allowed to launch commands from Web UI?"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_pref.tpl:1
+msgid "Is this user allowed to configure dashboard widgets?"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/user_pref.tpl:1
+msgid "No user preferences"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Users commands"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Add a new user"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Name"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+#: alignak_webui/views/login.tpl:1
+msgid "Username"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Widgets"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "User actions"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Delete this user"
+msgstr ""
+
+#: alignak_webui/plugins/users/views/users.tpl:1
+msgid "Edit this user"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:214
+msgid "."
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:215
+msgid "No data available in table"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:216
+msgid "Showing _START_ to _END_ of _TOTAL_ entries"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:217
+msgid "Showing 0 to 0 of 0 entries"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:218
+msgid " out of _MAX_ entries."
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:219
+msgid " "
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:220
+msgid ","
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:221
+msgid "Show _MENU_ entries"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:222
+msgid "Loading..."
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:223
+msgid "Processing..."
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:224
+msgid "<i class=\"fa fa-search\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:225
+msgid "search..."
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:226
+msgid "No matching records found"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:228 alignak_webui/utils/helper.py:272
+msgid "<i class=\"fa fa-fast-backward\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:229 alignak_webui/utils/helper.py:308
+msgid "<i class=\"fa fa-fast-forward\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:230 alignak_webui/utils/helper.py:303
+msgid "<i class=\"fa fa-forward\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:231 alignak_webui/utils/helper.py:277
+msgid "<i class=\"fa fa-backward\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:234
+msgid ": activate to sort column ascending"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:235
+msgid ": activate to sort column descending"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:239
+msgid "Show all rows"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:240
+#, python-format
+msgid "Show %d rows"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:243
+msgid "<i class=\"fa fa-external-link\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:244
+msgid "CSV"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:245
+msgid "Excel"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:246
+msgid "PDF"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:248
+msgid "<i class=\"fa fa-print\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:250
+msgid "<i class=\"fa fa-clipboard\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:251
+msgid "Copy to clipboard"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:252
+msgid ""
+"Press <i>ctrl</i> or <i>\\u2318</i> + <i>C</i> to copy the table data "
+"to<br>your system clipboard.<br><br>To cancel, click this message or "
+"press escape."
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:257
+msgid "Copied one row to clipboard"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:258
+#, python-format
+msgid "Copied %d rows to clipboard"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:261
+msgid "<i class=\"fa fa-eye-slash\"></i>"
+msgstr ""
+
+#: alignak_webui/utils/datatable.py:262
+msgid "Restore"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:99
+msgid "Now"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:127
+#, python-format
+msgid "%dy"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:130
+#, python-format
+msgid "%dM"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:132
+#, python-format
+msgid "%dw"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:134
+#, python-format
+msgid "%dd"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:136
+#, python-format
+msgid "%dh"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:138
+#, python-format
+msgid "%dm"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:140
+#, python-format
+msgid "%ds"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:152
+msgid "in "
+msgstr ""
+
+#: alignak_webui/utils/helper.py:154
+msgid " ago"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:162
+msgid "Enabled"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:162
+msgid "Disabled"
+msgstr ""
+
+#: alignak_webui/utils/helper.py:293
+#, python-format
+msgid "%d"
+msgstr ""
+
+#: alignak_webui/views/_actionbar.tpl:1
+msgid "Add this widget to your dashboard"
+msgstr ""
+
+#: alignak_webui/views/_filters.tpl:1
+msgid "Filters"
+msgstr ""
+
+#: alignak_webui/views/_filters.tpl:1
+msgid "All "
+msgstr ""
+
+#: alignak_webui/views/_filters.tpl:1
+msgid "All"
+msgstr ""
+
+#: alignak_webui/views/_filters.tpl:1
+msgid "Filter"
+msgstr ""
+
+#: alignak_webui/views/_filters.tpl:1
+msgid "Bookmarks"
+msgstr ""
+
+#: alignak_webui/views/_footer.tpl:1
+msgid "WebUI Logo"
+msgstr ""
+
+#: alignak_webui/views/_footer.tpl:1
+#, python-format
+msgid "%s, version %s, &copy;&nbsp;%s"
+msgstr ""
+
+#: alignak_webui/views/_header.tpl:1
+msgid "Toggle navigation"
+msgstr ""
+
+#: alignak_webui/views/_header.tpl:1
+msgid "Company logo"
+msgstr ""
+
+#: alignak_webui/views/_header.tpl:1
+msgid "Sound alerting"
+msgstr ""
+
+#: alignak_webui/views/_header.tpl:1
+#, python-format
+msgid "Refresh page every %d seconds."
+msgstr ""
+
+#: alignak_webui/views/_header.tpl:1
+msgid "User menu"
+msgstr ""
+
+#: alignak_webui/views/_header.tpl:1
+msgid "Sign out"
+msgstr ""
+
+#: alignak_webui/views/_header_hosts_state.tpl:1
+msgid "Hosts states"
+msgstr ""
+
+#: alignak_webui/views/_header_hosts_state.tpl:1
+#, python-format
+msgid "Overall hosts states: %d hosts (%d) opened"
+msgstr ""
+
+#: alignak_webui/views/_header_services_state.tpl:1
+msgid "Services states"
+msgstr ""
+
+#: alignak_webui/views/_header_services_state.tpl:1
+#, python-format
+msgid "Overall services states: %d services"
+msgstr ""
+
+#: alignak_webui/views/_pagination_element.tpl:1
+msgid "Pages number sequence"
+msgstr ""
+
+#: alignak_webui/views/_pagination_element.tpl:1
+#, python-format
+msgid "%d elements"
+msgstr ""
+
+#: alignak_webui/views/_pagination_element.tpl:1
+msgid "Elements per page"
+msgstr ""
+
+#: alignak_webui/views/_pagination_element.tpl:1
+msgid "Pages sequence"
+msgstr ""
+
+#: alignak_webui/views/_sidebar.tpl:1
+msgid "Hosts table"
+msgstr ""
+
+#: alignak_webui/views/_sidebar.tpl:1
+msgid "Users"
+msgstr ""
+
+#: alignak_webui/views/fullscreen.tpl:1 alignak_webui/views/layout.tpl:1
+#: alignak_webui/views/widget.tpl:1
+msgid "Untitled..."
+msgstr ""
+
+#: alignak_webui/views/login.tpl:1
+msgid "Application login page"
+msgstr ""
+
+#: alignak_webui/views/login.tpl:1
+msgid "version "
+msgstr ""
+
+#: alignak_webui/views/login.tpl:1
+msgid "Company Logo"
+msgstr ""
+
+#: alignak_webui/views/login.tpl:1
+msgid "Password"
+msgstr ""
+
+#: alignak_webui/views/login.tpl:1
+msgid "Login"
+msgstr ""
+
+#: alignak_webui/views/login.tpl:1
+msgid "Warning!"
+msgstr ""
+
+#: alignak_webui/views/modal_about.tpl:1
+msgid "About "
+msgstr ""
+
+#: alignak_webui/views/modal_about.tpl:1
+msgid "Application version"
+msgstr ""
+
+#: alignak_webui/views/modal_about.tpl:1
+msgid "Copyright"
+msgstr ""
+
+#: alignak_webui/views/modal_about.tpl:1
+msgid "Release notes"
+msgstr ""
+
+#: alignak_webui/views/modal_about.tpl:1
+msgid "Close"
+msgstr ""
+
+#: alignak_webui/views/widget.tpl:1
+msgid "Search elements ..."
+msgstr ""
+
+#: alignak_webui/views/widget.tpl:1
+msgid "Save changes"
+msgstr ""

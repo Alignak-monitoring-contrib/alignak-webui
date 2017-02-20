@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class AlignakWSException(Exception):
+class AlignakWSException(Exception):  # pragma: no cover, not used currently
     """
     Specific exception class.
     This exception provides an error code, an error message and the WS response.
@@ -68,7 +68,8 @@ class AlignakWSException(Exception):
         return "Alignak WS error code %d: %s" % (self.code, self.message)
 
 
-class AlignakConnection(object):    # pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
+class AlignakConnection(object):  # pragma: no cover, not used currently
     """
     Singleton design pattern ...
     """

@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {
+            "format": "[%(asctime)s] %(levelname)s: [%(name)s] %(message)s"
+        }
+    },
+
+    "handlers": {
+        "console": {
+            "class": "alignak_webui.utils.logger.ColorStreamHandler",
+            "level": "DEBUG",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout"
+        },
+
+        "info_file_handler": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "info.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 7,
+            "encoding": "utf8"
+        },
+
+        "warning_file_handler": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "level": "WARNING",
+            "formatter": "simple",
+            "filename": "warning.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 7,
+            "encoding": "utf8"
+        },
+
+        "error_file_handler": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "level": "ERROR",
+            "formatter": "simple",
+            "filename": "errors.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 7,
+            "encoding": "utf8"
+        }
+    },
+
+    "loggers": {
+        "alignak_webui": {
+            "level": "INFO",
+            "handlers": ["info_file_handler", "warning_file_handler", "error_file_handler"],
+            "propagate": "no"
+        }
+    },
+
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"]
+    }
+}

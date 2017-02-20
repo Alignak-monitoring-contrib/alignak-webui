@@ -27,7 +27,6 @@ from logging import getLogger
 
 from bottle import request
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -37,12 +36,13 @@ logger = getLogger(__name__)
 class PluginDashboard(Plugin):
     """ Dashboard plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Dashboard plugin
         """
         self.name = 'Dashboard'
         self.backend_endpoint = None
+        _ = app.config['_']
 
         self.pages = {
             'get_page': {
@@ -52,7 +52,7 @@ class PluginDashboard(Plugin):
             }
         }
 
-        super(PluginDashboard, self).__init__(app, cfg_filenames)
+        super(PluginDashboard, self).__init__(app, webui, cfg_filenames)
 
     def get_page(self):
         """
@@ -75,10 +75,14 @@ class PluginDashboard(Plugin):
             message = session['user_message']
             session['user_message'] = None
 
+        # Get live synthesis
+        ls = datamgr.get_livesynthesis()
+
         return {
             'widgets_bar': len(self.webui.get_widgets_for('dashboard')) != 0,
             'widgets_place': 'dashboard',
             'dashboard_widgets': saved_widgets,
+            'ls': ls,
             'title': request.query.get('title', _('Dashboard')),
             'message': message
         }

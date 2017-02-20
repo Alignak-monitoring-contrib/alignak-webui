@@ -20,5 +20,5 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    The backend package contains applications backend classes.
+    The utils package contains backend related classes .
 """

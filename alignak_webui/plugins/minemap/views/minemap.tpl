@@ -4,7 +4,7 @@
 %search_string = request.query.get('search', '')
 
 %# No default refresh for this page
-%rebase("layout", title=title, js=['minemap/htdocs/js/jquery.floatThead.min.js'], css=['minemap/htdocs/css/minemap.css'], pagination=pagination, page="/minemap", refresh=False)
+%rebase("layout", title=title, js=['minemap/static/js/jquery.floatThead.min.js'], css=['minemap/static/css/minemap.css'], pagination=pagination, page="/minemap", refresh=False)
 
 %from alignak_webui.utils.helper import Helper
 
@@ -35,8 +35,11 @@
                <tr>
                   %title = "%s - %s - %s (%s)" % (host.name, host.status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
                   <td title="{{title}}">
+                     %if host.is_problem and not (host.acknowledged or host.downtimed) and current_user.is_power():
+                     {{ ! Helper.get_html_commands_buttons(host, title="<span class='fa fa-bolt'></span>") }}
+                     %end
                      <a href="{{! host.endpoint}}">
-                        {{ ! host.get_html_state(text=host.alias, title=title)}}
+                        {{ ! host.get_html_state(text=host.display_name, use_status=host.overall_status, title=title) }}
                      </a>
                   </td>
                   %if debug:
@@ -58,10 +61,13 @@
                      %if column in minemap_row:
                         %service = minemap_row[column]
                         %title = "%s - %s - %s (%s)" % (service.name, service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
-                        <td title="{{title}}">
-                           <a href="{{! service.endpoint}}">
-                              {{ ! service.get_html_state(text=None, title=title)}}
-                           </a>
+                        <td class="service-state" title="{{title}}">
+                            <a href="{{! service.endpoint}}">
+                                {{ ! service.get_html_state(text=None, use_status=service.overall_status, title=title)}}
+                            </a>
+                            %if service.is_problem and not (service.acknowledged or service.downtimed) and current_user.is_power():
+                                {{ ! Helper.get_html_commands_buttons(service, title="<span class='fa fa-bolt'></span>") }}
+                            %end
                         </td>
                      %else:
                         <td>&nbsp;</td>

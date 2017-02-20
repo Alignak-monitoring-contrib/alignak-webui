@@ -67,7 +67,7 @@
                      %if service.acknowledged:
                      %extra += _(' and acknowledged')
                      %end
-                     %if service.downtime:
+                     %if service.downtimed:
                      %extra += _(' and in scheduled downtime')
                      %end
                      %title = "%s - %s (%s)" % (service.state, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
@@ -94,7 +94,7 @@
 
                   <td>
                      %if current_user.is_power():
-                        {{! Helper.get_html_commands_buttons(service, title='Buttons')}}
+                        {{! Helper.get_html_commands_buttons(service, title='Actions')}}
                      %end
                   </td>
 

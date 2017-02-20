@@ -1,5 +1,4 @@
 %from bottle import request
-%from alignak_webui import _
 
 %#Set default values
 %setdefault('debug', False)
@@ -21,6 +20,7 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
+      <!--
       <!--
          %# Web UI application about content
          %from bottle import request
@@ -221,7 +221,7 @@
 
       %include("_footer", commands=True)
 
-      %include("_modalWaiting")
+      %include("modal_waiting")
 
       <!-- A modal div that will be filled and shown when we want forms ... -->
       <div id="mainModal" class="modal fade" role="dialog" aria-labelledby="{{_('Generic modal box')}}" aria-hidden="true">

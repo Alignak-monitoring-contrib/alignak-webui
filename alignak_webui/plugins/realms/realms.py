@@ -28,7 +28,6 @@ from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui import _
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
@@ -40,7 +39,7 @@ logger = getLogger(__name__)
 class PluginRealms(Plugin):
     """ Realms plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Services groups plugin
 
@@ -48,15 +47,16 @@ class PluginRealms(Plugin):
         """
         self.name = 'Realms'
         self.backend_endpoint = 'realm'
+        _ = app.config['_']
 
         self.pages = {
             'get_realm_members': {
-                'name': 'Realm members',
+                'name': _('Realm members'),
                 'route': '/realm/members/<element_id>'
             },
         }
 
-        super(PluginRealms, self).__init__(app, cfg_filenames)
+        super(PluginRealms, self).__init__(app, webui, cfg_filenames)
 
     def get_one(self, element_id):
         """

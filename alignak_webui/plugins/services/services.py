@@ -26,7 +26,6 @@ from logging import getLogger
 
 from bottle import request, template
 
-from alignak_webui import _
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -36,12 +35,13 @@ logger = getLogger(__name__)
 class PluginServices(Plugin):
     """ Services plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Services plugin
         """
         self.name = 'Services'
         self.backend_endpoint = 'service'
+        _ = app.config['_']
 
         self.pages = {
             'get_service_widget': {
@@ -82,7 +82,7 @@ class PluginServices(Plugin):
                             '<h4>service metrics widget</h4>Displays service (and its services) '
                             'last received metrics.'
                         ),
-                        'picture': 'htdocs/img/service_metrics_widget.png',
+                        'picture': 'static/img/service_metrics_widget.png',
                         'options': {}
                     },
                     {
@@ -117,7 +117,7 @@ class PluginServices(Plugin):
                             'the widget options. The list of services can be filtered thanks to '
                             'regex on the service name'
                         ),
-                        'picture': 'htdocs/img/services_table_widget.png',
+                        'picture': 'static/img/services_table_widget.png',
                         'options': {
                             'search': {
                                 'value': '',
@@ -146,14 +146,14 @@ class PluginServices(Plugin):
                             '<h4>Services chart widget</h4>Displays a pie chart with the system '
                             'services states.'
                         ),
-                        'picture': 'htdocs/img/services_chart_widget.png',
+                        'picture': 'static/img/services_chart_widget.png',
                         'options': {}
                     }
                 ]
             },
         }
 
-        super(PluginServices, self).__init__(app, cfg_filenames)
+        super(PluginServices, self).__init__(app, webui, cfg_filenames)
 
     def get_services_widget(self, embedded=False, identifier=None, credentials=None):
         """

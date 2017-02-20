@@ -26,11 +26,8 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains the classes used to manage the user and usergroup in the backend.
+    This module contains the classes used to manage the user in the backend.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
@@ -48,9 +45,9 @@ class User(BackendElement):
 
     # Displayable strings for the user role
     roles = {
-        "user": _("User"),
-        "power": _("Power user"),
-        "administrator": _("Administrator")
+        # "user": _("User"),
+        # "power": _("Power user"),
+        # "administrator": _("Administrator")
     }
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):

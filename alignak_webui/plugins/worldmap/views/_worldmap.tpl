@@ -1,8 +1,9 @@
+% import json
 %setdefault('worldmap_parameters', {'default_zoom': 6, 'default_lng': 1.87528, 'default_lat': 46.60611, 'hosts_level': [1, 2, 3, 4, 5], 'services_level': [1, 2, 3, 4, 5], 'layer': ''})
 
 <script>
     // Set true to activate javascript console logs
-    var debugMaps = false;
+    var debugMaps = true;
     if (debugMaps && !window.console) {
           alert('Your web browser does not have any console object ... you should stop using IE ;-) !');
     }
@@ -21,26 +22,34 @@
         %end
         %lat = pos['coordinates'][0]
         %lng = pos['coordinates'][1]
-        %services = datamgr.get_services(search={'where': {'host':host.id}}, all_elements=True)
+        %status = host.get_html_state(text=None, use_status=host.overall_status)
+        %status = status.replace("'", "\'")
         new Host(
-            '{{ host.id }}', '{{ host.name }}',
-            '{{ host.status }}', '{{ ! host.get_html_state(text=None)}}',
+            '{{ host.id }}', '{{ host.display_name }}',
+            '{{ host.status }}', '{{ ! status }}',
             '{{ host.business_impact }}',
             '{{ ! Helper.get_html_business_impact(host.business_impact) }}',
             {{ lat }}, {{ lng }},
             {{ str(host.is_problem).lower() }},
             {{ str(host.is_problem).lower() }} && {{ str(host.acknowledged).lower() }},
-            {{ str(host.downtime).lower() }},
+            {{ str(host.downtimed).lower() }},
             [
+                %services = getattr(host, 'services', None)
+                %if services is None:
+                %services = datamgr.get_services(search={'where': {'host':host.id}}, all_elements=True)
+                %end
+
                 %for service in services:
+                    %status = service.get_html_state(text=None, use_status=service.overall_status)
+                    %status = status.replace("'", " ")
                     new Service(
-                        '{{ host.id }}', '{{ host.name }}',
-                        '{{ service.id }}', '{{ service.name }}',
-                        '{{ service.status }}', '{{ ! service.get_html_state(text=None)}}',
-                        '{{ service.business_impact }}', '{{ ! Helper.get_html_business_impact(service.business_impact) }}',
+                        '{{ host.id }}', '{{ host.display_name }}',
+                        '{{ service.id }}', '{{ service.display_name }}',
+                        '{{ service.status }}', '{{ ! status }}',
+                        '{{ service.business_impact }}', '{{ ! Helper.get_html_business_impact(service.business_impact) if service.business_impact != host.business_impact else '' }}',
                         {{ str(service.is_problem).lower() }},
                         {{ str(service.is_problem).lower() }} && {{ str(service.acknowledged).lower() }},
-                        {{ str(service.downtime).lower() }}
+                        {{ str(service.downtimed).lower() }}
                     ),
                 %end
             ]
@@ -56,12 +65,10 @@
             text += '<div><i class="fa fa-ambulance"></i> {{_('Currently in scheduled downtime.')}}</div>';
         }
         if (this.isProblem) {
-             text += '<div>';
-            if (this.isAcknowledged) {
-                text += '<em><span class="fa fa-check"></span>' + "{{_('Problem has been acknowledged.')}}" + '</em>';
-            } else {
+             text += '<span>';
+            if (! this.isAcknowledged) {
                 %if current_user.is_power():
-                text += '<button class="btn btn-raised btn-xs"';
+                text += '<button class="btn btn-raised btn-xs" style="display: inline;"';
                 text += 'data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top"';
                 text += 'title="{{_('Acknowledge this problem')}}"';
                 text += 'data-element_type="host" data-name="'+this.name+'" data-element="'+this.id+'">';
@@ -70,7 +77,7 @@
                 text += '<em><span class="fa fa-exclamation"></span>' + "{{_('Problem should be acknowledged.')}}" + '</em>';
                 %end
             }
-            text += '</div>';
+            text += '</span>';
         }
         text += '<hr/>';
         if (this.services.length > 0) {
@@ -89,7 +96,7 @@
     }
 
     function markerIcon() {
-        return "/static/plugins/worldmap/htdocs/img/" + '/glyph-marker-icon-' + this.hostState().toLowerCase() + '.png';
+        return "/static/plugins/worldmap/static/img/" + '/glyph-marker-icon-' + this.hostState().toLowerCase() + '.png';
     }
 
     function hostState() {
@@ -161,7 +168,7 @@
     }
 
     function serviceInfoContent() {
-        var text = '<li>' + this.stateIcon + ' <a href="/service/' + this.id + '">' + this.name + '</a> ' + this.biIcon + '</li>';
+        var text = '<li>' + this.stateIcon + ' <a href="/service/' + this.id + '">' + this.name + '</a> ' + this.biIcon;
         if (this.isDowntimed) {
             text += '<div><i class="fa fa-ambulance"></i> {{_('Currently in scheduled downtime.')}}</div>';
         }
@@ -182,6 +189,7 @@
             }
             text += '</div>';
         }
+        text += '</li>';
         return text;
     }
 
@@ -272,9 +280,9 @@
         }
 
         var scripts = [];
-        scripts.push('/static/plugins/worldmap/htdocs/js/leaflet.markercluster.js');
-        scripts.push('/static/plugins/worldmap/htdocs/js/leaflet.Icon.Glyph.js');
-        scripts.push('/static/plugins/worldmap/htdocs/js/leaflet.label.js');
+        scripts.push('/static/plugins/worldmap/static/js/leaflet.markercluster.js');
+        scripts.push('/static/plugins/worldmap/static/js/leaflet.Icon.Glyph.js');
+        scripts.push('/static/plugins/worldmap/static/js/leaflet.label.js');
         loadScripts(scripts, function() {
             if (debugMaps)
                 console.log('Scripts loaded !')

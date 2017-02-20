@@ -36,7 +36,6 @@ from logging import getLogger
 
 from bottle import request
 
-from alignak_webui import _
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.objects.element import BackendElement
@@ -360,10 +359,6 @@ class Datatable(object):
         # Manage request parameters ...
         logger.info("request data for table: %s", request.forms.get('object_type'))
 
-        for field in self.table_columns:
-            if field['data'] == '_is_template':
-                logger.warning("table_data, model: %s: %s", field['data'], field)
-
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
@@ -536,6 +531,9 @@ class Datatable(object):
             else:
                 parameters['where'] = {'_is_template': False}
 
+        if self.object_type == 'logcheckresult':
+            parameters.update({'where': {"last_check": {"$ne": 0}}})
+
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
@@ -581,9 +579,13 @@ class Datatable(object):
 
         # Change item content ...
         rows = []
+        # Total number of filtered records
+        self.records_filtered = self.records_total
         for item in items:
             bo_object = object_class(item)
             logger.debug("table data object: %s", bo_object)
+            # Each item contains the toal number of records matching the search filter
+            self.records_filtered = item['_total']
 
             row = {}
             row['DT_RowData'] = {}
@@ -687,14 +689,8 @@ class Datatable(object):
             # logger.debug("Table row: %s", row)
             rows.append(row)
 
-        # Total number of filtered records
-        self.records_filtered = self.records_total
-        if 'where' in parameters and parameters['where'] != {}:
-            logger.debug("update filtered records: %s", parameters['where'])
-            self.records_filtered = len(items)
-        logger.info(
-            "filtered records: %d out of total: %d", self.records_filtered, self.records_total
-        )
+        logger.debug("filtered records: %d out of total: %d",
+                     self.records_filtered, self.records_total)
 
         # Prepare response
         rsp = {

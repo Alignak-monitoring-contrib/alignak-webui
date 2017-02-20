@@ -157,7 +157,10 @@
                      </small>
                   </p>
                   %if item.logcheckresult:
-                     %message = "%s - %s" % (item.logcheckresult.get_html_state(text=None), item.logcheckresult.output)
+                     %message = "%s" % (item.logcheckresult)
+                     %if item.logcheckresult != 'logcheckresult':
+                        %message = "%s - %s" % (item.logcheckresult.get_html_state(text=None), item.logcheckresult.output)
+                     %end
                   %end
                   <p>
                      <small>{{! message}}</small>

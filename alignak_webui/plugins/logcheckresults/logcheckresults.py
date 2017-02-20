@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 class PluginLogCheckResults(Plugin):
     """ Services groups plugin """
 
-    def __init__(self, app, cfg_filenames=None):
+    def __init__(self, app, webui, cfg_filenames=None):
         """
         Services groups plugin
 
@@ -45,4 +45,4 @@ class PluginLogCheckResults(Plugin):
 
         self.pages = {}
 
-        super(PluginLogCheckResults, self).__init__(app, cfg_filenames)
+        super(PluginLogCheckResults, self).__init__(app, webui, cfg_filenames)

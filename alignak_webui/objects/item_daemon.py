@@ -37,7 +37,7 @@ class Daemon(BackendElement):
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'daemon'
+    _type = 'alignakdaemon'
     # _cache is a list of created objects
     _cache = {}
 

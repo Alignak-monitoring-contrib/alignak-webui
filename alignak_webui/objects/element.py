@@ -36,10 +36,9 @@ from calendar import timegm
 from datetime import datetime
 from logging import getLogger, INFO
 
-# noinspection PyProtectedMember
-from alignak_webui import get_app_config, _
+from alignak_webui import get_app_config
 # Import the backend interface class
-from alignak_webui.objects.backend import BackendConnection
+from alignak_webui.backend.backend import BackendConnection
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 
@@ -303,12 +302,6 @@ class BackendElement(object):
             logger.debug("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
 
-    def __del__(self):
-        """
-        Delete an object (called only when no more reference exists for an object)
-        """
-        logger.debug(" --- deleting (__del__) a %s (%s)", self.__class__, self._id)
-
     def _delete(self):
         """
         Delete an object
@@ -321,10 +314,8 @@ class BackendElement(object):
             logger.debug("Removing from cache...")
             del cls._cache[self._id]
             cls._count -= 1
-            logger.debug(
-                "Removed. Remaining in cache: %d / %d",
-                cls.get_count(), len(cls.get_cache())
-            )
+            logger.debug("Removed. Remaining in cache: %d / %d",
+                         cls.get_count(), len(cls.get_cache()))
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Yes, but we need those locals!
@@ -363,7 +354,7 @@ class BackendElement(object):
             if hasattr(self, '_linked_' + key):
                 # Not yet the linked objects...
                 continue
-            logger.debug(" --- parameter %s = %s", key, params[key])
+            # logger.debug(" --- parameter %s = %s", key, params[key])
 
             # If the property is a date, make it a timestamp...
             if key.endswith('date') or key in self.__class__._dates:
