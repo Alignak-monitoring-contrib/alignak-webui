@@ -121,6 +121,26 @@ div.pull-right a, div.pull-right div {
                 //refresh_required = true;
             });
         });
+
+        // Panels legend toggle
+        $('[data-action="toggle-legend"]').on('click', function (e) {
+            if (debug_logs) console.debug("Toggle legend:", $(this).attr('id'));
+
+            wait_message('{{_('Saving configuration...')}}', true)
+
+            if (dashboard_logs) console.debug('Toggle legend', graphs[$(this).data('graph')]);
+            graphs[$(this).data('graph')]['display_states'][$(this).data('state')] = ! graphs[$(this).data('graph')]['display_states'][$(this).data('state')];
+            if (graphs[$(this).data('graph')].legend) {
+                $(this).children('i').show();
+            } else {
+                $(this).children('i').hide();
+            }
+            save_user_preference('currently_graphs', JSON.stringify(graphs), function() {
+                wait_message('', false)
+                // Page refresh required
+                //refresh_required = true;
+            });
+        });
     </script>
 
     <script type="text/javascript">
