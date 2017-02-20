@@ -73,7 +73,6 @@
 
 <div id="problems-synthesis" class="row">
     %if ls is None:
-    %print("Getting live synthesis...")
     %ls = datamgr.get_livesynthesis()
     %end
     <div class="col-sm-4 col-xs-6">

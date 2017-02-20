@@ -90,6 +90,7 @@ from docopt import docopt, DocoptExit
 from alignak_webui import __manifest__, set_app_config
 from alignak_webui.utils.logger import setup_logging
 from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.locales import init_localization, _
 from alignak_webui.backend.backend import BackendException
 from alignak_webui.backend.datamanager import DataManager
 from alignak_webui.webui import WebUI
@@ -277,30 +278,10 @@ logger.debug("------------------------------------------------------------------
 # -----
 # Application localization
 # -----
-try:
-    # Language message file
-    lang_filename = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        "locales/%s.mo" % app.config.get('%s.locale' % app_name, 'en_US')
-    )
-    print("Opening message file %s for locale %s"
-          % (lang_filename, app.config.get('%s.locale' % app_name, 'en_US')))
-    translation = GNUTranslations(open(lang_filename, "rb"))
-    translation.install()
-    _ = translation.gettext
-except IOError:
-    print("Locale not found. Using default language messages (English)")
-    null_translation = NullTranslations()
-    null_translation.install()
-    _ = null_translation.gettext
-except Exception as e:  # pragma: no cover - should not happen
-    print("Locale not found. Exception: %s" % str(e))
-    null_translation = NullTranslations()
-    null_translation.install()
-    _ = null_translation.gettext
-
-# Provide translation methods to templates
+_ = init_localization(app)
+# Update configuration with translation method to use
 app.config['_'] = _
+# Provide translation methods to templates
 BaseTemplate.defaults['_'] = _
 print(_("Language is English (default)..."))
 
