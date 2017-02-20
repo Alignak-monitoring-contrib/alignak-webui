@@ -23,7 +23,42 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module is the main application file
+Usage:
+    {command} [-h] [-v] [-d] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
+
+Options:
+    -h, --help                  Show this screen.
+    -v, --version               Show application version.
+    -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
+    -n, --hostname host         Specify WebUI host (or ip address) [default: 127.0.0.1]
+    -p, --port port             Specify WebUI port [default: 5001]
+    -d, --debug                 Run in debug mode (more info to display) [default: False]
+
+Use cases:
+    Display help message:
+        {command} -h
+    Display current version:
+        {command} -v
+
+    Run application in default mode:
+        {command}
+
+    Run application in default mode and specify a configuration file:
+        {command} /etc/ui-settings.cfg
+
+    Run application and specify the backend URL:
+        {command} -b=backend
+
+    Run application in debug mode and listen on all interfaces:
+        {command} -d -b=backend -n=0.0.0.0 -p=5001
+
+    Exit code:
+        0 if all is ok
+        1 configuration error
+        2 run error
+        64 if command line parameters are not used correctly
+        99 application started but server not run (test application start)
+
 """
 
 from __future__ import print_function
@@ -37,9 +72,6 @@ import threading
 # Localization
 from gettext import GNUTranslations, NullTranslations
 
-# Session management
-from beaker.middleware import SessionMiddleware
-
 # Bottle Web framework
 import bottle
 from bottle import run, redirect, request, response, static_file
@@ -47,6 +79,12 @@ from bottle import template, BaseTemplate, TEMPLATE_PATH
 from bottle import RouteBuildError
 # only needed when you run Bottle on mod_wsgi
 # from bottle import default_app
+
+# Session management
+from beaker.middleware import SessionMiddleware
+
+# Command line interpreter
+from docopt import docopt, DocoptExit
 
 # Application import
 from alignak_webui import __manifest__, set_app_config
@@ -66,6 +104,16 @@ if os.environ.get('ALIGNAK_WEBUI_TEST'):
 else:
     print("Application is in production mode")
 
+# pylint: disable=redefined-variable-type
+args = {}
+if __name__ == '__main__':
+    try:
+        print("Parsing command line arguments")
+        args = docopt(__doc__, version=__manifest__['version'])
+    except DocoptExit as exp:
+        print("Command line parsing error: \n%s" % exp)
+        exit(64)
+
 # -----
 # Application configuration file
 # -----
@@ -79,10 +127,15 @@ cfg_filenames = [
     os.path.abspath('./etc/settings.cfg'),
     os.path.abspath('./settings.cfg'),
 ]
+# Configuration file name in environment
 if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
     cfg_filenames = [os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE')]
-    print("Application configuration file name from environment: %s"
-          % os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'))
+    print("Application configuration file name from environment: %s" % cfg_filenames)
+# Configuration file name in command line parameters
+if '<cfg_file>' in args and args['<cfg_file>']:
+    cfg_filenames = args['<cfg_file>']
+    print("Application configuration file name from command line: %s" % cfg_filenames)
+
 
 app_configuration_file = None
 for cfg_filename in cfg_filenames:
@@ -128,14 +181,31 @@ if os.environ.get('ALIGNAK_WEBUI_DEBUG'):
     app.config['%s.debug' % app_name] = True
     print("Application is in debug mode from environment")
 
+if '--debug' in args and args['--debug']:
+    app.config['bottle.debug'] = True
+    app.config['%s.debug' % app_name] = True
+    print("Application is in debug mode from command line")
+
 # -----
 # Application backend
 # -----
 if os.environ.get('ALIGNAK_WEBUI_BACKEND'):
     app.config['%s.alignak_backend' % app_name] = os.environ.get('ALIGNAK_WEBUI_BACKEND')
     print("Application backend from environment")
+if '--backend' in args and args['--backend']:
+    app.config['%s.alignak_backend' % app_name] = args['--backend']
+    print("Application backend from command line")
+
 print("Application backend: %s" % app.config.get('%s.alignak_backend' % app_name,
                                                  'http://127.0.0.1:5000'))
+
+if '--host' in args and args['--host']:
+    app.config['host'] = args['--host']
+    print("Listening interface from command line: %s" % app.config.get('host', '127.0.0.1'))
+
+if '--port' in args and args['--port']:
+    app.config['port'] = args['--port']
+    print("Listening port from command line: %s" % app.config.get('port', '5001'))
 
 # -----
 # Application log
@@ -508,21 +578,21 @@ def heartbeat():
     """
     # Session authentication ...
     session = request.environ['beaker.session']
-    if session and 'current_user' in session and session['current_user']:
-        response.status = 200
+    if not session:
+        response.status = 401
         response.content_type = 'application/json'
-        return json.dumps(
-            {
-                'status': 'ok',
-                'message': "Current logged-in user: %s" % session['current_user'].get_username()
-            }
-        )
+        return json.dumps({'status': 'ok', 'message': 'Session expired'})
 
-    response.status = 401
+    if 'current_user' not in session or not session['current_user']:
+        response.status = 401
+        response.content_type = 'application/json'
+        return json.dumps({'status': 'ok', 'message': 'Session expired'})
+
+    response.status = 200
     response.content_type = 'application/json'
-    return json.dumps(
-        {'status': 'ok', 'message': 'Session expired'}
-    )
+    return json.dumps({'status': 'ok',
+                       'message': "Current logged-in user: %s"
+                                  % session['current_user'].get_username()})
 
 
 @app.route('/ping')
@@ -544,9 +614,7 @@ def ping():
     if not session:
         response.status = 401
         response.content_type = 'application/json'
-        return json.dumps(
-            {'status': 'ok', 'message': 'Session expired'}
-        )
+        return json.dumps({'status': 'ok', 'message': 'Session expired'})
 
     action = request.query.get('action', None)
     if action == 'done':
@@ -556,38 +624,20 @@ def ping():
     elif action == 'refresh':
         page_template = request.query.get('template', None)
         if page_template:
-            # # Get the WebUI instance
-            # webui = request.app.config['webui']
-            # # Initialize data manager and make it available in the request and in the templates
-            # if webui.datamgr is None:
-            #     webui.datamgr = DataManager(
-            #         backend_endpoint=request.app.config.get('%s.alignak_backend' % webui.name,
-            #                                                 'http://127.0.0.1:5000'),
-            #         session=request.environ['beaker.session']
-            #     )
-            # request.app.datamgr = webui.datamgr
-            # BaseTemplate.defaults['datamgr'] = request.app.datamgr
-
             # Send rendered template
             return template(page_template)
 
         # pragma: no cover - should not happen
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps(
-            {
-                'status': 'ok',
-                'message': 'missing template name. Use /ping?action=refresh&template=name.'
-            }
-        )
+        return json.dumps({'status': 'ok',
+                           'message': 'missing template name. '
+                                      'Use /ping?action=refresh&template=name.'})
     elif action:
         response.status = 204
         response.content_type = 'application/json'
-        return json.dumps(
-            {
-                'status': 'ok', 'message': 'Unknown ping action parameter: %s' % action
-            }
-        )
+        return json.dumps({'status': 'ok',
+                           'message': 'Unknown ping action parameter: %s' % action})
 
     # Check new data in the data manager for the page refresh
     session = request.environ['beaker.session']
@@ -595,11 +645,7 @@ def ping():
         # Require UI refresh
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps(
-            {
-                'status': 'ok', 'message': 'refresh'
-            }
-        )
+        return json.dumps({'status': 'ok', 'message': 'refresh'})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -755,4 +801,4 @@ if __name__ == '__main__':
         reloader=app.config.get('debug', False)
     )
     # remember to remove reloader=True and debug(True) when you move your application
-    # from development to a productive environment
+    # from development to a production environment

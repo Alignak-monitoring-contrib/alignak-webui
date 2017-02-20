@@ -774,9 +774,9 @@ class DataManager(object):
                         self.load(reset=True)
         else:
             try:
-                logger.warning("get_livesynthesis, search: %s", search)
+                logger.debug("get_livesynthesis, search: %s", search)
                 items = self.find_object('livesynthesis', search)
-                logger.warning("get_livesynthesis, got: %s", items)
+                logger.debug("get_livesynthesis, got: %s", items)
             except ValueError:  # pragma: no cover - should not happen
                 logger.debug("get_livesynthesis, none found")
                 return default_ls
