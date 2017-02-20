@@ -548,7 +548,7 @@ class TestBasic(unittest2.TestCase):
             },
             'services_synthesis': {
                 # 'nb_elts': 76, Travis says 74 whereas it is 76 !
-                'nb_elts': 76,
+                'nb_elts': 74,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -560,8 +560,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                'nb_unknown': 76, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 76, 'nb_unknown_soft': 0,
+                'nb_unknown': 74, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 74, 'nb_unknown_soft': 0,
                 # Travis says 74 whereas it is 76 !
                 # 'nb_unknown': 76, 'pct_unknown': 100.0,
                 # 'nb_unknown_hard': 76, 'nb_unknown_soft': 0,

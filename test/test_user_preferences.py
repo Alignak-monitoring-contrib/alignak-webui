@@ -98,9 +98,7 @@ class tests_preferences(unittest2.TestCase):
 
     def setUp(self):
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
 
         response = self.app.get('/login')
         response.mustcontain('<form role="form" method="post" action="/login">')
