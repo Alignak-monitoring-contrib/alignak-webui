@@ -689,7 +689,6 @@ class Helper(object):
         """
 
         sla = hs['pct_up']
-        font = 'ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
         unmanaged_problems = hs['nb_problems'] - (hs['nb_acknowledged'] + hs['nb_in_downtime'])
 
         problems = _("(no unmanaged problems).")
@@ -857,7 +856,6 @@ class Helper(object):
         """
 
         sla = ss['pct_ok']
-        font = 'ok' if sla >= 95.0 else 'warning' if sla >= 90.0 else 'critical'
         unmanaged_problems = ss['nb_problems'] - (ss['nb_acknowledged'] + ss['nb_in_downtime'])
 
         problems = _("(no unmanaged problems).")

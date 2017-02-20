@@ -22,12 +22,12 @@
 """
     Application localization
 """
-import os
-import traceback
+from __future__ import print_function
 
+import os
 
 # Internationalization / localization
-from gettext import GNUTranslations, NullTranslations, gettext as _
+from gettext import GNUTranslations, NullTranslations
 
 # Logs
 from logging import getLogger
@@ -39,8 +39,6 @@ logger = getLogger(__name__)
 # Localization
 def init_localization(app):
     """prepare l10n"""
-
-    global _
 
     # -----
     # Application localization
