@@ -688,7 +688,6 @@ class Helper(object):
         :return:
         """
 
-        sla = hs['pct_up']
         unmanaged_problems = hs['nb_problems'] - (hs['nb_acknowledged'] + hs['nb_in_downtime'])
 
         problems = _("(no unmanaged problems).")
@@ -855,7 +854,6 @@ class Helper(object):
         :return:
         """
 
-        sla = ss['pct_ok']
         unmanaged_problems = ss['nb_problems'] - (ss['nb_acknowledged'] + ss['nb_in_downtime'])
 
         problems = _("(no unmanaged problems).")
