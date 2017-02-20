@@ -107,7 +107,6 @@ class tests_preferences(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
         session = redirected_response.request.environ['beaker.session']
         # A host cookie now exists
         assert self.app.cookies['Alignak-WebUI']

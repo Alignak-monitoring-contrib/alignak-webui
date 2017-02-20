@@ -302,12 +302,6 @@ class BackendElement(object):
             logger.debug("New end, object: %s", cls._cache[_id].__dict__)
         return cls._cache[_id]
 
-    def __del__(self):
-        """
-        Delete an object (called only when no more reference exists for an object)
-        """
-        logger.debug(" --- deleting (__del__) a %s (%s)", self.__class__, self._id)
-
     def _delete(self):
         """
         Delete an object
@@ -320,10 +314,8 @@ class BackendElement(object):
             logger.debug("Removing from cache...")
             del cls._cache[self._id]
             cls._count -= 1
-            logger.debug(
-                "Removed. Remaining in cache: %d / %d",
-                cls.get_count(), len(cls.get_cache())
-            )
+            logger.debug("Removed. Remaining in cache: %d / %d",
+                         cls.get_count(), len(cls.get_cache()))
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Yes, but we need those locals!
