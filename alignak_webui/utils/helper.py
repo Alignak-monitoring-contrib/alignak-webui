@@ -840,7 +840,7 @@ class Helper(object):
         content = """
         <div id="panel_ls_history_services" class="panel panel-default">
           <div class="panel-heading clearfix">
-            <i class="fa fa-server"></i>
+            <i class="fa fa-cube"></i>
             <span class="services-all" data-count="#ss_nb_elts#" data-problems="#ss_nb_problems#">
               #ss_nb_elts# services (#ss_nb_problems# problems).
             </span>
@@ -1168,7 +1168,7 @@ class Helper(object):
             pp_s = """
             <div id="panel_percentage_services" class="panel panel-default">
                 <div class="panel-heading clearfix">
-                  <i class="fa fa-server"></i>
+                  <i class="fa fa-cube"></i>
                   <span class="services-all"
                       data-count="#ss_nb_elts#"
                       data-problems="#ss_nb_problems#">
@@ -1189,7 +1189,7 @@ class Helper(object):
                         <div class="col-xs-12 text-center">
                           <a href="#services_table_url#" class="sla_services_%s">
                             <div>#ss_pct_ok#%%</div>
-                            <i class="fa fa-4x fa-server"></i>
+                            <i class="fa fa-4x fa-cube"></i>
                             <p>%s</p>
                           </a>
                         </div>
@@ -1268,7 +1268,7 @@ class Helper(object):
             pc_s = """
             <div id="panel_counters_services" class="panel panel-default">
                 <div class="panel-heading clearfix">
-                  <i class="fa fa-server"></i>
+                  <i class="fa fa-cube"></i>
                   <span class="services-all"
                       data-count="#ss_nb_elts#"
                       data-problems="#ss_nb_problems#">
