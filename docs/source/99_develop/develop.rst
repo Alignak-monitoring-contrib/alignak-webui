@@ -264,8 +264,7 @@ From Python to javascript, main javascript variables are declared in layout.tpl 
 Application UI design
 ---------------------
 
-The application User Interface design is based upon Google Material Design served by the
-Bootstrap Material Design project (https://github.com/FezVrasta/bootstrap-material-design).
+The application User Interface design is based upon Google Material Design served by the Bootstrap Material Design project (https://github.com/FezVrasta/bootstrap-material-design).
 
 The default CSS can be changed and rebuilt from the project LESS files.
 
@@ -290,5 +289,5 @@ On a Linux Ubuntu:
 
 
 Once the new CSS files are built copy the content of the dist/css directory into the
-htdocs/css/material directory of the WebUI.
+static/css/material directory of the WebUI.
 

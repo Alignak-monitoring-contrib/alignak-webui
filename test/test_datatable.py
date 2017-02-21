@@ -512,9 +512,10 @@ class TestDatatableCommands(TestDatatableBase):
         """ Datatable - commands table """
         print('test commands table')
 
-        print('get page /commands/table')
+        print('get page /commands')
         response = self.app.get('/commands')
 
+        print('get page /commands/table')
         response = self.app.get('/commands/table')
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',

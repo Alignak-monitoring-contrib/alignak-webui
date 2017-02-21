@@ -420,7 +420,8 @@ class Plugin(object):
             Show all elements on one page
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.app.datamgr
+        webui = request.app.config['webui']
+        datamgr = webui.datamgr
 
         # Get elements get method from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
@@ -442,11 +443,12 @@ class Plugin(object):
 
         logger.debug("get_all, search: %s", search)
         elts = f(search, all_elements=False)
+        logger.debug("get_all, found: %s", elts)
 
         # Get last total elements count
-        total = datamgr.get_objects_count(
-            self.backend_endpoint, search=where, refresh=True
-        )
+        total = count
+        if elts:
+            total = elts[0]['_total']
         count = min(count, total)
 
         return {
