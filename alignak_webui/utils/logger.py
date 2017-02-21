@@ -24,6 +24,7 @@
 from __future__ import print_function
 import os
 import json
+import time
 
 # Logs
 import logging
@@ -36,9 +37,15 @@ from termcolor import cprint
 ROOT_LOGGER_NAME = 'alignak_bottle_webui'
 ROOT_LOGGER_LEVEL = logging.INFO
 
-# logging.basicConfig(level=logging.CRITICAL)
-logger = logging.getLogger(ROOT_LOGGER_NAME)  # pylint: disable=C0103
+logger = logging.getLogger(ROOT_LOGGER_NAME)  # pylint: disable=invalid-name
 logger.setLevel(ROOT_LOGGER_LEVEL)
+
+
+class UTCFormatter(logging.Formatter):
+    """
+    This logging formatter converts the log date/time to UTC
+    """
+    converter = time.gmtime
 
 
 class ColorStreamHandler(StreamHandler):

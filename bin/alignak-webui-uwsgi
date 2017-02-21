@@ -1,1 +1,6 @@
-uwsgi --ini /usr/local/etc/alignak-webui/uwsgi.ini
+#!/bin/sh
+if [ $# -eq 0 ]; then
+    uwsgi --ini /usr/local/etc/alignak-webui/uwsgi.ini
+else
+    uwsgi --ini $1
+fi

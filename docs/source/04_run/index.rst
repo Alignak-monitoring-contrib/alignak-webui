@@ -21,14 +21,29 @@ Thanks to this, you can simply run:
 
     alignak-webui-uwsgi
 
-The Alignak webui logs its activity in two files that are located in */usr/local/var/log*:
+The ``alignak-webui-uwsgi`` script can receive a parameter for the configuration file to use. As default, it will use the */usr/local/etc/alignak-webui/uwsgi.ini* file.
 
-* *alignak-webui-access.log* contains all the API HTTP requests
+The Alignak Web UI logs its activity in two files that are located in */usr/local/var/log/alignak-webui*:
 
-* *alignak-webui-error.log* contains the other messages: start, stop, activity log, ...
+* *webui-access.log* contains all the API HTTP requests
 
-.. warning:: If you do not have those files when the WebUI is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log* directory ;)
+* *webui-error.log* contains the other messages: start, stop, activity log, ...
 
+.. warning:: If you do not have those files when the WebUI is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log/alignak-webui* directory ;)
+
+To stop the Alignak WebUI application:
+::
+
+    # Ctrl+C in the session where you started the alignak-webui-uwsgi script will stop the WebUI
+
+    # To gracefully reload all the workers
+    $ kill -SIGHUP `cat /tmp/alignak-webui.pid`
+
+    # To brutally reload all the workers
+    $ kill -SIGTERM `cat /tmp/alignak-webui.pid`
+
+    # To brutally reload all the workers
+    $ kill -SIGINT `cat /tmp/alignak-webui.pid`
 
 Developer mode
 --------------
