@@ -51,7 +51,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
         Base class for Alignak backend connection
         """
 
-        def __init__(self, backend_endpoint='http://127.0.0.1:5002'):
+        def __init__(self, backend_endpoint='http://127.0.0.1:5000'):
             self.backend_endpoint = backend_endpoint
             self.backend = Backend(backend_endpoint)
             self.connected = False
@@ -83,7 +83,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
             try:
                 # Backend real login
-                logger.info("Requesting backend authentication, username: %s", username)
+                logger.info("Requesting backend (%s) authentication, username: %s",
+                            self.backend_endpoint, username)
                 self.connected = self.backend.login(username, password)
             except BackendException:  # pragma: no cover, should not happen
                 logger.warning("configured backend is not available!")

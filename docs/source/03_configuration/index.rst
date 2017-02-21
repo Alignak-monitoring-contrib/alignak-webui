@@ -7,7 +7,55 @@
 Configuration
 =============
 
-The application runs without any extra configuration file with default parameters. Nevertheless, the application is best used when suited to user's neeeds.
+The application runs without any extra configuration file with its default parameters. Nevertheless, the application is best used when suited to user's neeeds ;)
+
+
+
+Application log
+---------------
+The application uses the Python logger facility to produce an activity log. The log can be configured thanks to a configuration file ``logging.json`` located on your system in a directory according to whether your system is a Linux (Debian) or Unix (FreeBSD) distribution. This location is, most often, */usr/local/etc/alignak-webui/*.
+
+The default logging behavior is to log to the console at INFO log level with a local time date.
+
+Some simple modifications:
+
+* to change log level: change the root logger `level` to DEBUG, WARNING, ...
+
+* to set date time as UTC: change the console handler formatter to `utc`
+
+Else, if you are aware of the Python logger configuration, update the file according to your needs:
+::
+
+    {
+      "version": 1,
+      "disable_existing_loggers": false,
+      "formatters": {
+        "utc": {
+          "()": "alignak_webui.utils.logger.UTCFormatter",
+          "format": "[%(asctime)s] %(levelname)s: [%(name)s] %(message)s"
+        },
+        "local": {
+          "format": "[%(asctime)s] %(levelname)s: [%(name)s] %(message)s"
+        }
+      },
+
+      "handlers": {
+        "console": {
+          "class": "alignak_webui.utils.logger.ColorStreamHandler",
+          "level": "DEBUG",
+          "formatter": "local",
+          "stream": "ext://sys.stdout"
+        }
+      },
+
+      "root": {
+        "level": "INFO",
+        "handlers": ["console"]
+      }
+    }
+
+
+**Note** that the Web UI is intended to be launched as an uWSGI application and that uWSGI will be configured to log the application console output to a file...
 
 Configuration file location
 ---------------------------
@@ -127,6 +175,7 @@ This section defines patterns used by the application to build the buttons comma
 
 This section defines patterns used by the application to build the elements icons.
 **TO BE COMPLETED**
+
 
 Application interface layout
 ----------------------------
