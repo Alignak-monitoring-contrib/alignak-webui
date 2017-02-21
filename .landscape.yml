@@ -8,6 +8,9 @@ requirements:
   - test_requirements.txt
 python-targets:
   - 2
+pyflakes:
+  disable:
+    - F821
 ignore-paths:
   - bin
   - docs
