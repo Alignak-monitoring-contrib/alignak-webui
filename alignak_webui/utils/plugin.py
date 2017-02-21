@@ -456,6 +456,7 @@ class Plugin(object):
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+        print(elts_per_page)
 
         # Pagination and search
         start = int(request.query.get('start', '0'))
@@ -467,7 +468,7 @@ class Plugin(object):
             'where': where
         }
 
-        logger.debug("get_all, search: %s", search)
+        logger.info("get_all, search: %s", search)
         elts = f(search, all_elements=False)
         logger.debug("get_all, found: %s", elts)
 

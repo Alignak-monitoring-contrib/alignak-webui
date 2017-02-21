@@ -86,6 +86,7 @@ from docopt import docopt, DocoptExit
 from alignak_webui import __manifest__, set_app_config
 from alignak_webui.utils.logger import setup_logging
 from alignak_webui.utils.locales import init_localization
+from alignak_webui.utils.helper import Helper
 from alignak_webui.backend.backend import BackendException
 from alignak_webui.backend.datamanager import DataManager
 from alignak_webui.webui import WebUI

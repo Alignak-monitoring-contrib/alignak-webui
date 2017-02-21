@@ -289,5 +289,6 @@ On a Linux Ubuntu:
     grunt cssmin    # Minify CSS files in dist/css
 
 
-Once the new CSS files are built copy the content of the *dist/css* directory into the *static/css/material* directory of the WebUI repository. The content of the *dist/js* must also be copied to the *static/js/material* directory of the WebUI repository.
+Once the new CSS files are built copy the content of the dist/css directory into the
+htdocs/css/material directory of the WebUI.
 
