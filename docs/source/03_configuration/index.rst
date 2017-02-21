@@ -11,10 +11,7 @@ The application runs without any extra configuration file with default parameter
 
 Configuration file location
 ---------------------------
-The application can be configured thanks to a configuration file. When installed for an end user,
-the configuration file ``settings.cfg`` is located on your system in a directory according to
-whether your system is a Linux (Debian) or Unix (FreeBSD) distribution. This location is determined
-by the Python setup.py script.
+The application can be configured thanks to a configuration file. When installed for an end user, the configuration file ``settings.cfg`` is located on your system in a directory according to whether your system is a Linux (Debian) or Unix (FreeBSD) distribution. This location is determined by the Python setup.py script.
 
 Thus, the application searches in several location for a configuration file:
 
@@ -25,15 +22,17 @@ Thus, the application searches in several location for a configuration file:
     - ./alignak-webui/etc/settings.cfg
     - ./settings.cfg
 
-Each file found takes precedence over the previous files. As of it, for the same parameter with
-different values in */usr/local/etc/alignak-webui/settings.cfg* and *./settings.cfg*, the retained
-value will be the one configured in *./settings.cfg*.
+Each file found takes precedence over the previous files. As of it, for the same parameter with different values in */usr/local/etc/alignak-webui/settings.cfg* and *./settings.cfg*, the retained value will be the one configured in *./settings.cfg*.
 
-If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by
-the application as the only configuration file name to be loaded by the application. It allows to
-**override the default file list**.
+If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by the application as the only configuration file name to be loaded by the application. It allows to **override the default file list**.
 
 If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_THREAD`` exists, the application will check periodically if its configuration file changed. If the configuration file modification time changed, the configuration is reloaded by the application.
+
+If an environment variable ``ALIGNAK_WEBUI_DEBUG`` exists, the application will run in debug mode; which means that the application logs will be set to a DEBUG level.
+
+If an environment variable ``ALIGNAK_WEBUI_BACKEND`` exists, the value of this variable will override the one defined in the configuration file.
+
+
 
 
 Configuration file format
@@ -63,6 +62,18 @@ Configuration parameters
 
 **Note**: please do not change these parameters unless you know what you're doing!
 
+[bottle] section
+~~~~~~~~~~~~~~~~
+
+This section contains parameters to configure the base Web server.
+
+    * **host**, interface the application listens to (default: *127.0.0.1*)
+
+    * **port**, TCP port the application listens to (default: *8868*)
+
+    * **debug**, to make the server run in debug mode (only useful for developers)
+
+
 [Alignak-WebUI] section
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -72,10 +83,6 @@ This section contains parameters to configure the application.
 
     * **debug**, to make the application run in debug mode (much more log in the log file!)
 
-    * **host**, interface the application listens to (default: *127.0.0.1*)
-
-    * **port**, TCP port the application listens to (default: *8868*)
-
     * **about_name**, application name in About modal box (default is defined in source code)
 
     * **about_version**, application name in About modal box (default is defined in source code)
@@ -83,8 +90,6 @@ This section contains parameters to configure the application.
     * **about_copyright**, application copyright in About modal box (default is defined in source code)
 
     * **about_release**, application release notes in About modal box (default is defined in source code)
-
-    * **port**, TCP port the application listens to (default: *8868*)
 
     * **login_text**, welcome text on the login form (default: *Welcome!<br> Log-in to use the application*)
 
@@ -98,7 +103,7 @@ This section contains parameters to configure the application.
 
     * **header_refresh_period**, page header refresh period in seconds (default: *30*). Use 0 to disable page header refresh.
 
-    * **locale**, language file to use (default: *en_US*). Language files are located in *res* sub-directory.
+    * **locale**, language file to use (default: *en_US*). Language files are located in *locales* sub-directory.
 
     * **timezone**, preferred timezone for dates (default: *Europe/Paris*).
 
@@ -109,20 +114,6 @@ This section contains parameters to configure the application.
     * **grafana**, Grafana application URL (default: empty value). When this parameter is present,
     the WebUI will try to display Grafana panels for the hosts/services if a panel definition exists
     in the data fetched from the Alignak Backend.
-
-
-[logs] section
-~~~~~~~~~~~~~~
-
-This section contains parameters to configure the application logs. This section is commented to
-understand how the parameters may be changed.
-
-The default logging is storing INFO level logs in a file named *alignak-webui.log* in the
-*/user/local/var/log/alignak-webui* (first) or */var/log/alignak-webui* (second) directory.
-A log file is built each day on a 6 days rotating schema.
-
-**Note**: if the log directory does not exist or is not writable for the application, the log
-file is built in the */tmp* directory.
 
 
 [buttons] section
@@ -141,17 +132,17 @@ Application interface layout
 ----------------------------
 Material design:
 
-    - htdocs/css/material directory contains the files used to configure the material look and
+    - *static/css/material* directory contains the files used to configure the material look and
     feel of the application. Those files may be changed with the result of the rebuild explained in
     the develop part of this documentation (see `Application UI design`_).
 
 Css files:
 
-    - alignak_webui.css, contains the main classes used by the Web UI
-    - alignak_webui-items.css, contains the CSS classes used for the items icons styles as declared
+    - *alignak_webui.css*, contains the main classes used by the Web UI
+    - *alignak_webui-items.css*, contains the CSS classes used for the items icons styles as declared
     in the application configuration file (see hereunder)
 
 Javascript files:
 
-    - alignak_webui-layout.js, contains some colors definitions for the externally embedded widgets
+    - *alignak_webui-layout.js*, contains some colors definitions for the externally embedded widgets
 
