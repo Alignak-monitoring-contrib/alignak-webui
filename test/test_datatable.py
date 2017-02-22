@@ -636,7 +636,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_current_attempt" data-type="integer">Current attempt</th>',
             '<th data-name="ls_max_attempts" data-type="integer">Max attempts</th>',
             '<th data-name="ls_next_check" data-type="integer">Next check</th>',
-            '<th data-name="ls_last_state_changed" data-type="integer">Last state changed</th>',
+            '<th data-name="ls_last_state_changed" data-type="datetime">Last state changed</th>',
             '<th data-name="ls_last_state" data-type="string">Last state</th>',
             '<th data-name="ls_last_state_type" data-type="string">Last state type</th>',
             '<th data-name="ls_latency" data-type="float">Latency</th>',
@@ -784,7 +784,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="ls_current_attempt" data-type="integer">Current attempt</th>',
             '<th data-name="ls_max_attempts" data-type="integer">Max attempts</th>',
             '<th data-name="ls_next_check" data-type="integer">Next check</th>',
-            '<th data-name="ls_last_state_changed" data-type="integer">Last state changed</th>',
+            '<th data-name="ls_last_state_changed" data-type="datetime">Last state changed</th>',
             '<th data-name="ls_last_state" data-type="string">Last state</th>',
             '<th data-name="ls_last_state_type" data-type="string">Last state type</th>',
             '<th data-name="ls_latency" data-type="float">Latency</th>',
@@ -1086,7 +1086,7 @@ class TestDatatableLogs(TestDatatableBase):
             <th data-name="last_state" data-type="string">Last state</th>
             <th data-name="last_state_type" data-type="string">Last state type</th>
             <th data-name="last_state_id" data-type="integer">Last state id</th>
-            <th data-name="last_state_changed" data-type="boolean">Last state changed</th>
+            <th data-name="last_state_changed" data-type="datetime">Last state changed</th>
             <th data-name="output" data-type="string">Output</th>
             <th data-name="long_output" data-type="string">Long output</th>
             <th data-name="perf_data" data-type="string">Performance data</th>
