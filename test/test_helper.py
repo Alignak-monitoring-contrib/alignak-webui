@@ -230,48 +230,48 @@ class TestOnOff(unittest2.TestCase):
         # Call errors
         s = helper.get_on_off()
         print("Result:", s)
-        assert s == '<i title="Disabled" class="fa fa-fw fa-close text-danger"></i>'
+        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger"></span>'
 
         # Status only
         s = helper.get_on_off(False)
         print("Result:", s)
-        assert s == '<i title="Disabled" class="fa fa-fw fa-close text-danger"></i>'
+        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger"></span>'
 
         s = helper.get_on_off(True)
         print("Result:", s)
-        assert s == '<i title="Enabled" class="fa fa-fw fa-check text-success"></i>'
+        assert s == '<span title="Enabled" class="fa fa-fw fa-check text-success"></span>'
 
         # Title
         s = helper.get_on_off(False, 'Title')
         print("Result:", s)
-        assert s == '<i title="Title" class="fa fa-fw fa-close text-danger"></i>'
+        assert s == '<span title="Title" class="fa fa-fw fa-close text-danger"></span>'
 
         s = helper.get_on_off(True, 'Title')
         print("Result:", s)
-        assert s == '<i title="Title" class="fa fa-fw fa-check text-success"></i>'
+        assert s == '<span title="Title" class="fa fa-fw fa-check text-success"></span>'
 
         # Message
         s = helper.get_on_off(False, message='Message')
         print("Result:", s)
-        assert s == '<i title="Disabled" class="fa fa-fw fa-close text-danger">Message</i>'
+        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger">Message</span>'
 
         s = helper.get_on_off(True, message='Message')
         print("Result:", s)
-        assert s == '<i title="Enabled" class="fa fa-fw fa-check text-success">Message</i>'
+        assert s == '<span title="Enabled" class="fa fa-fw fa-check text-success">Message</span>'
 
         # Title and message
         s = helper.get_on_off(True, title='Title', message='Message')
         print("Result:", s)
-        assert s == '<i title="Title" class="fa fa-fw fa-check text-success">Message</i>'
+        assert s == '<span title="Title" class="fa fa-fw fa-check text-success">Message</span>'
 
         # Title as array
         s = helper.get_on_off(True, title=['on', 'off'], message='Message')
         print("Result:", s)
-        assert s == '<i title="on" class="fa fa-fw fa-check text-success">Message</i>'
+        assert s == '<span title="on" class="fa fa-fw fa-check text-success">Message</span>'
 
         s = helper.get_on_off(False, title=['on', 'off'], message='Message')
         print("Result:", s)
-        assert s == '<i title="off" class="fa fa-fw fa-close text-danger">Message</i>'
+        assert s == '<span title="off" class="fa fa-fw fa-close text-danger">Message</span>'
 
 
 class TestNavigation(unittest2.TestCase):
@@ -393,25 +393,45 @@ class TestBI(unittest2.TestCase):
         print("Result:", s)
         assert s == 'n/a - parameters'
 
+        # Default with less stars
+        s = helper.get_html_business_impact(0, icon=True, text=False, less=2)
+        print("Result:", s)
+        assert s == '<span></span><span>&nbsp;</span>'  # No star
+        s = helper.get_html_business_impact(1, icon=True, text=False, less=2)
+        print("Result:", s)
+        assert s == '<span></span><span>&nbsp;</span>'  # No star
+        s = helper.get_html_business_impact(2, icon=True, text=False, less=2)
+        print("Result:", s)
+        assert s == '<span></span><span>&nbsp;</span>'  # No star
+        s = helper.get_html_business_impact(3, icon=True, text=False, less=2)
+        print("Result:", s)
+        assert s == '<span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 1 star
+        s = helper.get_html_business_impact(4, icon=True, text=False, less=2)
+        print("Result:", s)
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 2 stars
+        s = helper.get_html_business_impact(5, icon=True, text=False, less=2)
+        print("Result:", s)
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 3 stars
+
         # Default with stars
         s = helper.get_html_business_impact(0, icon=True, text=False)
         print("Result:", s)
-        assert s == ''  # Nothing
+        assert s == '<span></span><span>&nbsp;</span>'  # No star
         s = helper.get_html_business_impact(1, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star"></i>'  # 1 star
+        assert s == '<span><span class="fa fa-star"></span></span><span>&nbsp;</span>'  # 1 star
         s = helper.get_html_business_impact(2, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star"></i>' * 2  # 2 stars
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'  # 2 stars
         s = helper.get_html_business_impact(3, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star"></i>' * 3  # 3 stars
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 3 stars
         s = helper.get_html_business_impact(4, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star"></i>' * 4  # 3 stars
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 4 stars
         s = helper.get_html_business_impact(5, icon=True, text=False)
         print("Result:", s)
-        assert s == '<i class="fa fa-star"></i>' * 5  # 3 stars
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 5 stars
 
         # Default with text
         s = helper.get_html_business_impact(0, icon=False, text=True)
@@ -436,22 +456,22 @@ class TestBI(unittest2.TestCase):
         # Default with icon and text
         s = helper.get_html_business_impact(0, icon=True, text=True)
         print("Result:", s)
-        assert s == 'None'
+        assert s == '<span></span><span>&nbsp;None</span>'
         s = helper.get_html_business_impact(1, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Low ' + '<i class="fa fa-star"></i>' * 1
+        assert s == '<span><span class="fa fa-star"></span></span><span>&nbsp;Low</span>'
         s = helper.get_html_business_impact(2, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Normal ' + '<i class="fa fa-star"></i>' * 2
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Normal</span>'
         s = helper.get_html_business_impact(3, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Important ' + '<i class="fa fa-star"></i>' * 3
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Important</span>'
         s = helper.get_html_business_impact(4, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Very important ' + '<i class="fa fa-star"></i>' * 4
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Very important</span>'
         s = helper.get_html_business_impact(5, icon=True, text=True)
         print("Result:", s)
-        assert s == 'Business critical ' + '<i class="fa fa-star"></i>' * 5
+        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Business critical</span>'
 
 
 class TestTP(unittest2.TestCase):
@@ -481,8 +501,7 @@ class TestTP(unittest2.TestCase):
              '_etag': u'e9f5fb031b79f9abdc42f44d413f8220c321767b', 'imported_from': u''})
         s = helper.get_html_timeperiod(tp)
         print("Result:", s)
-        assert s == \
-                         '<button class="btn btn-default btn-xs btn-block" type="button"data-toggle="collapse" data-target="#html_tp_575a7dd74c988c170e857988" aria-expanded="false" aria-controls="html_tp_575a7dd74c988c170e857988">All time default 24x7</button><div class="collapse" id="html_tp_575a7dd74c988c170e857988"><div class="well"><ul class="list-group"><li class="list-group-item"><span class="fa fa-check">&nbsp;monday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;tuesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;wednesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;thursday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;friday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;saturday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-check">&nbsp;sunday - 00:00-24:00</li></ul></div></div>'
+        assert s == '<button class="btn btn-default btn-xs btn-block" type="button" data-toggle="collapse" data-target="#html_tp_575a7dd74c988c170e857988" aria-expanded="false" aria-controls="html_tp_575a7dd74c988c170e857988">All time default 24x7</button><div class="collapse" id="html_tp_575a7dd74c988c170e857988"><div class="well"><ul class="list-group"><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;monday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;tuesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;wednesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;thursday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;friday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;saturday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;sunday - 00:00-24:00</li></ul></div></div>'
 
 
 class TestHtmlList(unittest2.TestCase):

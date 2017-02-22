@@ -43,12 +43,10 @@ class Helper(object):
     """
     Helper functions
     """
-    def __init__(self):
-        """ Empty ... """
-        # self.config = get_app_config()
 
     @staticmethod
     def print_date(timestamp, fmt='%Y-%m-%d %H:%M:%S'):
+
         """
         For a unix timestamp return something like
         2015-09-18 00:00:00
@@ -62,6 +60,7 @@ class Helper(object):
         :return: formatted date
         :rtype: string
         """
+
         if not timestamp:
             return 'n/a'
 
@@ -72,6 +71,7 @@ class Helper(object):
 
     @staticmethod
     def print_duration(timestamp, duration_only=False, x_elts=0, ts_is_duration=False):
+
         """
         For a unix timestamp return something like
         1h 15m 12s
@@ -93,6 +93,7 @@ class Helper(object):
         :return: formatted date
         :rtype: string
         """
+
         if not timestamp:
             return 'n/a'
 
@@ -165,9 +166,18 @@ class Helper(object):
 
     @staticmethod
     def get_on_off(status=False, title=None, message=''):
+
+        """Give an enabled/disabled HTML state
+
+            The returned HTML element is built from the configuration variables defined as:
+            [on_off]
+            ; Global element to be included in the HTML and including the items and the text
+            on=<span title="##title##" class="fa fa-fw fa-check text-success">##message##</span>
+
+            ; Element to be included for each BI count
+            off=<span title="##title##" class="fa fa-fw fa-close text-danger">##message##</span>
         """
-        Give an enabled/disabled state based on glyphicons with optional title and message
-        """
+
         if not title:
             title = _('Enabled') if status else _('Disabled')
 
@@ -177,21 +187,33 @@ class Helper(object):
             else:
                 title = title[1]
 
+        # Get global configuration
+        app_config = get_app_config()
+
         if status:
-            return '''<i title="%s" class="fa fa-fw fa-check text-success">%s</i>''' % (
-                title, message
-            )
+            element = app_config.get('on_off.on')
         else:
-            return '''<i title="%s" class="fa fa-fw fa-close text-danger">%s</i>''' % (
-                title, message
-            )
+            element = app_config.get('on_off.off')
+
+        element = element.replace("##title##", title)
+        element = element.replace("##message##", message)
+        return element
 
     @staticmethod
-    def get_html_business_impact(business_impact, icon=True, text=False):
-        """
-            Give a business impact as text and stars if needed.
+    def get_html_business_impact(business_impact, icon=True, text=False, less=0):
+
+        """Give a business impact as text and stars if needed.
             If text=True, returns text+stars, else returns stars only ...
+
+            The returned HTML element is built from the configuration variables defined as:
+            [business_impact]
+            ; Global element to be included in the HTML and including the items and the text
+            global=<div><span>##items##</span><span>##text##</span></div>
+
+            ; Element to be included for each BI count
+            item=<span class="fa fa-star"></span>
         """
+
         if not 0 <= business_impact <= 5:
             return 'n/a - value'
 
@@ -207,17 +229,22 @@ class Helper(object):
             5: _('Business critical')
         }
 
-        # nb_stars = max(0, business_impact - 2)
-        stars = '<i class="fa fa-star"></i>' * business_impact
-
-        if not text:
-            return stars
-
         if not icon:
             return bi_texts.get(business_impact, _('Unknown'))
 
-        text = "%s %s" % (bi_texts.get(business_impact, _('Unknown')), stars)
-        return text.strip()
+        # Get global configuration
+        app_config = get_app_config()
+        element = app_config.get('business_impact.global')
+        star = app_config.get('business_impact.item')
+
+        element = element.replace("##items##", star * max(0, business_impact - less))
+
+        if not text:
+            element = element.replace("##text##", "")
+            return element
+
+        element = element.replace("##text##", bi_texts.get(business_impact, _('Unknown')))
+        return element
 
     @staticmethod
     def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
@@ -499,52 +526,91 @@ class Helper(object):
 
     @staticmethod
     def get_html_timeperiod(tp, title=None):
+
+        """Build an html definition list for the timeperiod date ranges and exclusions.
+
+            The returned HTML element is built from the configuration variables defined as:
+            [timeperiods]
+
+            ; Button to display the list
+            button=<button class="btn btn-default btn-xs btn-block" type="button"
+                    data-toggle="collapse" data-target="#html_tp_##id##" aria-expanded="false"
+                    aria-controls="html_tp_##id##">##name##</button><div class="collapse"
+                    id="html_tp_##id##"><div class="well">##content##</div></div>
+
+            ; Global element to be included in the HTML for the list
+            list=<ul class="list-group">##content##</ul>
+
+            ; Each period element to be included in the HTML list (##period## is the name
+            and ##range## is the date range)
+            item=<li class="list-group-item"><span class="fa fa-hourglass">
+                    &nbsp;##period## - ##range##</li>
         """
-        Build an html definition list for the timeperiod date ranges and exclusions.
-        """
+
         if tp is None or len(tp.dateranges) == 0:
             return ''
 
-        content = '<button class="btn btn-default btn-xs btn-block" type="button"' \
-                  'data-toggle="collapse" data-target="#html_tp_%s" aria-expanded="false" ' \
-                  'aria-controls="html_tp_%s">%s</button>' \
-                  '<div class="collapse" id="html_tp_%s"><div class="well">' % (
-                      tp.id, tp.id, tp.name if not title else title, tp.id
-                  )
+        # Get global configuration
+        app_config = get_app_config()
+
+        element = app_config.get('timeperiods.button')
+        element = element.replace("##id##", tp.id)
+        element = element.replace("##name##", tp.name if not title else title)
+
+        lists = ""
 
         # Build the included list ...
         if tp.dateranges:
-            content += '''<ul class="list-group">'''
+            list_item = app_config.get('timeperiods.list')
+            items = ""
             for daterange in tp.dateranges:
                 for key in daterange.keys():
-                    content += \
-                        '<li class="list-group-item">'\
-                        '<span class="fa fa-check">&nbsp;%s - %s</li>' % (
-                            key, daterange[key]
-                        )
-            content += '''</ul>'''
+                    item = app_config.get('timeperiods.item')
+                    item = item.replace("##period##", key)
+                    item = item.replace("##range##", daterange[key])
+                    items += item
+            lists += list_item.replace("##content##", items)
 
         # Build the excluded list ...
         if tp.exclude:
-            content += '<ul class="list-group">'
+            list_item = app_config.get('timeperiods.list')
+            items = ""
             for daterange in tp.exclude:
                 for key in daterange.keys():
-                    content += \
-                        '<li class="list-group-item">'\
-                        '<span class="fa fa-close">&nbsp;%s - %s</li>''' % (
-                            key, daterange[key]
-                        )
-            content += '</ul>'
+                    item = app_config.get('timeperiods.item')
+                    item = item.replace("##period##", key)
+                    item = item.replace("##range##", daterange[key])
+                    items += item
+            lists += list_item.replace("##content##", items)
 
-        content += '</div></div>'
+        element = element.replace("##content##", lists)
 
-        return content
+        return element
 
     @staticmethod
     def get_html_item_list(object_id, object_type, objects_list, title=None, max_items=10):
+
+        """Build an html definition list for the items list
+
+            The returned HTML element is built from the configuration variables defined as:
+            [tables.lists]
+
+            ; Button to display the list
+            button=<button class="btn btn-xs btn-raised" data-toggle="collapse"
+                    data-target="#list_##type##_##id##" aria-expanded="false">##title##
+                    </button><div class="collapse" id="list_##type##_##id##">##content##</div>
+
+            ; Global element to be included in the HTML for the list
+            list=<ul class="list-group">##content##</ul>
+
+            ; Each command element to be included in the HTML list
+            item=<li class="list-group-item"><span class="fa fa-check">
+                    &nbsp;##content##</span></li>
+
+            ; Unique element to be included in the HTML list if the list contains only one element
+            unique=##content##
         """
-        Build an html definition list for the items list
-        """
+
         if not objects_list or not isinstance(objects_list, list):
             return ''
 
@@ -1440,7 +1506,8 @@ class Helper(object):
         """
         Get HTML formatted live state
 
-        Update system live synthesis and build header elements
+        If bi is -1 (default) then all the items are considered, else this
+        function only considers the items with the provided BI.
 
         :param bi: business impact
         :type bi: int
@@ -1452,13 +1519,17 @@ class Helper(object):
         if search is None or not isinstance(search, dict):
             search = {}
         if 'where' not in search:
-            search.update({'where': {"ls_state_id": {"$nin": [0, 4]}}})
-            search['where'].update({'ls_acknowledged': False})
-            search['where'].update({'ls_downtimed': False})
+            search.update({'where': {
+                "ls_state_id": {"$nin": [0, 4]},
+                'ls_acknowledged': False,
+                'ls_downtimed': False
+            }})
         if 'sort' not in search:
-            search.update({'sort': '-_overall_state_id'})
+            search.update({'sort': '-ls_state_id, -ls_last_state_changed'})
         if bi != -1:
             search['where'].update({'business_impact': bi})
+        else:
+            search.update({'sort': '-business_impact, -ls_state_id, -ls_last_state_changed'})
 
         items = []
         # Copy because the search filter is updated by the function ...
@@ -1483,14 +1554,13 @@ class Helper(object):
         hosts_problems = -1
         services_problems = -1
         for item in items:
-            logger.debug("get_html_livestate, item: %s", item)
+            logger.debug("get_html_livestate, item: %d / %d / %d / %s",
+                         item.business_impact, item.state_id, item.last_state_changed, item)
             problems_count += 1
             if item.object_type == "service" and services_problems == -1:
                 services_problems = item.get_total_count()
             if item.object_type == "host" and hosts_problems == -1:
                 hosts_problems = item.get_total_count()
-
-            elt_id = Helper.get_html_id("host", item.name)
 
             host_url = ''
             if current_host != item.name:
@@ -1526,65 +1596,27 @@ class Helper(object):
                        item.output)
 
             tr = """
-            <tr data-toggle="collapse" data-target="#details-%s" class="accordion-toggle">
+            <tr>
+                <td>%s</td>
                 <td>%s</td>
                 <td>%s</td>
                 <td>%s</td>
                 <td>%s</td>
                 <td class="hidden-xs">%s</td>
+                <td class="hidden-xs">%s</td>
                 <td class="hidden-sm hidden-xs">%s%s</td>
             </tr>""" % (
-                elt_id,
                 item.get_html_state(text=None, title=title, extra=extra),
                 Helper.get_html_commands_buttons(item, title=_("Actions")) if actions else '',
-                host_url, service_url,
-                Helper.print_duration(item.last_check, duration_only=True, x_elts=0),
+                Helper.get_html_business_impact(item.business_impact,
+                                                icon=True, text=False, less=2),
+                host_url,
+                service_url,
+                Helper.print_duration(item.last_state_changed, duration_only=True, x_elts=2),
+                Helper.print_duration(item.last_check, duration_only=True, x_elts=2),
                 item.output, long_output
             )
             rows.append(tr)
-
-            # tr2 = """
-            # <tr id="details-%s" class="collapse">
-            #     <td colspan="20">
-            # """ % (elt_id)
-            # tr2 += """
-            # <div class="pull-left">
-            # """
-            # if item.passive_checks_enabled:
-            #     tr2 += """
-            #     <span>
-            #         <span class="fa fa-arrow-left" title="Passive checks are enabled."></span>"""
-            # if item.check_freshness:
-            #     tr2 += """
-            #         <span title="Freshness check is enabled">(Freshness: %s seconds)</span>
-            #     </span>""" % (item.freshness_threshold)
-            # else:
-            #     tr2 += """</span>"""
-            #
-            # if item.active_checks_enabled:
-            #     tr2 += """
-            #     <span>
-            #         <i class="fa fa-arrow-right" title="Active checks are enabled."></i>
-            #         <i>
-            #             Last check <strong>%s</strong>,
-            #             next check in <strong>%s</strong>,
-            #             attempt <strong>%d / %d</strong>
-            #         </i>
-            #     </span>""" % (
-            #         Helper.print_duration(item.last_check, duration_only=True, x_elts=2),
-            #         Helper.print_duration(item.next_check, duration_only=True, x_elts=2),
-            #         int(item.current_attempt),
-            #         int(item.max_attempts)
-            #     )
-            # tr2 += """
-            # </div>
-            # """
-            #
-            # tr2 += """
-            #     </td>
-            # </tr>"""
-            #
-            # rows.append(tr2)
 
         collapsed = False
         if 'livestate-bi-%d' % bi in panels:
@@ -1598,7 +1630,7 @@ class Helper(object):
               <strong>
               <i class="fa fa-heartbeat"></i>
               <span class="livestate-all text-%s" data-count="#nb_problems#">
-                &nbsp;#bi-text# - #problems#.
+                &nbsp;#bi-text##problems#.
               </span>
               </strong>
 
@@ -1616,7 +1648,7 @@ class Helper(object):
                'in' if not collapsed else '')
 
         if problems_count > 0:
-            problems = _("#nb_problems# problems")
+            problems = _(" - #nb_problems# problems")
             if hosts_problems > 0 and services_problems > 0:
                 problems += _(" (hosts: #nb_hosts_problems#, services: #nb_services_problems#)")
             elif hosts_problems > 0:
@@ -1628,9 +1660,11 @@ class Helper(object):
               <thead><tr>
                 <th width="10px"></th>
                 <th width="30px"></th>
+                <th width="90px">%s</th>
                 <th width="60px">%s</th>
                 <th width="90px">%s</th>
-                <th width="30px">%s</th>
+                <th width="30px" class="hidden-xs">%s</th>
+                <th width="30px" class="hidden-xs">%s</th>
                 <th class="hidden-sm hidden-xs" width="100%%">%s</th>
               </tr></thead>
 
@@ -1638,13 +1672,12 @@ class Helper(object):
               </tbody>
             </table>
             """ % (
-                _("Host"), _("Service"), _("Duration"), _("Output")
+                _("Business impact"), _("Host"), _("Service"),
+                _("Since"), _("Last check"), _("Output")
             )
         else:
-            problems = _("no problems")
-            panel_bi += """
-            <div class="alert alert-success"><p>%s</p></div>
-            """ % (_("No problems."))
+            problems = _(" - no problems")
+            panel_bi += """<div class="alert alert-success"><p>%s</p></div>""" % (_("No problems."))
 
         panel_bi += """
               </div>
@@ -1654,11 +1687,26 @@ class Helper(object):
 
         # Update panel templating fields
         panel_bi = panel_bi.replace("#bi-id#", "%d" % (bi))
-        panel_bi = panel_bi.replace("#bi-text#",
-                                    Helper.get_html_business_impact(bi, icon=True, text=True))
+        if bi != -1:
+            panel_bi = panel_bi.replace("#bi-text#",
+                                        Helper.get_html_business_impact(bi, icon=True, text=True))
+        else:
+            panel_bi = panel_bi.replace("#bi-text#", "")
         panel_bi = panel_bi.replace("#problems#", "%s" % problems)
         panel_bi = panel_bi.replace("#nb_problems#", "%s" % problems_count)
         panel_bi = panel_bi.replace("#nb_hosts_problems#", "%s" % hosts_problems)
         panel_bi = panel_bi.replace("#nb_services_problems#", "%s" % services_problems)
 
-        return {'bi': bi, 'rows': rows, 'panel_bi': panel_bi}
+        # Update title
+        title = """<span class="fa fa-heartbeat"></span><span>&nbsp;#bi-text##problems#</span>"""
+
+        problems = _(""" (#nb_problems# <span class="fa fa-bolt"></span>)""")
+        if problems_count == 0:
+            problems = ""
+
+        title = title.replace("#bi-text#",
+                              Helper.get_html_business_impact(bi, icon=True, text=False, less=2))
+        title = title.replace("#problems#", "%s" % problems)
+        title = title.replace("#nb_problems#", "%s" % problems_count)
+
+        return {'bi': bi, 'rows': rows, 'title': title, 'panel_bi': panel_bi}

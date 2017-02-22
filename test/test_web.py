@@ -107,19 +107,13 @@ class TestLivestate(unittest2.TestCase):
     def tearDown(self):
         self.app.get('/logout')
 
-    def test_currently(self):
+    def test_livestate(self):
         """ Web - livestate """
         print('get page /livestate')
         redirected_response = self.app.get('/livestate')
         print(redirected_response)
         redirected_response.mustcontain(
-            '<div id="livestate">',
-            '<div id="livestate-bi-5"></div>',
-            '<div id="livestate-bi-4"></div>',
-            '<div id="livestate-bi-3"></div>',
-            '<div id="livestate-bi-2"></div>',
-            '<div id="livestate-bi-1"></div>',
-            '<div id="livestate-bi-0"></div>',
+            '<div id="livestate-bi--1">'
         )
 
 
