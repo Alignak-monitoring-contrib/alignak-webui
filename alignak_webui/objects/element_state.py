@@ -180,8 +180,8 @@ class ElementState(object):
             # Yes, but it is needed ;)
             # pylint: disable=too-many-locals, too-many-return-statements
             # Yes, but else it will be quite difficult :/
-            """
-            Returns an item status as HTML text and icon if needed
+
+            """Returns an item status as HTML text and icon if needed
 
             If parameters are not valid, returns 'n/a'
 
@@ -210,6 +210,7 @@ class ElementState(object):
             :return: formatted status HTML string
             :rtype: string
             """
+
             if not object_type:  # pragma: no cover, should not happen
                 return 'n/a - element'
 
@@ -242,6 +243,13 @@ class ElementState(object):
                 return 'n/a - cfg_state_view'
             # logger.debug("get_html_state, states view: %s", cfg_state_view)
 
+            # If item is acknowledged or downtimed...
+            opacity = False
+            if getattr(object_item, 'acknowledged', False):
+                opacity = True
+            if getattr(object_item, 'downtimed', False):
+                opacity = True
+
             # Text
             res_icon_state = cfg_state['icon']
             res_icon_text = cfg_state['text']
@@ -263,7 +271,7 @@ class ElementState(object):
             if extra:
                 res_extra = extra
             res_opacity = ""
-            if extra:
+            if opacity:
                 res_opacity = 'style="opacity: 0.5"'
 
             # Assembling ...
@@ -287,7 +295,7 @@ class ElementState(object):
             res_icon = res_icon.replace("##opacity##", res_opacity)
 
             if not title:
-                title = res_text
+                title = res_extra
 
             if text is None:
                 res_text = ''

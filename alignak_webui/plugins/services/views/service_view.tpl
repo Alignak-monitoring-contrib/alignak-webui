@@ -8,18 +8,21 @@
 
 <div id="service_view_information" class="col-lg-4 col-sm-4 text-center">
    {{! service.get_html_state(text=None, size="fa-5x", use_status=service.overall_status)}}
-
+   <legend><strong>{{service.alias}}</strong></legend>
    %if current_user.is_power():
       {{! Helper.get_html_commands_buttons(service, title=_('Actions'))}}
    %end
-   <div>
-      <strong>{{service.alias}}</strong>
-   </div>
    <hr/>
    <center>
-      <h4>{{_('Attached to %s') % service.host.alias}}</h4>
+      <h4>{{_('Attached to ')}} {{! host.html_state_link}}</h4>
    </center>
-   {{! host.html_state_link}}
+   %if service.state_id != 0:
+   <div>
+      %extra=''
+      {{! service.get_html_state(extra=extra, text=None, size="fa-3x")}}
+      <p>{{_('Service real state, excluding services')}}</p>
+   </div>
+   %end
 </div>
 <div id="service_view_graphes" class="col-lg-8 col-sm-8">
    <!-- Last check output -->

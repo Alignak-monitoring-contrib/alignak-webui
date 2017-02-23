@@ -73,7 +73,7 @@ import threading
 import bottle
 from bottle import run, redirect, request, response, static_file
 from bottle import template, BaseTemplate, TEMPLATE_PATH
-from bottle import RouteBuildError
+from bottle import RouteBuildError, parse_auth
 
 # Session management
 from beaker.middleware import SessionMiddleware
@@ -625,6 +625,248 @@ def ping():
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps({'status': 'ok', 'message': 'pong'})
+
+
+# --------------------------------------------------------------------------------------------------
+# WebUI routes
+# --------------------------------------------------------------------------------------------------
+# CORS decorator
+def enable_cors(fn):
+    """
+    CORS decorator
+
+    Send the CORS headers for ajax request
+    """
+    def _enable_cors(*_args, **_kwargs):
+        # set CORS headers
+        response.headers['Access-Control-Allow-Origin'] = \
+            request.app.config.get('cors_acao', 'http://127.0.0.1')
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = \
+            'Origin, Accept, Authorization, X-HTTP-Method-Override, If-Match, Content-Type'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+
+        if bottle.request.method != 'OPTIONS':
+            # actual request; reply with the actual response
+            return fn(*_args, **_kwargs)
+
+        # response.status = 204
+
+    return _enable_cors
+
+
+@app.route('/external/<widget_type>/<identifier>/<action:path>', method=['GET', 'POST', 'OPTIONS'])
+@app.route('/external/<widget_type>/<identifier>', method=['GET', 'POST', 'OPTIONS'])
+@enable_cors
+def external(widget_type, identifier, action=None):
+    # pylint: disable=too-many-return-statements, unsupported-membership-test
+    # pylint: disable=unsubscriptable-object
+    """
+    Application external identifier
+
+    Use internal authentication (if a user is logged-in) or external basic authentication provided
+    by the requiring application.
+
+    Search in the known 'widget_type' (widget or table) to find the element 'identifier'.
+
+    Use the 'links' parameter to prefix the navigation URLs.
+    """
+
+    logger.info("external...")
+    # Get the WebUI instance
+    webui = request.app.config['webui']
+
+    session = request.environ['beaker.session']
+    if 'current_user' in session:
+        current_user = session['current_user']
+
+        if not webui.user_authentication(current_user.token, None):
+            # Redirect to application login page
+            logger.warning("user in the session is not authenticated. "
+                           "Redirecting to the login page...")
+            redirect('/login')
+        credentials = current_user.token + ':'
+
+    else:
+        # Authenticate external access...
+        if 'Authorization' not in request.headers or not request.headers['Authorization']:
+            logger.warning("external application access denied")
+            response.status = 401
+            response.content_type = 'text/html'
+            return _(
+                '<div>'
+                '<h1>External access denied.</h1>'
+                '<p>To embed an Alignak WebUI widget or table, you must provide credentials.<br>'
+                'Log into the Alignak WebUI with your credentials, or make a request '
+                'with a Basic-Authentication allowing access to Alignak backend.</p>'
+                '</div>'
+            )
+
+        # Get HTTP authentication
+        authentication = request.headers.get('Authorization')
+        username, password = parse_auth(authentication)
+
+        if not webui.user_authentication(username, password):
+            logger.warning("external application access denied for %s", username)
+            response.status = 401
+            response.content_type = 'text/html'
+            return _(
+                '<div>'
+                '<h1>External access denied.</h1>'
+                '<p>The provided credentials do not grant you access to Alignak WebUI.<br>'
+                'Please provide proper credentials.</p>'
+                '</div>'
+            )
+
+        current_user = session['current_user']
+        credentials = current_user.token + ':'
+
+        # Make session data available in the templates
+        BaseTemplate.defaults['current_user'] = session['current_user']
+
+        # Make data manager available in the request and in the templates
+        request.app.datamgr = DataManager(request.environ['beaker.session'],
+                                          request.app.config.get('alignak_backend',
+                                                                 'http://127.0.0.1:5000'))
+        BaseTemplate.defaults['datamgr'] = request.app.datamgr
+
+    logger.info("External request, element type: %s", widget_type)
+
+    if widget_type not in ['files', 'widget', 'table', 'list', 'host', 'service', 'user']:
+        logger.warning("External application requested unknown type: %s", widget_type)
+        response.status = 409
+        response.content_type = 'text/html'
+        return _(
+            '<div><h1>Unknown required type: %s.</h1>'
+            '<p>The required type is unknwown</p></div>' % widget_type
+        )
+
+    if widget_type == 'files':
+        if identifier == 'js_list':
+            response.status = 200
+            response.content_type = 'application/json'
+            return json.dumps({'status': 'ok', 'files': webui.js_list})
+        elif identifier == 'css_list':
+            response.status = 200
+            response.content_type = 'application/json'
+            return json.dumps({'status': 'ok', 'files': webui.css_list})
+        else:
+            logger.warning("External application requested unknown files: %s", identifier)
+            response.status = 409
+            response.content_type = 'application/json'
+            return json.dumps({'status': 'ko', 'message': "Unknown files list: %s" % identifier})
+
+    if widget_type == 'widget':
+        found_widget = None
+        for widget in webui.get_widgets_for('external'):
+            if identifier == widget['id']:
+                found_widget = widget
+                break
+        else:
+            logger.warning("External application requested unknown widget: %s", identifier)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required widget: %s.</h1>'
+                '<p>The required widget is not available.</p></div>' % identifier
+            )
+        logger.debug("Found widget: %s", found_widget)
+
+        embedded_element = found_widget['function'](
+            embedded=True,
+            identifier=identifier, credentials=credentials
+        )
+
+        if request.params.get('page', 'no') == 'no':
+            return embedded_element
+
+        return template('external_widget', {
+            'embedded_element': embedded_element
+        })
+
+    if widget_type == 'table':
+        found_table = None
+        for table in webui.get_tables_for('external'):
+            if identifier == table['id']:
+                found_table = table
+                break
+        else:
+            logger.warning("External application requested unknown table: %s", identifier)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required table: %s.</h1>'
+                '<p>The required table is not available.</p></div>' % identifier
+            )
+        logger.info("Found table: %s", found_table)
+
+        if action and action in found_table['actions']:
+            logger.info("Required action: %s = %s", action, found_table['actions'][action])
+            return found_table['actions'][action]()
+
+        if request.params.get('page', 'no') == 'no':
+            return found_table['function'](
+                embedded=True, identifier=identifier, credentials=credentials
+            )
+
+        return template('external_table', {
+            'embedded_element': found_table['function'](
+                embedded=True, identifier=identifier, credentials=credentials
+            )
+        })
+
+    if widget_type == 'list':
+        if identifier in webui.lists:
+            return webui.lists[identifier]['function'](embedded=True)
+        else:
+            logger.warning("External application requested unknown list: %s", identifier)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required list: %s.</h1>'
+                '<p>The required list is not available.</p></div>' % identifier
+            )
+
+    if widget_type in ['host', 'service', 'user']:
+        if not action:
+            logger.warning(
+                "External application requested %s widget without widget name", widget_type
+            )
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Missing %s widget name.</h1>'
+                '<p>You must provide a widget name</p></div>' % widget_type
+            )
+
+        # Identifier is the element identifier, not the widget one !
+        found_widget = None
+        for widget in webui.get_widgets_for(widget_type):
+            if action == widget['id']:
+                found_widget = widget
+                break
+        else:
+            logger.warning("External application requested unknown widget: %s", action)
+            response.status = 409
+            response.content_type = 'text/html'
+            return _(
+                '<div><h1>Unknown required widget: %s.</h1>'
+                '<p>The required widget is not available.</p></div>' % action
+            )
+        logger.debug("Found %s widget: %s", widget_type, found_widget)
+
+        if request.params.get('page', 'no') == 'no':
+            return found_widget['function'](
+                element_id=identifier, widget_id=found_widget['id'],
+                embedded=True, identifier=identifier, credentials=credentials
+            )
+
+        return template('external_widget', {
+            'embedded_element': found_widget['function'](
+                element_id=identifier, widget_id=found_widget['id'],
+                embedded=True, identifier=identifier, credentials=credentials
+            )
+        })
 
 
 # --------------------------------------------------------------------------------------------------

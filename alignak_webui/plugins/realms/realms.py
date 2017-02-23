@@ -23,13 +23,11 @@
     Plugin Realm
 """
 
-import json
 from logging import getLogger
 
-from bottle import request, response
+from bottle import request
 
 from alignak_webui.objects.element import BackendElement
-from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 
 # pylint: disable=invalid-name
@@ -108,47 +106,3 @@ class PluginRealms(Plugin):
         )
 
         return (overall_state, overall_status)
-
-    def get_realm_members(self, element_id):
-        """
-        Get the realm hosts list
-        """
-        datamgr = request.app.datamgr
-
-        realm = datamgr.get_realm(element_id)
-        if not realm:
-            realm = datamgr.get_realm(
-                search={'max_results': 1, 'where': {'name': element_id}}
-            )
-            if not realm:
-                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
-                                                              % element_id)
-
-        # Get elements from the data manager
-        search = {
-            'where': {'_realm': realm.id}
-        }
-        hosts = datamgr.get_hosts(search)
-
-        # Get element state configuration
-        items_states = ElementState()
-
-        items = []
-        for member in hosts:
-            logger.debug("Realm member: %s", member)
-            cfg_state = items_states.get_icon_state('host', member.status)
-
-            items.append({
-                'id': member.id,
-                'type': 'host',
-                'name': member.name,
-                'alias': member.alias,
-                'status': member.status,
-                'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
-                'state': member.get_html_state(text=None, title=member.alias),
-                'url': member.get_html_link()
-            })
-
-        response.status = 200
-        response.content_type = 'application/json'
-        return json.dumps(items)

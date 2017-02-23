@@ -425,7 +425,7 @@ class TestElementStates(unittest2.TestCase):
                                                  extra='test')
         print(item_state)
         assert item_state == \
-                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user" data-item-state="" title="test"><span class="fa-stack " style="opacity: 0.5"><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % elt.id
+                         '''<div class="item-state item_user " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="user" data-item-state="" title="testtest"><span class="fa-stack " ><i class="fa fa-circle fa-stack-2x item_user"></i><i class="fa fa-user fa-stack-1x fa-inverse"></i></span><span></span></div>''' % elt.id
 
 
 class TestItems(unittest2.TestCase):

@@ -621,26 +621,25 @@ class BackendElement(object):
 
     @property
     def html_state_link(self):
-        """
-        Get Item html link with state
-        """
-        return '<a href="%s">%s</a>' % (self.endpoint, self.get_html_state(
-            text=self.alias, title=self.alias
-        ))
+
+        """Get Item html link with state"""
+
+        return '<a href="%s">%s</a>' \
+               % (self.endpoint, self.get_html_state(text=self.alias, title=self.alias))
 
     def get_html_state_link(self, prefix=None, title=None):
-        """
-        Get Item html link with state and an optional prefix
-        """
+
+        """Get Item html link with state and an optional prefix"""
+
         if prefix is not None:
-            return '<a href="%s%s">%s</a>' % (
-                prefix, self.endpoint,
-                self.get_html_state(text=self.alias, title=self.alias if not title else title)
-            )
+            return '<a href="%s%s">%s</a>' \
+                   % (prefix, self.endpoint,
+                      self.get_html_state(text=self.alias,
+                                          title=self.alias if not title else title))
         if title:
-            return '<a href="%s" title="%s">%s</a>' % (
-                self.endpoint, title, self.get_html_state(text=self.alias, title=title)
-            )
+            return '<a href="%s" title="%s">%s</a>' \
+                   % (self.endpoint, title, self.get_html_state(text=self.alias, title=title))
+
         return self.html_state_link
 
     @name.setter

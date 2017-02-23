@@ -744,7 +744,8 @@ class Helper(object):
 
     @staticmethod
     def get_html_hosts_ls_history(hs, history, collapsed=False):
-        """
+
+        """Build the HTML content for a live state history of the hosts
 
         :param hs: hosts livesynthesis as provided by the get_livesynthesis or
                    get_livesynthesis_history functions
@@ -753,6 +754,15 @@ class Helper(object):
         :param collapsed: True if the panel is collapsed
         :return:
         """
+
+        # Get configuration
+        app_config = get_app_config()
+        states = app_config.get('currently.hh_states',
+                                'up,down,unreachable,acknowledged,in_downtime')
+        states = states.split(',')
+        graph_height = int(app_config.get('currently.hh_height', '300'))
+        if not states:
+            return ""
 
         unmanaged_problems = hs['nb_problems'] - (hs['nb_acknowledged'] + hs['nb_in_downtime'])
 
@@ -775,7 +785,7 @@ class Helper(object):
         <div id="panel_ls_history_hosts" class="panel panel-default">
             <div class="panel-heading clearfix">
                 <strong>
-                    <i class="fa fa-server"></i>
+                    <span class="fa fa-server"></span>
                     <span class="hosts-all text-%s"
                             data-count="#nb_elts#"
                             data-problems="#nb_problems#">
@@ -791,10 +801,7 @@ class Helper(object):
             </div>
             <div id="p_plsh_hosts" class="panel-collapse collapse %s">
               <div class="panel-body">
-                  <!-- Chart -->
-                  <div id="line-graph-hosts">
-                     <canvas></canvas>
-                  </div>
+                  <div id="line-graph-hosts"><canvas width="100" height="%d"></canvas></div>
               </div>
             </div>
         </div>
@@ -804,10 +811,11 @@ class Helper(object):
             // Graph labels
             var labels=%s
             // Graph data
-        """ % ('success' if unmanaged_problems <= 0 else 'danger',
+        """ % ('white',
                'fa-caret-up' if collapsed else 'fa-caret-down',
                'in' if not collapsed else '',
-               json.dumps(labels))
+               graph_height, json.dumps(labels))
+
         content = content.replace("#problems#", "%s" % problems)
         content = content.replace("#nb_elts#", "%d" % hs['nb_elts'])
         content = content.replace("#nb_problems#", "%d" % hs['nb_problems'])
@@ -820,7 +828,7 @@ class Helper(object):
 
         data = {}
         # for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
-        for state in ['up', 'down', 'acknowledged', 'in_downtime']:
+        for state in states:
             data[state] = []
             for elt in history:
                 data[state].append(elt["hosts_synthesis"]["nb_" + state])
@@ -834,7 +842,7 @@ class Helper(object):
               datasets: ["""
         # do not consider unreachable hosts
         # for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
-        for state in ['up', 'down', 'acknowledged', 'in_downtime']:
+        for state in states:
             content += """
                  {
                     label: g_hosts_states["%s"]['label'],
@@ -858,6 +866,8 @@ class Helper(object):
               type: 'line',
               data: data,
               options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
                  title: {
                     display: true,
                     text: "%s"
@@ -912,13 +922,25 @@ class Helper(object):
 
     @staticmethod
     def get_html_services_ls_history(ss, history, collapsed=False):
-        """
 
+        """Build the HTML content for a live state history of the services
+
+        :param ss: services livesynthesis as provided by the get_livesynthesis or
+                   get_livesynthesis_history functions
         :param history: services livesynthesis history as provided by the
                         get_livesynthesis_history functions
         :param collapsed: True if the panel is collapsed
         :return:
         """
+
+        # Get configuration
+        app_config = get_app_config()
+        states = app_config.get('currently.sh_states',
+                                'ok,warning,critical,unknown,acknowledged,in_downtime')
+        states = states.split(',')
+        graph_height = int(app_config.get('currently.sh_height', '300'))
+        if not states:
+            return ""
 
         unmanaged_problems = ss['nb_problems'] - (ss['nb_acknowledged'] + ss['nb_in_downtime'])
 
@@ -941,7 +963,7 @@ class Helper(object):
         <div id="panel_ls_history_services" class="panel panel-default">
             <div class="panel-heading clearfix">
                 <strong>
-                    <i class="fa fa-cube"></i>
+                    <span class="fa fa-cube"></span>
                     <span class="services-all text-%s"
                             data-count="#nb_elts#"
                             data-problems="#nb_problems#">
@@ -957,10 +979,7 @@ class Helper(object):
             </div>
           <div id="p_plsh_services" class="panel-collapse collapse %s">
             <div class="panel-body">
-              <!-- Chart -->
-              <div id="line-graph-services">
-                <canvas></canvas>
-              </div>
+              <div id="line-graph-services"><canvas width="100" height="%d"></canvas></div>
             </div>
           </div>
         </div>
@@ -970,10 +989,11 @@ class Helper(object):
             // Graph labels
             var labels=%s
             // Graph data
-        """ % ('success' if unmanaged_problems <= 0 else 'danger',
+        """ % ('white',
                'fa-caret-up' if collapsed else 'fa-caret-down',
                'in' if not collapsed else '',
-               json.dumps(labels))
+               graph_height, json.dumps(labels))
+
         content = content.replace("#problems#", "%s" % problems)
         content = content.replace("#nb_elts#", "%d" % ss['nb_elts'])
         content = content.replace("#nb_problems#", "%d" % ss['nb_problems'])
@@ -987,10 +1007,7 @@ class Helper(object):
         content = content.replace("#nb_in_downtime#", "%d" % ss['nb_in_downtime'])
 
         data = {}
-        # do not consider unreachable services
-        # for state in ['ok', 'warning', 'critical', 'unreachable', 'unknown',
-        #               'acknowledged', 'in_downtime']:
-        for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+        for state in states:
             data[state] = []
             for elt in history:
                 data[state].append(elt["services_synthesis"]["nb_" + state])
@@ -1002,10 +1019,7 @@ class Helper(object):
            var data = {
               labels: labels,
               datasets: ["""
-        # do not consider unreachable services
-        # for state in ['ok', 'warning', 'critical', 'unreachable', 'unknown',
-        #               'acknowledged', 'in_downtime']:
-        for state in ['ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime']:
+        for state in states:
             content += """
                  {
                     label: g_services_states["%s"]['label'],
@@ -1029,6 +1043,8 @@ class Helper(object):
               type: 'line',
               data: data,
               options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
                  title: {
                     display: true,
                     text: "%s"
@@ -1111,14 +1127,14 @@ class Helper(object):
             content = """
             <div id="panel_percentage_hosts" class="panel panel-default">
                 <div class="panel-heading clearfix">
-                    <strong>
-                        <i class="fa fa-server"></i>
-                        <span class="hosts-all text-%s"
-                                data-count="#nb_elts#"
-                                data-problems="#nb_problems#">
-                            &nbsp; #nb_elts# hosts #problems#
-                        </span>
-                    </strong>
+                <strong>
+                    <span class="fa fa-server"></span>
+                    <span class="hosts-all text-%s"
+                            data-count="#nb_elts#"
+                            data-problems="#nb_problems#">
+                        &nbsp; #nb_elts# hosts #problems#
+                    </span>
+                </strong>
 
                     <div class="pull-right">
                         <a href="#p_ph" class="btn btn-xs btn-raised" data-toggle="collapse">
@@ -1181,7 +1197,7 @@ class Helper(object):
                   </div>
                 </div>
             </div>
-            """ % ('success' if unmanaged_problems <= 0 else 'danger',
+            """ % ('white',
                    'fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '',
                    font, _('Hosts SLA'))
@@ -1190,14 +1206,14 @@ class Helper(object):
             content = """
             <div id="panel_counters_hosts" class="panel panel-default">
                 <div class="panel-heading clearfix">
-                    <strong>
-                        <i class="fa fa-server"></i>
-                        <span class="hosts-all text-%s"
-                                data-count="#nb_elts#"
-                                data-problems="#nb_problems#">
-                            &nbsp; #nb_elts# hosts #problems#
-                        </span>
-                    </strong>
+                <strong>
+                    <span class="fa fa-server"></span>
+                    <span class="hosts-all text-%s"
+                            data-count="#nb_elts#"
+                            data-problems="#nb_problems#">
+                        &nbsp; #nb_elts# hosts #problems#
+                    </span>
+                </strong>
 
                     <div class="pull-right">
                         <a href="#p_ch" class="btn btn-xs btn-raised" data-toggle="collapse">
@@ -1242,7 +1258,7 @@ class Helper(object):
                   </div>
                 </div>
             </div>
-            """ % ('success' if unmanaged_problems <= 0 else 'danger',
+            """ % ('white',
                    'fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '')
 
@@ -1295,14 +1311,14 @@ class Helper(object):
             content = """
             <div id="panel_percentage_services" class="panel panel-default">
                 <div class="panel-heading clearfix">
-                    <strong>
-                        <i class="fa fa-cube"></i>
-                        <span class="services-all text-%s"
-                                data-count="#nb_elts#"
-                                data-problems="#nb_problems#">
-                            &nbsp; #nb_elts# services #problems#
-                        </span>
-                    </strong>
+                <strong>
+                    <span class="fa fa-cube"></span>
+                    <span class="services-all text-%s"
+                            data-count="#nb_elts#"
+                            data-problems="#nb_problems#">
+                        &nbsp; #nb_elts# services #problems#
+                    </span>
+                </strong>
 
                     <div class="pull-right">
                         <a href="#p_ps" class="btn btn-xs btn-raised" data-toggle="collapse">
@@ -1377,7 +1393,7 @@ class Helper(object):
                   </div>
                 </div>
             </div>
-            """ % ('success' if unmanaged_problems <= 0 else 'danger',
+            """ % ('white',
                    'fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '',
                    font, _('Services SLA'))
@@ -1386,14 +1402,14 @@ class Helper(object):
             content = """
             <div id="panel_counters_services" class="panel panel-default">
                 <div class="panel-heading clearfix">
-                    <strong>
-                        <i class="fa fa-cube"></i>
-                        <span class="services-all text-%s"
-                                data-count="#nb_elts#"
-                                data-problems="#nb_problems#">
-                            &nbsp; #nb_elts# services #problems#
-                        </span>
-                    </strong>
+                <strong>
+                    <span class="fa fa-cube"></span>
+                    <span class="services-all text-%s"
+                            data-count="#nb_elts#"
+                            data-problems="#nb_problems#">
+                        &nbsp; #nb_elts# services #problems#
+                    </span>
+                </strong>
 
                     <div class="pull-right">
                         <a href="#p_cs" class="btn btn-xs btn-raised" data-toggle="collapse">
@@ -1450,7 +1466,7 @@ class Helper(object):
                   </div>
                 </div>
             </div>
-            """ % ('success' if unmanaged_problems <= 0 else 'danger',
+            """ % ('white',
                    'fa-caret-up' if collapsed else 'fa-caret-down',
                    'in' if not collapsed else '')
 
@@ -1476,29 +1492,6 @@ class Helper(object):
         content = content.replace("#services_table_url#", url)
 
         return content
-
-    @staticmethod
-    def get_html_id(obj_type, name):
-        """
-        Returns an host/service/contact ... HTML identifier
-
-        If parameters are not valid, returns 'n/a'
-
-        obj_type specifies object type
-        name specifes the object name
-
-        :param obj_type: host, service, contact
-        :type obj_type: string
-        :param name: object name
-        :type name: string
-
-        :return: valid HTML identifier
-        :rtype: string
-        """
-        if not obj_type or not name:
-            return 'n/a'
-
-        return re.sub('[^A-Za-z0-9-_]', '', "%s-%s" % (obj_type, name))
 
     @staticmethod
     # pylint: disable=too-many-locals
@@ -1553,13 +1546,18 @@ class Helper(object):
         current_host = ''
         hosts_problems = -1
         services_problems = -1
+        worst_hosts_state = 0
+        worst_services_state = 0
         for item in items:
             logger.debug("get_html_livestate, item: %d / %d / %d / %s",
                          item.business_impact, item.state_id, item.last_state_changed, item)
             problems_count += 1
+
             if item.object_type == "service" and services_problems == -1:
+                worst_services_state = max(worst_services_state, item.state_id)
                 services_problems = item.get_total_count()
             if item.object_type == "host" and hosts_problems == -1:
+                worst_hosts_state = max(worst_hosts_state, item.state_id)
                 hosts_problems = item.get_total_count()
 
             host_url = ''
@@ -1604,7 +1602,7 @@ class Helper(object):
                 <td>%s</td>
                 <td class="hidden-xs">%s</td>
                 <td class="hidden-xs">%s</td>
-                <td class="hidden-sm hidden-xs">%s%s</td>
+                <td class="hidden-sm hidden-xs">%s: %s%s</td>
             </tr>""" % (
                 item.get_html_state(text=None, title=title, extra=extra),
                 Helper.get_html_commands_buttons(item, title=_("Actions")) if actions else '',
@@ -1614,6 +1612,7 @@ class Helper(object):
                 service_url,
                 Helper.print_duration(item.last_state_changed, duration_only=True, x_elts=2),
                 Helper.print_duration(item.last_check, duration_only=True, x_elts=2),
+                Helper.print_date(item.last_state_changed),
                 item.output, long_output
             )
             rows.append(tr)
@@ -1628,8 +1627,8 @@ class Helper(object):
         <div id="livestate-bi-#bi-id#" class="livestate-panel panel panel-default">
             <div class="panel-heading clearfix">
               <strong>
-              <i class="fa fa-heartbeat"></i>
-              <span class="livestate-all text-%s" data-count="#nb_problems#">
+              <span class="fa fa-heartbeat"></span>
+              <span class="livestate-all" data-count="#nb_problems#">
                 &nbsp;#bi-text##problems#.
               </span>
               </strong>
@@ -1643,29 +1642,29 @@ class Helper(object):
             </div>
             <div id="p_livestate-#bi-id#" class="panel-collapse collapse %s">
               <div class="panel-body">
-        """ % ('success' if problems_count == 0 else 'danger',
-               'fa-caret-up' if collapsed else 'fa-caret-down',
+        """ % ('fa-caret-up' if collapsed else 'fa-caret-down',
                'in' if not collapsed else '')
 
         if problems_count > 0:
-            problems = _(" - #nb_problems# problems")
+            problems = _(" #nb_problems# problems")
             if hosts_problems > 0 and services_problems > 0:
-                problems += _(" (hosts: #nb_hosts_problems#, services: #nb_services_problems#)")
+                problems += _(" (hosts: #nb_hosts_problems# #alert_hosts_problems#, "
+                              "services: #nb_services_problems# #alert_services_problems#)")
             elif hosts_problems > 0:
-                problems += _(" (hosts: #nb_hosts_problems#)")
+                problems += _(" (hosts: #nb_hosts_problems# #alert_hosts_problems#)")
             elif services_problems > 0:
-                problems += _(" (services: #nb_services_problems#)")
+                problems += _(" (services: #nb_services_problems# #alert_services_problems#)")
             panel_bi += """
             <table class="table table-invisible table-condensed" data-business-impact="#bi-id#" >
               <thead><tr>
-                <th width="10px"></th>
-                <th width="30px"></th>
-                <th width="90px">%s</th>
-                <th width="60px">%s</th>
-                <th width="90px">%s</th>
-                <th width="30px" class="hidden-xs">%s</th>
-                <th width="30px" class="hidden-xs">%s</th>
-                <th class="hidden-sm hidden-xs" width="100%%">%s</th>
+                <th></th>
+                <th></th>
+                <th>%s</th>
+                <th>%s</th>
+                <th>%s</th>
+                <th class="hidden-xs">%s</th>
+                <th class="hidden-xs">%s</th>
+                <th class="hidden-sm hidden-xs" >%s</th>
               </tr></thead>
 
               <tbody>
@@ -1696,6 +1695,12 @@ class Helper(object):
         panel_bi = panel_bi.replace("#nb_problems#", "%s" % problems_count)
         panel_bi = panel_bi.replace("#nb_hosts_problems#", "%s" % hosts_problems)
         panel_bi = panel_bi.replace("#nb_services_problems#", "%s" % services_problems)
+
+        alert_hosts_problems = '<span class="fa fa-bolt"></span>' * worst_hosts_state
+        alert_services_problems = '<span class="fa fa-bolt"></span>' * worst_services_state
+
+        panel_bi = panel_bi.replace("#alert_hosts_problems#", "%s" % alert_hosts_problems)
+        panel_bi = panel_bi.replace("#alert_services_problems#", "%s" % alert_services_problems)
 
         # Update title
         title = """<span class="fa fa-heartbeat"></span><span>&nbsp;#bi-text##problems#</span>"""

@@ -95,7 +95,6 @@ def teardown_module(module):
     time.sleep(2)
 
 
-@unittest2.skip("not currently restored...")
 class TestsExternal(unittest2.TestCase):
 
     def setUp(self):
@@ -320,7 +319,7 @@ class TestsExternal(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
+        redirected_response.mustcontain('<div id="livestate">')
 
         session = redirected_response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
@@ -527,7 +526,7 @@ class TestsExternal(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
+        redirected_response.mustcontain('<div id="livestate">')
 
         session = redirected_response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
@@ -543,7 +542,7 @@ class TestsExternal(unittest2.TestCase):
         print("Host: %s" % host)
         service = datamgr.get_service({'where': {'name': 'Load', 'host': host.id}})
         print("Service: %s" % service)
-        assert False
+        # assert False
 
         # Get external service widget - no widget identifier
         self.app.authorization = ('Basic', ('admin', 'admin'))
@@ -656,7 +655,7 @@ class TestsExternal(unittest2.TestCase):
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
+        redirected_response.mustcontain('<div id="livestate">')
 
         session = redirected_response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
@@ -717,7 +716,6 @@ class TestsExternal(unittest2.TestCase):
         )
 
 
-@unittest2.skip("not currently restored...")
 class TestAllWidgets(unittest2.TestCase):
 
     def setUp(self):
@@ -772,7 +770,6 @@ class TestAllWidgets(unittest2.TestCase):
         )
 
 
-@unittest2.skip("not currently restored...")
 class TestExternalFiles(unittest2.TestCase):
 
     def setUp(self):
@@ -851,8 +848,8 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/css/font-awesome.min.css",
             "/static/css/typeahead.css",
             "/static/css/daterangepicker.css",
-            "/static/css/alertify.min.css",
-            "/static/css/alertify.bootstrap.min.css",
+            "/static/css/alertify/alertify.min.css",
+            "/static/css/alertify/bootstrap.min.css",
             "/static/css/timeline.css",
             "/static/css/font-roboto.css",
             "/static/css/material-icons.css",

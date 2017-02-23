@@ -23,7 +23,7 @@ var refresh_delay_after_action=1000;
 var alert_info_delay=2;
 var alert_success_delay=3;
 var alert_warning_delay=5;
-var alert_error_delay=0;
+var alert_error_delay=10;
 
 /**
  * Get current user preference value:
@@ -161,19 +161,27 @@ function wait_message(text, show) {
  * Message raise part
  */
 function raise_message_info(text){
-   alertify.message(text, alert_info_delay);
+    alertify.message(text, alert_info_delay, function(){
+        console.log('Info:', text);
+    });
 }
 
 function raise_message_ok(text){
-   alertify.success(text, alert_success_delay);
+    alertify.success(text, alert_success_delay, function(){
+        console.log('Success:', text);
+    });
 }
 
 function raise_message_warning(text){
-   alertify.warning(text, alert_warning_delay);
+    alertify.warning(text, alert_warning_delay, function(){
+        console.log('Warning:', text);
+    });
 }
 
 function raise_message_ko(text){
-   alertify.error(text, alert_error_delay);
+    alertify.error(text, alert_error_delay, function(){
+        console.log('Error:', text);
+    });
 }
 
 

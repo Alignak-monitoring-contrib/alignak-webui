@@ -94,7 +94,7 @@
     %end
 
     <script type="text/javascript">
-        var debug_logs = true;
+        var debug_logs = false;
         
         // Function called on each page refresh ... update elements!
         function on_page_refresh(forced) {
