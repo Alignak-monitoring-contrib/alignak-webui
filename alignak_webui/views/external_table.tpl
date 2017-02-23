@@ -1,5 +1,4 @@
 %from bottle import request
-%from alignak_webui import _
 
 %#Set default values
 %setdefault('debug', False)
