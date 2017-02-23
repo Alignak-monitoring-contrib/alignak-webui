@@ -501,15 +501,16 @@ class Plugin(object):
 
         tree_items = []
         for item in elts:
+            logger.info("Tree item: %s", item)
             overall_status = 'unknown'
             if f_get_overall_state:
                 (dummy, overall_status) = f_get_overall_state(element=item)
+            logger.debug("Item status: %s", overall_status)
 
             cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_status)
             logger.debug("Item state: %s", cfg_state)
             if not cfg_state:
                 cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
-            # icon = cfg_state['icon']
 
             parent = '#'
             if item._parent and not isinstance(item._parent, basestring):

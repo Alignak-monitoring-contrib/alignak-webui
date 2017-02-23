@@ -264,11 +264,12 @@ From Python to javascript, main javascript variables are declared in layout.tpl 
 Application UI design
 ---------------------
 
-The application User Interface design is based upon Google Material Design served by the Bootstrap Material Design project (https://github.com/FezVrasta/bootstrap-material-design).
+The application User Interface design is based upon Google Material Design served by the Bootstrap Material Design project (https://github.com/FezVrasta/bootstrap-material-design). This project has been forked in the Alignak monitoring contrib organization on our github to make some modifications for the Web UI layout.
 
 The default CSS can be changed and rebuilt from the project LESS files.
 
 On a Linux Ubuntu:
+::
 
     sudo apt-get install nodejs-legacy
     sudo apt-get install npm
@@ -277,7 +278,7 @@ On a Linux Ubuntu:
     sudo npm install bower -g
     sudo npm install -g grunt-cli
 
-    git clone https://github.com/FezVrasta/bootstrap-material-design
+    git clone https://github.com/Alignak-monitoring-contrib/bootstrap-material-design
     cd bootstrap-material-design/
     npm install && bower install
 
@@ -288,6 +289,5 @@ On a Linux Ubuntu:
     grunt cssmin    # Minify CSS files in dist/css
 
 
-Once the new CSS files are built copy the content of the dist/css directory into the
-static/css/material directory of the WebUI.
+Once the new CSS files are built copy the content of the *dist/css* directory into the *static/css/material* directory of the WebUI repository. The content of the *dist/js* must also be copied to the *static/js/material* directory of the WebUI repository.
 

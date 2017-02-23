@@ -1962,7 +1962,7 @@ class DataManager(object):
 
         Returns -1 if any problem
         """
-        logger.info("get_realm_members, search: %s", search)
+        logger.debug("get_realm_members, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
             if not realm:
@@ -1977,7 +1977,7 @@ class DataManager(object):
 
         Returns -1 if any problem
         """
-        logger.info("get_realm_children, search: %s", search)
+        logger.debug("get_realm_children, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
             if not realm:
@@ -1993,7 +1993,7 @@ class DataManager(object):
 
         Returns -1 if any problem
         """
-        logger.info("get_realm_overall_state, search: %s", search)
+        logger.debug("get_realm_overall_state, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
             if not realm:
@@ -2005,14 +2005,19 @@ class DataManager(object):
         # Realm real state from hosts
         hosts = self.get_realm_members(realm)
         for member in hosts:
+            logger.debug("get_realm_overall_state, member: %s, state: %s",
+                         member.name, member.overall_state)
             overall_state = max(overall_state, member.overall_state)
 
         # Realm real state from sub-realms
         subs = self.get_realm_children(realm)
         for realm in subs:
             (ov_state, dummy) = self.get_realm_overall_state(realm)
+            logger.debug("get_realm_overall_state, child: %s, state: %s",
+                         realm.name, ov_state)
             overall_state = max(overall_state, ov_state)
 
+        logger.debug("get_realm_overall_state, state: %s", overall_state)
         overall_status = Realm.overall_state_to_status[overall_state]
         return (overall_state, overall_status)
 

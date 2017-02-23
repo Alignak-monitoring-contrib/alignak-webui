@@ -55,8 +55,8 @@ class ColorStreamHandler(StreamHandler):
     def emit(self, record):
         try:
             msg = self.format(record)
-            colors = {'DEBUG': 'cyan', 'INFO': 'green', 'WARNING': 'yellow',
-                      'CRITICAL': 'magenta', 'ERROR': 'red'}
+            colors = {'DEBUG': 'cyan', 'INFO': 'blue', 'WARNING': 'magenta', 'ERROR': 'red',
+                      'CRITICAL': 'red'}
             cprint(msg, colors[record.levelname])
         except UnicodeEncodeError:
             print(msg.encode('ascii', 'ignore'))

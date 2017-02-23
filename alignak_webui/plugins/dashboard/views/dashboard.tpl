@@ -9,9 +9,11 @@
 
 <style type="text/css">
     .grid-stack {
+        background-color: transparent;
     }
 
     .grid-stack-item-content {
+        background-color: transparent;
     }
 </style>
 
@@ -185,7 +187,7 @@
             $('#propose-widgets').hide();
 
             // Loading indicator ...
-            wait_message('{{_('Loading dashboard widgets...')}}', true)
+            // wait_message('{{_('Loading dashboard widgets...')}}', true)
 
             nb_widgets_loading = 0;
         %end
@@ -210,6 +212,7 @@
 
             if (dashboard_logs) console.log("Widget: ", {{! json.dumps(widget)}})
             if (dashboard_logs) console.log("Load: {{widget['uri']}} for {{widget['id']}}")
+            raise_message_info("{{_('Loading widget: %s' % widget['name'])}}");
             $("#{{widget['id']}} div.grid-stack-item-content").load(
                 "{{widget['uri']}}",
                 {
@@ -233,6 +236,8 @@
 
                     if (status == "error") {
                         raise_message_ko("{{_('Error when loading a widget: %s' % widget['name'])}}");
+                    } else {
+                        raise_message_ok("{{_('Loaded widget: %s' % widget['name'])}}");
                     }
                 }
             );

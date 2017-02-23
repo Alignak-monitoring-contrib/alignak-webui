@@ -21,9 +21,16 @@
          {{! Helper.get_html_commands_buttons(host, title=_('Actions'))}}
       %end
    </div>
-   %if host_state != 0:
+   %if host.state_id != 0:
    <div>
-      {{! host.get_html_state(text=None, size="fa-3x")}}
+      %extra=''
+      %if host.acknowledged:
+      %extra += _(' and acknowledged')
+      %end
+      %if host.downtimed:
+      %extra += _(' and in scheduled downtime')
+      %end
+      {{! host.get_html_state(extra=extra, text=None, size="fa-3x")}}
       <p>{{_('Host real state, excluding services')}}</p>
    </div>
    %end

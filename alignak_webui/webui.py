@@ -528,8 +528,8 @@ class WebUI(object):
             "/static/css/font-awesome.min.css",
             "/static/css/typeahead.css",
             "/static/css/daterangepicker.css",
-            "/static/css/alertify.min.css",
-            "/static/css/alertify.bootstrap.min.css",
+            "/static/css/alertify/alertify.min.css",
+            "/static/css/alertify/bootstrap.min.css",
             "/static/css/timeline.css"
         ]
 

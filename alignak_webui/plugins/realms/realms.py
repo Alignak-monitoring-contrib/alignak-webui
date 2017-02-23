@@ -145,7 +145,8 @@ class PluginRealms(Plugin):
                 'alias': member.alias,
                 'status': member.status,
                 'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
-                'state': member.get_html_state(text=None, title=member.alias),
+                'state': member.get_html_state(text=None, title=member.alias,
+                                               use_status=member.overall_status),
                 'url': member.get_html_link()
             })
 

@@ -31,6 +31,8 @@ var ping_period = 0;
 var refresh_required=false;
 // Refresh suspended
 var refresh_suspended=false;
+// Refresh failed count
+var refresh_failed_count = 0
 
 
 if (refresh_logs) console.debug("Refresh period is :", refresh_timeout);
@@ -295,9 +297,10 @@ function start_refresh() {
 }
 
 
-function postpone_refresh(){
+function postpone_refresh() {
    // If we are not in our first try, warn the user
-   if (nb_refresh_try > 0){
+   if (nb_refresh_try > 0) {
+      refresh_failed_count += 1;
       raise_message_ko("The Web UI backend is not available");
    }
    nb_refresh_try += 1;
