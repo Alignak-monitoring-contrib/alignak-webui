@@ -139,6 +139,19 @@ header span.label {
     margin-right: 0 !important;
 }
 
+.navbar-nav {
+    margin: 0 !important;
+}
+
+.navbar .navbar-brand {
+    height: 50px;
+}
+
+.navbar .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
 /*
  * Application menu bar - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.
