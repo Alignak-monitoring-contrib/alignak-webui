@@ -2729,6 +2729,9 @@ fieldset[disabled] .navbar .btn-link:focus {
   color: rgba(255,255,255, 0.84);
   border: 0;
 }
+[class*="panel-"] > .panel-heading > .panel-title a:hover {
+  color: rgba(0,0,0, 0.87);
+}
 /*
 .panel-default, .panel:not([class*="panel-"]) {
   > .panel-heading {
