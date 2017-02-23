@@ -3,7 +3,7 @@
 
 <script>
     // Set true to activate javascript console logs
-    var debugMaps = true;
+    var debugMaps = false;
     if (debugMaps && !window.console) {
           alert('Your web browser does not have any console object ... you should stop using IE ;-) !');
     }
