@@ -38,75 +38,75 @@ var log_layout=false;
  */
 var g_hosts_states = {
    'up': {
-      'color': 'rgba(39, 174, 96, 1)',
-      'background': 'rgba(39, 174, 96, 0.2)',
+      'color': '#27ae60',
+      'background': '#669999',
       'label': 'Up'
    },
    'unreachable': {
-      'color': 'rgba(155, 89, 182, 1)',
-      'background': 'rgba(155, 89, 182, 0.2)',
+      'color': '#9b59b6',
+      'background': '#669999',
       'label': 'Unreachable'
    },
    'down': {
-      'color': 'rgba(231, 76, 60, 1)',
-      'background': 'rgba(231, 76, 60, 0.2)',
+      'color': '#e74c3c',
+      'background': '#669999',
       'label': 'Down'
    },
    'unknown': {
-      'color': 'rgba(41, 128, 185, 1)',
-      'background': 'rgba(41, 128, 185, 0.2)',
+      'color': '#2980b9',
+      'background': '#669999',
       'label': 'Unknown'
    },
    'acknowledged': {
-      'color': 'rgba(149, 165, 166, 1)',
-      'background': 'rgba(149, 165, 166, 0.2)',
-      'label': 'Ack'
+      'color': '#f39c12',
+      'background': '#669999',
+      'label': 'Acknowledged'
    },
    'in_downtime': {
-      'color': 'rgba(95, 140, 163, 1)',
-      'background': 'rgba(149, 165, 166, 0.2)',
+      'color': '#f1c40f',
+      'background': '#669999',
       'label': 'Downtime'
    }
 };
 var g_services_states = {
    'ok': {
-      'color': 'rgba(39, 174, 96, 1)',
-      'background': 'rgba(39, 174, 96, 0.2)',
+      'color': '#27ae60',
+      'background': '#669999',
       'label': 'Ok'
    },
    'warning': {
-      'color': 'rgba(230, 126, 34, 1)',
-      'background': 'rgba(230, 126, 34, 0.2)',
+      'color': '#e67e22',
+      'background': '#669999',
       'label': 'Warning'
    },
    'critical': {
-      'color': 'rgba(231, 76, 60, 1)',
-      'background': 'rgba(231, 76, 60, 0.2)',
+      'color': '#e74c3c',
+      'background': '#669999',
       'label': 'Critical'
    },
    'unknown': {
-      'color': 'rgba(41, 128, 185, 1)',
-      'background': 'rgba(41, 128, 185, 0.2)',
+      'color': '#2980b9',
+      'background': '#669999',
       'label': 'Unknown'
    },
    'unreachable': {
-      'color': 'rgba(155, 89, 182, 1)',
-      'background': 'rgba(155, 89, 182, 0.2)',
+      'color': '#9b59b6',
+      'background': '#669999',
       'label': 'Unreachable'
    },
    'acknowledged': {
-      'color': 'rgba(149, 165, 166, 1)',
-      'background': 'rgba(149, 165, 166, 0.2)',
-      'label': 'Ack'
+      'color': '#f39c12',
+      'background': '#669999',
+      'label': 'Acknowledged'
    },
    'in_downtime': {
-      'color': 'rgba(95, 140, 163, 1)',
-      'background': 'rgba(149, 165, 166, 0.2)',
+      'color': '#f1c40f',
+      'background': '#669999',
       'label': 'Downtime'
    }
 };
-var g_hoverBackgroundColor = "rgba(255,99,132,0.4)";
-var g_hoverBorderColor = "rgba(255,99,132,1)";
+var g_hoverBackgroundColor = "#669999";
+var g_hoverBorderColor = "#669999";
 
 /*
  * Play alerting sound ...

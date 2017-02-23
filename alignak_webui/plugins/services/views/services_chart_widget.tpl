@@ -30,7 +30,7 @@
          labels.push(g_services_states["{{state.lower()}}"]['label']);
          data.push({{ss["nb_" + state]}});
          colors.push(g_services_states["{{state.lower()}}"]['color'])
-         hover_colors.push(g_hoverBackgroundColor)
+         hover_colors.push(g_services_states["{{state.lower()}}"]['background'])
       %end
       var data = {
          labels: labels,
@@ -49,6 +49,8 @@
          type: 'doughnut',
          data: data,
          options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                display: true,
                text: '{{title}}'

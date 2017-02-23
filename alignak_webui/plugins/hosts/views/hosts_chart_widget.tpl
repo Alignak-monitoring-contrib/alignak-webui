@@ -30,7 +30,7 @@
          labels.push(g_hosts_states["{{state}}"]['label']);
          data.push({{hs["nb_" + state]}});
          colors.push(g_hosts_states["{{state}}"]['color'])
-         hover_colors.push(g_hoverBackgroundColor)
+         hover_colors.push(g_hosts_states["{{state}}"]['background'])
       %end
       var data = {
          labels: labels,
@@ -49,6 +49,8 @@
          type: 'doughnut',
          data: data,
          options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                display: true,
                text: '{{title}}'
