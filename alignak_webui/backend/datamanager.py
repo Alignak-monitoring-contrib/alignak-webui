@@ -1552,7 +1552,8 @@ class DataManager(object):
         """
         Services synthesis by status
         """
-        if elts:
+        logger.debug("get_services_synthesis, %d elements", len(elts))
+        if elts is not None:
             services = [item for item in elts if item.get_type() == 'service']
         else:
             services = self.get_services()

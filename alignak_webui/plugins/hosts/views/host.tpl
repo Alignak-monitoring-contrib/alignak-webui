@@ -302,32 +302,26 @@
    <!-- Fourth row : services synthesis ... -->
    <div class="panel panel-default">
      <div class="panel-body">
-       <table class="table table-invisible">
-         <tbody>
-           <tr>
-             <td>
-               <a role="menuitem" href="/services/table?search=host:{{host.id}}">
-                  <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
-               </a>
-             </td>
+       <table class="table table-invisible table-condensed"><tbody><tr>
+          <td><a role="menuitem" href="/services/table?search=host:{{host.id}}">
+               <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
+          </a></td>
 
-             %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
-             <td>
-               %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/services/table?search=ls_state:{{state.upper()}}">
-               %end
+          %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
+          <td>
+            %if synthesis['nb_' + state]>0:
+            <a role="menuitem" href="/services/table?search=ls_state:{{state.upper()}}">
+            %end
 
-               %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-               {{! Service({'ls_state': state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
+            %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
+            {{! Service({'ls_state': state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
 
-               %if synthesis['nb_' + state]>0:
-               </a>
-               %end
-             </td>
-             %end
-           </tr>
-         </tbody>
-       </table>
+            %if synthesis['nb_' + state]>0:
+            </a>
+            %end
+          </td>
+          %end
+       </tr></tbody></table>
      </div>
    </div>
 
