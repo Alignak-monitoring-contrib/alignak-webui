@@ -48,7 +48,7 @@
             <div class="login-panel panel panel-default" style="padding: 2vh;">
                <div class="panel-heading">
                   <h2>{{request.app.config.get('about_name', __manifest__['name'])}}</h2>
-                  <h3><small>{{_('Version ')}}{{request.app.config.get('about_version', __manifest__['version'])}}</small></h3>
+                  <h3>{{_('Version ')}}{{request.app.config.get('about_version', __manifest__['version'])}}</h3>
                   <center>
                      <img src="{{app_logo}}" alt="{{_('Alignak WebUI Logo')}}" style="width: 90%"/>
                   </center>
