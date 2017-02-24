@@ -352,9 +352,9 @@
             });
             markerCluster.addLayers(allMarkers_{{mapId}});
             map_{{mapId}}.addLayer(markerCluster);
-
-            return true
         });
+
+        return true;
     };
 
     //<!-- Ok go initialize the map with all elements when it's loaded -->
