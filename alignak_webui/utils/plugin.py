@@ -395,7 +395,7 @@ class Plugin(object):
                                param, self.plugin_config[param])
                 continue
 
-            # Manage plugin table configuration
+            # Manage plugin table configuration
             if len(p) < 3:
                 # Table global configuration [self.table]
                 logger.debug("table global configuration: %s = %s",

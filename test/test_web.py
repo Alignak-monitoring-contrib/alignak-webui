@@ -293,10 +293,24 @@ class TestRealms(unittest2.TestCase):
 
         print('get page /realm')
         response = self.app.get('/realm/%s' % self.realm_id)
-        print(response)
         response.mustcontain(
             '<div class="realm" id="realm-%s">' % self.realm_id
         )
+
+        print('get page /realm/members')
+        response = self.app.get('/realm/members/%s' % self.realm_id)
+        # print(response)
+        print(response.json)
+        for item in response.json:
+            print(item)
+            assert "id" in item
+            assert "name" in item
+            assert "type" in item
+            assert item['type'] == "host"
+            assert "icon" in item
+            assert "alias" in item
+            assert "state" in item
+            assert "status" in item
 
 
 class TestHostgroups(unittest2.TestCase):
