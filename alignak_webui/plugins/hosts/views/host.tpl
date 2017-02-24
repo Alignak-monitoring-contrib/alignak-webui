@@ -302,7 +302,7 @@
    <!-- Fourth row : services synthesis ... -->
    <div class="panel panel-default">
      <div class="panel-body">
-       <table class="table table-invisible table-condensed"><tbody><tr>
+       <table class="table table-invisible table-condensed" style="margin-bottom: 0px;"><tbody><tr>
           <td><a role="menuitem" href="/services/table?search=host:{{host.id}}">
                <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
           </a></td>
