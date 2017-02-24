@@ -9,9 +9,6 @@
 %from alignak_webui.objects.item_host import Host
 %from alignak_webui.utils.metrics import HostMetrics
 %metrics = HostMetrics(host, services, plugin_parameters, host.tags)
-%services_states = metrics.get_overall_state()
-%host_name, host_state = services_states[0]
-%services_states = services_states[1:]
 
 <div id="host_view_left" class="col-lg-4 col-sm-4 text-center">
    <div>
