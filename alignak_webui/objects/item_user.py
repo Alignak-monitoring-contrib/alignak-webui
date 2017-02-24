@@ -143,6 +143,11 @@ class User(BackendElement):
         """ Return linked object """
         return self._linked_service_notification_commands
 
+    @property
+    def business_impact(self):
+        """ Return minimum business impact """
+        return self.min_business_impact
+
     def get_username(self):
         """
         Get the user username (for login).

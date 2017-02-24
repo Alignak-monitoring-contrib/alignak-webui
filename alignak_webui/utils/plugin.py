@@ -74,10 +74,13 @@ class Plugin(object):
         self.tables = {}
         self.lists = {}
 
+        self.enabled = False
         self.configuration_loaded = self.load_config(initialization=True)
-        if self.configuration_loaded and self.plugin_parameters.get('enabled', 'True') != 'True':
-            logger.warning("Plugin %s is installed but disabled.", self.name)
-            return
+        if self.configuration_loaded:
+            self.enabled = self.plugin_parameters.get('enabled', True)
+            if not self.enabled:
+                logger.warning("Plugin %s is installed but disabled.", self.name)
+                return
 
         self.load_routes(app)
         logger.info("Plugin %s is installed and enabled.", self.name)
@@ -354,39 +357,62 @@ class Plugin(object):
         logger.debug("Read plugin configuration file: %s", cfg_filenames)
 
         # Read configuration file
-        self.plugin_parameters = Settings(cfg_filenames)
-        config_file = self.plugin_parameters.read(self.name)
+        self.plugin_config = Settings(cfg_filenames)
+        config_file = self.plugin_config.read(self.name)
         logger.debug("Plugin configuration read from: %s", config_file)
-        if not self.plugin_parameters:
+        if not self.plugin_config:
             if initialization:
                 return False
             response.status = 204
             response.content_type = 'application/json'
             return json.dumps({'error': 'No configuration found'})
 
-        self.table = OrderedDict()
-        for param in self.plugin_parameters:
+        self.plugin_parameters = OrderedDict()
+        self.plugin_parameters['table'] = OrderedDict()
+        self.table = self.plugin_parameters['table']
+        for param in self.plugin_config:
+            logger.debug("plugin configuration: %s = %s", param, self.plugin_config[param])
+
             p = param.split('.')
             if p[0] not in ['table']:
+                if len(p) < 2:
+                    self.plugin_parameters[p[0]] = self.plugin_config[param]
+                    continue
+                if len(p) < 3:
+                    if p[0] not in self.plugin_parameters:
+                        self.plugin_parameters[p[0]] = {}
+                    self.plugin_parameters[p[0]][p[1]] = self.plugin_config[param]
+                    continue
+                if len(p) < 4:
+                    if p[0] not in self.plugin_parameters:
+                        self.plugin_parameters[p[0]] = {}
+                    if p[1] not in self.plugin_parameters[p[0]]:
+                        self.plugin_parameters[p[0]][p[1]] = {}
+                    self.plugin_parameters[p[0]][p[1]][p[2]] = self.plugin_config[param]
+                    continue
+
+                logger.warning("plugin configuration, unmanaged configuration parameter: %s = %s",
+                               param, self.plugin_config[param])
                 continue
+
+            # Manage plugin table configuration
             if len(p) < 3:
                 # Table global configuration [self.table]
                 logger.debug("table global configuration: %s = %s",
-                             param, self.plugin_parameters[param])
+                             param, self.plugin_config[param])
                 if '_table' not in self.table:
                     self.table['_table'] = {}
-                self.table['_table'][p[1]] = self.plugin_parameters[param]
+                self.table['_table'][p[1]] = self.plugin_config[param]
                 continue
 
             # Table field configuration [self.table.field]
             if p[1] not in self.table:
                 self.table[p[1]] = {}
-            self.table[p[1]][p[2]] = self.plugin_parameters[param]
-            logger.debug("table field configuration: %s = %s",
-                         param, self.plugin_parameters[param])
+            self.table[p[1]][p[2]] = self.plugin_config[param]
 
         if initialization:
             return True
+
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(self.plugin_parameters)

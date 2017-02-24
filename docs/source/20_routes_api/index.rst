@@ -29,6 +29,7 @@ Each plugin defines routes that are added to the application routes when the plu
 Most plugins are dedicated to a specific backend element (eg. host, service, ...). For those plugins, some rules, implemented in the Plugin class, are commonly used for the routes:
 
     - /elements, get the paginated elements list
+    - /elements/config, reload the element configuration file (if it exists)
     - /elements/tree, get the element tree view (for some elements)
     - /elements/table, get the element table view
     - /elements/table_data, get the element table data (called by the datatable)
@@ -41,6 +42,14 @@ Get elements page
 ~~~~~~~~~~~~~~~~~
 
 Most of the elements plugins provide a paginated view of the elements. Those views are not often used in the Web UI ... except when they are included in some mode complex views (eg. host view for the services)
+
+
+Reload element configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most of the plugins have a configuration file used to define their table structure. Reloading the configuration file dedicated to an element is as easy as::
+
+    /element/config
 
 
 Get element page

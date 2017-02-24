@@ -13,10 +13,9 @@ The application loads **plugins**...
 
 Plugin structure
 ----------------
-A plugin is a sub-directory in the application *plugins* directory (eg *plugin*) which  must
-contain a Python file named *plugin.py* that is imported by the application as a Python module.
+A plugin is a sub-directory in the application *plugins* directory (eg. *plugin*) which must contain a Python file named *plugin.py* that is imported by the application as a Python module.
 
-All directories that do not match this requirement are ignored by the application.
+All directories in the application *plugins* directory that do not match this requirement are ignored by the application.
 
 The *plugin.py* file must declare a global class inherited from the application Plugin class::
 
@@ -75,11 +74,18 @@ The configuration file is built like an Ini file parsed thank to Python ConfigPa
 
         [timeperiods]
         ; Plugin global configuration
-        enabled=False
-        ; A parameter in a section named like the plugin is seen as parameter:
-        ; timeperiods.enabled is: enabled
-        ; else the parameter is section.parameter
+        ;enabled=False
 
+        ; A parameter in a section named like the plugin is seen as a direct parameter:
+        ; timeperiods.variable is available as: self.plugin_parameters['variable']
+
+        [test]
+        variable2=2
+        ; A parameter in another section is seen as a dict parameter:
+        ; test.variable2 is available as: self.plugin_parameters['test']['variable2']
+
+        ; The table and table. sections are specific:
+        ; test.variable2 is available as: self.plugin_parameters['test']['variable2']
         [table]
         ; Table global configuration
         page_title=Timeperiods table (%d items)
@@ -100,6 +106,8 @@ The configuration file is built like an Ini file parsed thank to Python ConfigPa
         editable=True
         hint=This field is the time period name
 
+
+Once parsed, the configuration file will make available an ordered dictionary in the plugin class: ``self.plugin_parameters``. The ``self.plugin_parameters['table']``, also aliased as ``self.table``, contains the table structure. Using the *element/config* route with a Web browser will output Json formatted data with the parameters.
 
 
 Plugin routes
