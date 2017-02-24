@@ -40,25 +40,58 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
     Host metrics functions
     """
     def __init__(self, host, services, params, tags=None):
+        """Manage host known metrics
+
+        If the plugin parameters contain some information about the host tags, build
+        a list of those information to get used for displaying some information graphs.
+
+        An host with the tags: important,linux-nrpe will be searched for plugin parameters
+        related with important and linux-nrpe
+
+        If parameters are defined as:
+
+            [linux-nrpe.host_check]
+            name=host_check
+            type=bar
+            metrics=^rta$
+            uom=
+
+            [linux-nrpe.load]
+            name=Load
+            type=horizontalBar
+            metrics=^load_1_min|load_5_min|load_15_min$
+            uom=
+
+        they will match with the host services to display some graphs.
+
         """
-        """
+
+        logger.debug("HostMetrics, host: %s, services: %s, params: %s, tags: %s",
+                     host, services, params, tags)
         # Default values
         self.params = {}
         self.tags = []
         if tags:
             self.tags = tags
+
+        self.services_names = [s.name for s in services]
         for param in params:
+            logger.debug("HostMetrics, param: %s", param)
             p = param.split('.')
+            if len(p) != 3:
+                continue
+
             if p[0] not in self.tags:
+                continue
+            if p[1] not in self.services_names:
                 continue
             if p[2] not in ['name', 'type', 'metrics', 'uom']:
                 continue
 
-            logger.debug("metrics, service match: %s=%s", param, params[param])
-            service = p[1]
-            if service not in self.params:
-                self.params[service] = {}
-            self.params[service][p[2]] = params[param]
+            logger.info("metrics, service match: %s=%s", param, params[param])
+            if p[1] not in self.params:
+                self.params[p[1]] = {}
+            self.params[p[1]][p[2]] = params[param]
         logger.debug("metrics, services match configuration: %s", self.params)
 
         self.host = host
@@ -151,47 +184,3 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
 
         logger.debug("metrics, get_service_metric %s", data)
         return state, name, same_min, same_max, warning, critical, data
-
-    def get_overall_state(self):
-        """
-        Get the host and its services global state
-
-        Returns a list of tuples with first tuple as the host state:
-        [
-            (hostname, host global state),
-            (service name, service state),
-            ...
-        ]
-
-        The state is an integer:
-        - 0: OK/UP
-        - 1: WARNING/DOWN
-        - 2: CRITICAL/UNREACHABLE
-        - 3: UNKNOWN
-        - 4: ACK
-        - 5: DOWNTIME
-
-        The returned host state in the first list element is the worst state of the host state and
-        all the host services state.
-        """
-        data = []
-        state = self.host.state_id
-        if self.host.acknowledged:
-            state = 4
-        if self.host.downtime:
-            state = 5
-
-        # Get host's services list
-        for s in self.services or []:
-            s_state = s.state_id
-            if s.acknowledged:
-                s_state = 4
-            if s.downtime:
-                s_state = 5
-
-            data.append((s.name, s_state))
-            state = max(state, s_state)
-
-        data = [(self.host.name, state)] + data
-        logger.debug("metrics, get_services %d, %s", state, data)
-        return data
