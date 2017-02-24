@@ -1,74 +1,52 @@
 %setdefault('ls', None)
 
 <style>
-#problems-synthesis {
-    margin-top: 15px;
-}
+    #problems-synthesis {
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
 
-.icon-title {
-    display: block;
+    .icon-title {
+        display: block;
 
-    color: #666;
-    font-size: 1em;
-}
+        color: #666;
+        state-size: 1em;
+    }
 
-.icon-badge {
-    background-color: #999999;
-    border-radius: 3px;
-    color: #ffffff;
-    font-size: 1em;
-    text-transform: uppercase;
+    .icon-badge {
+        background-color: #cccccc;
+        border-radius: 3px;
+        state-size: 1em;
+        text-transform: uppercase;
 
-    width: 45%;
-    max-width: 50px;
-    position: relative;
-    bottom: 6em;
+        width: 100px;
 
-    opacity: 0.75;
-}
-.icon-badge-left {
-    float: left;
-    left: 52%;
-}
-.icon-badge-right {
-    float: right;
-    right: 52%;
-}
+        opacity: 0.9;
+    }
 
-#problems-synthesis a span.fa {
-    opacity: 0.6;
-}
-.icon-info {
-    color: #337ABF;
-}
+    .icon-badge-top {
+        background-color: #ffffff;
+        state-size: 1.3em;
+    }
 
-.icon-danger {
-    color: #FF2727;
-}
+    #problems-synthesis a span.fa {
+        opacity: 0.8;
+    }
+    .icon-info {
+        color: #2980b9;
+    }
 
-.icon-warning {
-    color: #FFA827;
-}
+    .icon-danger {
+        color: #e74c3c;
+    }
 
-.icon-success {
-    color: #7AB317;
-}
+    .icon-warning {
+        color: #e67e22;
+    }
 
-.icon-badge-info {
-    background-color: #337ABF;
-}
-
-.icon-badge-danger {
-    background-color: #FF2727;
-}
-
-.icon-badge-warning {
-    background-color: #FFA827;
-}
-
-.icon-badge-success {
-    background-color: #7AB317;
-}
+    .icon-success {
+        color: #27ae60;
+    }
 </style>
 
 <div id="problems-synthesis" class="row">
@@ -78,17 +56,22 @@
     <div class="col-sm-4 col-xs-6">
         %hs = ls['hosts_synthesis']
         %if hs:
-        %font='danger' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'success'
+        %state='critical' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'ok'
         %from alignak_webui.objects.element_state import ElementState
         %cfg_state = ElementState().get_icon_state('host', 'up')
         %icon = cfg_state['icon']
         <center>
-            <a href="{{ webui.get_url('Hosts table') }}">
-                <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
-                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Hosts')}}</span>
-                <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored hosts')}}">{{hs["nb_elts"]}}</span>
-                <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of unhandled hosts problems')}}">{{hs["nb_problems"]}}</span>
-            </a>
+            <div class="icon-badge icon-badge-top" title="{{_('Number of unhandled hosts problems')}}">
+                <strong><span class="item_host_{{state}}">{{hs["nb_problems"]}}</span></strong>
+            </div>
+            <div>
+                <a href="{{ webui.get_url('Hosts table') }}">
+                    <span class="fa fa-4x fa-{{icon}} item_host_{{state}}"></span>
+                </a>
+            </div>
+            <div class="icon-badge text-primary" title="{{_('Number of monitored hosts')}}">
+                <strong>{{hs["nb_elts"]}}</strong>
+            </div>
         </center>
         %end
     </div>
@@ -96,17 +79,22 @@
     <div class="col-sm-4 col-xs-6">
         %ss = ls['services_synthesis']
         %if ss:
-        %font='danger' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'success'
+        %state='critical' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'ok'
         %from alignak_webui.objects.element_state import ElementState
         %cfg_state = ElementState().get_icon_state('service', 'ok')
         %icon = cfg_state['icon']
         <center>
-            <a class="icon-{{font}}" href="{{ webui.get_url('Services table') }}">
-                <span class="fa fa-4x fa-{{icon}} icon-{{font}}"></span>
-                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Services')}}</span>
-                <div class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored services')}}">{{ss["nb_elts"]}}</div>
-                <div class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of unhandled services problems')}}">{{ss["nb_problems"]}}</div>
-            </a>
+            <div class="icon-badge icon-badge-top" title="{{_('Number of unhandled services problems')}}">
+                <strong><span class="item_host_{{state}}">{{ss["nb_problems"]}}</span></strong>
+            </div>
+            <div>
+                <a class="item_host_{{state}}" href="{{ webui.get_url('Services table') }}">
+                    <span class="fa fa-4x fa-{{icon}}"></span>
+                </a>
+            </div>
+            <div class="icon-badge text-primary" title="{{_('Number of monitored services')}}">
+                <strong>{{ss["nb_elts"]}}</strong>
+            </div>
         </center>
         %end
     </div>
@@ -116,36 +104,20 @@
         %problems = hs['nb_problems'] + ss['nb_problems']
         %elements = hs['nb_elts'] + ss['nb_elts']
         %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
-        %font='danger' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'success'
+        %state='critical' if pct_problems >= hs['global_critical_threshold'] else 'warning' if pct_problems >= hs['global_warning_threshold'] else 'ok'
         <center>
-            <a href="{{ webui.get_url('Hosts table') }}?search=ls_state_id:1 ls_state_id:2">
-                <span class="fa fa-4x fa-exclamation-triangle icon-{{font}}"></span>
-                <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Problems')}}</span>
-                <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
-                <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
-            </a>
+            <div class="icon-badge icon-badge-top" title="{{_('Number of problems')}}">
+                <strong><span class="item_host_{{state}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span></strong>
+            </div>
+            <div>
+                <a href="{{ webui.get_url('Hosts table') }}?search=ls_state_id:1 ls_state_id:2">
+                    <span class="fa fa-4x fa-exclamation-triangle item_host_{{state}}"></span>
+                </a>
+            </div>
+            <div class="icon-badge text-primary" title="{{_('Number of monitored items')}}">
+                <strong>{{hs["nb_elts"] + ss["nb_elts"]}}</strong>
+            </div>
         </center>
         %end
     </div>
-<!--
-  <div class="col-sm-2 col-xs-5">
-     %if hs and ss:
-
-     %# TO BE REPLACED WITH IMPACTS DATA ...
-
-     %problems = hs['nb_problems'] + ss['nb_problems']
-     %elements = hs['nb_elts'] + ss['nb_elts']
-     %pct_problems = round(100.0 * problems / elements, 2) if elements else 0.0
-     %font='info'
-     <center>
-        <a href="{{ webui.get_url('Services table') }}">
-           <span class="fa fa-4x fa-bolt icon-{{font}}"></span>
-           <span class="icon-title"><span class="fa fa-plus"></span>&nbsp;{{_('Impacts')}}</span>
-           <span class="icon-badge icon-badge-left icon-badge-info" title="{{_('Number of monitored items')}}">{{hs["nb_elts"] + ss["nb_elts"]}}</span>
-           <span class="icon-badge icon-badge-right icon-badge-{{font}}" title="{{_('Number of problems')}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span>
-        </a>
-     </center>
-     %end
-  </div>
--->
 </div>
