@@ -71,6 +71,7 @@ class Datatable(object):
 
         self.table_columns = []
         self.initial_sort = []
+        self.embedded = []
 
         self.visible = True
         self.printable = True
@@ -88,20 +89,19 @@ class Datatable(object):
         self.exportable = True
         self.printable = True
 
+        # Table concers a templated backend endpoint (host, service, user)
+        self.is_templated = False
+
         self.id_property = None
         self.name_property = None
         self.status_property = None
 
+        # Get the table data model
         self.get_data_model(schema)
 
-        self.is_templated = False
-        for field in self.table_columns:
-            if field['data'] == '_is_template':
-                self.is_templated = True
-                self.records_total = self.backend.count(
-                    self.object_type, params={'where': {'_is_template': False}}
-                )
-                break
+        if self.is_templated:
+            self.records_total = self.backend.count(
+                self.object_type, params={'where': {'_is_template': False}})
         else:
             self.records_total = self.backend.count(self.object_type)
 
@@ -161,7 +161,8 @@ class Datatable(object):
                 self.initial_sort = model.get('initial_sort', [[0, 'desc']])
                 continue
 
-            # logger.debug("get_data_model, visible field: %s = %s", field, model)
+            if field == '_is_template':
+                self.is_templated = True
 
             # Get all the definitions made in the plugin configuration...
             ui_field = model
@@ -182,7 +183,6 @@ class Datatable(object):
                 'format': model.get('format', ''),
                 'format_parameters': model.get('format_parameters', ''),
                 'visible': model.get('visible', True),
-                # 'visible': model.get('visible', not model.get('hidden', False)),
                 'hidden': model.get('hidden', False),
                 'orderable': model.get('orderable', True),
                 'editable': model.get('editable', True),
@@ -204,7 +204,11 @@ class Datatable(object):
             # If not hidden, return field
             if not model.get('hidden', False):
                 self.table_columns.append(ui_field)
-        return None
+
+                if ui_field['type'] == 'objectid' or ui_field['content_type'] == 'objectid':
+                    self.embedded.append(ui_field['data'])
+
+        return self.table_columns
 
     @staticmethod
     def get_language_strings():
@@ -506,22 +510,16 @@ class Datatable(object):
 
         # Embed linked resources / manage templated resources
         parameters['embedded'] = {}
-        for field in self.table_columns:
-            # logger.debug("field: %s", field['data'])
-            if field['type'] == 'objectid' or field['content_type'] == 'objectid':
-                parameters['embedded'].update({field['data']: 1})
+        for field in self.embedded:
+            parameters['embedded'].update({field: 1})
 
         logger.debug("backend embedded parameters: %s", parameters['embedded'])
 
         # Count total elements excluding templates if necessary
-        self.is_templated = False
-        for field in self.table_columns:
-            if field['data'] == '_is_template':
-                self.is_templated = True
-                self.records_total = self.backend.count(
-                    self.object_type, params={'where': {'_is_template': False}}
-                )
-                break
+        if self.is_templated:
+            self.records_total = self.backend.count(
+                self.object_type, params={'where': {'_is_template': False}}
+            )
         else:
             self.records_total = self.backend.count(self.object_type)
 
@@ -584,7 +582,7 @@ class Datatable(object):
         for item in items:
             bo_object = object_class(item)
             logger.debug("table data object: %s", bo_object)
-            # Each item contains the toal number of records matching the search filter
+            # Each item contains the total number of records matching the search filter
             self.records_filtered = item['_total']
 
             row = {}
@@ -635,7 +633,7 @@ class Datatable(object):
                     row[field['data']] = bo_object.notes
                     continue
 
-                if field['data'] == "business_impact":
+                if "business_impact" in field['data']:
                     row[field['data']] = Helper.get_html_business_impact(bo_object.business_impact)
                     continue
 

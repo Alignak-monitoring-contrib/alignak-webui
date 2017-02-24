@@ -3,7 +3,7 @@
 
 <script>
     // Set true to activate javascript console logs
-    var debugMaps = true;
+    var debugMaps = false;
     if (debugMaps && !window.console) {
           alert('Your web browser does not have any console object ... you should stop using IE ;-) !');
     }
@@ -352,9 +352,9 @@
             });
             markerCluster.addLayers(allMarkers_{{mapId}});
             map_{{mapId}}.addLayer(markerCluster);
-
-            return true
         });
+
+        return true;
     };
 
     //<!-- Ok go initialize the map with all elements when it's loaded -->

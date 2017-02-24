@@ -271,8 +271,11 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string">Host name</th>',
+            '<th data-name="ls_state" data-type="string">Status</th>',
+            '<th data-name="overall_state" data-type="string">Overall status</th>',
             '<th data-name="tags" data-type="list">Tags</th>',
-            '<th data-name="alias" data-type="string">Host alias</th>'
+            '<th data-name="address" data-type="string">Address</th>',
+            '<th data-name="business_impact" data-type="integer">Business impact</th>'
         )
 
         # Allowed - default table parameters: none
@@ -286,8 +289,11 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string">Host name</th>',
+            '<th data-name="ls_state" data-type="string">Status</th>',
+            '<th data-name="overall_state" data-type="string">Overall status</th>',
             '<th data-name="tags" data-type="list">Tags</th>',
-            '<th data-name="alias" data-type="string">Host alias</th>'
+            '<th data-name="address" data-type="string">Address</th>',
+            '<th data-name="business_impact" data-type="integer">Business impact</th>'
         )
 
         # Allowed - default table parameters: none
@@ -301,8 +307,11 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string">Host name</th>',
+            '<th data-name="ls_state" data-type="string">Status</th>',
+            '<th data-name="overall_state" data-type="string">Overall status</th>',
             '<th data-name="tags" data-type="list">Tags</th>',
-            '<th data-name="alias" data-type="string">Host alias</th>',
+            '<th data-name="address" data-type="string">Address</th>',
+            '<th data-name="business_impact" data-type="integer">Business impact</th>',
             '"url": "http://localhost:80/external/table/hosts_table/hosts/table_data",'
         )
 

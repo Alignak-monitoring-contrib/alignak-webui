@@ -139,6 +139,19 @@ header span.label {
     margin-right: 0 !important;
 }
 
+.navbar-nav {
+    margin: 0 !important;
+}
+
+.navbar .navbar-brand {
+    height: 50px;
+}
+
+.navbar .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
 /*
  * Application menu bar - for small devices, menu items are floating and
  * the menu is positionned in the header navigation bar collapsable part.
@@ -203,11 +216,16 @@ div.dataTables_paginate {
 
 /* Set smaller font for table content */
 tbody > tr {
-   /*font-size:11px;*/
+   font-size: 0.9em;
 }
 /* Modal opening button position adjusted */
 table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
    top: 3px;
+}
+/* Left/right spacing */
+table.dataTable th, table.dataTable td {
+    padding-left: 3px;
+    padding-right: 3px;
 }
 /* Selected line */
 table.dataTable tr.selected,
@@ -252,33 +270,6 @@ table.dataTable th div.form-group-sm {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-/*
- * Page content - the header navigation bar is fixed, page content must
- * be shifted to the bottom if the header bar is present (not present on fullscreen pages).
-#page-wrapper.header-page > div.row {
-    margin-top: 60px;
-    padding: 0px;
-    margin-bottom: 30px;
-}
- */
-
-/*
- * Page content - padding for all the sections (header, page and footer).
-#page-content > section {
-}
-
-#page-content > section.content-header {
-    padding: 5px;
-}
-
-#page-content > section.content {
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
-#page-content > section.content-footer {
-}
- */
 
 /*
  * Pagination control elements
