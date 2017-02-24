@@ -24,69 +24,69 @@
 var g_hosts_states = {
    'up': {
       'color': '#27ae60',
-      'background': '#669999',
+      'background': '#1b7942',
       'label': 'Up'
    },
    'unreachable': {
       'color': '#9b59b6',
-      'background': '#669999',
+      'background': '#6d3e7f',
       'label': 'Unreachable'
    },
    'down': {
       'color': '#e74c3c',
-      'background': '#669999',
+      'background': '#a1352a',
       'label': 'Down'
    },
    'unknown': {
       'color': '#2980b9',
-      'background': '#669999',
+      'background': '#1c5981',
       'label': 'Unknown'
    },
    'acknowledged': {
       'color': '#f39c12',
-      'background': '#669999',
+      'background': '#aa6d0c',
       'label': 'Acknowledged'
    },
    'in_downtime': {
       'color': '#f1c40f',
-      'background': '#669999',
+      'background': '#a8890a',
       'label': 'Downtime'
    }
 };
 var g_services_states = {
    'ok': {
       'color': '#27ae60',
-      'background': '#669999',
+      'background': '#1b7942',
       'label': 'Ok'
    },
    'warning': {
       'color': '#e67e22',
-      'background': '#669999',
+      'background': '#a15817',
       'label': 'Warning'
    },
    'critical': {
       'color': '#e74c3c',
-      'background': '#669999',
+      'background': '#a1352a',
       'label': 'Critical'
    },
    'unknown': {
       'color': '#2980b9',
-      'background': '#669999',
+      'background': '#1c5981',
       'label': 'Unknown'
    },
    'unreachable': {
       'color': '#9b59b6',
-      'background': '#669999',
+      'background': '#6d3e7f',
       'label': 'Unreachable'
    },
    'acknowledged': {
       'color': '#f39c12',
-      'background': '#669999',
+      'background': '#aa6d0c',
       'label': 'Acknowledged'
    },
    'in_downtime': {
       'color': '#f1c40f',
-      'background': '#669999',
+      'background': '#a8890a',
       'label': 'Downtime'
    }
 };
