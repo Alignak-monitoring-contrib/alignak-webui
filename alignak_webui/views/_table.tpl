@@ -116,27 +116,17 @@
                    >
                   %if is_list:
                   <div class="form-group form-group-sm">
-                     <select id="filter_{{name}}"
-                        class="form-control">
-                     </select>
+                     <select id="filter_{{name}}" class="form-control"></select>
                   </div>
                   %else:
                   %  if field_type in ['boolean']:
                   %  allowed = {'Yes': 'true', 'No': 'false', 'Both': ''}
                   <div class="form-group form-group-sm">
-                     <input id="filter_{{name}}"
-                        class="form-control"
-                        type="text"
-                        placeholder="{{placeholder}}"
-                        >
+                     <input id="filter_{{name}}" class="form-control" type="text" placeholder="{{placeholder}}">
                   </div>
                   %  else:
                   <div class="form-group form-group-sm">
-                     <input id="filter_{{name}}"
-                        class="form-control"
-                        type="{{'number' if field_type=='integer' else 'text'}}"
-                        placeholder="{{placeholder}}"
-                        >
+                     <input id="filter_{{name}}" class="form-control" type="{{'number' if field_type=='integer' else 'text'}}" placeholder="{{placeholder}}">
                   </div>
                   %  end
                   %end
@@ -800,6 +790,35 @@
                            return;
                         }
                         var url = "/downtime/form/add?";
+                        var first = true;
+                        $.each(selected.data(), function(index, elt){
+                           if (! first) url += '&';
+                           var elt_name = elt.DT_RowData.object_{{object_type}};
+                           if ('{{object_type}}' == 'service') {
+                              elt_name = elt.DT_RowData.object_host + '/' + elt_name;
+                           }
+                           url += 'element_id='+encodeURIComponent(elt._id)+'&element_name='+encodeURIComponent(elt_name)+'&elements_type={{object_type}}';
+                           if (first) first = false;
+                        });
+                        window.setTimeout(function(){
+                           display_modal(url);
+                        }, 50);
+                     },
+                  }
+                  ,
+                  {
+                     extend: 'selected',
+                     text: "{{_('Command')}}",
+                     titleAttr: "{{_('Notify a command for the selected items')}}",
+                     className: 'btn-raised btn-xs',
+                     action: function (e, dt, button, config) {
+                        // Fix for datatable that do not close dropdown immediatly...
+                        $(".dt-button-background").trigger("click");
+                        var selected = dt.rows( { selected: true } );
+                        if (selected.indexes().length == 0) {
+                           return;
+                        }
+                        var url = "/command/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
                            if (! first) url += '&';

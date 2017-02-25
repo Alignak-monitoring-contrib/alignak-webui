@@ -27,6 +27,7 @@
     This module contains an Alignek Web services interface class
 """
 
+import json
 import logging
 
 import requests
@@ -42,8 +43,8 @@ logger.setLevel(logging.INFO)
 
 
 class AlignakWSException(Exception):  # pragma: no cover, not used currently
-    """
-    Specific exception class.
+
+    """Specific exception class.
     This exception provides an error code, an error message and the WS response.
 
     Defined error codes:
@@ -53,8 +54,8 @@ class AlignakWSException(Exception):  # pragma: no cover, not used currently
     - 1002: backend connection timeout
     - 1003: backend uncatched HTTPError
     - 1004: backend token not provided on login, user is not yet authorized to log in
-    - 1005: If-Match header is required for patching an object
-    """
+    - 1005: If-Match header is required for patching an object"""
+
     def __init__(self, code, message, response=None):
         # Call the base class constructor with the parameters it needs
         super(AlignakWSException, self).__init__(message)
@@ -64,21 +65,22 @@ class AlignakWSException(Exception):  # pragma: no cover, not used currently
         self.response = response
 
     def __str__(self):
+
         """Exception to String"""
+
         return "Alignak WS error code %d: %s" % (self.code, self.message)
 
 
 # pylint: disable=too-few-public-methods
 class AlignakConnection(object):  # pragma: no cover, not used currently
-    """
-    Singleton design pattern ...
-    """
-    class __AlignakConnection(object):
-        """
-        Base class for Alignak Web Services connection
-        """
 
-        def __init__(self, alignak_endpoint='http://127.0.0.1:7770'):
+    """Singleton design pattern ..."""
+
+    class __AlignakConnection(object):
+
+        """Base class for Alignak Web Services connection"""
+
+        def __init__(self, alignak_endpoint='http://127.0.0.1:8888'):
             if alignak_endpoint.endswith('/'):
                 self.alignak_endpoint = alignak_endpoint[0:-1]
             else:
@@ -87,14 +89,13 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             self.connected = False
 
         def login(self, username, password=None):
-            """
-            Log in to the Web Services
+
+            """Log in to the Web Services
 
             # Todo: not yet implemented in the Alignak WS module
             If username and password are provided, use the WS login function to authenticate the
-            user
+            user"""
 
-            """
             logger.info("login, connection requested, login: %s", username)
 
             self.connected = False
@@ -119,17 +120,17 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             return self.connected
 
         def logout(self):
-            """
-            Log out from the WS
 
-            Do nothing except setting 'connected' attribute to False
-            """
+            """Log out from the WS
+
+            Do nothing except setting 'connected' attribute to False"""
+
             logger.info("logout")
             self.connected = False
 
         def get(self, endpoint, params=None):
-            """
-            Get information from an Alignak WS
+
+            """Get information from an Alignak WS
 
             If an error occurs, an AlignakWSException is raised.
 
@@ -147,8 +148,8 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             :param params: list of parameters for the WS
             :type params: list
             :return: list of properties when query item | list of items when get many items
-            :rtype: list
-            """
+            :rtype: list"""
+
             if not self.connected:
                 self.login('no_login', None)
 
@@ -157,21 +158,84 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                 raise AlignakWSException(1001, "Access denied, please login before trying to get")
 
             try:
-                logger.info(
-                    "get, endpoint: %s, parameters: %s",
-                    urljoin(self.alignak_endpoint, endpoint),
-                    params
-                )
-                # response = requests.get(
-                #     urljoin(self.alignak_endpoint, endpoint),
-                #     params=params,
-                #     auth=HTTPBasicAuth(self.token, '')
-                # )
-                response = requests.get(
-                    urljoin(self.alignak_endpoint, endpoint),
-                    params=params
-                )
+                logger.info("get, endpoint: %s, parameters: %s",
+                            urljoin(self.alignak_endpoint, endpoint), params)
+                response = requests.get(urljoin(self.alignak_endpoint, endpoint), params=params)
                 logger.debug("get, response: %s", response)
+                response.raise_for_status()
+
+            except RequestsConnectionError as exp:
+                logger.exception("Backend connection error, error: %s", exp)
+                raise AlignakWSException(1000, "Alignak Web Services connection error")
+
+            except HTTPError as exp:  # pragma: no cover - need specific backend tests
+                if exp.response.status_code == 404:
+                    raise AlignakWSException(404, 'Not found')
+
+                logger.exception("Backend HTTP error, error: %s", exp)
+                raise AlignakWSException(1003, "Backend HTTPError: %s / %s" % (type(exp), str(exp)))
+
+            return response.json()
+
+        def post(self, endpoint, params=None, files=None):
+
+            """Post information to an Alignak WS endpoint
+
+            If an error occurs, an AlignakWSException is raised.
+
+            This method builds a response that always contains: _items and _status::
+
+                {
+                    u'_items': [
+                        ...
+                    ],
+                    u'_status': u'OK'
+                }
+
+            :param endpoint: WS endpoint
+            :type endpoint: str
+            :param params: list of parameters for the WS
+            :type params: list
+            :return: list of properties when query item | list of items when get many items
+            :rtype: list"""
+
+            if not self.connected:
+                self.login('no_login', None)
+
+            if not self.token:
+                logger.error("Authentication is required for posting an object.")
+                raise AlignakWSException(1001, "Access denied, please login before trying to post")
+
+            headers = {'Content-Type': 'application/json'}
+            if isinstance(params, dict):
+                params = json.dumps(params)
+            if files:
+                logger.info("post, request to post a %s with files: %s", endpoint, files)
+                # Set header to disable client default behavior
+                headers = {'Content-type': 'multipart/form-data'}
+
+            try:
+                logger.info("post, endpoint: %s, parameters: %s",
+                            urljoin(self.alignak_endpoint, endpoint), params)
+
+                if not files:
+                    response = requests.post(
+                        urljoin(self.alignak_endpoint, endpoint),
+                        data=params,
+                        files=files,
+                        headers=headers
+                    )
+                    resp = response.json()
+                else:
+                    # Posting files is not yet used, but reserved for future use...
+                    response = requests.post(
+                        urljoin(self.alignak_endpoint, endpoint),
+                        data=params,
+                        files=files
+                    )
+                    resp = json.loads(response.content)
+                logger.info("post, response: %s", resp)
+
                 response.raise_for_status()
 
             except RequestsConnectionError as exp:

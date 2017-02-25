@@ -23,11 +23,14 @@
     Plugin actions
 """
 
+import json
 from logging import getLogger
+from copy import deepcopy
 
-from bottle import request
+from bottle import request, response
 
 from alignak_webui.utils.plugin import Plugin
+from .external_commands import commands
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -59,6 +62,15 @@ class PluginActions(Plugin):
                 'route': '/recheck/form/add',
                 'view': 'recheck_form_add'
             },
+            'show_command_add': {
+                'name': 'Command add form',
+                'route': '/command/form/add',
+                'view': 'command_form_add'
+            },
+            'get_command_parameters': {
+                'name': 'Command parameters',
+                'route': '/command/parameters'
+            },
             'add_recheck': {
                 'name': 'Recheck',
                 'route': '/recheck/add',
@@ -73,15 +85,20 @@ class PluginActions(Plugin):
                 'name': 'Downtime',
                 'route': '/downtime/add',
                 'method': 'POST'
+            },
+            'add_command': {
+                'name': 'Command',
+                'route': '/command/add',
+                'method': 'POST'
             }
         }
 
         super(PluginActions, self).__init__(app, webui, cfg_filenames)
 
     def show_acknowledge_add(self):  # pylint:disable=no-self-use
-        """
-            Show form to add an acknowledge
-        """
+
+        """Show form to add an acknowledge"""
+
         return {
             'title': request.query.get('title', _('Request an acknowledge')),
             'action': request.query.get('action', 'add'),
@@ -97,8 +114,8 @@ class PluginActions(Plugin):
         }
 
     def add_acknowledge(self):
-        """
-        Add an acknowledgement
+
+        """Add an acknowledgement
 
         Parameters:
         - element_id[]: all the livestate elements identifiers to be acknowledged
@@ -107,8 +124,8 @@ class PluginActions(Plugin):
         - notify
         - persistent
         - comment
-
         """
+
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -172,9 +189,9 @@ class PluginActions(Plugin):
             return self.webui.response_ko(message=status)
 
     def show_recheck_add(self):  # pylint:disable=no-self-use
-        """
-            Show form to request a forced check
-        """
+
+        """Show form to request a forced check"""
+
         return {
             'title': request.query.get('title', _('Send a check request')),
             'elements_type': request.query.get('elements_type'),
@@ -186,9 +203,9 @@ class PluginActions(Plugin):
         }
 
     def add_recheck(self):
-        """
-        Request a forced check
-        """
+
+        """Request a forced check"""
+
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -244,9 +261,9 @@ class PluginActions(Plugin):
             return self.webui.response_ko(message=status)
 
     def show_downtime_add(self):  # pylint:disable=no-self-use
-        """
-            Show form to add a downtime
-        """
+
+        """Show form to add a downtime"""
+
         return {
             'title': request.query.get('title', _('Request a downtime')),
             'action': request.query.get('action', 'add'),
@@ -263,9 +280,9 @@ class PluginActions(Plugin):
         }
 
     def add_downtime(self):
-        """
-        Add a downtime
-        """
+
+        """Add a downtime"""
+
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -323,6 +340,164 @@ class PluginActions(Plugin):
                     # Request a recheck for the element ...
 
         logger.info("Request a downtime, result: %s", status)
+
+        if not problem:
+            return self.webui.response_ok(message=status)
+        else:
+            return self.webui.response_ko(message=status)
+
+    def show_command_add(self):  # pylint:disable=no-self-use
+
+        """Show form to send a command"""
+
+        elements_type = request.query.get('elements_type')
+
+        commands_list = {}
+        for command in commands:
+            # Ignore global commands
+            if commands[command].get('global', True):
+                continue
+            # Ignore commands that do not concern our current elements type
+            if elements_type != commands[command].get('elements_type', ""):
+                continue
+            commands_list.update({command: commands[command]})
+
+        return {
+            'title': request.query.get('title', _('Send a command')),
+            'elements_type': request.query.get('elements_type'),
+            'element_id': request.query.getall('element_id'),
+            'element_name': request.query.getall('element_name'),
+            'comment': request.query.get('comment', _('Command requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1',
+            'commands_list': commands_list
+        }
+
+    def get_command_parameters(self):
+
+        """Get a command parameters list
+
+        Returns a JSON object containing, for the requested command, all the parameters list
+        """
+
+        elements_type = request.query.get('elements_type')
+        command = request.query.get('command')
+
+        # Get elements from the commands list
+        if command not in commands:
+            response.status = 204
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'the command %s does not exist' % command}
+            )
+
+        plugin = self.webui.find_plugin(elements_type)
+        if not plugin:
+            response.status = 204
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'the plugin for %s is not installed' % elements_type}
+            )
+        logger.debug("Got plugin fields table for %s: %s", elements_type, plugin.table)
+
+        # Provide the described parameters
+        parameters = {}
+        for parameter in commands[command].get('parameters', {}):
+            parameters[parameter] = deepcopy(plugin.table[parameter])
+
+            if 'allowed' in plugin.table[parameter]:
+                real_allowed = {}
+                allowed = plugin.table[parameter].get('allowed', '').split(',')
+                logger.info("Allowed values for %s: %s", parameter, allowed)
+                if allowed[0] == '':
+                    allowed = []
+                for allowed_value in allowed:
+                    value = plugin.table[parameter].get('allowed_' + allowed_value, allowed_value)
+                    real_allowed.update({'%s' % allowed_value: value})
+
+                parameters[parameter]['allowed'] = real_allowed
+                logger.info("Real allowed values for %s: %s", parameter, real_allowed)
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(parameters)
+
+    def add_command(self):
+
+        """Send a command"""
+
+        datamgr = request.app.datamgr
+
+        # Get the command from the request parameters
+        command = request.forms.get('command')
+        if not command or command == "None":
+            logger.error("request to send an unknown command: missing command parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing command name: command')
+            )
+
+        # Get elements from the commands list
+        if command not in commands:
+            logger.error("request to send an unknown command: unknown command: %s!", command)
+            return self.webui.response_invalid_parameters(
+                _('Unknown command: %s' % command)
+            )
+
+        # Provide the described parameters
+        parameters = []
+        for parameter in commands[command].get('parameters', {}):
+            if request.forms.get(parameter, None) is None:
+                logger.error("missing command parameter in the request: %s", parameter)
+                return self.webui.response_invalid_parameters(
+                    _('Missing parameter: %s' % parameter)
+                )
+            parameters.append(request.forms.get(parameter, None))
+        logger.debug("Command parameters: %s", parameters)
+
+        element_ids = request.forms.getall('element_id')
+        if not element_ids:
+            logger.error("request to send an command: missing element_id parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing element identifier: element_id')
+            )
+
+        problem = False
+        status = ""
+
+        # Method to get elements from the data manager
+        elements_type = request.forms.get('elements_type', 'host')
+        f = getattr(datamgr, 'get_%s' % elements_type)
+        if not f:
+            status += (_("No method to get a %s element") % elements_type)
+        else:
+            for element_id in element_ids:
+                element = f(element_id)
+                if not element:
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                    continue
+
+                # Prepare post request ...
+                data = {
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
+                }
+                if elements_type == 'service':
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
+
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
+                    problem = True
+                else:
+                    if elements_type == 'service':
+                        data.update({'host': element.host.id, 'service': element.id})
+                        status += _('Sent a command %s for %s/%s. ') % \
+                            (command, element.host.name, element.name)
+                    else:
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
+
+        logger.info("Sent a command, result: %s", status)
 
         if not problem:
             return self.webui.response_ok(message=status)

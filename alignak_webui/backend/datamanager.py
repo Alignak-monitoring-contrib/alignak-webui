@@ -37,6 +37,7 @@ from alignak_backend_client.client import BackendException
 
 # Import the backend interface class
 from alignak_webui.backend.backend import BackendConnection
+from alignak_webui.backend.alignak_ws_client import AlignakConnection, AlignakWSException
 
 from alignak_webui.utils.dates import get_ts_date
 
@@ -77,9 +78,10 @@ class DataManager(object):
     """
     id = 1
 
-    def __init__(self, session=None, backend_endpoint='http://127.0.0.1:5000'):
-        """
-        Initialize a DataManager instance
+    def __init__(self, session=None, backend_endpoint='http://127.0.0.1:5000',
+                 alignak_endpoint='http://127.0.0.1:8888'):
+
+        """Initialize a DataManager instance
 
         The `session` parameter is provided to the data manager when a Web session exists.
         This to avoid getting the session parameters from the backend. the session parameters
@@ -96,12 +98,17 @@ class DataManager(object):
             backend_endpoint: Alignak backend URL endpoint
             alignak_endpoint: Alignak Web service URL endpoint
         """
+
         # Set a unique id for each DM object
         self.__class__.id += 1
 
         # Associated backend object
         self.backend_endpoint = backend_endpoint
         self.backend = BackendConnection(backend_endpoint)
+
+        # Alignak Web services client
+        self.alignak_ws = AlignakConnection(alignak_endpoint)
+        self.alignak_daemons = {}
 
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
@@ -149,14 +156,14 @@ class DataManager(object):
     # Connected user
     ##
     def user_login(self, username, password=None, load=True):
-        """
-        Set the data manager user
+
+        """Set the data manager user
 
         If password is provided, use the backend login function to authenticate the user
 
         If no password is provided, the username is assumed to be an authentication token and we
-        use the backend connect function.
-        """
+        use the backend connect function."""
+
         logger.debug("user_login, connection requested: %s, load: %s", username, load)
 
         self.connected = False
@@ -206,18 +213,19 @@ class DataManager(object):
         return self.connected
 
     def user_logout(self):
-        """
-        Logout the data manager user. Do not log-out from the backend. Need to reset the
-        datamanager to do it.
-        """
+
+        """Logout the data manager user. Do not log-out from the backend. Need to reset the
+        datamanager to do it."""
+
         self.logged_in_user = None
+        self.connected = False
 
     ##
     # Find objects and load objects cache
     ##
     def find_object(self, object_type, params=None, all_elements=False, embedded=True):
-        """
-        Find an object ...
+
+        """Find an object ...
 
         Search in internal objects cache for an object matching the required parameters
 
@@ -234,8 +242,8 @@ class DataManager(object):
         imported modules (presumably alignak_webui.objects.item) which contains a 'bo_type' property
         and this property is valued as 'object_type'.
 
-        Returns an array of matching objects
-        """
+        Returns an array of matching objects"""
+
         logger.debug(
             "find_object, %s, params: %s, all: %s, embedded: %s",
             object_type, params, all_elements, embedded
@@ -284,8 +292,8 @@ class DataManager(object):
         return items
 
     def load(self, reset=False, refresh=False):
-        """
-            Load data in the data manager objects
+
+        """Load data in the data manager objects
 
             If reset is set, then all the existing objects are deleted and then created from
             scratch (first load ...). Else, existing objects are updated and new objects are
@@ -293,8 +301,8 @@ class DataManager(object):
 
             Get all the users (related to current logged-in user)
 
-            :returns: the number of newly created objects
-        """
+            :returns: the number of newly created objects"""
+
         if not self.logged_in_user:
             logger.error("load, must be logged-in before loading")
             return False
@@ -354,9 +362,9 @@ class DataManager(object):
         return new_objects_count - objects_count
 
     def reset(self, logout=False):
-        """
-        Reset data in the data manager objects
-        """
+
+        """Reset data in the data manager objects"""
+
         logger.debug("Data manager reset...")
 
         # Clean internal objects cache
@@ -373,23 +381,23 @@ class DataManager(object):
         self.refresh_required = True
 
     def require_refresh(self):
-        """
-        Require an immediate refresh
-        """
+
+        """Require an immediate refresh"""
+
         self.refresh_required = True
         self.refresh_done = False
 
     def get_objects_count(self, object_type=None, refresh=False, log=False, search=None):
-        """
-        Get the count of the objects stored in the data manager cache
+
+        """Get the count of the objects stored in the data manager cache
 
         If an object_type is specified, only returns the count for this object type
 
         If refresh is True, get the total count from the backend. This is only useful if total
         count is required...
 
-        If log is set, an information log is made
-        """
+        If log is set, an information log is made"""
+
         log_function = logger.debug
         if log:
             log_function = logger.info
@@ -608,6 +616,89 @@ class DataManager(object):
     ##
     # Alignak
     ##
+    def get_alignak_map(self, search=None):  # pylint: disable=unused-argument
+
+        """ Get Alignak overall state from the Alignak Web Services module:
+
+            https://github.com/Alignak-monitoring-contrib/alignak-module-ws
+
+            The search parameter is not used but is kept for get method interface compatibility!
+
+            Example response::
+            {
+                reactionner: {},
+                broker: {},
+                arbiter: {
+                    arbiter-master: {
+                        passive: false,
+                        realm: "",
+                        realm_name: "All",
+                        polling_interval: 1,
+                        alive: true,
+                        manage_arbiters: false,
+                        manage_sub_realms: false,
+                        is_sent: false,
+                        spare: false,
+                        check_interval: 60,
+                        address: "127.0.0.1",
+                        reachable: true,
+                        max_check_attempts: 3,
+                        last_check: 0,
+                        port: 7770
+                    }
+                },
+                scheduler: {
+                    scheduler-master: {
+                        passive: false,
+                        realm: "83596f2b6e254e7ea28467a1fe5627ef",
+                        realm_name: "All",
+                        polling_interval: 1,
+                        alive: true,
+                        manage_arbiters: false,
+                        manage_sub_realms: false,
+                        is_sent: true,
+                        spare: false,
+                        check_interval: 60,
+                        address: "127.0.0.1",
+                        reachable: true,
+                        max_check_attempts: 3,
+                        last_check: 1478064129.016136,
+                        port: 7768
+                    },
+                    scheduler-south: {},
+                    scheduler-north: {}
+                },
+                receiver: {},
+                poller: {}
+            }
+
+            :return: list of the Alignak daemons
+            :rtype: list of Daemon objects"""
+
+        result = []
+
+        try:
+            logger.debug("get_alignak_state")
+            result = self.alignak_ws.get('alignak_map')
+        except AlignakWSException:
+            return result
+
+        logger.debug("Alignak status map, %s", result)
+
+        self.alignak_daemons = []
+        for daemon_type in result:
+            logger.debug("Got Alignak state for: %s", daemon_type)
+            daemons = result.get(daemon_type)
+            for daemon_name in daemons:
+                daemon_data = daemons.get(daemon_name)
+                daemon_data['name'] = daemon_name
+                daemon = Daemon(daemon_data)
+                self.alignak_daemons.append(daemon)
+                logger.debug(" - %s: %s", daemon_name, daemon)
+
+        Daemon.set_total_count(len(self.alignak_daemons))
+        return self.alignak_daemons
+
     def get_alignak_state(self, search=None, all_elements=False):
         """ Get a list of all alignak daemons states. """
         if search is None:
@@ -1188,28 +1279,46 @@ class DataManager(object):
     # Actions
     ##
     def add_acknowledge(self, data):
+
         """ Request to acknowledge a problem. """
 
         logger.info("add_acknowledge, request an acknowledge, data: %s", data)
         return self.add_object('actionacknowledge', data)
 
     def add_recheck(self, data):
+
         """ Request to re-check an host/service. """
 
         logger.info("add_recheck, request a recheck, data: %s", data)
         return self.add_object('actionforcecheck', data)
 
     def add_downtime(self, data):
+
         """ Request to schedule a downtime. """
 
         logger.info("add_downtime, request a downtime, data: %s", data)
         return self.add_object('actiondowntime', data)
 
+    def add_command(self, data):
+
+        """ Send an external command to Alignak. """
+
+        logger.info("add_command, send a command, data: %s", data)
+        try:
+            logger.debug("get_alignak_state")
+            result = self.alignak_ws.post('command', data)
+        except AlignakWSException:
+            return None
+
+        return result
+
     ##
     # Hosts groups
     ##
     def get_hostgroups(self, search=None, all_elements=False):
+
         """ Get a list of all hostgroups. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1231,6 +1340,7 @@ class DataManager(object):
         return []
 
     def get_hostgroup(self, search):
+
         """ Get a hostgroup by its id. """
 
         if isinstance(search, basestring):
@@ -1242,10 +1352,10 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_hostgroup_overall_state(self, search):
+
         """ Get a hosts group real state (including hosts states).
 
-        Returns -1 if any problem
-        """
+        Returns -1 if any problem"""
 
         if not isinstance(search, BackendElement):
             hostgroup = self.get_hostgroup(search)
@@ -1281,7 +1391,9 @@ class DataManager(object):
     # Hosts dependencies
     ##
     def get_hostdependencys(self, search=None, all_elements=False):
+
         """ Get a list of all host dependencies. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1306,6 +1418,7 @@ class DataManager(object):
         return []
 
     def get_hostdependency(self, search):
+
         """ Get a hostdependency by its id. """
 
         if isinstance(search, basestring):
@@ -1320,7 +1433,9 @@ class DataManager(object):
     # Hosts
     ##
     def get_hosts(self, search=None, template=False, all_elements=False, embedded=True):
+
         """ Get a list of all hosts. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1350,6 +1465,7 @@ class DataManager(object):
         return []
 
     def get_host(self, search, embedded=True):
+
         """ Get a host by its id (default). """
 
         if isinstance(search, basestring):
@@ -1361,10 +1477,10 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_host_services(self, search):
+
         """ Get a host real state (including services states).
 
-        Returns -1 if any problem
-        """
+        Returns -1 if any problem"""
 
         if not isinstance(search, BackendElement):
             host = self.get_host(search)
@@ -1379,6 +1495,7 @@ class DataManager(object):
         )
 
     def get_host_overall_state(self, search):
+
         """ Get a host real state (including services states).
 
         Returns -1 if any problem
@@ -1394,10 +1511,10 @@ class DataManager(object):
         return (host.overall_state, host.overall_status)
 
     def get_host_services_hierarchy(self, search):
+
         """ Get a host real state (including services states).
 
-        Returns -1 if any problem
-        """
+        Returns -1 if any problem"""
 
         if not isinstance(search, BackendElement):
             host = self.get_host(search)
@@ -1415,7 +1532,9 @@ class DataManager(object):
     # Services groups
     ##
     def get_servicegroups(self, search=None, all_elements=False):
+
         """ Get a list of all servicegroups. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1437,6 +1556,7 @@ class DataManager(object):
         return []
 
     def get_servicegroup(self, search):
+
         """ Get a servicegroup by its id. """
 
         if isinstance(search, basestring):
@@ -1451,7 +1571,9 @@ class DataManager(object):
     # Services dependencies
     ##
     def get_servicedependencys(self, search=None, all_elements=False):
+
         """ Get a list of all service dependencies. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1477,6 +1599,7 @@ class DataManager(object):
         return []
 
     def get_servicedependency(self, search):
+
         """ Get a servicedependency by its id. """
 
         if isinstance(search, basestring):
@@ -1491,7 +1614,9 @@ class DataManager(object):
     # Services
     ##
     def get_services(self, search=None, template=False, all_elements=False, embedded=True):
+
         """ Get a list of all services. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1523,6 +1648,7 @@ class DataManager(object):
         return []
 
     def get_service(self, search):
+
         """ Get a service by its id (default). """
 
         if isinstance(search, basestring):
@@ -1534,6 +1660,7 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_service_overall_state(self, search):
+
         """ Get a service real state (including services states).
 
         Returns -1 if any problem
@@ -1549,9 +1676,9 @@ class DataManager(object):
         return (service.overall_state, service.overall_status)
 
     def get_services_synthesis(self, elts=None):
-        """
-        Services synthesis by status
-        """
+
+        """Services synthesis by status"""
+
         logger.debug("get_services_synthesis, %d elements", len(elts))
         if elts is not None:
             services = [item for item in elts if item.get_type() == 'service']
@@ -1580,9 +1707,9 @@ class DataManager(object):
 
     def get_services_aggregated(self, elts=None):
         # pylint: disable=protected-access
-        """
-        Services by aggregation
-        """
+
+        """Services by aggregation"""
+
         if elts:
             services = [item for item in elts if item.get_type() == 'service']
         else:
@@ -1684,6 +1811,7 @@ class DataManager(object):
     # Logs
     ##
     def get_logcheckresult(self, search=None):
+
         """ Get log for all elements
 
             Elements in the log which type is 'host' or 'service'
@@ -1691,8 +1819,8 @@ class DataManager(object):
             :param search: backend request search
             :type search: dic
             :return: list of hosts/services live states
-            :rtype: list
-        """
+            :rtype: list"""
+
         if not search:
             search = {}
         if isinstance(search, basestring):
@@ -1716,13 +1844,14 @@ class DataManager(object):
     # History
     ##
     def get_history(self, search=None):
+
         """ Get history
 
             :param search: backend request search
             :type search: dic
             :return: list of hosts/services live states
-            :rtype: list
-        """
+            :rtype: list"""
+
         if not search:
             search = {}
         if isinstance(search, basestring):
@@ -1744,7 +1873,9 @@ class DataManager(object):
     # Commands
     ##
     def get_commands(self, search=None, all_elements=False):
+
         """ Get a list of all commands. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1766,6 +1897,7 @@ class DataManager(object):
         return []
 
     def get_command(self, search):
+
         """ Get a command by its id. """
 
         if isinstance(search, basestring):
@@ -1780,7 +1912,9 @@ class DataManager(object):
     # usergroups
     ##
     def get_usergroups(self, search=None, all_elements=False):
+
         """ Get a list of all usergroups. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1803,6 +1937,7 @@ class DataManager(object):
         return []
 
     def get_usergroup(self, search):
+
         """ Get a usergroup by its id. """
 
         if isinstance(search, basestring):
@@ -1817,7 +1952,9 @@ class DataManager(object):
     # Users
     ##
     def get_userrestrictroles(self, search=None, all_elements=False):
+
         """ Get a list of known users """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1833,9 +1970,9 @@ class DataManager(object):
         return []
 
     def get_userrestrictrole(self, search):
-        """
-        Get a userrestricrole by its id or a search pattern
-        """
+
+        """Get a userrestricrole by its id or a search pattern"""
+
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1845,7 +1982,9 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_users(self, search=None, template=False, all_elements=False):
+
         """ Get a list of known users """
+
         if not self.logged_in_user.is_administrator():
             return [self.logged_in_user]
 
@@ -1876,9 +2015,9 @@ class DataManager(object):
         return []
 
     def get_user(self, search):
-        """
-        Get a user by its id or a search pattern
-        """
+
+        """Get a user by its id or a search pattern"""
+
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
@@ -1888,11 +2027,13 @@ class DataManager(object):
         return items[0] if items else None
 
     def add_user(self, data):
+
         """ Add a user. """
 
         return self.add_object('user', data)
 
     def delete_user(self, user):
+
         """ Delete a user.
 
         Cannot delete the currently logged in user ...
@@ -1926,7 +2067,9 @@ class DataManager(object):
     # realms
     ##
     def get_realms(self, search=None, all_elements=False):
+
         """ Get a list of all realms. """
+
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -1948,6 +2091,7 @@ class DataManager(object):
         return []
 
     def get_realm(self, search):
+
         """ Get a realm by its id. """
 
         if isinstance(search, basestring):
@@ -1959,10 +2103,11 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_realm_members(self, search):
-        """ Get a realm hosts
 
-        Returns -1 if any problem
-        """
+        """Get a realm hosts
+
+        Returns -1 if any problem"""
+
         logger.debug("get_realm_members, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
@@ -1974,10 +2119,11 @@ class DataManager(object):
         return self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
 
     def get_realm_children(self, search):
+
         """ Get a realm sub realms
 
-        Returns -1 if any problem
-        """
+        Returns -1 if any problem"""
+
         logger.debug("get_realm_children, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)
@@ -1990,10 +2136,11 @@ class DataManager(object):
         return self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
 
     def get_realm_overall_state(self, search):
+
         """ Get a realm real state (including realm hosts states).
 
-        Returns -1 if any problem
-        """
+        Returns -1 if any problem"""
+
         logger.debug("get_realm_overall_state, search: %s", search)
         if not isinstance(search, BackendElement):
             realm = self.get_realm(search)

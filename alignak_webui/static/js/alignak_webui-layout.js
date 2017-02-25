@@ -184,16 +184,17 @@ function display_modal(inner_url, hidden) {
    }
 
    window.setTimeout(function() {
-      if (log_layout) console.debug('Display modal: ', inner_url, show);
-      // stop_refresh();
-      $('#mainModal').modal({
-         backdrop: true,
-         keyboard: true,
-         show: show,
-         // remote: inner_url
-      });
+      if (log_layout) console.debug('Display modal, loading...', inner_url, show);
 
-      $("#mainModal .modal-content").load(inner_url);
+      $("#mainModal").find('.modal-content').load(inner_url, function() {
+          stop_refresh();
+          $('#mainModal').modal({
+             backdrop: true,
+             keyboard: true,
+             show: show
+          });
+         if (log_layout) console.debug('Display modal, loaded');
+      });
    }, 10);
 }
 
@@ -206,24 +207,21 @@ $(document).ready(function(){
       $('[data-toggle="tooltip"]').tooltip();
    }
 
-   // When modal box is displayed ...
+   // When modal box is displayed...
    $('#mainModal').on('shown.bs.modal', function () {
       if (log_layout) console.debug('Modal shown');
    });
 
-   // When modal box content is loaded ...
-   $('#mainModal').on('loaded.bs.modal', function () {
-      if (log_layout) console.debug('Modal content loaded');
-   });
-
-   // When modal box is hidden ...
+   // When modal box is hidden...
    $('#mainModal').on('hidden.bs.modal', function () {
       if (log_layout) console.debug('Modal hidden');
 
+      /*
       // Clean modal box content ...
       $(this).removeData('bs.modal');
 
       // Page refresh required
       refresh_required = true;
+      */
    });
 });

@@ -26,6 +26,7 @@ import time
 import shlex
 import unittest2
 import subprocess
+import requests
 from calendar import timegm
 from datetime import datetime, timedelta
 
@@ -130,7 +131,7 @@ class tests_actions(unittest2.TestCase):
         print('get page /acknowledge/form/add')
         response = self.app.get('/acknowledge/form/add')
         response.mustcontain(
-            '<form data-item="acknowledge" data-action="add"'
+            '<form class="form-horizontal" data-item="acknowledge" data-action="add" '
         )
 
         # Get Data manager in the session
@@ -236,7 +237,7 @@ class tests_actions(unittest2.TestCase):
         print('get page /downtime/form/add')
         response = self.app.get('/downtime/form/add')
         response.mustcontain(
-            '<form data-item="downtime" data-action="add"'
+            '<form class="form-horizontal" data-item="downtime" data-action="add"'
         )
 
         # Current user is admin
@@ -333,7 +334,7 @@ class tests_actions(unittest2.TestCase):
         print('get page /recheck/form/add')
         response = self.app.get('/recheck/form/add')
         response.mustcontain(
-            '<form data-item="recheck" data-action="recheck" '
+            '<form class="form-horizontal" data-item="recheck" data-action="add" '
         )
 
         # Current user is admin
@@ -397,6 +398,71 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/recheck/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter. Check request sent for webui/Shinken2-reactionner. service element test does not exist. "
+
+    def test_command(self):
+        """ Actions - command"""
+        print('test command')
+
+        print('get page /command/form/add')
+        response = self.app.get('/command/form/add')
+        response.mustcontain(
+            '<form class="form-horizontal" data-item="command" data-action="add" '
+        )
+
+        # Current user is admin
+        session = response.request.environ['beaker.session']
+        assert 'current_user' in session and session['current_user']
+        assert session['current_user'].get_username() == 'admin'
+
+        # Data manager
+        datamgr = DataManager(
+            session=session,
+            backend_endpoint='http://127.0.0.1:5000'
+        )
+
+        # Get host, user and realm in the backend
+        host = datamgr.get_host({'where': {'name': 'webui'}})
+        user = datamgr.get_user({'where': {'name': 'admin'}})
+
+        # -------------------------------------------
+        # Add a command
+        # Missing or invalid parameters!
+        data = {
+            # "command": "test",
+            "elements_type": 'host',
+            "element_id": host.id
+        }
+        response = self.app.post('/command/add', data, status=204)
+        print(response)
+
+        # Unknown command
+        data = {
+            "command": "test",
+            "elements_type": 'host',
+            "element_id": host.id
+        }
+        response = self.app.post('/command/add', data, status=204)
+
+        # Missing command parameter
+        data = {
+            "command": "process_host_check_result",
+            "elements_type": 'host',
+            "element_id": host.id
+        }
+        response = self.app.post('/command/add', data, status=204)
+
+        # Command for an host
+        data = {
+            "command": "process_host_check_result",
+            "elements_type": 'host',
+            "element_id": host.id,
+            "ls_state_id": '0',
+            "ls_output": "New output..."
+        }
+        response = self.app.post('/command/add', data, status=409)
+        # As of #193...
+        assert response.json['status'] == "ko"
+        assert response.json['message'] == "Failed sending a command for webui. "
 
 
 if __name__ == '__main__':

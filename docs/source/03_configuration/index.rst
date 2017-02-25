@@ -78,7 +78,9 @@ If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_THREAD`` exists, the ap
 
 If an environment variable ``ALIGNAK_WEBUI_DEBUG`` exists, the application will run in debug mode; which means that the application logs will be set to a DEBUG level.
 
-If an environment variable ``ALIGNAK_WEBUI_BACKEND`` exists, the value of this variable will override the one defined in the configuration file.
+If an environment variable ``ALIGNAK_WEBUI_BACKEND`` exists, the value of this variable will override the one defined in the configuration file  (``alignak_backend``).
+
+If an environment variable ``ALIGNAK_WEBUI_WS`` exists, the value of this variable will override the one defined in the configuration file (``alignak_ws``).
 
 
 
@@ -136,6 +138,8 @@ As a default, the user session is valid from the login time up to the client's b
 This section contains parameters to configure the application.
 
     * **alignak_backend**, Alignak backend endpoint (default: *http://127.0.0.1:5000*)
+
+    * **alignak_ws**, Alignak Web Services endpoint (default: *http://127.0.0.1:8888*)
 
     * **debug**, to make the application run in debug mode (much more log in the log file!)
 
