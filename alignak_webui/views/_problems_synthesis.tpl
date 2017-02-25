@@ -53,7 +53,7 @@
     %if ls is None:
     %ls = datamgr.get_livesynthesis()
     %end
-    <div class="col-sm-4 col-xs-6">
+    <div class="col-xs-4">
         %hs = ls['hosts_synthesis']
         %if hs:
         %state='critical' if hs['pct_problems'] >= hs['critical_threshold'] else 'warning' if hs['pct_problems'] >= hs['warning_threshold'] else 'ok'
@@ -76,7 +76,7 @@
         %end
     </div>
 
-    <div class="col-sm-4 col-xs-6">
+    <div class="col-xs-4">
         %ss = ls['services_synthesis']
         %if ss:
         %state='critical' if ss['pct_problems'] >= ss['critical_threshold'] else 'warning' if ss['pct_problems'] >= ss['warning_threshold'] else 'ok'
@@ -99,7 +99,7 @@
         %end
     </div>
 
-    <div class="col-sm-4 col-xs-6">
+    <div class="col-xs-4">
         %if hs and ss:
         %problems = hs['nb_problems'] + ss['nb_problems']
         %elements = hs['nb_elts'] + ss['nb_elts']
