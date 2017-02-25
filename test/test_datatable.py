@@ -617,7 +617,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="business_impact" data-type="integer">Business impact</th>',
             '<th data-name="ls_last_check" data-type="datetime">Last check</th>',
             '<th data-name="ls_state_type" data-type="string">State type</th>',
-            '<th data-name="ls_state_id" data-type="integer">State id</th>',
+            '<th data-name="ls_state_id" data-type="integer">State</th>',
             '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
             '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
             '<th data-name="ls_output" data-type="string">Output</th>',
@@ -755,7 +755,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="overall_state" data-type="string">Overall status</th>',
             '<th data-name="ls_last_check" data-type="datetime">Last check</th>',
             '<th data-name="ls_state_type" data-type="string">State type</th>',
-            '<th data-name="ls_state_id" data-type="integer">State id</th>',
+            '<th data-name="ls_state_id" data-type="integer">State</th>',
             '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
             '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
             '<th data-name="ls_output" data-type="string">Output</th>',
@@ -1061,9 +1061,9 @@ class TestDatatableLogs(TestDatatableBase):
             <th data-name="last_check" data-type="datetime">Last check</th>
             <th data-name="host" data-type="objectid">Host</th>
             <th data-name="service_name" data-type="string">Service</th>
-            <th data-name="state" data-type="string">State</th>
+            <th data-name="state" data-type="string">State id</th>
             <th data-name="state_type" data-type="string">State type</th>
-            <th data-name="state_id" data-type="integer">State id</th>
+            <th data-name="state_id" data-type="integer">State</th>
             <th data-name="passive_check" data-type="boolean">Passive check</th>
             <th data-name="acknowledged" data-type="boolean">Acknowledged</th>
             <th data-name="acknowledgement_type" data-type="integer">Ack type</th>

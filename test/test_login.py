@@ -131,7 +131,7 @@ class TestLogin(unittest2.TestCase):
         assert self.app.cookies['Alignak-WebUI']
         print('cookies: ', self.app.cookiejar)
         for cookie in self.app.cookiejar:
-            print('cookie: ', cookie.name, cookie.expires)
+            print('cookie: ', cookie.__dict__)
             if cookie.name=='Alignak-WebUI':
                 assert cookie.expires
 

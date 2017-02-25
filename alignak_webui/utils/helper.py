@@ -731,6 +731,16 @@ class Helper(object):
                 button = button.replace("##disabled##", '')
             buttons.append(button)
 
+            button = app_config.get('buttons.livestate_command')
+            button = button.replace("##id##", bo_object.id)
+            button = button.replace("##type##", bo_object.get_type())
+            button = button.replace("##name##", bo_object.name)
+            button = button.replace("##action##", 'command')
+            button = button.replace("##title##", _('Notify a command'))
+            button = button.replace("##icon##", 'rocket')
+            button = button.replace("##disabled##", '')
+            buttons.append(button)
+
             content = app_config.get('buttons.livestate_commands')
             content = content.replace("##title##", title)
             content = content.replace("##commands##", ''.join(buttons))

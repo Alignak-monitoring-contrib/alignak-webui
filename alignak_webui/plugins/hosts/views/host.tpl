@@ -128,7 +128,7 @@
    <div>
       %if groups:
       <div class="host-groups btn-group pull-right">
-         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
             <span class="fa fa-sitemap"></span>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
@@ -145,7 +145,7 @@
       <div class="host-action-url btn-group pull-right">
          %action_urls = host.action_url.split('|')
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-external-link"></i> {{_('Action') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
+            <i class="fa fa-external-link"></i> {{_('Actions') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
             %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):

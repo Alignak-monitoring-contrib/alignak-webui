@@ -438,7 +438,7 @@ $(document).ready(function() {
       var url = "/acknowledge/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
-      }, 50);
+      }, 5);
    });
    // Recheck
    $('body').on("click", '[data-action="recheck"]', function () {
@@ -450,7 +450,7 @@ $(document).ready(function() {
       var url = "/recheck/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
-      }, 50);
+      }, 5);
    });
    // Downtime
    $('body').on("click", '[data-action="downtime"]', function () {
@@ -462,6 +462,18 @@ $(document).ready(function() {
       var url = "/downtime/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
       window.setTimeout(function(){
          display_modal(url);
-      }, 50);
+      }, 5);
+   });
+   // Command
+   $('body').on("click", '[data-action="command"]', function () {
+      if (actions_logs) console.debug("Required a command for:", $(this).data('element'));
+
+      var elt_id = $(this).data('element');
+      var elt_name = $(this).data('name');
+      var elt_type = $(this).data('element_type');
+      var url = "/command/form/add?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      window.setTimeout(function(){
+         display_modal(url);
+      }, 5);
    });
 });

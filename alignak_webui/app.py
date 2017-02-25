@@ -24,12 +24,13 @@
 
 """
 Usage:
-    {command} [-h] [-v] [-d] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
+    {command} [-h] [-v] [-d] [-w=url] [-b=url] [-n=hostname] [-p=port] [<cfg_file>...]
 
 Options:
     -h, --help                  Show this screen.
     -v, --version               Show application version.
     -b, --backend url           Specify backend URL
+    -w, --ws url                Specify Alignak Web Services URL
     -n, --hostname host         Specify WebUI host (or ip address)
     -p, --port port             Specify WebUI port
     -d, --debug                 Run in debug mode (more info to display) [default: False]
@@ -193,6 +194,19 @@ if '--backend' in args and args['--backend']:
 
 print("Application backend: %s" % app.config.get('%s.alignak_backend' % app_name,
                                                  'http://127.0.0.1:5000'))
+
+# -----
+# Alignak web services
+# -----
+if os.environ.get('ALIGNAK_WEBUI_WS'):
+    app.config['%s.alignak_ws' % app_name] = os.environ.get('ALIGNAK_WEBUI_WS')
+    print("Alignak Web Services from environment: %s" % os.environ.get('ALIGNAK_WEBUI_WS'))
+if '--ws' in args and args['--ws']:
+    app.config['%s.alignak_ws' % app_name] = args['--ws']
+    print("Alignak Web Services from command line: %s" % args['--ws'])
+
+print("Alignak Web Services: %s" % app.config.get('%s.alignak_ws' % app_name,
+                                                  'http://127.0.0.1:8888'))
 
 if '--host' in args and args['--host']:
     app.config['host'] = args['--host']
@@ -414,8 +428,8 @@ def before_request():
     # Initialize data manager and make it available in the request and in the templates
     if webui.datamgr is None:
         webui.datamgr = DataManager(
-            backend_endpoint=request.app.config.get('%s.alignak_backend' % webui.name,
-                                                    'http://127.0.0.1:5000'),
+            backend_endpoint=request.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
+            alignak_endpoint=request.app.config.get('alignak_ws', 'http://127.0.0.1:8888'),
             session=request.environ['beaker.session']
         )
     request.app.datamgr = webui.datamgr
@@ -725,9 +739,11 @@ def external(widget_type, identifier, action=None):
         BaseTemplate.defaults['current_user'] = session['current_user']
 
         # Make data manager available in the request and in the templates
-        request.app.datamgr = DataManager(request.environ['beaker.session'],
-                                          request.app.config.get('alignak_backend',
-                                                                 'http://127.0.0.1:5000'))
+        request.app.datamgr = DataManager(
+            backend_endpoint=request.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
+            alignak_endpoint=request.app.config.get('alignak_ws', 'http://127.0.0.1:8888'),
+            session=request.environ['beaker.session']
+        )
         BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.info("External request, element type: %s", widget_type)
