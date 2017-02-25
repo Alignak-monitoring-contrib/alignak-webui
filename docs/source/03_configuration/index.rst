@@ -122,6 +122,14 @@ This section contains parameters to configure the base Web server.
     * **debug**, to make the server run in debug mode (only useful for developers)
 
 
+[session] section
+~~~~~~~~~~~~~~~~
+
+This section contains parameters to configure the application user's sessions. Thanks to those parameters it is possible to adapt the session duration according to your needs. This requires to be aware of the Web client / server session handling to make some modifications in this section.
+
+As a default, the user session is valid from the login time up to the client's browser closing, allowing to have infinite sessions to use the Web UI on stand-alone monitors;)
+
+
 [Alignak-WebUI] section
 ~~~~~~~~~~~~~~~~~~~~~~~
 
