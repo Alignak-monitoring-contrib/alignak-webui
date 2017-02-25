@@ -971,14 +971,19 @@ TEMPLATE_PATH.append(
 # Extend default WSGI application with a session middleware
 # -----
 session_opts = {
-    'session.type': 'file',
-    'session.data_dir': os.path.join('/tmp', __manifest__['name'], 'sessions'),
-    'session.auto': True,
-    'session.cookie_expires': 21600,    # 6 hours
-    'session.key': __manifest__['name'],
-    'sesssion.webtest_varname': __manifest__['name'],    # For unit tests ...
-    'session.data_serializer': 'json'   # Default is pickle ... not appropriate for our data!
+    'session.type': app.config.get('session.type', 'file'),
+    'session.data_dir': app.config.get('session.data_dir',
+                                       os.path.join('/tmp', __manifest__['name'], 'sessions')),
+    'session.auto': app.config.get('session.auto', True),
+    'session.cookie_expires': app.config.get('session.cookie_expires', 43200),
+    'session.key': app.config.get('session.key', __manifest__['name']),
+    'session.save_accessed_time': True,
+    'session.timeout': app.config.get('session.timeout', None),
+    'session.data_serializer': app.config.get('session.data_serializer', 'json'),
+    # Do not remove! For unit tests only...
+    'sesssion.webtest_varname': __manifest__['name'],
 }
+logger.debug("Session parameters: %s" % session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
 if __name__ == '__main__':

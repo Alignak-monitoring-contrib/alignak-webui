@@ -7,6 +7,19 @@
 Run
 ===
 
+Maintenance
+-----------
+
+The WebUI application uses the Beaker session middleware and it stores the user sessions in files in the */tmp/Alignak-WebUI/sessions* directory. You will need to remove the oldest files in this directory:
+::
+
+    find /tmp/Alignak-WebUI/sessions -mtime +3 -exec rm {} \;
+
+**Note** that most often the */tmp* directory is cleant on a regular basis and nothing special is to be done;)
+
+
+When using the WebUI with the provided script, some log files are stored in the */usr/local/var/log/alignak-webui* (or */var/log/alignak-webui*). Those files should also be handled else their size will grow indefinitely...
+
 Production mode
 ---------------
 
