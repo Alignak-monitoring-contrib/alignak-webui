@@ -27,16 +27,13 @@ Alignak Web UI
     :target: http://www.gnu.org/licenses/agpl-3.0
     :alt: License AGPL v3
 
-
-Github related
-==============
-
-.. image:: https://badge.fury.io/gh/Alignak-monitoring-contrib%2Falignak-webui.svg
-    :target: https://badge.fury.io/gh/Alignak-monitoring-contrib%2Falignak-webui
-
 .. image:: https://badge.fury.io/py/alignak_webui.svg
     :target: https://badge.fury.io/py/alignak_webui
 
+
+Screenshots
+===========
+.. image:: docs/source/images/Alignak-WebUI-captures.gif
 
 Documentation
 =============
