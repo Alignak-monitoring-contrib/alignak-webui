@@ -643,9 +643,9 @@ class Helper(object):
             elif isinstance(item, dict):
                 content += list_item.replace("##content##", str(item))
             elif hasattr(item, '_type'):
-                content = list_item.replace("##content##", item.get_html_state_link())
+                content += list_item.replace("##content##", item.get_html_state_link())
             else:
-                content = list_item.replace("##content##", item)
+                content += list_item.replace("##content##", item)
 
         content = items_list.replace("##content##", content)
         content = button.replace("##content##", content)
