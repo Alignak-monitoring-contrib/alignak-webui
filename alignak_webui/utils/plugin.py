@@ -51,7 +51,6 @@ class Plugin(object):
     """ WebUI base plugin """
 
     def __init__(self, app, webui, cfg_filenames):
-
         """Create a new plugin
 
         :param app: bottle application
@@ -68,6 +67,12 @@ class Plugin(object):
         self.plugin_filenames = cfg_filenames
         self.plugin_parameters = None
         self.table = None
+
+        # Those backend endpoints are templated
+        self.templated = False
+        if self.backend_endpoint and self.backend_endpoint in ['host', 'service', 'user']:
+            self.templated = True
+        logger.debug("Plugin endpoint %s is templated: %s.", self.backend_endpoint, self.templated)
 
         # Store all the widgets, tables and lists declared by the plugin
         self.widgets = {}
@@ -86,8 +91,8 @@ class Plugin(object):
         logger.info("Plugin %s is installed and enabled.", self.name)
 
     def send_user_message(self, message, status='ko'):  # pylint:disable=no-self-use
-        """
-        Send a user message:
+        """Send a user message:
+
         - store a message in the current session
         - redirects to the application home page
         """
@@ -99,8 +104,7 @@ class Plugin(object):
         redirect('/')
 
     def load_routes(self, app):
-        """
-        Load and create plugin routes
+        """Load and create plugin routes
 
         This function declares a config route if it is not yet declared.
 
@@ -191,11 +195,47 @@ class Plugin(object):
                     }
                 })
 
+            if self.templated and 'get_template_table' not in self.pages:
+                self.pages.update({
+                    'get_templates_table': {
+                        'name': '%s templates table' % self.name,
+                        'route': '/%ss/templates/table' % self.backend_endpoint,
+                        'view': '_table',
+                        'tables': [
+                            {
+                                'id': '%ss_table' % self.backend_endpoint,
+                                'for': ['external'],
+                                'name': _('%s templates table' % self.name),
+                                'template': '_table',
+                                'icon': 'table',
+                                'description': _(
+                                    '<h4>%s table</h4>Displays a data templates table for the '
+                                    'system %ss.<br>' % (
+                                        self.name, self.backend_endpoint
+                                    )
+                                ),
+                                'actions': {
+                                    '%ss/table_data' % self.backend_endpoint: 'get_table_data'
+                                }
+                            }
+                        ]
+                    }
+                })
+
             if 'get_table_data' not in self.pages:
                 self.pages.update({
                     'get_table_data': {
                         'name': '%s table data' % self.name,
                         'route': '/%ss/table_data' % self.backend_endpoint,
+                        'method': 'POST'
+                    }
+                })
+
+            if self.templated and 'get_template_table_data' not in self.pages:
+                self.pages.update({
+                    'get_templates_table_data': {
+                        'name': '%s templates table data' % self.name,
+                        'route': '/%ss/templates_table_data' % self.backend_endpoint,
                         'method': 'POST'
                     }
                 })
@@ -208,11 +248,11 @@ class Plugin(object):
                     }
                 })
 
-            if 'get_templates' not in self.pages:
+            if self.templated and 'get_templates_list' not in self.pages:
                 self.pages.update({
-                    'get_templates': {
+                    'get_templates_list': {
                         'name': '%s templates' % self.name,
-                        'route': '/%ss/templates' % self.backend_endpoint
+                        'route': '/%ss/templates/list' % self.backend_endpoint
                     }
                 })
 
@@ -220,7 +260,7 @@ class Plugin(object):
             logger.debug("page entry: %s -> %s", entry, f_name)
             f = getattr(self, f_name, None)
             if not callable(f):  # pragma: no cover - method should exist
-                logger.error("Callable method: %s does not exist!", f_name)
+                logger.warning("Callable method: %s does not exist!", f_name)
                 continue
 
             # Important: always apply the view before the route!
@@ -332,9 +372,7 @@ class Plugin(object):
                         )
 
     def load_config(self, cfg_filenames=None, initialization=False):
-
-        """
-        Load plugin configuration
+        """Load plugin configuration
 
         The list of files to search for is provided in the `cfg_filenames` parameter. If this
         parameter is None, then the list stored in the `plugin_filenames` attribute is used.
@@ -418,9 +456,7 @@ class Plugin(object):
         return json.dumps(self.plugin_parameters)
 
     def get_one(self, element_id):
-        """
-            Show one element
-        """
+        """Show one element"""
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
@@ -442,9 +478,7 @@ class Plugin(object):
         }
 
     def get_all(self):
-        """
-            Show all elements on one page
-        """
+        """Show all elements on one page"""
         user = request.environ['beaker.session']['current_user']
         webui = request.app.config['webui']
         datamgr = webui.datamgr
@@ -488,9 +522,7 @@ class Plugin(object):
     def get_tree(self):
         # Because the fields are named as _parent and _level ...
         # pylint: disable=protected-access, too-many-locals
-        """
-            Show list of elements
-        """
+        """Show list of elements for a tree"""
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -617,9 +649,7 @@ class Plugin(object):
         }
 
     def get_status(self, element_id=None, element=None):
-        """
-        Get the element overall status
-        """
+        """Get the element overall status"""
         datamgr = request.app.datamgr
 
         if not element:
@@ -661,8 +691,7 @@ class Plugin(object):
         return json.dumps({'status': group_state})
 
     def get_form(self, element_id):
-        """
-            Build the form for an element.
+        """Build the form for an element.
 
             element_id is the _id (or name) of an object to read. If no object is found then an
             empty element is sent to the form which means a new object creation with default values.
@@ -707,8 +736,7 @@ class Plugin(object):
 
     def update_form(self, element_id):
         # pylint: disable=too-many-locals, not-an-iterable, redefined-variable-type
-        """
-            Update an element
+        """Update an element
 
             If element_id is string 'None' then it is a new object creation, else element_id is the
             _id (or name) of an object to update.
@@ -868,17 +896,16 @@ class Plugin(object):
 
         return self.webui.response_data(data)
 
-    def get_table(self, embedded=False, identifier=None, credentials=None):
-        """
-        Build the object_type table and get data to populate the table
-        """
+    def get_table(self, embedded=False, identifier=None, credentials=None, templates=False):
+        """Build the object_type table and get data to populate the table"""
+
         # Table filtering: default is to restore the table saved filters
         where = {'saved_filters': True}
         if request.query.get('search') is not None:
             where = Helper.decode_search(request.query.get('search', ''))
 
         # Build table structure
-        dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table)
+        dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table, templates=templates)
 
         # Build page title
         title = dt.title
@@ -895,19 +922,27 @@ class Plugin(object):
             'credentials': credentials
         }
 
-    def get_table_data(self):
-        """
-        Get the table data (requested from the table)
-        """
-        dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table)
+    def get_templates_table(self, embedded=False, identifier=None, credentials=None):
+        """Build the object_type table and get data to populate the table for the templates"""
+        return self.get_table(embedded=embedded, identifier=identifier,
+                              credentials=credentials, templates=True)
+
+    def get_table_data(self, templates=False):
+        """Get the table data (requested from the table)"""
+        logger.info("request data table: %s, templates: %s",
+                    request.forms.get('object_type'), templates)
+        dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table, templates=templates)
 
         response.status = 200
         response.content_type = 'application/json'
         return dt.table_data()
 
-    def get_templates(self, embedded=False):
-        """
-        Get the elements templates list
+    def get_templates_table_data(self):
+        """Get the table data (requested from the table)"""
+        return self.get_table_data(templates=True)
+
+    def get_templates_list(self, embedded=False):
+        """Get the elements templates list
 
         Returns a JSON list containing, for each template, its id, name and alias
         """
@@ -915,8 +950,7 @@ class Plugin(object):
 
     def get_list(self, templates=None, embedded=False):
         # pylint: disable=unused-argument
-        """
-        Get the elements list
+        """Get the elements list
 
         If the templates parameter is not None, the search is performed with this parameter (True or
         False). If a templates URL parameter (GET or POST) exists, the elements list is
@@ -966,8 +1000,8 @@ class Plugin(object):
                    embedded=False, identifier=None, credentials=None):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals, too-many-arguments
-        """
-        Get a widget...
+        """Get a widget:
+
         - get_method is the datamanager method to call to get elements
         - object_type is the elements type
 

@@ -48,13 +48,16 @@ class Datatable(object):
 
     """jQuery  Datatable plugin interface for backend elements """
 
-    def __init__(self, object_type, datamgr, schema):
-        """
-        Create a new datatable:
+    def __init__(self, object_type, datamgr, schema, templates=False):
+
+        """ Create a new datatable:
+
         - object_type: object type in the backend
         - backend: backend endpoint (http://127.0.0.1:5002)
         - schema: table configuration as defined in the settings.cfg file of a plugin
+        - templates: templates table or objects table (False)
         """
+
         self.object_type = object_type
         self.datamgr = datamgr
         self.backend = self.datamgr.backend
@@ -96,12 +99,16 @@ class Datatable(object):
         self.name_property = None
         self.status_property = None
 
-        # Get the table data model
+        # Get table structure and description
+        self.templates = templates
+        self.is_templated = False
         self.get_data_model(schema)
 
+        # Templates management
         if self.is_templated:
-            self.records_total = self.backend.count(
-                self.object_type, params={'where': {'_is_template': False}})
+            self.records_total = self.backend.count(self.object_type,
+                                                    params={'where': {
+                                                        '_is_template': self.templates}})
         else:
             self.records_total = self.backend.count(self.object_type)
 
@@ -129,8 +136,7 @@ class Datatable(object):
                 the ui in its schema. The dictionary contains all the fields defined in the 'ui'
                 property of the schema of the element.
 
-            :return: list of fields name/title
-        """
+            :return: list of fields name/title"""
 
         if not schema:
             logger.error("get_data_model, missing schema")
@@ -138,15 +144,17 @@ class Datatable(object):
 
         self.table_columns = []
         for field, model in schema.iteritems():
+            logger.debug('get_data_model, field: %s, schema: %s', field, model)
+
             # Global table configuration?
             if field == '_table':
-                # logger.debug('get_data_model, table UI schema: %s', model)
-
                 self.id_property = model.get('id_property', '_id')
                 self.name_property = model.get('name_property', 'name')
                 self.status_property = model.get('status_property', 'status')
 
-                self.title = model['page_title']
+                self.items_title = model.get('page_title', _('Items table (%d items)'))
+                self.templates_title = model.get('template_page_title', self.items_title)
+
                 self.visible = model.get('visible', self.visible)
                 self.printable = model.get('printable', self.printable)
                 self.orderable = model.get('orderable', self.orderable)
@@ -156,6 +164,7 @@ class Datatable(object):
                 self.responsive = model.get('responsive', self.responsive)
                 self.recursive = model.get('recursive', self.recursive)
                 self.commands = model.get('commands', self.commands)
+                self.paginable = model.get('paginable', self.paginable)
                 self.css = model.get('css', "display nowrap")
 
                 self.initial_sort = model.get('initial_sort', [[0, 'desc']])
@@ -163,6 +172,17 @@ class Datatable(object):
 
             if field == '_is_template':
                 self.is_templated = True
+
+            if self.templates:
+                self.title = self.templates_title
+            else:
+                self.title = self.items_title
+
+            # ignore this field if we display the templates and it is configured as ignored...
+            templates_included = model.get('templates_table', False)
+            if self.templates and not templates_included:
+                logger.debug('get_data_model, templates table filtered: %s', field)
+                continue
 
             # Get all the definitions made in the plugin configuration...
             ui_field = model
@@ -193,6 +213,10 @@ class Datatable(object):
             # but it will be hidden!
             if model.get('hidden', False):
                 ui_field.update({'visible': True})
+
+            if self.templates and templates_included:
+                ui_field.update({'visible': True})
+                ui_field.update({'hidden': False})
 
             if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
                 ui_field.update(
@@ -283,15 +307,12 @@ class Datatable(object):
             }
         }
 
-    #
-    # Data source
-    #
     def table_data(self):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
 
-        """
-        Return elements data in json format as of Datatables SSP protocol
+        """Return elements data in json format as of Datatables SSP protocol
+
         More info: https://datatables.net/manual/server-side
 
         Example URL::
@@ -361,7 +382,8 @@ class Datatable(object):
         """
 
         # Manage request parameters ...
-        logger.info("request data for table: %s", request.forms.get('object_type'))
+        logger.info("request data for table: %s, templates: %s",
+                    request.forms.get('object_type'), self.templates)
 
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
@@ -384,10 +406,8 @@ class Datatable(object):
 
         parameters['page'] = (first_row // rows_count) + 1
         parameters['max_results'] = rows_count
-        logger.debug(
-            "get %d rows from row #%d -> page: %d",
-            rows_count, first_row, parameters['page']
-        )
+        logger.debug("get %d rows from row #%d -> page: %d",
+                     rows_count, first_row, parameters['page'])
 
         # Columns ordering
         # order:[{"column":2,"dir":"desc"}]
@@ -518,17 +538,16 @@ class Datatable(object):
         # Count total elements excluding templates if necessary
         if self.is_templated:
             self.records_total = self.backend.count(
-                self.object_type, params={'where': {'_is_template': False}}
+                self.object_type, params={'where': {'_is_template': self.templates}}
             )
+            if 'where' in parameters:
+                parameters['where'].update({'_is_template': self.templates})
+            else:
+                parameters['where'] = {'_is_template': self.templates}
         else:
             self.records_total = self.backend.count(self.object_type)
 
-        if self.is_templated:
-            if 'where' in parameters:
-                parameters['where'].update({'_is_template': False})
-            else:
-                parameters['where'] = {'_is_template': False}
-
+        # Specific hack to filter the log check results that are not dated!
         if self.object_type == 'logcheckresult':
             parameters.update({'where': {"last_check": {"$ne": 0}}})
 
@@ -597,9 +616,7 @@ class Datatable(object):
                 if field['data'] == self.name_property:
                     # item[field] = bo_object.get_html_link(prefix=request.params.get('links'))
                     row[self.name_property] = bo_object.html_link
-                    row['DT_RowData'].update(
-                        {"object_%s" % self.object_type: bo_object.name}
-                    )
+                    row['DT_RowData'].update({"object_%s" % self.object_type: bo_object.name})
                     continue
 
                 if field['data'] == self.status_property:
@@ -607,11 +624,10 @@ class Datatable(object):
                     row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
                     continue
 
-                if field['data'] == 'overall_state':
+                if field['data'] in ['_overall_state_id', 'overall_state']:
                     # Get elements from the data manager
-                    f_get_overall_state = getattr(
-                        self.datamgr, 'get_%s_overall_state' % self.object_type
-                    )
+                    f_get_overall_state = getattr(self.datamgr,
+                                                  'get_%s_overall_state' % self.object_type)
                     if f_get_overall_state:
                         (dummy, overall_status) = f_get_overall_state(bo_object)
 
@@ -668,14 +684,13 @@ class Datatable(object):
                         row[field['data']] = bo_object[field['data']].get_html_link(
                             prefix=request.params.get('links')
                         )
-                        row['DT_RowData'].update(
-                            {"object_%s" % field['data']: bo_object[field['data']].name}
-                        )
+                        row['DT_RowData'].update({
+                            "object_%s" % field['data']: bo_object[field['data']].name
+                        })
                     else:
-                        logger.debug(
-                            "Table field object is not an object: %s, %s = %s",
-                            bo_object.name, field['data'], getattr(bo_object, field['data'])
-                        )
+                        logger.debug("Table field object is not an object: %s, %s = %s",
+                                     bo_object.name, field['data'],
+                                     getattr(bo_object, field['data']))
                         row[field['data']] = getattr(bo_object, field['data'])
                         if row[field['data']] == field['resource']:
                             row[field['data']] = '...'

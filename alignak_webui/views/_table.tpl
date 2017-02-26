@@ -183,8 +183,7 @@
                         allowEmptyOption: false,
                         openOnFocus: true,
                         onChange: function(value) {
-                           console.log("Changed:", value);
-                           console.log("Changed:", this);
+                           if (debugTable) console.log("Changed:", value, this);
                            //this.clear(true);
                         }
                      });
@@ -447,7 +446,7 @@
          "processing": true,
          "serverSide": true,
          "ajax": {
-            "url": "{{server_url}}/{{object_type}}s/table_data",
+            "url": "{{server_url}}/{{object_type}}s/{{'templates_table_data' if dt.templates else 'table_data'}}",
             "method": "POST",
             "data": function ( d ) {
                // Add an extra field
@@ -712,7 +711,7 @@
                }
             }
             %end
-            %if dt.commands:
+            %if dt.commands and not dt.templates:
             // Only for tables with 'commands' attribute (eg. livestate)
             ,{
                extend: 'collection',
@@ -835,6 +834,26 @@
                      },
                   }
                ],
+            }
+            %end
+            %if dt.is_templated:
+            ,{
+               %if dt.templates:
+               text: "{{! _('<span class=\'fa fa-square\'></span>')}}",
+               titleAttr: "{{_('Navigate to the %ss table' % object_type)}}",
+               action: function (e, dt, button, config) {
+                  if (debugTable) console.log('Navigate to the {{object_type}} table!');
+                  window.location.href = "/{{object_type}}s/table";
+               },
+               %else:
+               text: "{{! _('<span class=\'fa fa-clone\'></span>')}}",
+               titleAttr: "{{_('Navigate to the %ss templates table' % object_type)}}",
+               action: function (e, dt, button, config) {
+                  if (debugTable) console.log('Navigate to the {{object_type}} templates table!');
+                  window.location.href = "/{{object_type}}s/templates/table";
+               },
+               %end
+               className: 'btn-raised btn-xs'
             }
             %end
             %if dt.recursive:

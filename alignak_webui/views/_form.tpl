@@ -219,121 +219,122 @@
          %  icon=icon['icon'] if icon else ''
          %end
          <div class="well page">
-         <h4>{{_('Inherited templates:')}}</h4>
-         <div class="form-group">
-            <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
-            <div class="col-md-10">
-               <div class="input-group">
-                  <span class="input-group-addon text-info">
-                     <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                  </span>
-                  <select id="{{field}}" name="{{field}}"
-                         class="form-control"
-                         {{'readonly="readonly"' if not edition or not editable else ''}}>
-                  </select>
-                  <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
+            <h4>{{_('Inherited templates:')}}</h4>
+            <div class="form-group">
+               <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
+               <div class="col-md-10">
+                  <div class="input-group">
+                     <span class="input-group-addon text-info">
+                        <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                     </span>
+                     <select id="{{field}}" name="{{field}}"
+                            class="form-control"
+                            {{'readonly="readonly"' if not edition or not editable else ''}}>
+                     </select>
+                     <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
+                  </div>
+                  %if hint:
+                  <p class="help-block">
+                     {{hint}}
+                     %if unique:
+                     <br>This field must be unique.
+                     %end
+                     %if required:
+                     <br>This field is required.
+                     %end
+                  </p>
+                  %end
                </div>
-               %if hint:
-               <p class="help-block">
-                  {{hint}}
-                  %if unique:
-                  <br>This field must be unique.
-                  %end
-                  %if required:
-                  <br>This field is required.
-                  %end
-               </p>
-               %end
             </div>
-         </div>
-         %if selectize and edition:
-         <script>
-            $('#{{field}}').selectize({
-               %if not required:
-               'plugins': ["remove_button"],
-               %end
+            <br/>
+            %if selectize and edition:
+            <script>
+               $('#{{field}}').selectize({
+                  %if not required:
+                  'plugins': ["remove_button"],
+                  %end
 
-               valueField: 'id',
-               labelField: 'name',
-               searchField: 'name',
-               create: false,
+                  valueField: 'id',
+                  labelField: 'name',
+                  searchField: 'name',
+                  create: false,
 
-               render: {
-                  option: function(item, escape) {
-                     return '<div>' +
-                        %if icon:
-                        '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                        %end
-                        (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                        (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                     '</div>';
-                  },
-                  item: function(item, escape) {
-                     return '<div>' +
-                        %if icon:
-                        '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                        %end
-                        (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                     '</div>';
-                  }
-               },
-
-               %if allowed:
-               %  # List of allowed values
-               %  if allowed[0].startswith('inner://'):
-                  preload: true,
-                  openOnFocus: true,
-                  load: function(query, callback) {
-                     //if (!query.length) return callback();
-                     $.ajax({
-                        url: "{{allowed[0].replace('inner://', '/')}}",
-                        type: 'GET',
-                        error: function() {
-                           callback();
-                        },
-                        success: function(res) {
-                           // 10 first items only...
-                           // callback(res.slice(0, 10));
-                           callback(res);
-                        }
-                     });
-                  },
-               %  else:
-                  options: [
-                  %     for option in allowed:
-                     {
-                        'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
+                  render: {
+                     option: function(item, escape) {
+                        return '<div>' +
+                           %if icon:
+                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                           %end
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                        '</div>';
                      },
-                  %     end
-                  ],
-               %  end
-               %else:
-               %# No list of allowed values
-                  options: [
-                     { 'id': 'XxX', 'name': 'You should define an allowed value...' }
-                  ],
-               %end
+                     item: function(item, escape) {
+                        return '<div>' +
+                           %if icon:
+                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                           %end
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                        '</div>';
+                     }
+                  },
 
-               maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
-               closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+                  %if allowed:
+                  %  # List of allowed values
+                  %  if allowed[0].startswith('inner://'):
+                     preload: true,
+                     openOnFocus: true,
+                     load: function(query, callback) {
+                        //if (!query.length) return callback();
+                        $.ajax({
+                           url: "{{allowed[0].replace('inner://', '/')}}",
+                           type: 'GET',
+                           error: function() {
+                              callback();
+                           },
+                           success: function(res) {
+                              // 10 first items only...
+                              // callback(res.slice(0, 10));
+                              callback(res);
+                           }
+                        });
+                     },
+                  %  else:
+                     options: [
+                     %     for option in allowed:
+                        {
+                           'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
+                        },
+                     %     end
+                     ],
+                  %  end
+                  %else:
+                  %# No list of allowed values
+                     options: [
+                        { 'id': 'XxX', 'name': 'You should define an allowed value...' }
+                     ],
+                  %end
 
-               placeholder: '{{placeholder}}',
-               hideSelected: true,
-               %if not required:
-               allowEmptyOption: true
+                  maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
+                  closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+
+                  placeholder: '{{placeholder}}',
+                  hideSelected: true,
+                  %if not required:
+                  allowEmptyOption: true
+                  %end
+               });
+               // Add selected options / items to the control...
+               var $select = $('#{{field}}').selectize();
+               var selectize = $select[0].selectize;
+               %for field_id, field_value in list_values:
+                  selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
                %end
-            });
-            // Add selected options / items to the control...
-            var $select = $('#{{field}}').selectize();
-            var selectize = $select[0].selectize;
-            %for field_id, field_value in list_values:
-               selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+               %for field_id, field_value in list_values:
+                  selectize.addItem("{{field_id}}");
+               %end
+            </script>
             %end
-            %for field_id, field_value in list_values:
-               selectize.addItem("{{field_id}}");
-            %end
-         </script>
-         %end
          </div>
       %end
 
@@ -346,7 +347,7 @@
 
          %for field, model in plugin.table.iteritems():
             %selectize = False
-            %if not model.get('visible', True) or field[0] in ['#', '_']:
+            %if not model.get('visible', True) or field[0] in ['#', '_'] or field.startswith('ls_'):
                %if debug:
                %if element:
                <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field, value: {{element[field]}}<br>

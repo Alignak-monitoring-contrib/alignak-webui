@@ -41,7 +41,6 @@ class PluginServices(Plugin):
         """
         self.name = 'Services'
         self.backend_endpoint = 'service'
-        _ = app.config['_']
 
         self.pages = {
             'get_service_widget': {

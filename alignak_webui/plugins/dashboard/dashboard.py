@@ -42,7 +42,6 @@ class PluginDashboard(Plugin):
         """
         self.name = 'Dashboard'
         self.backend_endpoint = None
-        _ = app.config['_']
 
         self.pages = {
             'get_page': {

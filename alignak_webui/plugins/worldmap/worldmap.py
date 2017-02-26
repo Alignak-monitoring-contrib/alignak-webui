@@ -52,7 +52,6 @@ class PluginWorldmap(Plugin):
         """
         self.name = 'Worldmap'
         self.backend_endpoint = None
-        _ = app.config['_']
 
         self.pages = {
             'show_worldmap': {

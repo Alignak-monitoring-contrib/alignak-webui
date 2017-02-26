@@ -46,7 +46,6 @@ class PluginServicesGroups(Plugin):
         """
         self.name = 'Services groups'
         self.backend_endpoint = 'servicegroup'
-        _ = app.config['_']
 
         self.pages = {
             'get_servicegroup_members': {

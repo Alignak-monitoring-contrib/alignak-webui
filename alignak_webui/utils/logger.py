@@ -64,25 +64,27 @@ class ColorStreamHandler(StreamHandler):
             self.handleError(record)
 
 
-def setup_logging(default_path='logging.json', default_level=logging.INFO, env_key='WEBUI_LOG_CFG'):
+def setup_logging(path='logging.json', location='/tmp', default_level=logging.INFO):
     """Setup logging configuration
 
-    Get the logger configuration from a file which name is specified in `default_path`.
-    This file name can be overriden by the environment variable `env_key` which may
-    contain an alternate file name. If the logger configurationsucceeds, this
-    function returns True.
+    Get the logger configuration from a file which name is specified in `path`. Update
+    the file handlers defined in the logger configuration with the `location` parameter.
+    If the logger configuration succeeds, this function returns True.
 
-    If the logger configuration cannot be get from a file, then this function returnes False.
+    If the logger configuration cannot be get from a file, then this function returns False.
     Except if `default_logger`is set then the logger is configured with the basic
     configuration and its level is set to the `default_level`.
     """
-    path = default_path
-    value = os.getenv(env_key, None)
-    if value:
-        path = value
     if os.path.exists(path):
+        print("Log file location: %s" % location)
         with open(path, 'rt') as file_handler:
             config = json.load(file_handler)
+
+        for handler in config['handlers'].values():
+            print("Handler: %s" % (handler))
+            if 'filename' in handler:
+                handler['filename'] = os.path.join(location, handler['filename'])
+                print("Handler: %s" % (handler))
         logging.config.dictConfig(config)
         return True
 

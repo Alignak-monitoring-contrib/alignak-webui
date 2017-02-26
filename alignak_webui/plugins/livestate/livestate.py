@@ -44,7 +44,6 @@ class PluginLivestate(Plugin):
         """
         self.name = 'Livestate'
         self.backend_endpoint = None
-        _ = app.config['_']
 
         self.pages = {
             'bi_livestate': {

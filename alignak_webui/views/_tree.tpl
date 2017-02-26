@@ -15,14 +15,38 @@
 <style>
    // Get sure that jsTree context menu is visible ...
    .jstree-contextmenu {
-       z-index: 1000;
+      z-index: 1000;
    }
 
-.vcenter {
-    display: inline-block;
-    vertical-align: middle;
-    height: 40px;
-}
+   .vcenter {
+      display: inline-block;
+      vertical-align: middle;
+      height: 40px;
+   }
+
+   .member {
+      background-color: #eee;
+   }
+
+   .tree_state{
+      width: 20px;
+   }
+   .tree_url{
+      width: 200px;
+   }
+   .tree_bi{
+      width: 40px;
+   }
+   .tree_lc{
+      width: 60px;
+   }
+   .tree_lsc{
+      width: 60px;
+   }
+   .tree_output{
+      width: 100%;
+   }
+   
 </style>
 
 <!-- Tree display -->
@@ -203,8 +227,15 @@
                         $("#right_panel").slideUp(50, function() {
                            $(this).empty();
 
+                           var o = null;
+
                            $(data).each(function(idx, elt){
                               if (debugTree) console.debug("Element:", elt);
+
+                              if (elt.id == -1) {
+                                 o = $(elt.tr).appendTo('#right_panel');
+                                 return true;
+                              }
 
                               // Iterates through the selected node children...
                               var found = false;
@@ -228,12 +259,9 @@
                                  });
                               }
 
-                              var o = $('<div class="card" style="padding:10px;">')
-                                 .appendTo('#right_panel');
-                              $('<div id="member_' + elt.id + '" />')
-                                 .append(elt.state)
-                                 .append(elt.url)
-                                 .appendTo(o);
+                              if (o) {
+                                 $('#right_panel table tbody').append(elt.tr);
+                              }
                            });
 
                            $("#right_panel")

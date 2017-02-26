@@ -31,6 +31,7 @@ from bottle import request, response
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -40,14 +41,12 @@ class PluginRealms(Plugin):
     """ Realms plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Services groups plugin
+        """Realms plugin
 
         Overload the default get route to declare filters.
         """
         self.name = 'Realms'
         self.backend_endpoint = 'realm'
-        _ = app.config['_']
 
         self.pages = {
             'get_realm_members': {
@@ -59,9 +58,7 @@ class PluginRealms(Plugin):
         super(PluginRealms, self).__init__(app, webui, cfg_filenames)
 
     def get_one(self, element_id):
-        """
-            Show one element
-        """
+        """Show one element"""
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
@@ -84,8 +81,7 @@ class PluginRealms(Plugin):
         }
 
     def get_overall_state(self, element):  # pylint:disable=no-self-use
-        """
-        Get the realm overall state
+        """Get the realm overall state
 
         Args:
             element:
@@ -110,9 +106,7 @@ class PluginRealms(Plugin):
         return (overall_state, overall_status)
 
     def get_realm_members(self, element_id):
-        """
-        Get the realm hosts list
-        """
+        """Get the realm hosts list"""
         datamgr = request.app.datamgr
 
         realm = datamgr.get_realm(element_id)
@@ -123,16 +117,60 @@ class PluginRealms(Plugin):
                                                               % element_id)
 
         # Get elements from the data manager
-        hosts = datamgr.get_hosts({'where': {'_realm': realm.id}})
+        search = {
+            'where': {'_realm': realm.id},
+            'sort': '-business_impact, -ls_state_id, -ls_last_state_changed'
+        }
+        hosts = datamgr.get_hosts(search=search)
+        logger.debug("get_realm_members, search: %s, found %d hosts", search, len(hosts))
 
         # Get element state configuration
         items_states = ElementState()
 
         items = []
+        items.append({
+            'id': -1,
+            'type': 'host',
+            'tr': """
+                <table class="table table-invisible table-condensed">
+                  <thead><tr>
+                    <th></th>
+                    <th>%s</th>
+                    <th>%s</th>
+                    <th>%s</th>
+                    <th>%s</th>
+                    <th>%s</th>
+                  </tr></thead>
+
+                  <tbody>
+                  </tbody>
+                </table>
+            """ % (
+                _("BI"), _("Element"),
+                _("Since"), _("Last check"), _("Output")
+            )
+        })
         for member in hosts:
             logger.debug("Realm member: %s", member)
             cfg_state = items_states.get_icon_state('host', member.status)
 
+            tr = """<tr>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td class="hidden-xs">%s</td>
+                <td class="hidden-xs">%s</td>
+                <td class="hidden-sm hidden-xs">%s: %s</td>
+            </tr>""" % (
+                member.get_html_state(text=None, title=member.alias),
+                Helper.get_html_business_impact(member.business_impact,
+                                                icon=True, text=False, less=2),
+                member.get_html_link(),
+                Helper.print_duration(member.last_state_changed, duration_only=True, x_elts=2),
+                Helper.print_duration(member.last_check, duration_only=True, x_elts=2),
+                Helper.print_date(member.last_check),
+                member.output
+            )
             items.append({
                 'id': member.id,
                 'type': 'host',
@@ -141,7 +179,15 @@ class PluginRealms(Plugin):
                 'status': member.status,
                 'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                 'state': member.get_html_state(text=None, title=member.alias),
-                'url': member.get_html_link()
+                'tr': tr,
+                'url': member.get_html_link(),
+                'bi': Helper.get_html_business_impact(member.business_impact,
+                                                      icon=True, text=False, less=2),
+                'last_check': Helper.print_duration(member.last_check,
+                                                    duration_only=True, x_elts=2),
+                'last_state_changed': Helper.print_duration(member.last_state_changed,
+                                                            duration_only=True, x_elts=2),
+                'output': "%s: %s" % (Helper.print_date(member.last_check), member.ls_output)
             })
 
         response.status = 200

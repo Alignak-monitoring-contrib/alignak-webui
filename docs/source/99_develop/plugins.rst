@@ -110,6 +110,81 @@ The configuration file is built like an Ini file parsed thank to Python ConfigPa
 Once parsed, the configuration file will make available an ordered dictionary in the plugin class: ``self.plugin_parameters``. The ``self.plugin_parameters['table']``, also aliased as ``self.table``, contains the table structure. Using the *element/config* route with a Web browser will output Json formatted data with the parameters.
 
 
+Plugin table configuration
+--------------------------
+A plugin can have its own configuration file.
+
+Whole table configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+        ; Table global configuration
+        [table]
+
+        ; Items page title - used when displaying items table
+        page_title=Hosts table (%d items)
+
+        ; Templates page title - used when displaying templates table
+        template_page_title=Hosts templates table (%d items)
+
+        ; Obviously ;)
+        visible=True
+
+        ; The table may be printed
+        printable=True
+
+        ; The table may be ordered - then orderable fields are active
+        orderable=True
+
+        ; The table is editable - items can be selected for edition
+        editable=True
+
+        ; The table is selectable - rows can be selected
+        selectable=True
+
+        ; The table is searchable - searchable fields are active
+        searchable=True
+
+        ; The table is responsive or not - responsivenes adds an horizontal bar
+        responsive=False
+
+        ; The table is recursive (sic)- can navigate to a tree view
+        recursive=True
+
+Table field configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+        ; Declare the field 'name' of the table
+        [table.name]
+        ; Title of the table column
+        title=Timeperiod name
+        type=string
+
+        ; When displaying the templates table, only the fields having templates_table=true are displayed
+        templates_table=true
+
+        ; This field is searchable
+        searchable=True
+        ; If regex is true, search in the table with a regex, else search for strictly identical content
+        regex=True
+
+        ; The table may be ordered
+        orderable=True
+
+        ; Edition part
+        ; ------------
+        ; This field is editable
+        editable=True
+        ; The hint information is displayed in the edition form to explain the field content
+        hint=This field is the time period name
+        ; Required field
+        required=true
+        ; Field can be left empty or not
+        empty=false
+        ; Must contain a unique value
+        unique=true
+
 Plugin routes
 -------------
 A plugin may declare routes for the application Web server. The routes declaration is made through a global dictionary named *pages*.
@@ -128,150 +203,4 @@ For a recursive element (eg. hostgroups, ...):
 
     - elements tree view: /elements_tree
 
-A complete example of what is possible can be found in the **hosts** plugin. This example is copied and commented hereunder ...
-
-Example::
-
-    pages = {
-        # To allow plugin configuration reload thanks to a browser navigation...
-        load_config: {
-            'name': 'Hosts plugin config',
-            'route': '/hosts/config'
-        },
-        # Get a widget for an host...
-        get_host_widget: {
-            'name': 'Host widget',
-            'route': '/host_widget/<host_id>/<widget_id>',
-            'view': 'host',
-            'widgets': [
-                {
-                    'id': 'information',
-                    'for': ['host'],
-                    'name': _('Information'),
-                    'template': 'host_information_widget',
-                    'icon': 'info',
-                    'description': _(
-                        'Host information: displays host general information.'
-                    ),
-                    'options': {}
-                },
-
-                ...
-
-            ]
-        },
-        # View an host
-        get_host: {
-            'name': 'Host',
-            'route': '/host/<host_id>',
-            'view': 'host'
-        },
-        # View all hosts
-        get_hosts: {
-            'name': 'Hosts',
-            'route': '/hosts',
-            'view': 'hosts'
-        },
-        # Get all hosts list
-        # Note how routes can be defined in an array... if you need several routes to the same function!
-        get_hosts_list: {
-            'routes': [
-                ('/hosts_list', 'Hosts list'),
-            ]
-        },
-        get_hosts_templates: {
-            'routes': [
-                ('/hosts_templates', 'Hosts templates'),
-            ]
-        },
-
-        get_hosts_table: {
-            'name': 'Hosts table',
-            'route': '/hosts_table',
-            'view': '_table',
-            'search_engine': True,
-            'search_prefix': '',
-            # Must use this complex structure because we want ordering ... and OrderedDict are not supported.
-            'search_filters': {
-                # 01 for sorting as first
-                # Title
-                # Filter: field name : value
-                '01': (_('Hosts'), '_is_template:false'),
-                # Create a line divider
-                '02': ('', ''),
-                '03': (_('Hosts templates'), '_is_template:true'),
-            },
-            'tables': [
-                {
-                    'id': 'hosts_table',
-                    'for': ['external'],
-                    'name': _('Hosts table'),
-                    'template': '_table',
-                    'icon': 'table',
-                    'description': _(
-                        '<h4>Hosts table</h4>Displays a datatable for the monitored system hosts.<br>'
-                    ),
-                    'actions': {
-                        'hosts_table_data': get_hosts_table_data
-                    }
-                }
-            ]
-        },
-
-        get_hosts_table_data: {
-            'name': 'Hosts table data',
-            'route': '/hosts_table_data',
-            'method': 'POST'
-        },
-
-        get_hosts_widget: {
-            'name': 'Hosts widget',
-            'route': '/hosts/widget',
-            'method': 'POST',
-            'view': 'hosts_widget',
-            'widgets': [
-                {
-                    'id': 'hosts_table',
-                    'for': ['external', 'dashboard'],
-                    'name': _('Hosts table widget'),
-                    'template': 'hosts_table_widget',
-                    'icon': 'table',
-                    'description': _(
-                        '<h4>Hosts table widget</h4>Displays a list of the monitored system hosts.<br>'
-                        'The number of hosts in this list can be defined in the widget options.'
-                        'The list of hosts can be filtered thanks to regex on the host name'
-                    ),
-                    'picture': 'htdocs/img/hosts_table_widget.png',
-                    'options': {
-                        'search': {
-                            'value': '',
-                            'type': 'text',
-                            'label': _('Filter (ex. status:up)')
-                        },
-                        'count': {
-                            'value': -1,
-                            'type': 'int',
-                            'label': _('Number of elements')
-                        },
-                        'filter': {
-                            'value': '',
-                            'type': 'hst_srv',
-                            'label': _('Host name search')
-                        }
-                    }
-                },
-                {
-                    'id': 'hosts_chart',
-                    'for': ['external', 'dashboard'],
-                    'name': _('Hosts chart widget'),
-                    'template': 'hosts_chart_widget',
-                    'icon': 'pie-chart',
-                    'description': _(
-                        '<h4>Hosts chart widget</h4>Displays a pie chart with the system hosts states.'
-                    ),
-                    'picture': 'htdocs/img/hosts_chart_widget.png',
-                    'options': {}
-                }
-            ]
-        },
-    }
+A complete example of what is possible can be found in the **hosts** plugin. The source code is commented to explain what is done...

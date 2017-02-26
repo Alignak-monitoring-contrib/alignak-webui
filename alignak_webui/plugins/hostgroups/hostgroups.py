@@ -31,6 +31,7 @@ from bottle import request, response
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -47,7 +48,6 @@ class PluginHostsGroups(Plugin):
         """
         self.name = 'Hosts groups'
         self.backend_endpoint = 'hostgroup'
-        _ = app.config['_']
 
         self.pages = {
             'get_group_members': {
@@ -63,9 +63,7 @@ class PluginHostsGroups(Plugin):
         super(PluginHostsGroups, self).__init__(app, webui, cfg_filenames)
 
     def get_one(self, element_id):
-        """
-            Show one element
-        """
+        """Show one element"""
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
@@ -92,8 +90,7 @@ class PluginHostsGroups(Plugin):
         }
 
     def get_overall_state(self, element):  # pylint:disable=no-self-use
-        """
-        Get the hostgroup overall state
+        """Get the hostgroup overall state:
 
         Args:
             element:
@@ -118,9 +115,7 @@ class PluginHostsGroups(Plugin):
         return (overall_state, overall_status)
 
     def get_group_members(self, element_id):
-        """
-        Get the hostgroup hosts list
-        """
+        """Get the hostgroup hosts list"""
         datamgr = request.app.datamgr
 
         hostgroup = datamgr.get_hostgroup(element_id)
@@ -149,7 +144,14 @@ class PluginHostsGroups(Plugin):
                     'status': member.status,
                     'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                     'state': member.get_html_state(text=None, title=member.alias),
-                    'url': member.get_html_link()
+                    'url': member.get_html_link(),
+                    'bi': Helper.get_html_business_impact(member.business_impact,
+                                                          icon=True, text=False, less=2),
+                    'last_check': Helper.print_duration(member.last_check,
+                                                        duration_only=True, x_elts=2),
+                    'last_state_changed': Helper.print_duration(member.last_state_changed,
+                                                                duration_only=True, x_elts=2),
+                    'output': "%s: %s" % (Helper.print_date(member.last_check), member.ls_output)
                 })
 
         response.status = 200

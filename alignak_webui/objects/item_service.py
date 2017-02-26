@@ -46,18 +46,6 @@ class Service(BackendElement):
     # Status property
     status_property = 'ls_state'
 
-    # Converting real state identifier to text status
-    overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'  # 'unknown', 'unreachable'
-    ]
-    # overall_state_to_title = [
-    #     _('Service is ok'),
-    #     _('Service has a problem but is acknowledged'),
-    #     _('Service is in a downtime period'),
-    #     _('Service is warning or state is unknown'),
-    #     _('Service is critical')
-    # ]
-
     # Converting short state character to text status (used for initial_state and freshness_state)
     short_state_to_status = {
         'o': 'Ok',
@@ -71,8 +59,19 @@ class Service(BackendElement):
     }
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-
         """Create a service (called only once when an object is newly created)"""
+
+        # Converting real state identifier to text status
+        self.overall_state_to_status = [
+            'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'  # 'unknown', 'unreachable'
+        ]
+        self.overall_state_to_title = [
+            _('Service is ok'),
+            _('Service has a problem but is acknowledged'),
+            _('Service is in a downtime period'),
+            _('Service is warning or state is unknown'),
+            _('Service is critical')
+        ]
 
         # self._linked__realm = 'realm'
         self._linked__templates = 'service'

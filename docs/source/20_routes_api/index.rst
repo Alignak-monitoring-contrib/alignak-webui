@@ -28,13 +28,15 @@ Each plugin defines routes that are added to the application routes when the plu
 
 Most plugins are dedicated to a specific backend element (eg. host, service, ...). For those plugins, some rules, implemented in the Plugin class, are commonly used for the routes:
 
-    - /elements, get the paginated elements list
-    - /elements/config, reload the element configuration file (if it exists)
-    - /elements/tree, get the element tree view (for some elements)
-    - /elements/table, get the element table view
-    - /elements/table_data, get the element table data (called by the datatable)
-    - /elements/list, get all the elements list as a json list of objects containing `id`, `name` and `alias`
-    - /element/id, get the view of a specific element. *id* may be the element `id` or `name`
+    - */elements*, get the paginated elements list
+    - */elements/tree*, get the element tree view (for some elements)
+    - */elements/table*, get the element table view
+    - */elements/table_data*, get the element table data (called by the datatable)
+    - */elements/templates/table*, get the element templates table view
+    - */elements/templates/table_data*, get the element templates table data (called by the datatable)
+    - */elements/list*, get all the elements list as a json list of objects containing `id`, `name` and `alias`
+    - */elements/templates/list*, get all the elements templates as a json list of objects containing `id`, `name` and `alias`
+    - */element/id*, get the view of a specific element. *id* may be the element `id` or `name`
 
 Where `element` stands for the specific element name: host, service, user, ...
 
@@ -76,6 +78,21 @@ Table view::
     - `?search=name:value` to search for `value` in the column `name`
     - `?search=name:value name2:value2` to search for `value` in the column `name` and `value2` in `name2`
 
+Get elements templates table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This route is provided by plugins associated to templated elements (eg. host, service or user). It allows to display a table view for the element templates.
+
+Templates table view::
+
+    /hosts/templates/table
+
+    /hosts/templates/table?search=
+
+    - `?search=` to clear all the table filters
+    - `?search=name:value` to search for `value` in the column `name`
+    - `?search=name:value name2:value2` to search for `value` in the column `name` and `value2` in `name2`
+
 Get elements tree
 ~~~~~~~~~~~~~~~~~
 
@@ -95,7 +112,7 @@ List view::
 
     /hostgroups/list
 
-    /hostgroups/templates
+    /hostgroups/templates/list
 
     /hostgroups/list?templates=1
 

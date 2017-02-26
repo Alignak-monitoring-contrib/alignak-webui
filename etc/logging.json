@@ -17,11 +17,21 @@
       "level": "DEBUG",
       "formatter": "local",
       "stream": "ext://sys.stdout"
+    },
+    "file": {
+      "class": "logging.handlers.TimedRotatingFileHandler",
+      "level": "DEBUG",
+      "formatter": "local",
+      "filename": "alignak-webui.log",
+      "when": "midnight",
+      "interval": 1,
+      "backupCount": 7,
+      "encoding": "utf8"
     }
   },
 
   "root": {
     "level": "INFO",
-    "handlers": ["console"]
+    "handlers": ["console", "file"]
   }
 }
