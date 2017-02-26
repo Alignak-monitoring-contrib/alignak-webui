@@ -3,8 +3,7 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%# No default refresh for this page
-%rebase("layout", title=title, js=[], css=['worldmap/static/css/worldmap.css', 'worldmap/static/css/leaflet.css', 'worldmap/static/css/MarkerCluster.css', 'worldmap/static/css/MarkerCluster.Default.css', 'worldmap/static/css/leaflet.label.css'], pagination=pagination, page="/worldmap", refresh=False)
+%rebase("layout", title=title, js=[], css=['worldmap/static/css/worldmap.css', 'worldmap/static/css/leaflet.css', 'worldmap/static/css/MarkerCluster.css', 'worldmap/static/css/MarkerCluster.Default.css', 'worldmap/static/css/leaflet.label.css'], pagination=pagination, page="/worldmap")
 
 %from alignak_webui.utils.helper import Helper
 

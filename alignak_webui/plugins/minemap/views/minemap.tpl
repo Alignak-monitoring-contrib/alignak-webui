@@ -3,8 +3,7 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%# No default refresh for this page
-%rebase("layout", title=title, js=['minemap/static/js/jquery.floatThead.min.js'], css=['minemap/static/css/minemap.css'], pagination=pagination, page="/minemap", refresh=False)
+%rebase("layout", title=title, js=['minemap/static/js/jquery.floatThead.min.js'], css=['minemap/static/css/minemap.css'], pagination=pagination, page="/minemap")
 
 %from alignak_webui.utils.helper import Helper
 
@@ -12,7 +11,6 @@
    %if not minemap:
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
-
       <table class="table table-striped table-header-rotated table-fixed-header">
          <thead>
             <tr>

@@ -265,6 +265,7 @@ for cfg_log_filename in cfg_log_filenames:
     if setup_logging(cfg_log_filename, log_location):
         logger = logging.getLogger(app_name)
         logger.setLevel(log_level)
+        print("Application logger: %s" % logger.__dict__)
         print("Application logger configured from: %s" % cfg_log_filename)
         break
 else:

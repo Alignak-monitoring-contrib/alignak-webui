@@ -12,17 +12,6 @@
 <nav id="menu-bar">
    <ul class="nav navbar-nav">
       %try:
-      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Livestate')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Livestate') }}">
-            <span class="fa fa-fw fa-heartbeat"></span>
-            <span class="sr-only">{{_('Livestate')}}</span>
-         </a>
-      </li>
-      %except RouteBuildError:
-      %print("Missing plugin Livestate")
-      %end
-
-      %try:
       <li data-toggle="tooltip" data-placement="bottom" title="{{_('Dashboard')}}">
          <a class="navbar-link" href="{{ webui.get_url('Dashboard') }}">
             <span class="fa fa-fw fa-dashboard"></span>
@@ -31,17 +20,6 @@
       </li>
       %except RouteBuildError:
       %print("Missing plugin Dashboard")
-      %end
-
-      %try:
-      <li data-toggle="tooltip" data-placement="bottom" title="{{_('Log table')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Log check results table') }}">
-            <span class="fa fa-fw fa-history"></span>
-            <span class="sr-only">{{_('Log')}}</span>
-         </a>
-      </li>
-      %except RouteBuildError:
-      %print("Missing plugin Logs")
       %end
 
       <!-- Items -->
@@ -201,6 +179,19 @@
             %except RouteBuildError:
             %print("Missing plugin Livestate")
             %end
+
+            %try:
+            <li>
+               <a href="{{ webui.get_url('Log check results table') }}">
+                  <span class="fa fa-fw fa-history"></span>
+                  <span>{{_('Log')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Logs")
+            %end
+
+            <li class="divider"></li>
 
             %try:
             <li>

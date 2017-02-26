@@ -28,6 +28,7 @@ from logging import getLogger
 from bottle import request
 
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -115,7 +116,7 @@ class PluginWorldmap(Plugin):
         # Pagination and search
         start = int(request.query.get('start', '0'))
         count = int(request.query.get('count', elts_per_page))
-        where = self.webui.helper.decode_search(request.query.get('search', ''))
+        where = Helper.decode_search(request.query.get('search', ''), self.table)
         search = {
             'page': (start // count) + 1,
             'max_results': count,

@@ -354,6 +354,7 @@ class TestNavigation(unittest2.TestCase):
 
 
 class TestSearch(unittest2.TestCase):
+    @unittest2.skip("Temporarily disabled ...")
     def test_search(self):
         """ Helper - decode search """
 

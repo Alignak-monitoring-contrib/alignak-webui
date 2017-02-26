@@ -37,12 +37,10 @@ logger = getLogger(__name__)
 
 
 class PluginActions(Plugin):
-    """ Actions plugin """
+    """Actions plugin"""
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Actions plugin
-        """
+        """Actions plugin"""
         self.name = 'Actions'
         self.backend_endpoint = None
 
@@ -96,9 +94,7 @@ class PluginActions(Plugin):
         super(PluginActions, self).__init__(app, webui, cfg_filenames)
 
     def show_acknowledge_add(self):  # pylint:disable=no-self-use
-
         """Show form to add an acknowledge"""
-
         return {
             'title': request.query.get('title', _('Request an acknowledge')),
             'action': request.query.get('action', 'add'),
@@ -114,7 +110,6 @@ class PluginActions(Plugin):
         }
 
     def add_acknowledge(self):
-
         """Add an acknowledgement
 
         Parameters:
@@ -125,7 +120,6 @@ class PluginActions(Plugin):
         - persistent
         - comment
         """
-
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -189,9 +183,7 @@ class PluginActions(Plugin):
             return self.webui.response_ko(message=status)
 
     def show_recheck_add(self):  # pylint:disable=no-self-use
-
         """Show form to request a forced check"""
-
         return {
             'title': request.query.get('title', _('Send a check request')),
             'elements_type': request.query.get('elements_type'),
@@ -203,9 +195,7 @@ class PluginActions(Plugin):
         }
 
     def add_recheck(self):
-
         """Request a forced check"""
-
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -261,9 +251,7 @@ class PluginActions(Plugin):
             return self.webui.response_ko(message=status)
 
     def show_downtime_add(self):  # pylint:disable=no-self-use
-
         """Show form to add a downtime"""
-
         return {
             'title': request.query.get('title', _('Request a downtime')),
             'action': request.query.get('action', 'add'),
@@ -280,9 +268,7 @@ class PluginActions(Plugin):
         }
 
     def add_downtime(self):
-
         """Add a downtime"""
-
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -347,9 +333,7 @@ class PluginActions(Plugin):
             return self.webui.response_ko(message=status)
 
     def show_command_add(self):  # pylint:disable=no-self-use
-
         """Show form to send a command"""
-
         elements_type = request.query.get('elements_type')
 
         commands_list = {}
@@ -374,12 +358,10 @@ class PluginActions(Plugin):
         }
 
     def get_command_parameters(self):
-
         """Get a command parameters list
 
         Returns a JSON object containing, for the requested command, all the parameters list
         """
-
         elements_type = request.query.get('elements_type')
         command = request.query.get('command')
 
@@ -423,9 +405,7 @@ class PluginActions(Plugin):
         return json.dumps(parameters)
 
     def add_command(self):
-
         """Send a command"""
-
         datamgr = request.app.datamgr
 
         # Get the command from the request parameters
