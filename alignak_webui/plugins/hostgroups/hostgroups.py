@@ -167,8 +167,7 @@ class PluginHostsGroups(Plugin):
                     <td class="hidden-sm hidden-xs">%s: %s</td>
                 </tr>""" % (
                     member.get_html_state(text=None, title=member.alias),
-                    Helper.get_html_business_impact(member.business_impact,
-                                                    icon=True, text=False, less=2),
+                    Helper.get_html_business_impact(member.business_impact, icon=True, text=False),
                     member.get_html_link(),
                     Helper.print_duration(member.last_state_changed, duration_only=True, x_elts=2),
                     Helper.print_duration(member.last_check, duration_only=True, x_elts=2),

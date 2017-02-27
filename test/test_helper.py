@@ -393,45 +393,25 @@ class TestBI(unittest2.TestCase):
         print("Result:", s)
         assert s == 'n/a - parameters'
 
-        # Default with less stars
-        s = helper.get_html_business_impact(0, icon=True, text=False, less=2)
-        print("Result:", s)
-        assert s == '<span></span><span>&nbsp;</span>'  # No star
-        s = helper.get_html_business_impact(1, icon=True, text=False, less=2)
-        print("Result:", s)
-        assert s == '<span></span><span>&nbsp;</span>'  # No star
-        s = helper.get_html_business_impact(2, icon=True, text=False, less=2)
-        print("Result:", s)
-        assert s == '<span></span><span>&nbsp;</span>'  # No star
-        s = helper.get_html_business_impact(3, icon=True, text=False, less=2)
-        print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 1 star
-        s = helper.get_html_business_impact(4, icon=True, text=False, less=2)
-        print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 2 stars
-        s = helper.get_html_business_impact(5, icon=True, text=False, less=2)
-        print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 3 stars
-
         # Default with stars
         s = helper.get_html_business_impact(0, icon=True, text=False)
         print("Result:", s)
-        assert s == '<span></span><span>&nbsp;</span>'  # No star
+        assert s == '<span class="text-default"></span><span>&nbsp;</span>'  # No star
         s = helper.get_html_business_impact(1, icon=True, text=False)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span></span><span>&nbsp;</span>'  # 1 star
+        assert s == '<span class="text-default"><span class="fa fa-star"></span></span><span>&nbsp;</span>'  # 1 star
         s = helper.get_html_business_impact(2, icon=True, text=False)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'  # 2 stars
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'  # 2 stars
         s = helper.get_html_business_impact(3, icon=True, text=False)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 3 stars
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 3 stars
         s = helper.get_html_business_impact(4, icon=True, text=False)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 4 stars
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 4 stars
         s = helper.get_html_business_impact(5, icon=True, text=False)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 5 stars
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;</span>'# 5 stars
 
         # Default with text
         s = helper.get_html_business_impact(0, icon=False, text=True)
@@ -456,22 +436,22 @@ class TestBI(unittest2.TestCase):
         # Default with icon and text
         s = helper.get_html_business_impact(0, icon=True, text=True)
         print("Result:", s)
-        assert s == '<span></span><span>&nbsp;None</span>'
+        assert s == '<span class="text-default"></span><span>&nbsp;None</span>'
         s = helper.get_html_business_impact(1, icon=True, text=True)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span></span><span>&nbsp;Low</span>'
+        assert s == '<span class="text-default"><span class="fa fa-star"></span></span><span>&nbsp;Low</span>'
         s = helper.get_html_business_impact(2, icon=True, text=True)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Normal</span>'
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Normal</span>'
         s = helper.get_html_business_impact(3, icon=True, text=True)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Important</span>'
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Important</span>'
         s = helper.get_html_business_impact(4, icon=True, text=True)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Very important</span>'
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Very important</span>'
         s = helper.get_html_business_impact(5, icon=True, text=True)
         print("Result:", s)
-        assert s == '<span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Business critical</span>'
+        assert s == '<span class="text-default"><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span><span class="fa fa-star"></span></span><span>&nbsp;Business critical</span>'
 
 
 class TestTP(unittest2.TestCase):
