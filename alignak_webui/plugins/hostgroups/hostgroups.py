@@ -41,8 +41,7 @@ class PluginHostsGroups(Plugin):
     """ Hosts groups plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Hosts groups plugin
+        """Hosts groups plugin
 
         Overload the default get route to declare filters.
         """
@@ -127,15 +126,55 @@ class PluginHostsGroups(Plugin):
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
                                                               % element_id)
 
-        items = []
         if not isinstance(hostgroup.members, basestring):
             # Get element state configuration
             items_states = ElementState()
+
+            items = []
+            items.append({
+                'id': -1,
+                'type': 'host',
+                'tr': """
+                    <table class="table table-invisible table-condensed">
+                      <thead><tr>
+                        <th></th>
+                        <th>%s</th>
+                        <th>%s</th>
+                        <th>%s</th>
+                        <th>%s</th>
+                        <th>%s</th>
+                      </tr></thead>
+
+                      <tbody>
+                      </tbody>
+                    </table>
+                """ % (
+                    _("BI"), _("Element"),
+                    _("Since"), _("Last check"), _("Output")
+                )
+            })
 
             for member in hostgroup.members:
                 logger.debug("Group member: %s", member)
                 cfg_state = items_states.get_icon_state('host', member.status)
 
+                tr = """<tr>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td class="hidden-xs">%s</td>
+                    <td class="hidden-xs">%s</td>
+                    <td class="hidden-sm hidden-xs">%s: %s</td>
+                </tr>""" % (
+                    member.get_html_state(text=None, title=member.alias),
+                    Helper.get_html_business_impact(member.business_impact,
+                                                    icon=True, text=False, less=2),
+                    member.get_html_link(),
+                    Helper.print_duration(member.last_state_changed, duration_only=True, x_elts=2),
+                    Helper.print_duration(member.last_check, duration_only=True, x_elts=2),
+                    Helper.print_date(member.last_check),
+                    member.output
+                )
                 items.append({
                     'id': member.id,
                     'type': 'host',
@@ -144,14 +183,7 @@ class PluginHostsGroups(Plugin):
                     'status': member.status,
                     'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                     'state': member.get_html_state(text=None, title=member.alias),
-                    'url': member.get_html_link(),
-                    'bi': Helper.get_html_business_impact(member.business_impact,
-                                                          icon=True, text=False, less=2),
-                    'last_check': Helper.print_duration(member.last_check,
-                                                        duration_only=True, x_elts=2),
-                    'last_state_changed': Helper.print_duration(member.last_state_changed,
-                                                                duration_only=True, x_elts=2),
-                    'output': "%s: %s" % (Helper.print_date(member.last_check), member.ls_output)
+                    'tr': tr
                 })
 
         response.status = 200

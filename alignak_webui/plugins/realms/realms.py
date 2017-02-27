@@ -179,15 +179,7 @@ class PluginRealms(Plugin):
                 'status': member.status,
                 'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                 'state': member.get_html_state(text=None, title=member.alias),
-                'tr': tr,
-                'url': member.get_html_link(),
-                'bi': Helper.get_html_business_impact(member.business_impact,
-                                                      icon=True, text=False, less=2),
-                'last_check': Helper.print_duration(member.last_check,
-                                                    duration_only=True, x_elts=2),
-                'last_state_changed': Helper.print_duration(member.last_state_changed,
-                                                            duration_only=True, x_elts=2),
-                'output': "%s: %s" % (Helper.print_date(member.last_check), member.ls_output)
+                'tr': tr
             })
 
         response.status = 200

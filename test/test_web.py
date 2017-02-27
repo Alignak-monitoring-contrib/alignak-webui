@@ -357,11 +357,19 @@ class TestHostgroups(unittest2.TestCase):
         response = self.app.get('/hostgroup/members/' + self.group_id)
         print(response.json)
         for item in response.json:
-            assert 'id' in item
-            assert 'name' in item
-            assert 'alias' in item
-            assert 'icon' in item
-            assert 'url' in item
+            print(item)
+            assert "id" in item
+            assert "type" in item
+            assert item['type'] == "host"
+
+            if item['id'] == -1:
+                assert "tr" in item
+                continue
+            assert "name" in item
+            assert "icon" in item
+            assert "alias" in item
+            assert "state" in item
+            assert "status" in item
 
 
 class TestServicegroups(unittest2.TestCase):
