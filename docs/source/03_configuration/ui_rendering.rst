@@ -120,7 +120,7 @@ This section defines patterns used by the application to build the buttons comma
 [tables.lists]
 --------------
 
-This section defines patterns used by the application to build the elemnts lists in the tables.
+This section defines patterns used by the application to build the elements lists in the tables.
 ::
 
     [tables.lists]
@@ -135,6 +135,289 @@ This section defines patterns used by the application to build the elemnts lists
 
     ; Unique element to be included in the HTML list if the list contains only one element
     unique=##content##
+
+[currently]
+-----------
+
+This section defines patterns used by the application to build the currently view.
+::
+
+
+   ; Hosts states to include in the history graph
+   ; States can be: up,down,unreachable,acknowledged,in_downtime
+   ; Defaults to: up,down,unreachable,acknowledged,in_downtime
+   ;hh_states=up,down,unreachable,acknowledged,in_downtime
+
+   ; Hosts states history graph height
+   ; Defaults to: 300
+   ;hh_height=300
+
+   ; Services states to include in the history graph
+   ; States can be: ok,warning,critical,unknown,unreachable,acknowledged,in_downtime
+   ; Defaults to: ok,warning,critical,unknown,acknowledged,in_downtime
+   ;sh_states=ok,warning,critical,unknown,acknowledged,in_downtime
+
+   ; Services states history graph height
+   ; Defaults to: 300
+   ;sh_height=300
+
+   ; Hosts panel definition
+   hosts_panel=<div id="panel_hosts" class="panel panel-default">
+               <div class="panel-heading clearfix">
+                 <strong>
+                   <span class="fa fa-server"></span>
+                   <span class="hosts-all text-white" data-count="##nb_elts##" data-problems="##nb_problems##">
+                       &nbsp; ##nb_elts## hosts ##problems##
+                   </span>
+                 </strong>
+
+                 <div class="pull-right">
+                    <a href="#p_ph" class="btn btn-xs btn-raised" data-toggle="collapse">
+                       <i class="fa fa-fw %%s"></i>
+                    </a>
+                 </div>
+               </div>
+               <div id="p_ph" class="panel-collapse collapse %%s">
+                 <div class="panel-body">
+                 ##hosts_counters##
+                 <hr>
+                 ##hosts_percentage##
+                 </div>
+               </div>
+           </div>
+
+   hosts_counters=
+       <div class="row">
+           <div class="col-xs-12 col-sm-9 text-center">
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##?search=ls_state:UP"
+                 class="item_host_up" title="Up">
+                 <span class="hosts-count">##nb_up##</span>
+               </a>
+             </div>
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##?search=ls_state:DOWN"
+                 class="item_host_down" title="Down">
+                 <span class="hosts-count">##nb_down##</span>
+               </a>
+             </div>
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##?search=ls_state:UNREACHABLE"
+                 class="item_host_unreachable" title="Unreachable">
+                 <span class="hosts-count">##nb_unreachable##</span>
+               </a>
+             </div>
+           </div>
+
+           <div class="col-xs-12 col-sm-3 text-center">
+             <a href="##hosts_table_url##?search=ls_state:acknowledged"
+               class="item_host_acknowledged" title="Acknowledged">
+               <span class="hosts-count">##nb_acknowledged##</span>
+             </a>
+             <span>/</span>
+             <a href="##hosts_table_url##?search=ls_state:IN_DOWNTIME"
+               class="item_host_in_downtime" title="In downtime">
+               <span class="hosts-count">##nb_in_downtime##</span>
+             </a>
+           </div>
+       </div>
+
+   hosts_percentage=
+       <div class="row">
+         <div class="col-xs-3 col-sm-3 text-center">
+           <div class="col-xs-12 text-center">
+             <a href="##hosts_table_url##" class="sla_hosts_##font##">
+               <div>##pct_sla##%%</div>
+               <i class="fa fa-4x fa-server"></i>
+             </a>
+           </div>
+         </div>
+
+         <div class="col-xs-9 col-sm-9 text-center">
+           <div class="row">
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##?search=ls_state:UP"
+                 class="item_host_up" title="Up">
+                 <span class="hosts-count">##pct_up##%%</span>
+               </a>
+             </div>
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##?search=ls_state:DOWN"
+                 class="item_host_down" title="Down">
+                 <span class="hosts-count">##pct_down##%%</span>
+               </a>
+             </div>
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##?search=ls_state:UNREACHABLE"
+                 class="item_host_unreachable" title="Unreachable">
+                 <span class="hosts-count">##pct_unreachable##%%</span>
+               </a>
+             </div>
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url##" title="Fake">
+                 <span class="hosts-count">&nbsp;</span>
+               </a>
+             </div>
+             <div class="col-xs-4 text-center">
+               <a href="##hosts_table_url## title="Fake">
+                 <span class="hosts-count">&nbsp;</span>
+               </a>
+             </div>
+           </div>
+
+           <div class="row">
+             <div class="col-xs-12 text-center">
+               <a href="##hosts_table_url##?search=ls_state:acknowledged"
+                 class="item_host_acknowledged" title="Acknowledged">
+                 <span class="hosts-count">##pct_acknowledged##%%</span>
+               </a>
+               <span>/</span>
+               <a href="##hosts_table_url##?search=ls_state:IN_DOWNTIME"
+                 class="item_host_in_downtime" title="In downtime">
+                 <span class="hosts-count">##pct_in_downtime##%%</span>
+               </a>
+             </div>
+           </div>
+         </div>
+       </div>
+
+   ; Services panel definition
+   services_panel=
+       <div id="panel_services" class="panel panel-default">
+           <div class="panel-heading clearfix">
+             <strong>
+               <span class="fa fa-cube"></span>
+               <span class="services-all text-default"
+                       data-count="##nb_elts##"
+                       data-problems="##nb_problems##">
+                   &nbsp; ##nb_elts## services ##problems##
+               </span>
+             </strong>
+
+             <div class="pull-right">
+                 <a href="#p_ps" class="btn btn-xs btn-raised" data-toggle="collapse">
+                     <i class="fa fa-fw %%s"></i>
+                 </a>
+             </div>
+           </div>
+           <div id="p_ps" class="panel-collapse collapse %%s">
+             <div class="panel-body">
+               ##services_counters##
+               <hr>
+               ##services_percentage##
+             </div>
+           </div>
+       </div>
+
+   services_counters=
+       <div class="row">
+           <div class="col-xs-12 col-sm-9 text-center">
+             <div class="col-xs-2 text-center">
+               <a href="##services_table_url##?search=ls_state:OK"
+                 class="item_service_ok" title="Ok">
+                 <span class="services-count">##nb_ok##</span>
+               </a>
+             </div>
+             <div class="col-xs-2 text-center">
+               <a href="##services_table_url##?search=ls_state:WARNING"
+                 class="item_service_critical" title="Warning">
+                 <span class="services-count">##nb_warning##</span>
+               </a>
+             </div>
+             <div class="col-xs-2 text-center">
+               <a href="##services_table_url##?search=ls_state:CRITICAL"
+                 class="item_service_critical" title="Critical">
+                 <span class="services-count">##nb_critical##</span>
+               </a>
+             </div>
+             <div class="col-xs-2 text-center">
+               <a href="##services_table_url##?search=ls_state:UNKNOWN"
+                 class="item_service_unknown" title="Unknown">
+                 <span class="services-count">##nb_unknown##</span>
+               </a>
+             </div>
+             <div class="col-xs-2 text-center">
+               <a href="##services_table_url##?search=ls_state:UNREACHABLE"
+                 class="item_service_unreachable" title="Unreachable">
+                 <span class="services-count">##nb_unreachable##</span>
+               </a>
+             </div>
+           </div>
+
+           <div class="col-xs-12 col-sm-3 text-center">
+             <a href="##services_table_url##?search=ls_state:acknowledged"
+               class="item_service_acknowledged" title="Acknowledged">
+               <span class="services-count">##nb_acknowledged##</span>
+             </a>
+             <span>/</span>
+             <a href="##services_table_url##?search=ls_state:IN_DOWNTIME"
+               class="item_service_in_downtime" title="In downtime">
+               <span class="services-count">##nb_in_downtime##</span>
+             </a>
+           </div>
+       </div>
+
+
+   services_percentage=
+       <div class="row">
+           <div class="col-xs-3 col-sm-3 text-center">
+               <div class="col-xs-12 text-center">
+                 <a href="##services_table_url##" class="sla_services_##font##">
+                   <div>##pct_ok##%%</div>
+                   <i class="fa fa-4x fa-cube"></i>
+                 </a>
+               </div>
+               </div>
+
+               <div class="col-xs-9 col-sm-9 text-center">
+               <div class="row">
+                 <div class="col-xs-4 text-center">
+                   <a href="##services_table_url##?search=ls_state:OK"
+                     class="item_service_ok" title="ok">
+                     <span class="services-count">##pct_ok##%%</span>
+                   </a>
+                 </div>
+                 <div class="col-xs-4 text-center">
+                   <a href="##services_table_url##?search=ls_state:WARNING"
+                     class="item_service_warning" title="warning">
+                     <span class="services-count">##pct_warning##%%</span>
+                   </a>
+                 </div>
+                 <div class="col-xs-4 text-center">
+                   <a href="##services_table_url##?search=ls_state:CRITICAL"
+                     class="item_service_critical" title="critical">
+                     <span class="services-count">##pct_critical##%%</span>
+                   </a>
+                 </div>
+                 <div class="col-xs-4 text-center">
+                   <a href="##services_table_url##?search=ls_state:UNKNONW"
+                     class="item_service_unknown" title="unknown">
+                     <span class="services-count">##pct_unknown##%%</span>
+                   </a>
+                 </div>
+                 <div class="col-xs-4 text-center">
+                   <a href="##services_table_url##?search=ls_state:UNREACHABLE"
+                     class="item_service_unreachable" title="unreachable">
+                     <span class="services-count">##pct_unreachable##%%</span>
+                   </a>
+                 </div>
+               </div>
+
+               <div class="row">
+                 <div class="col-xs-12 text-center">
+                   <a href="##services_table_url##?search=ls_state:ACKNOWLEDGED"
+                     class="item_service_acknowledged" title="acknowledged">
+                     <span class="services-count">##pct_acknowledged##%%</span>
+                   </a>
+                   <span>/</span>
+                   <a href="##services_table_url##?search=ls_state:IN_DOWNTIME"
+                     class="item_service_in_downtime" title="in_downtime">
+                     <span class="services-count">##pct_in_downtime##%%</span>
+                   </a>
+                 </div>
+               </div>
+           </div>
+       </div>
 
 [items] section
 ---------------
