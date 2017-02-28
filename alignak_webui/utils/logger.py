@@ -76,15 +76,12 @@ def setup_logging(path='logging.json', location='/tmp', default_level=logging.IN
     configuration and its level is set to the `default_level`.
     """
     if os.path.exists(path):
-        print("Log file location: %s" % location)
         with open(path, 'rt') as file_handler:
             config = json.load(file_handler)
 
         for handler in config['handlers'].values():
-            print("Handler: %s" % (handler))
             if 'filename' in handler:
                 handler['filename'] = os.path.join(location, handler['filename'])
-                print("Handler: %s" % (handler))
         logging.config.dictConfig(config)
         return True
 

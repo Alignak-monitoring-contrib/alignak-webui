@@ -95,7 +95,7 @@
 
     <script type="text/javascript">
         var debug_logs = false;
-        
+
         // Function called on each page refresh ... update elements!
         function on_page_refresh(forced) {
             if (debug_logs) console.debug("livestate,  on_page_refresh",  forced);

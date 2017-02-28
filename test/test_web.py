@@ -33,7 +33,8 @@ from mock import Mock, patch
 
 from nose.tools import *
 
-# Do not set test mode ... application is tested in production mode!
+# Set debug and test mode ...
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
@@ -132,6 +133,7 @@ class TestCurrently(unittest2.TestCase):
         print('get page /currently')
         redirected_response = self.app.get('/currently')
         print(redirected_response)
+        # assert False
         redirected_response.mustcontain(
             '<div id="currently">',
             '<div id="one-eye-hosts"',

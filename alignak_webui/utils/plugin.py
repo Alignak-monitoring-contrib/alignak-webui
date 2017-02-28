@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=fixme
 
 # Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@alignak.net
@@ -648,6 +649,7 @@ class Plugin(object):
             'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
         }
 
+    # TODO: confirm this function is still useful
     def get_status(self, element_id=None, element=None):
         """Get the element overall status"""
         datamgr = request.app.datamgr
@@ -690,6 +692,7 @@ class Plugin(object):
         response.content_type = 'application/json'
         return json.dumps({'status': group_state})
 
+    # TODO: add tests for this function
     def get_form(self, element_id):
         """Build the form for an element.
 
@@ -734,6 +737,7 @@ class Plugin(object):
             'element': element
         }
 
+    # TODO: add tests for this function
     def update_form(self, element_id):
         # pylint: disable=too-many-locals, not-an-iterable, redefined-variable-type
         """Update an element

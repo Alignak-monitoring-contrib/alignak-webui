@@ -285,7 +285,7 @@ logger.info("-------------------------------------------------------------------
 logger.info("listening on %s:%d (debug mode: %s)",
             app.config.get('host', '127.0.0.1'),
             int(app.config.get('port', '5001')),
-            app.config.get('debug', False))
+            app.config.get('%s.debug' % app_name, False))
 logger.info("using Alignak Backend on %s",
             app.config.get('%s.alignak_backend' % app_name, 'http://127.0.0.1:5000'))
 logger.info("--------------------------------------------------------------------------------")
@@ -332,8 +332,8 @@ set_app_config(app.config)
 # -----
 @app.route('/static/<filename:path>')
 def static(filename):
-    """
-    Main application static files
+    """Main application static files
+
     Plugins declare their own static routes under /plugins
     """
     if not filename.startswith('plugins'):
@@ -351,9 +351,7 @@ def static(filename):
 # -----
 @app.route('/modal/<modal_name>')
 def give_modal(modal_name):
-    """
-    Return template for a modal window
-    """
+    """Return template for a modal window"""
     logger.debug("get modal window named: %s", modal_name)
     return template('modal_' + modal_name)
 
@@ -374,8 +372,7 @@ def on_config_change(_key, _value):
 @app.hook('before_request')
 def before_request():
     # pylint: disable=unsupported-membership-test, unsubscriptable-object
-    """
-    Function called since an HTTP request is received, and before any other function.
+    """Function called since an HTTP request is received, and before any other function.
 
     Checks if a user session exists
 
@@ -408,13 +405,11 @@ def before_request():
         BaseTemplate.defaults['current_user'] = session['current_user']
 
     # Public URLs routing ...
-    if request.urlparts.path == '/ping' or \
-       request.urlparts.path == '/heartbeat':
+    if request.urlparts.path == '/ping' or request.urlparts.path == '/heartbeat':
         return
 
     # Login/logout URLs routing ...
-    if request.urlparts.path == '/login' or \
-       request.urlparts.path == '/logout':
+    if request.urlparts.path == '/login' or request.urlparts.path == '/logout':
         return
 
     # Session authentication ...
@@ -442,6 +437,8 @@ def before_request():
         )
         redirect('/login')
 
+    logger.debug("before_request, user authenticated")
+
     # Make session current user available in the templates
     BaseTemplate.defaults['current_user'] = session['current_user']
     # Make session edition mode available in the templates
@@ -458,7 +455,7 @@ def before_request():
     # request.app.datamgr.load()
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
-    # logger.debug("before_request, call function for route: %s", request.urlparts.path)
+    logger.debug("before_request, call function for route: %s", request.urlparts.path)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -466,9 +463,7 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 @app.route('/', 'GET')
 def home_page():
-    """
-    Display home page -> redirect to /Dashboard
-    """
+    """Display home page -> redirect to /Dashboard"""
     try:
         redirect(request.app.get_url('Livestate'))
     except RouteBuildError:
@@ -477,9 +472,7 @@ def home_page():
 
 @app.route('/login', 'GET')
 def user_login():
-    """
-    Display user login page
-    """
+    """Display user login page"""
     session = request.environ['beaker.session']
     message = None
     if 'login_message' in session and session['login_message']:
@@ -503,8 +496,7 @@ def user_login():
 
 @app.route('/logout', 'GET')
 def user_logout():
-    """
-    Log-out the current logged-in user
+    """Log-out the current logged-in user
 
     Clear and delete the user session
     """
@@ -542,8 +534,7 @@ def check_backend_connection(_app, token=None, interval=10):
 
 @app.route('/login', 'POST')
 def user_auth():
-    """
-    Receive user login parameters (username / password) to authenticate a user
+    """Receive user login parameters (username / password) to authenticate a user
 
     Allowed authentication:
     - username/password from a login form
@@ -583,9 +574,7 @@ def user_auth():
 # --------------------------------------------------------------------------------------------------
 @app.route('/heartbeat')
 def heartbeat():
-    """
-    Application heartbeat
-    """
+    """Application heartbeat"""
     # Session authentication ...
     session = request.environ['beaker.session']
     if not session:
@@ -608,8 +597,7 @@ def heartbeat():
 @app.route('/ping')
 def ping():
     # pylint: disable=too-many-return-statements
-    """
-    Request on /ping is a simple check alive that returns an information if UI refresh is needed
+    """Request on /ping is a simple check alive that returns an information if UI refresh is needed
 
     If no session exists, it will always return 'pong' to inform that server is alive.
 
@@ -667,8 +655,7 @@ def ping():
 # --------------------------------------------------------------------------------------------------
 # CORS decorator
 def enable_cors(fn):
-    """
-    CORS decorator
+    """CORS decorator
 
     Send the CORS headers for ajax request
     """
@@ -696,8 +683,7 @@ def enable_cors(fn):
 def external(widget_type, identifier, action=None):
     # pylint: disable=too-many-return-statements, unsupported-membership-test
     # pylint: disable=unsubscriptable-object
-    """
-    Application external identifier
+    """Application external identifier
 
     Use internal authentication (if a user is logged-in) or external basic authentication provided
     by the requiring application.
@@ -911,7 +897,8 @@ def external(widget_type, identifier, action=None):
 # --------------------------------------------------------------------------------------------------
 @app.route('/preference/user', 'GET')
 def get_user_preference():
-    """
+    """Get user's preferences for the current logged-in user
+
         Request parameters:
 
         - key, string identifying the parameter
@@ -935,7 +922,8 @@ def get_user_preference():
 
 @app.route('/preference/user/delete', 'GET')
 def delete_user_preference():
-    """
+    """Delete current logged-in user's preference
+
         Request parameters:
 
         - key, string identifying the parameter
@@ -954,7 +942,7 @@ def delete_user_preference():
 
 @app.route('/preference/user', 'POST')
 def set_user_preference():
-    """
+    """Update current logged-in user's preference
         Request parameters:
 
         - key, string identifying the parameter
@@ -982,9 +970,7 @@ def set_user_preference():
 @app.route('/edition_mode', 'POST')
 # User preferences page ...
 def edition_mode():
-    """
-        Set edition mode on / off
-    """
+    """Set edition mode on / off"""
     # Session...
     session = request.environ['beaker.session']
     logger.debug("edition_mode, session: %s", session)
@@ -1030,6 +1016,7 @@ session_opts = {
 logger.debug("Session parameters: %s" % session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
+logger.warning("Running Bottle, debug mode: %s" % app.config.get('debug', False))
 if __name__ == '__main__':
     run(
         app=session_app,
