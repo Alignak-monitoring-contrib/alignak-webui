@@ -126,12 +126,14 @@ class PluginWorldmap(Plugin):
         # Get valid hosts
         valid_hosts = self.get_valid_elements(search)
 
+        logger.info("worldmap, parameters: %s", self.plugin_parameters)
+
         # Get last total elements count
         total = len(valid_hosts)
 
         return {
             'mapId': 'hostsMap',
-            'params': worldmap_parameters,
+            'params': self.plugin_parameters,
             'hosts': valid_hosts,
             'pagination': self.webui.helper.get_pagination_control(
                 '/worldmap', total, start, count

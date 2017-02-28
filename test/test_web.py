@@ -134,10 +134,10 @@ class TestCurrently(unittest2.TestCase):
         print(redirected_response)
         redirected_response.mustcontain(
             '<div id="currently">',
-            '<div id="one-eye-hosts-counters"',
-            '<div id="one-eye-services-counters"',
-            '<div id="one-eye-hosts-percentages"',
-            '<div id="one-eye-services-percentages"'
+            '<div id="one-eye-hosts"',
+            '<div id="one-eye-services"',
+            '<div id="ls-history-hosts"',
+            '<div id="ls-history-services"',
         )
 
 
