@@ -58,7 +58,6 @@ class Helper(object):
         :return: formatted date
         :rtype: string
         """
-
         if not timestamp:
             return 'n/a'
 
@@ -91,7 +90,6 @@ class Helper(object):
         :return: formatted date
         :rtype: string
         """
-
         if not timestamp:
             return 'n/a'
 
@@ -174,7 +172,6 @@ class Helper(object):
             ; Element to be included for each BI count
             off=<span title="##title##" class="fa fa-fw fa-close text-danger">##message##</span>
         """
-
         if not title:
             title = _('Enabled') if status else _('Disabled')
 
@@ -197,7 +194,7 @@ class Helper(object):
         return element
 
     @staticmethod
-    def get_html_business_impact(business_impact, icon=True, text=False, less=0):
+    def get_html_business_impact(business_impact, icon=True, text=False):
         """Give a business impact as text and stars if needed.
 
         If text=True, returns text+stars, else returns stars only ...
@@ -210,7 +207,6 @@ class Helper(object):
         ; Element to be included for each BI count
         item=<span class="fa fa-star"></span>
         """
-
         if not 0 <= business_impact <= 5:
             return 'n/a - value'
 
@@ -231,10 +227,18 @@ class Helper(object):
 
         # Get global configuration
         app_config = get_app_config()
-        element = app_config.get('business_impact.global')
-        star = app_config.get('business_impact.item')
+        element = app_config.get('business_impact.global',
+                                 '<span class="text-default">##items##</span>'
+                                 '<span>&nbsp;##text##</span>')
+        item = app_config.get('business_impact.item', '<span class="fa fa-star"></span>')
+        unique = app_config.get('business_impact.unique', '')
+        less = int(app_config.get('business_impact.less', '0'))
 
-        element = element.replace("##items##", star * max(0, business_impact - less))
+        if item:
+            element = element.replace("##items##", item * max(0, business_impact - less))
+        else:
+            unique = unique.replace("##bi##", str(business_impact))
+            element = element.replace("##items##", unique)
 
         if not text:
             element = element.replace("##text##", "")
@@ -1603,8 +1607,7 @@ class Helper(object):
             </tr>""" % (
                 item.get_html_state(text=None, title=title, extra=extra),
                 Helper.get_html_commands_buttons(item, title=_("Actions")) if actions else '',
-                Helper.get_html_business_impact(item.business_impact,
-                                                icon=True, text=False, less=2),
+                Helper.get_html_business_impact(item.business_impact, icon=True, text=False),
                 host_url,
                 service_url,
                 Helper.print_duration(item.last_state_changed, duration_only=True, x_elts=2),
@@ -1707,7 +1710,7 @@ class Helper(object):
             problems = ""
 
         title = title.replace("#bi-text#",
-                              Helper.get_html_business_impact(bi, icon=True, text=False, less=2))
+                              Helper.get_html_business_impact(bi, icon=True, text=False))
         title = title.replace("#problems#", "%s" % problems)
         title = title.replace("#nb_problems#", "%s" % problems_count)
 

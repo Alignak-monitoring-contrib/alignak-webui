@@ -10,4 +10,5 @@ Contents:
    develop
    plugins
    widgets
+   layout
 

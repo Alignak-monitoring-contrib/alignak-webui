@@ -13,7 +13,7 @@ Application
 Web application developed with Python Bottle micro-framework. See `app.py` for the main application file and `application.py` as the Bottle application and the main routes definition.
 
 User authentication
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 The application install a *before_request* hook to detect if a session currently exists and an authenticated user is already connected (stored in the session).
 
@@ -24,19 +24,21 @@ This user has an *authenticated* attribute set.
 
 
 Session management
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
-The application uses Beaker middleware for session management. The configuration is made in `__init__.py`.
+The application uses Beaker middleware for session management. The configuration is made in `app.py`.
 
 The session is stored in a file to persist across application restarts and to allow using a multi-threaded web server.
 
-A cookie named as the application (Alignak-WebUI) is existing as soon as a session is created. Its expiry delay is 6 hours.
+A cookie named as the application (Alignak-WebUI) is existing as soon as a session is created. Its default expiry delay is to never expire until the browser get closed.
 
 The session stores the current user and some small other information (login message, application message).
 
+The session behavior may be configured in the application configuration file (see `Application configuration file <_configuration_application>`_).
+
 
 Data manager
-------------------
+------------
  The application uses a DataManager object to store all the information about the data got from the Alignak backend.
 
  The DataManager is an interface between the application and its plugins, and the data store in the Alignak backend.
@@ -45,9 +47,9 @@ Data manager
 
 
 Datatables
-------------------
+----------
 Table configuration
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Backend elements can be displayed as a table. For this, the plugin must declare:
 
@@ -102,7 +104,7 @@ As an example::
 
 
 Table parameters
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Each table may be:
 
@@ -127,7 +129,7 @@ Table css classes are defined here: https://datatables.net/manual/styling/classe
 
 
 Table display
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 If a status_property is defined for the table (default is to use the `status` field in the elements), then each table row has an extra CSS class named as: table-row-status_property.
 
@@ -187,7 +189,7 @@ If the `allowed` field contains a value, it may be:
 If the edited item is a template, the `allowed_template` (if it is defined) is used instead of the `allowed` value. This to allow defining a different list of allowed values for the templates.
 
 Table filtering
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Table filtering is available on a column basis; each column can have its own search parameter in the table header. The filtering field is an input field, a select field, ... according to the column type/format.
 
@@ -241,12 +243,12 @@ Some examples:
 
 
 HTML templates
----------------
+--------------
 
  TO BE EXPLAINED !
 
 Debug mode
-~~~~~~~~~~~~~~
+~~~~~~~~~~
 Many templates declare a local `debug` variable that will display extra information. Simply declare this variable as True (eg. `%setdefault('debug', True)`). Debug information panels have a *bug* icon ;)
 
 Some specific templates for debug mode:
@@ -260,6 +262,8 @@ Good practices
 From Python to javascript, main javascript variables are declared in layout.tpl to be available for every HTML and Javascript files.
 
 
+
+.. _develop_ui_design:
 
 Application UI design
 ---------------------
