@@ -201,6 +201,7 @@ class WebUI(object):
             "/static/js/typeahead.bundle.min.js",
             "/static/js/screenfull.js",
             "/static/js/alertify.min.js",
+            "/static/js/BootSideMenu.js",
             "/static/js/selectize.min.js",
             "/static/js/Chart.min.js",
             "/static/js/jstree.min.js",
@@ -245,6 +246,7 @@ class WebUI(object):
             "/static/css/daterangepicker.css",
             "/static/css/alertify/alertify.min.css",
             "/static/css/alertify/bootstrap.min.css",
+            "/static/css/BootSideMenu.css",
             "/static/css/timeline.css"
         ]
 

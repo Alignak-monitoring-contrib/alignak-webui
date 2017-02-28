@@ -222,7 +222,7 @@ class PluginServices(Plugin):
         datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
         if selected_types:
             search['where'].update({'type': {'$in': selected_types}})
-        logger.warning("History selected types: %s", selected_types)
+        logger.debug("History selected types: %s", selected_types)
 
         # Get service history
         history = datamgr.get_history(search=search)

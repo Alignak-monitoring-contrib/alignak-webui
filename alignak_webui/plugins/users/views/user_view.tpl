@@ -13,7 +13,7 @@
       {{! user.get_html_state(text=None, size="fa-5x")}}
       <legend><strong>{{user.alias}}</strong></legend>
       %if current_user.is_power():
-         {{! Helper.get_html_commands_buttons(user, title='Buttons')}}
+         {{! Helper.get_html_commands_buttons(user, _('Actions'))}}
       %end
    </div>
 </div>

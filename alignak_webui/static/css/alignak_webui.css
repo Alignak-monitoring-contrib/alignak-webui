@@ -361,6 +361,16 @@ form.template_form {
     background-color: #eee;
 }
 
+/*
+ * Options slider
+*/
+.slider-card {
+    width: 98%;
+    margin-left: 1%;
+
+    margin-top: 50vh; /* poussé de la moitié de hauteur de viewport */
+    transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */}
+}
 
 /*
  * Search form

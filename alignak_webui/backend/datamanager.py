@@ -1430,21 +1430,29 @@ class DataManager(object):
         items = self.get_hosts(search=search, embedded=embedded)
         return items[0] if items else None
 
-    def get_host_services(self, search):
+    def get_host_services(self, host, search=None, embedded=True):
         """Get a host real state (including services states).
 
         Returns -1 if any problem
         """
-        if not isinstance(search, BackendElement):
-            host = self.get_host(search)
+        if not isinstance(host, BackendElement):
+            host = self.get_host(host)
             if not host:
                 return -1
         else:
-            host = search
+            host = host
+
+        if search is None:
+            search = {'where': {'host': host.id}}
+        else:
+            if 'where' in search:
+                search['where'].update({'host': host.id})
+            else:
+                search.update({'where': {'host': host.id}})
 
         # Get host services
         return self.get_services(
-            search={'where': {'host': host.id}}, all_elements=True
+            search=search, embedded=embedded, all_elements=True
         )
 
     def get_host_overall_state(self, search):

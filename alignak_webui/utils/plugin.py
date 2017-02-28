@@ -1096,7 +1096,8 @@ class Plugin(object):
                 options = widget['options']
                 widget_template = widget['template']
                 widget_icon = widget['icon']
-                logger.info("Widget found, template: %s, options: %s", widget_template, options)
+                logger.info("Widget %s found, template: %s, options: %s",
+                            widget_id, widget_template, options)
                 break
         else:
             logger.warning("Widget identifier not found: %s", widget_id)
@@ -1127,9 +1128,9 @@ class Plugin(object):
         logger.info("Saved widget options: %s", saved_options)
         for option in saved_options.split('|'):
             option = option.split('=')
-            logger.info("Saved widget option: %s", option)
+            logger.info("- saved option: %s", option)
             if len(option) > 1:
-                if request.params.get(option[0]) != option[1]:
+                if request.params.get(option[0], option[1]) != option[1]:
                     tmp_options.append("%s=%s" % (option[0], request.params.get(option[0])))
                     options[option[0]]['value'] = request.params.get(option[0])
                 else:
@@ -1137,10 +1138,9 @@ class Plugin(object):
                     options[option[0]]['value'] = option[1]
 
         new_options = '|'.join(tmp_options)
-        logger.info("Widget new options: %s", new_options)
 
         if saved_options != new_options:
-            logger.info("Widget new options: %s", new_options)
+            logger.info("Widget %s new options: %s", widget_id, new_options)
 
             # Search for the dashboard widgets
             saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
@@ -1157,6 +1157,7 @@ class Plugin(object):
             title = _('%s (%s)') % (title, name_filter)
 
         # Use required template to render the widget
+        logger.info("Rendering widget %s", widget_id)
         return template('_widget', {
             'widget_id': widget_id,
             'widget_name': widget_template,

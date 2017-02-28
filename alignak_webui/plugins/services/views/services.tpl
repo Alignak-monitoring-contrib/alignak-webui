@@ -94,7 +94,7 @@
 
                   <td>
                      %if current_user.is_power():
-                        {{! Helper.get_html_commands_buttons(service, title='Actions')}}
+                        {{! Helper.get_html_commands_buttons(service, 'Actions')}}
                      %end
                   </td>
 

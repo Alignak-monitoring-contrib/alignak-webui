@@ -268,7 +268,7 @@ class PluginHosts(Plugin):
         history_plugin = self.webui.find_plugin('Histories')
         history_types = []
         if history_plugin and 'type' in history_plugin.table:
-            logger.warning("History types: %s", history_plugin.table['type'].get('allowed', []))
+            logger.debug("History types: %s", history_plugin.table['type'].get('allowed', []))
             history_types = history_plugin.table['type'].get('allowed', [])
             history_types = history_types.split(',')
 
@@ -286,7 +286,7 @@ class PluginHosts(Plugin):
         datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
         if selected_types:
             search['where'].update({'type': {'$in': selected_types}})
-        logger.warning("History selected types: %s", selected_types)
+        logger.debug("History selected types: %s", selected_types)
 
         # Get host history
         history = datamgr.get_history(search=search)

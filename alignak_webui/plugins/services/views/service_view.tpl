@@ -10,7 +10,7 @@
    {{! service.get_html_state(text=None, size="fa-5x", use_status=service.overall_status)}}
    <legend><strong>{{service.alias}}</strong></legend>
    %if current_user.is_power():
-      {{! Helper.get_html_commands_buttons(service, title=_('Actions'))}}
+      {{! Helper.get_html_commands_buttons(service, _('Actions'))}}
    %end
    <hr/>
    <center>

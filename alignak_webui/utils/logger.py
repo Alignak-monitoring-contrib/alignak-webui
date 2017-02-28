@@ -34,7 +34,7 @@ from logging import StreamHandler
 from termcolor import cprint
 
 # Default values for root logger
-ROOT_LOGGER_NAME = 'alignak_bottle_webui'
+ROOT_LOGGER_NAME = 'alignak_webui'
 ROOT_LOGGER_LEVEL = logging.INFO
 
 logger = logging.getLogger(ROOT_LOGGER_NAME)  # pylint: disable=invalid-name
