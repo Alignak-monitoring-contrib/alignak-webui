@@ -50,11 +50,11 @@ div.pull-right a, div.pull-right div {
     <script type="text/javascript">
         var debug_logs = false;
 
-        // Function called on each page refresh ... update graphs!
+        // Function called on each page refresh...
         function on_page_refresh(forced) {
         };
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             on_page_refresh();
 
             // Date / time

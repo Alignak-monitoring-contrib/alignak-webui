@@ -91,7 +91,6 @@ class PluginCurrently(Plugin):
         collapsed = False
         if 'panel_hosts' in panels:
             collapsed = panels['panel_hosts']['collapsed']
-        logger.warning("get_currently, url: %s", self.webui.get_url('Hosts table'))
         p_h = Helper.get_html_hosts_count_panel(hs, self.webui.get_url('Hosts table'),
                                                 collapsed=collapsed)
 
