@@ -3,20 +3,8 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=['worldmap/static/css/worldmap.css', 'worldmap/static/css/leaflet.css', 'worldmap/static/css/MarkerCluster.css', 'worldmap/static/css/MarkerCluster.Default.css', 'worldmap/static/css/leaflet.label.css'], pagination=pagination, page="/worldmap")
-
-%from alignak_webui.utils.helper import Helper
-
-<script>
-   $(document).ready(function() {
-      // Map height to be scaled inside the window
-      var mapOffset = $('#{{mapId}}').offset().top;
-      var footerOffset = $('footer').offset().top;
-      $('#{{mapId}}').height(footerOffset - mapOffset - 35)
-
-      mapResize_{{mapId}}();
-   });
-</script>
+%# No default refresh for this page
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/worldmap", refresh=False)
 
 <!-- HTML map container -->
 <div id="worldmap" class="card map_container" style="padding:10px; margin-top: 10px">

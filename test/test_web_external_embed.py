@@ -30,8 +30,8 @@ import subprocess
 from nose.tools import *
 
 # Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
@@ -829,6 +829,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/js/typeahead.bundle.min.js",
             "/static/js/screenfull.js",
             "/static/js/alertify.min.js",
+            "/static/js/BootSideMenu.js",
             "/static/js/selectize.min.js",
             "/static/js/Chart.min.js",
             "/static/js/jstree.min.js",
@@ -859,6 +860,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/css/daterangepicker.css",
             "/static/css/alertify/alertify.min.css",
             "/static/css/alertify/bootstrap.min.css",
+            "/static/css/BootSideMenu.css",
             "/static/css/timeline.css",
             "/static/css/font-roboto.css",
             "/static/css/material-icons.css",

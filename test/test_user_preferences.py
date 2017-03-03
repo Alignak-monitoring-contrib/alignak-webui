@@ -32,9 +32,9 @@ import subprocess
 from nose import with_setup
 from nose.tools import *
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '0'
+# Set test mode ...
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print ("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 # To load application configuration used by the objects

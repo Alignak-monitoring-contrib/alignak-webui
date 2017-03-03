@@ -125,6 +125,9 @@ function playAlertSound() {
 /*
  * To load on run some additional js or css files.
  * (Widgets template uses this function)
+ * ---
+ * The nocache parameter allows to force the reloading of a file. It appends a random
+ * element to the url, thus forcing the browser to reload the url.
  */
 $.extend({
    getCssFiles: function(urls, callback, nocache){
@@ -144,23 +147,48 @@ $.extend({
    },
 });
 
-function loadjscssfile(filename, filetype){
-   if (log_layout) console.debug("loadjscssfile: ", filename, filetype)
-   if (filetype=="js") {
-      if (log_layout) console.debug('Loading Js file: ', filename);
-      $.ajax({
-         url: filename,
-         dataType: "script",
-         error: function () {
-            console.error('Script loading error, not loaded: ', filename);
+jQuery.cachedScript = function( url, options ) {
+    // Allow user to set any option except for dataType, cache, and url
+    options = $.extend( options || {}, {
+        dataType: "script",
+        cache: true,
+        url: url
+    });
+
+    // Use $.ajax() since it is more flexible than $.getScript
+    // Return the jqXHR object so we can chain callbacks
+    return jQuery.ajax( options );
+};
+$.extend({
+   getJsFiles: function(urls, callback, nocache){
+      if (typeof nocache=='undefined') nocache=false; // default don't refresh
+      $.when(
+         $.each(urls, function(i, url){
+            console.log("Loading script: "+url)
+            if (! $('link[href="' + url + '"]').length) {
+               if (nocache) {
+                  $.getScript(url)
+                  .done(function(data, textStatus, jqxhr) {
+                     //console.log("'Loaded:", url, textStatus)
+                  });
+               } else {
+                  $.cachedScript(url)
+                  .done(function(data, textStatus, jqxhr) {
+                     //console.log("'Loaded:", url, textStatus)
+                  });
+               }
+            } else {
+                console.warning("Script is already included: "+url)
+            }
+         })
+      ).then(function(){
+         if (typeof callback=='function') {
+            console.log("Calling callback...")
+            callback();
          }
       });
-   } else if (filetype=="css") {
-      if (log_layout) console.debug('Loading Css file: ', filename);
-       if (!$('link[href="' + filename + '"]').length)
-           $('head').append('<link rel="stylesheet" type="text/css" href="' + filename + '">');
-   }
-}
+   },
+});
 
 
 /**

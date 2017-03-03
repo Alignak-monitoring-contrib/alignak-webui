@@ -28,9 +28,9 @@ import unittest2
 import subprocess
 
 
-# Set debug and test mode ...
-os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+# Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 

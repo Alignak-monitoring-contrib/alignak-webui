@@ -15,7 +15,7 @@
       {{! host.get_html_state(text=None, size="fa-4x", use_status=host.overall_status)}}
       <legend><strong>{{host.alias}}</strong></legend>
       %if current_user.is_power():
-         {{! Helper.get_html_commands_buttons(host, title=_('Actions'))}}
+         {{! Helper.get_html_commands_buttons(host, _('Actions'))}}
       %end
    </div>
    %if host.state_id != 0:
@@ -60,7 +60,7 @@
 
                %if current_user.is_power():
                <td>
-                  {{! Helper.get_html_commands_buttons(service, title=_('Actions'))}}
+                  {{! Helper.get_html_commands_buttons(service, _('Actions'))}}
                </td>
                %end
             </tr>

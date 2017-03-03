@@ -21,6 +21,8 @@ Bootstrap Material Design: https://github.com/FezVrasta/bootstrap-material-desig
 
 floatThead: http://mkoryak.github.io/floatThead/
 
+BootSideMenu: https://github.com/AndreaLombardo/BootSideMenu
+
 Contributors
 ------------
 

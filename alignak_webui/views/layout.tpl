@@ -8,7 +8,7 @@
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
 %setdefault('current_user', None)
-%setdefault('sidebar', False)
+%setdefault('options_panel', False)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
@@ -188,15 +188,108 @@
          %end
 
          <div class="row">
-            % if sidebar:
-            <div class="{{'col-sidebar' if sidebar else ''}}">
-               <!-- Sidebar menu ... -->
-               %include("_sidebar.tpl")
+            % if options_panel:
+            <div id="options-panel">
+               <div class="card slider-card">
+                  <h3>Options</h3>
+
+                 <div class="user">
+                     <img src="/static/images/default_user.png" alt="Esempio" class="img-thumbnail"><br>
+                     <a href="http://www.lombardoandrea.com" target="_blank" class="navbar-link">Andrea Lombardo</a>
+                 </div>
+
+                 <div class="list-group">
+
+                     <a href="#item-1" class="list-group-item" data-toggle="collapse">Item 1</a>
+
+                     <div class="list-group collapse" id="item-1">
+                         <a href="#" class="list-group-item">Item 1 di 1</a>
+                         <a href="#" class="list-group-item">Item 2 di 1</a>
+                         <a href="#item-1-1" class="list-group-item" data-toggle="collapse">Item 3 di 1</a>
+
+                         <div class="list-group collapse" id="item-1-1">
+                             <a href="#" class="list-group-item">Item 1 di 1.3</a>
+                             <a href="#" class="list-group-item">Item 2 di 1.3</a>
+                             <a href="#" class="list-group-item">Item 3 di 1.3</a>
+                         </div>
+
+                     </div>
+
+                     <a href="#item-2" class="list-group-item" data-toggle="collapse">Item 2</a>
+
+                     <div class="list-group collapse" id="item-2">
+                         <a href="#" class="list-group-item">Item 1 di 2</a>
+                         <a href="#" class="list-group-item">Item 2 di 2</a>
+                         <a href="#" class="list-group-item">Item 3 di 2</a>
+                     </div>
+
+                     <a href="#item-3" class="list-group-item" data-toggle="collapse">Item 3</a>
+
+                     <div class="list-group collapse" id="item-3">
+                         <a href="#" class="list-group-item">Item 1 di 3</a>
+                         <a href="#" class="list-group-item">Item 2 di 3</a>
+                         <a href="#item-3-1" class="list-group-item" data-toggle="collapse">Item 3 di 3</a>
+
+                         <div class="list-group collapse" id="item-3-1">
+                             <a href="#" class="list-group-item">Item 1 di 3.3</a>
+                             <a href="#" class="list-group-item">Item 2 di 3.3</a>
+                             <a href="#" class="list-group-item">Item 3 di 3.3</a>
+                         </div>
+
+                     </div>
+
+                     <a href="#item-4" class="list-group-item" data-toggle="collapse">Item 4</a>
+
+                     <div class="list-group collapse" id="item-4">
+                         <a href="#" class="list-group-item">Item 1 di 4</a>
+                         <a href="#" class="list-group-item">Item 2 di 4</a>
+                         <a href="#" class="list-group-item">Item 3 di 4</a>
+                     </div>
+
+                 </div>
+               </div>
             </div>
+
+            <!-- Options slder
+            <aside id="options-panel">
+               <a href="#" data-action="options-slider-open"><span class="fa fa-gear"></span>{{_('Options')}}</a>
+
+               <div style="overflow-y:auto; max-height:100%; padding:10px; display:none;">
+                  <h3>Options</h3>
+
+                  <form class="hidden-xs" method="get" action="/all">
+                    <div class="dropdown form-group text-left">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="filters_menu" data-toggle="dropdown" aria-expanded="true"><i class="fa fa-filter"></i><span class="hidden-sm hidden-xs hidden-md"> Filters</span> <span class="caret"></span></button>
+                      <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
+                        <li role="presentation"><a role="menuitem" href="/all?search=&title=All resources">All resources</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=type:host&title=All hosts">All hosts</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=type:service&title=All services">All services</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=isnot:0 isnot:ack isnot:downtime&title=New problems">New problems</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=is:ack&title=Acknowledged problems">Acknowledged problems</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=is:downtime&title=Scheduled downtimes">Scheduled downtimes</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem" href="?search=bp:>=5">.../...</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem" onclick="display_modal('/modal/helpsearch')"><strong><i class="fa fa-question-circle"></i> Search syntax</strong></a></li>
+                      </ul>
+                    </div>
+                    <div class="form-group">
+                      <label class="sr-only" for="search">Filter</label>
+                      <div class="input-group">
+                        <span class="input-group-addon hidden-xs hidden-sm"><i class="fa fa-search"></i></span>
+                        <input class="form-control" type="search" id="search_worldmap" name="search_worldmap" value="{{ search_string }}">
+                      </div>
+                    </div>
+                  </form>
+
+               </div>
+            </aside>
+            -->
             %end
 
             <!-- All the content of #page-content is updated when the page refreshes. -->
-            <div id="page-content" class="{{'col-offset-sidebar' if sidebar else 'col-xs-12'}}">
+            <div id="page-content" class="col-xs-12">
                <!-- Page content header -->
                <section class="content-header">
                   %if pagination:
@@ -240,6 +333,43 @@
          alertify.defaults.theme.input = "form-control";
 
          $.material.init();
+
+         % if options_panel:
+         $('#options-panel').BootSideMenu({
+            // 'left' or 'right'
+            side: "left",
+            // animation speed
+            duration: 500,
+            // restore last menu status on page refresh
+            remember: true,
+            // auto close
+            autoClose: false,
+            // push the whole page
+            pushBody: true,
+            // close on click
+            closeOnClick: true,
+            // width
+            width: "30%",
+            onTogglerClick: function () {
+               //code to be executed when the toggler arrow was clicked
+            },
+            onBeforeOpen: function () {
+               //code to be executed before menu open
+            },
+            onBeforeClose: function () {
+               //code to be executed before menu close
+            },
+            onOpen: function () {
+               //code to be executed after menu open
+            },
+            onClose: function () {
+               //code to be executed after menu close
+            },
+            onStartup: function () {
+               //code to be executed when the plugin is called
+            }
+         });
+         %end
       });
       </script>
    </body>

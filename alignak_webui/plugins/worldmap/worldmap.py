@@ -33,24 +33,12 @@ from alignak_webui.utils.helper import Helper
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Plugin's parameters
-worldmap_parameters = {
-    'default_zoom': 6,
-    'default_lng': 1.87528,
-    'default_lat': 46.60611,
-    'hosts_level': [1, 2, 3, 4, 5],
-    'services_level': [1, 2, 3, 4, 5],
-    'layer': ''
-}
-
 
 class PluginWorldmap(Plugin):
     """ Worldmap plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Worldmap plugin
-        """
+        """Worldmap plugin"""
         self.name = 'Worldmap'
         self.backend_endpoint = None
 
@@ -103,9 +91,33 @@ class PluginWorldmap(Plugin):
 
         super(PluginWorldmap, self).__init__(app, webui, cfg_filenames)
 
-    def show_worldmap(self):
-        """
-        Get the hosts list to build a worldmap
+        bis = self.plugin_parameters.get('hosts_business_impacts',
+                                         '0,1,2,3,4,5').replace(' ', '').split(',')
+        if not bis:
+            bis = [0, 1, 2, 3, 4, 5]
+        else:
+            bis = [int(num) for num in bis]
+        self.plugin_parameters['hosts_business_impacts'] = bis
+
+        bis = self.plugin_parameters.get('services_business_impacts',
+                                         '0,1,2,3,4,5').replace(' ', '').split(',')
+        if not bis:
+            bis = [0, 1, 2, 3, 4, 5, 6]
+        else:
+            bis = [int(num) for num in bis]
+        self.plugin_parameters['services_business_impacts'] = bis
+        logger.info("Plugin parameters: %s", self.plugin_parameters)
+
+    def show_worldmap(self, for_my_widget=False):
+        """Get the hosts list to build a worldmap
+
+        Get the list of the valid hosts t display onthe map
+
+         If `for_my_widget` is True this function returns the list of the concerned hosts
+         else it returns the worldmap view.
+
+        :param for_my_widget: defaults to False
+        :return:
         """
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
@@ -123,16 +135,26 @@ class PluginWorldmap(Plugin):
             'sort': '-_id',
             'where': where
         }
+        # Only get hosts which business impact is configured...
+        logger.debug("worldmap, only hosts with BI in: %s",
+                     self.plugin_parameters['hosts_business_impacts'])
+        search['where'].update(
+            {'business_impact': {'$in': self.plugin_parameters['hosts_business_impacts']}})
+
+        # Do not include the embedded fields to improve the loading time...
+        hosts = datamgr.get_hosts(search, embedded=True)
 
         # Get valid hosts
-        valid_hosts = self.get_valid_elements(search)
-
-        logger.info("worldmap, parameters: %s", self.plugin_parameters)
+        valid_hosts = self.get_valid_elements(hosts)
 
         # Get last total elements count
         total = len(valid_hosts)
 
+        if for_my_widget:
+            return valid_hosts
+
         return {
+            'options_panel': False,
             'mapId': 'hostsMap',
             'params': self.plugin_parameters,
             'hosts': valid_hosts,
@@ -142,38 +164,109 @@ class PluginWorldmap(Plugin):
             'title': request.query.get('title', _('Hosts worldmap'))
         }
 
-    def get_valid_elements(self, search):  # pylint:disable=no-self-use
-        """
-        Get hosts valid for a map:
+    def get_valid_elements(self, hosts):
+        # pylint:disable=no-self-use
+        """Get hosts valid for a map:
+
         - must have custom variables with GPS coordinates
         - must have a business_impact that match the one defined in this plugin parameters
+
+        :param hosts: list of hosts to search in
+        :return: list of hosts to display on the map
         """
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
-        # Do not include the embedded fields to improve the loading time...
-        hosts = datamgr.get_hosts(search)
         logger.info("worldmap, searching valid hosts...")
 
         valid_hosts = []
         for host in hosts:
             logger.debug("worldmap, found host '%s'", host.name)
 
-            if host.business_impact not in worldmap_parameters['hosts_level']:
+            if 'type' not in host.position or host.position['type'] != 'Point':
+                logger.warning("worldmap, host '%s', invalid position: %s",
+                               host.name, host.position)
                 continue
 
-            if host.position:
-                logger.info("worldmap, host '%s' located: %s", host.name, host.position)
-                # Get host services
-                services = datamgr.get_host_services(host)
-                logger.debug("worldmap, host '%s' services: %s", host.name, services)
-                setattr(host, 'services', services)
-                valid_hosts.append(host)
+            logger.info("worldmap, host '%s' located: %s", host.name, host.position)
+
+            # logger.info("Host properties: %s", host.__dict__.keys())
+            map_host = {}
+            for attr in ['id', 'name', 'alias', 'business_impact', 'tags',
+                         'position', 'tags', 'notes', 'notes_url', 'action_url',
+                         'overall_state', 'overall_status', 'state_id', 'state_type',
+                         'acknowledged', 'downtimed',
+                         'last_check', 'output', 'long_output']:
+                map_host[attr] = host[attr]
+            map_host['lat'] = host['position']['coordinates'][0]
+            map_host['lng'] = host['position']['coordinates'][1]
+
+            host_iw = self.plugin_parameters['host_info_content']
+            host_iw = host_iw.replace("\n", '')
+            host_iw = host_iw.replace("\r", '')
+            host_iw = host_iw.replace("##id##", map_host['id'])
+            host_iw = host_iw.replace("##name##", map_host['name'])
+            host_iw = host_iw.replace("##state##", map_host['overall_status'])
+            host_iw = host_iw.replace("##bi##", str(map_host['business_impact']))
+            host_iw = host_iw.replace("##url##", host.get_html_link())
+            host_iw = host_iw.replace("##html_bi##",
+                                      Helper.get_html_business_impact(host.business_impact,
+                                                                      icon=True, text=False))
+            host_iw = host_iw.replace("##html_state##",
+                                      host.get_html_state(text=None,
+                                                          use_status=host.overall_status))
+            host_iw = host_iw.replace("##html_actions##", Helper.get_html_commands_buttons(
+                host, _('<span class="fa fa-bolt"></span>')
+            ))
+
+            # Get host services
+            search = {
+                # 'projection': json.dumps({
+                #     "_id": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1,
+                #     "": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1
+                # })
+            }
+            services = datamgr.get_host_services(host, search=search)
+            services_iw = ""
+            for service in services:
+                svc_iw = self.plugin_parameters['service_info_content']
+                svc_iw = svc_iw.replace("\n", '')
+                svc_iw = svc_iw.replace("\r", '')
+                svc_iw = svc_iw.replace("##id##", service['id'])
+                svc_iw = svc_iw.replace("##name##", service['name'])
+                svc_iw = svc_iw.replace("##state##", service['overall_status'])
+                svc_iw = svc_iw.replace("##bi##", str(service['business_impact']))
+                svc_iw = svc_iw.replace("##url##", service.get_html_link())
+                svc_iw = svc_iw.replace("##html_bi##",
+                                        Helper.get_html_business_impact(service.business_impact,
+                                                                        icon=True, text=False))
+                svc_iw = svc_iw.replace("##html_state##",
+                                        service.get_html_state(text=None,
+                                                               use_status=service.overall_status))
+                svc_iw = svc_iw.replace("##html_actions##", Helper.get_html_commands_buttons(
+                    service, _('<span class="fa fa-bolt"></span>')
+                ))
+                services_iw += svc_iw
+
+            logger.info("worldmap, host '%s' services: %s", host.name, services)
+            map_host.update({'services': services})
+
+            host_iw = host_iw.replace("##services##", services_iw)
+            map_host.update({'content': host_iw})
+            logger.info("worldmap, host '%s' info view: %s", host.name, map_host['content'])
+
+            valid_hosts.append(map_host)
+
+        logger.info("worldmap, found %d hosts to display on the map", len(valid_hosts))
+        for host in valid_hosts:
+            logger.info("worldmap, host '%s' located: %s", host['name'], host['position'])
 
         return valid_hosts
 
+    def get_widget_hosts(self, search):  # pylint: disable=unused-argument
+        """Get the hosts list for the widget"""
+        return self.show_worldmap(for_my_widget=True)
+
     def get_worldmap_widget(self, embedded=False, identifier=None, credentials=None):
-        """
-        Get the worldmap widget
-        """
-        return self.get_widget(self.get_valid_elements, 'host', embedded, identifier, credentials)
+        """Get the worldmap widget"""
+        return self.get_widget(self.get_widget_hosts, 'host', embedded, identifier, credentials)

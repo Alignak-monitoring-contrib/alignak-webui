@@ -70,7 +70,7 @@
             <td><strong>{{_('Actions:')}}</strong></td>
             <td>
                %if current_user.is_power():
-                  {{! Helper.get_html_commands_buttons(host, title='Buttons')}}
+                  {{! Helper.get_html_commands_buttons(host, _('Actions'))}}
                %end
             </td>
          </tr>

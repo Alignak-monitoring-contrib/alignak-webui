@@ -84,7 +84,7 @@ from docopt import docopt, DocoptExit
 
 # Application import
 from alignak_webui import __manifest__, set_app_config
-from alignak_webui.utils.logger import setup_logging
+from alignak_webui.utils.logger import setup_logging, ROOT_LOGGER_NAME
 from alignak_webui.utils.locales import init_localization
 from alignak_webui.backend.backend import BackendException
 from alignak_webui.backend.datamanager import DataManager
@@ -263,7 +263,7 @@ app_logger_file = None
 logger = None
 for cfg_log_filename in cfg_log_filenames:
     if setup_logging(cfg_log_filename, log_location):
-        logger = logging.getLogger(app_name)
+        logger = logging.getLogger(ROOT_LOGGER_NAME)
         logger.setLevel(log_level)
         print("Application logger: %s" % logger.__dict__)
         print("Application logger configured from: %s" % cfg_log_filename)
@@ -1019,6 +1019,7 @@ session_app = SessionMiddleware(app, session_opts)
 
 logger.warning("Running Bottle, debug mode: %s" % app.config.get('debug', False))
 if __name__ == '__main__':
+    logger.info("Running Bottle, debug mode: %s" % app.config.get('debug', False))
     run(
         app=session_app,
         host=app.config.get('host', '127.0.0.1'),

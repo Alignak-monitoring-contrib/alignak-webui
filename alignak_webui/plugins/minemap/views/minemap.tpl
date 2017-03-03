@@ -34,7 +34,7 @@
                   %title = "%s - %s - %s (%s)" % (host.name, host.status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
                   <td title="{{title}}">
                      %if host.is_problem and not (host.acknowledged or host.downtimed) and current_user.is_power():
-                     {{ ! Helper.get_html_commands_buttons(host, title="<span class='fa fa-bolt'></span>") }}
+                     {{ ! Helper.get_html_commands_buttons(host, '<span class="fa fa-bolt"></span>') }}
                      %end
                      <a href="{{! host.endpoint}}">
                         {{ ! host.get_html_state(text=host.display_name, use_status=host.overall_status, title=title) }}
@@ -64,7 +64,7 @@
                                 {{ ! service.get_html_state(text=None, use_status=service.overall_status, title=title)}}
                             </a>
                             %if service.is_problem and not (service.acknowledged or service.downtimed) and current_user.is_power():
-                                {{ ! Helper.get_html_commands_buttons(service, title="<span class='fa fa-bolt'></span>") }}
+                                {{ ! Helper.get_html_commands_buttons(service, '<span class="fa fa-bolt"></span>') }}
                             %end
                         </td>
                      %else:

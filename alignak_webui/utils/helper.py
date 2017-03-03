@@ -735,8 +735,14 @@ class Helper(object):
         return ' '.join(content.split())
 
     @classmethod
-    def get_html_commands_buttons(cls, bo_object, title=''):
-        """Build an html button group for element actions"""
+    def get_html_commands_buttons(cls, bo_object, text, title=''):
+        """Build an html button group for element actions
+
+        :param bo_object: concerned object
+        :param text: Visible text
+        :param title: HTML title
+        :return:
+        """
         if not bo_object:
             return ''
 
@@ -752,7 +758,7 @@ class Helper(object):
                 button = button.replace("##type##", bo_object.get_type())
                 button = button.replace("##name##", bo_object.name)
                 button = button.replace("##action##", 'event_handler')
-                button = button.replace("##title##", _('Try to fix this problem'))
+                button = button.replace("##text##", _('Try to fix this problem'))
                 button = button.replace("##icon##", 'magic')
                 if getattr(bo_object, 'state_id', 0) > 0:
                     button = button.replace("##disabled##", 'disabled="disabled"')
@@ -765,7 +771,7 @@ class Helper(object):
             button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'acknowledge')
-            button = button.replace("##title##", _('Acknowledge this problem'))
+            button = button.replace("##text##", _('Acknowledge this problem'))
             button = button.replace("##icon##", 'check')
             if getattr(bo_object, 'state_id', 0) > 0:
                 if bo_object.acknowledged:
@@ -781,7 +787,7 @@ class Helper(object):
             button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'recheck')
-            button = button.replace("##title##", _('Re-check this element'))
+            button = button.replace("##text##", _('Re-check this element'))
             button = button.replace("##icon##", 'refresh')
             if getattr(bo_object, 'active_checks_enabled', None) is not None:
                 if not getattr(bo_object, 'active_checks_enabled'):
@@ -795,7 +801,7 @@ class Helper(object):
             button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'downtime')
-            button = button.replace("##title##", _('Schedule a downtime'))
+            button = button.replace("##text##", _('Schedule a downtime'))
             button = button.replace("##icon##", 'ambulance')
             if bo_object.downtimed:
                 button = button.replace("##disabled##", 'disabled="disabled"')
@@ -808,14 +814,15 @@ class Helper(object):
             button = button.replace("##type##", bo_object.get_type())
             button = button.replace("##name##", bo_object.name)
             button = button.replace("##action##", 'command')
-            button = button.replace("##title##", _('Notify a command'))
+            button = button.replace("##text##", _('Notify a command'))
             button = button.replace("##icon##", 'rocket')
             button = button.replace("##disabled##", '')
             buttons.append(button)
 
             content = app_config.get('buttons.livestate_commands')
-            content = content.replace("##title##", title)
             content = content.replace("##commands##", ''.join(buttons))
+            content = content.replace("##title##", title)
+            content = content.replace("##text##", text)
             logger.debug("Content: %s", content)
             logger.debug("get_html_commands_buttons, content: %s", content)
         except Exception as e:
@@ -1428,7 +1435,7 @@ class Helper(object):
                 <td class="hidden-sm hidden-xs">%s: %s%s</td>
             </tr>""" % (
                 item.get_html_state(text=None, title=title, extra=extra),
-                Helper.get_html_commands_buttons(item, title=_("Actions")) if actions else '',
+                Helper.get_html_commands_buttons(item, _("Actions")) if actions else '',
                 Helper.get_html_business_impact(item.business_impact, icon=True, text=False),
                 host_url,
                 service_url,

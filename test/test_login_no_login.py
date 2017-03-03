@@ -24,8 +24,9 @@ from __future__ import print_function
 import os
 import unittest2
 
-# Do not set test mode ... application is tested in production mode!
+# Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
