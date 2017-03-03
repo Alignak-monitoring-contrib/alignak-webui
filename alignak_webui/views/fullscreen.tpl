@@ -155,17 +155,45 @@
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
-            %if refresh:
-            <li id="refresh_active">
-               <a data-action="toggle-page-refresh"
-                  data-toggle="tooltip" data-placement="bottom"
-                  title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
-                  href="#">
-                  <span class="fa fa-refresh"></span>
-                  <span class="sr-only">{{_('Change page refresh state')}}</span>
-               </a>
-            </li>
-            %end
+                  %if webui.get_url(request.route.name) == "/currently":
+                  %try:
+                  <li data-toggle="tooltip" data-placement="bottom" title="{{_('Livestate')}}">
+                     <a class="navbar-link" href="{{ webui.get_url('Livestate') }}">
+                        <span class="fa fa-fw fa-heartbeat"></span>
+                        <span class="sr-only">{{_('Livestate')}}</span>
+                     </a>
+                  </li>
+                  %except RouteBuildError:
+                  %print("Missing plugin Livestate")
+                  %end
+                  %end
+
+                  %if webui.get_url(request.route.name) == "/livestate":
+                  %try:
+                  <li>
+                     <a data-action="display-currently"
+                        data-toggle="tooltip" data-placement="bottom"
+                        title="{{_('Display fullscreen one-eye view.')}}"
+                        href="/currently">
+                        <span class="fa fa-eye"></span>
+                     </a>
+                  </li>
+                  %except RouteBuildError:
+                  %print("Missing plugin Currently")
+                  %end
+                  %end
+
+                  %if refresh:
+                  <li id="refresh_active">
+                     <a data-action="toggle-page-refresh"
+                        data-toggle="tooltip" data-placement="bottom"
+                        title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
+                        href="#">
+                        <span class="fa fa-refresh"></span>
+                        <span class="sr-only">{{_('Change page refresh state')}}</span>
+                     </a>
+                  </li>
+                  %end
 
                   <li>
                      <a class="font-darkgrey"

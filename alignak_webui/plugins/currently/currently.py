@@ -68,16 +68,14 @@ class PluginCurrently(Plugin):
             panels = {
                 'panel_hosts': {'collapsed': False},
                 'panel_services': {'collapsed': False},
-                'panel_pie_graph_hosts': {'collapsed': False},
-                'panel_pie_graph_services': {'collapsed': False},
-                'panel_line_graph_hosts': {'collapsed': False},
-                'panel_line_graph_services': {'collapsed': False}
+                'panel_ls_history_hosts': {'collapsed': False},
+                'panel_ls_history_services': {'collapsed': False}
             }
 
         # Get the stored graphs
-        currently_graphs = datamgr.get_user_preferences(user, 'currently_graphs', None)
-        if not currently_graphs:
-            currently_graphs = {
+        graphs = datamgr.get_user_preferences(user, 'currently_graphs', None)
+        if not graphs:
+            graphs = {
                 'pie_graph_hosts': {'legend': True, 'title': True, 'states': hosts_states},
                 'pie_graph_services': {'legend': True, 'title': True, 'states': services_states},
                 'line_graph_hosts': {'legend': True, 'title': True, 'states': hosts_states},
@@ -93,6 +91,7 @@ class PluginCurrently(Plugin):
         collapsed = False
         if 'panel_hosts' in panels:
             collapsed = panels['panel_hosts']['collapsed']
+        logger.warning("get_currently, url: %s", self.webui.get_url('Hosts table'))
         p_h = Helper.get_html_hosts_count_panel(hs, self.webui.get_url('Hosts table'),
                                                 collapsed=collapsed)
 

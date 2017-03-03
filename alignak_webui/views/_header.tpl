@@ -66,6 +66,7 @@
          %include("_menubar.tpl")
 
          <ul class="nav navbar-nav navbar-right">
+            %try:
             <li>
                <a data-action="display-currently"
                   data-toggle="tooltip" data-placement="bottom"
@@ -74,6 +75,9 @@
                   <span class="fa fa-eye"></span>
                </a>
             </li>
+            %except RouteBuildError:
+            %print("Missing plugin Currently")
+            %end
 
             %if request.app.config.get('play_sound', 'no') == 'yes':
             <li id="sound_alerting">

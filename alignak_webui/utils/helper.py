@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=fixme
 
 # Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@alignak.net
@@ -191,7 +192,8 @@ class Helper(object):
 
         element = element.replace("##title##", title)
         element = element.replace("##message##", message)
-        return element
+
+        return ' '.join(element.split())
 
     @staticmethod
     def get_html_business_impact(business_impact, icon=True, text=False):
@@ -245,9 +247,10 @@ class Helper(object):
             return element
 
         element = element.replace("##text##", bi_texts.get(business_impact, _('Unknown')))
-        return element
+        return ' '.join(element.split())
 
     @staticmethod
+    # TODO: add tests for this function
     def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
         """Returns formatted HTML for an element URL
 
@@ -334,9 +337,10 @@ class Helper(object):
                         )
                     )
 
-        return result
+        return ' '.join(result.split())
 
     @staticmethod
+    # TODO: add tests for this function
     def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
         """Return list of element action urls"""
 
@@ -349,6 +353,7 @@ class Helper(object):
         return None
 
     @staticmethod
+    # TODO: add tests for this function
     def get_element_notes_url(obj, default_title="Url", default_icon="globe", popover=False):
         """Return list of element notes urls"""
 
@@ -582,7 +587,7 @@ class Helper(object):
 
         element = element.replace("##content##", lists)
 
-        return element
+        return ' '.join(element.split())
 
     @staticmethod
     def get_html_item_list(object_id, object_type, objects_list, title=None, max_items=10):
@@ -654,7 +659,7 @@ class Helper(object):
         content = items_list.replace("##content##", content)
         content = button.replace("##content##", content)
 
-        return content
+        return ' '.join(content.split())
 
     @classmethod
     def get_html_commands_buttons(cls, bo_object, title=''):
@@ -744,7 +749,7 @@ class Helper(object):
             logger.error("get_html_commands_buttons, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
 
-        return content
+        return ' '.join(content.split())
 
     @staticmethod
     def get_html_hosts_ls_history(hs, history, collapsed=False):
@@ -921,7 +926,9 @@ class Helper(object):
         </script>
         """ % (_("Hosts states history, last %d minutes") % len(history))
 
-        return content
+        # content = content.replace("\n", '')
+        # content = content.replace("\r", '')
+        return ' '.join(content.split())
 
     @staticmethod
     def get_html_services_ls_history(ss, history, collapsed=False):
@@ -1097,7 +1104,9 @@ class Helper(object):
         </script>
         """ % (_("Services states history, last %d minutes") % len(history))
 
-        return content
+        # content = content.replace("\n", '')
+        # content = content.replace("\r", '')
+        return ' '.join(content.split())
 
     @staticmethod
     def get_html_hosts_count_panel(hs, url, collapsed=False):
@@ -1126,8 +1135,15 @@ class Helper(object):
         app_config = get_app_config()
 
         content = app_config.get('currently.hosts_panel')
-        content = content % ('fa-caret-up' if collapsed else 'fa-caret-down',
-                             'in' if not collapsed else '')
+        logger.info("Hosts count panel configuration : %s", content)
+        try:
+            content = content % ('fa-caret-up' if collapsed else 'fa-caret-down',
+                                 'in' if not collapsed else '')
+        except Exception:
+            content = content.replace("\n", '')
+            content = content.replace("\r", '')
+            logger.warning("Hosts count panel configuration parameter is not well formed: %s",
+                           content)
 
         hosts_percentage = app_config.get('currently.hosts_percentage')
         hosts_percentage = hosts_percentage.replace("##font##", font)
@@ -1154,7 +1170,9 @@ class Helper(object):
         content = content.replace("##pct_in_downtime##", "%d" % hs['pct_in_downtime'])
         content = content.replace("##hosts_table_url##", url)
 
-        return content
+        content = content.replace("\n", '')
+        content = content.replace("\r", '')
+        return ' '.join(content.split())
 
     @staticmethod
     def get_html_services_count_panel(ss, url, collapsed=False):
@@ -1183,8 +1201,15 @@ class Helper(object):
         app_config = get_app_config()
 
         content = app_config.get('currently.services_panel')
-        content = content % ('fa-caret-up' if collapsed else 'fa-caret-down',
-                             'in' if not collapsed else '')
+        logger.info("Services count panel configuration : %s", content)
+        try:
+            content = content % ('fa-caret-up' if collapsed else 'fa-caret-down',
+                                 'in' if not collapsed else '')
+        except Exception:
+            content = content.replace("\n", '')
+            content = content.replace("\r", '')
+            logger.warning("Services count panel configuration parameter is not well formed: %s",
+                           content)
 
         services_percentage = app_config.get('currently.services_percentage')
         services_percentage = services_percentage.replace("##font##", font)
@@ -1192,6 +1217,8 @@ class Helper(object):
 
         services_counters = app_config.get('currently.services_counters')
 
+        content = content.replace("\n", '')
+        content = content.replace("\r", '')
         content = content.replace("##services_percentage##", services_percentage)
         content = content.replace("##services_counters##", services_counters)
         content = content.replace("##problems##", "%s" % problems)
@@ -1215,7 +1242,9 @@ class Helper(object):
         content = content.replace("##pct_in_downtime##", "%d" % ss['pct_in_downtime'])
         content = content.replace("##services_table_url##", url)
 
-        return content
+        # content = content.replace("\n", '')
+        # content = content.replace("\r", '')
+        return ' '.join(content.split())
 
     @staticmethod
     # pylint: disable=too-many-locals
@@ -1435,5 +1464,9 @@ class Helper(object):
                               Helper.get_html_business_impact(bi, icon=True, text=False))
         title = title.replace("#problems#", "%s" % problems)
         title = title.replace("#nb_problems#", "%s" % problems_count)
+
+        panel_bi = panel_bi.replace("\n", '')
+        panel_bi = panel_bi.replace("\r", '')
+        panel_bi = ' '.join(panel_bi.split())
 
         return {'bi': bi, 'rows': rows, 'title': title, 'panel_bi': panel_bi}

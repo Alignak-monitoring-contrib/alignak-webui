@@ -69,7 +69,7 @@ from alignak_webui.objects.item_livesynthesis import LiveSynthesis
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 # pylint:disable=invalid-name
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# logger.setLevel(logging.INFO)
 
 
 class DataManager(object):
