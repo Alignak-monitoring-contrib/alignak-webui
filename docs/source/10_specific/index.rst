@@ -7,30 +7,33 @@
 Specific parameters
 ===================
 
-Hosts
------------
+Hosts custom variables
+----------------------
 
 Host location
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 The Web UI allow to disply the monitored hosts on a map. To achieve this, each host should have GPS coordinates to get located properly.
 
 Hosts fetched from the Alignak backend have a `location` GeoJson attribute that contains the host GPS coordinates. This position is used to locate the host on a map.
 
-However, some specifc custom variables are handled by the Web UI:
+Specific custom variables are used to set the host position:
+::
 
-    - `LOC_LAT` for the host latitude
-    - `LOC_LNG` for the host longitude
+    # GPS
+       _LOC_LAT             45.054700
+       _LOC_LNG             5.080856
 
-Those variables, if they exist, are used first by the Web UI.
+
+**Note** that the WebUI is using the Alignak backend as a data backend. The `LOC_LAT` and `LOC_LNG` custom variables are handled by the ``alignak-backend-import`` script when it imports the hosts into the backend. From those variables, this script creates a GeoJson Point position.
 
 
-Custom variables
-~~~~~~~~~~~~~~~~~~~~~~~~
+Fix actions
+~~~~~~~~~~~
 
 All the host/service custom variables are displayed in the *Configuration* tab of the host/service view.
 
-Some specifc custom variables are handled by the Web UI:
+Some specific custom variables are handled by the Web UI:
 
     - `DETAILLEDESC` contains the detailed description of the host/service
     - `IMPACT` contains the description of the impact of an host/service failure
@@ -40,9 +43,9 @@ Those variables, if they exist, are displayed in the host/service overview panel
 
 
 Notes and URLs
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
-In an host/service configuration, it is possible to define `notes`, `notes_url` and `action_url` This is how the Web UI uses these properties.
+In an host/service configuration, it is possible to define `notes`, `notes_url` and `action_url`. This is how the Web UI uses these properties.
 
 Each url may be formatted as:
 

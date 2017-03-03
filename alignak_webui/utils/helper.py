@@ -250,7 +250,7 @@ class Helper(object):
 
     @staticmethod
     # TODO: add tests for this function
-    def get_urls(obj, url, default_title="Url", default_icon="globe", popover=False):
+    def get_urls(url, default_title="Url", default_icon="globe", popover=False):
         """Returns formatted HTML for an element URL
 
         url string may contain a list of urls separated by | (pipe symbol)
@@ -267,10 +267,10 @@ class Helper(object):
 
         If popover is true, a bootstrap popover is built, else a standard link ...
         """
-        logger.debug(
-            "get_urls: %s / %s / %s / %d", url, default_title, default_icon, popover
-        )
+        logger.debug("get_urls: %s / %s / %s / %d", url, default_title, default_icon, popover)
 
+        items_count = url.split('|')
+        logger.debug("get_urls, items: %s", items_count)
         result = []
         for item in url.split('|'):
             try:
@@ -290,34 +290,30 @@ class Helper(object):
                 description = 'No description provided'
                 real_url = url
 
-            # Replace MACROS in url and description
-            if hasattr(obj, 'get_data_for_checks'):
-                # url = MacroResolver().resolve_simple_macros_in_string(
-                # real_url, obj.get_data_for_checks()
-                # )
-                url = real_url
-                # description = MacroResolver().resolve_simple_macros_in_string(
-                # description, obj.get_data_for_checks()
-                # )
+            # todo: Replace MACROS in url and description
+            # Not yet possible because the Web UI is not aware of the Alignak macros...
+            url = real_url
 
-            logger.debug("get_urls, found: %s / %s / %s / %s", title, icon, url, description)
+            logger.debug("get_urls, found url: %s", url)
+            logger.debug("get_urls, found title and icon: %s / %s", title, icon)
+            logger.debug("get_urls, found description: %s", description)
 
             if popover:
                 if url != '':
                     result.append(
                         '<a href="%s" target="_blank" role="button" data-toggle="popover urls" '
-                        'data-container="body" '
-                        'data-html="true" data-content="%s" data-trigger="hover focus" '
-                        'data-placement="bottom"><i class="fa fa-%s"></i>&nbsp;%s</a>' % (
+                        'data-container="body" data-html="true" data-content="%s" '
+                        'data-trigger="hover focus" data-placement="bottom">'
+                        '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
                             url, description, icon, title
                         )
                     )
                 else:
                     result.append(
-                        '<span data-toggle="popover urls" data-html="true" data-content="%s" '
-                        'data-container="body" '
+                        '<a href="#" role="button" data-toggle="popover urls" '
+                        'data-container="body" data-html="true" data-content="%s" '
                         'data-trigger="hover focus" data-placement="bottom">'
-                        '<i class="fa fa-%s"></i>&nbsp;%s</span>''' % (
+                        '<span class="fa fa-%s"></span>&nbsp;%s</span></a>' % (
                             description, icon, title
                         )
                     )
@@ -325,18 +321,19 @@ class Helper(object):
                 if url != '':
                     result.append(
                         '<a href="%s" target="_blank" title="%s">'
-                        '<i class="fa fa-%s"></i>&nbsp;%s</a>' % (
+                        '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
                             url, description, icon, title
                         )
                     )
                 else:
                     result.append(
-                        '<span title="%s"><i class="fa fa-%s"></i>&nbsp;%s</span>' % (
+                        '<a href="#" title="%s">'
+                        '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
                             description, icon, title
                         )
                     )
 
-        return ' '.join(result.split())
+        return result
 
     @staticmethod
     # TODO: add tests for this function
@@ -344,10 +341,9 @@ class Helper(object):
         """Return list of element action urls"""
 
         if obj is not None:
-            return Helper.get_urls(
-                obj, obj.action_url,
-                default_title=default_title, default_icon=default_icon, popover=popover
-            )
+            logger.debug("get_element_actions_url, url: %s", obj.action_url)
+            return Helper.get_urls(obj.action_url, default_title=default_title,
+                                   default_icon=default_icon, popover=popover)
 
         return None
 
@@ -371,10 +367,8 @@ class Helper(object):
                 i += 1
                 logger.debug("get_element_notes_url, note: %s", notes)
 
-            return Helper.get_urls(
-                obj, '|'.join(notes),
-                default_title=default_title, default_icon=default_icon, popover=popover
-            )
+            return Helper.get_urls('|'.join(notes), default_title=default_title,
+                                   default_icon=default_icon, popover=popover)
 
         return []
 

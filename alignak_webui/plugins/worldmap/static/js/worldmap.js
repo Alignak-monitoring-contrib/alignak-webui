@@ -153,8 +153,11 @@ markerCreate = function($map, host) {
 mapResize = function($map, host) {
     if (typeof L !== 'undefined') {
         if (debugMaps)
-            console.log("Map resize...");
+            console.log("Map resize...", $map._leaflet_id);
+        // Set map widht and height
         L.Util.requestAnimFrame($map.invalidateSize, $map, !1, $map._container);
+        $("#hostsMap").height($("#worldmap").height()).width($("#worldmap").width());
+        $map.invalidateSize();
     }
 }
 
@@ -229,6 +232,12 @@ mapInit = function(map_id, callback) {
 
         allMaps.push($map);
 
+        $(window).on("resize", function() {
+            mapResize($map);
+        //    $("#hostsMap").height($("#worldmap").height()).width($("#worldmap").width());
+        //    $map.invalidateSize();
+        }).trigger("resize");
+
         if (typeof callback !== 'undefined' && $.isFunction(callback)) {
             if (debugMaps) console.log('Calling callback function ...');
             callback($map);
@@ -237,3 +246,42 @@ mapInit = function(map_id, callback) {
 
     return true;
 };
+
+// ------------------------------------------------------------------------------
+// Map assets loading
+// ------------------------------------------------------------------------------
+createMap = function(mapId, emptyMessage) {
+    var cssfiles=[
+        '/static/plugins/worldmap/static/leaflet/leaflet.css',
+        '/static/plugins/worldmap/static/css/MarkerCluster.css',
+        '/static/plugins/worldmap/static/css/MarkerCluster.Default.css',
+        '/static/plugins/worldmap/static/css/leaflet.label.css',
+        '/static/plugins/worldmap/static/css/worldmap.css'];
+
+    $.getCssFiles(cssfiles, function(){
+        var jsfiles=[
+            '/static/plugins/worldmap/static/leaflet/leaflet.js',
+            '/static/plugins/worldmap/static/js/worldmap.js'];
+
+        $.getJsFiles(jsfiles, function(){
+            window.setTimeout(function () {
+                // Build hosts list
+                buildHosts();
+
+                // Build map
+                var mapCreated = mapInit(mapId, function($map) {
+                    // Map height to be scaled inside the window
+                    var mapOffset = $('#' + mapId).offset().top;
+                    var footerOffset = $('footer').offset().top;
+                    $('#' + mapId).height(footerOffset - mapOffset - 35)
+
+                    if (debugMaps) console.log('Resizing map:')
+                    mapResize($map);
+                });
+                if (! mapCreated) {
+                    $('#' + mapId).html('<div class="alert alert-danger"><a href="#" class="alert-link">'+ emptyMessage +'</a></div>');
+                }
+            }, 500);
+        });
+    });
+}

@@ -112,14 +112,18 @@
                </a>
 
                <ul class="nav navbar-nav navbar-left">
+                   %try:
                <li class="pull-left">
                   <a tabindex="0" role="button"
                      data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Go back to the dashboard')}}" href="/dashboard">
-                     <span class="fa fa-home"></span>
-                     <span class="sr-only">{{_('Go back to the main dashboard')}}</span>
+                     title="{{_('Dashboard')}}" href="/dashboard">
+                     <span class="fa fa-dashboard"></span>
+                     <span class="sr-only">{{_('Dashboard')}}</span>
                   </a>
                </li>
+               %except RouteBuildError:
+               %print("Missing plugin Dashboard")
+               %end
                <li class="pull-left">
                   <a tabindex="0" role="button"
                      data-action="fullscreen-request"
@@ -129,17 +133,6 @@
                      <span class="sr-only">{{_('Fullscreen page')}}</span>
                   </a>
                </li>
-               %if request.app.config.get('play_sound', 'no') == 'yes':
-               <li id="sound_alerting" class="pull-left">
-                  <a tabindex="0" role="button"
-                     data-action="toggle-sound-alert"
-                     data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Sound alert on/off')}}" href="#">
-                     <span class="fa fa-music"></span>
-                     <span class="sr-only">{{_('Change sound playing state')}}</span>
-                  </a>
-               </li>
-               %end
             </ul>
             </div>
 
@@ -183,6 +176,17 @@
                   %end
                   %end
 
+                   %if request.app.config.get('play_sound', 'no') == 'yes':
+                   <li id="sound_alerting" class="pull-left">
+                      <a tabindex="0" role="button"
+                         data-action="toggle-sound-alert"
+                         data-toggle="tooltip" data-placement="bottom"
+                         title="{{_('Sound alert on/off')}}" href="#">
+                         <span class="fa fa-music"></span>
+                         <span class="sr-only">{{_('Change sound playing state')}}</span>
+                      </a>
+                   </li>
+                   %end
                   %if refresh:
                   <li id="refresh_active">
                      <a data-action="toggle-page-refresh"

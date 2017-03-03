@@ -520,8 +520,6 @@ class TestsExternal(unittest2.TestCase):
             '<!-- Hosts history widget -->',
         )
 
-    @unittest2.skip("Do not understand ... I suspect Travis "
-                    "to not contain the same data in the backend!")
     def test_service_widgets(self):
         """ External - service widgets"""
         print('allowed service widgets external access')
@@ -547,9 +545,12 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Get host and service in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
+        host = datamgr.get_host({'where': {'name': 'KNM-Shinken'}})
         print("Host: %s" % host)
-        service = datamgr.get_service({'where': {'name': 'Load', 'host': host.id}})
+        services = datamgr.get_host_services(host)
+        print("Services: %s" % services)
+        # service = datamgr.get_service({'where': {'name': 'http', 'host': host.id}})
+        service = services[0]
         print("Service: %s" % service)
         # assert False
 

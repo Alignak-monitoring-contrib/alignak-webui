@@ -10,7 +10,7 @@
 
 %if not elements:
    <center>
-      <h4>{{_('No Alignak state available...')}}</h4>
+      <h4>{{_('No Alignak daemons state available...')}}</h4>
    </center>
 %else:
    <table class="table table-condensed">

@@ -117,8 +117,7 @@ function playAlertSound() {
    if (canPlay) {
       audio.play();
       sessionStorage.setItem("sound_play", "1");
-      //$('#sound_alerting i.fa-ban').addClass('hidden');
-      $('#sound_alerting').removeClass('disabled text-muted');
+      $('#sound_alerting').removeClass('disabled text-warning');
    }
 }
 

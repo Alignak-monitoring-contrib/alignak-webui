@@ -1,10 +1,19 @@
 %from bottle import request
+%import json
 
 %#Set default values
+%# debug the HTML templates
 %setdefault('debug', False)
+
+%# Extra css and jss to be loaded
 %setdefault('js', [])
 %setdefault('css', [])
+%# Callback javascript function to call when extra files are loaded
+%setdefault('callback', None)
+
+%# Page title
 %setdefault('title', _('Untitled...'))
+
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
 %setdefault('current_user', None)
@@ -17,7 +26,7 @@
 
 %username = current_user.get_username()
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
    <head>
       <!--
@@ -48,12 +57,7 @@
       <link rel="stylesheet" href="{{f}}">
       %end
 
-      <!-- Alignak Web UI (included in the previous files list)
-      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
-      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
-      -->
-
-      %# Specific CSS files
+      <!-- Specific page stylesheets...-->
       %for f in css:
       <link rel="stylesheet" href="/static/plugins/{{f}}">
       %end
@@ -318,13 +322,31 @@
 
       %include("_main_modal")
 
-      <!-- Specific scripts ... -->
-      %# Specific Js files ...
+      <!-- Specific page scripts ...-->
       %for f in js:
       <script type="text/javascript" src="/static/plugins/{{f}}"></script>
       %end
 
       <script>
+      %if css:
+      /*
+      console.log("Css...");
+      $.getCssFiles({{! css}}, function(){
+         console.log("Loaded ...");
+      });*/
+      %end
+      %if js:
+      /*
+      $.getJsFiles({{! js}}, function(){
+         %if callback:
+         window.setTimeout(function () {
+            console.log("Callback");
+            {{callback}}();
+         }, 100);
+         %end
+      });*/
+      %end
+
       $(document).ready(function() {
          // Initialize alertify library
          alertify.defaults.transition = "slide";
@@ -333,6 +355,13 @@
          alertify.defaults.theme.input = "form-control";
 
          $.material.init();
+
+         %if callback:
+         window.setTimeout(function () {
+            console.log("Plugin callback function: {{callback}}");
+            {{callback}}();
+         }, 100);
+         %end
 
          % if options_panel:
          $('#options-panel').BootSideMenu({

@@ -32,7 +32,6 @@ import time
 
 from copy import deepcopy
 
-from calendar import timegm
 from datetime import datetime
 from logging import getLogger, INFO
 
@@ -41,44 +40,12 @@ from alignak_webui import get_app_config
 from alignak_webui.backend.backend import BackendConnection
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.dates import get_ts_date
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
 logger.setLevel(INFO)
-
-
-def get_ts_date(param_date, date_format):
-    """
-        Get date as a timestamp
-    """
-    if isinstance(param_date, (int, long, float)):
-        # Date is received as a float or integer, store as a timestamp ...
-        # ... and assume it is UTC
-        # ----------------------------------------------------------------
-        return param_date
-    elif isinstance(param_date, basestring):
-        try:
-            # Date is supposed to be received as string formatted date
-            timestamp = timegm(time.strptime(param_date, date_format))
-            return timestamp
-        except ValueError:
-            logger.warning(
-                " parameter: '%s' is not a valid string format: '%s'",
-                param_date, date_format
-            )
-    else:
-        try:
-            # Date is supposed to be received as a struct time ...
-            # ... and assume it is local time!
-            # ----------------------------------------------------
-            timestamp = timegm(param_date.timetuple())
-            return timestamp
-        except TypeError:  # pragma: no cover, simple protection
-            logger.warning(
-                " parameter: %s is not a valid time tuple", param_date
-            )
-    return None
 
 
 class BackendElement(object):

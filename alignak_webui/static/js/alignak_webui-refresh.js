@@ -47,9 +47,9 @@ if (! sessionStorage.getItem("refresh_active")) {
 }
 if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
 if (sessionStorage.getItem("refresh_active") == '1') {
-   $('#refresh_active').removeClass('disabled text-muted');
+   $('#refresh_active').removeClass('disabled text-warning');
 } else {
-   $('#refresh_active').addClass('disabled text-muted');
+   $('#refresh_active').addClass('disabled text-warning');
 }
 
 /*
@@ -149,9 +149,9 @@ function do_refresh(forced){
        .always(function() {
           // Set refresh icon ...
           if (sessionStorage.getItem("refresh_active") == '1') {
-             $('#refresh_active').removeClass('disabled text-muted');
+             $('#refresh_active').removeClass('disabled text-warning');
           } else {
-             $('#refresh_active').addClass('disabled text-muted');
+             $('#refresh_active').addClass('disabled text-warning');
           }
           if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
 
@@ -301,14 +301,14 @@ function refresh_play() {
  */
 function refresh_stop() {
    if (refresh_logs) console.debug("Stop refresh");
-   $('#refresh_active').addClass('disabled text-muted');
+   $('#refresh_active').addClass('disabled text-warning');
    sessionStorage.setItem("refresh_active", '0');
 }
 
 
 function refresh_start() {
    if (refresh_logs) console.debug("Start refresh");
-   $('#refresh_active').removeClass('disabled text-muted');
+   $('#refresh_active').removeClass('disabled text-warning');
    sessionStorage.setItem("refresh_active", '1');
 
    // Page refresh required
@@ -334,9 +334,9 @@ $(document).ready(function(){
    setInterval("check_refresh();", check_period*1000);
 
    if (sessionStorage.getItem("refresh_active") == '1') {
-      $('#refresh_active').removeClass('disabled text-muted');
+      $('#refresh_active').removeClass('disabled text-warning');
    } else {
-      $('#refresh_active').addClass('disabled text-muted');
+      $('#refresh_active').addClass('disabled text-warning');
    }
 
    // Toggle refresh ...

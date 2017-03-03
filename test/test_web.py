@@ -724,14 +724,14 @@ class TestWorldmap(unittest2.TestCase):
             '<div id="hostsMap">'
         )
 
-        # Widget
-        response = self.app.post('/worldmap/widget', {
-            'widget_id': 'worldmap_1',
-            'widget_template': 'worldmap_widget'
-        })
-        response.mustcontain(
-            '<div id="wd_panel_worldmap_1" class="panel panel-default alignak_webui_widget ">'
-        )
+        # Widget (temporarily disabled, as of #212)
+        # response = self.app.post('/worldmap/widget', {
+        #     'widget_id': 'worldmap_1',
+        #     'widget_template': 'worldmap_widget'
+        # })
+        # response.mustcontain(
+        #     '<div id="wd_panel_worldmap_1" class="panel panel-default alignak_webui_widget ">'
+        # )
 
 
 class TestMinemap(unittest2.TestCase):
@@ -748,10 +748,49 @@ class TestMinemap(unittest2.TestCase):
         """ Web - minemap"""
         print('test minemap')
 
-        print('get page /min')
+        print('get page /minemap')
         response = self.app.get('/minemap')
         response.mustcontain(
             '<div id="minemap"'
+        )
+
+
+class TestAlignakDaemons(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_alignak(self):
+        """ Web - minemap"""
+        print('test daemons')
+
+        print('get page /alignak')
+        response = self.app.get('/alignak')
+        response.mustcontain(
+            '<div id="alignak_daemons"',
+            '<div class="text-center alert alert-warning">',
+            '<h4>No elements found.</h4>'
+        )
+
+        # Widget
+        print('get page /alignak/widget')
+        self.app.post('/alignak/widget', status=204)
+        self.app.post('/alignak/widget', {'widget_id': 'test_widget'}, status=204)
+
+        # Hosts table
+        response = self.app.post('/alignak/widget', {
+            'widget_id': 'alignak_table_1',
+            'widget_template': 'alignak_table_widget'
+        })
+        print(response)
+        response.mustcontain(
+            '<div id="wd_panel_alignak_table_1" class="panel panel-default alignak_webui_widget ">',
+            '<h4>No Alignak daemons state available...</h4>'
         )
 
 

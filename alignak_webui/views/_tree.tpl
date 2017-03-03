@@ -28,6 +28,10 @@
       background-color: #eee;
    }
 
+   #tree_search {
+      color: black !important;
+   }
+
    .tree_state{
       width: 20px;
    }
@@ -91,7 +95,7 @@
             <div class="pull-right">
                <form class="hidden-xs navbar-form navbar-right" role="search">
                   <span class="fa fa-search"></span>&nbsp;
-                  <input id="searchfield" type="text" placeholder="{{_('search...')}}">
+                  <input id="tree_search" type="text" placeholder="{{_('search...')}}">
                </form>
             </div>
          </div>
@@ -136,12 +140,12 @@
       set_current_page("{{ webui.get_url(request.route.name) }}");
 
       var to=null;
-      $('#searchfield').keyup(function () {
+      $('#tree_search').keyup(function () {
          if (to) {
             window.clearTimeout(to);
          }
          to = setTimeout(function () {
-            var v = $('#searchfield').val();
+            var v = $('#tree_search').val();
             $("#{{tree_type}}_tree").jstree(true).search(v);
          }, 250);
       });

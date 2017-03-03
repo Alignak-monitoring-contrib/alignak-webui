@@ -676,49 +676,6 @@ class Plugin(object):
             'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
         }
 
-    # TODO: confirm this function is still useful
-    def get_status(self, element_id=None, element=None):
-        """Get the element overall status"""
-        datamgr = request.app.datamgr
-
-        if not element:
-            if not element_id:
-                self.send_user_message(
-                    _("Missing identifier for '%s'") % (self.backend_endpoint)
-                )
-
-            # Get elements from the data manager
-            f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-            if not f:
-                self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
-
-            logger.debug("get_status, search: %s", element_id)
-            element = f(element_id)
-            if not element:
-                element = f(search={'max_results': 1, 'where': {'name': element_id}})
-                if not element:
-                    self.send_user_message(
-                        _("%s '%s' not found") % (self.backend_endpoint, element_id)
-                    )
-            logger.debug("get_status, found: %s - %s", element, element.__dict__)
-
-        group_state = 0
-        for host in element.members:
-            logger.debug("Group member: %s", host)
-
-            # Get host services
-            services = datamgr.get_services(search={'where': {'host': host.id}})
-
-            # Get host overall state (0, 1, 2, 3)
-            state = host.get_overall_state(services)
-            group_state = max(state, group_state)
-
-        logger.debug("Group state: %d", group_state)
-
-        response.status = 200
-        response.content_type = 'application/json'
-        return json.dumps({'status': group_state})
-
     # TODO: add tests for this function
     def get_form(self, element_id):
         """Build the form for an element.
@@ -1092,12 +1049,13 @@ class Plugin(object):
         # Search in the application widgets (all plugins widgets)
         options = {}
         for widget in self.webui.get_widgets_for(widget_place):
+            logger.debug("Found widget: %s (%s)", widget['name'], widget['id'])
             if widget_id.startswith(widget['id']):
                 options = widget['options']
                 widget_template = widget['template']
                 widget_icon = widget['icon']
-                logger.info("Widget %s found, template: %s, options: %s",
-                            widget_id, widget_template, options)
+                logger.debug("Widget %s found, template: %s, options: %s",
+                             widget_id, widget_template, options)
                 break
         else:
             logger.warning("Widget identifier not found: %s", widget_id)

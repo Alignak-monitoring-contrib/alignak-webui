@@ -2,9 +2,9 @@
     %#Actions ?
     actions = {{ 'true' if current_user.is_power() else 'false' }};
 
+    if (typeof debugMaps === 'undefined') debugMaps=false;
+
     function buildHosts() {
-        console.log("Debug", debugMaps);
-        console.log("hosts", hosts);
         // hosts is a global var defined in worldmaps.js
         %# List hosts and their services
         hosts = [
@@ -40,44 +40,24 @@
             }
         }
     }
-    //<!-- Ok go initialize the map with all elements when it's loaded -->
-    $(document).ready(function() {
-        var cssfiles=[
-            '/static/plugins/worldmap/static/leaflet/leaflet.css',
-            '/static/plugins/worldmap/static/css/MarkerCluster.css',
-            '/static/plugins/worldmap/static/css/MarkerCluster.Default.css',
-            '/static/plugins/worldmap/static/css/leaflet.label.css',
-            '/static/plugins/worldmap/static/css/worldmap.css'];
 
-        $.getCssFiles(cssfiles, function(){
-            var jsfiles=[
-                '/static/plugins/worldmap/static/leaflet/leaflet.js',
-                '/static/plugins/worldmap/static/js/worldmap.js'];
+    // Ok go initialize the map with all elements when it's loaded
+    function initWorldmap() {
+        // Build hosts list
+        buildHosts();
 
-            $.getJsFiles(jsfiles, function(){
-                window.setTimeout(function () {
-                    // Build hosts list
-                    buildHosts();
+        // Build map
+        var mapCreated = mapInit('{{mapId}}', function($map) {
+            // Map height to be scaled inside the window
+            var mapOffset = $('#{{mapId}}').offset().top;
+            var footerOffset = $('footer').offset().top;
+            $('#{{mapId}}').height(footerOffset - mapOffset - 35)
 
-                    // Build map
-                    var map = mapInit('{{mapId}}', function($map) {
-                        // Map height to be scaled inside the window
-                        var mapOffset = $('#{{mapId}}').offset().top;
-                        var footerOffset = $('footer').offset().top;
-                        $('#{{mapId}}').height(footerOffset - mapOffset - 35)
-
-                        if (debugMaps) console.log('Resizing map:', $map.id)
-                        mapResize($map);
-                    });
-                    if (! map) {
-                        $('#{{mapId}}').html('<div class="alert alert-danger"><a href="#" class="alert-link">{{_('No hosts to display on the map')}}</a></div>');
-                    }
-                }, 500);
-            });
+            if (debugMaps) console.log('Resizing map:', $map.id)
+            mapResize($map);
         });
-/*
-        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-rc.1/leaflet.js").done(function() {
-        });
-        */
-    });
+        if (! mapCreated) {
+            $('#{{mapId}}').html('<div class="alert alert-danger"><a href="#" class="alert-link">{{_('No hosts to display on the map')}}</a></div>');
+        }
+    }
 </script>

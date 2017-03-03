@@ -43,7 +43,7 @@ class PluginAlignak(Plugin):
         """
         Alignak plugin
         """
-        self.name = 'Alignak'
+        self.name = 'AlignakDaemon'
         self.backend_endpoint = 'alignakdaemon'
 
         self.pages = {
@@ -59,7 +59,7 @@ class PluginAlignak(Plugin):
                 'view': 'alignak_widget',
                 'widgets': [
                     {
-                        'id': 'alignak_table_widget',
+                        'id': 'alignak_table',
                         'for': ['external', 'dashboard'],
                         'name': _('Alignak state widget'),
                         'template': 'alignak_table_widget',
@@ -85,7 +85,8 @@ class PluginAlignak(Plugin):
         """
         datamgr = request.app.datamgr
 
-        return self.get_widget(datamgr.get_alignak_state, 'daemon',
+        logger.debug("alignakdaemon, get widget")
+        return self.get_widget(datamgr.get_alignak_state, 'alignakdaemon',
                                embedded, identifier, credentials)
 
     def show_alignak(self):
@@ -96,6 +97,7 @@ class PluginAlignak(Plugin):
 
         # Get Alignak state from the data manager
         alignak_daemons = datamgr.get_alignak_state()
+        logger.debug("alignakdaemon, daemons: %s", alignak_daemons)
 
         # Sort the daemons list by daemon name
         alignak_daemons.sort(key=lambda x: x.name, reverse=False)

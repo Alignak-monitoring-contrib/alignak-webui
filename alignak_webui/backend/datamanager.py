@@ -459,10 +459,6 @@ class DataManager(object):
         if search is not None:
             params['where'] = search
 
-        # Daemon objects are not currently stored in the backend
-        if object_type in 'daemon':
-            return Daemon.get_total_count()
-
         return self.backend.count(object_type, params)
 
     def add_object(self, object_type, data=None, files=None):
@@ -595,88 +591,6 @@ class DataManager(object):
     ##
     # Alignak
     ##
-    def get_alignak_map(self, search=None):  # pylint: disable=unused-argument
-        """Get Alignak overall state from the Alignak Web Services module:
-
-            https://github.com/Alignak-monitoring-contrib/alignak-module-ws
-
-            The search parameter is not used but is kept for get method interface compatibility!
-
-            Example response::
-            {
-                reactionner: {},
-                broker: {},
-                arbiter: {
-                    arbiter-master: {
-                        passive: false,
-                        realm: "",
-                        realm_name: "All",
-                        polling_interval: 1,
-                        alive: true,
-                        manage_arbiters: false,
-                        manage_sub_realms: false,
-                        is_sent: false,
-                        spare: false,
-                        check_interval: 60,
-                        address: "127.0.0.1",
-                        reachable: true,
-                        max_check_attempts: 3,
-                        last_check: 0,
-                        port: 7770
-                    }
-                },
-                scheduler: {
-                    scheduler-master: {
-                        passive: false,
-                        realm: "83596f2b6e254e7ea28467a1fe5627ef",
-                        realm_name: "All",
-                        polling_interval: 1,
-                        alive: true,
-                        manage_arbiters: false,
-                        manage_sub_realms: false,
-                        is_sent: true,
-                        spare: false,
-                        check_interval: 60,
-                        address: "127.0.0.1",
-                        reachable: true,
-                        max_check_attempts: 3,
-                        last_check: 1478064129.016136,
-                        port: 7768
-                    },
-                    scheduler-south: {},
-                    scheduler-north: {}
-                },
-                receiver: {},
-                poller: {}
-            }
-
-            :return: list of the Alignak daemons
-            :rtype: list of Daemon objects"""
-
-        result = []
-
-        try:
-            logger.debug("get_alignak_state")
-            result = self.alignak_ws.get('alignak_map')
-        except AlignakWSException:
-            return result
-
-        logger.debug("Alignak status map, %s", result)
-
-        self.alignak_daemons = []
-        for daemon_type in result:
-            logger.debug("Got Alignak state for: %s", daemon_type)
-            daemons = result.get(daemon_type)
-            for daemon_name in daemons:
-                daemon_data = daemons.get(daemon_name)
-                daemon_data['name'] = daemon_name
-                daemon = Daemon(daemon_data)
-                self.alignak_daemons.append(daemon)
-                logger.debug(" - %s: %s", daemon_name, daemon)
-
-        Daemon.set_total_count(len(self.alignak_daemons))
-        return self.alignak_daemons
-
     def get_alignak_state(self, search=None, all_elements=False):
         """Get a list of all alignak daemons states."""
         if search is None:
@@ -1633,12 +1547,16 @@ class DataManager(object):
         synthesis['nb_problem'] = 0
         if services:
             for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
-                synthesis['nb_' + state] = sum(
-                    1 for service in services if service.status.lower() == state
-                )
-                synthesis['pct_' + state] = round(
-                    100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
-                )
+                synthesis['nb_' + state] = 0
+                for service in services:
+                    if service.overall_status == state:
+                        synthesis['nb_' + state] += 1
+                if synthesis['nb_' + state] > 0:
+                    synthesis['pct_' + state] = round(
+                        100.0 * synthesis['nb_' + state] / synthesis['nb_elts'], 2
+                    )
+                else:
+                    synthesis['pct_' + state] = 0
         else:
             for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = 0
