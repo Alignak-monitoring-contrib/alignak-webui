@@ -896,7 +896,7 @@ class Helper(object):
         <script>
             // Hosts line chart
             // Graph labels
-            var labels=%s
+            var labels=%s;
             // Graph data
         """ % ('white',
                'fa-caret-up' if collapsed else 'fa-caret-down',
@@ -920,8 +920,7 @@ class Helper(object):
             for elt in history:
                 data[state].append(elt["hosts_synthesis"]["nb_" + state])
             logger.debug("Data state: %s %s", state, data[state])
-            content += """
-                var data_%s=%s;""" % (state, data[state])
+            content += """var data_%s=%s;""" % (state, data[state])
 
         content += """
            var data = {
@@ -1005,9 +1004,9 @@ class Helper(object):
         </script>
         """ % (_("Hosts states history, last %d minutes") % len(history))
 
-        # content = content.replace("\n", '')
-        # content = content.replace("\r", '')
-        return ' '.join(content.split())
+        # This optimization breaks the correct displaying of the graphs (#209)
+        # return ' '.join(content.split())
+        return content
 
     @staticmethod
     def get_html_services_ls_history(ss, history, collapsed=False):
@@ -1182,9 +1181,9 @@ class Helper(object):
         </script>
         """ % (_("Services states history, last %d minutes") % len(history))
 
-        # content = content.replace("\n", '')
-        # content = content.replace("\r", '')
-        return ' '.join(content.split())
+        # This optimization breaks the correct displaying of the graphs (#209)
+        # return ' '.join(content.split())
+        return content
 
     @staticmethod
     def get_html_hosts_count_panel(hs, url, collapsed=False):
@@ -1213,7 +1212,6 @@ class Helper(object):
         app_config = get_app_config()
 
         content = app_config.get('currently.hosts_panel')
-        logger.info("Hosts count panel configuration : %s", content)
         try:
             content = content % ('fa-caret-up' if collapsed else 'fa-caret-down',
                                  'in' if not collapsed else '')
