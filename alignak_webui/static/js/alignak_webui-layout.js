@@ -176,8 +176,11 @@ function set_current_page(url){
 /**
  * Display the layout modal form
  * - load its content from the inner_url parameter
+ * - if the parameter size is present, the modal dialog is shown in the large or small mode
+ * according to the parameter value (large, small or normal (default))
+ * - if the hidden parameter is present the
  */
-function display_modal(inner_url, hidden) {
+function display_modal(inner_url, size, hidden) {
    var show = true;
    if (hidden !== undefined) {
       show = false;
@@ -186,13 +189,20 @@ function display_modal(inner_url, hidden) {
    window.setTimeout(function() {
       if (log_layout) console.debug('Display modal, loading...', inner_url, show);
 
+       if ((size !== undefined) && (size == 'large')) {
+          $("#mainModal .modal-dialog").addClass('modal-lg');
+       } else if ((size !== undefined) && (size == 'small')) {
+          $("#mainModal .modal-dialog").addClass('modal-sm');
+       } else {
+          $("#mainModal .modal-dialog").removeClass('modal-lg').removeClass('modal-sm');
+       }
+
       $("#mainModal").find('.modal-content').load(inner_url, function() {
-          stop_refresh();
-          $('#mainModal').modal({
+         $('#mainModal').modal({
              backdrop: true,
              keyboard: true,
              show: show
-          });
+         });
          if (log_layout) console.debug('Display modal, loaded');
       });
    }, 10);
@@ -210,18 +220,14 @@ $(document).ready(function(){
    // When modal box is displayed...
    $('#mainModal').on('shown.bs.modal', function () {
       if (log_layout) console.debug('Modal shown');
+         // Pause the page refresh
+         refresh_pause();
    });
 
    // When modal box is hidden...
    $('#mainModal').on('hidden.bs.modal', function () {
       if (log_layout) console.debug('Modal hidden');
-
-      /*
-      // Clean modal box content ...
-      $(this).removeData('bs.modal');
-
-      // Page refresh required
-      refresh_required = true;
-      */
+         // Un-pause the page refresh
+         refresh_play();
    });
 });

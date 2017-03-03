@@ -49,7 +49,6 @@ class Datatable(object):
     """jQuery  Datatable plugin interface for backend elements """
 
     def __init__(self, object_type, datamgr, schema, templates=False):
-
         """ Create a new datatable:
 
         - object_type: object type in the backend
@@ -57,7 +56,6 @@ class Datatable(object):
         - schema: table configuration as defined in the settings.cfg file of a plugin
         - templates: templates table or objects table (False)
         """
-
         self.object_type = object_type
         self.datamgr = datamgr
         self.backend = self.datamgr.backend
@@ -72,6 +70,9 @@ class Datatable(object):
 
         self.title = ""
 
+        # data_model is the complete data model of the plugin
+        self.data_model = []
+        # table_columns only contains the columns displayed in the table view
         self.table_columns = []
         self.initial_sort = []
         self.embedded = []
@@ -113,7 +114,6 @@ class Datatable(object):
             self.records_total = self.backend.count(self.object_type)
 
     def get_data_model(self, schema):
-
         """Get the data model for an element type
 
             If the data model specifies that the element is managed in the UI,
@@ -137,11 +137,11 @@ class Datatable(object):
                 property of the schema of the element.
 
             :return: list of fields name/title"""
-
         if not schema:
             logger.error("get_data_model, missing schema")
             return None
 
+        self.data_model = []
         self.table_columns = []
         for field, model in schema.iteritems():
             logger.debug('get_data_model, field: %s, schema: %s', field, model)
@@ -226,19 +226,18 @@ class Datatable(object):
             # logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
             # If not hidden, return field
+            self.data_model.append(ui_field)
             if not model.get('hidden', False):
                 self.table_columns.append(ui_field)
 
                 if ui_field['type'] == 'objectid' or ui_field['content_type'] == 'objectid':
                     self.embedded.append(ui_field['data'])
 
-        return self.table_columns
+        return self.data_model
 
     @staticmethod
     def get_language_strings():
-
         """Get DataTable language strings"""
-
         return {
             'decimal': _('.'),
             'thousands': _(','),
@@ -310,7 +309,6 @@ class Datatable(object):
     def table_data(self):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
-
         """Return elements data in json format as of Datatables SSP protocol
 
         More info: https://datatables.net/manual/server-side
@@ -380,7 +378,6 @@ class Datatable(object):
         - error (optional): Error message if an error occurs
             Not included if there is no error.
         """
-
         # Manage request parameters ...
         logger.info("request data for table: %s, templates: %s",
                     request.forms.get('object_type'), self.templates)
@@ -430,17 +427,15 @@ class Datatable(object):
             logger.info("backend order request parameters: %s", parameters)
 
         # Individual column search parameter
-        searched_columns = []
+        s_columns = []
         if 'columns' in params and params['columns']:
             for column in params['columns']:
                 if 'searchable' not in column or 'search' not in column:  # pragma: no cover
                     continue
                 if 'value' not in column['search'] or not column['search']['value']:
                     continue
-                logger.debug(
-                    "search column '%s' for '%s'",
-                    column['data'], column['search']['value']
-                )
+                logger.debug("search column '%s' for '%s'",
+                             column['data'], column['search']['value'])
 
                 for field in self.table_columns:
                     if field['data'] != column['data']:
@@ -448,17 +443,17 @@ class Datatable(object):
 
                     # Some specific types...
                     if field['type'] == 'boolean':
-                        searched_columns.append(
+                        s_columns.append(
                             {column['data']: column['search']['value'] == 'true'}
                         )
                     elif field['type'] == 'integer':
-                        searched_columns.append(
+                        s_columns.append(
                             {column['data']: int(column['search']['value'])}
                         )
                     elif field['format'] == 'select':
                         values = column['search']['value'].split(',')
                         if len(values) > 1:
-                            searched_columns.append(
+                            s_columns.append(
                                 {
                                     column['data']: {
                                         "$in": values
@@ -466,14 +461,14 @@ class Datatable(object):
                                 }
                             )
                         else:
-                            searched_columns.append(
+                            s_columns.append(
                                 {column['data']: values[0]}
                             )
                     # ... the other fields :)
                     else:
                         # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...
                         if column['search']['regex']:
-                            searched_columns.append(
+                            s_columns.append(
                                 {
                                     column['data']: {
                                         "$regex": ".*" + column['search']['value'] + ".*"
@@ -481,52 +476,77 @@ class Datatable(object):
                                 }
                             )
                         else:
-                            searched_columns.append(
+                            s_columns.append(
                                 {column['data']: column['search']['value']}
                             )
                     break
 
-            logger.info("backend search individual columns parameters: %s", searched_columns)
+            logger.info("backend search individual columns parameters: %s", s_columns)
 
         # Global search parameter
         # search:{"value":"test","regex":false}
-        searched_global = []
+        s_global = []
         # pylint: disable=too-many-nested-blocks
         # Will be too complex else ...
         if 'search' in params and 'columns' in params and params['search']:
+            # params['search'] contains something like: {u'regex': False, u'value': u'name:pi1'}
+            # global regex is always ignored ... in favor of the column declared regex
+            logger.info("Global search requested: %s ", params['search'])
             if 'value' in params['search'] and params['search']['value']:
+                # There is something to search for...
                 logger.debug("search requested, value: %s ", params['search']['value'])
-                for column in params['columns']:
-                    if 'searchable' in column and column['searchable']:
-                        logger.debug(
-                            "search global '%s' for '%s'",
-                            column['data'], params['search']['value']
-                        )
+
+                # New strategy: decode search patterns...
+                search = Helper.decode_search(params['search']['value'], self.table_columns)
+                logger.info("Decoded search pattern: %s", search)
+                for key, pattern in search.iteritems():
+                    logger.debug("global search pattern '%s' / '%s'", key, pattern)
+                    column = [c for c in self.table_columns if c['data'] == key]
+                    if not column:
+                        logger.warning("global search, not found: %s in table fields", key)
+                        continue
+
+                    column = column[0]
+                    logger.info("global search pattern, found column: %s", column)
+                    if not column['searchable']:
+                        logger.warning("global search, field '%s' is not searchable", key)
+                        continue
+
+                    if column['regex']:
+                        s_global.append(
+                            {column['data']: {
+                                "$regex": ".*" + pattern + ".*"}})
+                    else:
+                        s_global.append({column['data']: pattern})
+
+                # Old strategy: search for the value in all the searchable columns...
+                if not search:
+                    for column in params['columns']:
+                        logger.info("search global '%s' for '%s'",
+                                    column['data'], params['search']['value'])
+                        if not column['searchable']:
+                            continue
+                        logger.debug("search global '%s' for '%s'",
+                                     column['data'], params['search']['value'])
                         if 'regex' in params['search']:
                             if params['search']['regex']:
-                                searched_global.append(
-                                    {
-                                        column['data']: {
-                                            "$regex": ".*" + params['search']['value'] + ".*"
-                                        }
-                                    }
-                                )
+                                s_global.append(
+                                    {column['data']: {
+                                        "$regex": ".*" + params['search']['value'] + ".*"}})
                             else:
-                                searched_global.append(
-                                    {column['data']: params['search']['value']}
-                                )
+                                s_global.append({column['data']: params['search']['value']})
 
-            logger.info("backend search global parameters: %s", searched_global)
+            logger.info("backend search global parameters: %s", s_global)
 
-        if searched_columns and searched_global:
+        if s_columns and s_global:
             parameters['where'] = {"$and": [
-                {"$and": searched_columns},
-                {"$or": searched_global}
+                {"$and": s_columns},
+                {"$or": s_global}
             ]}
-        if searched_columns:
-            parameters['where'] = {"$and": searched_columns}
-        if searched_global:
-            parameters['where'] = {"$or": searched_global}
+        elif s_columns:
+            parameters['where'] = {"$and": s_columns}
+        elif s_global:
+            parameters['where'] = {"$or": s_global}
 
         # Embed linked resources / manage templated resources
         parameters['embedded'] = {}
@@ -705,12 +725,10 @@ class Datatable(object):
         logger.debug("filtered records: %d out of total: %d",
                      self.records_filtered, self.records_total)
 
-        # Prepare response
-        rsp = {
-            # draw is the request number ...
+        # Send response
+        return json.dumps({
             "draw": int(params.get('draw', '0')),
             "recordsTotal": self.records_total,
             "recordsFiltered": self.records_filtered,
             "data": rows
-        }
-        return json.dumps(rsp)
+        })

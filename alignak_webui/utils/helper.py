@@ -30,14 +30,13 @@ import re
 import time
 import json
 import traceback
-from logging import getLogger, INFO
+from logging import getLogger
 
 # from alignak_webui import _
 from alignak_webui import get_app_config
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
-logger.setLevel(INFO)
 
 
 class Helper(object):
@@ -380,7 +379,9 @@ class Helper(object):
         return []
 
     @staticmethod
-    def decode_search(search):
+    def decode_search(query, data_model):
+        # Not possible to do it clearly with simplification...
+        # pylint: disable=too-many-nested-blocks
         """Decode a search string:
 
         Convert string from:
@@ -393,10 +394,12 @@ class Helper(object):
                 'name': 'vm fred'
             }
 
-        :search: Search string
-        :returns: list of matching items
+        :param query: search string
+        :param data_model: table data model as built by the DataTable class
+
+        :return: query to be provided to the data manager search objects function
         """
-        logger.debug("decode_search, search string:%s", search)
+        logger.debug("decode_search, search string: %s", query)
 
         # Search patterns like: isnot:0 isnot:ack isnot:"downtime test" name "vm test"
         regex = re.compile(
@@ -417,31 +420,103 @@ class Helper(object):
             re.VERBOSE
         )
 
-        patterns = []
-        for match in regex.finditer(search):
+        qualifiers = {}
+        for match in regex.finditer(query):
             if match.group('name'):
-                patterns.append(('name', match.group('name')))
+                if 'name' not in qualifiers:
+                    qualifiers['name'] = []
+                qualifiers['name'].append(match.group('name'))
             elif match.group('key'):
-                patterns.append((match.group('key'), match.group('value')))
-        logger.debug("decode_search, search patterns: %s", patterns)
+                field = match.group('key')
+                if field not in qualifiers:
+                    qualifiers[field] = []
+                qualifiers[field].append(match.group('value'))
+        logger.debug("decode_search, search patterns: %s", qualifiers)
 
         parameters = {}
-        for t, s in patterns:
-            t = t.lower()
-            logger.debug("decode_search, searching for %s %s", t, s)
+        try:
+            for field in qualifiers:
+                field = field.lower()
+                patterns = qualifiers[field]
+                logger.debug("decode_search, searching for '%s' '%s'", field, patterns)
 
-            if '|' in s:
-                s = {t: s.split('|')}
-                t = "$in"
+                # Get the column definition for the searched field
+                if field not in data_model:
+                    if 'ls_' + field not in data_model:
+                        logger.warning("decode_search, unknown column %s in table fields", field)
+                        continue
+                    # live state fields
+                    field = 'ls_' + field
 
-            elif s.startswith('!'):
-                s = {t: s[1:]}
-                t = "$ne"
+                c_def = data_model[field]
+                logger.info("decode_search, found column: %s", c_def)
 
-            parameters.update({t: s})
+                # Column is defined as searchable?
+                if not c_def.get('searchable', None) is not None and \
+                        not c_def.get('searchable', True):
+                    logger.warning("decode_search, field '%s' is not searchable", field)
+                    continue
 
-        logger.debug("decode_search, parameters: %s", parameters)
-        return parameters
+                regex = c_def.get('regex', True)
+                for pattern in patterns:
+                    logger.debug("decode_search, pattern: %s", pattern)
+                    not_value = pattern.startswith('!')
+
+                    if field in parameters:
+                        # We already have a field search pattern, let's build a list...
+                        if not isinstance(parameters[field]['pattern'], list):
+                            if regex:
+                                parameters[field]['type'] = "$or"
+                            else:
+                                parameters[field]['type'] = "$in"
+                            parameters[field]['pattern'] = [parameters[field]['pattern']]
+
+                        if regex:
+                            if not_value:
+                                parameters[field]['pattern'].append(
+                                    {"$regex": "/^((?!%s).)*$/" % pattern[1:]})
+                            else:
+                                parameters[field]['pattern'].append(
+                                    {"$regex": ".*%s.*" % pattern})
+                        else:
+                            if not_value:
+                                pattern = {"$ne": {field: pattern[1:]}}
+                            parameters[field]['pattern'].append(pattern)
+                        continue
+
+                    if regex:
+                        if not_value:
+                            parameters.update(
+                                {field: {'type': 'simple',
+                                         'pattern': {"$regex": "/^((?!%s).)*$/" % pattern[1:]}}})
+                        else:
+                            parameters.update(
+                                {field: {'type': 'simple',
+                                         'pattern': {"$regex": ".*%s.*" % pattern}}})
+                    else:
+                        parameters.update({field: {'type': 'simple', 'pattern': pattern}})
+
+                    logger.info("decode_search, - parameters: %s", parameters)
+        except Exception as exp:
+            logger.exception("Exception: %s", exp)
+
+        query = {}
+        for field, search_type in parameters.iteritems():
+            logger.info("decode_search, build query: %s - %s", field, search_type)
+            if search_type['type'] == 'simple':
+                query.update({field: search_type['pattern']})
+            elif search_type['type'] == '$or':
+                patterns = []
+                for pattern in search_type['pattern']:
+                    patterns.append({field: pattern})
+                query.update({'$or': patterns})
+            elif search_type['type'] == '$in':
+                query.update({field: {'$in': search_type['pattern']}})
+            elif search_type['type'] == 'ne':
+                query.update({field: {'ne': search_type['pattern']}})
+
+        logger.info("decode_search, parameters: %s", query)
+        return query
 
     @staticmethod
     def get_pagination_control(page_url, total, start=0, count=25, nb_max_items=5):
@@ -548,7 +623,6 @@ class Helper(object):
             item=<li class="list-group-item"><span class="fa fa-hourglass">
                     &nbsp;##period## - ##range##</li>
         """
-
         if tp is None or len(tp.dateranges) == 0:
             return ''
 
@@ -611,7 +685,6 @@ class Helper(object):
         ; Unique element to be included in the HTML list if the list contains only one element
         unique=##content##
         """
-
         if not objects_list or not isinstance(objects_list, list):
             return ''
 
@@ -762,7 +835,6 @@ class Helper(object):
         :param collapsed: True if the panel is collapsed
         :return:
         """
-
         # Get configuration
         app_config = get_app_config()
         states = app_config.get('currently.hh_states',
@@ -941,7 +1013,6 @@ class Helper(object):
         :param collapsed: True if the panel is collapsed
         :return:
         """
-
         # Get configuration
         app_config = get_app_config()
         states = app_config.get('currently.sh_states',

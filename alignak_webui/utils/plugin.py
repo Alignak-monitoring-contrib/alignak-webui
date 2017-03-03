@@ -69,6 +69,11 @@ class Plugin(object):
         self.plugin_parameters = None
         self.table = None
 
+        # Default is to have a search engine for some pages
+        # If the default search engine must not be present on the pages, the inherited
+        # class must set this to False
+        self.search_engine = True
+
         # Those backend endpoints are templated
         self.templated = False
         if self.backend_endpoint and self.backend_endpoint in ['host', 'service', 'user']:
@@ -91,18 +96,25 @@ class Plugin(object):
         self.load_routes(app)
         logger.info("Plugin %s is installed and enabled.", self.name)
 
-    def send_user_message(self, message, status='ko'):  # pylint:disable=no-self-use
+    def send_user_message(self, message, status='ko', redirected=True):
+        # pylint:disable=no-self-use
         """Send a user message:
 
-        - store a message in the current session
-        - redirects to the application home page
+        - store a message in the current session with the provided status
+        - redirects to the application home page if redirected is True
+
+        :param message:
+        :param status:
+        :param redirected:
+        :return:
         """
         session = request.environ['beaker.session']
         session['user_message'] = {
             'status': status,
             'message': message
         }
-        redirect('/')
+        if redirected:
+            redirect('/')
 
     def load_routes(self, app):
         """Load and create plugin routes
@@ -139,6 +151,13 @@ class Plugin(object):
                         'name': 'All %s' % self.name,
                         'route': '/%ss' % self.backend_endpoint,
                         'view': '%ss' % self.backend_endpoint,
+                        'search_engine': self.search_engine,
+                        'search_prefix': '',
+                        'search_filters': {
+                            '01': (_('Hosts'), '_is_template:false'),
+                            '02': ('', ''),
+                            '03': (_('Hosts templates'), '_is_template:true')
+                        },
                     }
                 })
 
@@ -175,6 +194,13 @@ class Plugin(object):
                         'name': '%s table' % self.name,
                         'route': '/%ss/table' % self.backend_endpoint,
                         'view': '_table',
+                        'search_engine': self.search_engine,
+                        'search_prefix': '',
+                        'search_filters': {
+                            '01': (_('Hosts'), '_is_template:false'),
+                            '02': ('', ''),
+                            '03': (_('Hosts templates'), '_is_template:true')
+                        },
                         'tables': [
                             {
                                 'id': '%ss_table' % self.backend_endpoint,
@@ -202,6 +228,7 @@ class Plugin(object):
                         'name': '%s templates table' % self.name,
                         'route': '/%ss/templates/table' % self.backend_endpoint,
                         'view': '_table',
+                        'search_engine': self.search_engine,
                         'tables': [
                             {
                                 'id': '%ss_table' % self.backend_endpoint,
@@ -495,7 +522,7 @@ class Plugin(object):
         # Pagination and search
         start = int(request.query.get('start', '0'))
         count = int(request.query.get('count', elts_per_page))
-        where = Helper.decode_search(request.query.get('search', ''))
+        where = Helper.decode_search(request.query.get('search', ''), self.table)
         search = {
             'page': (start // count) + 1,
             'max_results': count,
@@ -533,7 +560,7 @@ class Plugin(object):
         # Pagination and search
         start = int(request.query.get('start', '0'))
         count = int(request.query.get('count', elts_per_page))
-        where = Helper.decode_search(request.query.get('search', ''))
+        where = Helper.decode_search(request.query.get('search', ''), self.table)
         search = {
             'page': (start // count) + 1,
             'max_results': count,
@@ -906,21 +933,16 @@ class Plugin(object):
         # Table filtering: default is to restore the table saved filters
         where = {'saved_filters': True}
         if request.query.get('search') is not None:
-            where = Helper.decode_search(request.query.get('search', ''))
+            where = Helper.decode_search(request.query.get('search', ''), self.table)
 
         # Build table structure
         dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table, templates=templates)
-
-        # Build page title
-        title = dt.title
-        if '%d' in title:
-            title = title % dt.records_total
 
         return {
             'object_type': self.backend_endpoint,
             'dt': dt,
             'where': where,
-            'title': request.query.get('title', title),
+            'title': request.query.get('title', dt.title),
             'embedded': embedded,
             'identifier': identifier,
             'credentials': credentials
@@ -1036,7 +1058,7 @@ class Plugin(object):
         count = int(request.params.get('count', elts_per_page))
         if count < 1:
             count = elts_per_page
-        where = self.webui.helper.decode_search(request.params.get('search', ''))
+        where = Helper.decode_search(request.params.get('search', ''), self.table)
         search = {
             'page': (start // count) + 1,
             'max_results': count,

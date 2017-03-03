@@ -27,7 +27,15 @@ import time
 from calendar import timegm
 from datetime import datetime
 import unittest2
-from nose.tools import *
+import pytest
+
+# Set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+
+import alignak_webui.app
 
 from alignak_webui import get_app_config, set_app_config
 from alignak_webui.objects.element import BackendElement
@@ -60,11 +68,9 @@ class TestClassElements(unittest2.TestCase):
 
         # Create basic object
         # Bad parameters
-        with assert_raises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             item = BackendElement(1)
-        ex = cm.exception
-        print(ex)
-        assert str(ex) == "item.__new__: object parameters must be a dictionary!"
+        assert str(excinfo.value) == "item.__new__: object parameters must be a dictionary!"
 
         # Declaration without any parameter is allowed
         item = BackendElement()

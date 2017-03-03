@@ -3,8 +3,7 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%# No default refresh for this page
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/alignak", refresh=True)
+%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/alignak")
 
 %from alignak_webui.utils.helper import Helper
 

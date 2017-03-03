@@ -30,7 +30,8 @@ import time
 
 import unittest2
 
-# Do not set test mode ... application is tested in production mode!
+# Set test mode ... application is tested in production mode!
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
@@ -113,11 +114,9 @@ class TestDataTable(unittest2.TestCase):
         self.app = TestApp(alignak_webui.app.session_app)
 
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
-        # Redirected twice: /login -> / -> /dashboard !
+        # Redirected twice: /login -> / -> /livestate
         redirected_response = response.follow()
-        print("Response: %s" % redirected_response)
-        redirected_response = redirected_response.follow()
-        print("Response2: %s" % redirected_response)
+        redirected_response.follow()
 
         self.items_count = 0
 
@@ -132,16 +131,16 @@ class TestDataTable(unittest2.TestCase):
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
-            '<th data-name="name" data-type="string">Command name</th>',
+            '<th data-name="name" data-type="string"',
             # '<th data-name="_realm" data-type="objectid">Realm</th>',
             # '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Command alias</th>',
-            '<th data-name="notes" data-type="string">Notes</th>',
-            '<th data-name="command_line" data-type="string">Command line</th>',
-            '<th data-name="timeout" data-type="integer">Timeout</th>',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="notes" data-type="string"',
+            '<th data-name="command_line" data-type="string"',
+            '<th data-name="timeout" data-type="integer"',
             # '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
-            '<th data-name="poller_tag" data-type="string">Poller tag</th>',
-            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>',
+            '<th data-name="poller_tag" data-type="string"',
+            '<th data-name="reactionner_tag" data-type="string"'
         )
 
     def test_02_change(self):
@@ -521,15 +520,12 @@ class TestDatatableCommands(TestDatatableBase):
             '<div id="commands_table" class="alignak_webui_table ">',
             "$('#tbl_command').DataTable( {",
             '<table id="tbl_command" ',
-            '<th data-name="name" data-type="string">Command name</th>',
-            # '<th data-name="_realm" data-type="objectid">Realm</th>',
-            # '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Command alias</th>',
-            '<th data-name="notes" data-type="string">Notes</th>',
-            '<th data-name="command_line" data-type="string">Command line</th>',
-            # '<th data-name="enable_environment_macros" data-type="boolean">Enable environment macros</th>',
-            '<th data-name="poller_tag" data-type="string">Poller tag</th>',
-            '<th data-name="reactionner_tag" data-type="string">Reactionner tag</th>',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="notes" data-type="string"',
+            '<th data-name="command_line" data-type="string"',
+            '<th data-name="poller_tag" data-type="string"',
+            '<th data-name="reactionner_tag" data-type="string"',
         )
 
         print('change content with /commands/table_data')
@@ -565,18 +561,18 @@ class TestDatatableRealms(TestDatatableBase):
             '<div id="realms_table" class="alignak_webui_table ">',
             "$('#tbl_realm').DataTable( {",
             '<table id="tbl_realm" ',
-            '<th data-name="name" data-type="string">Realm name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Realm alias</th>',
-            '<th data-name="default" data-type="boolean">Default realm</th>',
-            '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="hosts_critical_threshold" data-type="integer">Hosts critical threshold</th>',
-            '<th data-name="hosts_warning_threshold" data-type="integer">Hosts warning threshold</th>',
-            '<th data-name="services_critical_threshold" data-type="integer">Services critical threshold</th>',
-            '<th data-name="services_warning_threshold" data-type="integer">Services warning threshold</th>',
-            '<th data-name="global_critical_threshold" data-type="integer">Global critical threshold</th>',
-            '<th data-name="global_warning_threshold" data-type="integer">Global warning threshold</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="definition_order" data-type="integer"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="default" data-type="boolean"',
+            '<th data-name="_level" data-type="integer"',
+            '<th data-name="_parent" data-type="objectid"',
+            '<th data-name="hosts_critical_threshold" data-type="integer"',
+            '<th data-name="hosts_warning_threshold" data-type="integer"',
+            '<th data-name="services_critical_threshold" data-type="integer"',
+            '<th data-name="services_warning_threshold" data-type="integer"',
+            '<th data-name="global_critical_threshold" data-type="integer"',
+            '<th data-name="global_warning_threshold" data-type="integer"'
         )
 
         response = self.app.post('/realms/table_data')
@@ -609,28 +605,28 @@ class TestDatatableHosts(TestDatatableBase):
             '<div id="hosts_table" class="alignak_webui_table ">',
             "$('#tbl_host').DataTable( {",
             '<table id="tbl_host" ',
-            '<th data-name="name" data-type="string">Host name</th>',
-            '<th data-name="ls_state" data-type="string">Status</th>',
-            '<th data-name="overall_state" data-type="string">Overall status</th>',
-            '<th data-name="tags" data-type="list">Tags</th>',
-            '<th data-name="address" data-type="string">Address</th>',
-            '<th data-name="business_impact" data-type="integer">Business impact</th>',
-            '<th data-name="ls_last_check" data-type="datetime">Last check</th>',
-            '<th data-name="ls_state_type" data-type="string">State type</th>',
-            '<th data-name="ls_state_id" data-type="integer">State</th>',
-            '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
-            '<th data-name="ls_output" data-type="string">Output</th>',
-            '<th data-name="ls_long_output" data-type="string">Long output</th>',
-            '<th data-name="ls_perf_data" data-type="string">Performance data</th>',
-            '<th data-name="ls_current_attempt" data-type="integer">Current attempt</th>',
-            '<th data-name="ls_max_attempts" data-type="integer">Max attempts</th>',
-            '<th data-name="ls_next_check" data-type="integer">Next check</th>',
-            '<th data-name="ls_last_state_changed" data-type="datetime">Last state changed</th>',
-            '<th data-name="ls_last_state" data-type="string">Last state</th>',
-            '<th data-name="ls_last_state_type" data-type="string">Last state type</th>',
-            '<th data-name="ls_latency" data-type="float">Latency</th>',
-            '<th data-name="ls_execution_time" data-type="float">Execution time</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="ls_state" data-type="string"',
+            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="tags" data-type="list"',
+            '<th data-name="address" data-type="string"',
+            '<th data-name="business_impact" data-type="integer"',
+            '<th data-name="ls_last_check" data-type="datetime"',
+            '<th data-name="ls_state_type" data-type="string"',
+            '<th data-name="ls_state_id" data-type="integer"',
+            '<th data-name="ls_acknowledged" data-type="boolean"',
+            '<th data-name="ls_downtimed" data-type="boolean"',
+            '<th data-name="ls_output" data-type="string"',
+            '<th data-name="ls_long_output" data-type="string"',
+            '<th data-name="ls_perf_data" data-type="string"',
+            '<th data-name="ls_current_attempt" data-type="integer"',
+            '<th data-name="ls_max_attempts" data-type="integer"',
+            '<th data-name="ls_next_check" data-type="integer"',
+            '<th data-name="ls_last_state_changed" data-type="datetime"',
+            '<th data-name="ls_last_state" data-type="string"',
+            '<th data-name="ls_last_state_type" data-type="string"',
+            '<th data-name="ls_latency" data-type="float"',
+            '<th data-name="ls_execution_time" data-type="float"'
         )
 
         response = self.app.post('/hosts/table_data')
@@ -663,12 +659,12 @@ class TestDatatableHostgroups(TestDatatableBase):
             '<div id="hostgroups_table" class="alignak_webui_table ">',
             "$('#tbl_hostgroup').DataTable( {",
             '<table id="tbl_hostgroup" ',
-            '<th data-name="name" data-type="string">Hosts group name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Hosts group alias</th>',
-            '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="hostgroups" data-type="list">Hosts groups</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="definition_order" data-type="integer"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="_level" data-type="integer"',
+            '<th data-name="_parent" data-type="objectid"',
+            '<th data-name="hostgroups" data-type="list"'
         )
 
         response = self.app.post('/hostgroups/table_data')
@@ -707,16 +703,16 @@ class TestDatatableHostdependencies(TestDatatableBase):
             '<div id="hostdependencys_table" class="alignak_webui_table ">',
             "$('#tbl_hostdependency').DataTable( {",
             '<table id="tbl_hostdependency" ',
-            '<th data-name="name" data-type="string">Relation name</th>',
-            '<th data-name="alias" data-type="string">Relation alias</th>',
-            '<th data-name="hosts" data-type="list">Hosts</th>',
-            '<th data-name="hostgroups" data-type="list">Hosts groups</th>',
-            '<th data-name="dependent_hosts" data-type="list">Dependent hosts</th>',
-            '<th data-name="dependent_hostgroups" data-type="list">Dependent hosts groups</th>',
-            '<th data-name="inherits_parent" data-type="boolean">Inherits from parents</th>',
-            '<th data-name="dependency_period" data-type="objectid">Dependency period</th>',
-            '<th data-name="execution_failure_criteria" data-type="list">Execution failure criteria</th>',
-            '<th data-name="notification_failure_criteria" data-type="list">Notification failure criteria</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="hosts" data-type="list"',
+            '<th data-name="hostgroups" data-type="list"',
+            '<th data-name="dependent_hosts" data-type="list"',
+            '<th data-name="dependent_hostgroups" data-type="list"',
+            '<th data-name="inherits_parent" data-type="boolean"',
+            '<th data-name="dependency_period" data-type="objectid"',
+            '<th data-name="execution_failure_criteria" data-type="list"',
+            '<th data-name="notification_failure_criteria" data-type="list"'
         )
 
         response = self.app.post('/hostdependencys/table_data')
@@ -749,26 +745,26 @@ class TestDatatableServices(TestDatatableBase):
             '<div id="services_table" class="alignak_webui_table ">',
             "$('#tbl_service').DataTable( {",
             '<table id="tbl_service" ',
-            '<th data-name="host" data-type="objectid">Host</th>',
-            '<th data-name="name" data-type="string">Service name</th>',
-            '<th data-name="ls_state" data-type="string">Status</th>',
-            '<th data-name="overall_state" data-type="string">Overall status</th>',
-            '<th data-name="ls_last_check" data-type="datetime">Last check</th>',
-            '<th data-name="ls_state_type" data-type="string">State type</th>',
-            '<th data-name="ls_state_id" data-type="integer">State</th>',
-            '<th data-name="ls_acknowledged" data-type="boolean">Acknowledged</th>',
-            '<th data-name="ls_downtimed" data-type="boolean">In scheduled downtime</th>',
-            '<th data-name="ls_output" data-type="string">Output</th>',
-            '<th data-name="ls_long_output" data-type="string">Long output</th>',
-            '<th data-name="ls_perf_data" data-type="string">Performance data</th>',
-            '<th data-name="ls_current_attempt" data-type="integer">Current attempt</th>',
-            '<th data-name="ls_max_attempts" data-type="integer">Max attempts</th>',
-            '<th data-name="ls_next_check" data-type="integer">Next check</th>',
-            '<th data-name="ls_last_state_changed" data-type="datetime">Last state changed</th>',
-            '<th data-name="ls_last_state" data-type="string">Last state</th>',
-            '<th data-name="ls_last_state_type" data-type="string">Last state type</th>',
-            '<th data-name="ls_latency" data-type="float">Latency</th>',
-            '<th data-name="ls_execution_time" data-type="float">Execution time</th>',
+            '<th data-name="host" data-type="objectid"',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="ls_state" data-type="string"',
+            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="ls_last_check" data-type="datetime"',
+            '<th data-name="ls_state_type" data-type="string"',
+            '<th data-name="ls_state_id" data-type="integer"',
+            '<th data-name="ls_acknowledged" data-type="boolean"',
+            '<th data-name="ls_downtimed" data-type="boolean"',
+            '<th data-name="ls_output" data-type="string"',
+            '<th data-name="ls_long_output" data-type="string"',
+            '<th data-name="ls_perf_data" data-type="string"',
+            '<th data-name="ls_current_attempt" data-type="integer"',
+            '<th data-name="ls_max_attempts" data-type="integer"',
+            '<th data-name="ls_next_check" data-type="integer"',
+            '<th data-name="ls_last_state_changed" data-type="datetime"',
+            '<th data-name="ls_last_state" data-type="string"',
+            '<th data-name="ls_last_state_type" data-type="string"',
+            '<th data-name="ls_latency" data-type="float"',
+            '<th data-name="ls_execution_time" data-type="float"',
         )
 
         response = self.app.post('/services/table_data')
@@ -800,13 +796,13 @@ class TestDatatableServicegroups(TestDatatableBase):
             '<div id="servicegroups_table" class="alignak_webui_table ">',
             "$('#tbl_servicegroup').DataTable( {",
             '<table id="tbl_servicegroup" ',
-            '<th data-name="name" data-type="string">Services group name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Services group alias</th>',
-            '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="services" data-type="list">Services</th>',
-            '<th data-name="servicegroups" data-type="list">Services groups</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="definition_order" data-type="integer"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="_level" data-type="integer"',
+            '<th data-name="_parent" data-type="objectid"',
+            '<th data-name="services" data-type="list"',
+            '<th data-name="servicegroups" data-type="list"'
         )
 
         response = self.app.post('/servicegroups/table_data')
@@ -844,21 +840,21 @@ class TestDatatableServicedependencies(TestDatatableBase):
             '<div id="servicedependencys_table" class="alignak_webui_table ">',
             "$('#tbl_servicedependency').DataTable( {",
             '<table id="tbl_servicedependency" ',
-            '<th data-name="name" data-type="string">Relation name</th>',
-            '<th data-name="_realm" data-type="objectid">Realm</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Relation alias</th>',
-            '<th data-name="notes" data-type="string">Notes</th>',
-            '<th data-name="hosts" data-type="list">Hosts</th>',
-            '<th data-name="hostgroups" data-type="list">Hosts groups</th>',
-            '<th data-name="dependent_hosts" data-type="list">Dependent hosts</th>',
-            '<th data-name="dependent_hostgroups" data-type="list">Dependent hosts groups</th>',
-            '<th data-name="services" data-type="list">Services</th>',
-            '<th data-name="dependent_services" data-type="list">Dependent services</th>',
-            '<th data-name="inherits_parent" data-type="boolean">Inherits from parents</th>',
-            '<th data-name="dependency_period" data-type="objectid">Dependency period</th>',
-            '<th data-name="execution_failure_criteria" data-type="list">Execution failure criteria</th>',
-            '<th data-name="notification_failure_criteria" data-type="list">Notification failure criteria</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="_realm" data-type="objectid"',
+            '<th data-name="definition_order" data-type="integer"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="notes" data-type="string"',
+            '<th data-name="hosts" data-type="list"',
+            '<th data-name="hostgroups" data-type="list"',
+            '<th data-name="dependent_hosts" data-type="list"',
+            '<th data-name="dependent_hostgroups" data-type="list"',
+            '<th data-name="services" data-type="list"',
+            '<th data-name="dependent_services" data-type="list"',
+            '<th data-name="inherits_parent" data-type="boolean"',
+            '<th data-name="dependency_period" data-type="objectid"',
+            '<th data-name="execution_failure_criteria" data-type="list"',
+            '<th data-name="notification_failure_criteria" data-type="list"'
         )
 
         response = self.app.post('/servicedependencys/table_data')
@@ -892,15 +888,15 @@ class TestDatatableUsers(TestDatatableBase):
             '<div id="users_table" class="alignak_webui_table ">',
             "$('#tbl_user').DataTable( {",
             '<table id="tbl_user" ',
-            '<th data-name="name" data-type="string">User name</th>',
-            '<th data-name="is_admin" data-type="boolean">Administrator</th>',
-            '<th data-name="can_submit_commands" data-type="boolean">Allowed to submit commands</th>',
-            '<th data-name="role" data-type="string">Role</th>',
-            '<th data-name="alias" data-type="string">User alias</th>',
-            '<th data-name="email" data-type="string">User email</th>',
-            '<th data-name="min_business_impact" data-type="integer">Minimum business impact</th>',
-            '<th data-name="host_notifications_enabled" data-type="boolean">Hosts notifications enabled</th>',
-            '<th data-name="service_notifications_enabled" data-type="boolean">Services notifications enabl',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="is_admin" data-type="boolean"',
+            '<th data-name="can_submit_commands" data-type="boolean"',
+            '<th data-name="role" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="email" data-type="string"',
+            '<th data-name="min_business_impact" data-type="integer"',
+            '<th data-name="host_notifications_enabled" data-type="boolean"',
+            '<th data-name="service_notifications_enabled" data-type="boolean"',
         )
 
         response = self.app.post('/users/table_data')
@@ -932,13 +928,13 @@ class TestDatatableUsergroups(TestDatatableBase):
             '<div id="usergroups_table" class="alignak_webui_table ">',
             "$('#tbl_usergroup').DataTable( {",
             '<table id="tbl_usergroup" ',
-            '<th data-name="name" data-type="string">Users group name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Users group alias</th>',
-            '<th data-name="_level" data-type="integer">Level</th>',
-            '<th data-name="_parent" data-type="objectid">Parent</th>',
-            '<th data-name="users" data-type="list">Users</th>',
-            '<th data-name="usergroups" data-type="list">Users groups</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="definition_order" data-type="integer"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="_level" data-type="integer"',
+            '<th data-name="_parent" data-type="objectid"',
+            '<th data-name="users" data-type="list"',
+            '<th data-name="usergroups" data-type="list"'
         )
 
         response = self.app.post('/usergroups/table_data')
@@ -976,12 +972,12 @@ class TestDatatableTimeperiods(TestDatatableBase):
             '<div id="timeperiods_table" class="alignak_webui_table ">',
             "$('#tbl_timeperiod').DataTable( {",
             '<table id="tbl_timeperiod" ',
-            '<th data-name="name" data-type="string">Timeperiod name</th>',
-            '<th data-name="definition_order" data-type="integer">Definition order</th>',
-            '<th data-name="alias" data-type="string">Timeperiod alias</th>',
-            '<th data-name="is_active" data-type="boolean">Currently active</th>',
-            '<th data-name="dateranges" data-type="list">Date ranges</th>',
-            '<th data-name="exclude" data-type="list">Exclusions</th>'
+            '<th data-name="name" data-type="string"',
+            '<th data-name="definition_order" data-type="integer"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="is_active" data-type="boolean"',
+            '<th data-name="dateranges" data-type="list"',
+            '<th data-name="exclude" data-type="list"'
         )
 
         response = self.app.post('/timeperiods/table_data')
@@ -1015,11 +1011,11 @@ class TestDatatableUserRestrictRoles(TestDatatableBase):
             '<div id="userrestrictroles_table" class="alignak_webui_table ">',
             "$('#tbl_userrestrictrole').DataTable( {",
             '<table id="tbl_userrestrictrole" ',
-            '<th data-name="user" data-type="objectid">User</th>',
-            '<th data-name="realm" data-type="objectid">Realm</th>',
-            '<th data-name="subrealm" data-type="boolean">Sub realms</th>',
-            '<th data-name="resource" data-type="string">Resource</th>',
-            '<th data-name="crud" data-type="list">CRUD</th>'
+            '<th data-name="user" data-type="objectid"',
+            '<th data-name="realm" data-type="objectid"',
+            '<th data-name="subrealm" data-type="boolean"',
+            '<th data-name="resource" data-type="string"',
+            '<th data-name="crud" data-type="list"'
         )
 
         response = self.app.post('/userrestrictroles/table_data')
@@ -1057,29 +1053,26 @@ class TestDatatableLogs(TestDatatableBase):
             '<div id="logcheckresults_table" class="alignak_webui_table ">',
             "$('#tbl_logcheckresult').DataTable( {",
             '<table id="tbl_logcheckresult" ',
-            """<tr>
-            <th data-name="last_check" data-type="datetime">Last check</th>
-            <th data-name="host" data-type="objectid">Host</th>
-            <th data-name="service_name" data-type="string">Service</th>
-            <th data-name="state" data-type="string">State</th>
-            <th data-name="state_type" data-type="string">State type</th>
-            <th data-name="state_id" data-type="integer">State id</th>
-            <th data-name="passive_check" data-type="boolean">Passive check</th>
-            <th data-name="acknowledged" data-type="boolean">Acknowledged</th>
-            <th data-name="acknowledgement_type" data-type="integer">Ack type</th>
-            <th data-name="downtimed" data-type="boolean">Downtimed</th>
-            <th data-name="state_changed" data-type="boolean">State changed</th>
-            <th data-name="last_state" data-type="string">Last state</th>
-            <th data-name="last_state_type" data-type="string">Last state type</th>
-            <th data-name="last_state_id" data-type="integer">Last state id</th>
-            <th data-name="last_state_changed" data-type="datetime">Last state changed</th>
-            <th data-name="output" data-type="string">Output</th>
-            <th data-name="long_output" data-type="string">Long output</th>
-            <th data-name="perf_data" data-type="string">Performance data</th>
-            <th data-name="latency" data-type="float">Latency</th>
-            <th data-name="execution_time" data-type="float">Execution time</th>
-         </tr>""",
-
+            '<th data-name="last_check" data-type="datetime"',
+            '<th data-name="host" data-type="objectid"',
+            '<th data-name="service_name" data-type="string"',
+            '<th data-name="state" data-type="string"',
+            '<th data-name="state_type" data-type="string"',
+            '<th data-name="state_id" data-type="integer"',
+            '<th data-name="passive_check" data-type="boolean"',
+            '<th data-name="acknowledged" data-type="boolean"',
+            '<th data-name="acknowledgement_type" data-type="integer"',
+            '<th data-name="downtimed" data-type="boolean"',
+            '<th data-name="state_changed" data-type="boolean"',
+            '<th data-name="last_state" data-type="string"',
+            '<th data-name="last_state_type" data-type="string"',
+            '<th data-name="last_state_id" data-type="integer"',
+            '<th data-name="last_state_changed" data-type="datetime"',
+            '<th data-name="output" data-type="string"',
+            '<th data-name="long_output" data-type="string"',
+            '<th data-name="perf_data" data-type="string"',
+            '<th data-name="latency" data-type="float"',
+            '<th data-name="execution_time" data-type="float"',
         )
 
         response = self.app.post('/logcheckresults/table_data')
@@ -1104,13 +1097,13 @@ class TestDatatableHistorys(TestDatatableBase):
             '<div id="historys_table" class="alignak_webui_table ">',
             "$('#tbl_history').DataTable( {",
             '<table id="tbl_history" ',
-            '<th data-name="_created" data-type="integer">Date</th>',
-            '<th data-name="host" data-type="objectid">Host</th>',
-            '<th data-name="service" data-type="objectid">Service</th>',
-            '<th data-name="user" data-type="objectid">User</th>',
-            '<th data-name="type" data-type="string">Type</th>',
-            '<th data-name="message" data-type="string">Message</th>',
-            '<th data-name="logcheckresult" data-type="objectid">Check result</th>'
+            '<th data-name="_created" data-type="integer"',
+            '<th data-name="host" data-type="objectid"',
+            '<th data-name="service" data-type="objectid"',
+            '<th data-name="user" data-type="objectid"',
+            '<th data-name="type" data-type="string"',
+            '<th data-name="message" data-type="string"',
+            '<th data-name="logcheckresult" data-type="objectid"'
         )
 
         response = self.app.post('/historys/table_data')

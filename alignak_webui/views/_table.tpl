@@ -38,11 +38,40 @@
 %end
 <!-- Table display -->
 <div id="{{object_type}}s_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
+   <div class="col-md-12">
+      <div id="webui-search-input" class="input-group">
+          <input type="text" class="form-control" placeholder={{_('Search...')}} />
+          <div class="input-group-btn">
+              <div class="btn-group" role="group">
+                  <div class="dropdown dropdown-lg">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+                      <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="filters_menu">
+                        <li role="presentation"><a role="menuitem" href="/all?search=&title=All resources">All resources</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=type:host&title=All hosts">All hosts</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=type:service&title=All services">All services</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=isnot:0 isnot:ack isnot:downtime&title=New problems">New problems</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=is:ack&title=Acknowledged problems">Acknowledged problems</a></li>
+                        <li role="presentation"><a role="menuitem" href="/all?search=is:downtime&title=Scheduled downtimes">Scheduled downtimes</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation">
+                           <a role="menuitem" data-action="search-box">
+                              <strong>{{_('<span class="fa fa-question-circle"></span> Search syntax')}}</strong>
+                           </a>
+                        </li>
+                      </ul>
+                  </div>
+                  <button type="button" class="btn btn-primary"><span class="fa fa-search" aria-hidden="true"></span></button>
+              </div>
+          </div>
+      </div>
+    </div>
+
    <table id="tbl_{{object_type}}" class="{{dt.css}}">
       <thead>
          <tr>
             %for column in dt.table_columns:
-            <th data-name="{{ column.get('data') }}" data-type="{{ column.get('type') }}">{{ column.get('title','###') }}</th>
+            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}" title="{{_('Field name: %s') % column['data'] }}">{{ column['title'] }}</th>
             %end
          </tr>
          %if dt.searchable:
@@ -112,8 +141,7 @@
                    data-searchable="{{ field['searchable'] }}" data-regex="{{ field['regex'] }}"
                    data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
                    data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
-                   data-allowed="{{ field['allowed'] }}"
-                   >
+                   data-allowed="{{ field['allowed'] }}">
                   %if is_list:
                   <div class="form-group form-group-sm">
                      <select id="filter_{{name}}" class="form-control"></select>
@@ -253,6 +281,17 @@
       %end
 
       %if dt.searchable:
+      // event for search on enter keyup
+      $(function () {
+         $('.dataTables_filter input').unbind();
+         $('#webui-search-input input').bind('keyup', function (e) {
+            if (e.keyCode != 13) return;
+            if (debugTable) console.debug('Datatable global search:', $(this).val());
+            var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+            table.search($(this).val()).draw();
+         });
+      });
+
       // Apply the search filter for input fields
       $("#tbl_{{object_type}} thead input").on('keyup change', function () {
          var parent = $(this).parents('[data-name]')
@@ -434,7 +473,10 @@
 
          /* Table fixed header: #74 */
          "fixedHeader": {
-            headerOffset: $('#topbar').outerHeight()
+            header: true,
+            headerOffset: $('#topbar').outerHeight(),
+            footer: true,
+            footerOffset: '50px'
          },
          /* Fixed leftmost column and scrolling mode: #74
          "scrollX": true,
@@ -579,7 +621,7 @@
             p - pagination control
             r - processing display element
          dom: 'Blfrtip',
-         Currently, no global search...
+         No datatable global search...
          */
          dom:
             "<'row buttons'<'col-xs-12'B>>" +

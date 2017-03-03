@@ -82,13 +82,6 @@ header {
 }
 
 /*
-#hosts-states-popover-content,
-#services-states-popover-content {
-    width: 440px;
-}
-*/
-
-/*
  * Header - Hosts and services popovers
 
    Hack because current Bootstrap material design (V3) does not deal correctly with popovers ...
@@ -204,7 +197,7 @@ div[data-type="actions"] ul.dropdown-menu {
  */
 /* Set fixed position for table buttons */
 div.dt-buttons {
-   position: fixed;
+   position: fixed; z-index:100;
 }
 div.dataTables_wrapper div.row.table {
     margin-top: 45px;
@@ -304,29 +297,18 @@ table.dataTable th div.form-group-sm {
 
 /*
  * On small device and extra small devices:
- * - more or less shifting the page...
- * - hide the sidebar column
+ * ...
  */
 @media (max-width: 992px) {
-    /*
-    #page-wrapper.header-page {
-        margin-top: 130px;
-    }
-    */
 }
 @media (max-width: 768px) {
-    /*
-    #page-wrapper.header-page {
-        margin-top: 65px;
-    }
-    */
 }
 
 /*
  * Menu bar
  */
 #topbar form {
-padding: 0;
+    padding: 0;
 }
 
 /*
@@ -377,4 +359,53 @@ form.element_form {
 }
 form.template_form {
     background-color: #eee;
+}
+
+
+/*
+ * Search form
+ */
+#webui-search-input .dropdown.dropdown-lg
+#webui-search-input .dropdown-menu {
+    margin-top: -1px;
+    padding: 6px 6px;
+}
+#webui-search-input .form-group {
+    margin: 12px 0 0 0;
+}
+#webui-search-input .input-group-btn .btn-group {
+    display: flex !important;
+}
+#webui-search-input .btn-group .btn {
+    border-radius: 0;
+    margin-left: -1px;
+}
+#webui-search-input .btn-group .btn:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+#webui-search-input .btn-group .form-horizontal .btn[type="submit"] {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+#webui-search-input .form-horizontal .form-group {
+    margin-left: 0;
+    margin-right: 0;
+}
+#webui-search-input .form-group .form-control:last-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+@media screen and (min-width: 768px) {
+    #webui-search-input {
+        width: 500px;
+        margin: 0 auto;
+    }
+    #webui-search-input .dropdown.dropdown-lg {
+        position: static !important;
+    }
+    #webui-search-input .dropdown.dropdown-lg .dropdown-menu {
+        min-width: 500px;
+    }
 }

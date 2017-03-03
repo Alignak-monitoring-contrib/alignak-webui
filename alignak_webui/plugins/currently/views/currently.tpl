@@ -1,6 +1,5 @@
 %from bottle import request
 
-%setdefault('refresh', True)
 %rebase("fullscreen", css=[], js=[], title=title)
 
 %import json
@@ -93,8 +92,6 @@ div.pull-right a, div.pull-right div {
             $(this).find('.fa-caret-down').removeClass('fa-caret-down').addClass('fa-caret-up');
             save_user_preference('panels', JSON.stringify(panels), function() {
                 wait_message('', false)
-                // Page refresh required
-                //refresh_required = true;
             });
         });
         $('.panel').on('shown.bs.collapse', function (e) {
@@ -110,8 +107,6 @@ div.pull-right a, div.pull-right div {
             $(this).find('.fa-caret-up').removeClass('fa-caret-up').addClass('fa-caret-down');
             save_user_preference('panels', JSON.stringify(panels), function() {
                 wait_message('', false)
-                // Page refresh required
-                //refresh_required = true;
             });
         });
 
@@ -130,8 +125,6 @@ div.pull-right a, div.pull-right div {
             }
             save_user_preference('currently_graphs', JSON.stringify(graphs), function() {
                 wait_message('', false)
-                // Page refresh required
-                //refresh_required = true;
             });
         });
     </script>

@@ -18,7 +18,6 @@
 %setdefault('ls',  None)
 %from bottle import request
 
-%setdefault('refresh',  True)
 %rebase("fullscreen",  css=[],  js=[],  title=title)
 
 %import json

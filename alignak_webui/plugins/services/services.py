@@ -27,6 +27,7 @@ from logging import getLogger
 from bottle import request, template
 
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -192,7 +193,7 @@ class PluginServices(Plugin):
         # Service history pagination and search parameters
         start = int(request.params.get('start', '0'))
         count = int(request.params.get('count', elts_per_page))
-        where = self.webui.helper.decode_search(request.params.get('search', ''))
+        where = Helper.decode_search(request.params.get('search', ''), self.table)
         search = {
             'page': (start // count) + 1,
             'max_results': count,
@@ -292,7 +293,7 @@ class PluginServices(Plugin):
         # Service history pagination and search parameters
         start = int(request.params.get('start', '0'))
         count = int(request.params.get('count', elts_per_page))
-        where = self.webui.helper.decode_search(request.params.get('search', ''))
+        where = Helper.decode_search(request.params.get('search', ''), self.table)
         search = {
             'page': (start // count) + 1,
             'max_results': count,

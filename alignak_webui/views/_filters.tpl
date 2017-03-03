@@ -15,9 +15,9 @@
 
 %if search_filters:
    <li class="dropdown">
-      <a href="#" class="dropdown-toggle" data-original-title="{{_('Filters  menu')}}" data-toggle="dropdown">
+      <a href="#" class="dropdown-toggle" data-original-title="{{_('Filters list')}}" data-toggle="dropdown">
          <span class="caret"></span>
-         <i class="fa fa-filter"></i>
+         <span class="fa fa-filter"></span>
          <span class="hidden-sm hidden-xs"> {{_('Filters')}}</span>
       </a>
       <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
@@ -35,9 +35,15 @@
             </li>
             %end
          %end
+         <li role="presentation" class="divider"></li>
+         <li role="presentation">
+            <a role="menuitem" data-action="search-box">
+               <strong>{{! _('<span class="fa fa-question-circle"></span> Search syntax')}}</strong>
+            </a>
+         </li>
       </ul>
    </li>
-   <form class="hidden-xs hidden-sm navbar-form navbar-left" role="search" method="get" action="{{ search_action }}">
+   <form class="hidden-xs navbar-form navbar-left" role="search" method="get" action="{{ search_action }}">
       <div class="form-group">
          <label class="sr-only" for="search">{{_('Filter')}}</label>
          <div class="input-group">

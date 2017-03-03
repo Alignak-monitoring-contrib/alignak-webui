@@ -208,7 +208,7 @@ function check_UI_backend(){
 
 
 /*
- * Each second, send a ping to the server
+ * Check if refresh is required
  * If the server requires a refresh:
  * - force an immediate refresh
  */
@@ -278,16 +278,35 @@ function reinit_refresh(){
 
 
 /*
+ * Suspend the refresh process...
+ */
+function refresh_pause() {
+   if (refresh_logs) console.debug("Paused refresh");
+
+   // Suspend the UI refresh
+   refresh_suspended = true;
+}
+
+
+function refresh_play() {
+   if (refresh_logs) console.debug("Play refresh");
+
+   // Un-supsend ;) the UI refresh
+   refresh_suspended = false;
+}
+
+
+/*
  * Start/stop the refresh process...
  */
-function stop_refresh() {
+function refresh_stop() {
    if (refresh_logs) console.debug("Stop refresh");
    $('#refresh_active').addClass('disabled text-muted');
    sessionStorage.setItem("refresh_active", '0');
 }
 
 
-function start_refresh() {
+function refresh_start() {
    if (refresh_logs) console.debug("Start refresh");
    $('#refresh_active').removeClass('disabled text-muted');
    sessionStorage.setItem("refresh_active", '1');
@@ -323,9 +342,9 @@ $(document).ready(function(){
    // Toggle refresh ...
    $('body').on("click", '[data-action="toggle-page-refresh"]', function (e, data) {
       if (sessionStorage.getItem("refresh_active") == '1') {
-         stop_refresh();
+         refresh_stop();
       } else {
-         start_refresh();
+         refresh_start();
       }
       if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
    });

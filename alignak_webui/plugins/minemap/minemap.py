@@ -29,6 +29,7 @@ from logging import getLogger
 from bottle import request
 
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -38,9 +39,7 @@ class PluginMinemap(Plugin):
     """ Minemap plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Minemap plugin
-        """
+        """Minemap plugin"""
         self.name = 'Minemap'
         self.backend_endpoint = None
 
@@ -48,35 +47,46 @@ class PluginMinemap(Plugin):
             'show_minemap': {
                 'name': 'Minemap',
                 'route': '/minemap',
-                'view': 'minemap'
+                'view': 'minemap',
+                'search_engine': True,
+                'search_prefix': '',
+                'search_filters': {
+                    '01': (_('Hosts'), '_is_template:false'),
+                    '02': ('', ''),
+                    '03': (_('Hosts templates'), '_is_template:true')
+                },
             }
         }
 
         super(PluginMinemap, self).__init__(app, webui, cfg_filenames)
 
     def show_minemap(self):
-        """
-        Get the hosts / services list to build a minemap
-        """
         # Yes, but that's how it is made, and it suits ;)
         # pylint: disable=too-many-locals
+        """Get the hosts / services list to build a minemap"""
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        # elts_per_page = elts_per_page['value']
+
+        # Minemap search engine is based upon host table
+        plugin = self.webui.find_plugin('host')
 
         # Pagination and search
         start = int(request.params.get('start', '0'))
         count = int(request.params.get('count', elts_per_page))
         if count < 1:
             count = elts_per_page
-        where = self.webui.helper.decode_search(request.params.get('search', ''))
+        search = Helper.decode_search(request.params.get('search', ''), plugin.table)
+        logger.info("Decoded search pattern: %s", search)
+        for key, pattern in search.iteritems():
+            logger.info("global search pattern '%s' / '%s'", key, pattern)
+
         search = {
             'page': (start // count) + 1,
             'max_results': count,
-            'where': where,
+            'where': search,
             'sort': '-_overall_state_id'
         }
 
@@ -109,8 +119,7 @@ class PluginMinemap(Plugin):
         columns = [c for c, dummy in count_columns.most_common()]
 
         # Get last total elements count
-        total = datamgr.get_objects_count('host', search=where, refresh=True)
-        # count = min(len(hosts), total)
+        total = datamgr.get_objects_count('host', search=search, refresh=True)
 
         return {
             'params': self.plugin_parameters,

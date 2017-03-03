@@ -1412,7 +1412,7 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_hosts, search: %s", search)
+            logger.info("get_hosts, search: %s", search)
             items = self.find_object('host', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
