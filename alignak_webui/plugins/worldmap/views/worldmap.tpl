@@ -1,13 +1,19 @@
 %setdefault('debug', False)
 
+%setdefault('mapStyle', "width: 100%; height: 100%;")
+
 %from bottle import request
 %search_string = request.query.get('search', '')
 
+%# Add extra Css and Js for this page, and a callback function
 %# No default refresh for this page
-%rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/worldmap", refresh=False)
+%css=["worldmap/static/leaflet/leaflet.css", "worldmap/static/css/MarkerCluster.css", "worldmap/static/css/MarkerCluster.Default.css", "worldmap/static/css/leaflet.label.css", "worldmap/static/css/worldmap.css"]
+%js=["worldmap/static/leaflet/leaflet.js", "worldmap/static/js/worldmap.js"]
+%callback='initWorldmap'
+%rebase("layout", title=title, js=js, css=css, callback=callback, pagination=pagination, page="/worldmap", refresh=False)
 
 <!-- HTML map container -->
-<div id="worldmap" class="card map_container" style="padding:10px; margin-top: 10px">
+<div id="worldmap" class="card map_container" style="{{mapStyle}}">
    %if not hosts:
       <div class="panel-heading">
          <center class="alert-warning">

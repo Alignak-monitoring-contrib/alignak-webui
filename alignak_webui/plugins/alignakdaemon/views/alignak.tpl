@@ -7,7 +7,7 @@
 
 %from alignak_webui.utils.helper import Helper
 
-<div id="alignak" class="card" style="margin-top: 10px; padding:10px">
+<div id="alignak_daemons" class="card" style="margin-top: 10px; padding:10px">
    %if not alignak_daemons:
       %include("_nothing_found.tpl", search_string=search_string)
    %else:

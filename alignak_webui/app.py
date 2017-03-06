@@ -97,7 +97,7 @@ app = application = bottle.Bottle()
 # -----
 if os.environ.get('ALIGNAK_WEBUI_TEST'):
     print("Application is in test mode")
-else:
+else:  # pragma: no cover, because tests are run in test mode
     print("Application is in production mode")
 
 # pylint: disable=redefined-variable-type
@@ -128,7 +128,7 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE'):
     cfg_filenames = [os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_FILE')]
     print("Application configuration file name from environment: %s" % cfg_filenames)
 # Configuration file name in command line parameters
-if '<cfg_file>' in args and args['<cfg_file>']:
+if '<cfg_file>' in args and args['<cfg_file>']:  # pragma: no cover, tested but not coverable
     cfg_filenames = args['<cfg_file>']
     print("Application configuration file name from command line: %s" % cfg_filenames)
 
@@ -140,7 +140,7 @@ for cfg_filename in cfg_filenames:
         print("Configuration read from: %s" % cfg_filename)
         app_configuration_file = cfg_filename
         break
-else:
+else:  # pragma: no cover, tested but not coverable
     print("***** Application configuration file not found.")
     print("***** Searched in: %s" % cfg_filenames)
     exit(1)
@@ -148,7 +148,8 @@ else:
 # -----
 # Check application configuration file change
 # -----
-if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):
+# todo: not yet tested
+if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):  # pragma: no cover, not yet tested
     def check_config(_app, filename, interval=5):
         """Thread to check if configuration file changed"""
         print("Thread for checking configuration file change, file: %s" % filename)
@@ -169,15 +170,15 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):
 # -----
 # Debug and test mode
 # -----
-if os.environ.get('BOTTLE_DEBUG'):
+if os.environ.get('BOTTLE_DEBUG'):  # pragma: no cover, tested but not coverable
     app.config['bottle.debug'] = True
     print("Bottle is in debug mode from environment")
 
-if os.environ.get('ALIGNAK_WEBUI_DEBUG'):
+if os.environ.get('ALIGNAK_WEBUI_DEBUG'):  # pragma: no cover, tested but not coverable
     app.config['%s.debug' % app_name] = True
     print("Application is in debug mode from environment")
 
-if '--debug' in args and args['--debug']:
+if '--debug' in args and args['--debug']:  # pragma: no cover, tested but not coverable
     app.config['bottle.debug'] = True
     app.config['%s.debug' % app_name] = True
     print("Application is in debug mode from command line")
@@ -185,10 +186,10 @@ if '--debug' in args and args['--debug']:
 # -----
 # Application backend
 # -----
-if os.environ.get('ALIGNAK_WEBUI_BACKEND'):
+if os.environ.get('ALIGNAK_WEBUI_BACKEND'):  # pragma: no cover, tested but not coverable
     app.config['%s.alignak_backend' % app_name] = os.environ.get('ALIGNAK_WEBUI_BACKEND')
     print("Application backend from environment: %s" % os.environ.get('ALIGNAK_WEBUI_BACKEND'))
-if '--backend' in args and args['--backend']:
+if '--backend' in args and args['--backend']:  # pragma: no cover, tested but not coverable
     app.config['%s.alignak_backend' % app_name] = args['--backend']
     print("Application backend from command line: %s" % args['--backend'])
 
@@ -208,11 +209,11 @@ if '--ws' in args and args['--ws']:
 print("Alignak Web Services: %s" % app.config.get('%s.alignak_ws' % app_name,
                                                   'http://127.0.0.1:8888'))
 
-if '--host' in args and args['--host']:
+if '--host' in args and args['--host']:  # pragma: no cover, tested but not coverable
     app.config['host'] = args['--host']
     print("Listening interface from command line: %s" % app.config.get('host', '127.0.0.1'))
 
-if '--port' in args and args['--port']:
+if '--port' in args and args['--port']:  # pragma: no cover, tested but not coverable
     app.config['port'] = args['--port']
     print("Listening port from command line: %s" % app.config.get('port', '5001'))
 
@@ -231,10 +232,9 @@ log_locations = [
     '/var/log/%s' % app_name,
     '/tmp/%s' % app_name
 ]
-if os.environ.get('ALIGNAK_WEBUI_LOG'):
+if os.environ.get('ALIGNAK_WEBUI_LOG'):  # pragma: no cover, tested but not coverable
     log_locations = [os.environ.get('ALIGNAK_WEBUI_LOG')]
-    print("Application log directory from environment: %s"
-          % os.environ.get('ALIGNAK_WEBUI_LOG'))
+    print("Application log directory from environment: %s" % os.environ.get('ALIGNAK_WEBUI_LOG'))
 for log_location in log_locations:
     if os.path.isdir(log_location):
         print("Log file location: %s" % log_location)
@@ -254,7 +254,7 @@ cfg_log_filenames = [
     os.path.abspath('./etc/logging.json'),
     os.path.abspath('./logging.json'),
 ]
-if os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE'):
+if os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE'):  # pragma: no cover, tested but not coverable
     cfg_log_filenames = [os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE')]
     print("Application logger configuration file from environment: %s"
           % os.environ.get('ALIGNAK_WEBUI_LOGGER_FILE'))
@@ -265,10 +265,9 @@ for cfg_log_filename in cfg_log_filenames:
     if setup_logging(cfg_log_filename, log_location):
         logger = logging.getLogger(ROOT_LOGGER_NAME)
         logger.setLevel(log_level)
-        print("Application logger: %s" % logger.__dict__)
         print("Application logger configured from: %s" % cfg_log_filename)
         break
-else:
+else:  # pragma: no cover, tested but not coverable
     print("***** Application logger configuration file not found.")
     print("***** Searched in: %s" % cfg_log_filenames)
     exit(2)
@@ -350,6 +349,7 @@ def static(filename):
 # -----
 # Application modal windows
 # -----
+# todo: to be tested...
 @app.route('/modal/<modal_name>')
 def give_modal(modal_name):
     """Return template for a modal window"""
@@ -361,7 +361,7 @@ def give_modal(modal_name):
 # WebUI hooks
 # --------------------------------------------------------------------------------------------------
 @app.hook('config')
-def on_config_change(_key, _value):
+def on_config_change(_key, _value):  # pragma: no cover, not yet tested
     """Hook called if configuration dictionary changed"""
     logger.warning("application configuration changed, key: %s = %s", _key, _value)
     if _key.startswith(app_name):
@@ -511,6 +511,7 @@ def user_logout():
     redirect('/login')
 
 
+# todo: not yet implemented... see #172
 def check_backend_connection(_app, token=None, interval=10):
     """Thread to check if backend connection is alive"""
     print("Thread for checking backend connection is alive with %s" % app.config['alignak_backend'])
@@ -1017,7 +1018,7 @@ session_opts = {
 logger.debug("Session parameters: %s" % session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
-logger.warning("Running Bottle, debug mode: %s" % app.config.get('debug', False))
+logger.info("Running Bottle server, debug mode: %s" % app.config.get('debug', False))
 if __name__ == '__main__':
     logger.info("Running Bottle, debug mode: %s" % app.config.get('debug', False))
     run(

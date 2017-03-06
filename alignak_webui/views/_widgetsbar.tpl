@@ -31,7 +31,7 @@
                     <span class='fa fa-plus'></span>
                     {{_('Add this widget to your dashboard')}}
                 </button>"
-            data-widget-description='{{!widget["description"]}} <hr/> <div class="center-block"><img class="text-center" src="{{widget["picture"]}}"/></div>'
+            data-widget-description='{{!widget["description"]}} <hr/> <div class="center-block"><img style="max-width: 100%;" class="text-center" src="{{widget["picture"]}}"/></div>'
             >
             <span class="fa fa-{{widget['icon']}}"></span>
             {{widget['name']}}

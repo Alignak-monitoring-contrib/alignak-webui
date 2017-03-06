@@ -48,45 +48,46 @@ class PluginWorldmap(Plugin):
                 'route': '/worldmap',
                 'view': 'worldmap'
             },
-            'get_worldmap_widget': {
-                'name': 'Worlmap widget',
-                'route': '/worldmap/widget',
-                'method': 'POST',
-                'view': 'worldmap_widget',
-                'widgets': [
-                    {
-                        'id': 'worldmap',
-                        'for': ['external', 'dashboard'],
-                        'name': _('Worldmap widget'),
-                        'template': 'worldmap_widget',
-                        'icon': 'globe',
-                        'description': _(
-                            '<h4>Worldmap widget</h4>Displays a world map of the monitored system '
-                            'hosts.<br>The number of hosts on the map can be defined in the widget '
-                            'options. The list of hosts can be filtered thanks to regex on the '
-                            'host name.'
-                        ),
-                        'picture': 'static/img/worldmap_widget.png',
-                        'options': {
-                            'search': {
-                                'value': '',
-                                'type': 'text',
-                                'label': _('Filter (ex. status:ok)')
-                            },
-                            'count': {
-                                'value': -1,
-                                'type': 'int',
-                                'label': _('Number of elements')
-                            },
-                            'filter': {
-                                'value': '',
-                                'type': 'hst_srv',
-                                'label': _('Host/service name search')
-                            }
-                        }
-                    }
-                ]
-            }
+            # todo: remove temporarily, to reactivate (#212)
+            # 'get_worldmap_widget': {
+            #     'name': 'Worlmap widget',
+            #     'route': '/worldmap/widget',
+            #     'method': 'POST',
+            #     'view': 'worldmap_widget',
+            #     'widgets': [
+            #         {
+            #             'id': 'worldmap',
+            #             'for': ['external', 'dashboard'],
+            #             'name': _('Worldmap widget'),
+            #             'template': 'worldmap_widget',
+            #             'icon': 'globe',
+            #             'description': _(
+            #                 '<h4>Worldmap widget</h4>Displays a world map of the monitored '
+            #                 'system hosts.<br>The number of hosts on the map can be defined in '
+            #                 'the widget options. The list of hosts can be filtered thanks to '
+            #                 'regex on the host name.'
+            #             ),
+            #             'picture': 'static/img/worldmap_widget.png',
+            #             'options': {
+            #                 'search': {
+            #                     'value': '',
+            #                     'type': 'text',
+            #                     'label': _('Filter (ex. status:ok)')
+            #                 },
+            #                 'count': {
+            #                     'value': -1,
+            #                     'type': 'int',
+            #                     'label': _('Number of elements')
+            #                 },
+            #                 'filter': {
+            #                     'value': '',
+            #                     'type': 'hst_srv',
+            #                     'label': _('Host/service name search')
+            #                 }
+            #             }
+            #         }
+            #     ]
+            # }
         }
 
         super(PluginWorldmap, self).__init__(app, webui, cfg_filenames)
@@ -153,14 +154,17 @@ class PluginWorldmap(Plugin):
         if for_my_widget:
             return valid_hosts
 
+        map_style = "width: %s; height: %s;" % (self.plugin_parameters.get('map_width', "100%"),
+                                                self.plugin_parameters.get('map_height', "100%"))
+
         return {
             'options_panel': False,
             'mapId': 'hostsMap',
+            'mapStyle': map_style,
             'params': self.plugin_parameters,
             'hosts': valid_hosts,
             'pagination': self.webui.helper.get_pagination_control(
-                '/worldmap', total, start, count
-            ),
+                '/worldmap', total, start, count),
             'title': request.query.get('title', _('Hosts worldmap'))
         }
 
@@ -220,6 +224,7 @@ class PluginWorldmap(Plugin):
             ))
 
             # Get host services
+            # todo: using a projection with selected fields may help to improve
             search = {
                 # 'projection': json.dumps({
                 #     "_id": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1,

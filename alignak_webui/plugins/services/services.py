@@ -55,9 +55,7 @@ class PluginServices(Plugin):
                         'name': _('Information'),
                         'template': 'service_information_widget',
                         'icon': 'info',
-                        'description': _(
-                            'Service information: service general information.'
-                        ),
+                        'description': _('Service information: service general information.'),
                         'options': {}
                     },
                     {
@@ -159,6 +157,7 @@ class PluginServices(Plugin):
         """
         Get the services widget
         """
+        logger.debug("get_services_widget")
         return self.get_widget(None, 'service', embedded, identifier, credentials)
 
     def get_one(self, element_id):
@@ -270,7 +269,7 @@ class PluginServices(Plugin):
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
-        logger.debug("get_service_widget: %s, %s", element_id, widget_id)
+        logger.warning("get_service_widget: %s, %s", element_id, widget_id)
 
         # Get service
         service = datamgr.get_service(element_id)

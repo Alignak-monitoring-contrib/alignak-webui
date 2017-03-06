@@ -149,7 +149,7 @@
          </button>
          <ul class="dropdown-menu pull-right">
             %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
-            <li>{{!action_url}}</li>
+            <li>{{! action_url}}</li>
             %end
          </ul>
       </div>
@@ -241,7 +241,7 @@
                <dt>{{_('Notes:')}}</dt>
                <dd>
                %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
-                  <button class="btn btn-default btn-xs">{{! note_url}}</button>
+                  {{! note_url}}
                %end
                </dd>
                %end
@@ -304,21 +304,13 @@
      <div class="panel-body">
        <table class="table table-invisible table-condensed" style="margin-bottom: 0px;"><tbody><tr>
           <td><a role="menuitem" href="/services/table?search=host:{{host.id}}">
-               <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
+               <strong>{{synthesis['nb_elts']}} services:&nbsp;</strong>
           </a></td>
 
           %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
           <td>
-            %if synthesis['nb_' + state]>0:
-            <a role="menuitem" href="/services/table?search=ls_state:{{state.upper()}}">
-            %end
-
-            %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
+            %label = "%s <em>(%s%%)</em>" % (synthesis["nb_" + state], synthesis["pct_" + state])
             {{! Service({'ls_state': state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
-
-            %if synthesis['nb_' + state]>0:
-            </a>
-            %end
           </td>
           %end
        </tr></tbody></table>
@@ -392,10 +384,9 @@
       $(selector + "[data-toggle=tab]").click(update_location);
    }
 
-   $(function () {
-      bootstrap_tab_bookmark();
-   })
    $(document).ready(function() {
+      bootstrap_tab_bookmark();
+
       // Activate the popover for the notes and actions urls
       $('[data-toggle="popover urls"]').popover({
          placement: 'bottom',

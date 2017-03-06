@@ -9,10 +9,10 @@
       // Toggle sound icon...
       if (data == 'no') {
          sound_activated = false;
-         $('#sound_alerting').addClass('disabled text-muted');
+         $('#sound_alerting').addClass('disabled text-warning');
       } else {
          sound_activated = true;
-         $('#sound_alerting').removeClass('disabled text-muted');
+         $('#sound_alerting').removeClass('disabled text-warning');
       }
       $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
          get_user_preference('sound', function(data) {
@@ -20,12 +20,12 @@
                save_user_preference('sound', JSON.stringify('yes'), function(){
                   sound_activated = true;
                   playAlertSound();
-                  $('#sound_alerting').removeClass('disabled text-muted');
+                  $('#sound_alerting').removeClass('disabled text-warning');
                });
             } else {
                save_user_preference('sound', JSON.stringify('no'), function() {
                   sound_activated = false;
-                  $('#sound_alerting').addClass('disabled text-muted');
+                  $('#sound_alerting').addClass('disabled text-warning');
                });
             }
          });
