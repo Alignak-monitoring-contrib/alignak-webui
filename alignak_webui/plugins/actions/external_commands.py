@@ -35,6 +35,11 @@ commands = {
         'title': _("Send an host check output"),
         "parameters": ["ls_output"]
     },
+    'del_all_host_downtimes': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Delete all host downtimes"),
+        "parameters": []
+    },
     'process_service_check_result': {
         'global': False, 'elements_type': 'service',
         'title': _("Send a service check result"),
@@ -44,6 +49,11 @@ commands = {
         'global': False, 'elements_type': 'service',
         'title': _("Send a service check output"),
         "parameters": ["ls_output"]
+    },
+    'del_all_svc_downtimes': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Delete all service downtimes"),
+        "parameters": []
     },
 }
 
