@@ -895,11 +895,16 @@ class Plugin(object):
         # Build table structure
         dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table, templates=templates)
 
+        # Build page title
+        title = dt.title
+        if '%d' in title:
+            title = title % dt.records_total
+
         return {
             'object_type': self.backend_endpoint,
             'dt': dt,
             'where': where,
-            'title': request.query.get('title', dt.title),
+            'title': request.query.get('title', title),
             'embedded': embedded,
             'identifier': identifier,
             'credentials': credentials
