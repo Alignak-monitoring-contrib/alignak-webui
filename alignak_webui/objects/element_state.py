@@ -279,7 +279,7 @@ class ElementState(object):
             res_icon = res_icon_global
             res_icon = res_icon.replace("##type##", object_type)
             res_icon = res_icon.replace("##id##", item_id)
-            res_icon = res_icon.replace("##name##", object_item.alias)
+            res_icon = res_icon.replace("##name##", object_item.json_alias)
             res_icon = res_icon.replace("##state##", object_item.get_state())
             res_icon = res_icon.replace("##back##", res_icon_back)
             res_icon = res_icon.replace("##front##", res_icon_front)

@@ -572,7 +572,7 @@ class BackendElement(object):
         """
         Get Item html link
         """
-        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.alias, self.name)
+        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.json_alias, self.name)
 
     def get_html_link(self, prefix=None, title=None):
         """
@@ -592,7 +592,7 @@ class BackendElement(object):
         """Get Item html link with state"""
 
         return '<a href="%s">%s</a>' \
-               % (self.endpoint, self.get_html_state(text=self.alias, title=self.alias))
+               % (self.endpoint, self.get_html_state(text=self.json_alias, title=self.json_alias))
 
     def get_html_state_link(self, prefix=None, title=None):
 
@@ -601,8 +601,8 @@ class BackendElement(object):
         if prefix is not None:
             return '<a href="%s%s">%s</a>' \
                    % (prefix, self.endpoint,
-                      self.get_html_state(text=self.alias,
-                                          title=self.alias if not title else title))
+                      self.get_html_state(text=self.json_alias,
+                                          title=self.json_alias if not title else title))
         if title:
             return '<a href="%s" title="%s">%s</a>' \
                    % (self.endpoint, title, self.get_html_state(text=self.alias, title=title))
@@ -622,11 +622,24 @@ class BackendElement(object):
     @property
     def alias(self):
         """
-        Get Item object alias
-        A class inheriting from an Item can define its own `name_property`
+        Get Item object alias - raw form
         """
         if hasattr(self, '_alias') and getattr(self, '_alias', None):
-            return getattr(self, '_alias', None)
+            return getattr(self, '_alias', self.name)
+        return getattr(self, 'name', '')
+
+    @property
+    def json_alias(self):
+        """
+        Get Item object alias - JSON encoded alias
+        Single or double quotes are properly escaped for HTML pages
+        """
+        if hasattr(self, '_alias') and getattr(self, '_alias', None):
+            # Sanitize string to make it usable in Javascript
+            json_alias = getattr(self, '_alias', self.name)
+            json_alias = json_alias.replace("'", "\\'")
+            json_alias = json_alias.replace('"', '\\"')
+            return json_alias
         return getattr(self, 'name', '')
 
     @alias.setter

@@ -467,6 +467,7 @@ class TestItems(unittest2.TestCase):
         assert item2.foo_int == 1
         assert item.name == 'anonymous'
         assert item.alias == 'anonymous'
+        assert item.json_alias == 'anonymous'
         assert item.notes == ''
 
         # Same objects!
@@ -605,6 +606,68 @@ class TestItems(unittest2.TestCase):
 
         assert item.name == 'anonymous'
         assert item.alias == 'Item alias'
+        assert item.notes == 'Item notes'
+        assert item.status == 'unknown'
+
+        # Alias containing specific character
+        now = datetime.now()
+        parameters = {
+            'alias': 'Item "alias"',
+            'notes': 'Item notes',
+            'foo': 'bar', 'foo_int': 1,
+            'foo_date': '2016-04-01 10:58:13',
+            'now_date': now,
+            'dict_param': {
+                'param1': 1,
+                'param2': '2'
+            }
+        }
+        item = BackendElement(parameters, date_format='%Y-%m-%d %H:%M:%S')
+        print(item.__dict__)
+        assert item._id == 'item_4'  # New object
+        assert item.foo == 'bar'
+        assert item.foo_int == 1
+        assert item.foo_date == 1459508293
+        assert item.now_date == timegm(now.timetuple())
+        assert item.dict_param
+        print(item.dict_param)
+        assert item.dict_param['param1'] == 1
+        assert item.dict_param['param2'] == '2'
+
+        assert item.name == 'anonymous'
+        assert item.alias == 'Item "alias"'
+        assert item.json_alias == 'Item \\"alias\\"'
+        assert item.notes == 'Item notes'
+        assert item.status == 'unknown'
+
+        # Alias containing specific character (bis)
+        now = datetime.now()
+        parameters = {
+            'alias': "Item 'alias'",
+            'notes': 'Item notes',
+            'foo': 'bar', 'foo_int': 1,
+            'foo_date': '2016-04-01 10:58:13',
+            'now_date': now,
+            'dict_param': {
+                'param1': 1,
+                'param2': '2'
+            }
+        }
+        item = BackendElement(parameters, date_format='%Y-%m-%d %H:%M:%S')
+        print(item.__dict__)
+        assert item._id == 'item_5'  # New object
+        assert item.foo == 'bar'
+        assert item.foo_int == 1
+        assert item.foo_date == 1459508293
+        assert item.now_date == timegm(now.timetuple())
+        assert item.dict_param
+        print(item.dict_param)
+        assert item.dict_param['param1'] == 1
+        assert item.dict_param['param2'] == '2'
+
+        assert item.name == 'anonymous'
+        assert item.alias == "Item 'alias'"
+        assert item.json_alias == "Item \\'alias\\'"
         assert item.notes == 'Item notes'
         assert item.status == 'unknown'
 
