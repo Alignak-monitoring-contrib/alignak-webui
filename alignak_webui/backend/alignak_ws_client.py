@@ -50,11 +50,10 @@ class AlignakWSException(Exception):  # pragma: no cover, not used currently
     Defined error codes:
 
     - 1000: general exception, message contains more information
-    - 1001: backend access denied
-    - 1002: backend connection timeout
-    - 1003: backend uncatched HTTPError
-    - 1004: backend token not provided on login, user is not yet authorized to log in
-    - 1005: If-Match header is required for patching an object"""
+    - 1001: WS access denied
+    - 1002: WS connection timeout
+    - 1003: WS uncatched HTTPError
+    """
 
     def __init__(self, code, message, response=None):
         # Call the base class constructor with the parameters it needs
@@ -239,15 +238,19 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                 response.raise_for_status()
 
             except RequestsConnectionError as exp:
-                logger.exception("Backend connection error, error: %s", exp)
+                logger.exception("WS connection error, error: %s", exp)
                 raise AlignakWSException(1000, "Alignak Web Services connection error")
 
             except HTTPError as exp:  # pragma: no cover - need specific backend tests
                 if exp.response.status_code == 404:
                     raise AlignakWSException(404, 'Not found')
 
-                logger.exception("Backend HTTP error, error: %s", exp)
+                logger.exception("WS HTTP error, error: %s", exp)
                 raise AlignakWSException(1003, "Backend HTTPError: %s / %s" % (type(exp), str(exp)))
+
+            except Exception as exp:
+                logger.exception("WS exception, error: %s", exp)
+                raise AlignakWSException(1000, "Alignak Web Services connection error")
 
             return response.json()
 
