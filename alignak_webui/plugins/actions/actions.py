@@ -24,6 +24,7 @@
 """
 
 import json
+import time
 from logging import getLogger
 from copy import deepcopy
 
@@ -458,6 +459,7 @@ class PluginActions(Plugin):
 
                 # Prepare post request ...
                 data = {
+                    'timestamp': int(time.time()),
                     'command': command,
                     'element': element.name,
                     'parameters': ';'.join(parameters)
