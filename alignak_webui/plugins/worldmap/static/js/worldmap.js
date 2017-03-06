@@ -179,19 +179,20 @@ mapInit = function(map_id, callback) {
     loadScripts(scripts, function() {
         if (debugMaps) console.log('Scripts loaded')
 
-        $map = L.map(map_id, {zoom: defaultZoom, center: defaultCenter});
+        $map = L.map(map_id, {zoom: 9, center: defaultCenter});
         if (debugMaps) console.log('Map object: ', map_id, $map)
 
         L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'}).addTo($map);
 
         // Markers ...
         var allMarkers = [];
-        var bounds = new L.LatLngBounds();
+        var bounds = new L.LatLngBounds(defaultCenter);
         if (debugMaps) console.log("Initial map bounds:", bounds);
         for (var i = 0; i < hosts.length; i++) {
             var h = hosts[i];
             bounds.extend(h.location());
             allMarkers.push(markerCreate($map, h));
+            if (debugMaps) console.log("- extending map bounds:", bounds);
         }
         if (debugMaps) console.log("Extended map bounds:", bounds);
 
@@ -203,6 +204,7 @@ mapInit = function(map_id, callback) {
 
         // Build marker cluster
         var markerCluster = L.markerClusterGroup({
+            spiderfyDistanceMultiplier: 2,
             iconCreateFunction: function(cluster) {
                 // Manage markers in the cluster ...
                 var markers = cluster.getAllChildMarkers();
@@ -229,6 +231,7 @@ mapInit = function(map_id, callback) {
         });
         markerCluster.addLayers(allMarkers);
         $map.addLayer(markerCluster);
+        //$map.fitBounds(markerCluster.getBounds());
 
         allMaps.push($map);
 
