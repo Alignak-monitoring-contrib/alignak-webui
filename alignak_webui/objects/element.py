@@ -106,7 +106,7 @@ class BackendElement(object):
 
     @classmethod
     def get_known_classes(cls):
-        """ Get protected member """
+        """Get protected member"""
         return cls._known_classes
 
     @classmethod
@@ -116,37 +116,37 @@ class BackendElement(object):
 
     @classmethod
     def get_backend(cls):
-        """ Get protected member """
+        """Get protected member"""
         return cls._backend
 
     @classmethod
     def set_backend(cls, backend):
-        """ Set protected member _backend """
+        """Set protected member _backend"""
         cls._backend = backend
 
     @classmethod
     def get_type(cls):
-        """ Get protected member """
+        """Get protected member"""
         return cls._type
 
     @classmethod
     def get_count(cls):
-        """ Get protected member """
+        """Get protected member"""
         return cls._count
 
     @classmethod
     def get_total_count(cls):
-        """ Get protected member """
+        """Get protected member"""
         return cls._total_count
 
     @classmethod
     def set_total_count(cls, count):
-        """ Set protected member _total_count """
+        """Set protected member _total_count"""
         cls._total_count = count
 
     @classmethod
     def get_cache(cls):
-        """ Get protected member """
+        """Get protected member"""
         return cls._cache
 
     @classmethod
@@ -270,8 +270,7 @@ class BackendElement(object):
         return cls._cache[_id]
 
     def _delete(self):
-        """
-        Delete an object
+        """Delete an object
 
         If the object exists in the cache, its reference is removed from the internal cache.
         """
@@ -517,15 +516,13 @@ class BackendElement(object):
 
     @property
     def object_type(self):
-        """
-        Get Item object type
-        """
+        """Get Item object type"""
         return self._type
 
     @property
     def id(self):
-        """
-        Get Item object identifier
+        """Get Item object identifier
+
         A class inheriting from an Item can define its own `id_property`
         """
         if hasattr(self.__class__, 'id_property'):
@@ -534,26 +531,22 @@ class BackendElement(object):
 
     @property
     def updated(self):
-        """
-        Get Item update date as a timestamp
-        """
+        """Get Item update date as a timestamp"""
         if hasattr(self, '_updated'):
             return self._updated
         return self._default_date
 
     @property
     def created(self):
-        """
-        Get Item creation date as a timestamp
-        """
+        """Get Item creation date as a timestamp"""
         if hasattr(self, '_created'):
             return self._created
         return self._default_date
 
     @property
     def name(self):
-        """
-        Get Item object name
+        """Get Item object name
+
         A class inheriting from an Item can define its own `name_property`
         """
         if hasattr(self.__class__, 'name_property'):
@@ -562,22 +555,16 @@ class BackendElement(object):
 
     @property
     def endpoint(self):
-        """
-        Get Item endpoint (page url)
-        """
+        """Get Item endpoint (page url)"""
         return '/%s/%s' % (self.object_type, self.name)
 
     @property
     def html_link(self):
-        """
-        Get Item html link
-        """
-        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.alias, self.name)
+        """Get Item html link"""
+        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.json_alias, self.name)
 
     def get_html_link(self, prefix=None, title=None):
-        """
-        Get Item html link with an optional prefix and an optional title
-        """
+        """Get Item html link with an optional prefix and an optional title"""
         if prefix is not None:
             return '<a href="%s%s">%s</a>' % (
                 prefix, self.endpoint, self.alias if not title else title
@@ -588,21 +575,17 @@ class BackendElement(object):
 
     @property
     def html_state_link(self):
-
         """Get Item html link with state"""
-
         return '<a href="%s">%s</a>' \
-               % (self.endpoint, self.get_html_state(text=self.alias, title=self.alias))
+               % (self.endpoint, self.get_html_state(text=self.json_alias, title=self.json_alias))
 
     def get_html_state_link(self, prefix=None, title=None):
-
         """Get Item html link with state and an optional prefix"""
-
         if prefix is not None:
             return '<a href="%s%s">%s</a>' \
                    % (prefix, self.endpoint,
-                      self.get_html_state(text=self.alias,
-                                          title=self.alias if not title else title))
+                      self.get_html_state(text=self.json_alias,
+                                          title=self.json_alias if not title else title))
         if title:
             return '<a href="%s" title="%s">%s</a>' \
                    % (self.endpoint, title, self.get_html_state(text=self.alias, title=title))
@@ -611,9 +594,7 @@ class BackendElement(object):
 
     @name.setter
     def name(self, name):
-        """
-        Set Item object name
-        """
+        """Set Item object name"""
         if hasattr(self.__class__, 'name_property'):
             setattr(self, self.__class__.name_property, name)
         else:
@@ -621,25 +602,34 @@ class BackendElement(object):
 
     @property
     def alias(self):
-        """
-        Get Item object alias
-        A class inheriting from an Item can define its own `name_property`
+        """Get Item object alias - raw form"""
+        if hasattr(self, '_alias') and getattr(self, '_alias', None):
+            return getattr(self, '_alias', self.name)
+        return getattr(self, 'name', '')
+
+    @property
+    def json_alias(self):
+        """Get Item object alias - JSON encoded alias
+
+        Single or double quotes are properly escaped for HTML pages
         """
         if hasattr(self, '_alias') and getattr(self, '_alias', None):
-            return getattr(self, '_alias', None)
+            # Sanitize string to make it usable in Javascript
+            json_alias = getattr(self, '_alias', self.name)
+            json_alias = json_alias.replace("'", "\\'")
+            json_alias = json_alias.replace('"', '\\"')
+            return json_alias
         return getattr(self, 'name', '')
 
     @alias.setter
     def alias(self, alias):
-        """
-        Set Item object alias
-        """
+        """Set Item object alias"""
         self._alias = alias
 
     @property
     def notes(self):
-        """
-        Get Item object notes
+        """Get Item object notes
+
         A class inheriting from an Item can define its own `comment_property`
         """
         if hasattr(self.__class__, 'comment_property'):
@@ -648,8 +638,8 @@ class BackendElement(object):
 
     @notes.setter
     def notes(self, notes):
-        """
-        Get Item object notes
+        """Get Item object notes
+
         A class inheriting from an Item can define its own `comment_property`
         """
         if hasattr(self.__class__, 'comment_property'):
@@ -659,8 +649,8 @@ class BackendElement(object):
 
     @property
     def status(self):
-        """
-        Get Item object status
+        """Get Item object status
+
         A class inheriting from an Item can define its own `status_property`
         """
         if hasattr(self.__class__, 'status_property'):
@@ -669,8 +659,8 @@ class BackendElement(object):
 
     @status.setter
     def status(self, status):
-        """
-        Get Item object status
+        """Get Item object status
+
         A class inheriting from an Item can define its own `status_property`
         """
         if hasattr(self.__class__, 'status_property'):
@@ -680,8 +670,8 @@ class BackendElement(object):
 
     @property
     def total_count(self):
-        """
-        Get Item total count
+        """Get Item total count
+
         BackendElement has an _total set by the BackendConnection get method...
         """
         if hasattr(self, '_total'):
@@ -690,28 +680,22 @@ class BackendElement(object):
 
     @property
     def is_problem(self):
-        """
-        An element is never a problem except if it overloads this method
-        """
+        """An element is never a problem except if it overloads this method"""
         return False
 
     @property
     def acknowledged(self):
-        """
-        An element is never acknowledged except if it overloads this method
-        """
+        """An element is never acknowledged except if it overloads this method"""
         return False
 
     @property
     def downtime(self):
-        """
-        An element is never in a downtime except if it overloads this method
-        """
+        """An element is never in a downtime except if it overloads this method"""
         return False
 
     def get_state(self):
-        """
-        Get Item object state
+        """Get Item object state
+
         A class inheriting from an Item can define its own `state_property`
 
         !!!!! TO BE COMPLETED !!!!
@@ -728,9 +712,7 @@ class BackendElement(object):
                        title='', disabled=False, object_type=None, object_item=None,
                        size='', use_status=None):
         # pylint: disable=too-many-arguments
-        """
-        Uses the ElementState singleton to display HTML state for an item
-        """
+        """Uses the ElementState singleton to display HTML state for an item"""
         if not object_type:
             object_type = self.object_type
 
@@ -742,8 +724,7 @@ class BackendElement(object):
                                              use_status)
 
     def get_date(self, _date, fmt=None, duration=False):
-        """
-        Format the provided `_date` as a string according to the specified format.
+        """Format the provided `_date` as a string according to the specified format.
 
         If no date format is specified, it uses the one defined in the ElementState object that is
         the date format defined in the application configuration.

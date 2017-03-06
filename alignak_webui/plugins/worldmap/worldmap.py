@@ -253,12 +253,12 @@ class PluginWorldmap(Plugin):
                 ))
                 services_iw += svc_iw
 
-            logger.info("worldmap, host '%s' services: %s", host.name, services)
+            logger.debug("worldmap, host '%s' services: %s", host.name, services)
             map_host.update({'services': services})
 
             host_iw = host_iw.replace("##services##", services_iw)
             map_host.update({'content': host_iw})
-            logger.info("worldmap, host '%s' info view: %s", host.name, map_host['content'])
+            # logger.debug("worldmap, host '%s' info view: %s", host.name, map_host['content'])
 
             valid_hosts.append(map_host)
 
