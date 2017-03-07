@@ -100,6 +100,8 @@ class PluginMinemap(Plugin):
         minemap = []
         columns = []
         for host in hosts:
+            # Each item contains the total number of records matching the search filter
+            total = host['_total']
             minemap_row = {'host_check': host}
 
             # Get all host services
@@ -112,7 +114,7 @@ class PluginMinemap(Plugin):
                 all_elements=True, embedded=False
             )
             for service in services:
-                columns.append(service.alias)
+                columns.append(service.name)
                 minemap_row.update({service.name: service})
 
             minemap.append(minemap_row)
@@ -122,7 +124,7 @@ class PluginMinemap(Plugin):
         columns = [c for c, dummy in count_columns.most_common()]
 
         # Get last total elements count
-        total = datamgr.get_objects_count('host', search=search, refresh=True)
+        # total = datamgr.get_objects_count('host', search=search, refresh=True)
 
         return {
             'search_engine': self.search_engine,
