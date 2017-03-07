@@ -47,18 +47,21 @@ class PluginMinemap(Plugin):
             'show_minemap': {
                 'name': 'Minemap',
                 'route': '/minemap',
-                'view': 'minemap',
-                'search_engine': True,
-                'search_prefix': '',
-                'search_filters': {
-                    '01': (_('Hosts'), '_is_template:false'),
-                    '02': ('', ''),
-                    '03': (_('Hosts templates'), '_is_template:true')
-                },
+                'view': 'minemap'
             }
         }
 
         super(PluginMinemap, self).__init__(app, webui, cfg_filenames)
+
+        self.search_engine = True
+        self.search_filters = {
+            '01': (_('Ok'), 'is:ok'),
+            '02': (_('Acknowledged'), 'is:acknowledged'),
+            '03': (_('Downtimed'), 'is:in_downtime'),
+            '04': (_('Warning'), 'is:warning'),
+            '05': (_('Critical'), 'is:warning'),
+            '06': ('', ''),
+        }
 
     def show_minemap(self):
         # Yes, but that's how it is made, and it suits ;)
@@ -122,6 +125,8 @@ class PluginMinemap(Plugin):
         total = datamgr.get_objects_count('host', search=search, refresh=True)
 
         return {
+            'search_engine': self.search_engine,
+            'search_filters': self.search_filters,
             'params': self.plugin_parameters,
             'minemap': minemap,
             'columns': columns,

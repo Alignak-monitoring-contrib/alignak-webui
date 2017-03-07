@@ -92,6 +92,16 @@ class PluginWorldmap(Plugin):
 
         super(PluginWorldmap, self).__init__(app, webui, cfg_filenames)
 
+        self.search_engine = True
+        self.search_filters = {
+            '01': (_('Ok'), 'is:ok'),
+            '02': (_('Acknowledged'), 'is:acknowledged'),
+            '03': (_('Downtimed'), 'is:in_downtime'),
+            '04': (_('Warning'), 'is:warning'),
+            '05': (_('Critical'), 'is:warning'),
+            '06': ('', ''),
+        }
+
         bis = self.plugin_parameters.get('hosts_business_impacts',
                                          '0,1,2,3,4,5').replace(' ', '').split(',')
         if not bis:
@@ -158,6 +168,8 @@ class PluginWorldmap(Plugin):
                                                 self.plugin_parameters.get('map_height', "100%"))
 
         return {
+            'search_engine': self.search_engine,
+            'search_filters': self.search_filters,
             'options_panel': False,
             'mapId': 'hostsMap',
             'mapStyle': map_style,

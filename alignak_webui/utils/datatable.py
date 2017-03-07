@@ -306,7 +306,7 @@ class Datatable(object):
             }
         }
 
-    def table_data(self):
+    def table_data(self, data_model):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
         """Return elements data in json format as of Datatables SSP protocol
@@ -485,45 +485,25 @@ class Datatable(object):
 
         # Global search parameter
         # search:{"value":"test","regex":false}
-        s_global = []
+        s_global = {}
         # pylint: disable=too-many-nested-blocks
         # Will be too complex else ...
         if 'search' in params and 'columns' in params and params['search']:
             # params['search'] contains something like: {u'regex': False, u'value': u'name:pi1'}
             # global regex is always ignored ... in favor of the column declared regex
-            logger.info("Global search requested: %s ", params['search'])
+            logger.info("global search requested: %s ", params['search'])
             if 'value' in params['search'] and params['search']['value']:
                 # There is something to search for...
                 logger.debug("search requested, value: %s ", params['search']['value'])
 
                 # New strategy: decode search patterns...
-                search = Helper.decode_search(params['search']['value'], self.table_columns)
-                logger.info("Decoded search pattern: %s", search)
-                for key, pattern in search.iteritems():
-                    logger.debug("global search pattern '%s' / '%s'", key, pattern)
-                    column = [c for c in self.table_columns if c['data'] == key]
-                    if not column:
-                        logger.warning("global search, not found: %s in table fields", key)
-                        continue
-
-                    column = column[0]
-                    logger.info("global search pattern, found column: %s", column)
-                    if not column['searchable']:
-                        logger.warning("global search, field '%s' is not searchable", key)
-                        continue
-
-                    if column['regex']:
-                        s_global.append(
-                            {column['data']: {
-                                "$regex": ".*" + pattern + ".*"}})
-                    else:
-                        s_global.append({column['data']: pattern})
+                search = Helper.decode_search(params['search']['value'], data_model)
+                logger.info("decoded search pattern: %s", search)
 
                 # Old strategy: search for the value in all the searchable columns...
                 if not search:
+                    logger.info("applying datatable search pattern...")
                     for column in params['columns']:
-                        logger.info("search global '%s' for '%s'",
-                                    column['data'], params['search']['value'])
                         if not column['searchable']:
                             continue
                         logger.debug("search global '%s' for '%s'",
@@ -535,18 +515,16 @@ class Datatable(object):
                                         "$regex": ".*" + params['search']['value'] + ".*"}})
                             else:
                                 s_global.append({column['data']: params['search']['value']})
+                s_global = search
 
             logger.info("backend search global parameters: %s", s_global)
 
         if s_columns and s_global:
-            parameters['where'] = {"$and": [
-                {"$and": s_columns},
-                {"$or": s_global}
-            ]}
+            parameters['where'] = {"$and": [{"$and": s_columns}, s_global]}
         elif s_columns:
             parameters['where'] = {"$and": s_columns}
         elif s_global:
-            parameters['where'] = {"$or": s_global}
+            parameters['where'] = s_global
 
         # Embed linked resources / manage templated resources
         parameters['embedded'] = {}
@@ -600,21 +578,22 @@ class Datatable(object):
                 "data": []
             })
 
+        # Update table inner properties with the object class defined properties
         object_class = object_class[0]
-        bo_object = object_class()
 
-        # Update inner properties
         self.id_property = '_id'
-        if hasattr(bo_object.__class__, 'id_property'):
-            self.id_property = bo_object.__class__.id_property
+        if hasattr(object_class, 'id_property'):
+            self.id_property = object_class.id_property
         self.name_property = 'name'
-        if hasattr(bo_object.__class__, 'name_property'):
-            self.name_property = bo_object.__class__.name_property
+        if hasattr(object_class, 'name_property'):
+            self.name_property = object_class.name_property
         self.status_property = 'status'
-        if hasattr(bo_object.__class__, 'status_property'):
-            self.status_property = bo_object.__class__.status_property
+        if hasattr(object_class, 'status_property'):
+            self.status_property = object_class.status_property
+        logger.debug("datatable, object type: '%s' and properties: %s / %s / %s",
+                     object_class, self.id_property, self.name_property, self.status_property)
 
-        # Change item content ...
+        # Change item content...
         rows = []
         # Total number of filtered records
         self.records_filtered = self.records_total
@@ -628,24 +607,24 @@ class Datatable(object):
             row['DT_RowData'] = {}
             row['_id'] = bo_object.id
             for field in self.table_columns:
-                if field['hidden']:
-                    logger.critical("field %s is not declared as visible.", field['data'])
-                    continue
-
                 # Specific fields
                 if field['data'] == self.name_property:
-                    # item[field] = bo_object.get_html_link(prefix=request.params.get('links'))
+                    # Create a link to navigate to the item page
                     row[self.name_property] = bo_object.html_link
+                    # Store the item name in a specific field of the row.
+                    # The value will be retrieved by the table actions (ack, recheck, ...)
                     row['DT_RowData'].update({"object_%s" % self.object_type: bo_object.name})
                     continue
 
                 if field['data'] == self.status_property:
+                    # Replace the text status with the specific item HTML state
                     row[self.status_property] = bo_object.get_html_state(text=None)
-                    row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
+                    # Use the item status to specify the table row class
+                    # row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
                     continue
 
                 if field['data'] in ['_overall_state_id', 'overall_state']:
-                    # Get elements from the data manager
+                    # Get the item overall state from the data manager
                     f_get_overall_state = getattr(self.datamgr,
                                                   'get_%s_overall_state' % self.object_type)
                     if f_get_overall_state:
@@ -656,33 +635,39 @@ class Datatable(object):
                             self.object_type, bo_object,
                             text=None, use_status=overall_status
                         )
+                        # Use the item overall state to specify the table row class
                         row['DT_RowClass'] = "table-row-%s" % (overall_status)
                     else:
+                        logger.warning("Missing get_overall_state method for: %s", self.object_type)
                         row[field['data']] = 'XxX'
                     continue
 
-                if field['data'] == "alias":
-                    row[field['data']] = bo_object.alias
-                    continue
-
-                if field['data'] == "notes":
-                    row[field['data']] = bo_object.notes
-                    continue
-
+                # if field['data'] == "alias":
+                #     row[field['data']] = bo_object.alias
+                #     continue
+                #
+                # if field['data'] == "notes":
+                #     row[field['data']] = bo_object.notes
+                #     continue
+                #
                 if "business_impact" in field['data']:
+                    # Replace the BI count with the specific item HTML formatting
                     row[field['data']] = Helper.get_html_business_impact(bo_object.business_impact)
                     continue
 
                 # Specific fields type
                 if field['type'] == 'datetime':
+                    # Replace the timestamp with the formatted date
                     row[field['data']] = bo_object.get_date(bo_object[field['data']])
                     continue
 
                 if field['type'] == 'boolean':
+                    # Replace the boolean vaue with the specific item HTML formatting
                     row[field['data']] = Helper.get_on_off(bo_object[field['data']])
                     continue
 
                 if field['type'] == 'list':
+                    # Replace the list with the specific list HTML formatting
                     if hasattr(bo_object, field['data']):
                         row[field['data']] = Helper.get_html_item_list(
                             bo_object.id, field['data'],
@@ -693,6 +678,7 @@ class Datatable(object):
                     continue
 
                 if field['type'] == 'dict':
+                    # Replace the dictionary with the specific dict HTML formatting
                     row[field['data']] = Helper.get_html_item_list(
                         bo_object.id, field['data'],
                         getattr(bo_object, field['data']), title=field['title']
@@ -704,18 +690,19 @@ class Datatable(object):
                         row[field['data']] = bo_object[field['data']].get_html_link(
                             prefix=request.params.get('links')
                         )
-                        row['DT_RowData'].update({
-                            "object_%s" % field['data']: bo_object[field['data']].name
-                        })
+                        # row['DT_RowData'].update({
+                        #     "object_%s" % field['data']: bo_object[field['data']].name
+                        # })
                     else:
-                        logger.debug("Table field object is not an object: %s, %s = %s",
-                                     bo_object.name, field['data'],
-                                     getattr(bo_object, field['data']))
+                        logger.warning("Table field is supposed to be an object: %s, %s = %s",
+                                       bo_object.name, field['data'],
+                                       getattr(bo_object, field['data']))
                         row[field['data']] = getattr(bo_object, field['data'])
                         if row[field['data']] == field['resource']:
                             row[field['data']] = '...'
                     continue
 
+                # For ny non-specific fields, send the firled value to the table
                 row[field['data']] = getattr(bo_object, field['data'])
             logger.debug("table data row: %s", row)
 

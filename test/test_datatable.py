@@ -390,7 +390,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 90
+        assert response.json['recordsFiltered'] == 88
         assert response.json['data']
         assert len(response.json['data']) == 5
 

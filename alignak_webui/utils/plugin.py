@@ -73,6 +73,7 @@ class Plugin(object):
         # If the default search engine must not be present on the pages, the inherited
         # class must set this to False
         self.search_engine = True
+        self.search_filters = {}
 
         # Those backend endpoints are templated
         self.templated = False
@@ -151,13 +152,6 @@ class Plugin(object):
                         'name': 'All %s' % self.name,
                         'route': '/%ss' % self.backend_endpoint,
                         'view': '%ss' % self.backend_endpoint,
-                        'search_engine': self.search_engine,
-                        'search_prefix': '',
-                        'search_filters': {
-                            '01': (_('Hosts'), '_is_template:false'),
-                            '02': ('', ''),
-                            '03': (_('Hosts templates'), '_is_template:true')
-                        },
                     }
                 })
 
@@ -194,13 +188,6 @@ class Plugin(object):
                         'name': '%s table' % self.name,
                         'route': '/%ss/table' % self.backend_endpoint,
                         'view': '_table',
-                        'search_engine': self.search_engine,
-                        'search_prefix': '',
-                        'search_filters': {
-                            '01': (_('Hosts'), '_is_template:false'),
-                            '02': ('', ''),
-                            '03': (_('Hosts templates'), '_is_template:true')
-                        },
                         'tables': [
                             {
                                 'id': '%ss_table' % self.backend_endpoint,
@@ -228,7 +215,6 @@ class Plugin(object):
                         'name': '%s templates table' % self.name,
                         'route': '/%ss/templates/table' % self.backend_endpoint,
                         'view': '_table',
-                        'search_engine': self.search_engine,
                         'tables': [
                             {
                                 'id': '%ss_table' % self.backend_endpoint,
@@ -312,12 +298,7 @@ class Plugin(object):
 
             for route_url, name in page_route:
                 logger.debug("route: %s -> %s", route_url, name)
-                f = app.route(
-                    route_url, callback=f, method=methods, name=name,
-                    search_engine=entry.get('search_engine', False),
-                    search_prefix=entry.get('search_prefix', ''),
-                    search_filters=entry.get('search_filters', {})
-                )
+                f = app.route(route_url, callback=f, method=methods, name=name)
 
                 # Register plugin element list route
                 if route_url == ('/%ss/list' % self.backend_endpoint):
@@ -890,16 +871,24 @@ class Plugin(object):
         # Table filtering: default is to restore the table saved filters
         where = {'saved_filters': True}
         if request.query.get('search') is not None:
-            where = Helper.decode_search(request.query.get('search', ''), self.table)
+            # where = Helper.decode_search(request.query.get('search', ''), self.table)
+            where = request.query.get('search', {'saved_filters': True})
 
         # Build table structure
         dt = Datatable(self.backend_endpoint, request.app.datamgr, self.table, templates=templates)
 
+        # Build page title
+        title = dt.title
+        if '%d' in title:
+            title = title % dt.records_total
+
         return {
+            'search_engine': self.search_engine,
+            'search_filters': self.search_filters,
             'object_type': self.backend_endpoint,
             'dt': dt,
             'where': where,
-            'title': request.query.get('title', dt.title),
+            'title': request.query.get('title', title),
             'embedded': embedded,
             'identifier': identifier,
             'credentials': credentials
@@ -918,7 +907,7 @@ class Plugin(object):
 
         response.status = 200
         response.content_type = 'application/json'
-        return dt.table_data()
+        return dt.table_data(self.table)
 
     def get_templates_table_data(self):
         """Get the table data (requested from the table)"""

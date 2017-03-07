@@ -375,18 +375,14 @@ class Helper(object):
     @staticmethod
     def decode_search(query, data_model):
         # Not possible to do it clearly with simplification...
-        # pylint: disable=too-many-nested-blocks
+        # pylint: disable=too-many-nested-blocks, too-many-locals, redefined-variable-type
         """Decode a search string:
 
         Convert string from:
-            isnot:0 isnot:ack isnot:"downtime fred" name "vm fred"
-        to:
-            {
-                'isnot': 0,
-                'isnot':'ack',
-                'name': name,
-                'name': 'vm fred'
-            }
+            isnot:0 isnot:ack isnot:"downtime fred" name:"vm fred"
+        to a backend search query expression.
+
+        Search string is documented in the `modal_search_help.tpl` file
 
         :param query: search string
         :param data_model: table data model as built by the DataTable class
@@ -430,14 +426,28 @@ class Helper(object):
         parameters = {}
         try:
             for field in qualifiers:
+                search_state = False
                 field = field.lower()
                 patterns = qualifiers[field]
                 logger.debug("decode_search, searching for '%s' '%s'", field, patterns)
 
+                # Specific search fields, the live state
+                if field in ['is', 'isnot']:
+                    search_state = True
+                    field = 'overall_state'
+                    if field == 'isnot':
+                        for pattern in patterns:
+                            pattern = '!' + pattern
+                            logger.debug("decode_search, update pattern: %s", pattern)
+
+                # Specific search fields, business impact
+                if field in ['bi']:
+                    field = 'business_impact'
+
                 # Get the column definition for the searched field
                 if field not in data_model:
                     if 'ls_' + field not in data_model:
-                        logger.warning("decode_search, unknown column %s in table fields", field)
+                        logger.warning("decode_search, unknown column '%s' in table fields", field)
                         continue
                     # live state fields
                     field = 'ls_' + field
@@ -451,10 +461,38 @@ class Helper(object):
                     logger.warning("decode_search, field '%s' is not searchable", field)
                     continue
 
-                regex = c_def.get('regex', True)
+                field_type = c_def.get('type', 'string')
+                if search_state or field_type in ['integer', 'float', 'boolean']:
+                    regex = False
+                else:
+                    regex = c_def.get('regex', True)
+
                 for pattern in patterns:
                     logger.debug("decode_search, pattern: %s", pattern)
                     not_value = pattern.startswith('!')
+                    if not_value:
+                        pattern = pattern[1:]
+
+                    if search_state:
+                        allowed_values = c_def.get('allowed', '').split(',')
+                        logger.debug("decode_search, allowed values: %s", allowed_values)
+                        if pattern.lower() not in allowed_values:
+                            logger.warning("decode_search, ignoring unallowed "
+                                           "search pattern: %s = %s", field, pattern)
+                            continue
+                        field = '_overall_state_id'
+                        pattern = allowed_values.index(pattern.lower())
+                    else:
+                        # Specific field type
+                        if field_type == 'integer':
+                            pattern = int(pattern)
+                        if field_type == 'float':
+                            pattern = float(pattern)
+                        if field_type == 'boolean':
+                            if pattern in ['0', 'no', 'No', 'false', 'False']:
+                                pattern = False
+                            else:
+                                pattern = True
 
                     if field in parameters:
                         # We already have a field search pattern, let's build a list...
@@ -468,13 +506,13 @@ class Helper(object):
                         if regex:
                             if not_value:
                                 parameters[field]['pattern'].append(
-                                    {"$regex": "/^((?!%s).)*$/" % pattern[1:]})
+                                    {"$regex": "/^((?!%s).)*$/" % pattern})
                             else:
                                 parameters[field]['pattern'].append(
                                     {"$regex": ".*%s.*" % pattern})
                         else:
                             if not_value:
-                                pattern = {"$ne": {field: pattern[1:]}}
+                                pattern = {"$ne": pattern}
                             parameters[field]['pattern'].append(pattern)
                         continue
 
@@ -482,12 +520,14 @@ class Helper(object):
                         if not_value:
                             parameters.update(
                                 {field: {'type': 'simple',
-                                         'pattern': {"$regex": "/^((?!%s).)*$/" % pattern[1:]}}})
+                                         'pattern': {"$regex": "/^((?!%s).)*$/" % pattern}}})
                         else:
                             parameters.update(
                                 {field: {'type': 'simple',
                                          'pattern': {"$regex": ".*%s.*" % pattern}}})
                     else:
+                        if not_value:
+                            pattern = {"$ne": pattern}
                         parameters.update({field: {'type': 'simple', 'pattern': pattern}})
 
                     logger.info("decode_search, - parameters: %s", parameters)
@@ -505,9 +545,24 @@ class Helper(object):
                     patterns.append({field: pattern})
                 query.update({'$or': patterns})
             elif search_type['type'] == '$in':
-                query.update({field: {'$in': search_type['pattern']}})
-            elif search_type['type'] == 'ne':
-                query.update({field: {'ne': search_type['pattern']}})
+                logger.warning("decode_search, - $in query: %s", search_type['pattern'])
+                included = []
+                excluded = []
+                for pattern in search_type['pattern']:
+                    if isinstance(pattern, dict):
+                        if '$ne' in pattern:
+                            excluded.append(pattern['$ne'])
+                    else:
+                        included.append(pattern)
+                if included and excluded:
+                    query.update({field: {'$in': included, '$nin': excluded}})
+                else:
+                    if included:
+                        query.update({field: {'$in': included}})
+                    if excluded:
+                        query.update({field: {'$nin': excluded}})
+            elif search_type['type'] == '$ne':
+                query.update({field: {'$ne': search_type['pattern']}})
 
         logger.info("decode_search, parameters: %s", query)
         return query
