@@ -146,14 +146,25 @@ class PluginWorldmap(Plugin):
             'sort': '-_id',
             'where': where
         }
-        # Only get hosts which business impact is configured...
-        logger.debug("worldmap, only hosts with BI in: %s",
-                     self.plugin_parameters['hosts_business_impacts'])
-        search['where'].update(
-            {'business_impact': {'$in': self.plugin_parameters['hosts_business_impacts']}})
+        if self.plugin_parameters.get('hosts_business_impacts'):
+            # Only get hosts which business impact is configured...
+            logger.debug("worldmap, only hosts with BI in: %s",
+                         self.plugin_parameters['hosts_business_impacts'])
+            search['where'].update(
+                {'business_impact': {'$in': self.plugin_parameters['hosts_business_impacts']}})
+        if self.plugin_parameters.get('hosts_included'):
+            # Include some hosts...
+            logger.debug("worldmap, included hosts: %s", self.plugin_parameters['hosts_included'])
+            search['where'].update({'name': {
+                "$regex": self.plugin_parameters['hosts_included']}})
+        if self.plugin_parameters.get('hosts_excluded'):
+            # Exclude some hosts...
+            logger.debug("worldmap, excluded hosts: %s", self.plugin_parameters['hosts_excluded'])
+            search['where'].update({'name': {
+                "$regex": "^((?!%s).)*$" % self.plugin_parameters['hosts_excluded']}})
 
         # Do not include the embedded fields to improve the loading time...
-        hosts = datamgr.get_hosts(search, embedded=True)
+        hosts = datamgr.get_hosts(search, embedded=False)
 
         # Get valid hosts
         valid_hosts = self.get_valid_elements(hosts)
@@ -236,14 +247,19 @@ class PluginWorldmap(Plugin):
             ))
 
             # Get host services
-            # todo: using a projection with selected fields may help to improve
+            # todo: using a projection with selected fields may help to improve more?
             search = {
-                # 'projection': json.dumps({
-                #     "_id": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1,
-                #     "": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1
-                # })
+                'sort': '-_overall_state_id,name',
+                'where': {}
             }
-            services = datamgr.get_host_services(host, search=search)
+            if self.plugin_parameters.get('services_excluded'):
+                search['where'].update({'name': {
+                    "$regex": "^((?!%s).)*$" % self.plugin_parameters['services_excluded']}})
+            if self.plugin_parameters.get('services_included'):
+                search['where'].update({'name': {
+                    "$regex": self.plugin_parameters['services_included']}})
+
+            services = datamgr.get_host_services(host, search=search, embedded=False)
             services_iw = ""
             for service in services:
                 svc_iw = self.plugin_parameters['service_info_content']
@@ -265,7 +281,7 @@ class PluginWorldmap(Plugin):
                 ))
                 services_iw += svc_iw
 
-            logger.debug("worldmap, host '%s' services: %s", host.name, services)
+            logger.info("worldmap, host '%s' services: %s", host.name, services)
             map_host.update({'services': services})
 
             host_iw = host_iw.replace("##services##", services_iw)

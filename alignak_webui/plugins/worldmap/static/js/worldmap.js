@@ -172,119 +172,70 @@ mapInit = function(map_id, callback) {
         return false;
     }
 
-    var scripts = [];
-    scripts.push('/static/plugins/worldmap/static/js/leaflet.markercluster.js');
-    scripts.push('/static/plugins/worldmap/static/js/leaflet.Icon.Glyph.js');
-    scripts.push('/static/plugins/worldmap/static/js/leaflet.label.js');
-    loadScripts(scripts, function() {
-        if (debugMaps) console.log('Scripts loaded')
+    $map = L.map(map_id, {zoom: defaultZoom, center: defaultCenter});
+    if (debugMaps) console.log('Map object: ', map_id, $map)
 
-        $map = L.map(map_id, {zoom: 9, center: defaultCenter});
-        if (debugMaps) console.log('Map object: ', map_id, $map)
+    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'}).addTo($map);
 
-        L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'}).addTo($map);
+    // Markers ...
+    var allMarkers = [];
+    var bounds = new L.LatLngBounds(defaultCenter);
+    if (debugMaps) console.log("Initial map bounds:", bounds);
+    for (var i = 0; i < hosts.length; i++) {
+        var h = hosts[i];
+        bounds.extend(h.location());
+        allMarkers.push(markerCreate($map, h));
+        if (debugMaps) console.log("- extending map bounds:", bounds);
+    }
+    if (debugMaps) console.log("Extended map bounds:", bounds);
 
-        // Markers ...
-        var allMarkers = [];
-        var bounds = new L.LatLngBounds(defaultCenter);
-        if (debugMaps) console.log("Initial map bounds:", bounds);
-        for (var i = 0; i < hosts.length; i++) {
-            var h = hosts[i];
-            bounds.extend(h.location());
-            allMarkers.push(markerCreate($map, h));
-            if (debugMaps) console.log("- extending map bounds:", bounds);
-        }
-        if (debugMaps) console.log("Extended map bounds:", bounds);
+    // Zoom adaptation if bounds are a rectangle
+    if (debugMaps) console.log("Extended map bounds:", bounds.getNorth(), bounds.getSouth());
+    if (bounds.getNorth() != bounds.getSouth()) {
+        $map.fitBounds(bounds);
+    }
 
-        // Zoom adaptation if bounds are a rectangle
-        if (debugMaps) console.log("Extended map bounds:", bounds.getNorth(), bounds.getSouth());
-        if (bounds.getNorth() != bounds.getSouth()) {
-            $map.fitBounds(bounds);
-        }
+    // Build marker cluster
+    var markerCluster = L.markerClusterGroup({
+        spiderfyDistanceMultiplier: 2,
+        iconCreateFunction: function(cluster) {
+            // Manage markers in the cluster ...
+            var markers = cluster.getAllChildMarkers();
+            if (debugMaps) console.log("cluster markers, count : " + markers.length);
 
-        // Build marker cluster
-        var markerCluster = L.markerClusterGroup({
-            spiderfyDistanceMultiplier: 2,
-            iconCreateFunction: function(cluster) {
-                // Manage markers in the cluster ...
-                var markers = cluster.getAllChildMarkers();
-                if (debugMaps) console.log("cluster markers, count : " + markers.length);
-
-                var clusterState = 0, clusterStyle = 'ok';
-                for (var i = 0; i < markers.length; i++) {
-                    var currentMarker = markers[i];
-                    if (debugMaps) console.log("marker, " + currentMarker.name + " state is: " + currentMarker.state_text);
-                    clusterState = Math.max(clusterState, currentMarker.state);
-                }
-                if (clusterState > 3) {
-                    clusterStyle = 'ko';
-                } else if (clusterState > 0) {
-                    clusterStyle = 'warning';
-                }
-                if (debugMaps) console.log("cluster state:", clusterState, clusterStyle);
-                return L.divIcon({
-                    html: '<div><span>' + markers.length + '</span></div>',
-                    className: 'marker-cluster marker-cluster-' + clusterStyle,
-                    iconSize: new L.Point(60, 60)
-                });
+            var clusterState = 0, clusterStyle = 'ok';
+            for (var i = 0; i < markers.length; i++) {
+                var currentMarker = markers[i];
+                if (debugMaps) console.log("marker, " + currentMarker.name + " state is: " + currentMarker.state_text);
+                clusterState = Math.max(clusterState, currentMarker.state);
             }
-        });
-        markerCluster.addLayers(allMarkers);
-        $map.addLayer(markerCluster);
-        //$map.fitBounds(markerCluster.getBounds());
-
-        allMaps.push($map);
-
-        $(window).on("resize", function() {
-            mapResize($map);
-        //    $("#hostsMap").height($("#worldmap").height()).width($("#worldmap").width());
-        //    $map.invalidateSize();
-        }).trigger("resize");
-
-        if (typeof callback !== 'undefined' && $.isFunction(callback)) {
-            if (debugMaps) console.log('Calling callback function ...');
-            callback($map);
+            if (clusterState > 3) {
+                clusterStyle = 'ko';
+            } else if (clusterState > 0) {
+                clusterStyle = 'warning';
+            }
+            if (debugMaps) console.log("cluster state:", clusterState, clusterStyle);
+            return L.divIcon({
+                html: '<div><span>' + markers.length + '</span></div>',
+                className: 'marker-cluster marker-cluster-' + clusterStyle,
+                iconSize: new L.Point(60, 60)
+            });
         }
     });
+    markerCluster.addLayers(allMarkers);
+    $map.addLayer(markerCluster);
+    $map.fitBounds(markerCluster.getBounds());
+
+    allMaps.push($map);
+
+    $(window).on("resize", function() {
+        mapResize($map);
+    }).trigger("resize");
+
+    if (typeof callback !== 'undefined' && $.isFunction(callback)) {
+        if (debugMaps) console.log('Calling callback function ...');
+        callback($map);
+    }
 
     return true;
 };
-
-// ------------------------------------------------------------------------------
-// Map assets loading
-// ------------------------------------------------------------------------------
-createMap = function(mapId, emptyMessage) {
-    var cssfiles=[
-        '/static/plugins/worldmap/static/leaflet/leaflet.css',
-        '/static/plugins/worldmap/static/css/MarkerCluster.css',
-        '/static/plugins/worldmap/static/css/MarkerCluster.Default.css',
-        '/static/plugins/worldmap/static/css/leaflet.label.css',
-        '/static/plugins/worldmap/static/css/worldmap.css'];
-
-    $.getCssFiles(cssfiles, function(){
-        var jsfiles=[
-            '/static/plugins/worldmap/static/leaflet/leaflet.js',
-            '/static/plugins/worldmap/static/js/worldmap.js'];
-
-        $.getJsFiles(jsfiles, function(){
-            window.setTimeout(function () {
-                // Build hosts list
-                buildHosts();
-
-                // Build map
-                var mapCreated = mapInit(mapId, function($map) {
-                    // Map height to be scaled inside the window
-                    var mapOffset = $('#' + mapId).offset().top;
-                    var footerOffset = $('footer').offset().top;
-                    $('#' + mapId).height(footerOffset - mapOffset - 35)
-
-                    if (debugMaps) console.log('Resizing map:')
-                    mapResize($map);
-                });
-                if (! mapCreated) {
-                    $('#' + mapId).html('<div class="alert alert-danger"><a href="#" class="alert-link">'+ emptyMessage +'</a></div>');
-                }
-            }, 500);
-        });
-    });
-}

@@ -8,14 +8,8 @@
 
 %from alignak_webui.utils.helper import Helper
 
-%# Add extra Css and Js for this page, and a callback function
-%# No default refresh for this page
-%css=["worldmap/static/leaflet/leaflet.css", "worldmap/static/css/MarkerCluster.css", "worldmap/static/css/MarkerCluster.Default.css", "worldmap/static/css/leaflet.label.css", "worldmap/static/css/worldmap.css"]
-%js=["worldmap/static/leaflet/leaflet.js", "worldmap/static/js/worldmap.js"]
-%callback='initWorldmap'
-%setdefault('mapId', 'hosts_worldmap')
-
-%hosts = elements
+%plugin = webui.find_plugin('Worldmap')
+%hosts = plugin.get_valid_elements(elements)
 <!-- HTML map container -->
 <div class="map_container_widget">
    %if not hosts:
