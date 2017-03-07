@@ -1,7 +1,7 @@
 %import json
 
 %setdefault('debug', False)
-%setdefault('debugLogs', False)
+%setdefault('debugTable', False)
 
 %setdefault('edition_mode', False)
 
@@ -14,6 +14,7 @@
 
 %# Default filtering is to use the table saved state
 %setdefault('where', {'saved_filters': True})
+%setdefault('global_where', None)
 
 %setdefault('commands', False)
 %setdefault('object_type', 'unknown')
@@ -38,35 +39,6 @@
 %end
 <!-- Table display -->
 <div id="{{object_type}}s_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
-   <div class="col-md-12">
-      <div id="webui-search-input" class="input-group">
-          <input type="text" class="form-control" placeholder={{_('Search...')}} />
-          <div class="input-group-btn">
-              <div class="btn-group" role="group">
-                  <div class="dropdown dropdown-lg">
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-                      <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="filters_menu">
-                        <li role="presentation"><a role="menuitem" href="/all?search=&title=All resources">All resources</a></li>
-                        <li role="presentation"><a role="menuitem" href="/all?search=type:host&title=All hosts">All hosts</a></li>
-                        <li role="presentation"><a role="menuitem" href="/all?search=type:service&title=All services">All services</a></li>
-                        <li role="presentation" class="divider"></li>
-                        <li role="presentation"><a role="menuitem" href="/all?search=isnot:0 isnot:ack isnot:downtime&title=New problems">New problems</a></li>
-                        <li role="presentation"><a role="menuitem" href="/all?search=is:ack&title=Acknowledged problems">Acknowledged problems</a></li>
-                        <li role="presentation"><a role="menuitem" href="/all?search=is:downtime&title=Scheduled downtimes">Scheduled downtimes</a></li>
-                        <li role="presentation" class="divider"></li>
-                        <li role="presentation">
-                           <a role="menuitem" data-action="search-box">
-                              <strong>{{_('<span class="fa fa-question-circle"></span> Search syntax')}}</strong>
-                           </a>
-                        </li>
-                      </ul>
-                  </div>
-                  <button type="button" class="btn btn-primary"><span class="fa fa-search" aria-hidden="true"></span></button>
-              </div>
-          </div>
-      </div>
-    </div>
-
    <table id="tbl_{{object_type}}" class="{{dt.css}}">
       <thead>
          <tr>
@@ -231,7 +203,7 @@
 </div>
 
 <script>
-   var debugTable = {{'true' if debugLogs else 'false'}};
+   var debugTable = {{'true' if debugTable else 'false'}};
    var where = {{! json.dumps(where)}};
    var selectedRows = [];
 
@@ -304,7 +276,6 @@
          }
          if (debugTable) console.debug('Datatable input event, search column '+column_name+' for '+value);
 
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          table
             .column(column_index)
                .search(value, regex=='True', false)
@@ -336,12 +307,10 @@
 
       $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
       });
 
       %if dt.selectable:
       $('#tbl_{{object_type}}').on( 'select.dt', function ( e, dt, type, indexes ) {
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, selected row ...');
 
          var rowData = table.rows( indexes ).data().toArray();
@@ -349,7 +318,6 @@
       });
 
       $('#tbl_{{object_type}}').on( 'deselect.dt', function ( e, dt, type, indexes ) {
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, deselected row ...');
 
          var rowData = table.rows( indexes ).data().toArray();
@@ -403,6 +371,12 @@
 
             resetFilters();
 
+            if (debugTable) console.debug('Datatable global search:', where);
+            var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+            table.search(where).draw();
+
+            /* *****************************
+             * Removed in benefit of the Web UI search engine
             // Update each search field with the filter URL parameters
             $.each(where, function(key, value) {
                var special = '';
@@ -436,11 +410,13 @@
                // Enable the clear filter button
                table.buttons('clearFilter:name').enable();
             });
+
+            ************************** */
          }
       });
 
       // Table declaration
-      var table = $('#tbl_{{object_type}}').DataTable( {
+      table = $('#tbl_{{object_type}}').DataTable( {
          // Table columns definition
          "columns": {{ ! json.dumps(dt.table_columns) }},
 

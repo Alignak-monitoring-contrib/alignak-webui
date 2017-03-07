@@ -153,6 +153,16 @@ class PluginServices(Plugin):
 
         super(PluginServices, self).__init__(app, webui, cfg_filenames)
 
+        self.search_engine = True
+        self.search_filters = {
+            '01': (_('Ok'), 'is:ok'),
+            '02': (_('Acknowledged'), 'is:acknowledged'),
+            '03': (_('Downtimed'), 'is:in_downtime'),
+            '04': (_('Warning'), 'is:warning'),
+            '05': (_('Critical'), 'is:warning'),
+            '06': ('', ''),
+        }
+
     def get_services_widget(self, embedded=False, identifier=None, credentials=None):
         """
         Get the services widget

@@ -26,8 +26,8 @@
 .nephritis { color: #27ae60; }
 
 /* Blues */
-.item_unknown,
 .peter-river { color: #3498db; }
+.item_unknown,
 .item_service_unknown,
 .item_logcheckresult_unknown,
 .belize-hole { color: #2980b9; }
@@ -62,9 +62,13 @@
 .in_downtime,
 .item_historyCheckResult,
 .item_host_in_downtime,
-.item_hostgroup_in_downtime,
-.item_realm_in_downtime,
+.item_host_downtimed,
 .item_service_in_downtime,
+.item_service_downtimed,
+.item_hostgroup_in_downtime,
+.item_hostgroup_downtimed,
+.item_realm_in_downtime,
+.item_realm_downtimed,
 .sunflower { color: #f1c40f !important; }
 
 .acknowledged,
@@ -117,27 +121,33 @@
  */
 .table-row-ok,
 .table-row-up {
-    background-color: #e6ffe6 !important;
+    background-color: #E6FAF5 !important;
 }
 
 .table-row-warning,
 .table-row-unreachable {
-    background-color: #fff5e6 !important;
+    background-color: #FDF7F1 !important;
 }
 
 .table-row-critical,
 .table-row-down {
-    background-color: #ffe6e6 !important;
+    background-color: #FDF4F3 !important;
 }
 
 .table-row-unknown,
-.table-row-pending {
-    background-color: #e6f2ff !important;
+    background-color: #F2F7FA !important;
 }
 
-.table-row-ack,
-.table-row-downtime {
-    background-color: #ffe6ff !important;
+.table-row-unreachable {
+    background-color: #F1EBF8 !important;
+}
+
+.table-row-acknowledged {
+    background-color: #FEF9F0 !important;
+}
+
+.table-row-downtimed {
+    background-color: #FEFBF0 !important;
 }
 
 .table-row-greyed {

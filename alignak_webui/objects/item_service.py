@@ -70,7 +70,7 @@ class Service(BackendElement):
             _('Service has a problem but is acknowledged'),
             _('Service is in a downtime period'),
             _('Service is warning or state is unknown'),
-            _('Service is critical')
+            _('Service is critical or unreachable')
         ]
 
         # self._linked__realm = 'realm'
