@@ -236,14 +236,16 @@ class PluginWorldmap(Plugin):
             ))
 
             # Get host services
-            # todo: using a projection with selected fields may help to improve
+            # todo: using a projection with selected fields may help to improve more?
             search = {
+                'sort': '-_overall_state_id',
+                'where': {'name': {"$regex": "/^((?!%s).)*$/" % self.plugin_parameters['services_excluded']}}
                 # 'projection': json.dumps({
                 #     "_id": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1,
                 #     "": 1, "name": 1, "alias": 1, "business_impact": 1, "_overall_state_id": 1
                 # })
             }
-            services = datamgr.get_host_services(host, search=search)
+            services = datamgr.get_host_services(host, search=search, embedded=False)
             services_iw = ""
             for service in services:
                 svc_iw = self.plugin_parameters['service_info_content']

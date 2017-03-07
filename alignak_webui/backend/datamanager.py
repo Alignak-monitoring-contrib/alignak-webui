@@ -1353,8 +1353,6 @@ class DataManager(object):
             host = self.get_host(host)
             if not host:
                 return -1
-        else:
-            host = host
 
         if search is None:
             search = {'where': {'host': host.id}}
@@ -1365,9 +1363,7 @@ class DataManager(object):
                 search.update({'where': {'host': host.id}})
 
         # Get host services
-        return self.get_services(
-            search=search, embedded=embedded, all_elements=True
-        )
+        return self.get_services(search=search, embedded=embedded, all_elements=True)
 
     def get_host_overall_state(self, search):
         """Get a host real state (including services states).
