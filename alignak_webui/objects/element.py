@@ -561,7 +561,7 @@ class BackendElement(object):
     @property
     def html_link(self):
         """Get Item html link"""
-        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.json_alias, self.name)
+        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.name, self.json_alias)
 
     def get_html_link(self, prefix=None, title=None):
         """Get Item html link with an optional prefix and an optional title"""

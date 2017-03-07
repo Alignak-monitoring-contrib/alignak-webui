@@ -13,27 +13,10 @@
 %hosts = worldmap_plugin.get_valid_elements(hosts)
 
 <script>
-   var cssfiles=['/static/plugins/worldmap/static/css/leaflet.css', '/static/plugins/worldmap/static/css/MarkerCluster.css', '/static/plugins/worldmap/static/css/MarkerCluster.Default.css', '/static/plugins/worldmap/static/css/leaflet.label.css', '/static/plugins/worldmap/static/css/worldmap.css'];
-
-   $.getCssFiles(cssfiles, function(){
-      var jsfiles=['/static/plugins/worldmap/static/js/worldmap.js'];
-
-      $.getJsFiles(jsfiles, function(){
-      });
-   });
-
    // Tabs management
    $('a[href="#host_tab_location"]').on("shown.bs.tab", function(e) {
-      /*
-      // Map height to be scaled inside the window
-      var mapOffset = $('#{{mapId}}').offset().top;
-      var footerOffset = $('footer').offset().top;
-      $('#{{mapId}}').height(footerOffset - mapOffset - 35)
-
-      mapResize_{{mapId}}();
-      */
-   });
-   $('a[href="#host_tab_location"]').on("hidden.bs.tab", function(e) {
+      // Map resizing is bound to the window resize event...
+      $(window).trigger("resize");
    });
 </script>
 <!-- HTML map container -->

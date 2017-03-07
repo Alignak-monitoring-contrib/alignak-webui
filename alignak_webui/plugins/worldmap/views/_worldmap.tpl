@@ -1,3 +1,5 @@
+%setdefault('load', False)
+
 <script>
     %#Actions ?
     actions = {{ 'true' if current_user.is_power() else 'false' }};
@@ -60,4 +62,30 @@
             $('#{{mapId}}').html('<div class="alert alert-danger"><a href="#" class="alert-link">{{_('No hosts to display on the map')}}</a></div>');
         }
     }
+
+    %if load:
+        %# load is used for the host location widget to load on-demand the necessary map files
+        var cssfiles=[];
+        cssfiles.push('/static/plugins/worldmap/static/leaflet/leaflet.css');
+        cssfiles.push('/static/plugins/worldmap/static/css/MarkerCluster.css');
+        cssfiles.push('/static/plugins/worldmap/static/css/MarkerCluster.Default.css');
+        cssfiles.push('/static/plugins/worldmap/static/css/leaflet.label.css');
+        cssfiles.push('/static/plugins/worldmap/static/css/worldmap.css');
+
+        $.getCssFiles(cssfiles, function(){
+            var jsfiles=[];
+            jsfiles.push('/static/plugins/worldmap/static/leaflet/leaflet.js');
+            jsfiles.push('/static/plugins/worldmap/static/js/leaflet.markercluster.js');
+            jsfiles.push('/static/plugins/worldmap/static/js/leaflet.Icon.Glyph.js');
+            jsfiles.push('/static/plugins/worldmap/static/js/leaflet.label.js');
+            jsfiles.push('/static/plugins/worldmap/static/js/worldmap.js');
+
+            $.getJsFiles(jsfiles, function(){
+                // Wait for a while to let the scripts get executed...
+                window.setTimeout(function() {
+                    initWorldmap();
+                }, 1000);
+            });
+        });
+    %end
 </script>

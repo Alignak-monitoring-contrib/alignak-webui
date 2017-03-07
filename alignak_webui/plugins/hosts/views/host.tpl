@@ -345,12 +345,12 @@
 
       <div class="tab-content">
          <div id="host_tab_view" class="tab-pane fade active in" role="tabpanel">
-            %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None)
+            %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None, load=True)
          </div>
 
          %for widget in webui.get_widgets_for('host'):
             <div id="host_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
-               %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
+               %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None, load=True)
             </div>
          %end
       </div>
