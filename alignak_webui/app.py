@@ -298,6 +298,8 @@ add_to_config = {}
 for key, value in sorted(app.config.items()):
     if key.startswith(app_name):
         add_to_config[key.replace(app_name + '.', '')] = value
+    if isinstance(value, basestring):
+        value = value.replace('\n', '')
     logger.debug(" %s = %s", key, value)
 logger.debug("--------------------------------------------------------------------------------")
 logger.debug("Webui settings: ")
