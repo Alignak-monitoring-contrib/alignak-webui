@@ -170,11 +170,13 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):  # pragma: no cover, no
 # -----
 # Debug and test mode
 # -----
-if os.environ.get('BOTTLE_DEBUG'):  # pragma: no cover, tested but not coverable
+env_debug = os.environ.get('BOTTLE_DEBUG')
+if env_debug and env_debug == '1':  # pragma: no cover, tested but not coverable
     app.config['bottle.debug'] = True
     print("Bottle is in debug mode from environment")
 
-if os.environ.get('ALIGNAK_WEBUI_DEBUG'):  # pragma: no cover, tested but not coverable
+env_debug = os.environ.get('ALIGNAK_WEBUI_DEBUG')
+if env_debug and env_debug == '1':  # pragma: no cover, tested but not coverable
     app.config['%s.debug' % app_name] = True
     print("Application is in debug mode from environment")
 

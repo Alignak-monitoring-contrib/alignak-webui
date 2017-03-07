@@ -26,7 +26,7 @@ If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this var
 
 If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_THREAD`` exists, the application will check periodically if its configuration file changed. If the configuration file modification time changed, the configuration is reloaded by the application.
 
-If an environment variable ``ALIGNAK_WEBUI_DEBUG`` exists, the application will run in debug mode; which means that the application logs will be set to a DEBUG level.
+If an environment variable ``BOTTLE_DEBUG`` exists and is set to '1', the Bottle application server will run in debug mode. If an environment variable ``ALIGNAK_WEBUI_DEBUG`` exists and is set to '1', the application will run in debug mode; which means that the application logs will be set to a DEBUG level.
 
 If an environment variable ``ALIGNAK_WEBUI_BACKEND`` exists, the value of this variable will override the one defined in the configuration file  (``alignak_backend``).
 
