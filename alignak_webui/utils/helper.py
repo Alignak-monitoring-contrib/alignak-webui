@@ -872,8 +872,6 @@ class Helper(object):
             content = content.replace("##commands##", ''.join(buttons))
             content = content.replace("##title##", title)
             content = content.replace("##text##", text)
-            logger.debug("Content: %s", content)
-            logger.debug("get_html_commands_buttons, content: %s", content)
         except Exception as e:
             logger.error("get_html_commands_buttons, exception: %s", str(e))
             logger.error("traceback: %s", traceback.format_exc())
