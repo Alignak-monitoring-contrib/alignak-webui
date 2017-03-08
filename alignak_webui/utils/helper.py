@@ -249,7 +249,6 @@ class Helper(object):
         return ' '.join(element.split())
 
     @staticmethod
-    # TODO: add tests for this function
     def get_urls(url, default_title="Url", default_icon="globe", popover=False):
         """Returns formatted HTML for an element URL
 
@@ -336,19 +335,19 @@ class Helper(object):
         return result
 
     @staticmethod
-    # TODO: add tests for this function
     def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
         """Return list of element action urls"""
 
-        if obj is not None:
+        try:
             logger.debug("get_element_actions_url, url: %s", obj.action_url)
             return Helper.get_urls(obj.action_url, default_title=default_title,
                                    default_icon=default_icon, popover=popover)
+        except AttributeError:
+            pass
 
-        return None
+        return []
 
     @staticmethod
-    # TODO: add tests for this function
     def get_element_notes_url(obj, default_title="Url", default_icon="globe", popover=False):
         """Return list of element notes urls"""
 

@@ -31,6 +31,7 @@ import alignak_webui.app
 
 # from alignak_webui import set_app_config
 from alignak_webui.objects.item_timeperiod import TimePeriod
+from alignak_webui.objects.item_host import Host
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.settings import Settings
 
@@ -772,3 +773,77 @@ class TestHtmlList(unittest2.TestCase):
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>' \
                          '</ul>' \
                          '</div>'
+
+
+class TestObjectUrls(unittest2.TestCase):
+    def test_notes_url(self):
+        """ Helper - get_element_notes_url """
+
+        host = Host({
+            '_id': u'575a7dd74c988c170e857988',
+            '_status': 'OK',
+            'name': 'test',
+            '_created': 1470995433,
+            '_updated': 1470995450,
+        })
+        assert host
+
+        html_notes = Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True)
+        # Empty list when no notes exist
+        assert html_notes == []
+
+        host = Host({
+            '_id': u'575a7dd74c988c170e857988',
+            '_status': 'OK',
+            'name': 'test',
+            '_created': 1470995433,
+            '_updated': 1470995450,
+            'notes': 'note simple|Libellé::note avec un libellé|KB1023,,tag::<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor.|note simple|Tag::tagged note ...',
+            'notes_url': 'http://www.my-KB.fr?host=$HOSTADDRESS$|http://www.my-KB.fr?host=$HOSTNAME$',
+        })
+        assert host
+
+        html_notes = Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True)
+        # 5 declared notes, but only 2 URLs
+        # Expecting 5 links
+        assert html_notes == [
+            '<a href="http://www.my-KB.fr?host=$HOSTADDRESS$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</a>',
+            '<a href="http://www.my-KB.fr?host=$HOSTNAME$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note avec un libell\xc3\xa9" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Libell\xc3\xa9</a>',
+            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;KB1023</span></a>',
+            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</span></a>',
+            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="tagged note ..." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Tag</span></a>'
+        ]
+
+    def test_actions_url(self):
+        """ Helper - get_element_notes_url """
+
+        host = Host({
+            '_id': u'575a7dd74c988c170e857988',
+            '_status': 'OK',
+            'name': 'test',
+            '_created': 1470995433,
+            '_updated': 1470995450,
+        })
+        assert host
+
+        html_actions = Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True)
+        assert html_actions == []
+
+        host = Host({
+            '_id': u'575a7dd74c988c170e857988',
+            '_status': 'OK',
+            'name': 'test',
+            '_created': 1470995433,
+            '_updated': 1470995450,
+            'action_url': 'http://www.google.fr|url1::http://www.google.fr|My KB,,tag::http://www.my-KB.fr?host=$HOSTNAME$|Last URL,,tag::<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa.,,http://www.my-KB.fr?host=$HOSTADDRESS$',
+        })
+        assert host
+
+        html_actions = Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True)
+        # 3 declared actions, with different parameters
+        # Expecting 3 links
+        assert html_actions == [
+            '<a href="http://www.google.fr" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="No description provided" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-globe"></span>&nbsp;Url</a>', '<a href="http://www.google.fr" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="No description provided" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-globe"></span>&nbsp;url1</a>',
+            '<a href="http://www.my-KB.fr?host=$HOSTNAME$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="No description provided" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;My KB</a>',
+            '<a href="http://www.my-KB.fr?host=$HOSTADDRESS$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Last URL</a>'
+        ]
