@@ -798,7 +798,7 @@ class TestObjectUrls(unittest2.TestCase):
             'name': 'test',
             '_created': 1470995433,
             '_updated': 1470995450,
-            'notes': 'note simple|Libellé::note avec un libellé|KB1023,,tag::<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor.|note simple|Tag::tagged note ...',
+            'notes': u'note simple|Libellé::note avec un libellé|KB1023,,tag::<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor.|note simple|Tag::tagged note ...',
             'notes_url': 'http://www.my-KB.fr?host=$HOSTADDRESS$|http://www.my-KB.fr?host=$HOSTNAME$',
         })
         assert host
@@ -807,11 +807,11 @@ class TestObjectUrls(unittest2.TestCase):
         # 5 declared notes, but only 2 URLs
         # Expecting 5 links
         assert html_notes == [
-            '<a href="http://www.my-KB.fr?host=$HOSTADDRESS$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</a>',
-            '<a href="http://www.my-KB.fr?host=$HOSTNAME$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note avec un libell\xc3\xa9" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Libell\xc3\xa9</a>',
-            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;KB1023</span></a>',
-            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</span></a>',
-            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="tagged note ..." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Tag</span></a>'
+            u'<a href="http://www.my-KB.fr?host=$HOSTADDRESS$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</a>',
+            u'<a href="http://www.my-KB.fr?host=$HOSTNAME$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note avec un libellé" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Libellé</a>',
+            u'<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;KB1023</span></a>',
+            u'<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</span></a>',
+            u'<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="tagged note ..." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Tag</span></a>'
         ]
 
     def test_actions_url(self):
