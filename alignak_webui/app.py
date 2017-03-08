@@ -484,12 +484,6 @@ def user_login():
     # Send login form
     return template(
         'login', {
-            'login_text': request.app.config.get(
-                'login_text', _('Welcome!<br> Log-in to use the application')
-            ),
-            'app_logo': request.app.config.get(
-                'app_logo', '/static/images/alignak_white_logo.png'
-            ),
             'message': message
         }
     )

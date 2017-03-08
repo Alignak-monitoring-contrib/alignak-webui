@@ -50,7 +50,11 @@
                   <h2>{{request.app.config.get('about_name', __manifest__['name'])}}</h2>
                   <h3>{{_('Version ')}}{{request.app.config.get('about_version', __manifest__['version'])}}</h3>
                   <center>
-                     <img src="{{app_logo}}" alt="{{_('Alignak WebUI Logo')}}" style="width: 90%"/>
+                     <img
+                        src="{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
+                        style="{{request.app.config.get('login_logo_css', 'width:90%')}}"
+                        alt="{{_('Alignak WebUI logo')}}"
+                        title="{{request.app.config.get('app_logo_title', _('Alignak Web User Interface'))}}" />
                   </center>
                </div>
                <div class="panel-body">
@@ -75,11 +79,10 @@
                   </div>
                   %end
                </div>
-               %if message or login_text:
+               %login_text=request.app.config.get('login_text', _('Welcome!<br> Log-in to use the application'))
+               %if login_text:
                <div class="panel-footer">
-                  %if login_text:
                   <h4>{{! login_text}}</h4>
-                  %end
                </div>
                %end
             </div>
