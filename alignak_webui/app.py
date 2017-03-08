@@ -420,10 +420,8 @@ def before_request():
     # Session authentication ...
     if 'current_user' not in session:
         # Redirect to application login page
-        logger.warning(
-            "The session expired or there is no user in the session."
-            " Redirecting to the login page..."
-        )
+        logger.warning("The session expired or there is no user in the session. "
+                       "Redirecting to the login page...")
 
         # Stop Alignak backend thread
         # *****
@@ -436,10 +434,8 @@ def before_request():
     current_user = session['current_user']
     if not webui.user_authentication(current_user.token, None):
         # Redirect to application login page
-        logger.warning(
-            "user in the session is not authenticated."
-            " Redirecting to the login page..."
-        )
+        logger.warning("user in the session is not authenticated. "
+                       "Redirecting to the login page...")
         redirect('/login')
 
     logger.debug("before_request, user authenticated")
