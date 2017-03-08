@@ -389,7 +389,7 @@ class Helper(object):
 
         :return: query to be provided to the data manager search objects function
         """
-        logger.debug("decode_search, search string: %s", query)
+        logger.info("decode_search, search string: %s", query)
 
         # Search patterns like: isnot:0 isnot:ack isnot:"downtime test" name "vm test"
         regex = re.compile(
@@ -434,11 +434,10 @@ class Helper(object):
                 # Specific search fields, the live state
                 if field in ['is', 'isnot']:
                     search_state = True
-                    field = 'overall_state'
                     if field == 'isnot':
-                        for pattern in patterns:
-                            pattern = '!' + pattern
-                            logger.debug("decode_search, update pattern: %s", pattern)
+                        patterns = ['!' + pattern for pattern in patterns]
+                        logger.debug("decode_search, updated patterns: %s", patterns)
+                    field = 'overall_state'
 
                 # Specific search fields, business impact
                 if field in ['bi']:
@@ -453,11 +452,10 @@ class Helper(object):
                     field = 'ls_' + field
 
                 c_def = data_model[field]
-                logger.info("decode_search, found column: %s", c_def)
+                logger.debug("decode_search, found column: %s", c_def)
 
                 # Column is defined as searchable?
-                if not c_def.get('searchable', None) is not None and \
-                        not c_def.get('searchable', True):
+                if c_def.get('searchable', None) is not None and not c_def.get('searchable', True):
                     logger.warning("decode_search, field '%s' is not searchable", field)
                     continue
 
@@ -468,7 +466,7 @@ class Helper(object):
                     regex = c_def.get('regex', True)
 
                 for pattern in patterns:
-                    logger.debug("decode_search, pattern: %s", pattern)
+                    logger.info("decode_search, pattern: %s", pattern)
                     not_value = pattern.startswith('!')
                     if not_value:
                         pattern = pattern[1:]
@@ -483,16 +481,21 @@ class Helper(object):
                         field = '_overall_state_id'
                         pattern = allowed_values.index(pattern.lower())
                     else:
-                        # Specific field type
-                        if field_type == 'integer':
-                            pattern = int(pattern)
-                        if field_type == 'float':
-                            pattern = float(pattern)
-                        if field_type == 'boolean':
-                            if pattern in ['0', 'no', 'No', 'false', 'False']:
-                                pattern = False
-                            else:
-                                pattern = True
+                        try:
+                            # Specific field type
+                            if field_type == 'integer':
+                                pattern = int(pattern)
+                            if field_type == 'float':
+                                pattern = float(pattern)
+                            if field_type == 'boolean':
+                                if pattern in ['0', 'no', 'No', 'false', 'False']:
+                                    pattern = False
+                                else:
+                                    pattern = True
+                        except Exception as exp:
+                            logger.warning("decode_search, invalid "
+                                           "search pattern: %s = %s", field, pattern)
+                            continue
 
                     if field in parameters:
                         # We already have a field search pattern, let's build a list...
@@ -530,22 +533,23 @@ class Helper(object):
                             pattern = {"$ne": pattern}
                         parameters.update({field: {'type': 'simple', 'pattern': pattern}})
 
-                    logger.info("decode_search, - parameters: %s", parameters)
+                    logger.debug("decode_search, - parameters: %s", parameters)
         except Exception as exp:
             logger.exception("Exception: %s", exp)
 
         query = {}
         for field, search_type in parameters.iteritems():
-            logger.info("decode_search, build query: %s - %s", field, search_type)
+            logger.debug("decode_search, build query: %s - %s", field, search_type)
             if search_type['type'] == 'simple':
                 query.update({field: search_type['pattern']})
             elif search_type['type'] == '$or':
+                logger.debug("decode_search, - $or query: %s", search_type['pattern'])
                 patterns = []
                 for pattern in search_type['pattern']:
                     patterns.append({field: pattern})
                 query.update({'$or': patterns})
             elif search_type['type'] == '$in':
-                logger.warning("decode_search, - $in query: %s", search_type['pattern'])
+                logger.debug("decode_search, - $in query: %s", search_type['pattern'])
                 included = []
                 excluded = []
                 for pattern in search_type['pattern']:
@@ -562,9 +566,10 @@ class Helper(object):
                     if excluded:
                         query.update({field: {'$nin': excluded}})
             elif search_type['type'] == '$ne':
+                logger.debug("decode_search, - $ne query: %s", search_type['pattern'])
                 query.update({field: {'$ne': search_type['pattern']}})
 
-        logger.info("decode_search, parameters: %s", query)
+        logger.debug("decode_search, result query: %s", query)
         return query
 
     @staticmethod
