@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Daemon(BackendElement):
-    """
-    Object representing an Alignak daemon
-    """
+    """Object representing an Alignak daemon"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -44,45 +42,24 @@ class Daemon(BackendElement):
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
-        """
-        Create a History (called only once when an object is newly created)
-        """
+        """Create an alignakdaemon (called only once when an object is newly created)"""
         self._linked__realm = 'realm'
 
         super(Daemon, self).__init__(params, date_format, embedded)
 
-        if not hasattr(self, 'address'):
-            self.address = "unknown"
-
-        if not hasattr(self, 'port'):
-            self.port = 0
-
-        if not hasattr(self, 'reachable'):
-            self.reachable = False
-
-        if not hasattr(self, 'spare'):
-            self.spare = False
-
-        if not hasattr(self, 'alive'):
-            self.alive = False
-
     @property
     def _realm(self):
-        """ Return concerned realm """
+        """Return concerned realm"""
         return self._linked__realm
 
     @property
     def state(self):
-        """
-        Get daemon state
-        """
+        """Get daemon state"""
         return self.status
 
     @property
     def status(self):
-        """
-        Get daemon status
-        """
+        """Get daemon status"""
         if not self.reachable:
             return 'UNREACHABLE'
         if self.alive:
@@ -92,7 +69,5 @@ class Daemon(BackendElement):
 
     @property
     def endpoint(self):
-        """
-        Overload default property. Returns None, there is no linkable page
-        """
+        """Overload default property. Returns None, there is no linkable page"""
         return None
