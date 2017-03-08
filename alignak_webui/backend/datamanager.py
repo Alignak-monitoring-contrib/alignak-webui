@@ -117,10 +117,8 @@ class DataManager(object):
                globals()[k].get_type() is not None and \
                globals()[k].get_type() is not 'item':
                 self.known_classes.append(globals()[k])
-                logger.debug(
-                    "Known class %s for object type: %s",
-                    globals()[k], globals()[k].get_type()
-                )
+                logger.debug("Known class %s for object type: %s",
+                             globals()[k], globals()[k].get_type())
 
         self.connected = False
         self.logged_in_user = None
@@ -591,6 +589,88 @@ class DataManager(object):
     ##
     # Alignak
     ##
+    def get_alignak_map(self, search=None):  # pylint: disable=unused-argument
+        """Get Alignak overall state from the Alignak Web Services module:
+
+            https://github.com/Alignak-monitoring-contrib/alignak-module-ws
+
+            The search parameter is not used but is kept for get method interface compatibility!
+
+            Example response::
+            {
+                reactionner: {},
+                broker: {},
+                arbiter: {
+                    arbiter-master: {
+                        passive: false,
+                        realm: "",
+                        realm_name: "All",
+                        polling_interval: 1,
+                        alive: true,
+                        manage_arbiters: false,
+                        manage_sub_realms: false,
+                        is_sent: false,
+                        spare: false,
+                        check_interval: 60,
+                        address: "127.0.0.1",
+                        reachable: true,
+                        max_check_attempts: 3,
+                        last_check: 0,
+                        port: 7770
+                    }
+                },
+                scheduler: {
+                    scheduler-master: {
+                        passive: false,
+                        realm: "83596f2b6e254e7ea28467a1fe5627ef",
+                        realm_name: "All",
+                        polling_interval: 1,
+                        alive: true,
+                        manage_arbiters: false,
+                        manage_sub_realms: false,
+                        is_sent: true,
+                        spare: false,
+                        check_interval: 60,
+                        address: "127.0.0.1",
+                        reachable: true,
+                        max_check_attempts: 3,
+                        last_check: 1478064129.016136,
+                        port: 7768
+                    },
+                    scheduler-south: {},
+                    scheduler-north: {}
+                },
+                receiver: {},
+                poller: {}
+            }
+
+            :return: list of the Alignak daemons
+            :rtype: list of Daemon objects"""
+
+        result = []
+
+        try:
+            logger.debug("get_alignak_state")
+            result = self.alignak_ws.get('alignak_map')
+        except AlignakWSException:
+            return result
+
+        logger.debug("Alignak status map, %s", result)
+
+        self.alignak_daemons = []
+        for daemon_type in result:
+            logger.debug("Got Alignak state for: %s", daemon_type)
+            daemons = result.get(daemon_type)
+            for daemon_name in daemons:
+                daemon_data = daemons.get(daemon_name)
+                daemon_data['name'] = daemon_name
+                daemon = Daemon(daemon_data)
+                self.alignak_daemons.append(daemon)
+                logger.debug(" - %s: %s", daemon_name, daemon)
+
+        Daemon.set_total_count(len(self.alignak_daemons))
+        return self.alignak_daemons
+
     def get_alignak_state(self, search=None, all_elements=False):
         """Get a list of all alignak daemons states."""
         if search is None:

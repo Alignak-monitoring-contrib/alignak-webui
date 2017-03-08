@@ -23,7 +23,10 @@
     Plugin Alignak
 
     This plugin allows to display Alignak overall state information. It uses the Alignak
-    Web services module to get information from the Alignak arbiter about all the running daemons.
+    Backend to get information about the Alignak running daemons.
+
+    It can also use the Alignak Web services module to get information from the Alignak
+    arbiter about all the running daemons.
 """
 
 from logging import getLogger
@@ -37,16 +40,19 @@ logger = getLogger(__name__)
 
 
 class PluginAlignak(Plugin):
-    """ Alignak plugin """
+    """Alignak plugin"""
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Alignak plugin
-        """
+        """Alignak plugin"""
         self.name = 'AlignakDaemon'
         self.backend_endpoint = 'alignakdaemon'
 
         self.pages = {
+            'alignak_map': {
+                'name': 'Alignak map',
+                'route': '/alignak_map',
+                'view': 'alignak'
+            },
             'show_alignak': {
                 'name': 'Alignak status',
                 'route': '/alignak',
@@ -80,19 +86,33 @@ class PluginAlignak(Plugin):
         super(PluginAlignak, self).__init__(app, webui, cfg_filenames)
 
     def get_alignak_widget(self, embedded=False, identifier=None, credentials=None):
-        """
-        Get the Alignak widget
-        """
+        """Get the Alignak widget"""
         datamgr = request.app.datamgr
 
         logger.debug("alignakdaemon, get widget")
         return self.get_widget(datamgr.get_alignak_state, 'alignakdaemon',
                                embedded, identifier, credentials)
 
+    def alignak_map(self):
+        """Get the Alignak map information from the Alignak WS and build a view from it"""
+        datamgr = request.app.datamgr
+
+        # Get Alignak state from the data manager
+        alignak_daemons = datamgr.get_alignak_map()
+        logger.debug("alignakdaemon, daemons: %s", alignak_daemons)
+
+        # Sort the daemons list by daemon name
+        alignak_daemons.sort(key=lambda x: x.name, reverse=False)
+
+        return {
+            'title': _('Alignak framework overall status'),
+            'pagination': None,
+            'params': self.plugin_parameters,
+            'alignak_daemons': alignak_daemons
+        }
+
     def show_alignak(self):
-        """
-        Get the Alignak information and build a view from it
-        """
+        """Get the Alignak map information from the backend and build a view from it"""
         datamgr = request.app.datamgr
 
         # Get Alignak state from the data manager
