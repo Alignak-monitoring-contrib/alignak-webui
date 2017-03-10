@@ -1652,6 +1652,8 @@ class DataManager(object):
 
         aggregations = {}
         for service in services:
+            service.aggregation = service.aggregation.capitalize()
+
             if not service.aggregation:
                 service.aggregation = _('Global')
 
