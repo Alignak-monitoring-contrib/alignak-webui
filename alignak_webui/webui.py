@@ -57,37 +57,34 @@ class WebUI(object):
 
         logger.info("Initializing application...")
 
-        try:
-            # Store all the plugins
-            self.plugins = []
+        # Store all the plugins
+        self.plugins = []
 
-            # Store all the widgets
-            self.widgets = {}
+        # Store all the widgets
+        self.widgets = {}
 
-            # Store all the tables
-            self.tables = {}
+        # Store all the tables
+        self.tables = {}
 
-            # Store all the lists
-            self.lists = {}
+        # Store all the lists
+        self.lists = {}
 
-            # Helper class
-            self.helper = Helper()
+        # Helper class
+        self.helper = Helper()
 
-            # Application configuration
-            self.app = app
-            self.name = name
-            self.config = config
+        # Application configuration
+        self.app = app
+        self.name = name
+        self.config = config
 
-            # Application data manager and connection
-            self.datamgr = None
-            self.current_user = None
+        # Application data manager and connection
+        self.datamgr = None
+        self.current_user = None
 
-            # Load plugins in the plugins directory ...
-            plugins_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
-            self.plugins_count = self.load_plugins(plugins_dir=plugins_dir)
-            logger.info("loaded %d plugins from: %s", self.plugins_count, plugins_dir)
-        except Exception as exp:
-            logger.exception("Application initialization exception: %s", exp)
+        # Load plugins in the plugins directory ...
+        plugins_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
+        self.plugins_count = self.load_plugins(plugins_dir=plugins_dir)
+        logger.info("loaded %d plugins from: %s", self.plugins_count, plugins_dir)
 
     def load_plugins(self, plugins_dir):
         # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
@@ -110,7 +107,7 @@ class WebUI(object):
                 fname for fname in os.listdir(plugins_dir)
                 if os.path.isdir(os.path.join(plugins_dir, fname))
             ]
-        except OSError as exp:
+        except OSError as exp:  # pragma: no cover - simple security ...
             logger.error("plugins directory '%s' does not exist!", plugins_dir)
             return 0
 
@@ -142,6 +139,10 @@ class WebUI(object):
                     for p_class in p_classes:
                         # Create a plugin instance
                         plugin_instance = p_class(self.app, self, cfg_files)
+
+                        if not plugin_instance.is_enabled():
+                            logger.warning("Plugin '%s' is disabled!", plugin_name)
+                            continue
 
                         i += 1
                         self.plugins.append(plugin_instance)
@@ -321,9 +322,7 @@ class WebUI(object):
         return True
 
     def find_plugin(self, name):
-
         """Find a plugin with its name or its backend endpoint"""
-
         for plugin in self.plugins:
             if plugin.name == name:
                 return plugin
@@ -333,19 +332,27 @@ class WebUI(object):
         return None
 
     def get_widgets_for(self, place):
-        """
-        For a specific place like 'dashboard' or 'external', returns the application widgets list
-        """
-        widgets_list = self.widgets.get(place, [])
+        """For a specific place like 'dashboard' or 'external', returns the widgets list"""
+        widgets_list = []
         for plugin in self.plugins:
-            widgets_list += plugin.widgets.get(place, [])
+            logger.debug("WebUI plugin %s", plugin)
+            for widget in plugin.widgets.get(place, []):
+                logger.debug(" - widget %s", widget['name'])
+                # Check if the widget requires a specific plugin to be present and enabled
+                if widget.get('plugin', None):
+                    needed_plugin = self.find_plugin(widget.get('plugin', None))
+                    if not needed_plugin or not needed_plugin.is_enabled():
+                        logger.debug("Widget '%s' ignored because of missing "
+                                     "or disabled plugin: %s", widget['name'], plugin)
+                        continue
+
+                widgets_list.append(widget)
+
         return widgets_list
 
     def get_tables_for(self, place):
-        """
-        For a specific place like 'external', return the application tables list
-        """
-        tables = self.tables.get(place, [])
+        """For a specific place like 'external', return the application tables list"""
+        tables = []
         for plugin in self.plugins:
             if place in plugin.tables:
                 tables = tables + plugin.tables[place]
@@ -356,9 +363,7 @@ class WebUI(object):
     # ------------------------------------------------------------------------------------------
     @staticmethod
     def response_ok(message="Ok"):
-        """
-        Request is ok
-        """
+        """Request is ok"""
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(
@@ -367,18 +372,14 @@ class WebUI(object):
 
     @staticmethod
     def response_data(data):
-        """
-        Request is ok and contains data
-        """
+        """Request is ok and contains data"""
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(data)
 
     @staticmethod
     def response_invalid_parameters(message="Missing parameter"):
-        """
-        Request parameters are invalid
-        """
+        """Request parameters are invalid"""
         response.status = 204
         response.content_type = 'application/json'
         return json.dumps(
@@ -387,9 +388,7 @@ class WebUI(object):
 
     @staticmethod
     def response_missing_file(message="No file selected for upload"):
-        """
-        File to upload missing parameter
-        """
+        """File to upload missing parameter"""
         return WebUI.response_ko(message=message, code=412)
 
     @staticmethod

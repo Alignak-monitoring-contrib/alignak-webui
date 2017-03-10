@@ -86,7 +86,7 @@ class Plugin(object):
         self.tables = {}
         self.lists = {}
 
-        self.enabled = False
+        self.enabled = True
         self.configuration_loaded = self.load_config(initialization=True)
         if self.configuration_loaded:
             self.enabled = self.plugin_parameters.get('enabled', True)
@@ -96,6 +96,10 @@ class Plugin(object):
 
         self.load_routes(app)
         logger.info("Plugin %s is installed and enabled.", self.name)
+
+    def is_enabled(self):
+        """Returns True if plugin is enabled"""
+        return self.enabled
 
     def send_user_message(self, message, status='ko', redirected=True):
         # pylint:disable=no-self-use
@@ -337,11 +341,10 @@ class Plugin(object):
                                 widget.get('picture', '')
                             ),
                             'base_uri': route_url,
+                            'plugin': widget.get('plugin', None),
                             'function': f
                         })
-                        logger.debug(
-                            "Found widget '%s' for %s", widget['id'], place
-                        )
+                        logger.info("Found widget '%s' for %s", widget['id'], place)
 
             if 'tables' in entry:
                 for table in entry.get('tables'):
@@ -984,7 +987,8 @@ class Plugin(object):
 
         """
         user = request.environ['beaker.session']['current_user']
-        datamgr = request.app.datamgr
+        webui = request.app.config['webui']
+        datamgr = webui.datamgr
 
         # Get element get method from the data manager
         if not get_method:
@@ -1034,6 +1038,8 @@ class Plugin(object):
         widget_place = request.params.get('widget_place', 'dashboard')
         widget_template = request.params.get('widget_template', 'elements_table_widget')
         widget_icon = request.params.get('widget_icon', 'plug')
+        logger.debug("Searching a widget %s for: %s (%s)",
+                     widget_id, widget_place, widget_template)
 
         # Search in the application widgets (all plugins widgets)
         options = {}
