@@ -55,7 +55,7 @@
       </tr>
    %end
 
-   %for service in services:
+   %for service in sorted(services, key=lambda svc: svc.name):
       %if service.perf_data:
          %name_line = True
          %perfdatas = PerfDatas(service.perf_data)
@@ -64,7 +64,7 @@
          %if metric.name:
          <tr>
             %if name_line:
-            <td><strong>{{service.name}}</strong></td>
+            <td><strong>{{service.name}} ({{service.alias}})</strong></td>
             %else:
             <td></td>
             %end
@@ -80,11 +80,6 @@
          %end
          %end
          %end
-      %else:
-         <tr>
-            <td><strong>{{service.name}}</strong></td>
-            <td colspan="8"><strong>{{_('No available metrics for this service.')}}</strong></td>
-         </tr>
       %end
    %end
    </tbody>
