@@ -334,8 +334,7 @@
             <li>
                <a href="#host_tab_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
-                  title="{{! widget['description']}}"
-                  >
+                  title="{{! widget['name']}}">
                   <span class="fa fa-{{widget['icon']}}"></span>
                   <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
