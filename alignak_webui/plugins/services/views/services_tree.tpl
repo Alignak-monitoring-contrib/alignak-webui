@@ -68,12 +68,14 @@
                <!-- Tree structure to display items -->
                <div id="{{tree_type}}_tree"></div>
             </div>
+            <!--
             <div id="right_panel" class="col-md-9 col-sm-6 col-xs-12">
                <div class="card alert alert-dismissible alert-info">
                   <button type="button" class="close" data-dismiss="alert">×</button>
-                  <h4>{{_('Select an item in the left tree to display more information.')}}</h4>
+                  <h4>{{_('Select an item in the tree to display more information.')}}</h4>
                </div>
             </div>
+            -->
          </div>
       </div>
    </div>
@@ -157,14 +159,6 @@
                      });
                   });
                }
-            }
-            if (action.node.children.length === 0) {
-            } else {
-               // Node has children ...
-               $.each(action.node.children, function (index, child) {
-                  var childNode = $('#{{tree_type}}_tree').jstree(true).get_node(child);
-                  if (debugTree) console.log('Child:', childNode);
-               });
             }
          });
    });
