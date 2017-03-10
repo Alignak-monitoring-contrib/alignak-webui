@@ -805,7 +805,7 @@ class Helper(object):
             app_config = get_app_config()
 
             buttons = []
-            if bo_object.event_handler_enabled:
+            if hasattr(bo_object, 'event_handler_enabled'):
                 button = app_config.get('buttons.livestate_command')
                 button = button.replace("##id##", bo_object.id)
                 button = button.replace("##type##", bo_object.get_type())
@@ -819,48 +819,51 @@ class Helper(object):
                     button = button.replace("##disabled##", '')
                 buttons.append(button)
 
-            button = app_config.get('buttons.livestate_command')
-            button = button.replace("##id##", bo_object.id)
-            button = button.replace("##type##", bo_object.get_type())
-            button = button.replace("##name##", bo_object.name)
-            button = button.replace("##action##", 'acknowledge')
-            button = button.replace("##text##", _('Acknowledge this problem'))
-            button = button.replace("##icon##", 'check')
-            if getattr(bo_object, 'state_id', 0) > 0:
-                if bo_object.acknowledged:
+            if hasattr(bo_object, 'acknowledged'):
+                button = app_config.get('buttons.livestate_command')
+                button = button.replace("##id##", bo_object.id)
+                button = button.replace("##type##", bo_object.get_type())
+                button = button.replace("##name##", bo_object.name)
+                button = button.replace("##action##", 'acknowledge')
+                button = button.replace("##text##", _('Acknowledge this problem'))
+                button = button.replace("##icon##", 'check')
+                if getattr(bo_object, 'state_id', 0) > 0:
+                    if bo_object.acknowledged:
+                        button = button.replace("##disabled##", 'disabled="disabled"')
+                    else:
+                        button = button.replace("##disabled##", '')
+                else:
+                    button = button.replace("##disabled##", 'disabled="disabled"')
+                buttons.append(button)
+
+            if hasattr(bo_object, 'active_checks_enabled'):
+                button = app_config.get('buttons.livestate_command')
+                button = button.replace("##id##", bo_object.id)
+                button = button.replace("##type##", bo_object.get_type())
+                button = button.replace("##name##", bo_object.name)
+                button = button.replace("##action##", 'recheck')
+                button = button.replace("##text##", _('Re-check this element'))
+                button = button.replace("##icon##", 'refresh')
+                if getattr(bo_object, 'active_checks_enabled', None) is not None:
+                    if not getattr(bo_object, 'active_checks_enabled'):
+                        button = button.replace("##disabled##", 'disabled="disabled"')
+                else:
+                    button = button.replace("##disabled##", 'disabled="disabled"')
+                buttons.append(button)
+
+            if hasattr(bo_object, 'downtimed'):
+                button = app_config.get('buttons.livestate_command')
+                button = button.replace("##id##", bo_object.id)
+                button = button.replace("##type##", bo_object.get_type())
+                button = button.replace("##name##", bo_object.name)
+                button = button.replace("##action##", 'downtime')
+                button = button.replace("##text##", _('Schedule a downtime'))
+                button = button.replace("##icon##", 'ambulance')
+                if bo_object.downtimed:
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
                     button = button.replace("##disabled##", '')
-            else:
-                button = button.replace("##disabled##", 'disabled="disabled"')
-            buttons.append(button)
-
-            button = app_config.get('buttons.livestate_command')
-            button = button.replace("##id##", bo_object.id)
-            button = button.replace("##type##", bo_object.get_type())
-            button = button.replace("##name##", bo_object.name)
-            button = button.replace("##action##", 'recheck')
-            button = button.replace("##text##", _('Re-check this element'))
-            button = button.replace("##icon##", 'refresh')
-            if getattr(bo_object, 'active_checks_enabled', None) is not None:
-                if not getattr(bo_object, 'active_checks_enabled'):
-                    button = button.replace("##disabled##", 'disabled="disabled"')
-            else:
-                button = button.replace("##disabled##", 'disabled="disabled"')
-            buttons.append(button)
-
-            button = app_config.get('buttons.livestate_command')
-            button = button.replace("##id##", bo_object.id)
-            button = button.replace("##type##", bo_object.get_type())
-            button = button.replace("##name##", bo_object.name)
-            button = button.replace("##action##", 'downtime')
-            button = button.replace("##text##", _('Schedule a downtime'))
-            button = button.replace("##icon##", 'ambulance')
-            if bo_object.downtimed:
-                button = button.replace("##disabled##", 'disabled="disabled"')
-            else:
-                button = button.replace("##disabled##", '')
-            buttons.append(button)
+                buttons.append(button)
 
             button = app_config.get('buttons.livestate_command')
             button = button.replace("##id##", bo_object.id)
