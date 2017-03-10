@@ -68,6 +68,10 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
 
         logger.debug("HostMetrics, host: %s, services: %s, params: %s, tags: %s",
                      host, services, params, tags)
+
+        self.host = host
+        self.services = services
+
         # Default values
         self.params = {}
         self.tags = []
@@ -75,32 +79,28 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
             self.tags = tags
 
         self.services_names = [s.name for s in services]
+        logger.debug("HostMetrics, known services: %s", self.services_names)
         for param in params:
-            logger.debug("HostMetrics, param: %s", param)
-            p = param.split('.')
-            if len(p) != 3:
+            if param == 'table' or param not in self.tags:
                 continue
+            logger.debug("HostMetrics, checking %s / %s", param, params[param])
 
-            if p[0] not in self.tags:
-                continue
-            if p[1] not in self.services_names:
-                continue
-            if p[2] not in ['name', 'type', 'metrics', 'uom']:
-                continue
-
-            logger.info("metrics, service match: %s=%s", param, params[param])
-            if p[1] not in self.params:
-                self.params[p[1]] = {}
-            self.params[p[1]][p[2]] = params[param]
-        logger.debug("metrics, services match configuration: %s", self.params)
-
-        self.host = host
-        self.services = services
+            for key, config in params[param].iteritems():
+                logger.debug("HostMetrics, checking config: %s / %s / %s", param, key, config)
+                if 'name' not in config or \
+                        'type' not in config or \
+                        'metrics' not in config or \
+                        'uom' not in config:
+                    logger.warning("HostMetrics, bad service metrics configuration: %s", key)
+                    continue
+                if not self.find_service_by_name(config):
+                    logger.warning("HostMetrics, no matching service for: %s", key)
+                    continue
+                self.params[key] = config
 
     def find_service_by_name(self, searched):
-        """
-        Find a service by its name with regex
-        """
+        """Find a service by its name with regex"""
+        logger.info("HostMetrics, searching '%s' in the services", searched)
         for service in self.services:
             if re.search(searched['name'], service.name):
                 return service
@@ -109,8 +109,7 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
 
     def get_service_metric(self, service):
         # pylint: disable=too-many-nested-blocks
-        """
-        Get a specific service state and metrics
+        """Get a specific service state and metrics
 
         Returns a tuple built with:
         - service state

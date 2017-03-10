@@ -9,6 +9,11 @@
 %setdefault('mapId', 'host_location_map')
 
 %worldmap_plugin = webui.find_plugin('Worldmap')
+%if not worldmap_plugin:
+   <center>
+      <h3>{{_('The worldmap plugin is not installed or enabled.')}}</h3>
+   </center>
+%else:
 %hosts = [host]
 %hosts = worldmap_plugin.get_valid_elements(hosts)
 
@@ -35,3 +40,4 @@
 </div>
 
 %include("_worldmap")
+%end

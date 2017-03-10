@@ -40,6 +40,7 @@ from alignak_webui.backend.backend import BackendConnection
 from alignak_webui.backend.alignak_ws_client import AlignakConnection, AlignakWSException
 
 from alignak_webui.utils.dates import get_ts_date
+from alignak_webui.utils.helper import Helper
 
 # Import all objects we will need -
 # NOTE that all the objects types need to be imported else some errors will raise!
@@ -1406,7 +1407,7 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_hosts, search: %s", search)
+            logger.debug("get_hosts, search: %s", search)
             items = self.find_object('host', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -1458,23 +1459,6 @@ class DataManager(object):
             host = search
 
         return (host.overall_state, host.overall_status)
-
-    def get_host_services_hierarchy(self, search):
-        """Get a host real state (including services states).
-
-        Returns -1 if any problem
-        """
-        if not isinstance(search, BackendElement):
-            host = self.get_host(search)
-            if not host:
-                return -1
-        else:
-            host = search
-
-        # Get host services
-        return self.get_services(
-            search={'where': {'host': host.id}}, all_elements=True
-        )
 
     ##
     # Services groups
@@ -1652,6 +1636,8 @@ class DataManager(object):
 
         aggregations = {}
         for service in services:
+            service.aggregation = service.aggregation.capitalize()
+
             if not service.aggregation:
                 service.aggregation = _('Global')
 
@@ -1695,7 +1681,7 @@ class DataManager(object):
                     "disabled": False
                 },
                 'data': {
-                    'status': 'sqdsq',
+                    'status': 'none',
                     'name': aggregation,
                     'alias': aggregation,
                     '_level': aggregations[aggregation]['level'],
@@ -1708,7 +1694,7 @@ class DataManager(object):
         items_states = ElementState()
 
         for service in services:
-            cfg_state = items_states.get_icon_state('service', service.status)
+            cfg_state = items_states.get_icon_state('service', service.overall_status)
             if not cfg_state:
                 cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
 
@@ -1733,7 +1719,16 @@ class DataManager(object):
                     '_level': service._level,
                     'type': 'service'
                 },
-                'a_attr': {}
+                # Attributes for the tree node <a>
+                'a_attr': {},
+                # Attributes for the tree node <li>
+                'li_attr': {
+                    'title': "%s - %s (%s)" % (service.status,
+                                               Helper.print_duration(service.last_check,
+                                                                     duration_only=True, x_elts=0),
+                                               service.output),
+
+                }
             }
 
             tree_items.append(tree_item)

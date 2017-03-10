@@ -785,7 +785,7 @@ class TestAlignakDaemons(unittest2.TestCase):
         # Hosts table
         response = self.app.post('/alignak/widget', {
             'widget_id': 'alignak_table_1',
-            'widget_template': 'alignak_table_widget'
+            'widget_template': 'alignak_table'
         })
         print(response)
         response.mustcontain(

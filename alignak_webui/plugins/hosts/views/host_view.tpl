@@ -51,7 +51,7 @@
                   %extra += _(' and in scheduled downtime')
                   %end
                   %title = "%s - %s (%s)" % (service.status, Helper.print_duration(service.last_check, duration_only=True, x_elts=0), service.output)
-                  {{! service.get_html_state(text=None, title=title, extra=extra)}}
+                  {{! service.get_html_state(text=None, title=title, extra=extra, use_status=service.overall_status)}}
                </td>
 
                <td>
@@ -105,8 +105,15 @@
       </div>
    </div>
 
+%plugin = webui.find_plugin('Services')
+%if not plugin:
+   <center>
+      <h3>{{_('The services plugin is not installed or enabled.')}}</h3>
+   </center>
+%else:
    <!-- Service tree view -->
    %include("services_tree.tpl", tree_items=tree_items, elts=services, tree_type='service', in_host_view=True, title=_('My services tree'), layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
+%end
 
    %if not services:
    <center>

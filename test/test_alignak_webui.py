@@ -63,7 +63,9 @@ class TestInitialization(unittest2.TestCase):
         self.webui = self.config.get('webui', None)
         print(self.webui.__dict__)
         assert self.webui
-        assert self.webui.widgets is not None
+        assert self.webui.app is not None
+        assert self.webui.config is not None
+        assert self.webui.plugins_count is not None
 
     def test_1_1(self):
         """ Application configuration (manifest) """

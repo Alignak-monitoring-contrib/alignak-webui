@@ -84,6 +84,8 @@ class PluginHosts(Plugin):
                         'description': _(
                             'Host location: displays host position on a map.'
                         ),
+                        # Requires Worldmap plugin
+                        'plugin': 'Worldmap',
                         'options': {}
                     },
                     {
@@ -154,6 +156,8 @@ class PluginHosts(Plugin):
                         'description': _(
                             '<h4>Host grafana widget</h4>Displays host Grafana panel.'
                         ),
+                        # Requires Grafana plugin
+                        'plugin': 'Grafana',
                         'options': {}
                     }
                 ]

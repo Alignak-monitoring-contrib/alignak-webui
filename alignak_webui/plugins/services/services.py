@@ -92,6 +92,8 @@ class PluginServices(Plugin):
                         'description': _(
                             '<h4>service grafana widget</h4>Displays service Grafana panel.'
                         ),
+                        # Requires Grafana plugin
+                        'plugin': 'Grafana',
                         'options': {}
                     }
                 ]
