@@ -436,7 +436,7 @@ class Helper(object):
                     if field == 'isnot':
                         patterns = ['!' + pattern for pattern in patterns]
                         logger.debug("decode_search, updated patterns: %s", patterns)
-                    field = 'overall_state'
+                    field = 'overall_status'
 
                 # Specific search fields, business impact
                 if field in ['bi']:
@@ -568,7 +568,7 @@ class Helper(object):
                 logger.debug("decode_search, - $ne query: %s", search_type['pattern'])
                 query.update({field: {'$ne': search_type['pattern']}})
 
-        logger.debug("decode_search, result query: %s", query)
+        logger.info("decode_search, result query: %s", query)
         return query
 
     @staticmethod

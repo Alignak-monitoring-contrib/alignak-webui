@@ -235,10 +235,8 @@ class DataManager(object):
         and this property is valued as 'object_type'.
 
         Returns an array of matching objects"""
-        logger.debug(
-            "find_object, %s, params: %s, all: %s, embedded: %s",
-            object_type, params, all_elements, embedded
-        )
+        logger.debug("find_object, %s, params: %s, all: %s, embedded: %s",
+                     object_type, params, all_elements, embedded)
 
         if isinstance(params, basestring):
             params = {'where': {'_id': params}}

@@ -35,10 +35,7 @@ class PluginHistorys(Plugin):
     """ History plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        User plugin
-
-        Declare routes for adding, deleting a user
+        """History plugin
 
         Overload the default get route to declare filters.
         """

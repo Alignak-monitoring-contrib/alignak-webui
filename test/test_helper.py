@@ -375,11 +375,11 @@ class TestSearch(unittest2.TestCase):
              {u'hint': u'This field is the host status', u'required': True, u'editable': False,
               u'allowed': u'UP,DOWN,UNREACHABLE', u'title': u'Status', u'unique': True,
               u'type': u'string', u'empty': False}),
-            (u'overall_state', {u'regex': False,
-                                u'hint': u'This field is the real host status, aggregating services status',
-                                u'title': u'Overall status', u'editable': False, u'visible': True,
-                                u'allowed': u'ok,acknowledged,in_downtime,warning,critical',
-                                u'type': u'string'}),
+            (u'overall_status', {u'regex': False,
+                                 u'hint': u'This field is the real host status, aggregating services status',
+                                 u'title': u'Overall status', u'editable': False, u'visible': True,
+                                 u'allowed': u'ok,acknowledged,in_downtime,warning,critical',
+                                 u'type': u'string'}),
 
             (u'fake', {u'default': u'Default value', u'searchable': False, u'type': u'string',
                        u'title': u'Fake'}),
@@ -487,10 +487,10 @@ class TestSearch(unittest2.TestCase):
         assert s == {'name': {'$regex': '.*test.*'}}
 
         # Search and specify field (yet another name) without regex
-        s = helper.decode_search("overall_state:test", self.data_model)
+        s = helper.decode_search("overall_status:test", self.data_model)
         print("Result:", s)
         # Search name with no regex pattern
-        assert s == {'overall_state': 'test'}
+        assert s == {'overall_status': 'test'}
 
     def test_decode_search_type(self):
         """Helper - decode_search, typed fields search"""
@@ -601,9 +601,9 @@ class TestSearch(unittest2.TestCase):
         assert s == {'name': {'$regex': '/^((?!test).)*$/'}}
 
         # Search and specify field (yet another name) without regex
-        s = helper.decode_search("overall_state:!test", self.data_model)
+        s = helper.decode_search("overall_status:!test", self.data_model)
         # Search name with no regex pattern
-        assert s == {'overall_state': {'$ne': 'test'}}
+        assert s == {'overall_status': {'$ne': 'test'}}
 
     def test_decode_search_complex(self):
         """Helper - decode_search, complex search"""

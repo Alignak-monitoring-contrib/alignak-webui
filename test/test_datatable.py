@@ -27,6 +27,10 @@ import os
 import shlex
 import subprocess
 import time
+import requests
+
+from calendar import timegm
+from datetime import datetime
 
 import unittest2
 
@@ -83,6 +87,139 @@ def setup_module(module):
     )
     assert exit_code == 0
     print("Fed")
+
+    # Add history events and logcheckresults into the backend
+    endpoint = 'http://127.0.0.1:5000'
+
+    # Backend authentication
+    headers = {'Content-Type': 'application/json'}
+    params = {'username': 'admin', 'password': 'admin'}
+    # Get admin user token (force regenerate)
+    response = requests.post(endpoint + '/login', json=params, headers=headers)
+    resp = response.json()
+    auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
+    # Get admin user
+    response = requests.get(endpoint + '/user', auth=auth)
+    resp = response.json()
+    user_admin = resp['_items'][0]
+
+    # Get realms
+    response = requests.get(endpoint + '/realm', auth=auth)
+    resp = response.json()
+    realmAll_id = resp['_items'][0]['_id']
+
+    # Get hosts in the backend
+    response = requests.get(endpoint + '/host', params={'sort': 'name'}, auth=auth)
+    resp = response.json()
+    rh = resp['_items']
+
+    # Get services in the backend
+    response = requests.get(endpoint + '/service', params={'sort': 'name'}, auth=auth)
+    resp = response.json()
+    rs = resp['_items']
+
+    # -------------------------------------------
+    # Add a check result for an host
+    data = {
+        "last_check": timegm(datetime.utcnow().timetuple()),
+        "host": rh[0]['_id'],
+        "service": None,
+        'acknowledged': False,
+        'state_id': 0,
+        'state': 'UP',
+        'state_type': 'HARD',
+        'last_state_id': 0,
+        'last_state': 'UP',
+        'last_state_type': 'HARD',
+        'state_changed': False,
+        'latency': 0,
+        'execution_time': 0.12,
+        'output': 'Check output',
+        'long_output': 'Check long_output',
+        'perf_data': 'perf_data',
+        "_realm": realmAll_id
+    }
+    response = requests.post(endpoint + '/logcheckresult', json=data, headers=headers, auth=auth)
+    resp = response.json()
+    assert resp['_status'] == 'OK'
+
+    # -------------------------------------------
+    # Add a check result for a service
+    data = {
+        "last_check": timegm(datetime.utcnow().timetuple()),
+        "host": rh[1]['_id'],
+        "service": rs[0]['_id'],
+        'acknowledged': False,
+        'state_id': 0,
+        'state': 'UP',
+        'state_type': 'HARD',
+        'last_state_id': 0,
+        'last_state': 'UP',
+        'last_state_type': 'HARD',
+        'state_changed': False,
+        'latency': 0,
+        'execution_time': 0.12,
+        'output': 'Check output',
+        'long_output': 'Check long_output',
+        'perf_data': 'perf_data',
+        "_realm": realmAll_id
+    }
+    response = requests.post(endpoint + '/logcheckresult', json=data, headers=headers, auth=auth)
+    resp = response.json()
+    assert resp['_status'] == 'OK'
+
+    # Add an history event
+    data = {
+        "host_name": "chazay",
+        "service_name": "Processus",
+        "user_name": "Alignak",
+        "type": "check.result",
+        "message": "OK[HARD] (False,False): All is ok",
+        "_realm": realmAll_id,
+        "_sub_realm": True
+    }
+    time.sleep(1)
+    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
+    print(rsp.json())
+
+    # Add an history event
+    time.sleep(1)
+    data = {
+        "host_name": "denice",
+        "service_name": "Zombies",
+        "user_name": "Alignak",
+        "type": "check.result",
+        "message": "OK[HARD] (False,False): All is ok",
+        "_realm": realmAll_id,
+        "_sub_realm": True
+    }
+    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
+    print(rsp.json())
+
+    # Add an history event
+    time.sleep(1)
+    data = {
+        "host_name": "denice",
+        "user_name": "Alignak",
+        "type": "monitoring.alert",
+        "message": "HOST ALERT ....",
+        "_realm": realmAll_id,
+        "_sub_realm": True
+    }
+    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
+    print(rsp.json())
+    # ---
+
+    # Get history to confirm that backend is ready
+    # ---
+    response = requests.get(endpoint + '/history', auth=auth,
+                            params={"sort": "-_id", "max_results": 25, "page": 1})
+    resp = response.json()
+    print("Response: %s" % resp)
+    assert len(resp['_items']) == 5
+    # ---
+
 
 
 def teardown_module(module):
@@ -506,6 +643,7 @@ class TestDatatableBase(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.follow()
 
+
 class TestDatatableCommands(TestDatatableBase):
     def test_commands(self):
         """ Datatable - commands table """
@@ -607,7 +745,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<table id="tbl_host" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
-            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="overall_status" data-type="string"',
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="business_impact" data-type="integer"',
@@ -748,7 +886,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="host" data-type="objectid"',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
-            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="overall_status" data-type="string"',
             '<th data-name="ls_last_check" data-type="datetime"',
             '<th data-name="ls_state_type" data-type="string"',
             '<th data-name="ls_state_id" data-type="integer"',
