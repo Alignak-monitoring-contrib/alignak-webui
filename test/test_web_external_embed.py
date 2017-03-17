@@ -272,7 +272,7 @@ class TestsExternal(unittest2.TestCase):
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
-            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="overall_status" data-type="string"',
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="business_impact" data-type="integer"'
@@ -290,7 +290,7 @@ class TestsExternal(unittest2.TestCase):
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
-            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="overall_status" data-type="string"',
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="business_impact" data-type="integer"'
@@ -308,7 +308,7 @@ class TestsExternal(unittest2.TestCase):
             '<div id="hosts_table" class="alignak_webui_table embedded">',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
-            '<th data-name="overall_state" data-type="string"',
+            '<th data-name="overall_status" data-type="string"',
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="business_impact" data-type="integer"',

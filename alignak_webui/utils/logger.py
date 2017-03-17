@@ -42,16 +42,12 @@ logger.setLevel(ROOT_LOGGER_LEVEL)
 
 
 class UTCFormatter(logging.Formatter):
-    """
-    This logging formatter converts the log date/time to UTC
-    """
+    """This logging formatter converts the log date/time to UTC"""
     converter = time.gmtime
 
 
 class ColorStreamHandler(StreamHandler):
-    """
-    This log handler provides colored logs when logs are emitted to a tty.
-    """
+    """This log handler provides colored logs when logs are emitted to a tty."""
     def emit(self, record):
         try:
             msg = self.format(record)

@@ -510,11 +510,11 @@ class Datatable(object):
                                      column['data'], params['search']['value'])
                         if 'regex' in params['search']:
                             if params['search']['regex']:
-                                s_global.append(
+                                s_global.update(
                                     {column['data']: {
                                         "$regex": ".*" + params['search']['value'] + ".*"}})
                             else:
-                                s_global.append({column['data']: params['search']['value']})
+                                s_global.update({column['data']: params['search']['value']})
                 s_global = search
 
             logger.info("backend search global parameters: %s", s_global)
@@ -623,7 +623,7 @@ class Datatable(object):
                     # row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
                     continue
 
-                if field['data'] in ['_overall_state_id', 'overall_state']:
+                if field['data'] in ['_overall_state_id', 'overall_state', 'overall_status']:
                     # Get the item overall state from the data manager
                     f_get_overall_state = getattr(self.datamgr,
                                                   'get_%s_overall_state' % self.object_type)

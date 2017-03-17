@@ -35,8 +35,7 @@ class PluginLogCheckResults(Plugin):
     """ Services groups plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Services groups plugin
+        """Log check results plugin
 
         Overload the default get route to declare filters.
         """
