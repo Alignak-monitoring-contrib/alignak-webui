@@ -210,7 +210,7 @@ class TestTimeperiods(unittest2.TestCase):
         response = self.app.get('/timeperiods')
         response.mustcontain(
             '<div id="timeperiods">',
-            '4 elements out of 4',
+            '5 elements out of 5',
         )
         self.app.get('/timeperiods/config')
         self.app.get('/timeperiods/list')

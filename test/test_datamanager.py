@@ -466,7 +466,7 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             item.get_html_state()
-        assert len(items) == 4
+        assert len(items) == 5
 
     def test_5_1_get_linked(self):
         """ Datamanager objects get - linked elements """

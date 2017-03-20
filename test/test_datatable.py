@@ -1215,11 +1215,6 @@ class TestDatatableLogs(TestDatatableBase):
 
         response = self.app.post('/logcheckresults/table_data')
         response_value = response.json
-        print(response_value)
-        # Temporary
-        items_count = response.json['recordsTotal']
-
-        # No data in the test backend
 
 
 class TestDatatableHistorys(TestDatatableBase):
@@ -1245,10 +1240,4 @@ class TestDatatableHistorys(TestDatatableBase):
         )
 
         response = self.app.post('/historys/table_data')
-        print(response)
         response_value = response.json
-        print(response_value)
-        # Temporary
-        items_count = response.json['recordsTotal']
-
-        # No data in the test backend

@@ -67,7 +67,7 @@ class Host(BackendElement):
 
         # Converting real state identifier to text status
         self.overall_state_to_status = [
-            'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+            'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'nope'
         ]
 
         self.overall_state_to_title = [
@@ -75,7 +75,8 @@ class Host(BackendElement):
             _('Host or some of its services are problems but acknowledged'),
             _('Host or some of its services are in a downtime period'),
             _('Host or some of its services are warning or state are unknown'),
-            _('Host or some of its services are critical')
+            _('Host or some of its services are critical'),
+            _('Host is not monitored')
         ]
 
         self._linked__realm = 'realm'
@@ -157,7 +158,7 @@ class Host(BackendElement):
 
     @property
     def position(self):
-        """ Compute and return host GPS location """
+        """Compute and return host GPS location"""
         _lat = float(self.customs.get('_LOC_LAT', 999))
         _lng = float(self.customs.get('_LOC_LNG', 999))
         # latitude must be between -90/90 and longitude between -180/180
@@ -171,148 +172,134 @@ class Host(BackendElement):
         return {u'type': u'Point', u'coordinates': [_lat, _lng]}
 
     @property
+    def status(self):
+        """Return host live state status
+
+        Consider if the host is indeed monitored or not
+        """
+        if self.monitored:
+            return self.ls_state
+        if not hasattr(self, self.status_property):
+            return None
+        return "NOPE"
+
+    @property
     def state_id(self):
-        """
-        Return host live state identifier
-        """
+        """Return host live state identifier"""
         return self.ls_state_id
 
     @property
     def state(self):
-        """
-        Return host live state
-        """
+        """Return host live state"""
         return self.ls_state
 
     @property
     def state_type(self):
-        """
-        Return host live state type
-        """
+        """Return host live state type"""
         return self.ls_state_type
 
     @property
     def last_check(self):
-        """
-        Return host live state last check
-        """
+        """Return host live state last check"""
         return self.ls_last_check
 
     @property
     def execution_time(self):
-        """
-        Return host live state execution time
-        """
+        """Return host live state execution time"""
         return self.ls_execution_time
 
     @property
     def latency(self):
-        """
-        Return host live state latency
-        """
+        """Return host live state latency"""
         return self.ls_latency
 
     @property
     def current_attempt(self):
-        """
-        Return host live state current attempt
-        """
+        """Return host live state current attempt"""
         return self.ls_current_attempt
 
     @property
     def max_attempts(self):
-        """
-        Return host live state maximum attempts
-        """
+        """Return host live state maximum attempts"""
         return self.ls_max_attempts
 
     @property
     def next_check(self):
-        """
-        Return host live state next check
-        """
+        """Return host live state next check"""
         return self.ls_next_check
 
     @property
     def last_state_changed(self):
-        """
-        Return host live state last state changed
-        """
+        """Return host live state last state changed"""
         return self.ls_last_state_changed
 
     @property
     def last_state(self):
-        """
-        Return host live last_state
-        """
+        """Return host live last_state"""
         return self.ls_last_state
 
     @property
     def last_state_type(self):
-        """
-        Return host live last_state type
-        """
+        """Return host live last_state type"""
         return self.ls_last_state_type
 
     @property
     def output(self):
-        """
-        Return host live state output
-        """
+        """Return host live state output"""
         return self.ls_output
 
     @property
     def long_output(self):
-        """
-        Return host live state long output
-        """
+        """Return host live state long output"""
         return self.ls_long_output
 
     @property
     def perf_data(self):
-        """
-        Return host live state performance data
-        """
+        """Return host live state performance data"""
         return self.ls_perf_data
 
     @property
+    def monitored(self):
+        """Return host monitored state
+
+        An host is said as monitored if active checks and/or passive checks are enabled
+        for this host. If an host is not monitored the Web UI will exclude the host
+        from the views.
+
+        """
+        if hasattr(self, 'active_checks_enabled') and self.active_checks_enabled:
+            return True
+        if hasattr(self, 'passive_checks_enabled') and self.passive_checks_enabled:
+            return True
+        return False
+
+    @property
     def acknowledged(self):
-        """
-        Return host live state acknowledged
-        """
+        """Return host live state acknowledged"""
         return self.ls_acknowledged
 
     @property
     def downtimed(self):
-        """
-        Return host live state downtime
-        """
+        """Return host live state downtime"""
         return self.ls_downtimed
 
     @property
     def is_problem(self):
-        """
-        An element is_problem if not ok / unknwown and hard state type
-        """
-        if self.state_id in [1, 2] and self.state_type == "HARD":
+        """An element is_problem if not ok / unknwown and hard state type"""
+        if self.status != 'NOPE' and self.state_id in [1, 2] and self.state_type == "HARD":
             return True
         return False
 
     def get_initial_state(self):
-        """
-        Get the element initial state
-        """
+        """Get the element initial state"""
         return self.short_state_to_status[self.initial_state]
 
     def get_freshness_state(self):
-        """
-        Get the element freshness state
-        """
+        """Get the element freshness state"""
         return self.short_state_to_status[self.freshness_state]
 
     @property
     def overall_state(self):
-
         """The host overall state is computed by the alignak backend, including:
         - the acknowledged state
         - the downtime state
@@ -341,7 +328,9 @@ class Host(BackendElement):
             at least one of its services is CRITICAL
 
         """
-        return self._overall_state_id
+        if self.monitored:
+            return self._overall_state_id
+        return 5
 
     @property
     def overall_status(self):
@@ -349,9 +338,7 @@ class Host(BackendElement):
         return self.overall_state_to_status[self.overall_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
-        """
-        Get last check date
-        """
+        """Get last check date"""
         if self.last_check == self.__class__._default_date and not timestamp:
             return _('Never checked!')
 

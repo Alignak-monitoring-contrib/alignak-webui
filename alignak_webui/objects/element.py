@@ -160,8 +160,7 @@ class BackendElement(object):
         cls._cache = {}
 
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a new object
+        """Create a new object
 
         If the provided arguments have a params dictionary that include an _id field,
         this field will be used as an unique object identifier. else, an auto generated
