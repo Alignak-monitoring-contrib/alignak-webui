@@ -47,7 +47,7 @@ class PluginLivestate(Plugin):
 
         self.pages = {
             'bi_livestate': {
-                'name': 'Livestate json',
+                'name': 'LivestateBI',
                 'route': '/bi-livestate',
                 'view': ''
             },

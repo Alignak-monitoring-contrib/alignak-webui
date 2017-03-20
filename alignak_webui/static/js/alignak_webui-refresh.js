@@ -175,7 +175,7 @@ function check_UI_backend(){
 
    if (sessionStorage.getItem("refresh_active") == '1') {
       $.get({
-         url: '/heartbeat',
+         url: app_prefix + '/heartbeat',
          dataType: "json"
       })
       .done(function(data, textStatus, jqXHR) {
@@ -243,7 +243,7 @@ function check_refresh(){
 
       // Ping server ...
       $.get({
-         url: '/ping',
+         url: app_prefix + '/ping',
          dataType: "json"
       })
       .done(function(data, textStatus, jqXHR) {
@@ -251,7 +251,7 @@ function check_refresh(){
             if (data.message == 'refresh') {
                if (refresh_logs) console.debug("Refresh required by the server");
                $.get({
-                  url: '/ping?action=done',
+                  url: app_prefix + '/ping?action=done',
                   dataType: "json"
                })
                .always(function(data, textStatus, jqXHR) {

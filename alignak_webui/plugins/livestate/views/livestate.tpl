@@ -101,7 +101,7 @@
 
             %if view_table:
                 $.ajax({
-                    url: "/bi-livestate",
+                    url: "{{request.app.get_url('LivestateBI')}}",
                     data: {
                         "bi": -1,
                         "search": null
@@ -142,7 +142,7 @@
                     // Request to update each possible Business impact ...
                     if (debug_logs) console.debug("livestate,  request Livestate for BI:",  bi);
                     $.ajax({
-                        url: "/bi-livestate",
+                        url: "{{request.app.get_url('LivestateBI')}}",
                         data: {
                             "bi": bi,
                             "search": null

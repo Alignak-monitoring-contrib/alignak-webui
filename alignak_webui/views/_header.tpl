@@ -1,5 +1,8 @@
 %setdefault('debug', False)
 
+%# Application URI prefix
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
 <script type="text/javascript">
    // Check header refresh period (seconds)
    var header_refresh_period = {{request.app.config.get('%s.header_refresh_period' % webui.name, '30')}};
@@ -7,7 +10,7 @@
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
       $.ajax({
-         url: "/ping?action=refresh&template=_header_states"
+         url: "{{app_prefix}}/ping?action=refresh&template=_header_states"
       })
       .done(function(content, textStatus, jqXHR) {
          $('#_header_states').html(content);
@@ -36,9 +39,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="/">
+         <a class="navbar-brand" href="{{request.app.get_url('HomePage')}}">
             <img
-               src="{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
+               src="{{app_prefix}}{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
                style="{{request.app.config.get('app_logo_css', '')}}"
                alt="{{_('Alignak WebUI logo')}}"
                title="{{request.app.config.get('app_logo_title', _('Alignak Web User Interface'))}}" />

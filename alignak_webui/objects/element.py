@@ -51,8 +51,7 @@ logger.setLevel(INFO)
 class BackendElement(object):
     # Yes, but it is the base object and it needs those pubic methods!
     # pylint: disable=too-many-public-methods
-    """
-    Base class for all the data manager objects
+    """Base class for all the data manager objects
 
     An Item is created from a dictionary with some specific features:
     - an item has an identifier, a name, an alias and a comment (notes)
@@ -68,6 +67,7 @@ class BackendElement(object):
     _count = 0
     _total_count = -1
 
+    _web_prefix = None
     _backend = None
     _known_classes = None
 
@@ -111,7 +111,7 @@ class BackendElement(object):
 
     @classmethod
     def set_known_classes(cls, known_classes):
-        """ Set protected member _known_classes """
+        """Set protected member _known_classes"""
         cls._known_classes = known_classes
 
     @classmethod
@@ -160,8 +160,7 @@ class BackendElement(object):
         cls._cache = {}
 
     def __new__(cls, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a new object
+        """Create a new object
 
         If the provided arguments have a params dictionary that include an _id field,
         this field will be used as an unique object identifier. else, an auto generated
@@ -193,13 +192,20 @@ class BackendElement(object):
                 app_config.get('alignak_backend', 'http://127.0.0.1:5000')
             )
 
+        if cls._web_prefix is None:
+            # Get global configuration
+            app_config = get_app_config()
+            if not app_config:  # pragma: no cover, should not happen
+                return
+
+            cls._web_prefix= app_config.get('prefix', '')
+            logger.debug("Class %s, _web_prefix: %s", cls, cls._web_prefix)
+
         _id = '0'
         if params:
             if not isinstance(params, dict):
-                logger.warning(
-                    "Class %s, id_property: %s, invalid params: %s",
-                    cls, id_property, params
-                )
+                logger.warning("Class %s, id_property: %s, invalid params: %s",
+                               cls, id_property, params)
                 if isinstance(params, BackendElement):  # pragma: no cover, not tested!
                     # params = params.__dict__
                     # Do not copy, build a new object...
@@ -286,11 +292,10 @@ class BackendElement(object):
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Yes, but we need those locals!
         # pylint: disable=too-many-locals
-        # pylint:disable=too-many-nested-blocks
+        # pylint: disable=too-many-nested-blocks
         # Yes, but it is the base object and it needs those arguments!
         # pylint: disable=unused-argument
-        """
-        Initialize an object
+        """Initialize an object
 
         Beware: always called, even if the object is not newly created! Use __init__ function for
         initializing newly created objects.
@@ -556,7 +561,7 @@ class BackendElement(object):
     @property
     def endpoint(self):
         """Get Item endpoint (page url)"""
-        return '/%s/%s' % (self.object_type, self.name)
+        return '%s/%s/%s' % (self._web_prefix, self.object_type, self.name)
 
     @property
     def html_link(self):

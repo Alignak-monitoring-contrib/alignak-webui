@@ -95,18 +95,6 @@ class Service(BackendElement):
             setattr(self, '_overall_state', 0)
 
     @property
-    def endpoint(self):
-        """
-        Get Item endpoint (page url)
-        """
-        return '/service/%s' % (self.id)
-
-    # @property
-    # def _realm(self):
-    #     """ Return concerned realm """
-    #     return self._linked__realm
-
-    @property
     def _templates(self):
         """ Return linked object """
         return self._linked__templates

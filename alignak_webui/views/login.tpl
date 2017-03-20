@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+%# Application URI prefix
+%from bottle import request
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
 <html lang="en">
    <head>
       <!--
@@ -20,18 +24,13 @@
 
       <title>{{_('Application login page')}}</title>
 
-      <link href="/static/images/favicon.ico" rel="shortcut icon">
+      <link href="{{app_prefix}}/static/images/favicon.ico" rel="shortcut icon">
 
       <!-- Stylesheets -->
       %# WebUI CSS files
       %for f in webui.css_list:
       <link rel="stylesheet" href="{{f}}">
       %end
-
-      <!-- Alignak Web UI (included in the previous files list)
-      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
-      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
-      -->
 
       <!--
          Application libraries
@@ -51,7 +50,7 @@
                   <h3>{{_('Version ')}}{{request.app.config.get('about_version', __manifest__['version'])}}</h3>
                   <center>
                      <img
-                        src="{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
+                        src="{{app_prefix}}{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
                         style="{{request.app.config.get('login_logo_css', 'width:90%')}}"
                         alt="{{_('Alignak WebUI logo')}}"
                         title="{{request.app.config.get('app_logo_title', _('Alignak Web User Interface'))}}" />

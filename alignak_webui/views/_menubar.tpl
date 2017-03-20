@@ -1,4 +1,4 @@
-%from bottle import RouteBuildError
+%from bottle import request, RouteBuildError
 
 %setdefault('debug', False)
 %setdefault('widgets_bar', False)
@@ -13,7 +13,7 @@
    <ul class="nav navbar-nav">
       %try:
       <li data-toggle="tooltip" data-placement="bottom" title="{{_('Dashboard')}}">
-         <a class="navbar-link" href="{{ webui.get_url('Dashboard') }}">
+         <a class="navbar-link" href="{{ request.app.get_url('Dashboard') }}">
             <span class="fa fa-fw fa-dashboard"></span>
             <span class="sr-only">{{_('Dashboard')}}</span>
          </a>
@@ -33,7 +33,7 @@
          <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Elements menu')}}">
             %try:
             <li>
-               <a href="{{ webui.get_url('Hosts table') }}">
+               <a href="{{ request.app.get_url('Hosts table') }}">
                   <span class="fa fa-fw fa-server"></span>
                   <span>{{_('Hosts')}}</span>
                </a>
@@ -44,7 +44,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Services table') }}">
+               <a href="{{ request.app.get_url('Services table') }}">
                   <span class="fa fa-fw fa-cubes"></span>
                   <span>{{_('Services')}}</span>
                </a>
@@ -55,7 +55,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Users table') }}">
+               <a href="{{ request.app.get_url('Users table') }}">
                   <span class="fa fa-fw fa-users"></span>
                   <span>{{_('Users')}}</span>
                </a>
@@ -68,7 +68,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Hosts dependencies table') }}">
+               <a href="{{ request.app.get_url('Hosts dependencies table') }}">
                   <span class="fa fa-fw fa-arrows-v"></span>
                   <span>{{_('Hosts dependencies')}}</span>
                </a>
@@ -79,7 +79,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Services dependencies table') }}">
+               <a href="{{ request.app.get_url('Services dependencies table') }}">
                   <span class="fa fa-fw fa-arrows-v"></span>
                   <span>{{_('Services dependencies')}}</span>
                </a>
@@ -92,7 +92,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Realms table') }}">
+               <a href="{{ request.app.get_url('Realms table') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Realms')}}</span>
                </a>
@@ -103,7 +103,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Timeperiods table') }}">
+               <a href="{{ request.app.get_url('Timeperiods table') }}">
                   <span class="fa fa-fw fa-calendar"></span>
                   <span>{{_('Timeperiods')}}</span>
                </a>
@@ -114,7 +114,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Commands table') }}">
+               <a href="{{ request.app.get_url('Commands table') }}">
                   <span class="fa fa-fw fa-bolt"></span>
                   <span>{{_('Commands')}}</span>
                </a>
@@ -127,7 +127,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Users groups table') }}">
+               <a href="{{ request.app.get_url('Users groups table') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Users groups')}}</span>
                </a>
@@ -138,7 +138,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Hosts groups table') }}">
+               <a href="{{ request.app.get_url('Hosts groups table') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Hosts groups')}}</span>
                </a>
@@ -149,7 +149,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Services groups table') }}">
+               <a href="{{ request.app.get_url('Services groups table') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Services groups')}}</span>
                </a>
@@ -171,7 +171,7 @@
          <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Tactical views menu')}}">
             %try:
             <li>
-               <a href="{{ webui.get_url('Livestate') }}">
+               <a href="{{ request.app.get_url('Livestate') }}">
                   <span class="fa fa-fw fa-heartbeat"></span>
                   <span>{{_('Livestate')}}</span>
                </a>
@@ -182,7 +182,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Log check results table') }}">
+               <a href="{{ request.app.get_url('Log check results table') }}">
                   <span class="fa fa-fw fa-history"></span>
                   <span>{{_('Log')}}</span>
                </a>
@@ -195,7 +195,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Worldmap') }}">
+               <a href="{{ request.app.get_url('Worldmap') }}">
                   <span class="fa fa-fw fa-globe"></span>
                   <span>{{_('Worldmap')}}</span>
                </a>
@@ -206,7 +206,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Minemap') }}">
+               <a href="{{ request.app.get_url('Minemap') }}">
                   <span class="fa fa-fw fa-table"></span>
                   <span>{{_('Minemap')}}</span>
                </a>
@@ -219,7 +219,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Realms tree') }}">
+               <a href="{{ request.app.get_url('Realms tree') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Realms')}}</span>
                </a>
@@ -230,7 +230,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Hosts groups tree') }}">
+               <a href="{{ request.app.get_url('Hosts groups tree') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Hosts groups')}}</span>
                </a>
@@ -243,7 +243,7 @@
 
             %try:
             <li>
-               <a href="{{ webui.get_url('Alignak status') }}">
+               <a href="{{ request.app.get_url('Alignak status') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Alignak status')}}</span>
                </a>

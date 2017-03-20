@@ -28,7 +28,7 @@ body {
     border-top: 0;
 }
 .table-invisible {
-    margin:1;
+    margin:1px;
 }
 
 /*
@@ -222,7 +222,7 @@ div[data-type="actions"] {
 
 div[data-type="actions"] ul.dropdown-menu {
     opacity: 1;
-    background-color: light-grey;
+    background-color: #ddd;
 }
 
 /*

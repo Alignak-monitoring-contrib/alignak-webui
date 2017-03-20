@@ -92,8 +92,6 @@ from alignak_webui.webui import WebUI
 
 app = application = bottle.Bottle()
 
-PREFIX = 'webui_prefix'
-
 # -----
 # Test mode for the application
 # -----
@@ -342,7 +340,6 @@ def static(filename):
 
     Plugins declare their own static routes under /plugins
     """
-    logger.error("Static: %s" % filename)
     if not filename.startswith('plugins'):
         return static_file(
             filename, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
@@ -389,14 +386,22 @@ def before_request():
         - login / logout
         - static files (js, css, ...)
     """
-    logger.error("before_request, url: %s", request.urlparts.path)
+    logger.debug("before_request, url: %s", request.urlparts.path)
+
+    # Public URLs routing ...
+    if '/ping' in request.urlparts.path or '/heartbeat' in request.urlparts.path:
+        return
+
+    # Login/logout URLs routing ...
+    if '/login' in request.urlparts.path or '/logout' in request.urlparts.path:
+        return
 
     # Static application and plugins files
-    if request.urlparts.path.startswith('/static'):
+    if '/static' in request.urlparts.path:
         return
 
     # External URLs routing ...
-    if request.urlparts.path.startswith('/external'):
+    if '/external' in request.urlparts.path:
         return
 
     # Get the server session (if it exists ...)
@@ -412,14 +417,6 @@ def before_request():
         # Make session current user available in the templates
         BaseTemplate.defaults['current_user'] = session['current_user']
 
-    # Public URLs routing ...
-    if '/ping' in request.urlparts.path or '/heartbeat' in request.urlparts.path:
-        return
-
-    # Login/logout URLs routing ...
-    if '/login' in request.urlparts.path or '/logout' in request.urlparts.path:
-        return
-
     # Session authentication ...
     if 'current_user' not in session:
         # Redirect to application login page
@@ -429,7 +426,7 @@ def before_request():
         # Stop Alignak backend thread
         # *****
 
-        redirect('login')
+        redirect(request.app.get_url('LoginForm'))
 
     # Get the WebUI instance
     webui = request.app.config['webui']
@@ -439,7 +436,7 @@ def before_request():
         # Redirect to application login page
         logger.warning("User in the session is not authenticated. "
                        "Redirecting to the login page...")
-        redirect('login')
+        redirect(request.app.get_url('LoginForm'))
 
     logger.debug("before_request, user authenticated")
 
@@ -505,7 +502,6 @@ def user_logout():
     # Log-out from application
     logger.info("Logout for current user")
 
-    # redirect(PREFIX + '/login')
     redirect(request.app.get_url('LoginForm'))
 
 
@@ -572,7 +568,7 @@ def user_auth():
 # --------------------------------------------------------------------------------------------------
 # Ping / heartbeat
 # --------------------------------------------------------------------------------------------------
-@app.route('/heartbeat')
+@app.route('/heartbeat', name='Heartbeat')
 def heartbeat():
     """Application heartbeat"""
     # Session authentication ...
@@ -594,7 +590,7 @@ def heartbeat():
                                   % session['current_user'].get_username()})
 
 
-@app.route('/ping')
+@app.route('/ping', name='Ping')
 def ping():
     # pylint: disable=too-many-return-statements
     """Request on /ping is a simple check alive that returns an information if UI refresh is needed
@@ -1016,10 +1012,13 @@ session_opts = {
 logger.debug("Session parameters: %s" % session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
-from bottle import Bottle
-root_app = Bottle()
-# root_app.merge(app.routes)
-root_app.mount('/webui/', session_app)
+if app.config.get('prefix', None) is not None:
+    from bottle import Bottle
+
+    root_app = Bottle()
+    root_app.mount(app.config.get('prefix', ''), session_app)
+else:
+    root_app = session_app
 
 logger.info("Running Bottle server, debug mode: %s" % app.config.get('debug', False))
 if __name__ == '__main__':

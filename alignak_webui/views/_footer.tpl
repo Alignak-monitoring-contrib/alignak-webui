@@ -1,12 +1,16 @@
 %from bottle import request
 %from alignak_webui import __manifest__
 
+%# Application URI prefix
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
+
 <!-- Page footer -->
 <footer class="page-footer navbar-default navbar-fixed-bottom">
    <div class="container-fluid">
-      %if request.app.config.get('webui_logo', '/static/images/logo_webui_xxs.png'):
+      %if request.app.config.get('webui_logo', '{{app_prefix}}/static/images/logo_webui_xxs.png'):
       <a href="{{request.app.config.get('about_url', __manifest__['doc'])}}" target="_blank">
-         <img src="{{request.app.config.get('webui_logo', '/static/images/logo_webui_xxs.png')}}" alt="{{_('WebUI Logo')}}" style="height: 18px">
+         <img src="{{app_prefix}}{{request.app.config.get('webui_logo', '/static/images/logo_webui_xxs.png')}}" alt="{{_('WebUI Logo')}}" style="height: 18px">
       </a>
       %end
 

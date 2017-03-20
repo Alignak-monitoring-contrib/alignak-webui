@@ -1,3 +1,7 @@
+%# Application URI prefix
+%from bottle import request
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
 %setdefault('read_only', False)
 %setdefault('auto_post', False)
 
@@ -19,7 +23,7 @@
 </div>
 
 <div class="modal-body">
-   <form class="{{form_class}}" data-item="{{element}}" data-action="{{action}}" method="post" action="/{{element}}/{{action}}" role="form">
+   <form class="{{form_class}}" data-item="{{element}}" data-action="{{action}}" method="post" action="{{app_prefix}}/{{element}}/{{action}}" role="form">
       <div class="form-group" style="display: none">
          %for id in element_id:
          <input type="text" readonly id="element_id" name="element_id" value="{{id}}">

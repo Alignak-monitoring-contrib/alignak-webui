@@ -5,6 +5,10 @@
 %setdefault('js', [])
 %setdefault('css', [])
 %setdefault('title', _('Untitled...'))
+
+%# Application URI prefix
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
 %setdefault('current_user', None)
@@ -45,11 +49,6 @@
       <link rel="stylesheet" href="{{f}}">
       %end
 
-      <!-- Alignak Web UI (included in the previous files list)
-      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
-      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
-      -->
-
       %# Specific CSS files
       %for f in css:
       <link rel="stylesheet" href="/static/plugins/{{f}}">
@@ -69,6 +68,7 @@
       <script>
       var dashboard_currently = false;
       var sound_activated = false;
+      var app_prefix = '{{app_prefix}}';
       </script>
 
       <!--
@@ -78,18 +78,18 @@
       <script>
       var app_refresh_period = {{int(request.app.config.get('refresh_period', '60'))}};
       </script>
-      <script src="/static/js/alignak_webui-refresh.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-refresh.js"></script>
       %end
 
-      <script src="/static/js/alignak_webui-external.js"></script>
-      <script src="/static/js/alignak_webui-layout.js"></script>
-      <script src="/static/js/alignak_webui-actions.js"></script>
-      <script src="/static/js/alignak_webui-bookmarks.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-external.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-layout.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-actions.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-bookmarks.js"></script>
 
       <!-- Specific scripts ... -->
       %# Specific Js files ...
       %for f in js:
-      <script type="text/javascript" src="/static/plugins/{{f}}"></script>
+      <script type="text/javascript" src="{{app_prefix}}/static/plugins/{{f}}"></script>
       %end
    </head>
 
@@ -105,18 +105,18 @@
                </button>
                <a class="navbar-brand" href="/">
                   <img
-                     src="{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
+                     src="{{app_prefix}}{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
                      style="{{request.app.config.get('app_logo_css', '')}}"
                      alt="{{_('Alignak WebUI logo')}}"
                      title="{{request.app.config.get('app_logo_title', _('Alignak Web User Interface'))}}" />
                </a>
 
                <ul class="nav navbar-nav navbar-left">
-                   %try:
+               %try:
                <li class="pull-left">
                   <a tabindex="0" role="button"
                      data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Dashboard')}}" href="/dashboard">
+                     title="{{_('Dashboard')}}" href="{{ request.app.get_url('Dashboard') }}">
                      <span class="fa fa-dashboard"></span>
                      <span class="sr-only">{{_('Dashboard')}}</span>
                   </a>
@@ -148,10 +148,10 @@
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
-                  %if webui.get_url(request.route.name) == "/currently":
+                  %if request.app.get_url(request.route.name) == "/currently":
                   %try:
                   <li data-toggle="tooltip" data-placement="bottom" title="{{_('Livestate')}}">
-                     <a class="navbar-link" href="{{ webui.get_url('Livestate') }}">
+                     <a class="navbar-link" href="{{ request.app.get_url('Livestate') }}">
                         <span class="fa fa-fw fa-heartbeat"></span>
                         <span class="sr-only">{{_('Livestate')}}</span>
                      </a>
@@ -161,7 +161,7 @@
                   %end
                   %end
 
-                  %if webui.get_url(request.route.name) == "/livestate":
+                  %if request.app.get_url(request.route.name) == "/livestate":
                   %try:
                   <li>
                      <a data-action="display-currently"

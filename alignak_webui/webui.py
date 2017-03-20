@@ -77,6 +77,10 @@ class WebUI(object):
         self.name = name
         self.config = config
 
+        # Application prefix
+        self.prefix = config.get('prefix', '')
+        logger.info("Application URI is prefixed with: %s", self.prefix)
+
         # Application data manager and connection
         self.datamgr = None
         self.current_user = None
@@ -88,10 +92,9 @@ class WebUI(object):
 
     def load_plugins(self, plugins_dir):
         # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
-        """
-        Load plugins from the provided directory
+        """Load plugins from the provided directory
 
-        If the plugin has
+        If the plugin has:
         - 'pages', declare routes for the pages
         - 'widgets', declare widgets in the main widgets list
 
@@ -148,9 +151,7 @@ class WebUI(object):
                         self.plugins.append(plugin_instance)
 
                 # Add the views sub-directory of the plugin in the Bottle templates path
-                dir_views = os.path.join(
-                    os.path.join(plugins_dir, plugin_name), 'views'
-                )
+                dir_views = os.path.join(os.path.join(plugins_dir, plugin_name), 'views')
                 if os.path.isdir(dir_views):
                     TEMPLATE_PATH.append(os.path.join(
                         os.path.join(plugins_dir, plugin_name), 'views'
@@ -181,47 +182,47 @@ class WebUI(object):
         :return:
         """
         js_list = [
-            "/static/js/jquery-1.12.0.min.js",
-            "/static/js/jquery-ui-1.11.4.min.js"
+            "%s/static/js/jquery-1.12.0.min.js" % self.prefix,
+            "%s/static/js/jquery-ui-1.11.4.min.js" % self.prefix
         ]
 
         if self.config.get('bootstrap4', '0') == '1':
             js_list += [
-                "/static/js/bootstrap4.min.js"
+                "%s/static/js/bootstrap4.min.js" % self.prefix
             ]
         else:
             js_list += [
-                "/static/js/bootstrap.min.js"
+                "%s/static/js/bootstrap.min.js" % self.prefix
             ]
 
         js_list += [
-            "/static/js/moment-with-langs.min.js",
-            "/static/js/daterangepicker.js",
-            "/static/js/jquery.jclock.js",
-            "/static/js/jquery.jTruncate.js",
-            "/static/js/typeahead.bundle.min.js",
-            "/static/js/screenfull.js",
-            "/static/js/alertify.min.js",
-            "/static/js/BootSideMenu.js",
-            "/static/js/selectize.min.js",
-            "/static/js/Chart.min.js",
-            "/static/js/jstree.min.js",
+            "%s/static/js/moment-with-langs.min.js" % self.prefix,
+            "%s/static/js/daterangepicker.js" % self.prefix,
+            "%s/static/js/jquery.jclock.js" % self.prefix,
+            "%s/static/js/jquery.jTruncate.js" % self.prefix,
+            "%s/static/js/typeahead.bundle.min.js" % self.prefix,
+            "%s/static/js/screenfull.js" % self.prefix,
+            "%s/static/js/alertify.min.js" % self.prefix,
+            "%s/static/js/BootSideMenu.js" % self.prefix,
+            "%s/static/js/selectize.min.js" % self.prefix,
+            "%s/static/js/Chart.min.js" % self.prefix,
+            "%s/static/js/jstree.min.js" % self.prefix,
         ]
 
         if self.config.get('bootstrap4', '0') == '1':
             js_list += [
-                "/static/js/datatables.bootstrap4.min.js"
+                "%s/static/js/datatables.bootstrap4.min.js" % self.prefix
             ]
         else:
             js_list += [
-                "/static/js/datatables.min.js"
-                # "/static/js/datatables.js"
+                "%s/static/js/datatables.min.js" % self.prefix
+                # "%s/static/js/datatables.js" % self.prefix
             ]
 
         js_list += [
-            "/static/js/material/arrive.min.js",
-            "/static/js/material/material.min.js",
-            "/static/js/material/ripples.min.js"
+            "%s/static/js/material/arrive.min.js" % self.prefix,
+            "%s/static/js/material/material.min.js" % self.prefix,
+            "%s/static/js/material/ripples.min.js" % self.prefix
         ]
 
         return js_list
@@ -234,45 +235,45 @@ class WebUI(object):
         """
         if self.config.get('bootstrap4', '0') == '1':
             css_list = [
-                "/static/css/bootstrap4.min.css"
+                "%s/static/css/bootstrap4.min.css" % self.prefix
             ]
         else:
             css_list = [
-                "/static/css/bootstrap.min.css"
+                "%s/static/css/bootstrap.min.css" % self.prefix
             ]
 
         css_list += [
-            "/static/css/font-awesome.min.css",
-            "/static/css/typeahead.css",
-            "/static/css/daterangepicker.css",
-            "/static/css/alertify/alertify.min.css",
-            "/static/css/alertify/bootstrap.min.css",
-            "/static/css/BootSideMenu.css",
-            "/static/css/timeline.css"
+            "%s/static/css/font-awesome.min.css" % self.prefix,
+            "%s/static/css/typeahead.css" % self.prefix,
+            "%s/static/css/daterangepicker.css" % self.prefix,
+            "%s/static/css/alertify/alertify.min.css" % self.prefix,
+            "%s/static/css/alertify/bootstrap.min.css" % self.prefix,
+            "%s/static/css/BootSideMenu.css" % self.prefix,
+            "%s/static/css/timeline.css" % self.prefix
         ]
 
         css_list += [
-            "/static/css/font-roboto.css",
-            "/static/css/material-icons.css",
-            "/static/css/material/bootstrap-material-design.min.css",
-            "/static/css/material/ripples.min.css"
+            "%s/static/css/font-roboto.css" % self.prefix,
+            "%s/static/css/material-icons.css" % self.prefix,
+            "%s/static/css/material/bootstrap-material-design.min.css" % self.prefix,
+            "%s/static/css/material/ripples.min.css" % self.prefix
         ]
 
         css_list += [
-            "/static/css/jstree/style.min.css",
+            "%s/static/css/jstree/style.min.css" % self.prefix,
         ]
         if self.config.get('bootstrap4', '0') == '1':
             css_list += [
-                "/static/css/datatables.bootstrap4.min.css",
+                "%s/static/css/datatables.bootstrap4.min.css" % self.prefix,
             ]
         else:
             css_list += [
-                "/static/css/datatables.min.css",
+                "%s/static/css/datatables.min.css" % self.prefix,
             ]
 
         css_list += [
-            "/static/css/alignak_webui.css",
-            "/static/css/alignak_webui-items.css"
+            "%s/static/css/alignak_webui.css" % self.prefix,
+            "%s/static/css/alignak_webui-items.css" % self.prefix
         ]
 
         return css_list

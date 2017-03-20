@@ -77,7 +77,7 @@
          </a>
       </li>
       <li>
-         <a data-action="logout" href="/logout">
+         <a data-action="logout" href="{{request.app.get_url('Logout')}}">
             <span class="fa fa-sign-out"></span>
             <span>{{_('Disconnect')}}</span>
          </a>

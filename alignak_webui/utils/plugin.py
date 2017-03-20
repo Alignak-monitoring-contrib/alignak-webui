@@ -301,7 +301,8 @@ class Plugin(object):
                 page_route = [(page_route, page_name)]
 
             for route_url, name in page_route:
-                logger.debug("route: %s -> %s", route_url, name)
+                # route_url = "%s%s" % (app.config.get('prefix', ''), route_url)
+                logger.info("route: %s -> %s", route_url, name)
                 f = app.route(route_url, callback=f, method=methods, name=name)
 
                 # Register plugin element list route
@@ -311,9 +312,7 @@ class Plugin(object):
                         'base_uri': route_url,
                         'function': f
                     }
-                    logger.debug(
-                        "Found list '%s' for %s", route_url, self.backend_endpoint
-                    )
+                    logger.debug("Found list '%s' for %s", route_url, self.backend_endpoint)
 
             if 'widgets' in entry:
                 for widget in entry.get('widgets'):

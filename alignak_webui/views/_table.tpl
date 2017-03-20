@@ -12,6 +12,9 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
+%# Application URI prefix
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
 %# Default filtering is to use the table saved state
 %setdefault('where', {'saved_filters': True})
 %setdefault('global_where', None)
@@ -463,8 +466,9 @@
          // Server side processing: request new data
          "processing": true,
          "serverSide": true,
+         %url = "redirect(request.app.get_url('LoginForm'))"
          "ajax": {
-            "url": "{{server_url}}/{{object_type}}s/{{'templates_table_data' if dt.templates else 'table_data'}}",
+            "url": "{{app_prefix}}{{server_url}}/{{object_type}}s/{{'templates_table_data' if dt.templates else 'table_data'}}",
             "method": "POST",
             "data": function ( d ) {
                // Add an extra field
@@ -552,7 +556,7 @@
             // Get table stored state from the server ...
             var o;
             $.ajax( {
-               "url": "{{server_url}}/preference/user",
+               "url": "{{app_prefix}}{{server_url}}/preference/user",
                "dataType": "json",
                "type": "GET",
                "data": {
@@ -574,7 +578,7 @@
 
             // Post table data to the server ...
             $.ajax({
-               "url": "{{server_url}}/preference/user",
+               "url": "{{app_prefix}}{{server_url}}/preference/user",
                "dataType": "json",
                "type": "POST",
                "data": {
@@ -748,7 +752,7 @@
                         if (selected.indexes().length == 0) {
                            return;
                         }
-                        var url = "/recheck/form/add?";
+                        var url = "{{app_prefix}}/recheck/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
                            if (! first) url += '&';
@@ -777,7 +781,7 @@
                         if (selected.indexes().length == 0) {
                            return;
                         }
-                        var url = "/acknowledge/form/add?";
+                        var url = "{{app_prefix}}/acknowledge/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
                            if (! first) url += '&';
@@ -806,7 +810,7 @@
                         if (selected.indexes().length == 0) {
                            return;
                         }
-                        var url = "/downtime/form/add?";
+                        var url = "{{app_prefix}}/downtime/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
                            if (! first) url += '&';
@@ -835,7 +839,7 @@
                         if (selected.indexes().length == 0) {
                            return;
                         }
-                        var url = "/command/form/add?";
+                        var url = "{{app_prefix}}/command/form/add?";
                         var first = true;
                         $.each(selected.data(), function(index, elt){
                            if (! first) url += '&';
@@ -868,7 +872,7 @@
                titleAttr: "{{_('Navigate to the %ss templates table' % object_type)}}",
                action: function (e, dt, button, config) {
                   if (debugTable) console.log('Navigate to the {{object_type}} templates table!');
-                  window.location.href = "/{{object_type}}s/templates/table";
+                  window.location.href = "{{app_prefix}}/{{object_type}}s/templates/table";
                },
                %end
                className: 'btn-raised btn-xs'
@@ -880,7 +884,7 @@
                titleAttr: "{{_('Navigate to the tree view')}}",
                action: function (e, dt, button, config) {
                   if (debugTable) console.log('Navigate to the tree view for {{object_type}}!');
-                  window.location.href = "/{{object_type}}s/tree";
+                  window.location.href = "{{app_prefix}}/{{object_type}}s/tree";
                },
                className: 'btn-raised btn-xs'
             }

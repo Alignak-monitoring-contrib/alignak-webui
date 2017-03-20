@@ -5,6 +5,9 @@
 %# debug the HTML templates
 %setdefault('debug', False)
 
+%# Application URI prefix
+%setdefault('app_prefix', request.app.config.get('prefix', ''))
+
 %# Extra css and jss to be loaded
 %setdefault('js', [])
 %setdefault('css', [])
@@ -30,7 +33,6 @@
 <html lang="en">
    <head>
       <!--
-      <!--
          %# Web UI application about content
          %from bottle import request
          %from alignak_webui import __manifest__
@@ -51,7 +53,7 @@
 
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
-      <!-- Stylesheets -->
+      <!-- Stylesheets test -->
       %# WebUI CSS files
       %for f in webui.css_list:
       <link rel="stylesheet" href="{{f}}">
@@ -80,6 +82,7 @@
       <script>
       var dashboard_currently = false;
       var sound_activated = false;
+      var app_prefix = '{{app_prefix}}';
       </script>
 
       <!--
@@ -89,13 +92,13 @@
       <script>
       var app_refresh_period = {{int(request.app.config.get('refresh_period', '60'))}};
       </script>
-      <script src="/static/js/alignak_webui-refresh.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-refresh.js"></script>
       %end
 
-      <script src="/static/js/alignak_webui-external.js"></script>
-      <script src="/static/js/alignak_webui-layout.js"></script>
-      <script src="/static/js/alignak_webui-actions.js"></script>
-      <script src="/static/js/alignak_webui-bookmarks.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-external.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-layout.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-actions.js"></script>
+      <script src="{{app_prefix}}/static/js/alignak_webui-bookmarks.js"></script>
    </head>
 
    <body>
@@ -324,29 +327,10 @@
 
       <!-- Specific page scripts ...-->
       %for f in js:
-      <script type="text/javascript" src="/static/plugins/{{f}}"></script>
+      <script type="text/javascript" src="{{app_prefix}}/static/plugins/{{f}}"></script>
       %end
 
       <script>
-      %if css:
-      /*
-      console.log("Css...");
-      $.getCssFiles({{! css}}, function(){
-         console.log("Loaded ...");
-      });*/
-      %end
-      %if js:
-      /*
-      $.getJsFiles({{! js}}, function(){
-         %if callback:
-         window.setTimeout(function () {
-            console.log("Callback");
-            {{callback}}();
-         }, 100);
-         %end
-      });*/
-      %end
-
       $(document).ready(function() {
          // Initialize alertify library
          alertify.defaults.transition = "slide";
