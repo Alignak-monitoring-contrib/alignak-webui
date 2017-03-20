@@ -58,7 +58,7 @@
                   </center>
                </div>
                <div class="panel-body">
-                  <form role="form" method="post" action="/login">
+                  <form role="form" method="post" action="{{request.app.get_url('LoginData')}}">
                      <fieldset>
                         <div class="form-group label-floating">
                            <label for="username" class="control-label">{{_('Username')}}</label>

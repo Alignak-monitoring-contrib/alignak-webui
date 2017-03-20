@@ -92,6 +92,8 @@ from alignak_webui.webui import WebUI
 
 app = application = bottle.Bottle()
 
+PREFIX = 'webui_prefix'
+
 # -----
 # Test mode for the application
 # -----
@@ -340,6 +342,7 @@ def static(filename):
 
     Plugins declare their own static routes under /plugins
     """
+    logger.error("Static: %s" % filename)
     if not filename.startswith('plugins'):
         return static_file(
             filename, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
@@ -386,7 +389,7 @@ def before_request():
         - login / logout
         - static files (js, css, ...)
     """
-    logger.debug("before_request, url: %s", request.urlparts.path)
+    logger.error("before_request, url: %s", request.urlparts.path)
 
     # Static application and plugins files
     if request.urlparts.path.startswith('/static'):
@@ -410,11 +413,11 @@ def before_request():
         BaseTemplate.defaults['current_user'] = session['current_user']
 
     # Public URLs routing ...
-    if request.urlparts.path == '/ping' or request.urlparts.path == '/heartbeat':
+    if '/ping' in request.urlparts.path or '/heartbeat' in request.urlparts.path:
         return
 
     # Login/logout URLs routing ...
-    if request.urlparts.path == '/login' or request.urlparts.path == '/logout':
+    if '/login' in request.urlparts.path or '/logout' in request.urlparts.path:
         return
 
     # Session authentication ...
@@ -426,7 +429,7 @@ def before_request():
         # Stop Alignak backend thread
         # *****
 
-        redirect('/login')
+        redirect('login')
 
     # Get the WebUI instance
     webui = request.app.config['webui']
@@ -434,9 +437,9 @@ def before_request():
     current_user = session['current_user']
     if not webui.user_authentication(current_user.token, None):
         # Redirect to application login page
-        logger.warning("user in the session is not authenticated. "
+        logger.warning("User in the session is not authenticated. "
                        "Redirecting to the login page...")
-        redirect('/login')
+        redirect('login')
 
     logger.debug("before_request, user authenticated")
 
@@ -462,7 +465,7 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 # Home page and login
 # --------------------------------------------------------------------------------------------------
-@app.route('/', 'GET')
+@app.route('/', 'GET', name='HomePage')
 def home_page():
     """Display home page -> redirect to /Dashboard"""
     try:
@@ -471,7 +474,7 @@ def home_page():
         return "No home page available in the application routes!"
 
 
-@app.route('/login', 'GET')
+@app.route('/login', 'GET', name='LoginForm')
 def user_login():
     """Display user login page"""
     session = request.environ['beaker.session']
@@ -489,7 +492,7 @@ def user_login():
     )
 
 
-@app.route('/logout', 'GET')
+@app.route('/logout', 'GET', name='Logout')
 def user_logout():
     """Log-out the current logged-in user
 
@@ -502,7 +505,8 @@ def user_logout():
     # Log-out from application
     logger.info("Logout for current user")
 
-    redirect('/login')
+    # redirect(PREFIX + '/login')
+    redirect(request.app.get_url('LoginForm'))
 
 
 # todo: not yet implemented... see #172
@@ -528,7 +532,7 @@ def check_backend_connection(_app, token=None, interval=10):
             )
 
 
-@app.route('/login', 'POST')
+@app.route('/login', 'POST', name='LoginData')
 def user_auth():
     """Receive user login parameters (username / password) to authenticate a user
 
@@ -547,7 +551,7 @@ def user_auth():
         if 'login_message' not in session:
             session['login_message'] = _("Invalid username or password")
         logger.warning("user '%s' access denied, message: %s", username, session['login_message'])
-        redirect('/login')
+        redirect(request.app.get_url('LoginForm'))
 
     logger.info("user '%s' (%s) signed in", username, session['current_user'].name)
 
@@ -562,7 +566,7 @@ def user_auth():
     # cfg_backend_thread.daemon = True
     # cfg_backend_thread.start()
 
-    redirect('/')
+    redirect(request.app.get_url('HomePage'))
 
 
 # --------------------------------------------------------------------------------------------------
@@ -1012,14 +1016,20 @@ session_opts = {
 logger.debug("Session parameters: %s" % session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
+from bottle import Bottle
+root_app = Bottle()
+# root_app.merge(app.routes)
+root_app.mount('/webui/', session_app)
+
 logger.info("Running Bottle server, debug mode: %s" % app.config.get('debug', False))
 if __name__ == '__main__':
     logger.info("Running Bottle, debug mode: %s" % app.config.get('debug', False))
     run(
-        app=session_app,
+        app=root_app,
         host=app.config.get('host', '127.0.0.1'),
         port=int(app.config.get('port', 5001)),
-        debug=app.config.get('debug', False),
+        # debug=app.config.get('debug', False),
+        debug=True,
         reloader=app.config.get('debug', False)
     )
     # remember to remove reloader=True and debug(True) when you move your application
