@@ -111,7 +111,7 @@ class tests_preferences(unittest2.TestCase):
         # A host cookie now exists
         assert self.app.cookies['Alignak-WebUI']
         # Get a data manager
-        self.dmg = DataManager(session=session, backend_endpoint=backend_address)
+        self.dmg = DataManager(alignak_webui.app.app, session=session)
 
     def tearDown(self):
         response = self.app.get('/logout')

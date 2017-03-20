@@ -298,10 +298,7 @@ class WebUI(object):
         session['login_message'] = None
         if 'current_user' not in session or not session['current_user']:
             # Build DM without any session or user parameter
-            self.datamgr = DataManager(
-                backend_endpoint=self.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
-                alignak_endpoint=self.app.config.get('alignak_ws', 'http://127.0.0.1:8888')
-            )
+            self.datamgr = DataManager(self.app)
 
             # Set user for the data manager and try to log-in.
             if not self.datamgr.user_login(username, password, load=(password is not None)):

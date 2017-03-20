@@ -115,7 +115,7 @@ class TestCreation(unittest2.TestCase):
         print('------------------------------')
         print('test creation')
 
-        datamanager = DataManager()
+        datamanager = DataManager(alignak_webui.app.app)
         assert datamanager.backend
         assert datamanager.loaded == False
         assert datamanager.logged_in_user is None
@@ -139,7 +139,7 @@ class TestCreation(unittest2.TestCase):
 
         # Create new datamanager - do not use default backend address
         print('DM initialization')
-        datamanager = DataManager(backend_endpoint=backend_address)
+        datamanager = DataManager(alignak_webui.app.app)
         assert datamanager.backend
         assert datamanager.loaded == False
         assert datamanager.logged_in_user is None
@@ -206,7 +206,7 @@ class TestCreation(unittest2.TestCase):
 
 class TestLoadCreate(unittest2.TestCase):
     def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
+        self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
     def tearDown(self):
@@ -269,7 +269,7 @@ class TestLoadCreate(unittest2.TestCase):
 
 class TestNotAdmin(unittest2.TestCase):
     def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
+        self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
     @unittest2.skip("Skipped because creating a new user do not allow him to get its own data (timeperiod get is 404)!")
@@ -426,7 +426,7 @@ class TestNotAdmin(unittest2.TestCase):
 
 class TestBasic(unittest2.TestCase):
     def setUp(self):
-        self.dmg = DataManager(backend_endpoint=backend_address)
+        self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
         # Initialize and load ... no reset
@@ -586,7 +586,7 @@ class TestBasic(unittest2.TestCase):
 class TestRelations(unittest2.TestCase):
     def setUp(self):
         print("setting up ...")
-        self.dmg = DataManager(backend_endpoint=backend_address)
+        self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
         # Initialize and do not load
@@ -637,7 +637,7 @@ class TestRelations(unittest2.TestCase):
 class TestHosts(unittest2.TestCase):
     def setUp(self):
         print("setting up ...")
-        self.dmg = DataManager(backend_endpoint=backend_address)
+        self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
         # Initialize and do not load

@@ -43,7 +43,6 @@ logger.setLevel(logging.INFO)
 
 
 class AlignakWSException(Exception):  # pragma: no cover, not used currently
-
     """Specific exception class.
     This exception provides an error code, an error message and the WS response.
 
@@ -64,7 +63,6 @@ class AlignakWSException(Exception):  # pragma: no cover, not used currently
         self.response = response
 
     def __str__(self):
-
         """Exception to String"""
 
         return "Alignak WS error code %d: %s" % (self.code, self.message)
@@ -72,11 +70,9 @@ class AlignakWSException(Exception):  # pragma: no cover, not used currently
 
 # pylint: disable=too-few-public-methods
 class AlignakConnection(object):  # pragma: no cover, not used currently
-
     """Singleton design pattern ..."""
 
     class __AlignakConnection(object):
-
         """Base class for Alignak Web Services connection"""
 
         def __init__(self, alignak_endpoint='http://127.0.0.1:8888'):
@@ -88,28 +84,35 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             self.connected = False
 
         def login(self, username, password=None):
-
             """Log in to the Web Services
 
-            # Todo: not yet implemented in the Alignak WS module
             If username and password are provided, use the WS login function to authenticate the
-            user"""
+            user
+
+            Else, if password is not provided, store the token that will be used
+            in the HTTP authentication
+            """
 
             logger.info("login, connection requested, login: %s", username)
 
             self.connected = False
 
-            if not password:  # pragma: no cover, should not happen
-                # Set backend token (no login request).
-                logger.debug("Update backend token")
+            if not password:
+                # Set authentication token (no login request).
+                logger.debug("Update Web service token")
                 self.token = username
                 self.connected = True
                 return self.connected
 
             try:
                 # WS login
-                logger.info("Requesting backend authentication, username: %s", username)
-                self.connected = self.backend.login(username, password)
+                logger.info("Requesting Web Service authentication, username: %s", username)
+                headers = {'Content-Type': 'application/json'}
+                params = {'username': username, 'password': password}
+                response = requests.post(urljoin(self.alignak_endpoint, 'login'),
+                                         json=params, headers=headers)
+                resp = response.json()
+                self.token = resp['_result'][0]
             except AlignakWSException:  # pragma: no cover, should not happen
                 logger.warning("configured backend is not available!")
             except Exception as exp:  # pragma: no cover, should not happen
@@ -126,9 +129,9 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
 
             logger.info("logout")
             self.connected = False
+            self.token = None
 
         def get(self, endpoint, params=None):
-
             """Get information from an Alignak WS
 
             If an error occurs, an AlignakWSException is raised.
@@ -177,7 +180,6 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             return response.json()
 
         def post(self, endpoint, params=None, files=None):
-
             """Post information to an Alignak WS endpoint
 
             If an error occurs, an AlignakWSException is raised.

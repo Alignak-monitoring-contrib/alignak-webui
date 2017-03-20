@@ -240,7 +240,7 @@ class TestDataTable(unittest2.TestCase):
     Those tests are done with the commands table. It was needed to use one :)
     """
     def setUp(self):
-        self.dmg = DataManager(backend_endpoint='http://127.0.0.1:5000')
+        self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
         # Initialize and load ... no reset

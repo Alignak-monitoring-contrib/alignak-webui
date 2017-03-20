@@ -79,8 +79,7 @@ class DataManager(object):
 
     id = 1
 
-    def __init__(self, session=None, backend_endpoint='http://127.0.0.1:5000',
-                 alignak_endpoint='http://127.0.0.1:8888'):
+    def __init__(self, app, session=None):
         """Initialize a DataManager instance
 
         The `session` parameter is provided to the data manager when a Web session exists.
@@ -102,11 +101,12 @@ class DataManager(object):
         self.__class__.id += 1
 
         # Associated backend object
-        self.backend_endpoint = backend_endpoint
-        self.backend = BackendConnection(backend_endpoint)
+        self.backend_endpoint = app.config.get('alignak_backend', 'http://127.0.0.1:5000')
+        self.backend = BackendConnection(self.backend_endpoint)
 
         # Alignak Web services client
-        self.alignak_ws = AlignakConnection(alignak_endpoint)
+        self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:8888')
+        self.alignak_ws = AlignakConnection(self.alignak_endpoint)
         self.alignak_daemons = {}
 
         # Get known objects type from the imported modules
@@ -173,6 +173,9 @@ class DataManager(object):
                 BackendElement.set_backend(self.backend)
                 BackendElement.set_known_classes(self.known_classes)
 
+                # Use the same credentials for Alignak Web Service interface
+                self.alignak_ws.login(username, password)
+
                 # Fetch the logged-in user
                 if password:
                     users = self.backend.get(
@@ -185,10 +188,9 @@ class DataManager(object):
                 self.logged_in_user = User(users[0])
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
-                # logger.info("Logged-in user: %s", self.logged_in_user)
 
                 # Get total objects count from the backend
-                self.get_objects_count(refresh=True, log=False)
+                # self.get_objects_count(refresh=True, log=False)
 
                 # Load data if load required...
                 if load:

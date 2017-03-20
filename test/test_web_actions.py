@@ -139,10 +139,7 @@ class tests_actions(unittest2.TestCase):
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].get_username() == 'admin'
 
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host and user in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
@@ -246,10 +243,7 @@ class tests_actions(unittest2.TestCase):
         assert session['current_user'].get_username() == 'admin'
 
         # Data manager
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
@@ -343,10 +337,7 @@ class tests_actions(unittest2.TestCase):
         assert session['current_user'].get_username() == 'admin'
 
         # Data manager
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
@@ -415,10 +406,7 @@ class tests_actions(unittest2.TestCase):
         assert session['current_user'].get_username() == 'admin'
 
         # Data manager
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host, user and realm in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})

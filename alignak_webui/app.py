@@ -446,11 +446,7 @@ def before_request():
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
     # Initialize data manager and make it available in the request and in the templates
     if webui.datamgr is None:
-        webui.datamgr = DataManager(
-            backend_endpoint=request.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
-            alignak_endpoint=request.app.config.get('alignak_ws', 'http://127.0.0.1:8888'),
-            session=request.environ['beaker.session']
-        )
+        webui.datamgr = DataManager(request.app, session=request.environ['beaker.session'])
     request.app.datamgr = webui.datamgr
     # # Load initial objects from the DM
     # request.app.datamgr.load()
@@ -742,11 +738,7 @@ def external(widget_type, identifier, action=None):
         BaseTemplate.defaults['current_user'] = session['current_user']
 
         # Make data manager available in the request and in the templates
-        request.app.datamgr = DataManager(
-            backend_endpoint=request.app.config.get('alignak_backend', 'http://127.0.0.1:5000'),
-            alignak_endpoint=request.app.config.get('alignak_ws', 'http://127.0.0.1:8888'),
-            session=request.environ['beaker.session']
-        )
+        request.app.datamgr = DataManager(request.app, session=request.environ['beaker.session'])
         BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.info("External request, element type: %s", widget_type)
