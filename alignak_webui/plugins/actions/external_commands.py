@@ -35,6 +35,26 @@ commands = {
         'title': _("Send an host check output"),
         "parameters": ["ls_output"]
     },
+    'disable_host_check': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Disable active host checks"),
+        "parameters": []
+    },
+    'enable_host_check': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Enable active host checks"),
+        "parameters": []
+    },
+    'disable_passive_host_checks': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Disable passive host checks"),
+        "parameters": []
+    },
+    'enable_passive_host_checks': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Enable passive host checks"),
+        "parameters": []
+    },
     'del_all_host_downtimes': {
         'global': False, 'elements_type': 'host',
         'title': _("Delete all host downtimes"),
@@ -50,6 +70,26 @@ commands = {
         'title': _("Send a service check output"),
         "parameters": ["ls_output"]
     },
+    'disable_svc_check': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable active service checks"),
+        "parameters": []
+    },
+    'enable_svc_check': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable active service checks"),
+        "parameters": []
+    },
+    'disable_passive_svc_checks': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable passive service checks"),
+        "parameters": []
+    },
+    'enable_passive_svc_checks': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable passive service checks"),
+        "parameters": []
+    },
     'del_all_svc_downtimes': {
         'global': False, 'elements_type': 'service',
         'title': _("Delete all service downtimes"),
@@ -57,7 +97,7 @@ commands = {
     },
 }
 
-# Hereunder are all the Alignak knonw external commands. They need to be prepared and updated
+# Hereunder are all the Alignak known external commands. They need to be prepared and updated
 # as the `commands` defined before!
 alignak_commands = {
     'change_contact_modsattr':
@@ -182,8 +222,6 @@ alignak_commands = {
         {'global': True, 'args': ['host_group']},
     'disable_host_and_child_notifications':
         {'global': False, 'args': ['host']},
-    'disable_host_check':
-        {'global': False, 'args': ['host']},
     'disable_host_event_handler':
         {'global': False, 'args': ['host']},
     'disable_host_flap_detection':
@@ -198,10 +236,6 @@ alignak_commands = {
         {'global': False, 'args': ['host']},
     'disable_notifications':
         {'global': True, 'args': []},
-    'disable_passive_host_checks':
-        {'global': False, 'args': ['host']},
-    'disable_passive_svc_checks':
-        {'global': False, 'args': ['service']},
     'disable_performance_data':
         {'global': True, 'args': []},
     'disable_servicegroup_host_checks':
@@ -220,8 +254,6 @@ alignak_commands = {
         {'global': False, 'args': ['service']},
     'disable_service_freshness_checks':
         {'global': True, 'args': []},
-    'disable_svc_check':
-        {'global': False, 'args': ['service']},
     'disable_svc_event_handler':
         {'global': False, 'args': ['service']},
     'disable_svc_flap_detection':
@@ -258,8 +290,6 @@ alignak_commands = {
         {'global': True, 'args': ['host_group']},
     'enable_host_and_child_notifications':
         {'global': False, 'args': ['host']},
-    'enable_host_check':
-        {'global': False, 'args': ['host']},
     'enable_host_event_handler':
         {'global': False, 'args': ['host']},
     'enable_host_flap_detection':
@@ -274,10 +304,6 @@ alignak_commands = {
         {'global': False, 'args': ['host']},
     'enable_notifications':
         {'global': True, 'args': []},
-    'enable_passive_host_checks':
-        {'global': False, 'args': ['host']},
-    'enable_passive_svc_checks':
-        {'global': False, 'args': ['service']},
     'enable_performance_data':
         {'global': True, 'args': []},
     'enable_servicegroup_host_checks':
@@ -294,8 +320,6 @@ alignak_commands = {
         {'global': True, 'args': ['service_group']},
     'enable_service_freshness_checks':
         {'global': True, 'args': []},
-    'enable_svc_check':
-        {'global': False, 'args': ['service']},
     'enable_svc_event_handler':
         {'global': False, 'args': ['service']},
     'enable_svc_flap_detection':

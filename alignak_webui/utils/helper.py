@@ -827,7 +827,7 @@ class Helper(object):
                 button = button.replace("##action##", 'acknowledge')
                 button = button.replace("##text##", _('Acknowledge this problem'))
                 button = button.replace("##icon##", 'check')
-                if getattr(bo_object, 'state_id', 0) > 0:
+                if bo_object.is_problem:
                     if bo_object.acknowledged:
                         button = button.replace("##disabled##", 'disabled="disabled"')
                     else:

@@ -926,6 +926,8 @@ class TestItems(unittest2.TestCase):
             'ls_last_check': now
         })
         print(item.__dict__)
+        print(now)
+        print(item.get_last_check(timestamp=True))
         assert item._id == 'host_1'
         assert item.get_last_check(timestamp=True) == timegm(now.timetuple())
 
@@ -933,6 +935,75 @@ class TestItems(unittest2.TestCase):
         time.sleep(1)
         now2 = datetime.now()
         item = Host({
+            'name': 'test',
+            'last_check': now,
+            '_created': 1470995433,
+            '_updated': 1470995450,
+            'notes': 'Host notes'
+        })
+        print(item.created)
+        print(item.updated)
+        print(item.get_date(item.created))
+        assert item.get_date(item.created) == '2016-08-12 11:50:33'
+
+    def test_services(self):
+        """ Items - services """
+        print("--- test Service")
+
+        # Global (Item) objects count
+        global_objects_count = BackendElement().get_count()
+        print(global_objects_count, "objects")
+        print("Global cache: ", BackendElement().get_cache())
+
+        # Base item
+        Service.clean_cache()
+        item = Service()
+        print(item.__dict__)
+        print(item)
+        assert item
+
+        # Specific (Session) objects count and cache
+        user_objects_count = item._count
+        print(user_objects_count, " Service objects")
+        print("Service cache: ", item._cache)
+
+        # Global objects count and cache did not changed
+        assert global_objects_count == BackendElement().get_count()
+        print("Global cache: ", BackendElement().get_cache())
+        assert len(BackendElement().get_cache()) == global_objects_count
+        # Only 1 Session object
+        assert item._count == 1
+        assert len(item._cache) == 1
+
+        print(item)
+        print(item.__dict__)
+        # status is None because there is no status_property defined
+        assert "%s" % item == "<service, id: service_0, name: anonymous, status: None>"
+        assert item._id == 'service_0'
+        assert item._type == 'service'
+        assert item.name == 'anonymous'
+        assert item.status is None
+
+        item = Service()
+        print(item.__dict__)
+        assert item._id == 'service_0'
+
+        # Host item with dates
+        now = datetime.now()
+        item = Service({
+            'name': 'test',
+            'ls_last_check': now
+        })
+        print(item.__dict__)
+        print(now)
+        print(item.get_last_check(timestamp=True))
+        assert item._id == 'service_1'
+        assert item.get_last_check(timestamp=True) == timegm(now.timetuple())
+
+        # Host item update
+        time.sleep(1)
+        now2 = datetime.now()
+        item = Service({
             'name': 'test',
             'last_check': now,
             '_created': 1470995433,
