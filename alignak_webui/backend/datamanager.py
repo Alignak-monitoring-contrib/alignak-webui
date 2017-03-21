@@ -159,7 +159,7 @@ class DataManager(object):
 
         If no password is provided, the username is assumed to be an authentication token and we
         use the backend connect function."""
-        logger.debug("user_login, connection requested: %s, load: %s", username, load)
+        logger.info("user_login, connection requested: %s, load: %s", username, load)
 
         self.connected = False
         self.connection_message = _('Backend connecting...')
@@ -178,14 +178,13 @@ class DataManager(object):
 
                 # Fetch the logged-in user
                 if password:
-                    users = self.backend.get(
-                        'user', {'max_results': 1, 'where': {'name': username}}
-                    )
+                    users = self.backend.get('user',
+                                             {'max_results': 1, 'where': {'name': username}})
                 else:
-                    users = self.backend.get(
-                        'user', {'max_results': 1, 'where': {'token': username}}
-                    )
+                    users = self.backend.get('user',
+                                             {'max_results': 1, 'where': {'token': username}})
                 self.logged_in_user = User(users[0])
+                logger.debug("user_login, user: %s", self.logged_in_user)
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
 
@@ -305,9 +304,7 @@ class DataManager(object):
             self.loading = 0
 
         logger.debug("load, start loading: %s for %s", self, self.logged_in_user)
-        logger.debug(
-            "load, start as administrator: %s", self.logged_in_user.is_administrator()
-        )
+        logger.debug("load, start as administrator: %s", self.logged_in_user.is_administrator())
         start = time.time()
 
         if reset:
@@ -319,7 +316,7 @@ class DataManager(object):
 
         # Get internal objects count
         objects_count = self.get_objects_count()
-        logger.debug("Load, start, objects in cache: %d", objects_count)
+        logger.info("Load, start, objects in cache: %d", objects_count)
 
         # Get the higher level realm for the current logger-in user
         # This realm identifier will be used when it is necessaty to provide a realm
@@ -2003,7 +2000,9 @@ class DataManager(object):
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
+        logger.debug("get_realm, search: %s", search)
         items = self.get_realms(search=search)
+        logger.debug("get_realm, got: %s", items)
         return items[0] if items else None
 
     def get_realm_members(self, search):
