@@ -99,6 +99,14 @@
         function on_page_refresh(forced) {
             if (debug_logs) console.debug("livestate,  on_page_refresh",  forced);
 
+            // Update problems synthesis
+            $.ajax({
+                url: "/ping?action=refresh&template=_problems_synthesis"
+            })
+            .done(function(content, textStatus, jqXHR) {
+                $('#_header_states').html(content);
+            });
+
             %if view_table:
                 $.ajax({
                     url: "/bi-livestate",
