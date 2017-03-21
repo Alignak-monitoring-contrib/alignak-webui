@@ -32,7 +32,6 @@ import json
 import traceback
 from logging import getLogger
 
-# from alignak_webui import _
 from alignak_webui import get_app_config
 
 # pylint: disable=invalid-name

@@ -39,9 +39,7 @@ class PluginLivestate(Plugin):
     """ Livestate plugin """
 
     def __init__(self, app, webui, cfg_filenames=None):
-        """
-        Livestate plugin
-        """
+        """Livestate plugin"""
         self.name = 'Livestate'
         self.backend_endpoint = None
 
@@ -61,17 +59,9 @@ class PluginLivestate(Plugin):
         super(PluginLivestate, self).__init__(app, webui, cfg_filenames)
 
     def bi_livestate(self):  # pylint:disable=no-self-use
-        """
-        Request on /ping is a simple check alive that returns an information if UI refresh is needed
+        """Returns the livestate for a specific business impact level
 
-        If no session exists, it will always return 'pong' to inform that server is alive.
-
-        Else:
-            - if UI refresh is needed, requires the UI client to refresh
-            - if action parameter is 'refresh', returns the required template view
-            - if action parameter is 'done', the UI client did refresh the interface.
-
-        Used by the header refresh to update the hosts/services states.
+        Used by the view to update the live state page content
         """
         user = request.environ['beaker.session']['current_user']
         webui = request.app.config['webui']
@@ -87,9 +77,7 @@ class PluginLivestate(Plugin):
         return json.dumps({'livestate': ls})
 
     def get_livestate(self):  # pylint:disable=no-self-use
-        """
-        Display livestate page
-        """
+        """Display livestate page"""
         user = request.environ['beaker.session']['current_user']
         webui = request.app.config['webui']
         datamgr = webui.datamgr
