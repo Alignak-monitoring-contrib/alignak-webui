@@ -388,7 +388,7 @@ class Helper(object):
 
         :return: query to be provided to the data manager search objects function
         """
-        logger.info("decode_search, search string: %s", query)
+        logger.debug("decode_search, search string: %s", query)
 
         # Search patterns like: isnot:0 isnot:ack isnot:"downtime test" name "vm test"
         regex = re.compile(
@@ -465,7 +465,7 @@ class Helper(object):
                     regex = c_def.get('regex', True)
 
                 for pattern in patterns:
-                    logger.info("decode_search, pattern: %s", pattern)
+                    logger.debug("decode_search, pattern: %s", pattern)
                     not_value = pattern.startswith('!')
                     if not_value:
                         pattern = pattern[1:]
@@ -568,7 +568,7 @@ class Helper(object):
                 logger.debug("decode_search, - $ne query: %s", search_type['pattern'])
                 query.update({field: {'$ne': search_type['pattern']}})
 
-        logger.info("decode_search, result query: %s", query)
+        logger.debug("decode_search, result query: %s", query)
         return query
 
     @staticmethod

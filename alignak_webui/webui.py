@@ -329,12 +329,13 @@ class WebUI(object):
         return None
 
     def get_widgets_for(self, place):
-        """For a specific place like 'dashboard' or 'external', returns the widgets list"""
+        """For a specific place like 'dashboard' or 'external', returns the widgets list
+        sorted by the defined widget order property"""
         widgets_list = []
         for plugin in self.plugins:
             logger.debug("WebUI plugin %s", plugin)
             for widget in plugin.widgets.get(place, []):
-                logger.debug(" - widget %s", widget['name'])
+                logger.debug(" - widget %s, order: %d, %s", widget['name'], widget['order'], widget)
                 # Check if the widget requires a specific plugin to be present and enabled
                 if widget.get('plugin', None):
                     needed_plugin = self.find_plugin(widget.get('plugin', None))
@@ -345,7 +346,8 @@ class WebUI(object):
 
                 widgets_list.append(widget)
 
-        return widgets_list
+        sorted_widgets = sorted(widgets_list, key=lambda x: x['order'], reverse=False)
+        return sorted_widgets
 
     def get_tables_for(self, place):
         """For a specific place like 'external', return the application tables list"""

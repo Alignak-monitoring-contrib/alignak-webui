@@ -23,6 +23,7 @@
 from __future__ import print_function
 import os
 import re
+import json
 import time
 import shlex
 import unittest2
@@ -41,7 +42,6 @@ print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 import alignak_webui.app
 
-from alignak_webui.backend.datamanager import DataManager
 import alignak_webui.utils.datatable
 
 import bottle
@@ -645,30 +645,23 @@ class TestServices(unittest2.TestCase):
         """ Web - service"""
         print('test service')
 
-        print('get page /hosts')
-        response = self.app.get('/hosts')
-        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
-        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
-        if matches:
-            for match in matches:
-                self.host_id = match
-                break
-        assert self.host_id
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
 
-        print('get page /host')
-        response = self.app.get('/host/%s' % self.host_id)
-        print(response)
-        response.mustcontain(
-            '<div id="host-%s">' % self.host_id
-        )
-
-        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
-        matches = re.findall(r'<tr id="#service-([0-9a-f].*)">', response.body)
-        if matches:
-            for match in matches:
-                print("Found id: %s" % match)
-                self.service_id = match
-        assert self.service_id
+        # Get services
+        params = {'sort': '_id', 'where': json.dumps({'_is_template': False})}
+        response = requests.get('http://127.0.0.1:5000/service', params=params, auth=auth)
+        resp = response.json()
+        # print("Response: %s" % resp)
+        service = resp['_items'][0]
+        print("Service: %s" % service)
+        self.service_id = service['_id']
 
         print('get page /service')
         response = self.app.get('/service/%s' % self.service_id)

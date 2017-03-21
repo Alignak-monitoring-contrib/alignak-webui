@@ -311,9 +311,7 @@ class Plugin(object):
                         'base_uri': route_url,
                         'function': f
                     }
-                    logger.debug(
-                        "Found list '%s' for %s", route_url, self.backend_endpoint
-                    )
+                    logger.debug("Found list '%s' for %s", route_url, self.backend_endpoint)
 
             if 'widgets' in entry:
                 for widget in entry.get('widgets'):
@@ -324,6 +322,9 @@ class Plugin(object):
                         continue
                     if 'template' not in widget or not page_route:  # pragma: no cover
                         continue
+                    # Check if the widget has a defined order, else, set to 1
+                    if 'order' not in widget:
+                        widget['order'] = 1
 
                     for place in widget['for']:
                         if place not in self.widgets:
@@ -331,6 +332,7 @@ class Plugin(object):
                         self.widgets[place].append({
                             'id': widget['id'],
                             'name': widget['name'],
+                            'order': widget['order'],
                             'description': widget['description'],
                             'template': widget['template'],
                             'icon': widget.get('icon', 'leaf'),
@@ -1118,6 +1120,9 @@ class Plugin(object):
             'widget_template': widget_template,
             'widget_icon': widget_icon,
             'widget_uri': request.urlparts.path,
+
+            'plugin_parameters': self.plugin_parameters,
+
             'elements': elements,
             'options': options,
             'title': title,

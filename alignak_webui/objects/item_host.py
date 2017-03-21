@@ -285,8 +285,8 @@ class Host(BackendElement):
 
     @property
     def is_problem(self):
-        """An element is_problem if not ok / unknwown and hard state type"""
-        if self.status != 'NOPE' and self.state_id in [1, 2] and self.state_type == "HARD":
+        """An host is considered as a problem if it is DOWN or UNREACHABLE and in a hard state"""
+        if self.status in ['DOWN', 'UNREACHABLE'] and self.state_type == "HARD":
             return True
         return False
 

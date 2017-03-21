@@ -282,18 +282,9 @@
    <!-- Fourth row : service widgets ... -->
    <div>
       <ul class="nav nav-tabs">
-         <li class="active">
-            <a href="#service_tab_view"
-               role="tab" data-toggle="tab" aria-controls="view"
-               title="{{_('Service synthesis view')}}"
-               >
-               <span class="fa fa-server"></span>
-               <span class="hidden-sm hidden-xs">{{_('Service view')}}</span>
-            </a>
-         </li>
-
+         %first=True
          %for widget in webui.get_widgets_for('service'):
-            <li>
+            <li {{'class="active"' if first else ''}}>
                <a href="#service_tab_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
                   title="{{! widget['description']}}"
@@ -302,68 +293,52 @@
                   <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
             </li>
+            %first=False
          %end
       </ul>
 
       <div class="tab-content">
-         <div id="service_tab_view" class="tab-pane fade active in" role="tabpanel">
-            %include("_widget.tpl", widget_name='service_view', options=None, embedded=True, title=None)
-         </div>
-
+         %first=True
          %for widget in webui.get_widgets_for('service'):
-            <div id="service_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
-               %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
+            <div id="service_tab_{{widget['id']}}" class="tab-pane fade {{'active in' if first else ''}}" role="tabpanel">
             </div>
+            %first=False
          %end
       </div>
    </div>
 </div>
 
 <script>
-   // Automatically navigate to the desired tab if an # exists in the URL
-   function bootstrap_tab_bookmark(selector) {
-      if (selector == undefined) {
-         selector = "";
-      }
-
-      var bookmark_switch = function () {
-         url = document.location.href.split('#');
-         if (url[1] != undefined) {
-            $(selector + '[href="#'+url[1]+'"]').tab('show');
-         }
-      }
-
-      /* Automatically jump on good tab based on anchor */
-      $(document).ready(bookmark_switch);
-      $(window).bind('hashchange', bookmark_switch);
-
-      var update_location = function (event) {
-         document.location.hash = this.getAttribute("href");
-      }
-
-      /* Update hash based on tab */
-      $(selector + "[data-toggle=pill]").click(update_location);
-      $(selector + "[data-toggle=tab]").click(update_location);
-   }
-
    $(function () {
       bootstrap_tab_bookmark();
    })
-   $(document).ready(function() {
-      /* Activate the popover for the notes and actions urls
-      $('[data-toggle="popover urls"]').popover({
-         placement: 'bottom',
-         animation: true,
-         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
-         content: function() {
-            return $('#services-states-popover-content').html();
-         }
-      });
-      */
 
+   $(document).ready(function() {
       // Tabs management
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
          // Changed tab
+         $url = document.location.href.split('#');
+         if ($url[1] == undefined) {
+            $url = 'service_tab_view';
+         } else {
+            $url = $url[1];
+         }
+         $.ajax({
+            url: '/'+$url+'/{{service.id}}'
+         })
+         .done(function(content, textStatus, jqXHR) {
+            $('#'+$url).html(content);
+         })
+         .fail(function( jqXHR, textStatus, errorThrown ) {
+            console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
+            raise_message_ko(errorThrown + ': '+ textStatus);
+         });
       })
+
+      // If the requested URL does not contain an anchor, show the first page tab...
+      url = document.location.href.split('#');
+      if (url[1] == undefined) {
+         $('a[data-toggle="tab"]:first').trigger("shown.bs.tab");
+      }
    });
  </script>
