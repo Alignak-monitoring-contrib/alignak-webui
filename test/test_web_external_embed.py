@@ -334,10 +334,7 @@ class TestsExternal(unittest2.TestCase):
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].get_username() == 'admin'
 
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host in the backend
         host = datamgr.get_host({'where': {'name': 'webui'}})
@@ -539,10 +536,7 @@ class TestsExternal(unittest2.TestCase):
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].get_username() == 'admin'
 
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host and service in the backend
         host = datamgr.get_host({'where': {'name': 'KNM-Shinken'}})
@@ -671,10 +665,7 @@ class TestsExternal(unittest2.TestCase):
         assert 'current_user' in session and session['current_user']
         assert session['current_user'].get_username() == 'admin'
 
-        datamgr = DataManager(
-            session=session,
-            backend_endpoint='http://127.0.0.1:5000'
-        )
+        datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get user in the backend
         user = datamgr.get_user({'where': {'name': 'imported_admin'}})
