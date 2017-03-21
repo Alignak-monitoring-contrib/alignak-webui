@@ -813,7 +813,7 @@ class Helper(object):
                 button = button.replace("##action##", 'event_handler')
                 button = button.replace("##text##", _('Try to fix this problem'))
                 button = button.replace("##icon##", 'magic')
-                if getattr(bo_object, 'state_id', 0) > 0:
+                if not bo_object.is_problem:
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
                     button = button.replace("##disabled##", '')
