@@ -163,7 +163,6 @@ $.extend({
       if (typeof nocache=='undefined') nocache=false; // default don't refresh
       $.when(
          $.each(urls, function(i, url){
-            console.log("Loading script: "+url)
             if (! $('link[href="' + url + '"]').length) {
                if (nocache) {
                   $.getScript(url)
@@ -182,7 +181,6 @@ $.extend({
          })
       ).then(function(){
          if (typeof callback=='function') {
-            console.log("Calling callback...")
             callback();
          }
       });
@@ -236,7 +234,33 @@ function display_modal(inner_url, size, hidden) {
 }
 
 
-$(document).ready(function(){
+// Automatically navigate to the desired tab if an # exists in the URL
+function bootstrap_tab_bookmark(selector) {
+    if (selector == undefined) {
+        selector = "";
+    }
+
+    var bookmark_switch = function () {
+        url = document.location.href.split('#');
+        if (url[1] != undefined) {
+            $(selector + '[href="#'+url[1]+'"]').tab('show');
+        }
+    }
+
+    /* Automatically jump on good tab based on anchor */
+    $(document).ready(bookmark_switch);
+    $(window).bind('hashchange', bookmark_switch);
+
+    var update_location = function (event) {
+        document.location.hash = this.getAttribute("href");
+    }
+
+    /* Update hash based on tab */
+    $(selector + "[data-toggle=pill]").click(update_location);
+    $(selector + "[data-toggle=tab]").click(update_location);
+}
+
+$(document).ready(function() {
    // Activate all tooltips on the page ...
    if (window.matchMedia && (window.matchMedia("(min-width: 768px)").matches)) {
       if (log_layout) console.debug('Activate tooltips');

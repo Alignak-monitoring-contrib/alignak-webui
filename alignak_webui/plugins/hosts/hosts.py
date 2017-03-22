@@ -46,120 +46,187 @@ class PluginHosts(Plugin):
         self.backend_endpoint = 'host'
 
         self.pages = {
-            'get_host_widget': {
-                'name': 'Host widget',
-                'route': '/host_widget/<element_id>/<widget_id>',
+            'get_host_view': {
+                'name': 'Host synthesis view widget',
+                'route': '/host_view/<element_id>',
+                'view': 'host',
+                'widgets': [
+                    {
+                        'id': 'view',
+                        'for': ['host'],
+                        'order': 1,
+                        'name': _('Main view'),
+                        'template': 'host_view_widget',
+                        'icon': 'server',
+                        'read_only': True,
+                        'description': _('Host synthesis: displays host synthesis view.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_host_information': {
+                'name': 'Host information widget',
+                'route': '/host_information/<element_id>',
                 'view': 'host',
                 'widgets': [
                     {
                         'id': 'information',
                         'for': ['host'],
-                        'name': _('Information'),
+                        'order': 2,
+                        'name': _('information'),
                         'template': 'host_information_widget',
                         'icon': 'info',
-                        'description': _(
-                            'Host information: displays host general information.'
-                        ),
+                        'read_only': True,
+                        'description': _('Host information: displays host general information.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_configuration': {
+                'name': 'Host configuration widget',
+                'route': '/host_configuration/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'configuration',
                         'for': ['host'],
+                        'order': 3,
                         'name': _('Configuration'),
                         'template': 'host_configuration_widget',
                         'icon': 'gear',
                         'read_only': True,
-                        'description': _(
-                            'Host configuration: displays host customs configuration variables.'
-                        ),
+                        'description': _('Host configuration: '
+                                         'displays host customs configuration variables.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_location': {
+                'name': 'Host location widget',
+                'route': '/host_location/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'location',
                         'for': ['host'],
-                        'name': _('Location'),
+                        'order': 4,
+                        'name': _('location'),
                         'template': 'host_location_widget',
                         'icon': 'globe',
                         'read_only': True,
-                        'description': _(
-                            'Host location: displays host position on a map.'
-                        ),
-                        # Requires Worldmap plugin
-                        'plugin': 'Worldmap',
+                        'description': _('Host location: displays host position on a map.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_services': {
+                'name': 'Host services widget',
+                'route': '/host_services/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'services',
                         'for': ['host'],
+                        'order': 5,
                         'name': _('Services'),
                         'template': 'host_services_widget',
                         'icon': 'cubes',
-                        'description': _(
-                            '<h4>Host service widget</h4>Displays host services.'
-                        ),
+                        'read_only': True,
+                        'description': _('Host services: displays host services states.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_metrics': {
+                'name': 'Host metrics widget',
+                'route': '/host_metrics/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'metrics',
                         'for': ['host'],
+                        'order': 6,
                         'name': _('Metrics'),
                         'template': 'host_metrics_widget',
                         'icon': 'line-chart',
-                        'description': _(
-                            '<h4>Host metrics widget</h4>Displays host (and its services) last '
-                            'received metrics.'
-                        ),
-                        'picture': 'static/img/host_metrics_widget.png',
+                        'read_only': True,
+                        'description': _('Host metrics: displays host (and its services) '
+                                         'last received metrics.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_timeline': {
+                'name': 'Host timeline widget',
+                'route': '/host_timeline/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'timeline',
                         'for': ['host'],
+                        'order': 7,
                         'name': _('Timeline'),
                         'template': 'host_timeline_widget',
                         'icon': 'clock-o',
-                        'description': _(
-                            '<h4>Host timeline widget</h4>Displays host timeline.'
-                        ),
-                        'picture': 'static/img/host_timeline_widget.png',
+                        'read_only': True,
+                        'description': _('Host metrics: displays host timeline.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_history': {
+                'name': 'Host history widget',
+                'route': '/host_history/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'history',
                         'for': ['host'],
+                        'order': 8,
                         'name': _('History'),
                         'template': 'host_history_widget',
                         'icon': 'history',
-                        'description': _(
-                            '<h4>Host history widget</h4>Displays host history.'
-                        ),
+                        'read_only': True,
+                        'description': _('Host metrics: displays host history.'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_events': {
+                'name': 'Host events widget',
+                'route': '/host_events/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'events',
                         'for': ['host'],
+                        'order': 9,
                         'name': _('Events'),
                         'template': 'host_events_widget',
-                        'icon': 'history',
-                        'description': _(
-                            '<h4>Host events widget</h4>Displays host events: '
-                            'comments, acknowledges, downtimes,...'
-                        ),
+                        'icon': 'calendar',
+                        'read_only': True,
+                        'description': _('Host metrics: displays host events: '
+                                         'comments, acknowledges, downtimes,...'),
                         'options': {}
                     },
+                ]
+            },
+            'get_host_grafana': {
+                'name': 'Host grafana widget',
+                'route': '/host_grafana/<element_id>',
+                'view': 'host',
+                'widgets': [
                     {
                         'id': 'grafana',
                         'for': ['host'],
+                        'order': 9,
                         'name': _('Grafana'),
                         'template': 'host_grafana_widget',
-                        'icon': 'area-chart',
-                        'description': _(
-                            '<h4>Host grafana widget</h4>Displays host Grafana panel.'
-                        ),
-                        # Requires Grafana plugin
-                        'plugin': 'Grafana',
+                        'icon': 'grafana',
+                        'read_only': True,
+                        'description': _('Host metrics: displays host Grafana panel.'),
                         'options': {}
-                    }
+                    },
                 ]
             },
             'get_hosts_widget': {
@@ -229,18 +296,13 @@ class PluginHosts(Plugin):
         }
 
     def get_hosts_widget(self, embedded=False, identifier=None, credentials=None):
-        """
-        Get the hosts widget
-        """
+        """Get the hosts widget"""
         return self.get_widget(None, 'host', embedded, identifier, credentials)
 
     def get_one(self, element_id):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
-        """
-        Display an host
-        """
-        user = request.environ['beaker.session']['current_user']
+        """Display an host"""
         datamgr = request.app.datamgr
 
         # Get host
@@ -253,9 +315,9 @@ class PluginHosts(Plugin):
 
         # Get host services
         services = datamgr.get_host_services(host)
-
-        # Aggregate host services in a tree
-        tree_items = datamgr.get_services_aggregated(services)
+        #
+        # # Aggregate host services in a tree
+        # tree_items = datamgr.get_services_aggregated(services)
 
         # Get host dependencies
         children = datamgr.get_hostdependencys(
@@ -264,6 +326,197 @@ class PluginHosts(Plugin):
         parents = datamgr.get_hostdependencys(
             search={'where': {'dependent_hosts': host.id}}
         )
+
+        # # Fetch elements per page preference for user, default is 25
+        # elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+        #
+        # # Host history pagination and search parameters
+        # start = int(request.params.get('start', '0'))
+        # count = int(request.params.get('count', elts_per_page))
+        # where = Helper.decode_search(request.params.get('search', ''), self.table)
+        # search = {
+        #     'page': (start // count) + 1,
+        #     'max_results': count,
+        #     'where': {'host': host.id}
+        # }
+        #
+        # # Find known history types
+        # history_plugin = self.webui.find_plugin('Histories')
+        # history_types = []
+        # if history_plugin and 'type' in history_plugin.table:
+        #     logger.debug("History types: %s", history_plugin.table['type'].get('allowed', []))
+        #     history_types = history_plugin.table['type'].get('allowed', [])
+        #     history_types = history_types.split(',')
+        #
+        # # Fetch timeline filters preference for user, default is []
+        # selected_types = datamgr.get_user_preferences(user, 'timeline_filters', [])
+        # # selected_types = selected_types['value']
+        # for selected_type in history_types:
+        #     if request.params.get(selected_type) == 'true':
+        #         if selected_type not in selected_types:
+        #             selected_types.append(selected_type)
+        #     elif request.params.get(selected_type) == 'false':
+        #         if selected_type in selected_types:
+        #             selected_types.remove(selected_type)
+        #
+        # datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
+        # if selected_types:
+        #     search['where'].update({'type': {'$in': selected_types}})
+        # logger.debug("History selected types: %s", selected_types)
+        #
+        # # Get host history
+        # history = datamgr.get_history(search=search)
+        # if history is None:
+        #     history = []
+        # # Get last total elements count
+        # total = datamgr.get_objects_count('history', search=where, refresh=True)
+        #
+        # # Get host events (all history except the events concerning the checks)
+        # excluded = [t for t in history_types if t.startswith('check.')]
+        # search = {
+        #     'page': (start // count) + 1,
+        #     'max_results': count,
+        #     'where': {'host': host.id, 'type': {'$nin': excluded}}
+        # }
+        #
+        # # Get host events
+        # events = datamgr.get_history(search=search)
+        # if events is None:
+        #     events = []
+
+        return {
+            'host': host,
+            'plugin_parameters': self.plugin_parameters,
+            'services': services,
+            # 'tree_items': tree_items,
+            # 'history': history,
+            # 'events': events,
+            'parents': parents,
+            'children': children,
+            # 'timeline_pagination': self.webui.helper.get_pagination_control(
+            #     '/host/' + element_id, total, start, count
+            # ),
+            # 'types': history_types,
+            # 'selected_types': selected_types,
+            'title': request.params.get('title', _('Host view'))
+        }
+
+    def get_host_simple_widget(self, element_id, widget_id=None,
+                               embedded=False, identifier=None, credentials=None):
+        """Display a generic host widget"""
+        datamgr = request.app.datamgr
+
+        logger.debug("get_host_simple_widget: %s, %s", element_id, widget_id)
+
+        # Get host
+        host = datamgr.get_host(element_id)
+        if not host:
+            # Test if we got a name instead of an id
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': element_id}})
+            if not host:
+                return self.webui.response_invalid_parameters(_('Host does not exist'))
+
+        widget_place = request.params.get('widget_place', 'host')
+        widget_template = request.params.get('widget_template', 'host_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        logger.info("get_host_simple_widget: found template: %s", widget_template)
+
+        # Render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'plugin_parameters': self.plugin_parameters,
+
+            'host': host,
+
+            'title': None,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })
+
+    def get_host_view(self, element_id, widget_id='view',
+                      embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host main view widget"""
+        return self.get_host_simple_widget(element_id, widget_id,
+                                           embedded, identifier, credentials)
+
+    def get_host_information(self, element_id, widget_id='information',
+                             embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host information widget"""
+        return self.get_host_simple_widget(element_id, widget_id,
+                                           embedded, identifier, credentials)
+
+    def get_host_configuration(self, element_id, widget_id='configuration',
+                               embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host configuration widget"""
+        return self.get_host_simple_widget(element_id, widget_id,
+                                           embedded, identifier, credentials)
+
+    def get_host_location(self, element_id, widget_id='location',
+                          embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host map location widget"""
+        return self.get_host_simple_widget(element_id, widget_id,
+                                           embedded, identifier, credentials)
+
+    def get_host_services(self, element_id, widget_id='services',
+                          embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host map location widget"""
+        return self.get_host_simple_widget(element_id, widget_id,
+                                           embedded, identifier, credentials)
+
+    def get_host_metrics(self, element_id, widget_id=None,
+                         embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host metrics widget"""
+        return self.get_host_simple_widget(element_id, 'metrics',
+                                           embedded, identifier, credentials)
+
+    def get_host_timeline(self, element_id, widget_id='timeline',
+                          embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument, too-many-locals
+        """Display an host timeline widget"""
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        # Get host
+        host = datamgr.get_host(element_id)
+        if not host:
+            # Test if we got a name instead of an id
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': element_id}})
+            if not host:
+                return self.webui.response_invalid_parameters(_('Host does not exist'))
+
+        widget_place = request.params.get('widget_place', 'host')
+        widget_template = request.params.get('widget_template', 'host_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        logger.info("get_host_simple_widget: found template: %s", widget_template)
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
@@ -309,47 +562,38 @@ class PluginHosts(Plugin):
         # Get last total elements count
         total = datamgr.get_objects_count('history', search=where, refresh=True)
 
-        # Get host events (all history except the events concerning the checks)
-        excluded = [t for t in history_types if t.startswith('check.')]
-        search = {
-            'page': (start // count) + 1,
-            'max_results': count,
-            'where': {'host': host.id, 'type': {'$nin': excluded}}
-        }
+        # Render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
 
-        # Get host events
-        events = datamgr.get_history(search=search)
-        if events is None:
-            events = []
-
-        return {
-            'host': host,
             'plugin_parameters': self.plugin_parameters,
-            'services': services,
-            'tree_items': tree_items,
+
+            'host': host,
+
             'history': history,
-            'events': events,
-            'parents': parents,
-            'children': children,
             'timeline_pagination': self.webui.helper.get_pagination_control(
-                '/host/' + element_id, total, start, count
+                '/host/' + host.id, total, start, count
             ),
             'types': history_types,
             'selected_types': selected_types,
-            'title': request.params.get('title', _('Host view'))
-        }
 
-    def get_host_widget(self, element_id, widget_id,
+            'title': None,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })
+
+    def get_host_events(self, element_id, widget_id='events',
                         embedded=False, identifier=None, credentials=None):
-        # Because there are many locals needed :)
-        # pylint: disable=too-many-locals,too-many-arguments
-        """
-        Display an host widget
-        """
+        # pylint: disable=unused-argument, too-many-locals
+        """Display an host events widget"""
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
-
-        logger.debug("get_host_widget: %s, %s", element_id, widget_id)
 
         # Get host
         host = datamgr.get_host(element_id)
@@ -359,8 +603,18 @@ class PluginHosts(Plugin):
             if not host:
                 return self.webui.response_invalid_parameters(_('Host does not exist'))
 
-        # Get host services
-        services = datamgr.get_services(search={'where': {'host': host.id}})
+        widget_place = request.params.get('widget_place', 'host')
+        widget_template = request.params.get('widget_template', 'host_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        logger.info("get_host_simple_widget: found template: %s", widget_template)
 
         # Fetch elements per page preference for user, default is 25
         elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
@@ -370,6 +624,8 @@ class PluginHosts(Plugin):
         count = int(request.params.get('count', elts_per_page))
         where = Helper.decode_search(request.params.get('search', ''), self.table)
         search = {
+            'page': (start // count) + 1,
+            'max_results': count,
             'where': {'host': host.id}
         }
 
@@ -377,6 +633,7 @@ class PluginHosts(Plugin):
         history_plugin = self.webui.find_plugin('Histories')
         history_types = []
         if history_plugin and 'type' in history_plugin.table:
+            logger.debug("History types: %s", history_plugin.table['type'].get('allowed', []))
             history_types = history_plugin.table['type'].get('allowed', [])
             history_types = history_types.split(',')
 
@@ -391,17 +648,67 @@ class PluginHosts(Plugin):
                 if selected_type in selected_types:
                     selected_types.remove(selected_type)
 
+        datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
         if selected_types:
-            datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
             search['where'].update({'type': {'$in': selected_types}})
-        logger.debug("Host widget search: %s", search)
+        logger.debug("History selected types: %s", selected_types)
 
-        history = datamgr.get_history(search=search)
-        if history is None:
-            history = []
+        # Get host events (all history except the events concerning the checks)
+        excluded = [t for t in history_types if t.startswith('check.')]
+        search = {
+            'page': (start // count) + 1,
+            'max_results': count,
+            'where': {'host': host.id, 'type': {'$nin': excluded}}
+        }
+
+        # Get host events
+        events = datamgr.get_history(search=search)
+        if events is None:
+            events = []
 
         # Get last total elements count
         total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+        # Render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'plugin_parameters': self.plugin_parameters,
+
+            'host': host,
+
+            'events': events,
+            'timeline_pagination': self.webui.helper.get_pagination_control(
+                '/host/' + host.id, total, start, count
+            ),
+            'types': history_types,
+            'selected_types': selected_types,
+
+            'title': None,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })
+
+    def get_host_history(self, element_id, widget_id='history',
+                         embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument, too-many-locals
+        """Display an host timeline widget"""
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        # Get host
+        host = datamgr.get_host(element_id)
+        if not host:
+            # Test if we got a name instead of an id
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': element_id}})
+            if not host:
+                return self.webui.response_invalid_parameters(_('Host does not exist'))
 
         widget_place = request.params.get('widget_place', 'host')
         widget_template = request.params.get('widget_template', 'host_widget')
@@ -414,19 +721,65 @@ class PluginHosts(Plugin):
         else:
             logger.info("Widget identifier not found: using default template and no options")
 
-        title = request.params.get('title', _('Host: %s') % host.name)
+        logger.info("get_host_simple_widget: found template: %s", widget_template)
 
-        # Use required template to render the widget
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+
+        # Host history pagination and search parameters
+        start = int(request.params.get('start', '0'))
+        count = int(request.params.get('count', elts_per_page))
+        where = Helper.decode_search(request.params.get('search', ''), self.table)
+        search = {
+            'page': (start // count) + 1,
+            'max_results': count,
+            'where': {'host': host.id}
+        }
+
+        # Find known history types
+        history_plugin = self.webui.find_plugin('Histories')
+        history_types = []
+        if history_plugin and 'type' in history_plugin.table:
+            logger.debug("History types: %s", history_plugin.table['type'].get('allowed', []))
+            history_types = history_plugin.table['type'].get('allowed', [])
+            history_types = history_types.split(',')
+
+        # Fetch timeline filters preference for user, default is []
+        selected_types = datamgr.get_user_preferences(user, 'timeline_filters', [])
+        # selected_types = selected_types['value']
+        for selected_type in history_types:
+            if request.params.get(selected_type) == 'true':
+                if selected_type not in selected_types:
+                    selected_types.append(selected_type)
+            elif request.params.get(selected_type) == 'false':
+                if selected_type in selected_types:
+                    selected_types.remove(selected_type)
+
+        datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
+        if selected_types:
+            search['where'].update({'type': {'$in': selected_types}})
+        logger.debug("History selected types: %s", selected_types)
+
+        # Get host history
+        history = datamgr.get_history(search=search)
+        if history is None:
+            history = []
+        # Get last total elements count
+        total = datamgr.get_objects_count('history', search=where, refresh=True)
+
+        # Render the widget
         return template('_widget', {
             'widget_id': widget_id,
             'widget_name': widget_template,
-            'widget_place': 'host',
+            'widget_place': 'user',
             'widget_template': widget_template,
             'widget_uri': request.urlparts.path,
             'options': {},
 
+            'plugin_parameters': self.plugin_parameters,
+
             'host': host,
-            'services': services,
+
             'history': history,
             'timeline_pagination': self.webui.helper.get_pagination_control(
                 '/host/' + host.id, total, start, count
@@ -434,8 +787,15 @@ class PluginHosts(Plugin):
             'types': history_types,
             'selected_types': selected_types,
 
-            'title': title,
+            'title': None,
             'embedded': embedded,
             'identifier': identifier,
             'credentials': credentials
         })
+
+    def get_host_grafana(self, element_id, widget_id='grafana',
+                         embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display an host grafana widget"""
+        return self.get_host_simple_widget(element_id, widget_id,
+                                           embedded, identifier, credentials)

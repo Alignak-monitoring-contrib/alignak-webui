@@ -8,8 +8,8 @@
 
 %#Only ack events...
 %history_filter = []
-%if history:
-   %include("histories.tpl", histories=events, filter=history_filter, layout=False, pagination=webui.helper.get_pagination_control('history', len(history), 0, len(history)))
+%if events:
+   %include("histories.tpl", histories=events, filter=history_filter, layout=False, pagination=webui.helper.get_pagination_control('history', len(history), 0, len(events)))
 %else:
    <div class="alert alert-info">
       <p class="font-blue">{{_('No history logs available.')}}</p>

@@ -1,6 +1,8 @@
 %# Default values
 %setdefault('title', _('Untitled...'))
 
+%from alignak_webui.utils.helper import Helper
+
 %setdefault('widget_name', 'widget')
 
 %# embedded is True if the widget is got from an external application
@@ -141,119 +143,118 @@
          %end
       %end
    </form>
+   <script>
+      $('form[data-widget="{{widget_id}}"]').on("submit", function (evt) {
+         // Do not automatically submit ...
+         evt.preventDefault();
+
+         $('#widgets_loading').show();
+
+         var widget_id = $(this).data("widget");
+         $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: $(this).serialize()
+         })
+         .done(function( data, textStatus, jqXHR ) {
+            if (jqXHR.status != 200) {
+               console.error(jqXHR.status, data);
+            } else {
+               %if not embedded:
+               $('#wd_panel_{{widget_id}}').remove();
+               var elt = $(data).find('div.alignak_webui_widget');
+               /*$('#{{widget_id}} div.grid-stack-item-content')
+                  .append(elt)
+                  .delay(100)
+                  .slideDown('slow');*/
+
+               $("#" + widget_id + " div.grid-stack-item-content").html(data);
+               %else:
+               $("#" + widget_id).hide();
+               %end
+            }
+         })
+         .fail(function( jqXHR, textStatus, errorThrown ) {
+            console.error(errorThrown, textStatus);
+         })
+        .always(function() {
+            $('#widgets_loading').hide();
+         });
+      });
+
+      %if options:
+      alertify.widgetDialog || alertify.dialog('widgetDialog',function(){
+         return {
+            main:function(content){
+               this.setContent(content);
+            },
+            setup:function(){
+               return {
+                  buttons: [
+                     {
+                        /* button label */
+                        text: '<i class="fa fa-save"></i>&nbsp;{{_('Save changes')}}',
+
+                        /* bind a keyboard key to the button */
+                        key: 13,
+
+                        /* indicate if closing the dialog should trigger this button action */
+                        invokeOnClose: false,
+
+                        /* custom button class name */
+                        className: 'btn btn-success',
+
+                        /* custom button attributes  */
+                        attrs:{
+                           submit: true
+                        },
+
+                        /* Defines the button scope, either primary (default) or auxiliary */
+                        scope:'primary',
+                     },
+                     {
+                        text: '<i class="fa fa-close"></i>&nbsp;{{_('Cancel')}}',
+                        key: 27,
+                        invokeOnClose: true,
+                        className: 'btn btn-danger',
+                        scope:'auxiliary',
+                     }
+                  ],
+                  options:{
+                     maximizable:false,
+                     resizable:false,
+                     padding:true,
+                     title:'{{_('Widget options:')}}'
+                  }
+               };
+            },
+            // This will be called each time an action button is clicked.
+            callback:function(closeEvent){
+               // The closeEvent has the following properties:
+               // - index: The index of the button triggering the event.
+               // - button: The button definition object.
+               // - cancel: When set true, prevent the dialog from closing.
+               if (closeEvent.button.attrs && closeEvent.button.attrs.submit) {
+                  // Submit the widget options form
+                  $('form[data-widget="{{widget_id}}"]').trigger('submit');
+               }
+            }
+         };
+      });
+      $('button[data-widget="{{widget_id}}"][data-action="widget-options"]').on("click", function (evt) {
+         // Un-hide the initially hidden form.
+         $('form[data-widget="{{widget_id}}"]').removeClass('hidden');
+         // Display the form dialog box
+         alertify.widgetDialog ($('form[data-widget="{{widget_id}}"]')[0]);
+      });
+      %end
+
+      %if not embedded:
+      $('button[data-widget="{{widget_id}}"][data-action="remove-widget"]').on("click", function (evt) {
+         var grid = $('.grid-stack').data('gridstack');
+         grid.removeWidget('#' + $(this).data("widget"));
+      });
+      %end
+   </script>
    %end
 </div>
-
-<script>
-   $('form[data-widget="{{widget_id}}"]').on("submit", function (evt) {
-      // Do not automatically submit ...
-      evt.preventDefault();
-
-      $('#widgets_loading').show();
-
-      var widget_id = $(this).data("widget");
-      $.ajax({
-         url: $(this).attr('action'),
-         type: $(this).attr('method'),
-         data: $(this).serialize()
-      })
-      .done(function( data, textStatus, jqXHR ) {
-         if (jqXHR.status != 200) {
-            console.error(jqXHR.status, data);
-         } else {
-            %if not embedded:
-            $('#wd_panel_{{widget_id}}').remove();
-            var elt = $(data).find('div.alignak_webui_widget');
-            /*$('#{{widget_id}} div.grid-stack-item-content')
-               .append(elt)
-               .delay(100)
-               .slideDown('slow');*/
-
-            $("#" + widget_id + " div.grid-stack-item-content").html(data);
-            %else:
-            $("#" + widget_id).hide();
-            %end
-         }
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error(errorThrown, textStatus);
-      })
-     .always(function() {
-         $('#widgets_loading').hide();
-      });
-   });
-
-   %if options:
-   alertify.widgetDialog || alertify.dialog('widgetDialog',function(){
-      return {
-         main:function(content){
-            this.setContent(content);
-         },
-         setup:function(){
-            return {
-               buttons: [
-                  {
-                     /* button label */
-                     text: '<i class="fa fa-save"></i>&nbsp;{{_('Save changes')}}',
-
-                     /* bind a keyboard key to the button */
-                     key: 13,
-
-                     /* indicate if closing the dialog should trigger this button action */
-                     invokeOnClose: false,
-
-                     /* custom button class name */
-                     className: 'btn btn-success',
-
-                     /* custom button attributes  */
-                     attrs:{
-                        submit: true
-                     },
-
-                     /* Defines the button scope, either primary (default) or auxiliary */
-                     scope:'primary',
-                  },
-                  {
-                     text: '<i class="fa fa-close"></i>&nbsp;{{_('Cancel')}}',
-                     key: 27,
-                     invokeOnClose: true,
-                     className: 'btn btn-danger',
-                     scope:'auxiliary',
-                  }
-               ],
-               options:{
-                  maximizable:false,
-                  resizable:false,
-                  padding:true,
-                  title:'{{_('Widget options:')}}'
-               }
-            };
-         },
-         // This will be called each time an action button is clicked.
-         callback:function(closeEvent){
-            // The closeEvent has the following properties:
-            // - index: The index of the button triggering the event.
-            // - button: The button definition object.
-            // - cancel: When set true, prevent the dialog from closing.
-            if (closeEvent.button.attrs && closeEvent.button.attrs.submit) {
-               // Submit the widget options form
-               $('form[data-widget="{{widget_id}}"]').trigger('submit');
-            }
-         }
-      };
-   });
-   $('button[data-widget="{{widget_id}}"][data-action="widget-options"]').on("click", function (evt) {
-      // Un-hide the initially hidden form.
-      $('form[data-widget="{{widget_id}}"]').removeClass('hidden');
-      // Display the form dialog box
-      alertify.widgetDialog ($('form[data-widget="{{widget_id}}"]')[0]);
-   });
-   %end
-
-   %if not embedded:
-   $('button[data-widget="{{widget_id}}"][data-action="remove-widget"]').on("click", function (evt) {
-      var grid = $('.grid-stack').data('gridstack');
-      grid.removeWidget('#' + $(this).data("widget"));
-   });
-   %end
-</script>

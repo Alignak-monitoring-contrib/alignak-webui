@@ -277,8 +277,9 @@ class Service(BackendElement):
 
     @property
     def is_problem(self):
-        """An element is_problem if not ok / unknwown and hard state type"""
-        if self.status != 'NOPE' and self.state_id in [1, 2, 3] and self.state_type == "HARD":
+        """A service is consdered as a problem if is WARNING, CRITICAL or UNKNOWN
+        and in a hard state"""
+        if self.status in ['WARNING', 'CRITICAL', 'UNKNOWN'] and self.state_type == "HARD":
             return True
         return False
 

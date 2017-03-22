@@ -695,7 +695,7 @@ def external(widget_type, identifier, action=None):
 
         if not webui.user_authentication(current_user.token, None):
             # Redirect to application login page
-            logger.warning("user in the session is not authenticated. "
+            logger.warning("External request. User in the session is not authenticated. "
                            "Redirecting to the login page...")
             redirect('/login')
         credentials = current_user.token + ':'
