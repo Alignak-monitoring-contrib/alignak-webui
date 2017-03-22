@@ -1,4 +1,4 @@
-<!-- Host timeline widget -->
+<!-- service timeline widget -->
 %setdefault('debug', False)
 
 %# embedded is True if the widget is got from an external application
@@ -12,8 +12,8 @@
 %setdefault('types', [])
 %setdefault('selected_types', [])
 
-%setdefault('object_type', 'host')
-%setdefault('page', '/' + object_type + '/' + host.id)
+%setdefault('object_type', 'service')
+%setdefault('page', '/' + object_type + '/' + service.id)
 
 %from bottle import request
 %search_action = request.urlparts.path
@@ -71,7 +71,7 @@
          <nav class="navbar navbar-static-top" role="navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#host-timeline-navbar">
+                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#service-timeline-navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -79,7 +79,7 @@
                  </button>
              </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="host-timeline-navbar">
+            <div class="collapse navbar-collapse" id="service-timeline-navbar">
                <ul class="nav navbar-nav navbar-left">
                   <li class="hidden-xs" id="timeline_loading">
                      <a href="#">
@@ -146,10 +146,10 @@
                      <div class="input-group input-group-sm">
                         <div class="input-group-btn">
                            <form class="navbar-form navbar-left" role="search" method="get" action="{{ search_action }}">
-                              <label class="sr-only" for="host-timeline-search">{{_('Filter input field')}}</label>
+                              <label class="sr-only" for="service-timeline-search">{{_('Filter input field')}}</label>
                               <div class="input-group">
                                  <input class="form-control" type="search"
-                                        id="host-timeline-search" name="host-timeline-search"
+                                        id="service-timeline-search" name="service-timeline-search"
                                         value="{{ search_string }}" placeholder="{{_('search filter...')}}">
                               </div>
                            </form>
@@ -189,7 +189,7 @@
                            // Do not automatically submit ...
                            evt.preventDefault();
 
-                           get_new_filtered_page($('#host-timeline-search').val());
+                           get_new_filtered_page($('#service-timeline-search').val());
                         });
                      </script>
                   </div>
@@ -276,7 +276,7 @@
             g_count = count;
          })
          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
+            console.error('get service tab, error: ', jqXHR, textStatus, errorThrown);
          })
          .always(function() {
             $('#timeline_loading').hide();
@@ -290,14 +290,14 @@
             var $url = window.location.href.replace(window.location.search,'');
             $url = $url.split('#');
             if (($url[1] == undefined) || ($url[1] == '')) {
-               $url = 'host_timeline';
+               $url = 'service_timeline';
             } else {
                $url = $url[1];
             }
             var loading='<div class="alert alert-info text-center"><span class="fa fa-spin fa-spinner"></span>&nbsp;{{_("Fetching data...")}}&nbsp;<span class="fa fa-spin fa-spinner"></span></div>';
             $('#'+$url).html(loading);
             $.ajax({
-               url: '/'+$url+'/{{host.id}}',
+               url: '/'+$url+'/{{service.id}}',
                data: {
                   'start': start, 'count': count, 'search': g_search_string
                }
@@ -308,7 +308,7 @@
                g_count = count;
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
-               console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
+               console.error('get service tab, error: ', jqXHR, textStatus, errorThrown);
             })
             .always(function() {
                $('#timeline_loading').hide();
@@ -336,7 +336,7 @@
             $('#{{object_type}}_timeline_view').html(content);
          })
          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
+            console.error('get service tab, error: ', jqXHR, textStatus, errorThrown);
          })
          .always(function() {
             $('#timeline_loading').hide();
@@ -354,7 +354,7 @@
             $('#{{object_type}}_timeline_view').html(content);
          })
          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
+            console.error('get service tab, error: ', jqXHR, textStatus, errorThrown);
          })
          .always(function() {
             $('#timeline_loading').hide();
@@ -374,7 +374,7 @@
       win.scroll(function() {
          // Request new data only if timeline tab is active...
          url = document.location.href.split('#');
-         if ((url[1] != undefined) && (url[1] != 'host_timeline')) {
+         if ((url[1] != undefined) && (url[1] != 'service_timeline')) {
             return;
          }
 
@@ -389,7 +389,7 @@
             $(window).data('ajaxready', false);
 
             start += {{count}};
-            var url = '{{'/' + object_type + '/' + host.id}}' + '?infiniteScroll=true&start=' + start + '&count={{count}}';
+            var url = '{{'/' + object_type + '/' + service.id}}' + '?infiniteScroll=true&start=' + start + '&count={{count}}';
             $.get(url, function(data) {
                $(data).find('#included_timeline li').each(function(idx, li){
                   var elt = '<li/>';

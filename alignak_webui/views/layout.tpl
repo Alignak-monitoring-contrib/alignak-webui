@@ -328,25 +328,6 @@
       %end
 
       <script>
-      %if css:
-      /*
-      console.log("Css...");
-      $.getCssFiles({{! css}}, function(){
-         console.log("Loaded ...");
-      });*/
-      %end
-      %if js:
-      /*
-      $.getJsFiles({{! js}}, function(){
-         %if callback:
-         window.setTimeout(function () {
-            console.log("Callback");
-            {{callback}}();
-         }, 100);
-         %end
-      });*/
-      %end
-
       $(document).ready(function() {
          // Initialize alertify library
          alertify.defaults.transition = "slide";

@@ -327,7 +327,7 @@
             <li {{'class="active"' if first else ''}}>
                <a href="#host_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
-                  title="{{! widget['name']}}">
+                  title="{{! widget['description']}}">
                   <span class="fa fa-{{widget['icon']}}"></span>
                   <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
@@ -363,12 +363,15 @@
       // Tabs management
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
          // Changed tab
-         $url = document.location.href.split('#');
-         if ($url[1] == undefined) {
+         var $url = window.location.href.replace(window.location.search,'');
+         $url = $url.split('#');
+         if (($url[1] == undefined) || ($url[1] == '')) {
             $url = 'host_view';
          } else {
             $url = $url[1];
          }
+         var loading='<div class="alert alert-info text-center"><span class="fa fa-spin fa-spinner"></span>&nbsp;{{_("Fetching data...")}}&nbsp;<span class="fa fa-spin fa-spinner"></span></div>';
+         $('#'+$url).html(loading);
          $.ajax({
             url: '/'+$url+'/{{host.id}}'
          })
@@ -377,14 +380,17 @@
          })
          .fail(function( jqXHR, textStatus, errorThrown ) {
             console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
-            raise_message_ko(errorThrown + ': '+ textStatus);
+            // raise_message_ko(errorThrown + ': '+ textStatus);
          });
       })
 
       // If the requested URL does not contain an anchor, show the first page tab...
-      url = document.location.href.split('#');
-      if (url[1] == undefined) {
+      var url = window.location.href.replace(window.location.search,'');
+      url = url.split('#');
+      if ((url[1] == undefined) || (url[1] == '')) {
          $('a[data-toggle="tab"]:first').trigger("shown.bs.tab");
+      } else {
+         $('a[href="#'+url[1]+'"]').trigger("shown.bs.tab");
       }
    });
 </script>

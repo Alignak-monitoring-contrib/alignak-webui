@@ -27,6 +27,7 @@ from logging import getLogger
 from bottle import request, template
 
 from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -43,7 +44,7 @@ class PluginServices(Plugin):
         self.pages = {
             'get_service_view': {
                 'name': 'service synthesis view widget',
-                'route': '/service_tab_view/<element_id>',
+                'route': '/service_view/<element_id>',
                 'view': 'service',
                 'widgets': [
                     {
@@ -61,7 +62,7 @@ class PluginServices(Plugin):
             },
             'get_service_information': {
                 'name': 'service information widget',
-                'route': '/service_tab_information/<element_id>',
+                'route': '/service_information/<element_id>',
                 'view': 'service',
                 'widgets': [
                     {
@@ -80,7 +81,7 @@ class PluginServices(Plugin):
             },
             'get_service_configuration': {
                 'name': 'service configuration widget',
-                'route': '/service_tab_configuration/<element_id>',
+                'route': '/service_configuration/<element_id>',
                 'view': 'service',
                 'widgets': [
                     {
@@ -99,7 +100,7 @@ class PluginServices(Plugin):
             },
             'get_service_metrics': {
                 'name': 'service metrics widget',
-                'route': '/service_tab_metrics/<element_id>',
+                'route': '/service_metrics/<element_id>',
                 'view': 'service',
                 'widgets': [
                     {
@@ -108,10 +109,29 @@ class PluginServices(Plugin):
                         'order': 4,
                         'name': _('Metrics'),
                         'template': 'service_metrics_widget',
-                        'icon': 'line-chart',
+                        'icon': 'calculator',
                         'read_only': True,
                         'description': _('Service metrics: '
                                          'displays service last received metrics.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_service_timeline': {
+                'name': 'service timeline widget',
+                'route': '/service_timeline/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'timeline',
+                        'for': ['service'],
+                        'order': 5,
+                        'name': _('Timeline'),
+                        'template': 'service_timeline_widget',
+                        'icon': 'clock-o',
+                        'read_only': True,
+                        'description': _('Service timeline: '
+                                         'displays service events on a timeline.'),
                         'options': {}
                     },
                 ]
@@ -124,10 +144,10 @@ class PluginServices(Plugin):
                     {
                         'id': 'grafana',
                         'for': ['service'],
-                        'order': 5,
+                        'order': 6,
                         'name': _('Grafana'),
                         'template': 'service_grafana_widget',
-                        'icon': 'grafana',
+                        'icon': 'line-chart',
                         'read_only': True,
                         'description': _(
                             'service metrics: displays service Grafana panel.'
@@ -229,78 +249,28 @@ class PluginServices(Plugin):
             search={'where': {'dependent_services': service.id}}
         )
 
-        # # Get service history (timeline)
-        # # Fetch elements per page preference for user, default is 25
-        # elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
-        #
-        # # Service history pagination and search parameters
-        # start = int(request.params.get('start', '0'))
-        # count = int(request.params.get('count', elts_per_page))
-        # where = Helper.decode_search(request.params.get('search', ''), self.table)
-        # search = {
-        #     'page': (start // count) + 1,
-        #     'max_results': count,
-        #     'where': {'service': element_id}
-        # }
-        #
-        # # Find known history types
-        # history_plugin = self.webui.find_plugin('Histories')
-        # history_types = []
-        # if history_plugin and 'type' in history_plugin.table:
-        #     logger.warning("History types: %s", history_plugin.table['type'].get('allowed', []))
-        #     history_types = history_plugin.table['type'].get('allowed', [])
-        #     history_types = history_types.split(',')
-        #
-        # # Fetch timeline filters preference for user, default is []
-        # selected_types = datamgr.get_user_preferences(user, 'timeline_filters', [])
-        # # selected_types = selected_types['value']
-        # for selected_type in history_types:
-        #     if request.params.get(selected_type) == 'true':
-        #         if selected_type not in selected_types:
-        #             selected_types.append(selected_type)
-        #     elif request.params.get(selected_type) == 'false':
-        #         if selected_type in selected_types:
-        #             selected_types.remove(selected_type)
-        #
-        # datamgr.set_user_preferences(user, 'timeline_filters', selected_types)
-        # if selected_types:
-        #     search['where'].update({'type': {'$in': selected_types}})
-        # logger.debug("History selected types: %s", selected_types)
-        #
-        # # Get service history
-        # history = datamgr.get_history(search=search)
-        # if history is None:
-        #     history = []
-        # # Get last total elements count
-        # total = datamgr.get_objects_count('history', search=where, refresh=True)
-        #
-        # # Get service events (all history except the events concerning the checks)
-        # excluded = [t for t in history_types if t.startswith('check.')]
-        # search = {
-        #     'page': (start // count) + 1,
-        #     'max_results': count,
-        #     'where': {'service': element_id, 'type': {'$nin': excluded}}
-        # }
-        #
-        # # Get service events
-        # events = datamgr.get_history(search=search)
-        # if events is None:
-        #     events = []
+        # Search filters used for the timeline widget
+        events_search_filters = {
+            '01': (_('Web UI comments'), 'type:webui.comment'),
+            '02': (_('Check results'), 'type:check.'),
+            '03': (_('Alerts'), 'type:monitoring.alert'),
+            '04': (_('Acknowledges'), 'type:monitoring.ack'),
+            '05': (_('Downtimes'), 'type:monitoring.downtime'),
+            '06': (_('Notifications'), 'type:monitoring.notification'),
+            '07': ('', ''),
+        }
 
         return {
+            'plugin_parameters': self.plugin_parameters,
+            'search_engine': self.search_engine,
+            'search_filters': events_search_filters,
+
             'host': host,
             'service': service,
-            'plugin_parameters': self.plugin_parameters,
-            # 'history': history,
-            # 'events': events,
             'parents': parents,
             'children': children,
-            # 'timeline_pagination': self.webui.helper.get_pagination_control(
-            #     '/service/' + element_id, total, start, count
-            # ),
-            # 'types': history_types,
-            # 'selected_types': selected_types,
-            'title': request.params.get('title', _('Service view'))
+            'title': request.params.get('title', _('Service view: %s/%s'
+                                                   % (host.alias, service.alias)))
         }
 
     def get_service_simple_widget(self, element_id, widget_id=None,
@@ -378,6 +348,100 @@ class PluginServices(Plugin):
         """Display a service metrics widget"""
         return self.get_service_simple_widget(element_id, 'metrics',
                                               embedded, identifier, credentials)
+
+    def get_service_timeline(self, element_id, widget_id='timeline',
+                             embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument, too-many-locals
+        """Display a service timeline widget"""
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        # Get service
+        service = datamgr.get_service(element_id)
+        if not service:
+            return self.webui.response_invalid_parameters(_('Service does not exist'))
+
+        # Search the required widget
+        widget_place = request.params.get('widget_place', 'service')
+        widget_template = request.params.get('widget_template', 'service_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        logger.debug("get_service_timeline: found template: %s", widget_template)
+
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+
+        # service history pagination and search parameters
+        start = int(request.params.get('start', '0'))
+        count = int(request.params.get('count', elts_per_page))
+        where = {'service': service.id}
+
+        # Find known history types
+        history_plugin = self.webui.find_plugin('Histories')
+        if history_plugin:
+            decoded_search = Helper.decode_search(request.params.get('search', ''),
+                                                  history_plugin.table)
+            logger.info("Decoded search: %s", decoded_search)
+            if decoded_search:
+                where.update(decoded_search)
+
+        search = {
+            'page': (start // count) + 1,
+            'max_results': count,
+            'where': where
+        }
+
+        # Get service history
+        history = datamgr.get_history(search=search)
+        if history is None:
+            history = []
+        total = 0
+        if history:
+            total = history[0]['_total']
+
+        # Search filters used for the timeline widget
+        events_search_filters = {
+            '01': (_('Web UI comments'), 'type:webui.comment'),
+            '02': (_('Check results'), 'type:check.'),
+            '03': (_('Alerts'), 'type:monitoring.alert'),
+            '04': (_('Acknowledges'), 'type:monitoring.ack'),
+            '05': (_('Downtimes'), 'type:monitoring.downtime'),
+            '06': (_('Notifications'), 'type:monitoring.notification'),
+            '07': ('', ''),
+        }
+
+        # Render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'plugin_parameters': self.plugin_parameters,
+            'search_engine': True,
+            'search_filters': events_search_filters,
+
+            'service': service,
+
+            'history': history,
+            'pagination': self.webui.helper.get_pagination_control(
+                '/service/%s#service_%s' % (service.id, widget_id), total, start, count
+            ),
+
+            'title': None,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })
 
     def get_service_grafana(self, element_id, widget_id='grafana',
                             embedded=False, identifier=None, credentials=None):

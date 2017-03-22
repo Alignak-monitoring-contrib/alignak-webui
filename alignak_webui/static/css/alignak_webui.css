@@ -152,6 +152,10 @@ header span.label {
     width: 450px;
 }
 
+#search-filters li[role="presentation"]>a {
+  padding: 3px 20px;
+}
+
 /* Large Devices, Wide Screens */
 @media only screen and (max-width : 1200px) {
     #search {
@@ -300,8 +304,11 @@ table.dataTable th div.form-group-sm {
 /*
  * Pagination control elements
  */
+.pagination {
+    margin: 0px !important;
+}
 .elts_per_page {
-    margin-left: 5px;
+    margin-left: 5px; margin-top: 5px;
 }
 .elts_per_page input {
     max-width: 70px;

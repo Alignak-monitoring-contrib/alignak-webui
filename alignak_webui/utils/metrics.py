@@ -94,13 +94,13 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
                     logger.warning("HostMetrics, bad service metrics configuration: %s", key)
                     continue
                 if not self.find_service_by_name(config):
-                    logger.warning("HostMetrics, no matching service for: %s", key)
+                    logger.info("HostMetrics, no matching service for: %s", key)
                     continue
                 self.params[key] = config
 
     def find_service_by_name(self, searched):
         """Find a service by its name with regex"""
-        logger.info("HostMetrics, searching '%s' in the services", searched)
+        logger.debug("HostMetrics, searching '%s' in the services", searched)
         for service in self.services:
             if re.search(searched['name'], service.name):
                 return service

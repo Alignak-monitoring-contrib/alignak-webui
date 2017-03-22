@@ -1786,7 +1786,7 @@ class DataManager(object):
             search.update({'embedded': {'host': 1, 'service': 1, 'logcheckresult': 1}})
 
         try:
-            logger.debug("get_history, search: %s", search)
+            logger.info("get_history, search: %s", search)
             items = self.find_object('history', search)
             logger.debug("get_history, got %s items", len(items))
             return items
