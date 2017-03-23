@@ -172,7 +172,12 @@ As default, the widget is provided as it is defined in the Alignak WebUI. The wi
 .. image:: ../images/api-1.png
 
 
-Use the URL parameter **page** to get a full page embeddable in an iframe. Without this parameter only the required widget is provided as a text/html response.
+Use the URL parameter **page** to get a full page embeddable in an iframe. Without this parameter only the required widget is provided as a text/html response. As an example:
+::
+
+    http://127.0.0.1:5001/external/host/cogny/view?page
+    http://127.0.0.1:5001/external/host/cogny/information?page
+    http://127.0.0.1:5001/external/host/cogny/location?page
 
 .. image:: ../images/api-2.png
 

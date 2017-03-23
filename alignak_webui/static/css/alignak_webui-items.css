@@ -39,15 +39,10 @@
 .item_logcheckresult_unreachable,
 .item_host_unreachable,
 .item_service_unreachable,
+.item_historyWebuiComment,
 .item_historyCheckRequest,
 .item_historyCheckRequested,
-.item_historyAckAdd,
-.item_historyAckProcessed,
-.item_historyAckDelete,
 .amethyst { color: #9b59b6; }
-.item_historyDowntimeAdd,
-.item_historyDowntimeProcessed,
-.item_historyDowntimeDelete,
 .sla_hosts_problems,
 .sla_services_problems,
 .wisteria { color: #8e44ad; }
@@ -69,6 +64,12 @@
 .item_hostgroup_downtimed,
 .item_realm_in_downtime,
 .item_realm_downtimed,
+.item_historyDowntimeAdd,
+.item_historyDowntimeProcessed,
+.item_historyDowntimeDelete,
+.item_historyMonitoringDowntimeStart,
+.item_historyMonitoringDowntimeCancelled,
+.item_historyMonitoringDowntimeEnd,
 .sunflower { color: #f1c40f !important; }
 
 .acknowledged,
@@ -77,6 +78,9 @@
 .item_hostgroup_acknowledged,
 .item_realm_acknowledged,
 .item_logcheckresult_acknowledged,
+.item_historyAckAdd,
+.item_historyAckProcessed,
+.item_historyAckDelete,
 .orange { color: #f39c12 !important; }
 
 /* Oranges */
@@ -105,6 +109,8 @@
 .item_logcheckresult_down,
 .item_logcheckresult_critical,
 .alizarin { color: #e74c3c; }
+.item_historyMonitoringAlert,
+.item_historyMonitoringEventHandler,
 .pomegranate { color: #c0392b; }
 
 /* Whites */

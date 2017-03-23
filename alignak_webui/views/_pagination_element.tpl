@@ -11,11 +11,6 @@
 
 %from bottle import request
 
-<style>
-.pagination {
-   margin: 0px !important;
-}
-</style>
 %if debug:
 <div class="panel-group">
    <div class="panel panel-default">
@@ -35,18 +30,17 @@
    </div>
 </div>
 %end
-%# First element for global data
-%# page_url start, count and total
+
 %page_url, start, count, total, active = pagination[0]
-<div id="pagination_{{page_url.replace('/', '_')}}"
-      class="elts_per_page btn-toolbar"
-      role="toolbar" aria-label="{{_('Pages number sequence')}}">
+%item_id = page_url.replace('/', '_')
+%item_id = item_id.replace('#', '_')
+<div id="pagination_{{item_id}}" class="elts_per_page btn-toolbar" role="toolbar" aria-label="{{_('Pages number sequence')}}">
    %if pagination and len(pagination) > 1:
       %if display_steps_form and elts_per_page is not None:
          <div class="input-group input-group-sm">
             <div class="input-group-btn">
                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                  #&nbsp;<span class="caret"></span>
+                  {{count}}&nbsp;#&nbsp;<span class="caret"></span>
                </button>
                <ul class="dropdown-menu" role="menu">
                   <li><a href="#" data-elts="5">{{_('%d elements') % 5}}</a></li>
@@ -86,23 +80,21 @@
             </ul>
          </div>
 
-      <script>
-      $("#pagination_{{page_url.replace('/', '_')}} ul.dropdown-menu li a").click(function(e){
-         var value = $(this).data('elts');
+         <script>
+         $("#pagination_{{item_id}} ul.dropdown-menu>li>a").on('click', function(e){
+            var value = $(this).data('elts');
 
-         // Build a new pagination request url
-         var url = document.location.href;
-         url = url.replace(document.location.search, '');
-         url = url.replace('#', '');
-         url = url + '?start=0&count='+value;
+            // Build a new pagination request url
+            var url = window.location.href.replace(window.location.search,'');
+            url = url + '?start=0&count='+value;
 
-         // Save user preference
-         save_user_preference('elts_per_page', value, function() {
-            // Force page reloading with new parameters
-            document.location.href = url;
+            // Save user preference
+            save_user_preference('elts_per_page', value, function() {
+               // Force page reloading with new parameters
+               //document.location.href = url;
+            });
          });
-      });
-      </script>
+         </script>
       %end
    %end
 </div>
