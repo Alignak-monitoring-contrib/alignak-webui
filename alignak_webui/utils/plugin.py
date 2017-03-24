@@ -491,7 +491,7 @@ class Plugin(object):
             'element': element
         }
 
-    def get_all(self):
+    def get_all(self, templates=None):
         """Show all elements on one page"""
         user = request.environ['beaker.session']['current_user']
         webui = request.app.config['webui']
@@ -514,6 +514,8 @@ class Plugin(object):
             'max_results': count,
             'where': where
         }
+        if templates is not None:
+            search['where'].update({'_is_template': templates})
 
         logger.debug("get_all, search: %s", search)
         elts = f(search, all_elements=False)
@@ -561,105 +563,111 @@ class Plugin(object):
         elts = f(search, all_elements=False)
 
         # Get last total elements count
-        total = datamgr.get_objects_count(
-            self.backend_endpoint, search=where, refresh=True
-        )
-
-        # Get elements from the data manager
-        f_get_overall_state = getattr(self, 'get_overall_state', None)
-
-        # Get element state configuration
-        items_states = ElementState()
+        if elts is None:
+            elts = []
+        total = 0
+        treeable = False
+        if elts:
+            total = elts[0]['_total']
+            if hasattr(elts[0], '_parent'):
+                treeable = True
 
         tree_items = []
-        for item in elts:
-            logger.info("Tree item: %s", item)
-            overall_status = 'unknown'
-            if f_get_overall_state:
-                (dummy, overall_status) = f_get_overall_state(element=item)
-            logger.debug("Item status: %s", overall_status)
+        context_menu = {}
+        if treeable:
+            # Get elements from the data manager
+            f_get_overall_state = getattr(self, 'get_overall_state', None)
 
-            cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_status)
-            logger.debug("Item state: %s", cfg_state)
-            if not cfg_state:
-                cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
+            # Get element state configuration
+            items_states = ElementState()
 
-            parent = '#'
-            if item._parent and not isinstance(item._parent, basestring):
-                parent = item['_parent'].id
-            # logger.debug("Item parent: %s", parent)
+            for item in elts:
+                logger.info("Tree item: %s", item)
+                overall_status = 'unknown'
+                if f_get_overall_state:
+                    (dummy, overall_status) = f_get_overall_state(element=item)
+                logger.debug("Item status: %s", overall_status)
 
-            tree_item = {
-                'id': item.id,
-                'parent': '#' if parent == '#' else item._parent.id,
-                'text': item.alias,
-                'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
-                'state': {
-                    "opened": True,
-                    "selected": False,
-                    "disabled": False
-                },
-                'data': {
-                    'status': overall_status,
-                    'name': item.name,
-                    'alias': item.alias,
-                    '_level': item._level,
-                    'type': self.backend_endpoint,
-                },
-                # 'li_attr': {
-                # "item_id": item.id,
-                # The result with a class to color the lines is not very nice :/
-                # "class" : "table-row-%s" % (overall_state)
-                # },
-                'a_attr': {}
-            }
+                cfg_state = items_states.get_icon_state(self.backend_endpoint, overall_status)
+                logger.debug("Item state: %s", cfg_state)
+                if not cfg_state:
+                    cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
 
-            if parent == '#':
-                tree_item.update({'parent': parent})
-                tree_item.update({'type': 'root'})
-                # tree_item.update({'icon': 'fa fa-w fa-sitemap'})
-            else:
-                tree_item.update({'parent': item._parent.id})
-                tree_item.update({'type': 'node'})
-                # tree_item.update({'icon': 'fa fa-w fa-list'})
+                parent = '#'
+                if item._parent and not isinstance(item._parent, basestring):
+                    parent = item['_parent'].id
+                # logger.debug("Item parent: %s", parent)
 
-            tree_items.append(tree_item)
+                tree_item = {
+                    'id': item.id,
+                    'parent': '#' if parent == '#' else item._parent.id,
+                    'text': item.alias,
+                    'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                    'state': {
+                        "opened": True,
+                        "selected": False,
+                        "disabled": False
+                    },
+                    'data': {
+                        'status': overall_status,
+                        'name': item.name,
+                        'alias': item.alias,
+                        '_level': item._level,
+                        'type': self.backend_endpoint,
+                    },
+                    # 'li_attr': {
+                    # "item_id": item.id,
+                    # The result with a class to color the lines is not very nice :/
+                    # "class" : "table-row-%s" % (overall_state)
+                    # },
+                    'a_attr': {}
+                }
 
-        # Define contextual menu
-        context_menu = {
-            'actions': {
-                'action1': {
-                    "label": _('Fake action 1'),
-                    "icon": "ion-monitor",
-                    "separator_before": False,
-                    "separator_after": True,
-                    "action": '''
-                        function (obj) {
-                            console.log('Fake action 1');
-                        }
-                    '''
-                },
-                'action2': {
-                    "label": _('Fake action 2!'),
-                    "icon": "ion-monitor",
-                    "separator_before": False,
-                    "separator_after": False,
-                    "action": '''function (obj) {
-                       console.log('Fake action 2');
-                    }'''
+                if parent == '#':
+                    tree_item.update({'parent': parent})
+                    tree_item.update({'type': 'root'})
+                    # tree_item.update({'icon': 'fa fa-w fa-sitemap'})
+                else:
+                    tree_item.update({'parent': item._parent.id})
+                    tree_item.update({'type': 'node'})
+                    # tree_item.update({'icon': 'fa fa-w fa-list'})
+
+                tree_items.append(tree_item)
+
+            # Define contextual menu
+            context_menu = {
+                'actions': {
+                    'action1': {
+                        "label": _('Fake action 1'),
+                        "icon": "ion-monitor",
+                        "separator_before": False,
+                        "separator_after": True,
+                        "action": '''
+                            function (obj) {
+                                console.log('Fake action 1');
+                            }
+                        '''
+                    },
+                    'action2': {
+                        "label": _('Fake action 2!'),
+                        "icon": "ion-monitor",
+                        "separator_before": False,
+                        "separator_after": False,
+                        "action": '''function (obj) {
+                           console.log('Fake action 2');
+                        }'''
+                    }
                 }
             }
-        }
 
         return {
             'tree_type': self.backend_endpoint,
             'tree_items': tree_items,
             'elts': elts,
             'context_menu': context_menu,
-            'pagination': Helper.get_pagination_control(
-                '/%ss' % self.backend_endpoint, total, start, count
-            ),
-            'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
+            'pagination': Helper.get_pagination_control('/%ss' % self.backend_endpoint,
+                                                        total, start, count),
+            'title': request.query.get('title', _('All %ss tree view') % self.backend_endpoint)
         }
 
     # TODO: add tests for this function

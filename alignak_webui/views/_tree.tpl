@@ -102,6 +102,7 @@
 
          <div class="panel-body">
             <div class="row">
+               %if tree_items:
                <div class="col-md-4 col-sm-6 col-xs-12">
                   <!-- Tree structure to display items -->
                   <div id="{{tree_type}}_tree"></div>
@@ -111,7 +112,16 @@
                      <button type="button" class="close" data-dismiss="alert">×</button>
                      <h4>{{_('Select an item in the left tree to display more elements.')}}</h4>
                   </div>
+                  <script>
+                     window.setTimeout(function() { $("#right_panel div.alert-dismissible").alert('close'); }, 3000);
+                  </script>
                </div>
+               %else:
+                  <div class="card alert alert-dismissible alert-danger">
+                     <button type="button" class="close" data-dismiss="alert">×</button>
+                     <h4>{{_('No available tree view for those elements.')}}</h4>
+                  </div>
+               %end
             </div>
          </div>
       </div>
