@@ -662,7 +662,6 @@ class Plugin(object):
             'title': request.query.get('title', _('All %ss') % self.backend_endpoint)
         }
 
-    # TODO: add tests for this function
     def get_form(self, element_id):
         """Build the form for an element.
 
@@ -679,35 +678,14 @@ class Plugin(object):
         # Get element from the data manager
         element = f(element_id)
         if not element:
-            element = f(search={
-                'max_results': 1, 'where': {'name': element_id}
-            })
-            if not element:
-                element = f(search={
-                    'max_results': 1, 'where': {'_id': element_id, '_is_template': False}
-                })
-                if not element:
-                    element = f(search={
-                        'max_results': 1, 'where': {'name': element_id, '_is_template': False}
-                    })
-                    if not element:
-                        element = f(search={
-                            'max_results': 1, 'where': {'_id': element_id, '_is_template': True}
-                        })
-                        if not element:
-                            element = f(search={
-                                'max_results': 1, 'where': {
-                                    'name': element_id, '_is_template': True
-                                }
-                            })
-                            # If not found, element will remain as None to create a new element
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+        # If not found, element will remain as None to create a new element
 
         return {
             'plugin': self,
             'element': element
         }
 
-    # TODO: add tests for this function
     def update_form(self, element_id):
         # pylint: disable=too-many-locals, not-an-iterable, redefined-variable-type
         """Update an element
@@ -729,21 +707,8 @@ class Plugin(object):
             # Get element from the data manager
             element = f(element_id)
             if not element:
-                element = f(search={
-                    'max_results': 1, 'where': {'name': element_id}
-                })
-                if not element:
-                    element = f(search={
-                        'max_results': 1, 'where': {'_id': element_id, '_is_template': True}
-                    })
-                    if not element:
-                        element = f(search={
-                            'max_results': 1, 'where': {'name': element_id, '_is_template': True}
-                        })
-                        if not element:
-                            self.send_user_message(
-                                _("%s '%s' not found") % (self.backend_endpoint, element_id)
-                            )
+                element = f(search={'max_results': 1, 'where': {'name': element_id}})
+        # If not found, element will remain as None to create a new element
 
         # Prepare update request ...
         data = {}
@@ -806,18 +771,18 @@ class Plugin(object):
                     if element[field].id == value:
                         update = False
             if update:
-                logger.warning(
+                logger.info(
                     "- updated field: %s = %s, whereas: %s", field, value, element[field]
                 )
                 data.update({field: value})
             if create:
-                logger.warning("- field: %s = %s", field, value)
+                logger.info("- field: %s = %s", field, value)
                 data.update({field: value})
 
         # For an object update...
         if not create:
             if data:
-                logger.warning("Updated element with: %s", data)
+                logger.info("Updated element with: %s", data)
                 result = datamgr.update_object(element=element, data=data)
                 if result is True:
                     data.update(

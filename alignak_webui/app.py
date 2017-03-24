@@ -404,6 +404,7 @@ def before_request():
         BaseTemplate.defaults['edition_mode'] = session['edition_mode']
     else:
         session['edition_mode'] = False
+    logger.debug("before_request, edition mode: %s", session['edition_mode'])
 
     if 'current_user' in session:
         # Make session current user available in the templates
@@ -958,24 +959,36 @@ def set_user_preference():
 @app.route('/edition_mode', 'POST')
 # User preferences page ...
 def edition_mode():
-    """Set edition mode on / off"""
+    """Set edition mode on / off
+
+    The `state` parameter is 'on' or 'off' to enable / disable the edition mode in the session
+
+    If this parameter is not present, this function do not change the current edition mode that
+    is simply returned in the response.
+
+    Returns a JSON response:
+        {'edition_mode': False, 'message': 'Edition mode disabled'}
+    """
     # Session...
     session = request.environ['beaker.session']
-    logger.debug("edition_mode, session: %s", session)
 
-    current_state = request.params.get('state', 'on')
-    logger.debug("edition_mode, current state: %s", current_state)
+    required_state = request.params.get('state', None)
+    logger.debug("edition_mode, required state: %s", required_state)
 
-    session['edition_mode'] = (current_state == 'off')
-
-    # Make session edition mode available in the templates
-    BaseTemplate.defaults['edition_mode'] = session['edition_mode']
-    logger.debug("edition_mode, session: %s", session)
+    if required_state is not None:
+        # Make session edition mode available in the session and in the templates
+        session['edition_mode'] = (required_state == 'on')
+        BaseTemplate.defaults['edition_mode'] = session['edition_mode']
+    logger.debug("edition_mode, session: %s", session['edition_mode'])
 
     if session['edition_mode']:
-        return _('Edition mode enabled')
+        user_message = _('Edition mode enabled')
     else:
-        return _('Edition mode disabled')
+        user_message = _('Edition mode disabled')
+
+    response.status = 200
+    response.content_type = 'application/json'
+    return json.dumps({'edition_mode': session['edition_mode'], 'message': user_message})
 
 
 # Bottle templates path
