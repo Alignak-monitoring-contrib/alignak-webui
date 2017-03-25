@@ -297,43 +297,10 @@ $(document).ready(function() {
    /*
     * Application actions
     */
-   // Navigate to home page
-   $('body').on("click", '[data-action="navigate-home"]', function () {
-      if (actions_logs) console.debug("Navigate home page")
-      window.location.href = "/";
-   });
-   // Show application about box
-   $('body').on("click", '[data-action="about-box"]', function () {
-      if (actions_logs) console.debug("Application about")
-      display_modal("/modal/about");
-   });
    // Show application help search box
    $('body').on("click", '[data-action="search-box"]', function () {
       if (actions_logs) console.debug("Help search box")
       display_modal("/modal/search_help", "large");
-   });
-   // Switch to edition mode
-   $('body').on("click", '[data-action="edition-mode"]', function () {
-      if (actions_logs) console.debug("Request edition mode")
-      var current_state = $(this).data('state');
-
-      $.ajax({
-         url: '/edition_mode',
-         method: "POST",
-         data: { 'state' : current_state }
-      })
-      .done(function( data, textStatus, jqXHR ) {
-         if (actions_logs) console.debug('Edition mode!');
-         raise_message_ok(data);
-      })
-      .fail(function( jqXHR, textStatus, errorThrown ) {
-         console.error('Edition mode request, error: ', jqXHR, textStatus, errorThrown);
-         raise_message_ko('Access to edition mode failed');
-      })
-      .always(function() {
-         // Current page reload
-         window.location.reload(true);
-      });
    });
 
 

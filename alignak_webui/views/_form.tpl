@@ -10,7 +10,6 @@
 %if element:
 %# An element still exists...
 %setdefault('title', _('%s %s') % (plugin.backend_endpoint.capitalize(), element.name))
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
 
 %if '_is_template' in element.__dict__ and element['_is_template']:
 %is_template = True
@@ -25,8 +24,9 @@
 %else:
 %# No element exist...
 %setdefault('title', _('New %s') % (plugin.backend_endpoint))
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
 %end
+
+%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
 
 %if debug and element:
 <div class="panel-group">
@@ -49,22 +49,22 @@
 %end
 
 <div id="form_{{plugin.backend_endpoint}}">
-   <form role="form" data-element="{{element.id if element else 'None'}}"
-         class="element_form {{'template_form' if is_template else ''}}"
-         %if edition:
-         method="post" action="/{{plugin.backend_endpoint}}/form/{{element.id if element else 'None'}}"
-         %end
-         >
-
+   %post=""
+   %if edition:
+   %if element:
+   %post='''method="post" action="/%s/form/%s"''' % (plugin.backend_endpoint, element.id)
+   %else:
+   %post='''method="post" action="/%s/form/%s"''' % (plugin.backend_endpoint, None)
+   %end
+   %end
+   <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
       <fieldset>
       %if is_template:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
             <h4>{{_('You are viewing or editing a %s template.') % plugin.backend_endpoint}}</h4>
             <hr/>
-            <p>
-               {{_('All the %ss based upon this template may be affected by your modifications.') % plugin.backend_endpoint}}
-            </p>
+            <p>{{_('All the %ss based upon this template may be affected by your modifications.') % plugin.backend_endpoint}}</p>
          </div>
 
          <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
@@ -84,15 +84,9 @@
 
             %if is_templated:
             <hr/>
-            <p>
-               {{_('The %s elements are based upon templates.') % plugin.backend_endpoint}}
-            </p>
-            <p>
-               {{_('You must define a name for your new %s.') % plugin.backend_endpoint}}
-            </p>
-            <p>
-               {{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}
-            </p>
+            <p>{{_('The %s elements are based upon templates.') % plugin.backend_endpoint}}</p>
+            <p>{{_('You must define a name for your new %s.') % plugin.backend_endpoint}}</p>
+            <p>{{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}</p>
             %end
          </div>
 
@@ -119,8 +113,7 @@
 
          <div class="well page">
          <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
-         <div class="form-group">
-            <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
+         <div class="form-group"  style="margin-bottom: 20px">
             <div class="col-md-10">
                <input id="{{field}}" name="{{field}}"
                   class="form-control"
@@ -162,7 +155,7 @@
 
          <div class="well page">
          <h4>{{_('%s is a template:') % plugin.backend_endpoint.capitalize()}}</h4>
-         <div class="form-group">
+         <div class="form-group"  style="margin-bottom: 20px">
             <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
             <div class="col-md-offset-2 col-md-10">
                <div class="input-group">
@@ -220,7 +213,7 @@
          %end
          <div class="well page">
             <h4>{{_('Inherited templates:')}}</h4>
-            <div class="form-group">
+            <div class="form-group"  style="margin-bottom: 20px">
                <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
                <div class="col-md-10">
                   <div class="input-group">
@@ -661,14 +654,15 @@
       %if edition:
       <div class="form-group">
          <div class="col-md-10 col-md-offset-2">
-            <button type="button" class="btn btn-default">Cancel</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-default">{{_('Cancel')}}</button>
+            <button type="submit" class="btn btn-primary">{{_('Submit')}}</button>
          </div>
       </div>
       %end
    </form>
 </div>
 
+%if edition:
 <script>
    $('form[data-element="{{element.id if element else 'None'}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
@@ -729,3 +723,4 @@
       });
    });
 </script>
+%end
