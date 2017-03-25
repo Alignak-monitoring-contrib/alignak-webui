@@ -98,62 +98,70 @@ class Host(BackendElement):
 
     @property
     def members(self):
-        """ Return linked object """
+        """Return list of services"""
         return self.services
 
     @property
     def _realm(self):
-        """ Return concerned realm """
+        """Return concerned realm"""
         return self._linked__realm
 
     @property
     def _templates(self):
-        """ Return linked object """
+        """Return linked objects"""
         return self._linked__templates
 
     @property
+    def _parent(self):
+        """Try to find a parent
+
+        If the host is a template and it has some templates, the first template is its parent
+        """
+        return self._linked__parent
+
+    @property
     def check_command(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_check_command
 
     @property
     def snapshot_command(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_snapshot_command
 
     @property
     def event_handler(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_event_handler
 
     @property
     def check_period(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_check_period
 
     @property
     def notification_period(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_notification_period
 
     @property
     def snapshot_period(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_snapshot_period
 
     @property
     def maintenance_period(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_maintenance_period
 
     @property
     def usergroups(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_usergroups
 
     @property
     def users(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_users
 
     @property

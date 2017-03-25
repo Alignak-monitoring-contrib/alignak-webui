@@ -43,7 +43,12 @@ Where `element` stands for the specific element name: host, service, user, ...
 Get elements page
 ~~~~~~~~~~~~~~~~~
 
-Most of the elements plugins provide a paginated view of the elements. Those views are not often used in the Web UI ... except when they are included in some mode complex views (eg. host view for the services)
+Most of the elements plugins provide a paginated view of the elements. Those views are not often used in the Web UI ... except when they are included in some more complex views (eg. host view for the services)
+
+    /services, will display the list of services of an host
+    /hosts, will display the list of hosts
+    /hosts/templates, will display the list of hosts templates and will allow to create a new host
+
 
 
 Reload element configuration
@@ -51,7 +56,9 @@ Reload element configuration
 
 Most of the plugins have a configuration file used to define their table structure. Reloading the configuration file dedicated to an element is as easy as::
 
-    /element/config
+    /element/settings
+
+This endpoint reloads the plugin configuration file and it alos displays this configuration in a JSON format.
 
 
 Get element page

@@ -70,16 +70,7 @@
                      %title = "%s - %s (%s)" % (host.state, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
                      {{! host.get_html_state(text=None, title=title)}}
 
-                     %extra=''
-                     %if host.acknowledged:
-                     %extra += _(' and acknowledged')
-                     %end
-                     %if host.downtimed:
-                     %extra += _(' and in scheduled downtime')
-                     %end
-                     {{! host.get_html_state(extra=extra)}}
-
-                     {{! host.get_html_state(text=None, size="fa-3x", use_status=host.overall_status)}}
+                     {{! host.get_html_state(text=None, use_status=host.overall_status)}}
                   </td>
 
                   <td title="{{host.alias}}">

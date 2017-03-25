@@ -707,6 +707,17 @@
             %if dt.editable and edition_mode:
             // Only for 'editable' tables
             ,{
+               text: "{{! _('<span class=\'fa fa-plus\'></span>')}}",
+               titleAttr: "{{_('Create a new item')}}",
+               className: 'btn-raised btn-xs',
+               action: function (e, dt, button, config) {
+                  var url = "{{server_url}}/{{object_type}}//form";
+                  window.setTimeout(function(){
+                     window.location.href = url;
+                  }, 50);
+               }
+            }
+            ,{
                extend: 'selectedSingle',
                text: "{{! _('<span class=\'fa fa-edit\'></span>')}}",
                titleAttr: "{{_('Edit the selected item')}}",
@@ -717,11 +728,11 @@
                   if (count_selected != 1) {
                      return;
                   }
-                  var url = "{{server_url}}/{{object_type}}/form/";
+                  var url = "";
                   var first = true;
                   $.each(selected.data(), function(index, elt){
                      if (! first) return false;
-                     url += encodeURIComponent(elt._id);
+                     url = "{{server_url}}/{{object_type}}/" + encodeURIComponent(elt._id) + "/form";
                   });
                   window.setTimeout(function(){
                      window.location.href = url;

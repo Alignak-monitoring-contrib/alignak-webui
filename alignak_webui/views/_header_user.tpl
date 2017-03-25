@@ -52,7 +52,7 @@
          </a>
       </li>
 
-      %if current_user.is_power():
+      %if current_user.can_edit_configuration():
       <li>
          %if edition_mode:
          <a href="#" data-action="edition-mode" data-state="off">
@@ -100,7 +100,7 @@
       </li>
       <script>
          // Show application about box
-         $('a'[data-action="about-box"]').on("click", function () {
+         $('a[data-action="about-box"]').on("click", function () {
             display_modal("/modal/about");
          });
       </script>

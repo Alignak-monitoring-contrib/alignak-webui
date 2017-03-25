@@ -1,11 +1,12 @@
 %setdefault('templates_bar', False)
+%setdefault('plugin', None)
 
 <!-- Templates actions bar -->
-<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Edition mode')}}">
+<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Templates menu')}}">
    <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret hidden-xs"></span>
       <span class="fa fa-clone"></span>
-      <span class="sr-only">{{_('Edition')}}</span>
+      <span class="sr-only">{{_('Templates menu')}}</span>
    </a>
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Edition mode menu')}}">
@@ -38,6 +39,16 @@
       </li>
       %except RouteBuildError:
       %print("Missing plugin Users")
+      %end
+
+      %if plugin and plugin.table['_table']['editable']:
+      <li class="divider"></li>
+      <li>
+         <a href="{{ request.urlparts.path + '/form' }}">
+            <span class="fa fa-fw fa-edit"></span>
+            <span>{{_('Edition form for the %s') % plugin.backend_endpoint}}</span>
+         </a>
+      </li>
       %end
    </ul>
 </li>

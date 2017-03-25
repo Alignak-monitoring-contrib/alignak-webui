@@ -100,7 +100,7 @@ setup(
     # Entry points (if some) ...
     entry_points={
         'console_scripts': [
-            'alignak-webui = alignak_webui.app:main'
+            'alignak-webui = alignak_webui.app'
         ],
     }
 )

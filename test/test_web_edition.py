@@ -169,7 +169,7 @@ class TestEditionMode(unittest2.TestCase):
             '<div id="dashboard">',
             no=[
                 '<!-- Templates actions bar -->',
-                '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Edition mode">',
+                '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Templates menu">',
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="Edition mode menu">',
                 '<span>Hosts templates</span>',
                 '<span>Services templates</span>',
@@ -190,7 +190,7 @@ class TestEditionMode(unittest2.TestCase):
         response.mustcontain(
             '<div id="dashboard">',
             '<!-- Templates actions bar -->',
-            '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Edition mode">',
+            '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Templates menu">',
             '<ul class="dropdown-menu" role="menu" aria-labelledby="Edition mode menu">',
             '<span>Hosts templates</span>',
             '<span>Services templates</span>',
@@ -211,7 +211,7 @@ class TestEditionMode(unittest2.TestCase):
             '<div id="dashboard">',
             no=[
                 '<!-- Templates actions bar -->',
-                '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Edition mode">',
+                '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Templates menu">',
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="Edition mode menu">',
                 '<span>Hosts templates</span>',
                 '<span>Services templates</span>',
@@ -280,7 +280,6 @@ class TestHosts(unittest2.TestCase):
             '<table id="tbl_host" ',
             '''text: "<span class='fa fa-edit'></span>"''',
             '''titleAttr: "Edit the selected item"''',
-            '''var url = "/host/form/";'''
         )
 
     def test_host_form(self):
@@ -291,7 +290,7 @@ class TestHosts(unittest2.TestCase):
         host = datamgr.get_host({'where': {'name': 'KNM-Shinken'}})
 
         print('get page /host/form (reading mode)')
-        response = self.app.get('/host/form/%s' % host.id)
+        response = self.app.get('/host/%s/form' % host.id)
         response.mustcontain(
             '''<div id="form_host">''',
             '''<form role="form" data-element="%s" class="element_form " >''' % host.id,
@@ -309,28 +308,28 @@ class TestHosts(unittest2.TestCase):
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
         print('get page /host/form (edition mode) - with an host id')
-        response = self.app.get('/host/form/%s' % host.id)
+        response = self.app.get('/host/%s/form' % host.id)
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/form/%s">''' % (
+            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/%s/form">''' % (
             host.id, host.id),
             '''$('form[data-element="%s"]').on("submit", function (evt) {''' % host.id
         )
 
         print('get page /host/form (edition mode) - with an host name')
-        response = self.app.get('/host/form/%s' % host.name)
+        response = self.app.get('/host/%s/form' % host.name)
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/form/%s">''' % (
+            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/%s/form">''' % (
             host.id, host.id),
             '''$('form[data-element="%s"]').on("submit", function (evt) {''' % host.id
         )
 
         print('get page /host/form (edition mode) - for a new host')
-        response = self.app.get('/host/form/unknown_host')
+        response = self.app.get('/host/unknown_host/form')
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/form/None">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
             '''<h4>You are creating a new host.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -354,10 +353,10 @@ class TestHosts(unittest2.TestCase):
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
         print('get page /host/form (edition mode) - for a new host')
-        response = self.app.get('/host/form/unknown_host')
+        response = self.app.get('/host/unknown_host/form')
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/form/None">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
             '''<h4>You are creating a new host.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -368,7 +367,7 @@ class TestHosts(unittest2.TestCase):
             'name': "New host",
             'display_name': "Display name"
         }
-        response = self.app.post('/host/form/None', params=data)
+        response = self.app.post('/host/None/form', params=data)
         assert response.json == {
             "_message": "host creation failed!",
             "_realm": realm.id,
@@ -389,7 +388,7 @@ class TestHosts(unittest2.TestCase):
             'name': "New host",
             'display_name': "Display name"
         }
-        response = self.app.post('/host/form/None', params=data)
+        response = self.app.post('/host/None/form', params=data)
         # Returns the new item _id
         new_host_id = response.json['_id']
         resp = response.json
@@ -429,10 +428,10 @@ class TestHosts(unittest2.TestCase):
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
         print('get page /host/form (edition mode) - with an host id')
-        response = self.app.get('/host/form/%s' % host.id)
+        response = self.app.get('/host/%s/form' % host.id)
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/form/%s">''' % (
+            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/%s/form">''' % (
             host.id, host.id),
             '''$('form[data-element="%s"]').on("submit", function (evt) {''' % host.id
         )
@@ -442,7 +441,7 @@ class TestHosts(unittest2.TestCase):
             'name': host.name,
             'display_name': "Display name edited"
         }
-        response = self.app.post('/host/form/%s' % host.id, params=data)
+        response = self.app.post('/host/%s/form' % host.id, params=data)
         assert response.json == {
             "_message": "host 'graphite' updated", "display_name": "Display name edited"
         }

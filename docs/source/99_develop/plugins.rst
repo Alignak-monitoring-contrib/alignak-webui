@@ -107,7 +107,7 @@ The configuration file is built like an Ini file parsed thank to Python ConfigPa
         hint=This field is the time period name
 
 
-Once parsed, the configuration file will make available an ordered dictionary in the plugin class: ``self.plugin_parameters``. The ``self.plugin_parameters['table']``, also aliased as ``self.table``, contains the table structure. Using the *element/config* route with a Web browser will output Json formatted data with the parameters.
+Once parsed, the configuration file will make available an ordered dictionary in the plugin class: ``self.plugin_parameters``. The ``self.plugin_parameters['table']``, also aliased as ``self.table``, contains the table structure. Using the *element/settings* route with a Web browser will output Json formatted data with the parameters.
 
 
 Plugin table configuration

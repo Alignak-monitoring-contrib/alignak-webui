@@ -53,9 +53,7 @@ class User(BackendElement):
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
-        """
-        Create a user (called only once when an object is newly created)
-        """
+        """Create a user (called only once when an object is newly created)"""
         self._linked__realm = 'realm'
         self._linked__templates = 'user'
         self._linked_host_notification_period = 'timeperiod'
@@ -115,50 +113,50 @@ class User(BackendElement):
 
     @property
     def _realm(self):
-        """ Return concerned realm """
+        """Return concerned realm"""
         return self._linked__realm
 
     @property
     def _templates(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked__templates
 
     @property
     def host_notification_period(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_host_notification_period
 
     @property
     def host_notification_commands(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_host_notification_commands
 
     @property
     def service_notification_period(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_service_notification_period
 
     @property
     def service_notification_commands(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_service_notification_commands
 
     @property
     def business_impact(self):
-        """ Return minimum business impact """
+        """Return minimum business impact"""
         return self.min_business_impact
 
     def get_username(self):
-        """
-        Get the user username (for login).
+        """Get the user username (for login).
+
         Returns the 'username' field if it exists, else returns  the 'name' field,
         else returns  the 'name' field
         """
         return getattr(self, 'username', self.name)
 
     def get_role(self, display=False):
-        """
-        Get the user role.
+        """Get the user role.
+
         If user role is not defined, set the property according to the user attributes:
         - role='administrator' if the user is an administrator
         - role='power' if the user can submit commands
@@ -180,23 +178,17 @@ class User(BackendElement):
         return self.role
 
     def is_anonymous(self):
-        """
-        An anonymous user is created when no 'name' attribute exists for the user ... 'anonymous'
-        is the default value of the Item name property.
-        """
+        """An anonymous user is created when no 'name' attribute exists for the user ... 'anonymous'
+        is the default value of the Item name property."""
         return self.name == 'anonymous'
 
     def is_super_administrator(self):
-        """
-        Is user a super administrator?
-        """
+        """Is user a super administrator?"""
         if getattr(self, 'back_role_super_admin', None):
             return self.back_role_super_admin
 
     def is_administrator(self):
-        """
-        Is user an administrator?
-        """
+        """Is user an administrator?"""
         if self.is_super_administrator():
             return True
 
@@ -206,9 +198,7 @@ class User(BackendElement):
             return getattr(self, 'is_admin', '1') == '1'
 
     def is_power(self):
-        """
-        Is allowed to use commands (power user)?
-        """
+        """Is allowed to use commands (power user)?"""
         if self.is_administrator():
             return True
 
@@ -218,9 +208,7 @@ class User(BackendElement):
             return getattr(self, 'can_submit_commands', '1') == '1'
 
     def can_change_dashboard(self):
-        """
-        Can the use change dashboard (edit widgets,...)?
-        """
+        """Can the user change dashboard (edit widgets,...)?"""
         if self.is_power():
             return True
 
@@ -229,10 +217,15 @@ class User(BackendElement):
         else:
             return getattr(self, 'widgets_allowed', '1') == '1'
 
+    def can_edit_configuration(self):
+        """Can the user edit the configuration?
+
+        Currently, only the administrator users can edit the configuration
+        """
+        return self.is_administrator()
+
     def get_ui_preference(self, key=None):
-        """
-        Get a user UI preference
-        """
+        """Get a user UI preference"""
         # Test for old user data model
         if not getattr(self, 'ui_preferences', None):
             return None
@@ -246,8 +239,7 @@ class User(BackendElement):
         return None
 
     def set_ui_preference(self, key, value):
-        """
-        Set a user UI preference
+        """Set a user UI preference
 
         :param key: preference key
         :type key: string
@@ -263,8 +255,7 @@ class User(BackendElement):
         return True
 
     def delete_ui_preference(self, key):
-        """
-        Delete a user UI preference
+        """Delete a user UI preference
 
         :param key: preference key
         :type key: string

@@ -26,7 +26,7 @@
 %setdefault('title', _('New %s') % (plugin.backend_endpoint))
 %end
 
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/form/{{element.name}}")
+%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/{{element.name}}/form")
 
 %if debug and element:
 <div class="panel-group">
@@ -52,9 +52,9 @@
    %post=""
    %if edition:
    %if element:
-   %post='''method="post" action="/%s/form/%s"''' % (plugin.backend_endpoint, element.id)
+   %post='''method="post" action="/%s/%s/form"''' % (plugin.backend_endpoint, element.id)
    %else:
-   %post='''method="post" action="/%s/form/%s"''' % (plugin.backend_endpoint, None)
+   %post='''method="post" action="/%s/%s/form"''' % (plugin.backend_endpoint, None)
    %end
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
@@ -76,6 +76,17 @@
          </div>
          %end
 
+          %if not edition:
+             <div class="alert alert-dismissible alert-info">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                <h4>{{_('Read-only mode.')}}</h4>
+             </div>
+          %else:
+             <div class="alert alert-dismissible alert-warning">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                <h4>{{_('Edition mode.')}}</h4>
+             </div>
+          %end
          <legend>{{! _('%s <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
       %else:
          <div class="alert alert-dismissible alert-warning">
