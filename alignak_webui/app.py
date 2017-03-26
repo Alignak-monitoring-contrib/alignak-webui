@@ -1024,9 +1024,11 @@ session_opts = {
 logger.debug("Session parameters: %s" % session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
-logger.info("Running Bottle server, debug mode: %s" % app.config.get('debug', False))
-if __name__ == '__main__':
+
+def main():
+    """Fucntion called by the setup.py console script"""
     logger.info("Running Bottle, debug mode: %s" % app.config.get('debug', False))
+
     run(
         app=session_app,
         host=app.config.get('host', '127.0.0.1'),
@@ -1036,3 +1038,6 @@ if __name__ == '__main__':
     )
     # remember to remove reloader=True and debug(True) when you move your application
     # from development to a production environment
+
+if __name__ == '__main__':
+    main()
