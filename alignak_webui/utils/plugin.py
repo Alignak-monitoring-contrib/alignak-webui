@@ -136,7 +136,7 @@ class Plugin(object):
             self.pages.update({
                 'load_config': {
                     'name': '%s plugin config' % self.name,
-                    'route': '/%ss/config' % self.backend_endpoint
+                    'route': '/%ss/settings' % self.backend_endpoint
                 }
             })
 
@@ -172,7 +172,7 @@ class Plugin(object):
                 self.pages.update({
                     'get_form': {
                         'name': '%s form' % self.name,
-                        'route': '/%s/form/<element_id>' % self.backend_endpoint,
+                        'route': '/%s/<element_id>/form' % self.backend_endpoint,
                         'view': '_form',
                     }
                 })
@@ -181,7 +181,7 @@ class Plugin(object):
                 self.pages.update({
                     'update_form': {
                         'name': '%s form post' % self.name,
-                        'route': '/%s/form/<element_id>' % self.backend_endpoint,
+                        'route': '/%s/<element_id>/form' % self.backend_endpoint,
                         'method': 'POST'
                     }
                 })
@@ -487,6 +487,7 @@ class Plugin(object):
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
         return {
+            'plugin': self,
             'object_type': self.backend_endpoint,
             'element': element
         }
@@ -676,6 +677,14 @@ class Plugin(object):
             element_id is the _id (or name) of an object to read. If no object is found then an
             empty element is sent to the form which means a new object creation with default values.
         """
+        user = request.environ['beaker.session']['current_user']
+        edition_mode = request.environ['beaker.session']['edition_mode']
+        if edition_mode and not user.can_edit_configuration():
+            logger.warning("Current user '%s' is not authorized to edit %s elements",
+                           user.get_username(), self.backend_endpoint)
+            self.send_user_message(_("Not authorized to edit a %s element")
+                                   % self.backend_endpoint, redirected=True)
+
         datamgr = request.app.datamgr
 
         # Get element get method from the data manager
@@ -689,6 +698,12 @@ class Plugin(object):
             element = f(search={'max_results': 1, 'where': {'name': element_id}})
         # If not found, element will remain as None to create a new element
 
+        if not edition_mode and not element:
+            logger.warning("Cannot create a %s element when not in edition mode",
+                           self.backend_endpoint)
+            self.send_user_message(_("Not authorized to create a %s element")
+                                   % self.backend_endpoint, redirected=True)
+
         return {
             'plugin': self,
             'element': element
@@ -701,6 +716,17 @@ class Plugin(object):
             If element_id is string 'None' then it is a new object creation, else element_id is the
             _id (or name) of an object to update.
         """
+        user = request.environ['beaker.session']['current_user']
+        edition_mode = request.environ['beaker.session']['edition_mode']
+        if edition_mode and not user.can_edit_configuration():
+            logger.warning("Current user '%s' is not authorized to edit %s elements",
+                           user.get_username(), self.backend_endpoint)
+            response.status = 401
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'Not authorized to edit %s elements' % self.backend_endpoint}
+            )
+
         datamgr = request.app.datamgr
 
         create = (element_id == 'None')
@@ -721,12 +747,13 @@ class Plugin(object):
         # Prepare update request ...
         data = {}
         for field in request.forms:
+            # For arrays in forms ...
+            if field.endswith('[]'):
+                field = field[:-2]
             update = False
             value = request.forms.get(field)
             field_type = self.table[field].get('type')
-            logger.debug(
-                "- posted field: %s (%s) = %s", field, field_type, request.forms.get(field)
-            )
+            logger.info("- posted field: %s (%s) = %s", field, field_type, request.forms.get(field))
 
             if field_type == 'objectid':
                 if not value:
@@ -758,7 +785,10 @@ class Plugin(object):
                     dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
                 value = dict_values
             elif field_type == 'list':
-                value = request.forms.getall(field)
+                if request.forms.getall(field + '[]'):
+                    value = request.forms.getall(field + '[]')
+                else:
+                    value = request.forms.getall(field)
                 if self.table[field].get('content_type') == 'dict':
                     dict_values = {}
                     for item in value:
@@ -779,9 +809,7 @@ class Plugin(object):
                     if element[field].id == value:
                         update = False
             if update:
-                logger.info(
-                    "- updated field: %s = %s, whereas: %s", field, value, element[field]
-                )
+                logger.info("- updated field: %s = %s, whereas: %s", field, value, element[field])
                 data.update({field: value})
             if create:
                 logger.info("- field: %s = %s", field, value)
@@ -797,16 +825,9 @@ class Plugin(object):
                         {'_message': _("%s '%s' updated") % (self.backend_endpoint, element.name)}
                     )
                 else:
-                    data.update(
-                        {
-                            '_message': _("%s '%s' update failed!") % (
-                                self.backend_endpoint, element.name
-                            )
-                        }
-                    )
-                    data.update(
-                        {'_errors': result}
-                    )
+                    data.update({'_message': _("%s '%s' update failed!") % (
+                        self.backend_endpoint, element.name)})
+                    data.update({'_errors': result})
             else:
                 data.update(
                     {'_message': _('No fields modified')}
@@ -814,32 +835,24 @@ class Plugin(object):
         else:
             # Create a new object
             if data:
-                if '_realm' in self.table and '_realm' not in data:
-                    data.update(
-                        {'_realm': datamgr.my_realm.id}
-                    )
-
-                result = datamgr.add_object(self.backend_endpoint, data=data)
-                if isinstance(result, basestring):
-                    data.update(
-                        {'_message': _("New %s created") % (self.backend_endpoint)}
-                    )
-                    data.update(
-                        {'_id': result}
-                    )
+                if 'name' not in data or not data['name']:
+                    data.update({'_message': _("%s creation failed!") % (self.backend_endpoint)})
+                    data.update({'_errors': [_("")]})
                 else:
-                    data.update(
-                        {
-                            '_message': _("%s creation failed!") % (self.backend_endpoint)
-                        }
-                    )
-                    data.update(
-                        {'_errors': result}
-                    )
+                    if '_realm' in self.table and '_realm' not in data:
+                        data.update({'_realm': datamgr.my_realm.id})
+
+                    result = datamgr.add_object(self.backend_endpoint, data=data)
+                    if isinstance(result, basestring):
+                        data.update({'_message': _("New %s created") % (self.backend_endpoint)})
+                        data.update({'_id': result})
+                    else:
+                        data.update({'_message': _("%s creation failed!") % (
+                            self.backend_endpoint)})
+                        data.update({'_errors': result})
             else:
-                self.send_user_message(
-                    _("No data to create a new %s element") % self.backend_endpoint
-                )
+                self.send_user_message(_("No data to create a new %s element")
+                                       % self.backend_endpoint)
 
         return self.webui.response_data(data)
 
@@ -915,9 +928,8 @@ class Plugin(object):
         if not f:
             response.status = 204
             response.content_type = 'application/json'
-            return json.dumps(
-                {'error': 'No method available to get %s elements' % self.backend_endpoint}
-            )
+            return json.dumps({'error': 'No method available to get %s elements'
+                                        % self.backend_endpoint})
 
         search = {
             'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})

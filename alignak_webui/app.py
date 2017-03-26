@@ -971,6 +971,13 @@ def edition_mode():
     """
     # Session...
     session = request.environ['beaker.session']
+    user = session['current_user']
+    if not user.can_edit_configuration():
+        logger.warning("Current user '%s' is not authorized to change edition_mode",
+                       user.get_username())
+        response.status = 401
+        response.content_type = 'application/json'
+        return json.dumps({'status': 'ko', 'message': 'Not authorized to change edition mode'})
 
     required_state = request.params.get('state', None)
     logger.debug("edition_mode, required state: %s", required_state)

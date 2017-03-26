@@ -64,18 +64,19 @@
 
       <div class="panel-body">
          <div class="row">
-            <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="col-sm-3 col-xs-12">
                <!-- Tree structure to display items -->
                <div id="{{tree_type}}_tree"></div>
             </div>
-            <!--
-            <div id="right_panel" class="col-md-9 col-sm-6 col-xs-12">
+            <div id="right_panel" class="col-sm-9 col-xs-12">
                <div class="card alert alert-dismissible alert-info">
                   <button type="button" class="close" data-dismiss="alert">×</button>
                   <h4>{{_('Select an item in the tree to display more information.')}}</h4>
                </div>
+               <script>
+                  window.setTimeout(function() { $("#right_panel div.alert-dismissible").alert('close'); }, 3000);
+               </script>
             </div>
-            -->
          </div>
       </div>
    </div>
@@ -85,14 +86,6 @@
 <script>
    var debugTree = {{'true' if debug else 'false'}};
 
-   // Navigate to the table view
-   $('[data-action="navigate-table"][data-element="{{tree_type}}"]').on("click", function () {
-      var elt_id = $(this).data('element');
-      window.setTimeout(function(){
-         window.location.href = "/{{tree_type}}s/table";
-      }, 50);
-   });
-
    // Build tree data...
    var jsTreeData = [];
    %for item in tree_items:
@@ -100,10 +93,6 @@
    %end
 
    $(document).ready(function(){
-      %if layout:
-      set_current_page("{{ webui.get_url(request.route.name) }}");
-      %end
-
       $("#{{tree_type}}_tree")
          .jstree({
             "core" : {
@@ -123,7 +112,7 @@
          })
          .bind('ready.jstree', function(e, data) {
             var o_{{tree_type}}_tree = $("#{{tree_type}}_tree").jstree(true);
-            if (debugTree) console.log('Tree ready!');
+            if (debugTree) console.log('{{tree_type}} tree ready!');
          })
 
          .bind('changed.jstree', function(event, action) {
@@ -133,7 +122,7 @@
                if (debugTree) console.log('Selected :', action.node);
 
                if (action.node.data.type == '{{tree_type}}') {
-                  wait_message('{{_('Loading members data...')}}', true);
+                  wait_message('{{_('Loading service information...')}}', true);
 
                   $("#right_panel").slideUp(50, function() {
                      $(this).empty();

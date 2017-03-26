@@ -46,6 +46,11 @@ class PluginHosts(Plugin):
         self.backend_endpoint = 'host'
 
         self.pages = {
+            'get_all_templates': {
+                'name': 'All %s templates' % self.name,
+                'route': '/%ss/templates' % self.backend_endpoint,
+                'view': '%ss_templates' % self.backend_endpoint,
+            },
             'get_host_view': {
                 'name': 'Host synthesis view widget',
                 'route': '/host_view/<element_id>',
@@ -299,6 +304,10 @@ class PluginHosts(Plugin):
         """Get the hosts widget"""
         return self.get_widget(None, 'host', embedded, identifier, credentials)
 
+    def get_all_templates(self):
+        """Get all the hosts templates templates"""
+        return self.get_all(templates=True)
+
     def get_one(self, element_id):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
@@ -318,14 +327,11 @@ class PluginHosts(Plugin):
         services = datamgr.get_host_services(host)
 
         # Get host dependencies
-        children = datamgr.get_hostdependencys(
-            search={'where': {'hosts': host.id}}
-        )
-        parents = datamgr.get_hostdependencys(
-            search={'where': {'dependent_hosts': host.id}}
-        )
+        children = datamgr.get_hostdependencys(search={'where': {'hosts': host.id}})
+        parents = datamgr.get_hostdependencys(search={'where': {'dependent_hosts': host.id}})
 
         return {
+            'plugin': self,
             'plugin_parameters': self.plugin_parameters,
 
             'host': host,

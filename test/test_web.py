@@ -187,7 +187,7 @@ class TestCommands(unittest2.TestCase):
             '<div id="commands">',
             '25 elements out of ',
         )
-        self.app.get('/commands/config')
+        self.app.get('/commands/settings')
         self.app.get('/commands/list')
         self.app.get('/commands/table')
 
@@ -212,7 +212,7 @@ class TestTimeperiods(unittest2.TestCase):
             '<div id="timeperiods">',
             '5 elements out of 5',
         )
-        self.app.get('/timeperiods/config')
+        self.app.get('/timeperiods/settings')
         self.app.get('/timeperiods/list')
         self.app.get('/timeperiods/table')
 
@@ -240,7 +240,7 @@ class TestRealms(unittest2.TestCase):
             # '5 elements out of 5'
         )
 
-        self.app.get('/realms/config')
+        self.app.get('/realms/settings')
         self.app.get('/realms/list')
         self.app.get('/realms/table')
         # self.app.get('/realms/all')
@@ -315,7 +315,7 @@ class TestHostgroups(unittest2.TestCase):
             '<div id="hostgroups">',
             # '8 elements out of 8'
         )
-        self.app.get('/hostgroups/config')
+        self.app.get('/hostgroups/settings')
         self.app.get('/hostgroups/list')
         self.app.get('/hostgroups/table')
         self.app.get('/hostgroup/all')
@@ -397,7 +397,7 @@ class TestServicegroups(unittest2.TestCase):
             '<div id="servicegroups">',
             # '5 elements out of 5'
         )
-        self.app.get('/servicegroups/config')
+        self.app.get('/servicegroups/settings')
         self.app.get('/servicegroups/list')
         self.app.get('/servicegroups/table')
         self.app.get('/servicegroup/all')
@@ -469,7 +469,7 @@ class TestUsergroups(unittest2.TestCase):
             '<div id="usergroups">',
             # '5 elements out of 5'
         )
-        self.app.get('/usergroups/config')
+        self.app.get('/usergroups/settings')
         self.app.get('/usergroups/list')
         self.app.get('/usergroups/table')
         self.app.get('/usergroup/all')
@@ -539,7 +539,7 @@ class TestHosts(unittest2.TestCase):
             '<div id="hosts">',
             '13 elements out of 13',
         )
-        self.app.get('/hosts/config')
+        self.app.get('/hosts/settings')
         self.app.get('/hosts/list')
         self.app.get('/hosts/table')
         self.app.get('/hosts/templates/list')
@@ -614,7 +614,7 @@ class TestServices(unittest2.TestCase):
         response.mustcontain(
             '<div id="services">'
         )
-        response = self.app.get('/services/config')
+        response = self.app.get('/services/settings')
         response = self.app.get('/services/list')
         response = self.app.get('/services/table')
         response = self.app.get('/services/templates/list')
@@ -690,7 +690,7 @@ class TestUsers(unittest2.TestCase):
             '<div id="users">',
             '5 elements out of 5',
         )
-        self.app.get('/users/config')
+        self.app.get('/users/settings')
         self.app.get('/users/list')
         self.app.get('/users/table')
         self.app.get('/users/templates/list')

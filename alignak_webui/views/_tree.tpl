@@ -212,7 +212,7 @@
          })
          .bind('ready.jstree', function(e, data) {
             var o_{{tree_type}}_tree = $("#{{tree_type}}_tree").jstree(true);
-            if (debugTree) console.log('Tree ready!');
+            if (debugTree) console.log('{{tree_type}} tree ready!');
          })
 
          %if selectable:
