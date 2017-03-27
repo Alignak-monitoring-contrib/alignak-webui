@@ -115,6 +115,8 @@
 
 /* Whites */
 .clouds { color: #ecf0f1; }
+.item_realm_nope,
+.item_hostgroup_nope,
 .item_host_nope,
 .item_service_nope,
 .silver { color: #bdc3c7; }

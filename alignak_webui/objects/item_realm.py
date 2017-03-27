@@ -43,7 +43,7 @@ class Realm(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'nope'
     ]
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):

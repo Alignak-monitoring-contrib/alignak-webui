@@ -43,7 +43,7 @@ class HostGroup(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'nope'
     ]
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
@@ -86,24 +86,7 @@ class HostGroup(BackendElement):
             return -1
         return self._level
 
-    # @property
-    # def status(self):
-    #     """Return real status string from the real state identifier"""
-    #     return self.overall_state
-    #
     @property
     def overall_state(self):
         """Return real state identifier"""
         return self._overall_state
-
-    # @overall_state.setter
-    # def overall_state(self, overall_state):
-    #     """
-    #     Set Item object overall_state
-    #     """
-    #     self._overall_state = overall_state
-    #
-    # @property
-    # def overall_status(self):
-    #     """Return real status string from the real state identifier"""
-    #     return self.overall_state_to_status[self._overall_state]

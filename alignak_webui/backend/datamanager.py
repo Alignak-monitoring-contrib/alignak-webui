@@ -1327,8 +1327,9 @@ class DataManager(object):
         for member in hostgroup.members:
             if isinstance(member, basestring):
                 continue
-
-            overall_state = max(overall_state, member.overall_state)
+            # Ignore hosts that are not monitored
+            if member.overall_state < 5:
+                overall_state = max(overall_state, member.overall_state)
 
         # Hosts group real state from group members
         group_members = self.get_hostgroups(
@@ -2055,7 +2056,9 @@ class DataManager(object):
         for member in hosts:
             logger.debug("get_realm_overall_state, member: %s, state: %s",
                          member.name, member.overall_state)
-            overall_state = max(overall_state, member.overall_state)
+            # Ignore hosts that are not monitored
+            if member.overall_state < 5:
+                overall_state = max(overall_state, member.overall_state)
 
         # Realm real state from sub-realms
         subs = self.get_realm_children(realm)
@@ -2065,7 +2068,7 @@ class DataManager(object):
                          realm.name, ov_state)
             overall_state = max(overall_state, ov_state)
 
-        logger.debug("get_realm_overall_state, state: %s", overall_state)
+        logger.warning("get_realm_overall_state, state: %s", overall_state)
         overall_status = Realm.overall_state_to_status[overall_state]
         return (overall_state, overall_status)
 
