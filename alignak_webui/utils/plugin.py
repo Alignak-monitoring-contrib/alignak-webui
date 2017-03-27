@@ -301,7 +301,7 @@ class Plugin(object):
                 page_route = [(page_route, page_name)]
 
             for route_url, name in page_route:
-                logger.debug("route: %s -> %s", route_url, name)
+                logger.info("route: %s -> %s", route_url, name)
                 f = app.route(route_url, callback=f, method=methods, name=name)
 
                 # Register plugin element list route
@@ -492,7 +492,7 @@ class Plugin(object):
             'element': element
         }
 
-    def get_all(self, templates=None):
+    def get_all(self, templates=None, all_elements=False):
         """Show all elements on one page"""
         user = request.environ['beaker.session']['current_user']
         webui = request.app.config['webui']
@@ -519,13 +519,14 @@ class Plugin(object):
             search['where'].update({'_is_template': templates})
 
         logger.debug("get_all, search: %s", search)
-        elts = f(search, all_elements=False)
-        logger.debug("get_all, found: %s", elts)
+        elts = f(search, all_elements=all_elements)
+        # logger.debug("get_all, found: %s", elts)
 
         # Get last total elements count
         total = count
         if elts:
             total = elts[0]['_total']
+        logger.info("get_all, found: %d elements", elts[0]['_total'])
         count = min(count, total)
 
         return {
@@ -677,6 +678,7 @@ class Plugin(object):
             element_id is the _id (or name) of an object to read. If no object is found then an
             empty element is sent to the form which means a new object creation with default values.
         """
+        logger.info("Get form: %s", element_id)
         user = request.environ['beaker.session']['current_user']
         edition_mode = request.environ['beaker.session']['edition_mode']
         if edition_mode and not user.can_edit_configuration():
@@ -752,8 +754,10 @@ class Plugin(object):
                 field = field[:-2]
             update = False
             value = request.forms.get(field)
+            if value:
+                value = value.decode('utf-8')
             field_type = self.table[field].get('type')
-            logger.info("- posted field: %s (%s) = %s", field, field_type, request.forms.get(field))
+            logger.info("- posted field: %s (%s) = %s", field, field_type, value)
 
             if field_type == 'objectid':
                 if not value:
@@ -839,7 +843,7 @@ class Plugin(object):
                     data.update({'_message': _("%s creation failed!") % (self.backend_endpoint)})
                     data.update({'_errors': [_("")]})
                 else:
-                    if '_realm' in self.table and '_realm' not in data:
+                    if '_realm' in self.table and ('_realm' not in data or not data['_realm']):
                         data.update({'_realm': datamgr.my_realm.id})
 
                     result = datamgr.add_object(self.backend_endpoint, data=data)

@@ -23,7 +23,7 @@
       <tbody style="font-size:x-small;">
          <tr>
             <td><strong>{{_('Name:')}}</strong></td>
-            <td>{{host.name}} ({{host.address}})</td>
+            <td>{{! host.get_html_link()}}{{_(' (%s)') % host.address if host.address else ''}}</td>
          </tr>
          <tr>
             <td><strong>{{_('Alias:')}}</strong></td>

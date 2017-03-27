@@ -93,10 +93,10 @@
             <button type="button" class="close" data-dismiss="alert">×</button>
             <h4>{{_('You are creating a new %s.') % plugin.backend_endpoint}}</h4>
 
-            %if is_templated:
             <hr/>
+            <p>{{! _('You must set a name for your new %s and then submit this form.') % plugin.backend_endpoint}}</p>
+            %if is_templated:
             <p>{{_('The %s elements are based upon templates.') % plugin.backend_endpoint}}</p>
-            <p>{{_('You must define a name for your new %s.') % plugin.backend_endpoint}}</p>
             <p>{{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}</p>
             %end
          </div>
@@ -104,7 +104,7 @@
          <legend>{{! _('New %s') % (plugin.backend_endpoint)}}</legend>
       %end
 
-      %if not element and is_templated:
+      %if not element:
          %field = 'name'
          %model = plugin.table[field]
 
@@ -113,10 +113,6 @@
          %content_type = model.get('content_type', field_type)
          %placeholder = model.get('placeholder', label)
          %hint = model.get('hint', label)
-         %allowed = model.get('allowed', '').split(',')
-         %if allowed[0] == '':
-         %  allowed = []
-         %end
          %format = model.get('format')
          %unique = model.get('unique')
          %required = model.get('required')
@@ -147,8 +143,11 @@
             </div>
          </div>
          </div>
-         %field = '_is_template'
-         %model = plugin.table[field]
+      %end
+
+      %if not element:
+         %field = '_realm'
+         %model = plugin.table['_realm']
 
          %label = model.get('title', '')
          %field_type = model.get('type', 'string')
@@ -164,8 +163,152 @@
          %required = model.get('required')
          %editable = model.get('editable', True)
 
+         %list_values = []
+         %if element and element['_realm']:
+         %for v in element['_realm']:
+         %  list_values.append((v.id, v.name))
+         %end
+         %end
+         %is_list = True
+         %selectize=True
+
+         %linked_object_type = model.get('resource', '')
+         %icon=''
+         %if linked_object_type:
+         %  from alignak_webui.objects.element_state import ElementState
+         %  icon = ElementState().get_icon_state('realm', 'unknown')
+         %  icon=icon['icon'] if icon else ''
+         %end
          <div class="well page">
-         <h4>{{_('%s is a template:') % plugin.backend_endpoint.capitalize()}}</h4>
+            <h4>{{_('Realm:')}}</h4>
+            <div class="form-group"  style="margin-bottom: 20px">
+               <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
+               <div class="col-md-10">
+                  <div class="input-group">
+                     <span class="input-group-addon text-info">
+                        <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                     </span>
+                     <select id="{{field}}" name="{{field}}"
+                            class="form-control"
+                            {{'readonly="readonly"' if not edition or not editable else ''}}>
+                     </select>
+                     <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
+                  </div>
+                  %if hint:
+                  <p class="help-block">
+                     {{hint}}
+                     %if unique:
+                     <br>This field must be unique.
+                     %end
+                     %if required:
+                     <br>This field is required.
+                     %end
+                  </p>
+                  %end
+               </div>
+            </div>
+            <br/>
+            %if selectize and edition:
+            <script>
+               $('#{{field}}').selectize({
+                  %if not required:
+                  'plugins': ["remove_button"],
+                  %end
+
+                  valueField: 'id',
+                  labelField: 'name',
+                  searchField: 'name',
+                  create: false,
+
+                  render: {
+                     option: function(item, escape) {
+                        return '<div>' +
+                           %if icon:
+                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                           %end
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                        '</div>';
+                     },
+                     item: function(item, escape) {
+                        return '<div>' +
+                           %if icon:
+                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                           %end
+                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                        '</div>';
+                     }
+                  },
+
+                  %if allowed:
+                  %  # List of allowed values
+                  %  if allowed[0].startswith('inner://'):
+                     preload: true,
+                     openOnFocus: true,
+                     load: function(query, callback) {
+                        //if (!query.length) return callback();
+                        $.ajax({
+                           url: "{{allowed[0].replace('inner://', '/')}}",
+                           type: 'GET',
+                           error: function() {
+                              callback();
+                           },
+                           success: function(res) {
+                              // 10 first items only...
+                              // callback(res.slice(0, 10));
+                              callback(res);
+                           }
+                        });
+                     },
+                  %  else:
+                     options: [
+                     %     for option in allowed:
+                        {
+                           'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
+                        },
+                     %     end
+                     ],
+                  %  end
+                  %else:
+                  %# No list of allowed values
+                     options: [
+                        { 'id': 'XxX', 'name': 'You should define an allowed value...' }
+                     ],
+                  %end
+
+                  maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
+                  closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+
+                  placeholder: '{{placeholder}}',
+                  hideSelected: true,
+                  %if not required:
+                  allowEmptyOption: true
+                  %end
+               });
+               // Add selected options / items to the control...
+               var $select = $('#{{field}}').selectize();
+               var selectize = $select[0].selectize;
+               %for field_id, field_value in list_values:
+                  selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+               %end
+               %for field_id, field_value in list_values:
+                  selectize.addItem("{{field_id}}");
+               %end
+            </script>
+            %end
+         </div>
+      %end
+
+      %if not element and is_templated:
+         %field = '_is_template'
+         %model = plugin.table[field]
+
+         %label = model.get('title', '')
+         %hint = model.get('hint', label)
+         %editable = model.get('editable', True)
+
+         <div class="well page">
+         <h4>{{_('The new %s element is a template:') % plugin.backend_endpoint.capitalize()}}</h4>
          <div class="form-group"  style="margin-bottom: 20px">
             <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
             <div class="col-md-offset-2 col-md-10">
@@ -342,6 +485,14 @@
          </div>
       %end
 
+      %if edition:
+      <div class="well form-group">
+         <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
+         <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
+         <div class="clearfix"></div>
+      </div>
+      %end
+
       %#if element:
          %if debug and element and has_template:
          <div>
@@ -351,7 +502,8 @@
 
          %for field, model in plugin.table.iteritems():
             %selectize = False
-            %if not model.get('visible', True) or field[0] in ['#', '_'] or field.startswith('ls_'):
+            %if not model.get('visible', True) or (field[0] in ['#', '_'] and field not in ['_parent']) or field.startswith('ls_'):
+               %# Some fields are never displayed in a form...
                %if debug:
                %if element:
                <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field, value: {{element[field]}}<br>
@@ -362,8 +514,9 @@
                %continue
             %end
             %if not element and not model.get('create_template', False):
+               %# Only create_template=true fields are used when creating an element
                %if debug:
-               <i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field<br>
+               <i class="fa fa-bug"></i><i class="fa fa-bug"></i><strong>Ignored</strong> '{{field}}' -> {{model}} field<br>
                %end
                %continue
             %end
@@ -460,9 +613,9 @@
             %if debug:
                <i class="fa fa-bug"></i>
                %if is_list:
-               {{'%s -> %s (%s) = %s' % (field, field_type, content_type, list_values)}}
+               {{' is_list %s -> %s (%s) = %s' % (field, field_type, content_type, list_values)}}
                %else:
-               {{'%s -> %s = %s' % (field, content_type, field_value)}}
+               {{'not list %s -> %s = %s' % (field, content_type, field_value)}}
                %end
                <br>
             %end
@@ -577,12 +730,9 @@
                   searchField: 'name',
                   create: false,
 
-                  create: function(input) {
-                     console.log(input)
-                     return { 'id': input, 'name': input };
-                  },
                   render: {
                      option: function(item, escape) {
+                        console.log("option: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -592,6 +742,7 @@
                         '</div>';
                      },
                      item: function(item, escape) {
+                        console.log("item: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -617,6 +768,7 @@
                            success: function(res) {
                               // 10 first items only...
                               // callback(res.slice(0, 10));
+                              console.log("Got:", res);
                               callback(res);
                            }
                         });
@@ -663,11 +815,10 @@
       </fieldset>
 
       %if edition:
-      <div class="form-group">
-         <div class="col-md-10 col-md-offset-2">
-            <button type="button" class="btn btn-default">{{_('Cancel')}}</button>
-            <button type="submit" class="btn btn-primary">{{_('Submit')}}</button>
-         </div>
+      <div class="well form-group">
+         <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
+         <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
+         <div class="clearfix"></div>
       </div>
       %end
    </form>
@@ -679,6 +830,9 @@
       // Do not automatically submit ...
       evt.preventDefault();
       console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
+
+      // Submitting message
+      wait_message('{{_('Submitting form...')}}', true)
 
       $.ajax({
          url: $(this).attr('action'),
@@ -693,7 +847,8 @@
          } else {
             if (data._errors) {
                raise_message_ko(data._message);
-               $.each(data._errors, function(field, value){
+               $.each(data._errors, function(field, value) {
+                  console.error(field, value);
                   $('#'+field).parents("div.form-group").addClass("has-error");
                   raise_message_ko(field + ":" + value);
                })
@@ -706,14 +861,12 @@
                $('#'+field).parents("div.form-group").addClass("has-success");
                raise_message_ok("Updated " + field);
             });
-            %if is_templated:
-               // Navigate to the new element edition form
-               var url = document.location.href;
-               url = url.replace("None", data['_id']);
-               window.setTimeout(function(){
-                  window.location.href = url;
-               }, 3000);
-            %end
+            // Navigate to the new element edition form
+            var url = document.location.href;
+            url = url.replace("None", data['_id']);
+            window.setTimeout(function() {
+               window.location.href = url;
+            }, 3000);
          }
       })
       .fail(function( jqXHR, textStatus, errorThrown ) {
@@ -729,8 +882,8 @@
             })
          }
       })
-     .always(function() {
-         //$('#widgets_loading').hide();
+      .always(function() {
+         wait_message('', false)
       });
    });
 </script>

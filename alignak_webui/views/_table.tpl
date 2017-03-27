@@ -711,7 +711,7 @@
                titleAttr: "{{_('Create a new item')}}",
                className: 'btn-raised btn-xs',
                action: function (e, dt, button, config) {
-                  var url = "{{server_url}}/{{object_type}}//form";
+                  var url = "{{server_url}}/{{object_type}}/None/form";
                   window.setTimeout(function(){
                      window.location.href = url;
                   }, 50);

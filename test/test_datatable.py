@@ -700,7 +700,7 @@ class TestDatatableRealms(TestDatatableBase):
             "$('#tbl_realm').DataTable( {",
             '<table id="tbl_realm" ',
             '<th data-name="name" data-type="string"',
-            '<th data-name="definition_order" data-type="integer"',
+            # '<th data-name="definition_order" data-type="integer"',
             '<th data-name="alias" data-type="string"',
             '<th data-name="default" data-type="boolean"',
             '<th data-name="_level" data-type="integer"',
@@ -728,7 +728,7 @@ class TestDatatableRealms(TestDatatableBase):
                 print(response.json['data'][x])
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name'] is not None
-                assert response.json['data'][x]['definition_order'] is not None
+                # assert response.json['data'][x]['definition_order'] is not None
                 assert response.json['data'][x]['alias'] is not None
 
 

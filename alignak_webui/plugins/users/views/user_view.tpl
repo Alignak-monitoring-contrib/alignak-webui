@@ -27,6 +27,12 @@
       </thead>
       <tbody style="font-size:x-small;">
          <tr>
+            <td><strong>{{_('Realm:')}}</strong></td>
+            <td>
+               {{! user._realm.get_html_link()}}
+            </td>
+         </tr>
+         <tr>
             <td><strong>{{_('Role:')}}</strong></td>
             <td>
                {{user.get_role(display=True)}}

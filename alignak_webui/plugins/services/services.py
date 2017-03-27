@@ -261,7 +261,9 @@ class PluginServices(Plugin):
         }
 
         return {
+            'plugin': self,
             'plugin_parameters': self.plugin_parameters,
+
             'search_engine': self.search_engine,
             'search_filters': events_search_filters,
 

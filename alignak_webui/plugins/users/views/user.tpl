@@ -67,15 +67,20 @@
                <dt>{{_('Alias:')}}</dt>
                <dd>{{user.alias}}</dd>
 
-               %if user.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
-               %for note_url in Helper.get_element_notes_url(user, default_title="Note", default_icon="tag", popover=True):
-                  <button class="btn btn-default btn-xs">{{! note_url}}</button>
-               %end
+               {{ user.notes }}
                </dd>
-               %end
             </dl>
+            %if current_user.is_administrator():
+            <dl class="col-sm-6 col-md-4">
+               <dt>{{_('Login:')}}</dt>
+               <dd>{{user.name}}</dd>
+
+               <dt>{{_('Token:')}}</dt>
+               <dd>{{user.token}}</dd>
+            </dl>
+            %end
          </div>
       </div>
    </div>
@@ -86,10 +91,10 @@
          <li class="active">
             <a href="#user_tab_view"
                role="tab" data-toggle="tab" aria-controls="view"
-               title="{{_('user synthesis view')}}"
+               title="{{_('User synthesis view')}}"
                >
                <span class="fa fa-server"></span>
-               <span class="hidden-sm hidden-xs">{{_('user view')}}</span>
+               <span class="hidden-sm hidden-xs">{{_('User view')}}</span>
             </a>
          </li>
 

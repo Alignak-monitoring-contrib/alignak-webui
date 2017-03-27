@@ -56,7 +56,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             self.connected = False
 
         def login(self, username, password=None):
-
             """Log into the backend
 
             If password is provided, use the backend login function to authenticate the user
@@ -95,7 +94,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return self.connected
 
         def logout(self):
-
             """Log out from the backend
 
             Do nothing except setting 'connected' attribute to False"""
@@ -105,7 +103,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             self.connected = False
 
         def count(self, object_type, params=None):
-
             """Count backend elements
 
             If params is a string, it is considered to be an object id and params
@@ -168,7 +165,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return 0  # pragma: no cover, simple protection
 
         def get(self, object_type, params=None, all_elements=False):
-
             """Get backend elements
 
             If params is a string, it is considered to be an object id and params
@@ -204,10 +200,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 params['page'] = 0
             if 'max_results' not in params:
                 params['max_results'] = BACKEND_PAGINATION_LIMIT
-            logger.debug(
-                "get, search in the backend for %s: parameters=%s, all: %s",
-                object_type, params, all_elements
-            )
+            logger.debug("get, search in the backend for %s: parameters=%s, all: %s",
+                         object_type, params, all_elements)
 
             try:
                 if all_elements:
@@ -218,9 +212,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 logger.warning("get, backend exception for %s: %s", object_type, str(e))
                 raise e
 
-            logger.debug(
-                "search, search result for %s: result=%s", object_type, result
-            )
+            logger.debug("search, search result for %s: result=%s", object_type, result)
             if result['_status'] != 'OK':  # pragma: no cover, should not happen
                 error = []
                 if "content" in result:
@@ -228,32 +220,36 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                 if "_issues" in result:
                     error.append(result['_issues'])
                 logger.warning("get, %s: %s, not found: %s", object_type, params, error)
-                raise ValueError(
-                    '%s, search: %s was not found in the backend, error: %s' % (
-                        object_type, params, error
-                    )
-                )
+                raise ValueError('%s, search: %s was not found in the backend, error: %s'
+                                 % (object_type, params, error))
 
             # If more than one element is found, we get an _items list
             if '_items' in result:
+                total = len(result['_items'])
                 if '_meta' in result:
-                    for item in result['_items']:
-                        item.update({'_total': result['_meta']['total']})
-                logger.debug(
-                    "get, found in the backend: %s: %d elements",
-                    object_type, len(result['_items'])
-                )
+                    total = result['_meta']['total']
+                logger.info("get %s %s, %d total elements found in the backend",
+                            object_type, ' (All required)' if all_elements else ' (filtered)',
+                            total)
+                for item in result['_items']:
+                    item.update({'_total': total})
                 return result['_items']
 
             if '_status' in result:
                 result.pop('_status')
             if '_meta' in result:
                 result['_total'] = result['_meta']['total']
+                result.pop('_meta')
+            if all_elements:
+                logger.info("get %s %s, %d total elements found in the backend",
+                            object_type, ' (All required)' if all_elements else ' (filtered)',
+                            len(result))
+                for item in result:
+                    item.update({'_total': len(result)})
             logger.debug("get, found one in the backend: %s: %s", object_type, result)
             return result
 
         def post(self, object_type, data=None, files=None):
-
             """Add an element"""
 
             logger.info("post, request to add a %s: data: %s", object_type, data)
@@ -331,7 +327,6 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             return True
 
         def update(self, element, data):
-
             """Update an element"""
 
             logger.info("update, request to update: %s", element)
