@@ -255,7 +255,7 @@
       </li>
 
       %if edition_mode:
-         %include("_templatebar.tpl")
+         %include("_editionbar.tpl")
       %end
 
       %if widgets_bar and current_user.can_change_dashboard():

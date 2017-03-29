@@ -5,7 +5,7 @@
 <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Templates menu')}}">
    <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret hidden-xs"></span>
-      <span class="fa fa-clone"></span>
+      <span class="fa fa-edit"></span>
       <span class="sr-only">{{_('Templates menu')}}</span>
    </a>
 
@@ -62,19 +62,23 @@
       %#print("Missing plugin Realms")
       %#end
 
+      %#try:
+      <li>
+         <a href="/hostgroup/None/form">
+            <span class="fa fa-fw fa-sitemap"></span>
+            <span>{{_('Create a new hostgroup')}}</span>
+         </a>
+      </li>
+      %#except RouteBuildError:
+      %#print("Missing plugin Hostgroups")
+      %#end
+
       %if plugin and plugin.table['_table']['editable']:
       <li class="divider"></li>
       <li>
          <a href="{{ request.urlparts.path + '/form' }}">
             <span class="fa fa-fw fa-edit"></span>
             <span>{{_('Edition form for the %s') % plugin.backend_endpoint}}</span>
-         </a>
-      </li>
-      %elif plugin:
-      <li>
-         <a href="{{ request.urlparts.path }}">
-            <span class="fa fa-fw fa-edit"></span>
-            <span>{{_('No edition form for the %s') % plugin.backend_endpoint}}</span>
          </a>
       </li>
       %end
