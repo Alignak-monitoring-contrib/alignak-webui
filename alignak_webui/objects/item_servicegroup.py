@@ -41,6 +41,11 @@ class ServiceGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
+    # Converting real state identifier to text status
+    overall_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+    ]
+
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """
         Create a servicegroup (called only once when an object is newly created)
@@ -50,6 +55,9 @@ class ServiceGroup(BackendElement):
         self._linked_services = 'service'
 
         super(ServiceGroup, self).__init__(params, date_format, embedded)
+
+        if not hasattr(self, '_overall_state'):
+            setattr(self, '_overall_state', 0)
 
     @property
     def members(self):
@@ -77,3 +85,8 @@ class ServiceGroup(BackendElement):
         if not hasattr(self, '_level'):
             return -1
         return self._level
+
+    @property
+    def overall_state(self):
+        """Return real state identifier"""
+        return self._overall_state

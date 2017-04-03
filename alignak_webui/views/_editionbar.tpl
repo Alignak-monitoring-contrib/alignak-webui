@@ -12,13 +12,6 @@
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Edition mode menu')}}">
       %try:
       <li>
-         <a href="/hosts/templates">
-            <span class="fa fa-fw fa-server"></span>
-            <span>{{_('Declare a new host')}}</span>
-         </a>
-      </li>
-      <li class="divider"></li>
-      <li>
          <a href="{{ webui.get_url('Hosts templates table') }}">
             <span class="fa fa-fw fa-server"></span>
             <span>{{_('Hosts templates')}}</span>
@@ -51,36 +44,43 @@
       %end
 
       <li class="divider"></li>
-      %#try:
       <li>
          <a href="/realm/None/form">
             <span class="fa fa-fw fa-sitemap"></span>
             <span>{{_('Create a new realm')}}</span>
          </a>
       </li>
-      %#except RouteBuildError:
-      %#print("Missing plugin Realms")
-      %#end
-
-      %#try:
       <li>
          <a href="/hostgroup/None/form">
             <span class="fa fa-fw fa-sitemap"></span>
             <span>{{_('Create a new hostgroup')}}</span>
          </a>
       </li>
-      %#except RouteBuildError:
-      %#print("Missing plugin Hostgroups")
-      %#end
+      <li>
+         <a href="/hosts/templates">
+            <span class="fa fa-fw fa-server"></span>
+            <span>{{_('Declare a new host')}}</span>
+         </a>
+      </li>
 
       %if plugin and plugin.table['_table']['editable']:
       <li class="divider"></li>
-      <li>
-         <a href="{{ request.urlparts.path + '/form' }}">
-            <span class="fa fa-fw fa-edit"></span>
-            <span>{{_('Edition form for the %s') % plugin.backend_endpoint}}</span>
-         </a>
-      </li>
+         %if not '/form' in request.urlparts.path:
+         <li>
+            <a href="{{ request.urlparts.path + '/form' }}">
+               <span class="fa fa-fw fa-edit"></span>
+               <span>{{_('Edition form for the %s') % plugin.backend_endpoint}}</span>
+            </a>
+         </li>
+         %end
+         %if '/host/' in request.urlparts.path:
+         <li>
+            <a href="/service/None/form">
+               <span class="fa fa-fw fa-edit"></span>
+               <span>{{_('Declare a new service for this host')}}</span>
+            </a>
+         </li>
+         %end
       %end
    </ul>
 </li>

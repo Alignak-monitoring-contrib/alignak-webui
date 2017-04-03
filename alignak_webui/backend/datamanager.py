@@ -1492,6 +1492,40 @@ class DataManager(object):
         items = self.get_servicegroups(search=search)
         return items[0] if items else None
 
+    def get_servicegroup_overall_state(self, search):
+        """Get a services group real state (including services states).
+
+        Returns -1 if any problem"""
+        if not isinstance(search, BackendElement):
+            servicegroup = self.get_servicegroup(search)
+            if not servicegroup:
+                return -1
+        else:
+            servicegroup = search
+
+        logger.debug("get_servicegroup_overall_state, group: %s", servicegroup)
+        if servicegroup.members == 'service':
+            servicegroup.overall_state = 0
+            return 0
+
+        overall_state = 0
+        for member in servicegroup.members:
+            if isinstance(member, basestring):
+                continue
+
+            overall_state = max(overall_state, member.overall_state)
+
+        # Hosts group real state from group members
+        group_members = self.get_servicegroups(
+            search={'where': {'_parent': servicegroup.id}}, all_elements=True
+        )
+        for group in group_members:
+            (ov_state, dummy) = self.get_servicegroup_overall_state(group)
+            overall_state = max(overall_state, ov_state)
+
+        overall_status = servicegroup.overall_state_to_status[overall_state]
+        return (overall_state, overall_status)
+
     ##
     # Services dependencies
     ##

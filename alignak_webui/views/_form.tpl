@@ -59,6 +59,7 @@
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
       <fieldset>
+      %# Editing a template
       %if is_template:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
@@ -68,6 +69,7 @@
          </div>
 
          <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
+      %# Editing an element
       %elif element:
          %if has_template:
          <div class="alert alert-dismissible alert-info">
@@ -88,6 +90,7 @@
              </div>
           %end
          <legend>{{! _('%s <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
+      %# Creating a new element/template
       %else:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
@@ -119,29 +122,22 @@
          %editable = model.get('editable', True)
 
          <div class="well page">
-         <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
-         <div class="form-group"  style="margin-bottom: 20px">
-            <div class="col-md-10">
-               <input id="{{field}}" name="{{field}}"
-                  class="form-control"
-                  type="{{'number' if field_type=='integer' else 'text'}}"
-                  placeholder="{{placeholder}}"
-                  value=""
-                  {{'readonly="readonly"' if not edition or not editable else ''}}
-                  >
+            <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
+            <div class="form-group">
+               <label class="control-label" for="{{field}}">{{_('Host name:')}}</label>
+               <input class="form-control" type="text" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="" {{'readonly="readonly"' if not edition or not editable else ''}}>
                %if hint:
-               <p class="help-block">
-                  {{hint}}
-                  %if unique:
-                  <br>This field must be unique.
-                  %end
-                  %if required:
-                  <br>This field is required.
-                  %end
-               </p>
+                  <p class="help-block">
+                     {{hint}}
+                     %if unique:
+                     <br>{{_('This field must be unique.')}}
+                     %end
+                     %if required:
+                     <br>{{_('This field is required.')}}
+                     %end
+                  </p>
                %end
             </div>
-         </div>
          </div>
       %end
 
@@ -198,10 +194,10 @@
                   <p class="help-block">
                      {{hint}}
                      %if unique:
-                     <br>This field must be unique.
+                     <br>{{_('This field must be unique.')}}
                      %end
                      %if required:
-                     <br>This field is required.
+                     <br>{{_('This field is required.')}}
                      %end
                   </p>
                   %end
@@ -384,10 +380,10 @@
                   <p class="help-block">
                      {{hint}}
                      %if unique:
-                     <br>This field must be unique.
+                     <br>{{_('This field must be unique.')}}
                      %end
                      %if required:
-                     <br>This field is required.
+                     <br>{{_('This field is required.')}}
                      %end
                   </p>
                   %end
@@ -648,13 +644,13 @@
                      </div>
                      %if hint:
                      <p class="help-block">
-                        {{hint}}
-                        %if unique:
-                        <br>This field must be unique.
-                        %end
-                        %if required:
-                        <br>This field is required.
-                        %end
+                     {{hint}}
+                     %if unique:
+                     <br>{{_('This field must be unique.')}}
+                     %end
+                     %if required:
+                     <br>{{_('This field is required.')}}
+                     %end
                      </p>
                      %end
                   </div>
@@ -709,10 +705,10 @@
                   <p class="help-block">
                      {{hint}}
                      %if unique:
-                     <br>This field must be unique.
+                     <br>{{_('This field must be unique.')}}
                      %end
                      %if required:
-                     <br>This field is required.
+                     <br>{{_('This field is required.')}}
                      %end
                   </p>
                   %end
@@ -814,6 +810,9 @@
       %#end
       </fieldset>
 
+      <script>
+         window.setTimeout(function() { $("div.alert-dismissible").alert('close'); }, 10000);
+      </script>
       %if edition:
       <div class="well form-group">
          <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
