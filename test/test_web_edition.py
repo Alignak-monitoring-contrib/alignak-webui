@@ -361,32 +361,53 @@ class TestHosts(unittest2.TestCase):
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
 
-        print('Host creation fails - missing template')
+        # A name is enough to create a new host
+        print('Host creation - missing name')
+        data = {
+            "_is_template": False,
+        }
+        response = self.app.post('/host/None/form', params=data)
+        print(response.json)
+        assert response.json == {
+            u'_is_template': False,
+            u'_message': u'host creation failed!',
+            u'_errors': [u'']
+        }
+
+        # A name is enough to create a new host
+        print('Host creation without template')
         data = {
             "_is_template": False,
             'name': "New host",
-            'display_name': "Display name"
+            'alias': "Friendly name"
         }
         response = self.app.post('/host/None/form', params=data)
-        assert response.json == {
-            "_message": "host creation failed!",
+        # Returns the new item _id
+        new_host_id = response.json['_id']
+        resp = response.json
+        resp.pop('_id')
+        assert resp == {
+            "_message": "New host created",
             "_realm": realm.id,
 
             "_is_template": False,
             "name": "New host",
-            'display_name': "Display name",
-
-            "_errors": {
-                "name": "field 'check_command' is required"
-            }
+            'alias': "Friendly name"
         }
 
-        print('Host creation')
+        # Get the new host in the backend
+        host = datamgr.get_host({'where': {'name': 'New host'}})
+        assert host
+        assert host.id == new_host_id
+        assert host.name == "New host"
+        assert host.alias == "Friendly name"
+
+        print('Host creation with a template')
         data = {
             "_is_template": False,
             "_templates": [template.id],
-            'name': "New host",
-            'display_name': "Display name"
+            'name': "New host 2",
+            'alias': "Friendly name 2"
         }
         response = self.app.post('/host/None/form', params=data)
         # Returns the new item _id
@@ -399,16 +420,16 @@ class TestHosts(unittest2.TestCase):
 
             "_is_template": False,
             "_templates": [template.id],
-            "name": "New host",
-            'display_name': "Display name",
+            "name": "New host 2",
+            'alias': "Friendly name 2"
         }
 
         # Get the new host in the backend
-        host = datamgr.get_host({'where': {'name': 'New host'}})
+        host = datamgr.get_host({'where': {'name': 'New host 2'}})
         assert host
         assert host.id == new_host_id
-        assert host.name == "New host"
-        assert host.display_name == "Display name"
+        assert host.name == "New host 2"
+        assert host.alias == "Friendly name 2"
 
     def test_host_submit_form(self):
         """Edit and submit host edition form"""
