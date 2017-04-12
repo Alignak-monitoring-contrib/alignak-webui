@@ -14,7 +14,7 @@ exclude_lines =
 [run]
 ;branch = True
 source =
-    alignak
+    alignak_webui
 
 omit =
     */mock/*
