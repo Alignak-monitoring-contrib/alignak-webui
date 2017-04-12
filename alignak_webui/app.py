@@ -448,6 +448,9 @@ def before_request():
     # Initialize data manager and make it available in the request and in the templates
     if webui.datamgr is None:
         webui.datamgr = DataManager(request.app, session=request.environ['beaker.session'])
+        if not webui.datamgr.connected:
+            redirect('/login')
+
     request.app.datamgr = webui.datamgr
     # # Load initial objects from the DM
     # request.app.datamgr.load()

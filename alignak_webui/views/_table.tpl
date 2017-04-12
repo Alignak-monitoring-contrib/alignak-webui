@@ -707,7 +707,7 @@
             %if dt.editable and edition_mode:
             // Only for 'editable' tables
             ,{
-               text: "{{! _('<span class=\'fa fa-plus\'></span>')}}",
+               text: "{{! _('<span class=\'text-warning fa fa-plus\'></span>')}}",
                titleAttr: "{{_('Create a new item')}}",
                className: 'btn-raised btn-xs',
                action: function (e, dt, button, config) {
@@ -719,7 +719,7 @@
             }
             ,{
                extend: 'selectedSingle',
-               text: "{{! _('<span class=\'fa fa-edit\'></span>')}}",
+               text: "{{! _('<span class=\'text-warning fa fa-edit\'></span>')}}",
                titleAttr: "{{_('Edit the selected item')}}",
                className: 'btn-raised btn-xs',
                action: function (e, dt, button, config) {

@@ -92,6 +92,30 @@
 
             %try:
             <li>
+               <a href="{{ webui.get_url('Hosts escalations table') }}">
+                  <span class="fa fa-fw fa-arrow-up"></span>
+                  <span>{{_('Hosts escalations')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Hosts escalations")
+            %end
+
+            %try:
+            <li>
+               <a href="{{ webui.get_url('Services escalations table') }}">
+                  <span class="fa fa-fw fa-arrow-up"></span>
+                  <span>{{_('Services escalations')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Services escalations")
+            %end
+
+            <li class="divider"></li>
+
+            %try:
+            <li>
                <a href="{{ webui.get_url('Realms table') }}">
                   <span class="fa fa-w fa-sitemap"></span>
                   <span>{{_('Realms')}}</span>
@@ -254,12 +278,12 @@
          </ul>
       </li>
 
-      %if edition_mode:
-         %include("_editionbar.tpl")
-      %end
-
       %if widgets_bar and current_user.can_change_dashboard():
          %include("_widgetsbar.tpl")
+      %end
+
+      %if edition_mode:
+         %include("_editionbar.tpl")
       %end
    </ul>
 </nav>
