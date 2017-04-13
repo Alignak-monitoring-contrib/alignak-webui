@@ -5,7 +5,7 @@
 <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Edition menu')}}">
    <a class="navbar-link" href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret hidden-xs"></span>
-      <span class="text-warning fa fa-edit"></span>
+      <span class="text-warning fa fa-w fa-edit"></span>
       <span class="sr-only">{{_('Templates menu')}}</span>
    </a>
 

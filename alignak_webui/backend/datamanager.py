@@ -821,6 +821,8 @@ class DataManager(object):
         }
 
         if search is None:
+            if self.my_ls['_id'] is None:
+                return default_ls
             found = False
             error = False
             while not found and not error:

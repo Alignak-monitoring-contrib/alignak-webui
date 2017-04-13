@@ -278,7 +278,7 @@ class TestHosts(unittest2.TestCase):
             '<div id="hosts_table" class="alignak_webui_table ">',
             "$('#tbl_host').DataTable( {",
             '<table id="tbl_host" ',
-            '''text: "<span class='fa fa-edit'></span>"''',
+            '''text: "<span class='text-warning fa fa-edit'></span>"''',
             '''titleAttr: "Edit the selected item"''',
         )
 
