@@ -3,7 +3,7 @@
 %setdefault('search_engine', False)
 %setdefault('search_filters', {})
 
-%search_action = request.urlparts
+%search_action = request.urlparts.path
 %search_query = request.urlparts.query
 %search_string = request.query.get('search', '')
 %if search_engine and search_filters:
