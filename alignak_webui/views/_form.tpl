@@ -312,11 +312,6 @@
                      %     end
                      ],
                   %  end
-                  %else:
-                  %# No list of allowed values
-                     options: [
-                        { 'id': 'XxX', 'name': 'You should define an allowed value...' }
-                     ],
                   %end
 
                   maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
@@ -630,11 +625,6 @@
                      %     end
                      ],
                   %  end
-                  %elif is_list:
-                  %# No list of allowed values
-                     options: [
-                        { 'id': 'XxX', 'name': 'You should define an allowed value...' }
-                     ],
                   %end
 
                   maxItems: {{'null' if is_list or format == 'multiple' else '1'}},

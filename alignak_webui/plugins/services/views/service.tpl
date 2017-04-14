@@ -101,19 +101,16 @@
    %if service.action_url or tags or groups:
    <div>
       %if groups:
-      <div class="btn-group pull-right">
-         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+      <div class="service-groups btn-group pull-right">
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
             <span class="fa fa-sitemap"></span>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:
-            <li>
-            <a href="/servicegroup/{{group.id}}">{{group.alias}}</a>
-            </li>
+            <li><a href="/servicegroup/{{group.id}}"><span class="fa fa-tag"></span>&nbsp;{{group.alias}}</a></li>
          %end
          </ul>
       </div>
-      <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if service.action_url != '':
       <div class="btn-group pull-right">
@@ -127,47 +124,29 @@
             %end
          </ul>
       </div>
-      <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if tags:
       <div class="btn-group pull-right">
-         %if len(tags) > 2:
-            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right">
-               %for tag in sorted(tags):
-               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
-               %end
-            </ul>
-         %else:
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-tag"></span>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu pull-right">
             %for tag in sorted(tags):
-               <a href="{{ webui.get_url('Services table') }}?search=tags:{{tag}}">
-                  <span class="fa fa-tag"></span> {{tag}}
-               </a>
+            <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
             %end
-         %end
+         </ul>
       </div>
       %end
-      %#todo: edit the service templates!
-      %if False:
-      <div class="btn-group pull-right">
-         %if len(templates) > 2:
-            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right">
-               %for tag in sorted(templates):
-               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
-               %end
-            </ul>
-         %else:
-            %for tag in sorted(templates):
-               <a href="{{ webui.get_url('Services table') }}?search=tags:{{tag}}">
-                  <span class="fa fa-tag"></span> {{tag}}
-               </a>
+      %if templates:
+      <div class="service-templates btn-group pull-right">
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-clone"></span>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu pull-right">
+            %for template in sorted(templates):
+            <li><a href="/service/{{template.id}}"><span class="fa fa-clone"></span>&nbsp;{{template.alias}}</a></li>
             %end
-         %end
+         </ul>
       </div>
       %end
    </div>

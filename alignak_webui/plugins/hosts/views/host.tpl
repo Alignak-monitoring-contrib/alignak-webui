@@ -133,19 +133,16 @@
          </button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:
-            <li>
-            <a href="/hostgroup/{{group.id}}">{{group.alias}}</a>
-            </li>
+            <li><a href="/hostgroup/{{group.id}}"><span class="fa fa-tag"></span>&nbsp;{{group.alias}}</a></li>
          %end
          </ul>
       </div>
-      <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if host.action_url != '':
       <div class="host-action-url btn-group pull-right">
          %action_urls = host.action_url.split('|')
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-external-link"></i> {{_('Actions') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
+            <span class="fa fa-external-link"></span> {{_('Actions') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
             %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
@@ -153,47 +150,29 @@
             %end
          </ul>
       </div>
-      <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if tags:
       <div class="host-tags btn-group pull-right">
-         %if len(tags) > 2:
-            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right">
-               %for tag in sorted(tags):
-               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
-               %end
-            </ul>
-         %else:
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-tag"></span>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu pull-right">
             %for tag in sorted(tags):
-               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
-                  <span class="fa fa-tag"></span> {{tag}}
-               </a>
+            <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span>&nbsp;{{tag}}</button></li>
             %end
-         %end
+         </ul>
       </div>
       %end
-      %#todo: edit the host templates!
-      %if False:
+      %if templates:
       <div class="host-templates btn-group pull-right">
-         %if len(templates) > 2:
-            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-edit"></i>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right">
-               %for template in sorted(templates):
-               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{template.name}}</button></li>
-               %end
-            </ul>
-         %else:
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-clone"></span>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu pull-right">
             %for template in sorted(templates):
-               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
-                  <span class="fa edit"></span> {{template.name}}
-               </a>
+            <li><a href="/host/{{template.id}}"><span class="fa fa-clone"></span>&nbsp;{{template.alias}}</a></li>
             %end
-         %end
+         </ul>
       </div>
       %end
    </div>
