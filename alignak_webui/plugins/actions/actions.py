@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin actions
+    Plugin actions - actions and commands notified to Alignak from the Web UI
 """
 
 import json
@@ -173,9 +173,6 @@ class PluginActions(Plugin):
                         status += _('Acknowledge sent for %s. ') % \
                             element.name
 
-                    # No more necessary thanks to alignak backend module 0.4
-                    # Request a recheck for the element ...
-
         logger.info("Request an acknowledge, result: %s", status)
 
         if not problem:
@@ -321,9 +318,6 @@ class PluginActions(Plugin):
                         status += _('Downtime sent for %s. ') % \
                             element.name
 
-                    # No more necessary thanks to alignak backend module 0.4
-                    # Request a recheck for the element ...
-
         logger.info("Request a downtime, result: %s", status)
 
         if not problem:
@@ -365,18 +359,18 @@ class PluginActions(Plugin):
 
         # Get elements from the commands list
         if command not in commands:
-            response.status = 204
+            response.status = 409
             response.content_type = 'application/json'
             return json.dumps(
-                {'error': 'the command %s does not exist' % command}
+                {'error': "the command '%s' does not exist" % command}
             )
 
         plugin = self.webui.find_plugin(elements_type)
         if not plugin:
-            response.status = 204
+            response.status = 409
             response.content_type = 'application/json'
             return json.dumps(
-                {'error': 'the plugin for %s is not installed' % elements_type}
+                {'error': "the plugin for '%s' is not existing or not installed" % elements_type}
             )
         logger.debug("Got plugin fields table for %s: %s", elements_type, plugin.table)
 
@@ -384,6 +378,7 @@ class PluginActions(Plugin):
         parameters = {}
         for parameter in commands[command].get('parameters', {}):
             parameters[parameter] = deepcopy(plugin.table[parameter])
+            logger.info("Got plugin parameter: %s / %s", parameter, parameters[parameter])
 
             if 'allowed' in plugin.table[parameter]:
                 real_allowed = {}
@@ -398,6 +393,7 @@ class PluginActions(Plugin):
                 parameters[parameter]['allowed'] = real_allowed
                 logger.info("Real allowed values for %s: %s", parameter, real_allowed)
 
+        logger.info("Parameters: %s", parameters)
         response.status = 200
         response.content_type = 'application/json'
         return json.dumps(parameters)

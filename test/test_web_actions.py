@@ -400,6 +400,40 @@ class tests_actions(unittest2.TestCase):
             '<form class="form-horizontal" data-item="command" data-action="add" '
         )
 
+        print('get page /command/parameters - bad parameters')
+        response = self.app.get('/command/parameters', status=409)
+        assert response.json == {'error': "the command 'None' does not exist"}
+        response = self.app.get('/command/parameters?command=fake&elements_type=host', status=409)
+        assert response.json == {'error': "the command 'fake' does not exist"}
+        response = self.app.get('/command/parameters?command=process_host_check_result&elements_type=fake', status=409)
+        assert response.json == {'error': "the plugin for 'fake' is not existing or not installed"}
+
+
+        print('get page /command/parameters')
+        response = self.app.get('/command/parameters?elements_type=host&command=process_host_check_result')
+        expected = {
+            u"ls_state_id": {
+                u"allowed": {
+                    u"0": u"Up", u"1": u"Down (1)", u"2": u"Down (2)", u"3": u"Unreachable"
+                },
+                u"allowed_0": u"Up", u"allowed_1": u"Down (1)",
+                u"allowed_2": u"Down (2)", u"allowed_3": u"Unreachable",
+                u"hint": u"Choose the host state",
+                u"default": u"0",
+                u"title": u"State",
+                u"editable": False,
+                u"type": u"integer"
+            },
+            u"ls_output": {
+                u"default": u"Output from WebUI",
+                u"type": u"string",
+                u"title": u"Output",
+                u"editable": False,
+                u"hint": u"enter the desired check output"
+            }
+        }
+        assert expected == response.json
+
         # Current user is admin
         session = response.request.environ['beaker.session']
         assert 'current_user' in session and session['current_user']
