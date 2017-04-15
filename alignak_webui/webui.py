@@ -248,7 +248,8 @@ class WebUI(object):
             "/static/css/alertify/alertify.min.css",
             "/static/css/alertify/bootstrap.min.css",
             "/static/css/BootSideMenu.css",
-            "/static/css/timeline.css"
+            "/static/css/timeline.css",
+            "/static/css/selectize.bootstrap3.css",
         ]
 
         css_list += [

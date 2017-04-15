@@ -266,9 +266,10 @@ table.dataTable .sorting_1 {
 table.dataTable th div.form-group-sm {
     margin-top: 0;
 }
-/* Copy of the MD class to modify it */
-.selectize-control.single .selectize-dropdown,
-.selectize-control.multi .selectize-dropdown {
+/* Extend the selectize.js classes to modify them when they are included in a datatable
+ */
+table.dataTable .selectize-control.single .selectize-dropdown,
+table.dataTable .selectize-control.multi .selectize-dropdown {
   position: absolute;
   z-index: 1000;
   border: 0;
@@ -282,11 +283,11 @@ table.dataTable th div.form-group-sm {
   padding: 0;
   margin-top: 3px;
 }
-.selectize-control.single .selectize-input:after,
-.selectize-control.multi .selectize-input:after,
-.selectize-control.single .selectize-input.input-active:after,
-.selectize-control.multi .selectize-input.input-active:after {
-    right: -10px /*5px*/;
+table.dataTable .selectize-control.single .selectize-input:after,
+table.dataTable .selectize-control.multi .selectize-input:after,
+table.dataTable .selectize-control.single .selectize-input.input-active:after,
+table.dataTable .selectize-control.multi .selectize-input.input-active:after {
+    right: -10px;
     position: absolute;
     font-size: 24px;
     content: "\e5c5";
