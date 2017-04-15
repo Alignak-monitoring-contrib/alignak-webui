@@ -35,7 +35,14 @@
          <li>
             <a href="{{ request.urlparts.path + '/form' }}">
                <span class="fa fa-fw fa-edit"></span>
-               <span>{{_('Edition form for the %s') % plugin.backend_endpoint}}</span>
+               <span>{{_('Edit this %s') % plugin.backend_endpoint}}</span>
+            </a>
+         </li>
+         %else:
+         <li>
+            <a href="{{ request.urlparts.path.replace('/form', '') }}">
+               <span class="fa fa-fw fa-square-o"></span>
+               <span>{{_('View this %s') % plugin.backend_endpoint}}</span>
             </a>
          </li>
          %end

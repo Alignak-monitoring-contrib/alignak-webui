@@ -265,11 +265,6 @@
                      %     end
                      ],
                   %  end
-                  %else:
-                  %# No list of allowed values
-                     options: [
-                        { 'id': 'XxX', 'name': 'You should define an allowed value...' }
-                     ],
                   %end
 
                   maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
@@ -485,7 +480,7 @@
       %end
 
       %#if element:
-         %if debug and element and has_template:
+         %if debug and has_template:
          <div>
          <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
          </div>
@@ -719,11 +714,9 @@
                   valueField: 'id',
                   labelField: 'name',
                   searchField: 'name',
-                  create: false,
 
                   render: {
                      option: function(item, escape) {
-                        console.log("option: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -733,7 +726,6 @@
                         '</div>';
                      },
                      item: function(item, escape) {
-                        console.log("item: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -746,6 +738,7 @@
                   %if allowed:
                   %  # List of allowed values
                   %  if allowed[0].startswith('inner://'):
+                     create: false,
                      preload: true,
                      openOnFocus: true,
                      load: function(query, callback) {
@@ -759,7 +752,6 @@
                            success: function(res) {
                               // 10 first items only...
                               // callback(res.slice(0, 10));
-                              console.log("Got:", res);
                               callback(res);
                            }
                         });
@@ -773,6 +765,8 @@
                      %     end
                      ],
                   %  end
+                  %else:
+                     create: true,
                   %end
 
                   maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
@@ -781,7 +775,8 @@
                   placeholder: '{{placeholder}}',
                   hideSelected: true,
                   %if not required:
-                  allowEmptyOption: true
+                  allowEmptyOption: true,
+                  allowed: '{{allowed}}'
                   %end
                });
                // Add selected options / items to the control...
