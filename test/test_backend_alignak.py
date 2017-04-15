@@ -132,12 +132,12 @@ class TestGet(unittest2.TestCase):
         # Count all users (no templates)
         result = self.be.count('user', params={'where': {'_is_template': False}})
         print("Result: %s" % result)
-        assert result == 5
+        assert result == 8
 
         # Count all users (and templates)
         result = self.be.count('user')
         print("Result: %s" % result)
-        assert result == 7
+        assert result == 10
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.count('user', parameters)
@@ -170,8 +170,8 @@ class TestGet(unittest2.TestCase):
             assert 'name' in user
             assert '_total' in user  # Each element has an extra _total attribute !
             print(" - %s (one out of %d)" % (user['name'], user['_total']))
-            assert user['_total'] == 5
-        assert len(result) == 5  # Default configuration has 5 users
+            assert user['_total'] == 8
+        assert len(result) == 8  # Default configuration has 8 users
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.get('user', parameters)

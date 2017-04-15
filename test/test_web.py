@@ -688,7 +688,7 @@ class TestUsers(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '5 elements out of 5',
+            '8 elements out of 8',
         )
         self.app.get('/users/settings')
         self.app.get('/users/list')

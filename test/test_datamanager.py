@@ -519,7 +519,7 @@ class TestBasic(unittest2.TestCase):
             assert item.id
             if item.level != 0:
                 assert isinstance(item._parent, UserGroup) # Must be an object
-        assert len(items) == 3
+        assert len(items) == 4
 
     def test_5_3_livesynthesis(self):
         """ Datamanager objects get - livesynthesis """
@@ -561,9 +561,9 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
+                # Travis says 74 whereas it is 76 !
                 'nb_unknown': 74, 'pct_unknown': 100.0,
                 'nb_unknown_hard': 74, 'nb_unknown_soft': 0,
-                # Travis says 74 whereas it is 76 !
                 # 'nb_unknown': 76, 'pct_unknown': 100.0,
                 # 'nb_unknown_hard': 76, 'nb_unknown_soft': 0,
                 'nb_unreachable': 0, 'pct_unreachable': 0.0,

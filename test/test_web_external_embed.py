@@ -846,7 +846,7 @@ class TestExternalFiles(unittest2.TestCase):
         assert "files" in response.json
         assert response.json['files']
 
-        reference =  [
+        reference = [
             "/static/css/bootstrap.min.css",
             "/static/css/font-awesome.min.css",
             "/static/css/typeahead.css",
@@ -855,6 +855,7 @@ class TestExternalFiles(unittest2.TestCase):
             "/static/css/alertify/bootstrap.min.css",
             "/static/css/BootSideMenu.css",
             "/static/css/timeline.css",
+            "/static/css/selectize.bootstrap3.css",
             "/static/css/font-roboto.css",
             "/static/css/material-icons.css",
             "/static/css/material/bootstrap-material-design.min.css",

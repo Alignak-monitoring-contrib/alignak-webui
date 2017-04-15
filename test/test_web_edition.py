@@ -190,7 +190,7 @@ class TestEditionMode(unittest2.TestCase):
         response.mustcontain(
             '<div id="dashboard">',
             '<!-- Templates actions bar -->',
-            '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Templates menu">',
+            '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Edition menu">',
             '<ul class="dropdown-menu" role="menu" aria-labelledby="Edition mode menu">',
             '<span>Hosts templates</span>',
             '<span>Services templates</span>',
@@ -211,7 +211,7 @@ class TestEditionMode(unittest2.TestCase):
             '<div id="dashboard">',
             no=[
                 '<!-- Templates actions bar -->',
-                '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Templates menu">',
+                '<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="Edition menu">',
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="Edition mode menu">',
                 '<span>Hosts templates</span>',
                 '<span>Services templates</span>',
@@ -460,11 +460,11 @@ class TestHosts(unittest2.TestCase):
         print('Post form updates')
         data = {
             'name': host.name,
-            'display_name': "Display name edited"
+            'alias': "Alias edited"
         }
         response = self.app.post('/host/%s/form' % host.id, params=data)
         assert response.json == {
-            "_message": "host 'graphite' updated", "display_name": "Display name edited"
+            "_message": "host 'graphite' updated", "alias": "Alias edited"
         }
 
 
