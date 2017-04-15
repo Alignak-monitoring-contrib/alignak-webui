@@ -37,7 +37,7 @@
                      {{ ! Helper.get_html_commands_buttons(host, '<span class="fa fa-bolt"></span>') }}
                      %end
                      <a href="{{! host.endpoint}}">
-                        {{ ! host.get_html_state(text=host.display_name, use_status=host.overall_status, title=title) }}
+                        {{ ! host.get_html_state(text=host.name, use_status=host.overall_status, title=title) }}
                      </a>
                   </td>
                   %if debug:

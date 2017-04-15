@@ -27,7 +27,7 @@
          </tr>
          <tr>
             <td><strong>{{_('Alias:')}}</strong></td>
-            <td>{{host.alias}} {{! ("<em>(%s)</em>" % host.display_name) if host.display_name else ''}}</td>
+            <td>{{host.alias}}</td>
          </tr>
          <tr>
             <td><strong>{{_('Importance:')}}</strong></td>

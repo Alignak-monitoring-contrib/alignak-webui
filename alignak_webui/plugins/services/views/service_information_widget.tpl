@@ -31,7 +31,7 @@
          </tr>
          <tr>
             <td><strong>{{_('Alias:')}}</strong></td>
-            <td>{{service.alias}} {{! ("<em>(%s)</em>" % service.display_name) if service.display_name else ''}}</td>
+            <td>{{service.alias}}</td>
          </tr>
          <tr>
             <td><strong>{{_('Importance:')}}</strong></td>
