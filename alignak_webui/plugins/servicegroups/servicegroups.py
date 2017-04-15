@@ -28,6 +28,7 @@ from logging import getLogger
 
 from bottle import request, response
 
+from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 
@@ -48,15 +49,71 @@ class PluginServicesGroups(Plugin):
         self.backend_endpoint = 'servicegroup'
 
         self.pages = {
-            'get_servicegroup_members': {
+            'get_group_members': {
                 'name': 'Services group members',
                 'route': '/servicegroup/members/<group_id>'
+            },
+            'get_overall_state': {
+                'name': 'Host group status',
+                'route': '/hostgroup/status/<element_id>'
             },
         }
 
         super(PluginServicesGroups, self).__init__(app, webui, cfg_filenames)
 
-    def get_servicegroup_members(self, group_id):
+    def get_one(self, element_id):
+        """Show one element"""
+        datamgr = request.app.datamgr
+
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+
+        logger.debug("get_one, search: %s", element_id)
+        element = f(element_id)
+        if not element:
+            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            if not element:
+                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+        logger.debug("get_one, found: %s - %s", element, element.__dict__)
+
+        groups = element.servicegroups
+        if element.level == 0:
+            groups = datamgr.get_servicegroups(search={'where': {'_level': 1}})
+
+        return {
+            'object_type': self.backend_endpoint,
+            'element': element,
+            'groups': groups
+        }
+
+    def get_overall_state(self, element):  # pylint:disable=no-self-use
+        """Get the servicegroup overall state:
+
+        Args:
+            element:
+
+        Returns:
+            state (int) or -1 if any problem
+        """
+        datamgr = request.app.datamgr
+
+        if not isinstance(element, BackendElement):
+            hostgroup = datamgr.get_hostgroup(element)
+            if not hostgroup:
+                return -1
+        else:
+            hostgroup = element
+
+        (overall_state, overall_status) = datamgr.get_servicegroup_overall_state(hostgroup)
+        logger.debug(
+            " - hostgroup overall state: %d -> %s", overall_state, overall_status
+        )
+
+        return (overall_state, overall_status)
+
+    def get_group_members(self, group_id):
         """
         Get the servicegroup services list
         """

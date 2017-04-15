@@ -29,64 +29,59 @@
 from alignak_webui.objects.element import BackendElement
 
 
-class ServiceGroup(BackendElement):
-    """
-    Object representing a servicegroup
-    """
+class ServiceEscalation(BackendElement):
+    """Object representing a serviceescalation"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
     # _type stands for Backend Object Type
-    _type = 'servicegroup'
+    _type = 'serviceescalation'
     # _cache is a list of created objects
     _cache = {}
 
-    # Converting real state identifier to text status
-    overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
-    ]
-
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a servicegroup (called only once when an object is newly created)
-        """
-        self._linked_servicegroups = 'servicegroup'
-        self._linked__parent = 'servicegroup'
+        """Create a serviceescalation (called only once when an object is newly created)"""
+        self._linked__realm = 'realm'
         self._linked_services = 'service'
+        self._linked_hosts = 'host'
+        self._linked_hostgroups = 'hostgroup'
+        self._linked_escalation_period = 'timeperiod'
+        self._linked_users = 'user'
+        self._linked_usergroups = 'usergroup'
 
-        super(ServiceGroup, self).__init__(params, date_format, embedded)
-
-        if not hasattr(self, '_overall_state'):
-            setattr(self, '_overall_state', 0)
+        super(ServiceEscalation, self).__init__(params, date_format, embedded)
 
     @property
-    def members(self):
-        """ Return linked object """
-        return self._linked_services
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def services(self):
-        """ Return linked object """
+        """Return concerned services"""
         return self._linked_services
 
     @property
-    def servicegroups(self):
-        """ Return linked object """
-        return self._linked_servicegroups
+    def hosts(self):
+        """Return concerned hosts"""
+        return self._linked_hosts
 
     @property
-    def _parent(self):
-        """ Return group parent """
-        return self._linked__parent
+    def hostgroups(self):
+        """Return concerned hosts groups"""
+        return self._linked_hostgroups
 
     @property
-    def level(self):
-        """ Return group level """
-        if not hasattr(self, '_level'):
-            return -1
-        return self._level
+    def escalation_period(self):
+        """Return concerned dependency timeperiod"""
+        return self._linked_escalation_period
 
     @property
-    def overall_state(self):
-        """Return real state identifier"""
-        return self._overall_state
+    def users(self):
+        """Return linked users"""
+        return self._linked_users
+
+    @property
+    def usergroups(self):
+        """Return linked users groups"""
+        return self._linked_usergroups

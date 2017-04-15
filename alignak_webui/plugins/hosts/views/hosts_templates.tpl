@@ -3,7 +3,7 @@
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=[], pagination=None, page="/hosts/templates")
+%rebase("layout", title=title, js=[], css=[], refresh=False, pagination=None, page="/hosts/templates")
 
 %from alignak_webui.utils.helper import Helper
 
@@ -54,7 +54,7 @@
    <div class="panel panel-default">
       <div class="panel-body">
          %if edition_mode:
-         <form role="form" data-element="None" class="element_form" method="post" action="/host/form/None">
+         <form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">
 
             <fieldset>
                <legend>{{_('Creating a new host:')}}</legend>
@@ -63,31 +63,36 @@
                   <button type="button" class="close" data-dismiss="alert">×</button>
                   <h4>{{_('Creating a new host:')}}</h4>
                   <hr/>
-                  <p>{{_('You must define a name for your new host.')}}</p>
-                  <p>{{_('You can specify if the new host is a template and / or if it is based upon one (or several) template(s).')}}</p>
+                  <p>{{_('You must define a name for your new host. It must match the computer hostname.')}}</p>
+                  <p>{{_('You can define an alias (friendly name) for your new host.')}}</p>
+                  <p>{{_('Specify if the new host is a template and / or if it is based upon one (or several) template(s).')}}</p>
                </div>
                <script>
                   window.setTimeout(function() { $("div.alert-dismissible").alert('close'); }, 10000);
                </script>
 
                <div class="form-group">
-                  <label class="col-xs-4 control-label" for="name">{{_('Host name:')}}</label>
-                  <div class="col-xs-8">
-                     <label>
-                        <input type="text" id="name" name="name" placeholder="{{_('Host name')}}"  value="">
-                     </label>
-                     <p class="help-block">{{_('The host name must be unique in the whole monitored system.')}}</p>
-                  </div>
+                   <label class="control-label" for="name">{{_('Host name:')}}</label>
+                   <input class="form-control" type="text" id="name" name="name" placeholder="{{_('Host name')}}"  value="">
+                   <p class="help-block">{{_('The host name must be unique in the whole monitored system.')}}</p>
                </div>
 
                <div class="form-group">
-                  <label class="col-xs-4 control-label" for="address">{{_('Host address:')}}</label>
-                  <div class="col-xs-8">
-                     <label>
-                        <input type="text" id="address" name="address" placeholder="{{_('0.0.0.0')}}"  value="">
-                     </label>
-                     <p class="help-block">{{_('The host address is not mandatory and it can be an IP address or a name resolved thanks to DNS.')}}</p>
-                  </div>
+                  <label class="control-label" for="name">{{_('Host alias:')}}</label>
+                  <input class="form-control" type="text" id="alias" alias="alias" placeholder="{{_('Host alias')}}"  value="">
+                  <p class="help-block">{{_('The host alias is used as a friendly name for the host in the Web UI.')}}</p>
+               </div>
+
+               <div class="form-group">
+                  <label class="control-label" for="address">{{_('Host address:')}}</label>
+                  <input class="form-control" type="text" id="address" name="address" placeholder="{{_('0.0.0.0')}}"  value="">
+                  <p class="help-block">{{_('The host address is not mandatory and it can be an IP address or a name resolved thanks to DNS.')}}</p>
+               </div>
+
+               <div class="form-group">
+                   <label class="control-label" for="realm">{{_('Realm:')}}</label>
+                   <input class="form-control" type="text" id="realm" realm="realm" placeholder="{{_('Host realm')}}"  value="">
+                   <p class="help-block">{{_('The host realm must be unique in the whole monitored system.')}}</p>
                </div>
 
                <div class="form-group">
@@ -102,7 +107,7 @@
             </fieldset>
 
             <div class="well form-group">
-               <button type="button" class="btn btn-default pull-left">{{_('Cancel')}}</button>
+               <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
                <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
                <div class="clearfix"></div>
             </div>
@@ -169,6 +174,74 @@
 <script>
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
+
+      %icon=''
+      %from alignak_webui.objects.element_state import ElementState
+      %icon = ElementState().get_icon_state('realm', 'unknown')
+      %icon=icon['icon'] if icon else ''
+      $('#realm').selectize({
+         'plugins': ["remove_button"],
+
+         valueField: 'id',
+         labelField: 'name',
+         searchField: 'name',
+         create: false,
+
+         render: {
+            option: function(item, escape) {
+               return '<div>' +
+                  %if icon:
+                  '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                  %end
+                  (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                  (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+               '</div>';
+            },
+            item: function(item, escape) {
+               return '<div>' +
+                  %if icon:
+                  '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                  %end
+                  (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+               '</div>';
+            }
+         },
+
+         preload: true,
+         openOnFocus: true,
+         load: function(query, callback) {
+            $.ajax({
+               url: "/realms/list",
+               type: 'GET',
+               error: function() {
+                  callback();
+               },
+               success: function(res) {
+                  // 10 first items only...
+                  // callback(res.slice(0, 10));
+                  callback(res);
+               }
+            });
+         },
+
+         maxItems: 1,
+         closeAfterSelect: true,
+
+         hideSelected: true,
+         allowEmptyOption: true
+      });
+      // Add selected options / items to the control...
+      var selectize = $('#realm').selectize();
+
+      /*
+      $.each(obj.allowed, function(key, value) {
+         if (logs) console.log("Add option: "+key+" ; value : "+value);
+         selectize.addOption({id: key, name: value});
+         selectize.addItem("key");
+      });
+      if (logs) console.log("Set default value", obj.default);
+      selectize.setValue(obj.default, false)
+      */
    });
 
    %if edition_mode:
@@ -198,29 +271,29 @@
       $('form[data-element="None"]').on("submit", function (evt) {
          // Do not automatically submit ...
          evt.preventDefault();
-         console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
 
          var templates = [];
          $('div.togglebutton input').each(function(idx, box) {
             var check_state = $(box).is(":checked");
             if (check_state) {
-               console.log($(box).attr('name'), check_state);
                templates.push($(box).data('id'));
             }
          });
-         console.log(templates);
          if (templates.join(',') == '') {
             templates = [];
-         //} else {
-         //   templates = templates.join(',');
          }
+
+         // Submitting message
+         wait_message('{{_('Submitting form...')}}', true)
 
          $.ajax({
             url: $(this).attr('action'),
             type: $(this).attr('method'),
             data: {
                "name": $("#name").val(),
+               "_realm": $("#realm").val(),
                "address": $("#address").val(),
+               "alias": $("#alias").val(),
                "_is_template": $("#_is_template").prop('checked'),
                "_templates": templates
             }
@@ -252,7 +325,7 @@
                   var url = document.location.href;
                   url = url.replace("None", data['_id']);
                   window.setTimeout(function(){
-                     //window.location.href = url;
+                     window.location.href = url;
                   }, 3000);
                }
             }
@@ -271,7 +344,7 @@
             }
          })
         .always(function() {
-            //$('#widgets_loading').hide();
+            wait_message('', false)
          });
       });
    %end

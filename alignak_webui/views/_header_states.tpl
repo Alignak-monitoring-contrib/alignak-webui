@@ -56,7 +56,7 @@
     data-toggle="popover"
     data-html="true"
     data-trigger="hover focus">
-    <span class="fa fa-{{icon}}"></span>
+    <span class="fa fa-w fa-{{icon}}"></span>
     <span class="label label-as-badge label-{{font}}">{{hs["nb_problems"] if hs["nb_problems"] > 0 else ''}}</span>
 </a>
 </li>
@@ -112,7 +112,7 @@
     data-toggle="popover"
     data-html="true"
     data-trigger="hover focus">
-    <span class="fa fa-{{icon}}"></span>
+    <span class="fa fa-w fa-{{icon}}"></span>
     <span class="label label-as-badge label-{{font}}">{{ss["nb_problems"] if ss["nb_problems"] else ''}}</span>
 </a>
 </li>

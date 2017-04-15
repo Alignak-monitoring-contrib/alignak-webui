@@ -32,12 +32,6 @@ class PluginUsers(Plugin):
         self.backend_endpoint = 'user'
 
         self.pages = {
-            'show_user_add': {
-                'name': 'User add form',
-                'route': '/user/form/add',
-                'view': 'user_form_add'
-            },
-
             'show_user_preferences': {
                 'name': 'User preferences',
                 'route': '/preferences/user',
@@ -79,21 +73,6 @@ class PluginUsers(Plugin):
         }
 
         super(PluginUsers, self).__init__(app, webui, cfg_filenames)
-
-    def show_user_add(self):  # pylint:disable=no-self-use
-        """
-            Show form to add a user
-        """
-        return {
-            'name': request.query.get('name', ''),
-            'password': request.query.get('password', 'no_password'),
-            'alias': request.query.get('alias', 'Friendly name'),
-            'is_admin': request.query.get('is_admin', '0') == '1',
-            'expert': request.query.get('expert', '1') == '1',
-            'can_submit_commands': request.query.get('can_submit_commands', '1') == '1',
-            'notes': request.query.get('notes', _('User description ...')),
-            'title': request.query.get('title', _('Create a new user')),
-        }
 
     def show_user_preferences(self):
         # pylint: disable=no-self-use

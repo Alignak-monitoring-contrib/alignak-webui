@@ -448,6 +448,9 @@ def before_request():
     # Initialize data manager and make it available in the request and in the templates
     if webui.datamgr is None:
         webui.datamgr = DataManager(request.app, session=request.environ['beaker.session'])
+        if not webui.datamgr.connected:
+            redirect('/login')
+
     request.app.datamgr = webui.datamgr
     # # Load initial objects from the DM
     # request.app.datamgr.load()
@@ -539,6 +542,14 @@ def user_auth():
 
     session = request.environ['beaker.session']
     session['login_message'] = None
+
+    # Empty password?
+    if not password:
+        # Redirect to application login page with an error message
+        session['login_message'] = _("Login is not authorized without a password")
+        logger.warning("user '%s' access denied, no passowrd provided", username)
+        redirect('/login')
+
     if not webapp.user_authentication(username, password):
         # Redirect to application login page with an error message
         if 'login_message' not in session:

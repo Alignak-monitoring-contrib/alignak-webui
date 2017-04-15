@@ -1390,6 +1390,11 @@ class Helper(object):
         :rtype: dict
         """
         logger.debug("get_html_livestate, BI: %d, search: '%s'", bi, search)
+
+        # Get global configuration
+        app_config = get_app_config()
+        livestate_sort = app_config.get('livestate_sort', '-ls_state_id, -ls_last_state_changed')
+
         if search is None or not isinstance(search, dict):
             search = {}
         if 'where' not in search:
@@ -1399,11 +1404,9 @@ class Helper(object):
                 'ls_downtimed': False
             }})
         if 'sort' not in search:
-            search.update({'sort': '-ls_state_id, -ls_last_state_changed'})
+            search.update({'sort': livestate_sort})
         if bi != -1:
             search['where'].update({'business_impact': bi})
-        else:
-            search.update({'sort': '-business_impact, -ls_state_id, -ls_last_state_changed'})
 
         items = []
         # Copy because the search filter is updated by the function ...

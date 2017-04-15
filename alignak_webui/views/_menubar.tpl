@@ -22,11 +22,11 @@
       %print("Missing plugin Dashboard")
       %end
 
-      <!-- Items -->
+      <!-- Elements -->
       <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Elements')}}">
          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
-            <span class="fa fa-cube"></span>
+            <span class="fa fa-fw fa-folder-open-o"></span>
             <span class="sr-only">{{_('Elements')}}</span>
          </a>
 
@@ -62,30 +62,6 @@
             </li>
             %except RouteBuildError:
             %print("Missing plugin Users")
-            %end
-
-            <li class="divider"></li>
-
-            %try:
-            <li>
-               <a href="{{ webui.get_url('Hosts dependencies table') }}">
-                  <span class="fa fa-fw fa-arrows-v"></span>
-                  <span>{{_('Hosts dependencies')}}</span>
-               </a>
-            </li>
-            %except RouteBuildError:
-            %print("Missing plugin Hosts dependencies")
-            %end
-
-            %try:
-            <li>
-               <a href="{{ webui.get_url('Services dependencies table') }}">
-                  <span class="fa fa-fw fa-arrows-v"></span>
-                  <span>{{_('Services dependencies')}}</span>
-               </a>
-            </li>
-            %except RouteBuildError:
-            %print("Missing plugin Services dependencies")
             %end
 
             <li class="divider"></li>
@@ -160,11 +136,68 @@
          </ul>
       </li>
 
+      <!-- Elements (advanced) -->
+      <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Elements')}}">
+         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="fa fa-fw fa-stethoscope"></span>
+            <span class="sr-only">{{_('Advanced elements')}}</span>
+         </a>
+
+         <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Elements menu')}}">
+            %try:
+            <li>
+               <a href="{{ webui.get_url('Hosts dependencies table') }}">
+                  <span class="fa fa-fw fa-arrows-v"></span>
+                  <span>{{_('Hosts dependencies')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Hosts dependencies")
+            %end
+
+            %try:
+            <li>
+               <a href="{{ webui.get_url('Services dependencies table') }}">
+                  <span class="fa fa-fw fa-arrows-v"></span>
+                  <span>{{_('Services dependencies')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Services dependencies")
+            %end
+
+            <li class="divider"></li>
+
+            %try:
+            <li>
+               <a href="{{ webui.get_url('Hosts escalations table') }}">
+                  <span class="fa fa-fw fa-arrow-up"></span>
+                  <span>{{_('Hosts escalations')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Hosts escalations")
+            %end
+
+            %try:
+            <li>
+               <a href="{{ webui.get_url('Services escalations table') }}">
+                  <span class="fa fa-fw fa-arrow-up"></span>
+                  <span>{{_('Services escalations')}}</span>
+               </a>
+            </li>
+            %except RouteBuildError:
+            %print("Missing plugin Services escalations")
+            %end
+         </ul>
+      </li>
+
       <!-- Tactical views -->
       <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Tactical views')}}">
          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
-            <span class="fa fa-bar-chart"></span>
+            <span class="fa fa-fw fa-bar-chart"></span>
             <span class="sr-only">{{_('Tactical views')}}</span>
          </a>
 
@@ -254,12 +287,12 @@
          </ul>
       </li>
 
-      %if edition_mode:
-         %include("_templatebar.tpl")
-      %end
-
       %if widgets_bar and current_user.can_change_dashboard():
          %include("_widgetsbar.tpl")
+      %end
+
+      %if edition_mode:
+         %include("_editionbar.tpl")
       %end
    </ul>
 </nav>

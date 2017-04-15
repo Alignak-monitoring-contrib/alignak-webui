@@ -115,7 +115,7 @@ class PluginHosts(Plugin):
                         'id': 'location',
                         'for': ['host'],
                         'order': 4,
-                        'name': _('location'),
+                        'name': _('Location'),
                         'template': 'host_location_widget',
                         'icon': 'globe',
                         'read_only': True,
@@ -305,8 +305,8 @@ class PluginHosts(Plugin):
         return self.get_widget(None, 'host', embedded, identifier, credentials)
 
     def get_all_templates(self):
-        """Get all the hosts templates templates"""
-        return self.get_all(templates=True)
+        """Get all the hosts templates"""
+        return self.get_all(templates=True, all_elements=True)
 
     def get_one(self, element_id):
         # Because there are many locals needed :)

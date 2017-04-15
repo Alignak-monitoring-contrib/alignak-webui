@@ -106,6 +106,12 @@
                   </td>
                </tr>
                %end
+               <tr>
+                  <td><strong>{{_('Performance data:')}}</strong></td>
+                  <td>
+                     {{! host.perf_data}}
+                  </td>
+               </tr>
             </tbody>
          </table>
       </div>

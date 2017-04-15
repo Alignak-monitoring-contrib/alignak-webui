@@ -57,9 +57,11 @@ from alignak_webui.objects.item_userrestrictrole import UserRestrictRole
 from alignak_webui.objects.item_host import Host
 from alignak_webui.objects.item_hostgroup import HostGroup
 from alignak_webui.objects.item_hostdependency import HostDependency
+from alignak_webui.objects.item_hostescalation import HostEscalation
 from alignak_webui.objects.item_service import Service
 from alignak_webui.objects.item_servicegroup import ServiceGroup
 from alignak_webui.objects.item_servicedependency import ServiceDependency
+from alignak_webui.objects.item_serviceescalation import ServiceEscalation
 from alignak_webui.objects.item_history import History
 from alignak_webui.objects.item_log import Log
 from alignak_webui.objects.item_actions import ActionAcknowledge, ActionDowntime, \
@@ -137,9 +139,9 @@ class DataManager(object):
 
         # Restore session parameters
         if session:
-            self.user_login(session['current_user'].token, load=False)
-            self.my_realm = session['current_realm']
-            self.my_ls = session['current_ls']
+            if self.user_login(session['current_user'].token, load=False):
+                self.my_realm = session['current_realm']
+                self.my_ls = session['current_ls']
 
     def __repr__(self):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
@@ -819,6 +821,8 @@ class DataManager(object):
         }
 
         if search is None:
+            if self.my_ls['_id'] is None:
+                return default_ls
             found = False
             error = False
             while not found and not error:
@@ -1381,6 +1385,44 @@ class DataManager(object):
         return items[0] if items else None
 
     ##
+    # Hosts escalations
+    ##
+    def get_hostescalations(self, search=None, all_elements=False):
+        """Get a list of all host escalations."""
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1,
+                    'hosts': 1, 'hostgroups': 1,
+                    'users': 1, 'usergroups': 1,
+                    'escalation_period': 1
+                }
+            })
+
+        try:
+            logger.debug("get_hostescalations, search: %s", search)
+            items = self.find_object('hostescalation', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_hostescalations, none found")
+
+        return []
+
+    def get_hostescalation(self, search):
+        """Get a hostescalation by its id."""
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_hostescalations(search=search)
+        return items[0] if items else None
+
+    ##
     # Hosts
     ##
     def get_hosts(self, search=None, template=False, all_elements=False, embedded=True):
@@ -1493,6 +1535,40 @@ class DataManager(object):
         items = self.get_servicegroups(search=search)
         return items[0] if items else None
 
+    def get_servicegroup_overall_state(self, search):
+        """Get a services group real state (including services states).
+
+        Returns -1 if any problem"""
+        if not isinstance(search, BackendElement):
+            servicegroup = self.get_servicegroup(search)
+            if not servicegroup:
+                return -1
+        else:
+            servicegroup = search
+
+        logger.debug("get_servicegroup_overall_state, group: %s", servicegroup)
+        if servicegroup.members == 'service':
+            servicegroup.overall_state = 0
+            return 0
+
+        overall_state = 0
+        for member in servicegroup.members:
+            if isinstance(member, basestring):
+                continue
+
+            overall_state = max(overall_state, member.overall_state)
+
+        # Hosts group real state from group members
+        group_members = self.get_servicegroups(
+            search={'where': {'_parent': servicegroup.id}}, all_elements=True
+        )
+        for group in group_members:
+            (ov_state, dummy) = self.get_servicegroup_overall_state(group)
+            overall_state = max(overall_state, ov_state)
+
+        overall_status = servicegroup.overall_state_to_status[overall_state]
+        return (overall_state, overall_status)
+
     ##
     # Services dependencies
     ##
@@ -1530,6 +1606,45 @@ class DataManager(object):
             search.update({'max_results': 1})
 
         items = self.get_servicedependencys(search=search)
+        return items[0] if items else None
+
+    ##
+    # Services escalations
+    ##
+    def get_serviceescalations(self, search=None, all_elements=False):
+        """Get a list of all service escalations."""
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': 'name'})
+        if 'embedded' not in search:
+            search.update({
+                'embedded': {
+                    '_realm': 1,
+                    'services': 1,
+                    'hosts': 1, 'hostgroups': 1,
+                    'users': 1, 'usergroups': 1,
+                    'escalation_period': 1
+                }
+            })
+
+        try:
+            logger.debug("get_serviceescalations, search: %s", search)
+            items = self.find_object('serviceescalation', search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_serviceescalations, none found")
+
+        return []
+
+    def get_serviceescalation(self, search):
+        """Get a serviceescalation by its id."""
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_serviceescalations(search=search)
         return items[0] if items else None
 
     ##
