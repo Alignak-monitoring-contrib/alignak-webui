@@ -450,7 +450,10 @@ class TestsExternal(unittest2.TestCase):
             '<div id="wd_panel_timeline" class="panel panel-default alignak_webui_widget embedded">',
             '<!-- Host timeline widget -->',
             '</section>',
-            '</body>'
+            '</body>',
+            '<div class="alert alert-info">',
+            '<p class="font-blue">No available history events.</p>',
+            '</div>'
         )
 
         # Get external host widget, no page parameter
@@ -571,7 +574,6 @@ class TestsExternal(unittest2.TestCase):
         response = self.app.get(
             '/external/service/%s/information?page' % service.id
         )
-        print(response)
         response.mustcontain(
             '<!DOCTYPE html>',
             '<html lang="en">',
@@ -618,6 +620,36 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain(
             '<div id="wd_panel_configuration" class="panel panel-default alignak_webui_widget embedded">',
             '<!-- Service configuration widget -->',
+        )
+
+        # Service timeline
+        # Get external service widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/timeline?page' % service.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_timeline" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service timeline widget -->',
+            '</section>',
+            '</body>',
+            '<div class="alert alert-info">',
+            '<p class="font-blue">No available history events.</p>',
+            '</div>'
+        )
+
+        # Get external service widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/service/%s/timeline' % service.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_timeline" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Service timeline widget -->',
         )
 
         # service metrics

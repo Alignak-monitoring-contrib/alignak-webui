@@ -1,4 +1,4 @@
-<!-- service timeline widget -->
+<!-- Service timeline widget -->
 %setdefault('debug', False)
 
 %# embedded is True if the widget is got from an external application
