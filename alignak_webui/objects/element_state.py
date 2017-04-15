@@ -259,8 +259,7 @@ class ElementState(object):
             if not icon:
                 if text == '':
                     return res_text
-                else:
-                    return text
+                return text
 
             # Icon
             res_icon_global = cfg_state_view['content']

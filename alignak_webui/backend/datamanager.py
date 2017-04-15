@@ -118,7 +118,7 @@ class DataManager(object):
             if isinstance(globals()[k], type) and \
                '_type' in globals()[k].__dict__ and \
                globals()[k].get_type() is not None and \
-               globals()[k].get_type() is not 'item':
+               globals()[k].get_type() != 'item':
                 self.known_classes.append(globals()[k])
                 logger.debug("Known class %s for object type: %s",
                              globals()[k], globals()[k].get_type())

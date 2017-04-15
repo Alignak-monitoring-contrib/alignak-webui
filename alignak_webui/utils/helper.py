@@ -62,8 +62,7 @@ class Helper(object):
 
         if fmt:
             return time.strftime(fmt, time.localtime(timestamp))
-        else:
-            return time.asctime(time.localtime(timestamp))
+        return time.asctime(time.localtime(timestamp))
 
     @staticmethod
     def print_duration(timestamp, duration_only=False, x_elts=0, ts_is_duration=False):
@@ -156,8 +155,7 @@ class Helper(object):
         # Now manage the future or not print
         if in_future:
             return _('in ') + ' '.join(duration)
-        else:
-            return _(' ') + ' '.join(duration) + _(' ago')
+        return _(' ') + ' '.join(duration) + _(' ago')
 
     @staticmethod
     def get_on_off(status=False, title=None, message=''):
@@ -373,7 +371,7 @@ class Helper(object):
     @staticmethod
     def decode_search(query, data_model):
         # Not possible to do it clearly with simplification...
-        # pylint: disable=too-many-nested-blocks, too-many-locals, redefined-variable-type
+        # pylint: disable=too-many-nested-blocks, too-many-locals
         """Decode a search string:
 
         Convert string from:
@@ -675,7 +673,7 @@ class Helper(object):
             item=<li class="list-group-item"><span class="fa fa-hourglass">
                     &nbsp;##period## - ##range##</li>
         """
-        if tp is None or len(tp.dateranges) == 0:
+        if tp is None or not tp.dateranges:
             return ''
 
         # Get global configuration

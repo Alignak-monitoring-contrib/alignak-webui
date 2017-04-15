@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable=global-statement
 
 # Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@alignak.net

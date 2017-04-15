@@ -194,8 +194,7 @@ class User(BackendElement):
 
         if isinstance(self.is_admin, bool):
             return self.is_admin
-        else:
-            return getattr(self, 'is_admin', '1') == '1'
+        return getattr(self, 'is_admin', '1') == '1'
 
     def is_power(self):
         """Is allowed to use commands (power user)?"""
@@ -204,8 +203,7 @@ class User(BackendElement):
 
         if isinstance(self.can_submit_commands, bool):
             return self.can_submit_commands
-        else:
-            return getattr(self, 'can_submit_commands', '1') == '1'
+        return getattr(self, 'can_submit_commands', '1') == '1'
 
     def can_change_dashboard(self):
         """Can the user change dashboard (edit widgets,...)?"""
@@ -214,8 +212,7 @@ class User(BackendElement):
 
         if isinstance(self.widgets_allowed, bool):
             return self.widgets_allowed
-        else:
-            return getattr(self, 'widgets_allowed', '1') == '1'
+        return getattr(self, 'widgets_allowed', '1') == '1'
 
     def can_edit_configuration(self):
         """Can the user edit the configuration?

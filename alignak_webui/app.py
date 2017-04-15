@@ -100,7 +100,6 @@ if os.environ.get('ALIGNAK_WEBUI_TEST'):
 else:  # pragma: no cover, because tests are run in test mode
     print("Application is in production mode")
 
-# pylint: disable=redefined-variable-type
 args = {}
 if __name__ == '__main__':
     try:
@@ -344,10 +343,9 @@ def static(filename):
         return static_file(
             filename, root=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
         )
-    else:
-        return static_file(
-            filename, root=os.path.abspath(os.path.dirname(__file__))
-        )
+    return static_file(
+        filename, root=os.path.abspath(os.path.dirname(__file__))
+    )
 
 
 # -----
@@ -769,15 +767,16 @@ def external(widget_type, identifier, action=None):
             response.status = 200
             response.content_type = 'application/json'
             return json.dumps({'status': 'ok', 'files': webui.js_list})
-        elif identifier == 'css_list':
+
+        if identifier == 'css_list':
             response.status = 200
             response.content_type = 'application/json'
             return json.dumps({'status': 'ok', 'files': webui.css_list})
-        else:
-            logger.warning("External application requested unknown files: %s", identifier)
-            response.status = 409
-            response.content_type = 'application/json'
-            return json.dumps({'status': 'ko', 'message': "Unknown files list: %s" % identifier})
+
+        logger.warning("External application requested unknown files: %s", identifier)
+        response.status = 409
+        response.content_type = 'application/json'
+        return json.dumps({'status': 'ko', 'message': "Unknown files list: %s" % identifier})
 
     if widget_type == 'widget':
         found_widget = None
@@ -841,14 +840,14 @@ def external(widget_type, identifier, action=None):
     if widget_type == 'list':
         if identifier in webui.lists:
             return webui.lists[identifier]['function'](embedded=True)
-        else:
-            logger.warning("External application requested unknown list: %s", identifier)
-            response.status = 409
-            response.content_type = 'text/html'
-            return _(
-                '<div><h1>Unknown required list: %s.</h1>'
-                '<p>The required list is not available.</p></div>' % identifier
-            )
+
+        logger.warning("External application requested unknown list: %s", identifier)
+        response.status = 409
+        response.content_type = 'text/html'
+        return _(
+            '<div><h1>Unknown required list: %s.</h1>'
+            '<p>The required list is not available.</p></div>' % identifier
+        )
 
     if widget_type in ['host', 'service', 'user']:
         if not action:
@@ -958,10 +957,7 @@ def set_user_preference():
 
     if datamgr.set_user_preferences(user, _key, json.loads(_value)):
         return WebUI.response_ok(message=_('User preferences saved'))
-    else:
-        return WebUI.response_ko(
-            message=_('Problem encountered while saving common preferences')
-        )
+    return WebUI.response_ko(message=_('Problem encountered while saving common preferences'))
 
 
 # --------------------------------------------------------------------------------------------------
@@ -1032,13 +1028,13 @@ session_opts = {
     # Do not remove! For unit tests only...
     'sesssion.webtest_varname': __manifest__['name'],
 }
-logger.debug("Session parameters: %s" % session_opts)
+logger.debug("Session parameters: %s", session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
 
 def main():
-    """Fucntion called by the setup.py console script"""
-    logger.info("Running Bottle, debug mode: %s" % app.config.get('debug', False))
+    """Function called by the setup.py console script"""
+    logger.info("Running Bottle, debug mode: %s", app.config.get('debug', False))
 
     run(
         app=session_app,

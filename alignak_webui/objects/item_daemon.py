@@ -64,8 +64,7 @@ class Daemon(BackendElement):
             return 'UNREACHABLE'
         if self.alive:
             return 'UP'
-        else:
-            return 'DOWN'
+        return 'DOWN'
 
     @property
     def endpoint(self):

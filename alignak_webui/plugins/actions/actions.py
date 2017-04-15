@@ -180,8 +180,7 @@ class PluginActions(Plugin):
 
         if not problem:
             return self.webui.response_ok(message=status)
-        else:
-            return self.webui.response_ko(message=status)
+        return self.webui.response_ko(message=status)
 
     def show_recheck_add(self):  # pylint:disable=no-self-use
         """Show form to request a forced check"""
@@ -248,8 +247,7 @@ class PluginActions(Plugin):
 
         if not problem:
             return self.webui.response_ok(message=status)
-        else:
-            return self.webui.response_ko(message=status)
+        return self.webui.response_ko(message=status)
 
     def show_downtime_add(self):  # pylint:disable=no-self-use
         """Show form to add a downtime"""
@@ -330,8 +328,7 @@ class PluginActions(Plugin):
 
         if not problem:
             return self.webui.response_ok(message=status)
-        else:
-            return self.webui.response_ko(message=status)
+        return self.webui.response_ko(message=status)
 
     def show_command_add(self):  # pylint:disable=no-self-use
         """Show form to send a command"""
@@ -483,5 +480,4 @@ class PluginActions(Plugin):
 
         if not problem:
             return self.webui.response_ok(message=status)
-        else:
-            return self.webui.response_ko(message=status)
+        return self.webui.response_ko(message=status)

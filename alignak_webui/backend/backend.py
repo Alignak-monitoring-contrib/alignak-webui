@@ -210,7 +210,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
                     result = self.backend.get(object_type, params=params)
             except BackendException as e:  # pragma: no cover, simple protection
                 logger.warning("get, backend exception for %s: %s", object_type, str(e))
-                raise e
+                raise BackendException(code=e.code, message=e.message)
 
             logger.debug("search, search result for %s: result=%s", object_type, result)
             if result['_status'] != 'OK':  # pragma: no cover, should not happen

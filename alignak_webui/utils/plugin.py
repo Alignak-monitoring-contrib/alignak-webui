@@ -122,6 +122,7 @@ class Plugin(object):
             redirect('/')
 
     def load_routes(self, app):
+        # pylint: disable=too-many-nested-blocks, too-many-locals
         """Load and create plugin routes
 
         This function declares a config route if it is not yet declared.
@@ -371,10 +372,10 @@ class Plugin(object):
                             'function': f,
                             'actions': {}
                         }
-                        for action, f_name in table.get('actions', {}).items():
-                            f = getattr(self, f_name, None)
+                        for action, f_name2 in table.get('actions', {}).items():
+                            f = getattr(self, f_name2, None)
                             if not callable(f):  # pragma: no cover
-                                logger.error("Table action method: %s does not exist!", f_name)
+                                logger.error("Table action method: %s does not exist!", f_name2)
                                 continue
 
                             table_dict['actions'].update({
@@ -586,7 +587,8 @@ class Plugin(object):
             for item in elts:
                 logger.info("Tree item: %s", item)
                 overall_status = 'unknown'
-                if f_get_overall_state:
+                # pylint: disable=not-callable
+                if callable(f_get_overall_state):
                     (dummy, overall_status) = f_get_overall_state(element=item)
                 logger.debug("Item status: %s", overall_status)
 
@@ -712,7 +714,7 @@ class Plugin(object):
         }
 
     def update_form(self, element_id):
-        # pylint: disable=too-many-locals, not-an-iterable, redefined-variable-type
+        # pylint: disable=too-many-locals, not-an-iterable
         """Update an element
 
             If element_id is string 'None' then it is a new object creation, else element_id is the
