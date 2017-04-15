@@ -149,7 +149,7 @@ header span.label {
  * Application search filter in the top navigation bar
  */
 #search {
-    width: 450px;
+    width: 400px;
 }
 
 #search-filters li[role="presentation"]>a {
