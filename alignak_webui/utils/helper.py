@@ -1374,8 +1374,8 @@ class Helper(object):
         return ' '.join(content.split())
 
     @staticmethod
-    # pylint: disable=too-many-locals
     def get_html_livestate(datamgr, panels, bi=-1, search=None, actions=False):
+        # pylint: disable=too-many-locals
         """Get HTML formatted live state
 
         If bi is -1 (default) then all the items are considered, else this

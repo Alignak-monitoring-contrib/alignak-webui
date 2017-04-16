@@ -25,6 +25,24 @@
 
 # pylint: disable=invalid-name
 commands = {
+    # Hostgroup commands
+    'disable_hostgroup_host_checks': {
+        'global': False, 'elements_type': 'hostgroup',
+        'title': _("Disable hosts active checks for an hostgroup"),
+        "parameters": []
+    },
+    'disable_hostgroup_passive_host_checks': {
+        'global': False, 'elements_type': 'hostgroup',
+        'title': _("Disable hosts passive checks for an hostgroup"),
+        "parameters": []
+    },
+    'disable_hostgroup_host_notifications': {
+        'global': False, 'elements_type': 'hostgroup',
+        'title': _("Disable hosts notifications for an hostgroup"),
+        "parameters": []
+    },
+
+    # Host commands
     'process_host_check_result': {
         'global': False, 'elements_type': 'host',
         'title': _("Send an host check result"),
@@ -60,6 +78,8 @@ commands = {
         'title': _("Delete all host downtimes"),
         "parameters": []
     },
+
+    # Service commands
     'process_service_check_result': {
         'global': False, 'elements_type': 'service',
         'title': _("Send a service check result"),
@@ -112,6 +132,8 @@ alignak_commands = {
         {'global': False, 'args': ['service', 'obsolete', 'author', None]},
     'add_host_comment':
         {'global': False, 'args': ['host', 'obsolete', 'author', None]},
+
+    # Start - To replace posting on alignak backend
     'acknowledge_svc_problem':
         {'global': False, 'args': ['service', 'to_int', 'to_bool', 'obsolete', 'author', None]},
     'acknowledge_host_problem':
@@ -122,56 +144,14 @@ alignak_commands = {
     'acknowledge_host_problem_expire':
         {'global': False,
          'args': ['host', 'to_int', 'to_bool', 'obsolete', 'to_int', 'author', None]},
-    'change_contact_svc_notification_timeperiod':
-        {'global': True, 'args': ['contact', 'time_period']},
-    'change_custom_contact_var':
-        {'global': True, 'args': ['contact', None, None]},
-    'change_custom_host_var':
-        {'global': False, 'args': ['host', None, None]},
-    'change_custom_svc_var':
-        {'global': False, 'args': ['service', None, None]},
-    'change_global_host_event_handler':
-        {'global': True, 'args': ['command']},
-    'change_global_svc_event_handler':
-        {'global': True, 'args': ['command']},
-    'change_host_check_command':
-        {'global': False, 'args': ['host', 'command']},
-    'change_host_check_timeperiod':
-        {'global': False, 'args': ['host', 'time_period']},
-    'change_host_event_handler':
-        {'global': False, 'args': ['host', 'command']},
-    'change_host_snapshot_command':
-        {'global': False, 'args': ['host', 'command']},
-    'change_host_modattr':
-        {'global': False, 'args': ['host', 'to_int']},
-    'change_max_host_check_attempts':
-        {'global': False, 'args': ['host', 'to_int']},
-    'change_max_svc_check_attempts':
-        {'global': False, 'args': ['service', 'to_int']},
-    'change_normal_host_check_interval':
-        {'global': False, 'args': ['host', 'to_int']},
-    'change_normal_svc_check_interval':
-        {'global': False, 'args': ['service', 'to_int']},
-    'change_retry_host_check_interval':
-        {'global': False, 'args': ['host', 'to_int']},
-    'change_retry_svc_check_interval':
-        {'global': False, 'args': ['service', 'to_int']},
-    'change_svc_check_command':
-        {'global': False, 'args': ['service', 'command']},
-    'change_svc_check_timeperiod':
-        {'global': False, 'args': ['service', 'time_period']},
-    'change_svc_event_handler':
-        {'global': False, 'args': ['service', 'command']},
-    'change_svc_snapshot_command':
-        {'global': False, 'args': ['service', 'command']},
-    'change_svc_modattr':
-        {'global': False, 'args': ['service', 'to_int']},
-    'change_svc_notification_timeperiod':
-        {'global': False, 'args': ['service', 'time_period']},
+    # Stop - To replace posting on alignak backend
+
     'delay_host_notification':
         {'global': False, 'args': ['host', 'to_int']},
     'delay_svc_notification':
         {'global': False, 'args': ['service', 'to_int']},
+
+    # Delete downtimes, acks, ...
     'del_all_contact_downtimes':
         {'global': False, 'args': ['contact']},
     'del_all_host_comments':
@@ -192,6 +172,7 @@ alignak_commands = {
         {'global': True, 'args': [None]},
     'del_svc_downtime':
         {'global': True, 'args': [None]},
+
     'disable_all_notifications_beyond_host':
         {'global': False, 'args': ['host']},
     'disable_contactgroup_host_notifications':
@@ -202,12 +183,14 @@ alignak_commands = {
         {'global': True, 'args': ['contact']},
     'disable_contact_svc_notifications':
         {'global': True, 'args': ['contact']},
+
     'disable_event_handlers':
         {'global': True, 'args': []},
     'disable_failure_prediction':
         {'global': True, 'args': []},
     'disable_flap_detection':
         {'global': True, 'args': []},
+
     'disable_hostgroup_host_checks':
         {'global': True, 'args': ['host_group']},
     'disable_hostgroup_host_notifications':
@@ -220,6 +203,7 @@ alignak_commands = {
         {'global': True, 'args': ['host_group']},
     'disable_hostgroup_svc_notifications':
         {'global': True, 'args': ['host_group']},
+
     'disable_host_and_child_notifications':
         {'global': False, 'args': ['host']},
     'disable_host_event_handler':

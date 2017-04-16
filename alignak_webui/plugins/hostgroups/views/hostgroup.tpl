@@ -110,6 +110,12 @@
             %(hg_state, hg_status) = datamgr.get_hostgroup_overall_state(element)
             {{! element.get_html_state(text=None, size="fa-3x", use_status=hg_status)}}
             <legend><strong>{{element.alias}}</strong></legend>
+
+            <div class="actions">
+               %if current_user.is_power():
+                  {{! Helper.get_html_commands_buttons(element, _('Actions'))}}
+               %end
+            </div>
          </div>
          <div class="col-xs-6 col-sm-10">
          %if not element.members or isinstance(element.members, basestring):

@@ -117,7 +117,7 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                 message = "configured Web service connection failed with " \
                           "provided login information: %s (%s)" % (self.alignak_endpoint, username)
                 logger.warning(message)
-                logger.exception("Exception: %s", str(exp))
+                logger.debug("Exception: %s", str(exp))
                 return False
             except Exception as exp:  # pragma: no cover, should not happen
                 logger.exception("WS user login exception: %s", exp)
@@ -224,27 +224,20 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                             urljoin(self.alignak_endpoint, endpoint), params)
 
                 if not files:
-                    response = requests.post(
-                        urljoin(self.alignak_endpoint, endpoint),
-                        data=params,
-                        files=files,
-                        headers=headers
-                    )
+                    response = requests.post(urljoin(self.alignak_endpoint, endpoint),
+                                             data=params, files=files, headers=headers)
                     resp = response.json()
                 else:
                     # Posting files is not yet used, but reserved for future use...
-                    response = requests.post(
-                        urljoin(self.alignak_endpoint, endpoint),
-                        data=params,
-                        files=files
-                    )
+                    response = requests.post(urljoin(self.alignak_endpoint, endpoint),
+                                             data=params, files=files)
                     resp = json.loads(response.content)
                 logger.info("post, response: %s", resp)
 
                 response.raise_for_status()
 
             except RequestsConnectionError as exp:
-                logger.exception("WS connection error, error: %s", exp)
+                logger.warning("WS connection error, error: %s", str(exp))
                 raise AlignakWSException(1000, "Alignak Web Services connection error")
 
             except HTTPError as exp:  # pragma: no cover - need specific backend tests
