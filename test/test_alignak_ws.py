@@ -253,6 +253,7 @@ class TestAlignakWS(unittest2.TestCase):
         """ Web - daemons """
         print('get page /alignak_map')
         response = self.app.get('/alignak_map')
+        print(response)
         response.mustcontain(
             '<div id="alignak_daemons"',
             '<tr id="#daemon-alignakdaemon_1">',

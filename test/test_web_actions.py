@@ -400,6 +400,7 @@ class tests_actions(unittest2.TestCase):
             '<form class="form-horizontal" data-item="command" data-action="add" '
         )
 
+
         print('get page /command/parameters - bad parameters')
         response = self.app.get('/command/parameters', status=409)
         assert response.json == {'error': "the command 'None' does not exist"}

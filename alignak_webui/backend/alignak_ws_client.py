@@ -113,10 +113,14 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                                          json=params, headers=headers)
                 resp = response.json()
                 self.token = resp['_result'][0]
-            except AlignakWSException:  # pragma: no cover, should not happen
-                logger.warning("configured backend is not available!")
+            except RequestsConnectionError as exp:
+                message = "configured Web service connection failed with " \
+                          "provided login information: %s (%s)" % (self.alignak_endpoint, username)
+                logger.warning(message)
+                logger.exception("Exception: %s", str(exp))
+                return False
             except Exception as exp:  # pragma: no cover, should not happen
-                logger.exception("User login exception: %s", exp)
+                logger.exception("WS user login exception: %s", exp)
 
             logger.info("login result: %s", self.connected)
             return self.connected

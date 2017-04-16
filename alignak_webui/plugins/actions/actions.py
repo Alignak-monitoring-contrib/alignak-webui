@@ -372,12 +372,13 @@ class PluginActions(Plugin):
             return json.dumps(
                 {'error': "the plugin for '%s' is not existing or not installed" % elements_type}
             )
-        logger.debug("Got plugin fields table for %s: %s", elements_type, plugin.table)
+        # logger.debug("Got plugin fields table for %s: %s", elements_type, plugin.table)
 
         # Provide the described parameters
         parameters = {}
         for parameter in commands[command].get('parameters', {}):
             parameters[parameter] = deepcopy(plugin.table[parameter])
+            logger.info("Got plugin parameter: %s / %s", parameter, plugin.table[parameter])
             logger.info("Got plugin parameter: %s / %s", parameter, parameters[parameter])
 
             if 'allowed' in plugin.table[parameter]:
