@@ -231,7 +231,6 @@ class Datatable(object):
             # self.data_model.append(ui_field)
             if not model.get('hidden', False):
                 self.table_columns.append(ui_field)
-                logger.warning(ui_field)
 
                 if ui_field['type'] == 'objectid' or \
                         ui_field['content_type'].startswith('objectid'):

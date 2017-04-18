@@ -86,139 +86,134 @@ def setup_module(module):
         stdout=fnull
     )
     assert exit_code == 0
-    print("Fed")
 
-    # Add history events and logcheckresults into the backend
-    endpoint = 'http://127.0.0.1:5000'
-
-    # Backend authentication
     headers = {'Content-Type': 'application/json'}
-    params = {'username': 'admin', 'password': 'admin'}
-    # Get admin user token (force regenerate)
-    response = requests.post(endpoint + '/login', json=params, headers=headers)
+    params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+    # Login
+    response = requests.post(backend_address + '/login', json=params, headers=headers)
     resp = response.json()
-    auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+    token = resp['token']
+    auth = requests.auth.HTTPBasicAuth(token, '')
 
-    # Get admin user
-    response = requests.get(endpoint + '/user', auth=auth)
+    # Get realms in the backend
+    params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+    response = requests.get(backend_address + '/realm', params=params, auth=auth)
     resp = response.json()
-    user_admin = resp['_items'][0]
-
-    # Get realms
-    response = requests.get(endpoint + '/realm', auth=auth)
-    resp = response.json()
-    realmAll_id = resp['_items'][0]['_id']
+    host = resp['_items'][0]
+    print("Realm: %s" % host)
+    realm_all = host['_id']
 
     # Get hosts in the backend
-    response = requests.get(endpoint + '/host', params={'sort': 'name'}, auth=auth)
+    params = {'sort': '_id', 'where': json.dumps({'name': 'KNM-Glpi'})}
+    response = requests.get(backend_address + '/host', params=params, auth=auth)
     resp = response.json()
-    rh = resp['_items']
+    hosts = resp['_items']
+    host_state_id = 0
+    host_state = "UP"
+    for host in hosts:
+        print("Host: %s" % host)
+        host_id = host['_id']
 
-    # Get services in the backend
-    response = requests.get(endpoint + '/service', params={'sort': 'name'}, auth=auth)
-    resp = response.json()
-    rs = resp['_items']
+        # -------------------------------------------
+        # Add a check result for the host
+        data = {
+            "last_check": timegm(datetime.utcnow().timetuple()),
+            "host": host_id,
+            "service": None,
+            'acknowledged': False,
+            'state_id': host_state_id,
+            'state': host_state,
+            'state_type': 'HARD',
+            'last_state_id': 0,
+            'last_state': 'UP',
+            'last_state_type': 'HARD',
+            'state_changed': False,
+            'latency': 0,
+            'execution_time': 0.12,
+            'output': 'Check output',
+            'long_output': 'Check long_output',
+            'perf_data': 'perf_data',
+            "_realm": realm_all
+        }
+        response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
 
-    # -------------------------------------------
-    # Add a check result for an host
-    data = {
-        "last_check": timegm(datetime.utcnow().timetuple()),
-        "host": rh[0]['_id'],
-        "service": None,
-        'acknowledged': False,
-        'state_id': 0,
-        'state': 'UP',
-        'state_type': 'HARD',
-        'last_state_id': 0,
-        'last_state': 'UP',
-        'last_state_type': 'HARD',
-        'state_changed': False,
-        'latency': 0,
-        'execution_time': 0.12,
-        'output': 'Check output',
-        'long_output': 'Check long_output',
-        'perf_data': 'perf_data',
-        "_realm": realmAll_id
-    }
-    response = requests.post(endpoint + '/logcheckresult', json=data, headers=headers, auth=auth)
-    resp = response.json()
-    assert resp['_status'] == 'OK'
+        if host_state_id == 0:
+            host_state_id = 1
+        elif host_state_id == 1:
+            host_state_id = 2
+        else:
+            host_state_id = 0
+        if host_state =='UP':
+            host_state = 'DOWN'
+        elif host_state == 'DOWN':
+            host_state = 'UNREACHABLE'
+        else:
+            host_state = 'UP'
 
-    # -------------------------------------------
-    # Add a check result for a service
-    data = {
-        "last_check": timegm(datetime.utcnow().timetuple()),
-        "host": rh[1]['_id'],
-        "service": rs[0]['_id'],
-        'acknowledged': False,
-        'state_id': 0,
-        'state': 'UP',
-        'state_type': 'HARD',
-        'last_state_id': 0,
-        'last_state': 'UP',
-        'last_state_type': 'HARD',
-        'state_changed': False,
-        'latency': 0,
-        'execution_time': 0.12,
-        'output': 'Check output',
-        'long_output': 'Check long_output',
-        'perf_data': 'perf_data',
-        "_realm": realmAll_id
-    }
-    response = requests.post(endpoint + '/logcheckresult', json=data, headers=headers, auth=auth)
-    resp = response.json()
-    assert resp['_status'] == 'OK'
+        # Get service in the backend
+        params = {'sort': '_id', 'where': json.dumps({'host': host_id})}
+        response = requests.get(backend_address + '/service', params=params, auth=auth)
+        resp = response.json()
+        services = resp['_items']
+        print("Services: %s" % services)
+        service_state_id = 0
+        service_state = "UP"
+        for service in services:
+            print("- service: %s" % service)
+            service_id = service['_id']
 
-    # Add an history event
-    data = {
-        "host_name": "chazay",
-        "service_name": "Processus",
-        "user_name": "Alignak",
-        "type": "check.result",
-        "message": "OK[HARD] (False,False): All is ok",
-        "_realm": realmAll_id,
-        "_sub_realm": True
-    }
-    time.sleep(1)
-    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
-    print(rsp.json())
+            # -------------------------------------------
+            # Add a check result for the host
+            data = {
+                "last_check": timegm(datetime.utcnow().timetuple()),
+                "host": host_id,
+                "service": service_id,
+                'acknowledged': False,
+                'state_id': service_state_id,
+                'state': service_state,
+                'state_type': 'HARD',
+                'last_state_id': 0,
+                'last_state': 'UP',
+                'last_state_type': 'HARD',
+                'state_changed': False,
+                'latency': 0,
+                'execution_time': 0.12,
+                'output': 'Check output',
+                'long_output': 'Check long_output',
+                'perf_data': 'perf_data',
+                "_realm": realm_all
+            }
+            response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+            resp = response.json()
+            assert resp['_status'] == 'OK'
 
-    # Add an history event
-    time.sleep(1)
-    data = {
-        "host_name": "denice",
-        "service_name": "Zombies",
-        "user_name": "Alignak",
-        "type": "check.result",
-        "message": "OK[HARD] (False,False): All is ok",
-        "_realm": realmAll_id,
-        "_sub_realm": True
-    }
-    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
-    print(rsp.json())
+            if service_state_id == 0:
+                service_state_id = 1
+            elif service_state_id == 1:
+                service_state_id = 2
+            elif service_state_id == 2:
+                service_state_id = 3
+            elif service_state_id == 3:
+                service_state_id = 4
+            else:
+                service_state_id = 0
 
-    # Add an history event
-    time.sleep(1)
-    data = {
-        "host_name": "denice",
-        "user_name": "Alignak",
-        "type": "monitoring.alert",
-        "message": "HOST ALERT ....",
-        "_realm": realmAll_id,
-        "_sub_realm": True
-    }
-    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
-    print(rsp.json())
-    # ---
+            if service_state =='OK':
+                service_state = 'WARNING'
+            elif service_state == 'WARNING':
+                service_state = 'CRITICAL'
+            elif service_state == 'CRITICAL':
+                service_state = 'UNKNOWN'
+            elif service_state == 'UNKNOWN':
+                service_state = 'UNREACHABLE'
+            elif service_state == 'UNREACHABLE':
+                service_state = 'OK'
 
-    # Get history to confirm that backend is ready
-    # ---
-    response = requests.get(endpoint + '/history', auth=auth,
-                            params={"sort": "-_id", "max_results": 25, "page": 1})
-    resp = response.json()
-    print("Response: %s" % resp)
-    assert len(resp['_items']) == 5
-    # ---
+        time.sleep(1.0)
+
+    print("Fed")
 
 
 def teardown_module(module):
@@ -228,6 +223,7 @@ def teardown_module(module):
     # subprocess.call(['pkill', 'alignak-backend'])
     print("Stopped")
     time.sleep(2)
+
 
 # ---
 # Generic tests for the data tables

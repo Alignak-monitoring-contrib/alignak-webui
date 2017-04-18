@@ -276,7 +276,7 @@
          var parent = $(this).parents('[data-name]')
          var column_index = parent.data('index');
          var column_name = parent.data('name');
-         var regex_search = parent.data('regex_search');
+         var regex = parent.data('regex');
          var value = $(this).val();
          if ($(this).attr('type') == 'checkbox') {
             value = $(this).is(':checked');
@@ -366,7 +366,7 @@
                      // Configure table filtering
                      table
                         .column(index)
-                           .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex_search'), false);
+                           .search(value['search']['search'], $('#filterrow th[data-index="'+index+'"]').data('regex'), false);
 
                      // Enable the clear filter button
                      table.buttons('clearFilter:name').enable();
@@ -396,7 +396,7 @@
                   }
                }
                var column_index = table.column(key+':name').index();
-               var column_regex = table.column(key+':name').data('regex_search');
+               var column_regex = table.column(key+':name').data('regex');
 
                if (debugTable) console.debug('Update column search', column_index, key, value, column_regex);
                if (debugTable) console.debug('Update column search special', special);
@@ -412,7 +412,7 @@
                // Configure table filtering
                table
                   .column(column_index)
-                     .search(value, $('#filterrow th[data-name="'+key+'"]').data('regex_search'), false);
+                     .search(value, $('#filterrow th[data-name="'+key+'"]').data('regex'), false);
 
                // Enable the clear filter button
                table.buttons('clearFilter:name').enable();
