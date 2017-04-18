@@ -40,7 +40,7 @@ logger = getLogger(__name__)
 class PluginRealms(Plugin):
     """ Realms plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Realms plugin
 
         Overload the default get route to declare filters.
@@ -55,7 +55,7 @@ class PluginRealms(Plugin):
             },
         }
 
-        super(PluginRealms, self).__init__(app, webui, cfg_filenames)
+        super(PluginRealms, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_one(self, element_id):
         """Show one element"""

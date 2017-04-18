@@ -37,7 +37,7 @@ logger = getLogger(__name__)
 class PluginWorldmap(Plugin):
     """ Worldmap plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Worldmap plugin"""
         self.name = 'Worldmap'
         self.backend_endpoint = None
@@ -90,7 +90,7 @@ class PluginWorldmap(Plugin):
             # }
         }
 
-        super(PluginWorldmap, self).__init__(app, webui, cfg_filenames)
+        super(PluginWorldmap, self).__init__(webui, plugin_dir, cfg_filenames)
 
         self.search_engine = True
         self.search_filters = {

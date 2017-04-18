@@ -43,7 +43,8 @@
       <thead>
          <tr>
             %for column in dt.table_columns:
-            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}" title="{{_('Field name: %s') % column['data'] }}">{{ column['title'] }}</th>
+            %hint = _('Field name: %s\nComment: %s') % (column['data'], column.get('comment', ''))
+            <th data-name="{{ column['data'] }}" data-type="{{ column['type'] }}" title="{{ hint }}">{{ column['title'] }}</th>
             %end
          </tr>
          %if dt.searchable:
@@ -56,7 +57,10 @@
                %field_type = field.get('type', 'string')
                %content_type = field.get('content_type', 'string')
                %placeholder = field.get('placeholder', label)
-               %allowed = field.get('allowed', '').split(',')
+               %allowed = field.get('allowed', '')
+               %if not isinstance(allowed, list):
+               %allowed = allowed.split(',')
+               %end
                %if allowed[0] == '':
                %  allowed = []
                %end
@@ -87,7 +91,10 @@
                %field_type = field.get('type', 'string')
                %content_type = field.get('content_type', 'string')
                %placeholder = field.get('placeholder', '')
-               %allowed = field.get('allowed', '').split(',')
+               %allowed = field.get('allowed', '')
+               %if not isinstance(allowed, list):
+               %allowed = allowed.split(',')
+               %end
                %if allowed[0] == '':
                %  allowed = []
                %end
@@ -152,7 +159,7 @@
                         %     end
                            ],
                         %  else:
-                        %     if allowed[0].startswith('inner://'):
+                        %     if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
                         preload: true,
                         load: function(query, callback) {
                            $.ajax({

@@ -34,11 +34,11 @@ logger = getLogger(__name__)
 class PluginServicesEscalations(Plugin):
     """ Services escalations plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Services escalations plugin"""
         self.name = 'Services escalations'
         self.backend_endpoint = 'serviceescalation'
 
         self.pages = {}
 
-        super(PluginServicesEscalations, self).__init__(app, webui, cfg_filenames)
+        super(PluginServicesEscalations, self).__init__(webui, plugin_dir, cfg_filenames)

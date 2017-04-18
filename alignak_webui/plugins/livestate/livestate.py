@@ -38,7 +38,7 @@ logger = getLogger(__name__)
 class PluginLivestate(Plugin):
     """ Livestate plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Livestate plugin"""
         self.name = 'Livestate'
         self.backend_endpoint = None
@@ -77,7 +77,7 @@ class PluginLivestate(Plugin):
             }
         }
 
-        super(PluginLivestate, self).__init__(app, webui, cfg_filenames)
+        super(PluginLivestate, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def bi_livestate(self):  # pylint:disable=no-self-use
         """Returns the livestate for a specific business impact level

@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 class PluginHosts(Plugin):
     """ Hosts plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Hosts plugin
 
@@ -288,7 +288,7 @@ class PluginHosts(Plugin):
             },
         }
 
-        super(PluginHosts, self).__init__(app, webui, cfg_filenames)
+        super(PluginHosts, self).__init__(webui, plugin_dir, cfg_filenames)
 
         self.search_engine = True
         self.search_filters = {

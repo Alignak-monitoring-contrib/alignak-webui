@@ -18,7 +18,7 @@ logger = getLogger(__name__)
 class PluginUserRestrictRoles(Plugin):
     """ user backend elements management plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         User plugin
 
@@ -31,4 +31,4 @@ class PluginUserRestrictRoles(Plugin):
 
         self.pages = {}
 
-        super(PluginUserRestrictRoles, self).__init__(app, webui, cfg_filenames)
+        super(PluginUserRestrictRoles, self).__init__(webui, plugin_dir, cfg_filenames)

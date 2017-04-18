@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 class PluginHistorys(Plugin):
     """ History plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """History plugin
 
         Overload the default get route to declare filters.
@@ -44,4 +44,4 @@ class PluginHistorys(Plugin):
 
         self.pages = {}
 
-        super(PluginHistorys, self).__init__(app, webui, cfg_filenames)
+        super(PluginHistorys, self).__init__(webui, plugin_dir, cfg_filenames)

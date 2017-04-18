@@ -53,7 +53,7 @@ class Datatable(object):
 
         - object_type: object type in the backend
         - backend: backend endpoint (http://127.0.0.1:5002)
-        - schema: table configuration as defined in the settings.cfg file of a plugin
+        - schema: table configuration as defined in a plugin
         - templates: templates table or objects table (False)
         """
         self.object_type = object_type
@@ -108,8 +108,8 @@ class Datatable(object):
         # Templates management
         if self.is_templated:
             self.records_total = self.backend.count(self.object_type,
-                                                    params={'where': {
-                                                        '_is_template': self.templates}})
+                                                    params={'where': {'_is_template':
+                                                                          self.templates}})
         else:
             self.records_total = self.backend.count(self.object_type)
 
@@ -192,14 +192,14 @@ class Datatable(object):
                 'type': model.get('type', 'string'),
                 'content_type': model.get('content_type', model.get('type', 'string')),
                 'allowed': model.get('allowed', ''),
-                'defaultContent': model.get('default', ''),
+                'default': model.get('default', ''),
                 'required': model.get('required', False),
                 'empty': model.get('empty', False),
                 'unique': model.get('unique', False),
 
                 'regex': model.get('regex', True),
                 'title': model.get('title', field),
-                'hint': model.get('hint', ''),
+                'comment': model.get('comment', ''),
                 'format': model.get('format', ''),
                 'format_parameters': model.get('format_parameters', ''),
                 'visible': model.get('visible', True),
@@ -218,10 +218,12 @@ class Datatable(object):
                 ui_field.update({'visible': True})
                 ui_field.update({'hidden': False})
 
-            if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
+            if model.get('type') in ['objectid', 'list'] and model.get('data_relation', None):
+                relation = model.get('data_relation')
+                logger.debug('get_data_model, object/list field: %s / %s',
+                             field, relation.get('resource', None))
                 ui_field.update(
-                    {'content_type': 'objectid:' + model.get('resource', 'unknown')}
-                )
+                    {'content_type': 'objectid:' + relation.get('resource', 'unknown')})
 
             # logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
@@ -230,7 +232,8 @@ class Datatable(object):
             if not model.get('hidden', False):
                 self.table_columns.append(ui_field)
 
-                if ui_field['type'] == 'objectid' or ui_field['content_type'] == 'objectid':
+                if ui_field['type'] == 'objectid' or \
+                        ui_field['content_type'].startswith('objectid'):
                     self.embedded.append(ui_field['data'])
 
         return self.data_model
@@ -642,21 +645,13 @@ class Datatable(object):
                         row[field['data']] = 'XxX'
                     continue
 
-                # if field['data'] == "alias":
-                #     row[field['data']] = bo_object.alias
-                #     continue
-                #
-                # if field['data'] == "notes":
-                #     row[field['data']] = bo_object.notes
-                #     continue
-                #
                 if "business_impact" in field['data']:
                     # Replace the BI count with the specific item HTML formatting
                     row[field['data']] = Helper.get_html_business_impact(bo_object.business_impact)
                     continue
 
                 # Specific fields type
-                if field['type'] == 'datetime':
+                if field['type'] == 'datetime' or field['format'] == 'datetime':
                     # Replace the timestamp with the formatted date
                     row[field['data']] = bo_object.get_date(bo_object[field['data']])
                     continue

@@ -30,9 +30,8 @@ import unittest2
 import subprocess
 import requests
 
-from mock import Mock, patch
-
-from nose.tools import *
+from calendar import timegm
+from datetime import datetime
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
@@ -86,6 +85,133 @@ def setup_module(module):
         stdout=fnull
     )
     assert exit_code == 0
+
+    headers = {'Content-Type': 'application/json'}
+    params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+    # Login
+    response = requests.post(backend_address + '/login', json=params, headers=headers)
+    resp = response.json()
+    token = resp['token']
+    auth = requests.auth.HTTPBasicAuth(token, '')
+
+    # Get realms in the backend
+    params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+    response = requests.get(backend_address + '/realm', params=params, auth=auth)
+    resp = response.json()
+    host = resp['_items'][0]
+    print("Realm: %s" % host)
+    realm_all = host['_id']
+
+    # Get hosts in the backend
+    params = {'sort': '_id', 'where': json.dumps({'name': 'KNM-Glpi'})}
+    response = requests.get(backend_address + '/host', params=params, auth=auth)
+    resp = response.json()
+    hosts = resp['_items']
+    host_state_id = 0
+    host_state = "UP"
+    for host in hosts:
+        print("Host: %s" % host)
+        host_id = host['_id']
+
+        # -------------------------------------------
+        # Add a check result for the host
+        data = {
+            "last_check": timegm(datetime.utcnow().timetuple()),
+            "host": host_id,
+            "service": None,
+            'acknowledged': False,
+            'state_id': host_state_id,
+            'state': host_state,
+            'state_type': 'HARD',
+            'last_state_id': 0,
+            'last_state': 'UP',
+            'last_state_type': 'HARD',
+            'state_changed': False,
+            'latency': 0,
+            'execution_time': 0.12,
+            'output': 'Check output',
+            'long_output': 'Check long_output',
+            'perf_data': 'perf_data',
+            "_realm": realm_all
+        }
+        response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+
+        if host_state_id == 0:
+            host_state_id = 1
+        elif host_state_id == 1:
+            host_state_id = 2
+        else:
+            host_state_id = 0
+        if host_state =='UP':
+            host_state = 'DOWN'
+        elif host_state == 'DOWN':
+            host_state = 'UNREACHABLE'
+        else:
+            host_state = 'UP'
+
+        # Get service in the backend
+        params = {'sort': '_id', 'where': json.dumps({'host': host_id})}
+        response = requests.get(backend_address + '/service', params=params, auth=auth)
+        resp = response.json()
+        services = resp['_items']
+        print("Services: %s" % services)
+        service_state_id = 0
+        service_state = "UP"
+        for service in services:
+            print("- service: %s" % service)
+            service_id = service['_id']
+
+            # -------------------------------------------
+            # Add a check result for the host
+            data = {
+                "last_check": timegm(datetime.utcnow().timetuple()),
+                "host": host_id,
+                "service": service_id,
+                'acknowledged': False,
+                'state_id': service_state_id,
+                'state': service_state,
+                'state_type': 'HARD',
+                'last_state_id': 0,
+                'last_state': 'UP',
+                'last_state_type': 'HARD',
+                'state_changed': False,
+                'latency': 0,
+                'execution_time': 0.12,
+                'output': 'Check output',
+                'long_output': 'Check long_output',
+                'perf_data': 'perf_data',
+                "_realm": realm_all
+            }
+            response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+            resp = response.json()
+            assert resp['_status'] == 'OK'
+
+            if service_state_id == 0:
+                service_state_id = 1
+            elif service_state_id == 1:
+                service_state_id = 2
+            elif service_state_id == 2:
+                service_state_id = 3
+            elif service_state_id == 3:
+                service_state_id = 4
+            else:
+                service_state_id = 0
+
+            if service_state =='OK':
+                service_state = 'WARNING'
+            elif service_state == 'WARNING':
+                service_state = 'CRITICAL'
+            elif service_state == 'CRITICAL':
+                service_state = 'UNKNOWN'
+            elif service_state == 'UNKNOWN':
+                service_state = 'UNREACHABLE'
+            elif service_state == 'UNREACHABLE':
+                service_state = 'OK'
+
+        time.sleep(1.0)
+
     print("Fed")
 
 
@@ -517,6 +643,102 @@ class TestUsergroups(unittest2.TestCase):
             assert 'url' in item
 
 
+class TestHostsEscalations(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.host_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_hosts_escalations(self):
+        """Web - hosts escalations"""
+        print('test hosts escalations')
+
+        print('get page /hostescalations')
+        self.app.get('/hostescalations', status=404)
+        self.app.get('/hostescalation/id', status=404)
+        self.app.get('/hostescalations/settings')
+        self.app.get('/hostescalations/list')
+        self.app.get('/hostescalations/table')
+
+
+class TestServicesEscalations(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.service_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_services_escalations(self):
+        """Web - services escalations"""
+        print('test services escalations')
+
+        print('get page /serviceescalations')
+        self.app.get('/serviceescalations', status=404)
+        self.app.get('/serviceescalation/id', status=404)
+        self.app.get('/serviceescalations/settings')
+        self.app.get('/serviceescalations/list')
+        self.app.get('/serviceescalations/table')
+
+
+class TestHostsdependencys(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.host_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_hosts_dependencys(self):
+        """Web - hosts dependencys"""
+        print('test hosts dependencys')
+
+        print('get page /hostdependencys')
+        self.app.get('/hostdependencys', status=404)
+        self.app.get('/hostdependency/id', status=404)
+        self.app.get('/hostdependencys/settings')
+        self.app.get('/hostdependencys/list')
+        self.app.get('/hostdependencys/table')
+
+
+class TestServicesdependencys(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.service_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_services_dependencys(self):
+        """Web - services dependencys"""
+        print('test services dependencys')
+
+        print('get page /servicedependencys')
+        self.app.get('/servicedependencys', status=404)
+        self.app.get('/servicedependency/id', status=404)
+        self.app.get('/servicedependencys/settings')
+        self.app.get('/servicedependencys/list')
+        self.app.get('/servicedependencys/table')
+
+
 class TestHosts(unittest2.TestCase):
     def setUp(self):
         # Test application
@@ -788,4 +1010,4 @@ class TestAlignakDaemons(unittest2.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

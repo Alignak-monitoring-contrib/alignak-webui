@@ -417,20 +417,22 @@ class tests_actions(unittest2.TestCase):
                 u"allowed": {
                     u"0": u"Up", u"1": u"Down (1)", u"2": u"Down (2)", u"3": u"Unreachable"
                 },
-                u"allowed_0": u"Up", u"allowed_1": u"Down (1)",
-                u"allowed_2": u"Down (2)", u"allowed_3": u"Unreachable",
-                u"hint": u"Choose the host state",
-                u"default": u"0",
-                u"title": u"State",
+                u"allowed_0": u"Up",
+                u"allowed_1": u"Down (1)",
+                u"allowed_2": u"Down (2)",
+                u"allowed_3": u"Unreachable",
+                u"comment": u"Current state identifier. O: UP, 1: DOWN, 2: UNREACHABLE",
+                u"default": 3,
+                u"title": u"State identifier",
                 u"editable": False,
                 u"type": u"integer"
             },
             u"ls_output": {
-                u"default": u"Output from WebUI",
+                u"default": u"",
                 u"type": u"string",
                 u"title": u"Output",
                 u"editable": False,
-                u"hint": u"enter the desired check output"
+                u"comment": u"Last check output"
             }
         }
         assert expected == response.json

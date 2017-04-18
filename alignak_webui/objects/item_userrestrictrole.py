@@ -46,10 +46,16 @@ class UserRestrictRole(BackendElement):
         Create a userrestrictrole (called only once when an object is newly created)
         """
         self._linked_user = 'user'
+        self._linked_realm = 'realm'
 
         super(UserRestrictRole, self).__init__(params, date_format, embedded)
 
     @property
+    def realm(self):
+        """Return linked object"""
+        return self._linked_realm
+
+    @property
     def user(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_user

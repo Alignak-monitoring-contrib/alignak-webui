@@ -35,6 +35,8 @@ from collections import OrderedDict
 from logging import getLogger
 from bottle import request, response, template, view, redirect
 
+from alignak_backend.models import register_models
+
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
@@ -46,25 +48,28 @@ from alignak_webui.utils.settings import Settings
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
 
+# Add model schema to the configuration
+BACKEND_MODELS = register_models()
+
 
 class Plugin(object):
 
     """ WebUI base plugin """
 
-    def __init__(self, app, webui, cfg_filenames):
+    def __init__(self, webui, plugin_dir, cfg_filenames):
         """Create a new plugin
 
-        :param app: bottle application
         :param webui: WebUI instance
         :param cfg_filenames: list of configuration file names
         """
 
-        self.app = app
         self.webui = webui
+        self.app = self.webui.app
         if not hasattr(self, 'name'):  # pragma: no cover - plugin should declare
             self.name = 'Unknown'
         if not hasattr(self, 'backend_endpoint'):  # pragma: no cover - plugin should declare
             self.backend_endpoint = None
+        self.plugin_dirname = plugin_dir
         self.plugin_filenames = cfg_filenames
         self.plugin_parameters = None
         self.table = None
@@ -94,7 +99,7 @@ class Plugin(object):
                 logger.warning("Plugin %s is installed but disabled.", self.name)
                 return
 
-        self.load_routes(app)
+        self.load_routes()
         logger.info("Plugin %s is installed and enabled.", self.name)
 
     def is_enabled(self):
@@ -121,7 +126,7 @@ class Plugin(object):
         if redirected:
             redirect('/')
 
-    def load_routes(self, app):
+    def load_routes(self):
         # pylint: disable=too-many-nested-blocks, too-many-locals
         """Load and create plugin routes
 
@@ -143,22 +148,29 @@ class Plugin(object):
 
         if self.backend_endpoint:
             if 'get_one' not in self.pages:
-                self.pages.update({
-                    'get_one': {
-                        'name': '%s' % self.name,
-                        'route': '/%s/<element_id>' % self.backend_endpoint,
-                        'view': '%s' % self.backend_endpoint,
-                    }
-                })
+                plugin_dir = os.path.join(self.webui.plugins_dir, self.plugin_dirname)
+                one_view = os.path.join(plugin_dir, 'views', '%s.tpl' % self.backend_endpoint)
+                if os.path.exists(one_view):
+                    self.pages.update({
+                        'get_one': {
+                            'name': '%s' % self.name,
+                            'route': '/%s/<element_id>' % self.backend_endpoint,
+                            'view': '%s' % self.backend_endpoint
+                        }
+                    })
 
             if 'get_all' not in self.pages:
-                self.pages.update({
-                    'get_all': {
-                        'name': 'All %s' % self.name,
-                        'route': '/%ss' % self.backend_endpoint,
-                        'view': '%ss' % self.backend_endpoint,
-                    }
-                })
+                plugin_dir = os.path.join(self.webui.plugins_dir, self.plugin_dirname)
+                all_view = os.path.join(plugin_dir, 'views', '%ss.tpl' % self.backend_endpoint)
+                logger.warning("All view: %s", all_view)
+                if os.path.exists(all_view):
+                    self.pages.update({
+                        'get_all': {
+                            'name': 'All %s' % self.name,
+                            'route': '/%ss' % self.backend_endpoint,
+                            'view': '%ss' % self.backend_endpoint
+                        }
+                    })
 
             if 'get_tree' not in self.pages:
                 self.pages.update({
@@ -303,7 +315,7 @@ class Plugin(object):
 
             for route_url, name in page_route:
                 logger.info("route: %s -> %s", route_url, name)
-                f = app.route(route_url, callback=f, method=methods, name=name)
+                f = self.app.route(route_url, callback=f, method=methods, name=name)
 
                 # Register plugin element list route
                 if route_url == ('/%ss/list' % self.backend_endpoint):
@@ -395,12 +407,16 @@ class Plugin(object):
         All the content of the configuration files found is stored in the `plugin_parameters`
         attribute.
 
-        The `table` attribute  is initialized with the content of the [table] and [table.field]
-        variables.
+        The `table` attribute  is initialized from the Alignak Bakcend data model if it exists and
+        the updated with the content of the [table] and [table.field] variables.
 
         When the initialization parameter is set, the function returns True / False instead of a
         JSON formatted response.
         """
+        backend_schema = None
+        if self.backend_endpoint and self.backend_endpoint in BACKEND_MODELS:
+            backend_schema = BACKEND_MODELS[self.backend_endpoint]['schema']
+            logger.debug("Plugin %s backend schema: %s", self.name, backend_schema)
 
         if not cfg_filenames:
             cfg_filenames = self.plugin_filenames
@@ -416,6 +432,7 @@ class Plugin(object):
         if not self.plugin_config:
             if initialization:
                 return False
+
             response.status = 204
             response.content_type = 'application/json'
             return json.dumps({'error': 'No configuration found'})
@@ -460,8 +477,15 @@ class Plugin(object):
 
             # Table field configuration [self.table.field]
             if p[1] not in self.table:
-                self.table[p[1]] = {}
-            self.table[p[1]][p[2]] = self.plugin_config[param]
+                if backend_schema and p[1] in backend_schema:
+                    self.table[p[1]] = backend_schema[p[1]]
+                else:
+                    self.table[p[1]] = {}
+            if p[2] not in self.table[p[1]]:
+                self.table[p[1]][p[2]] = self.plugin_config[param]
+            else:
+                logger.warning("plugin %s overrides default configuration: %s.%s = %s",
+                               self.name, p[1], p[2], self.plugin_config[param])
 
         if initialization:
             return True

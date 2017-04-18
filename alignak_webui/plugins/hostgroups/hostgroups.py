@@ -40,7 +40,7 @@ logger = getLogger(__name__)
 class PluginHostsGroups(Plugin):
     """ Hosts groups plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Hosts groups plugin
 
         Overload the default get route to declare filters.
@@ -59,7 +59,7 @@ class PluginHostsGroups(Plugin):
             },
         }
 
-        super(PluginHostsGroups, self).__init__(app, webui, cfg_filenames)
+        super(PluginHostsGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_one(self, element_id):
         """Show one element"""

@@ -37,7 +37,7 @@ logger = getLogger(__name__)
 class PluginCurrently(Plugin):
     """Currently plugin"""
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Currently plugin"""
         self.name = 'Currently'
         self.backend_endpoint = None
@@ -50,7 +50,7 @@ class PluginCurrently(Plugin):
             }
         }
 
-        super(PluginCurrently, self).__init__(app, webui, cfg_filenames)
+        super(PluginCurrently, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_currently(self):  # pylint:disable=no-self-use, too-many-locals
         """Display currently page"""

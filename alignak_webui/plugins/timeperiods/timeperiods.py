@@ -35,7 +35,7 @@ logger = getLogger(__name__)
 class PluginTimeperiods(Plugin):
     """ Services groups plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Services groups plugin
 
@@ -46,4 +46,4 @@ class PluginTimeperiods(Plugin):
 
         self.pages = {}
 
-        super(PluginTimeperiods, self).__init__(app, webui, cfg_filenames)
+        super(PluginTimeperiods, self).__init__(webui, plugin_dir, cfg_filenames)

@@ -20,7 +20,7 @@ logger = getLogger(__name__)
 class PluginUsers(Plugin):
     """ user backend elements management plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         User plugin
 
@@ -72,7 +72,7 @@ class PluginUsers(Plugin):
             },
         }
 
-        super(PluginUsers, self).__init__(app, webui, cfg_filenames)
+        super(PluginUsers, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def show_user_preferences(self):
         # pylint: disable=no-self-use

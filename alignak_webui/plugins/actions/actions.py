@@ -40,7 +40,7 @@ logger = getLogger(__name__)
 class PluginActions(Plugin):
     """Actions plugin"""
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Actions plugin"""
         self.name = 'Actions'
         self.backend_endpoint = None
@@ -92,7 +92,7 @@ class PluginActions(Plugin):
             }
         }
 
-        super(PluginActions, self).__init__(app, webui, cfg_filenames)
+        super(PluginActions, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def show_acknowledge_add(self):  # pylint:disable=no-self-use
         """Show form to add an acknowledge"""
@@ -365,6 +365,7 @@ class PluginActions(Plugin):
                 {'error': "the command '%s' does not exist" % command}
             )
 
+        logger.info("Element type: %s", elements_type)
         plugin = self.webui.find_plugin(elements_type)
         if not plugin:
             response.status = 409
@@ -372,27 +373,31 @@ class PluginActions(Plugin):
             return json.dumps(
                 {'error': "the plugin for '%s' is not existing or not installed" % elements_type}
             )
-        logger.info("Got plugin fields table for %s: %s", elements_type, plugin.table)
+        logger.info("Found plugin: %s", plugin.name)
+        # logger.info("Got plugin fields table for %s: %s", elements_type, plugin.table)
+        logger.info("Got plugin fields table for %s: %s", elements_type, plugin.table["ls_state_id"])
 
         # Provide the described parameters
         parameters = {}
         for parameter in commands[command].get('parameters', {}):
-            logger.info("Got plugin table parameter: %s / %s", parameter, plugin.table[parameter])
+            logger.debug("Got plugin table parameter: %s / %s", parameter, plugin.table[parameter])
             parameters[parameter] = deepcopy(plugin.table[parameter])
             logger.info("Got plugin parameter: %s / %s", parameter, parameters[parameter])
 
             if 'allowed' in plugin.table[parameter]:
-                real_allowed = {}
-                allowed = plugin.table[parameter].get('allowed', '').split(',')
-                logger.info("Allowed values for %s: %s", parameter, allowed)
+                allowed_values = {}
+                allowed = plugin.table[parameter].get('allowed', '')
+                if not isinstance(allowed, list):
+                    allowed = allowed.split(',')
+                logger.debug("Get real allowed values for %s: %s", parameter, allowed)
                 if allowed[0] == '':
                     allowed = []
                 for allowed_value in allowed:
-                    value = plugin.table[parameter].get('allowed_' + allowed_value, allowed_value)
-                    real_allowed.update({'%s' % allowed_value: value})
+                    value = plugin.table[parameter].get('allowed_%s' % allowed_value, allowed_value)
+                    allowed_values.update({'%s' % allowed_value: value})
 
-                parameters[parameter]['allowed'] = real_allowed
-                logger.info("Real allowed values for %s: %s", parameter, real_allowed)
+                parameters[parameter]['allowed'] = allowed_values
+                logger.debug("Real allowed values for %s: %s", parameter, allowed_values)
 
         logger.info("Parameters: %s", parameters)
         response.status = 200

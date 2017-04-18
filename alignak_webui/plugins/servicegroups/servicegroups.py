@@ -39,7 +39,7 @@ logger = getLogger(__name__)
 class PluginServicesGroups(Plugin):
     """ Services groups plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Services groups plugin
 
@@ -59,7 +59,7 @@ class PluginServicesGroups(Plugin):
             },
         }
 
-        super(PluginServicesGroups, self).__init__(app, webui, cfg_filenames)
+        super(PluginServicesGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_one(self, element_id):
         """Show one element"""
