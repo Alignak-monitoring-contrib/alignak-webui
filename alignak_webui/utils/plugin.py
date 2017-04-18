@@ -95,7 +95,7 @@ class Plugin(object):
         self.configuration_loaded = self.load_config(initialization=True)
         if self.configuration_loaded:
             self.enabled = self.plugin_parameters.get('enabled', True)
-            if not self.enabled:
+            if not self.enabled:  # pragma: no cover, because plugins are all enabled ;)
                 logger.warning("Plugin %s is installed but disabled.", self.name)
                 return
 
@@ -428,7 +428,7 @@ class Plugin(object):
         self.plugin_config = Settings(cfg_filenames)
         config_file = self.plugin_config.read(self.name)
         logger.debug("Plugin configuration read from: %s", config_file)
-        if not self.plugin_config:
+        if not self.plugin_config:  # pragma: no cover, all plugins have configuration files
             if initialization:
                 return False
 
@@ -500,7 +500,7 @@ class Plugin(object):
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         logger.debug("get_one, search: %s", element_id)
@@ -525,7 +525,7 @@ class Plugin(object):
 
         # Get elements get method from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         # Fetch elements per page preference for user, default is 25
@@ -584,7 +584,7 @@ class Plugin(object):
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         elts = f(search, all_elements=False)
@@ -717,7 +717,7 @@ class Plugin(object):
 
         # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         # Get element from the data manager
@@ -761,7 +761,7 @@ class Plugin(object):
 
         # Get element get method from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         # For an object update...
@@ -955,7 +955,7 @@ class Plugin(object):
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover, simple protection
             response.status = 204
             response.content_type = 'application/json'
             return json.dumps({'error': 'No method available to get %s elements'
@@ -1008,7 +1008,7 @@ class Plugin(object):
         datamgr = webui.datamgr
 
         # Get element get method from the data manager
-        if not get_method:
+        if not get_method:  # pragma: no cover, simple protection
             # Get elements get method from the data manager
             get_method = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
             if not get_method:
