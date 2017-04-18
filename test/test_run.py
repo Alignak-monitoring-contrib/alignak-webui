@@ -176,3 +176,26 @@ class TestStart(unittest2.TestCase):
         time.sleep(2.0)
         print("Killing application ...")
         process.terminate()
+
+    def test_start_application_environment(self):
+        """ Start application with environment variables"""
+
+        print("Launching application with WS configuration in environment...")
+        os.environ['ALIGNAK_WEBUI_WS'] = 'http://127.0.0.1:8888'
+        os.environ['ALIGNAK_WEBUI_WS'] = 'http://127.0.0.1:8888'
+        process = subprocess.Popen(
+            shlex.split('python ../alignak_webui/app.py')
+        )
+        print('PID = ', process.pid)
+        time.sleep(2.0)
+        print("Killing application ...")
+        process.terminate()
+
+        print("Launching application with configuration file...")
+        process = subprocess.Popen(
+            shlex.split('python ../alignak_webui/app.py ../test/settings.fr')
+        )
+        print('PID = ', process.pid)
+        time.sleep(2.0)
+        print("Killing application ...")
+        process.terminate()

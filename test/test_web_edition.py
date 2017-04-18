@@ -94,6 +94,46 @@ def teardown_module(module):
     time.sleep(2)
 
 
+class TestEditionModeDenied(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        print('login accepted - go to home page')
+        self.login_response = self.app.post('/login', {'username': 'guest', 'password': 'guest'})
+
+        # A session cookie exist
+        assert self.app.cookies['Alignak-WebUI']
+        for cookie in self.app.cookiejar:
+            if cookie.name=='Alignak-WebUI':
+                assert cookie.expires
+
+        # A session exists and it contains: current user, his realm and his live synthesis
+        self.session = self.login_response.request.environ['beaker.session']
+        assert 'current_user' in self.session and self.session['current_user']
+        assert self.session['current_user'].name == 'guest'
+        assert 'current_realm' in self.session and self.session['current_realm']
+        assert self.session['current_realm'].name == 'All'
+        assert 'current_ls' in self.session and self.session['current_ls']
+
+        # edition_mode is defined but not activated in the session...
+        assert 'edition_mode' in self.session
+        assert False == self.session['edition_mode']
+
+    def tearDown(self):
+        print('logout')
+        self.app.get('/logout')
+
+    def test_enable_disable(self):
+        """Enable / disable edition mode is denied for non admin user"""
+
+        print('Enable edition mode - denied')
+        response = self.app.post('/edition_mode', params={'state': 'on'}, status=401)
+
+        print('Disable edition mode - denied')
+        response = self.app.post('/edition_mode', params={'state': 'off'}, status=401)
+
+
 class TestEditionMode(unittest2.TestCase):
     def setUp(self):
         # Test application

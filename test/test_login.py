@@ -172,9 +172,10 @@ class TestLogin(unittest2.TestCase):
         response.mustcontain('Current logged-in user: admin')
 
         # Require header refresh
-        response = self.app.get('/ping?action=header', status=204)
+        self.app.get('/ping?action=header', status=204)
+        response = self.app.get('/ping?action=refresh', status=200)
+        assert response.json == {u'status': u'ok', u'message': u'missing template name. Use /ping?action=refresh&template=name.'}
         response = self.app.get('/ping?action=refresh&template=_header_states', status=200)
-        print(response)
         response.mustcontain('"hosts-states-popover-content')
         response.mustcontain('"services-states-popover-content')
 
