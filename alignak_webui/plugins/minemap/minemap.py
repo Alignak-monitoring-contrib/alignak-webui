@@ -123,9 +123,6 @@ class PluginMinemap(Plugin):
         count_columns = collections.Counter(columns)
         columns = [c for c, dummy in count_columns.most_common()]
 
-        # Get last total elements count
-        # total = datamgr.get_objects_count('host', search=search, refresh=True)
-
         return {
             'search_engine': self.search_engine,
             'search_filters': self.search_filters,

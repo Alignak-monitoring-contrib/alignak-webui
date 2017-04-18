@@ -523,9 +523,33 @@ class TestHostgroups(unittest2.TestCase):
                 self.group_id = match
         assert self.group_id
 
-        print('get page /hostgroup/members for %s' % self.group_id)
-        assert self.group_id
-        response = self.app.get('/hostgroup/members/' + self.group_id)
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        # Get hostgroup All
+        params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+        response = requests.get('http://127.0.0.1:5000/hostgroup', params=params, auth=auth)
+        resp = response.json()
+        print("Group: %s" % resp)
+        group = resp['_items'][0]
+
+        print('get page /hostgroup/%s' % group['_id'])
+        response = self.app.get('/hostgroup/' + group['_id'])
+        print(response)
+        response.mustcontain(
+            '<div class="hostgroup" id="hostgroup_%s">' % group['_id'],
+            '<div class="hostgroup-members panel panel-default">',
+            '<div class="hostgroup-children panel panel-default">'
+        )
+
+        print('get page /hostgroup/members for %s' % group['_id'])
+        response = self.app.get('/hostgroup/members/' + group['_id'])
         print(response.json)
         for item in response.json:
             print(item)

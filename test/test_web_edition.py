@@ -392,6 +392,10 @@ class TestHosts(unittest2.TestCase):
         assert True == session['edition_mode']
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
+        # Count hosts
+        count = datamgr.count_objects('host')
+        print("Host count: %s" % count)
+
         print('get page /host/form (edition mode) - for a new host')
         response = self.app.get('/host/unknown_host/form')
         response.mustcontain(
@@ -435,6 +439,11 @@ class TestHosts(unittest2.TestCase):
             'alias': "Friendly name"
         }
 
+        # Count hosts (one more!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count + 1
+
         # Get the new host in the backend
         host = datamgr.get_host({'where': {'name': 'New host'}})
         assert host
@@ -463,6 +472,11 @@ class TestHosts(unittest2.TestCase):
             "name": "New host 2",
             'alias': "Friendly name 2"
         }
+
+        # Count hosts (one more!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count + 2
 
         # Get the new host in the backend
         host = datamgr.get_host({'where': {'name': 'New host 2'}})
@@ -506,6 +520,36 @@ class TestHosts(unittest2.TestCase):
         assert response.json == {
             "_message": "host 'graphite' updated", "alias": "Alias edited"
         }
+
+    def test_host_delete(self):
+        """Delete the newly created hosts"""
+        datamgr = DataManager(alignak_webui.app.app, session=self.session)
+
+        # Count hosts
+        count = datamgr.count_objects('host')
+        print("Host count: %s" % count)
+
+        # Get host and service in the backend
+        host = datamgr.get_host({'where': {'name': 'pi1'}})
+
+        assert datamgr.delete_object('service', host) is False
+        assert datamgr.delete_object('host', host) is True
+
+        # Count hosts (one less!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count - 1
+
+        # Get host and service in the backend
+        host = datamgr.get_host({'where': {'name': 'pi2'}})
+
+        assert datamgr.delete_object('service', host) is False
+        assert datamgr.delete_object('host', host) is True
+
+        # Count hosts (one less!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count - 2
 
 
 if __name__ == '__main__':

@@ -356,6 +356,9 @@ class TestNotAdmin(unittest2.TestCase):
         result = self.dmg.load()
         print("Result:", result)
         print("Objects count:", self.dmg.get_objects_count())
+        print("Objects count:", self.dmg.get_objects_count('host'))
+        print("Objects count:", self.dmg.get_objects_count('service'))
+        print("Objects count (log):", self.dmg.get_objects_count(log=True))
         # assert result == 0                          # Only the newly created user, so no new objects loaded
         # assert self.dmg.get_objects_count() == 1    # not_admin user
 
@@ -363,6 +366,9 @@ class TestNotAdmin(unittest2.TestCase):
         result = self.dmg.load(reset=True)
         print("Result:", result)
         print("Objects count:", self.dmg.get_objects_count())
+        print("Objects count:", self.dmg.get_objects_count('host'))
+        print("Objects count:", self.dmg.get_objects_count('service'))
+        print("Objects count (log):", self.dmg.get_objects_count(log=True))
         # assert result == 3                          # not_admin user + test_service + relation
         # assert self.dmg.get_objects_count() == 3    # not_admin user + test_service + relation
 
@@ -704,15 +710,18 @@ class TestHosts(unittest2.TestCase):
         assert host.status == 'UNREACHABLE'
 
         # Get host services
+        services = self.dmg.get_host_services({'where': {'name': 'unknown'}})
+        assert services == -1
+
         services = self.dmg.get_host_services({'where': {'name': 'webui'}})
         print("---")
+        service_name = ''
         for service in services:
             print("Got service: %s" % service)
+            service_name = service['name']
         assert len(services) > 1
+        services = self.dmg.get_host_services({'where': {'name': 'webui'}}, search={'where': {'name': service_name}})
         services = self.dmg.get_host_services(host)
-        print("---")
-        for service in services:
-            print("Got service: %s" % service)
         assert len(services) > 1
 
         # Get host overall state

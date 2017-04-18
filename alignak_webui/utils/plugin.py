@@ -991,7 +991,7 @@ class Plugin(object):
     def get_widget(self, get_method, object_type,
                    embedded=False, identifier=None, credentials=None):
         # Because there are many locals needed :)
-        # pylint: disable=too-many-locals, too-many-arguments
+        # pylint: disable=too-many-locals, too-many-arguments, unused-argument
         """Get a widget:
 
         - get_method is the datamanager method to call to get elements
@@ -1043,8 +1043,11 @@ class Plugin(object):
 
         # Get elements from the data manager
         elements = get_method(search)
+
         # Get last total elements count
-        total = datamgr.get_objects_count(object_type, search=where, refresh=True)
+        total = count
+        if elements:
+            total = elements[0]['_total']
         count = min(count, total)
 
         # Widget options

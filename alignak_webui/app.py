@@ -904,11 +904,21 @@ def get_user_preference():
 
     default = request.query.get('default', None)
     if default:
-        default = json.loads(default)
+        try:
+            default = json.loads(default)
+        except Exception:
+            pass
+
+    key_value = datamgr.get_user_preferences(user, _key, default)
+    if key_value is None:
+        response.status = 404
+        response.content_type = 'application/json'
+        return json.dumps({'status': 'ko',
+                           'message': 'Unknown key: %s' % _key})
 
     response.status = 200
     response.content_type = 'application/json'
-    return json.dumps(datamgr.get_user_preferences(user, _key, default))
+    return json.dumps(value)
 
 
 @app.route('/preference/user/delete', 'GET')
@@ -947,9 +957,15 @@ def set_user_preference():
     if _key is None or _value is None:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    if datamgr.set_user_preferences(user, _key, json.loads(_value)):
+    try:
+        _value = json.loads(_value)
+    except Exception:
+        pass
+
+    if datamgr.set_user_preferences(user, _key, _value):
         return WebUI.response_ok(message=_('User preferences saved'))
-    return WebUI.response_ko(message=_('Problem encountered while saving common preferences'))
+
+    return WebUI.response_ko(message=_('Problem encountered while saving user preferences'))
 
 
 # --------------------------------------------------------------------------------------------------

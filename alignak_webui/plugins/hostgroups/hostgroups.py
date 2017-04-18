@@ -67,7 +67,7 @@ class PluginHostsGroups(Plugin):
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover - should not happen!
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         logger.debug("get_one, search: %s", element_id)

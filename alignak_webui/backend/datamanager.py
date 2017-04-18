@@ -190,9 +190,6 @@ class DataManager(object):
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
 
-                # Get total objects count from the backend
-                # self.get_objects_count(refresh=True, log=False)
-
                 # Load data if load required...
                 if load:
                     self.load(reset=True)
@@ -371,13 +368,10 @@ class DataManager(object):
         self.refresh_required = True
         self.refresh_done = False
 
-    def get_objects_count(self, object_type=None, refresh=False, log=False, search=None):
+    def get_objects_count(self, object_type=None, log=False):
         """Get the count of the objects stored in the data manager cache
 
         If an object_type is specified, only returns the count for this object type
-
-        If refresh is True, get the total count from the backend. This is only useful if total
-        count is required...
 
         If log is set, an information log is made"""
         log_function = logger.debug
@@ -387,26 +381,7 @@ class DataManager(object):
         if object_type:
             for known_class in self.known_classes:
                 if object_type == known_class.get_type():
-                    objects_count = known_class.get_count()
-                    if refresh:
-                        if hasattr(known_class, '_total_count') and \
-                           known_class.get_total_count() != -1:
-                            objects_count = known_class.get_total_count()
-                            log_function(
-                                "get_objects_count, got _total_count attribute: %d",
-                                objects_count
-                            )
-                        else:
-                            objects_count = self.count_objects(object_type, search=search)
-                            # _total_count is a property ... should make it a method?
-                            # pylint: disable=protected-access
-                            known_class._total_count = objects_count
-
-                        log_function(
-                            "get_objects_count, currently %d total %ss for %s",
-                            objects_count, object_type, search
-                        )
-                    return objects_count
+                    return known_class.get_count()
             else:  # pragma: no cover, should not happen
                 # pylint: disable=useless-else-on-loop
                 logger.warning("count_objects, unknown object type: %s", object_type)
@@ -414,20 +389,7 @@ class DataManager(object):
 
         objects_count = 0
         for known_class in self.known_classes:
-            count = known_class.get_count()
-            if refresh:
-                count = self.count_objects(known_class.get_type(), search=search)
-                if search:
-                    log_function(
-                        "get_objects_count, currently %d total %ss for %s",
-                        count, known_class.get_type(), search
-                    )
-                else:
-                    log_function(
-                        "get_objects_count, currently %d total %ss",
-                        count, known_class.get_type()
-                    )
-            objects_count += count
+            objects_count += known_class.get_count()
 
         log_function("get_objects_count, currently %d elements", objects_count)
         return objects_count
@@ -478,15 +440,19 @@ class DataManager(object):
         else:
             object_id = element.id
 
-        if self.backend.delete(object_type, object_id):
-            # Find object type class...
-            object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
+        try:
+            if self.backend.delete(object_type, object_id):
+                # Find object type class...
+                object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
-            # Delete existing cache object
-            if object_id in object_class.get_cache():
-                del object_class.get_cache()[object_id]
+                # Delete existing cache object
+                if object_id in object_class.get_cache():
+                    del object_class.get_cache()[object_id]
 
-            return True
+                return True
+        except BackendException as exp:  # pragma: no cover, simple protection
+            logger.warning("delete_object, exception: %s", exp)
+
         return False
 
     def update_object(self, element, data):
@@ -552,9 +518,7 @@ class DataManager(object):
 
         # Get user stored value
         if user.set_ui_preference(preference_key, value):
-            return self.update_object(
-                user, {'ui_preferences': user.ui_preferences}
-            )
+            return self.update_object(user, {'ui_preferences': user.ui_preferences})
 
         return False
 
@@ -580,11 +544,14 @@ class DataManager(object):
         :return: found data, or None
         :rtype: dict
         """
-        logger.debug("get_user_preferences, key: %s, for: %s", preference_key, user)
+        logger.info("get_user_preferences, key: %s, for: %s", preference_key, user)
 
         # Get user stored value
         result = user.get_ui_preference(preference_key)
-        return result if result else default
+        logger.info("get_user_preferences, key: %s = %s (%s)", preference_key, result, default)
+        if result:
+            return result
+        return default
 
     ##
     # Alignak
@@ -650,7 +617,7 @@ class DataManager(object):
         result = []
 
         try:
-            logger.debug("get_alignak_state")
+            logger.debug("get_alignak_map")
             result = self.alignak_ws.get('alignak_map')
         except AlignakWSException:
             return result
@@ -845,7 +812,7 @@ class DataManager(object):
                 logger.debug("get_livesynthesis, none found")
                 return default_ls
 
-        if not items:
+        if not items:  # pragma: no cover - should not happen
             return default_ls
 
         synthesis = default_ls
@@ -1022,7 +989,7 @@ class DataManager(object):
             logger.debug("get_livesynthesis_history, none found")
             return []
 
-        if not item:
+        if not item:  # pragma: no cover - should not happen
             return []
 
         # Manage global live synthesis
@@ -1128,7 +1095,7 @@ class DataManager(object):
 
         # Manage livesynthesis history
         history = []
-        for livesynthesis in item['history']:
+        for livesynthesis in item['history']:  # pragma: no cover - really hard with unit tests...
             logger.debug("livesynthesis item: %s", livesynthesis['_created'])
             synthesis = deepcopy(default_ls)
             synthesis['_created'] = livesynthesis['_created']
