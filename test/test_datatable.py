@@ -221,7 +221,6 @@ def setup_module(module):
     # ---
 
 
-
 def teardown_module(module):
     print("Stopping Alignak backend...")
     global backend_process
@@ -788,8 +787,6 @@ class TestDatatableHostgroups(TestDatatableBase):
         """Datatable - hosts groups table"""
         print('test hostgroup table')
 
-        global items_count
-
         print('get page /hostgroups/table')
         response = self.app.get('/hostgroups/table')
         response.mustcontain(
@@ -832,8 +829,6 @@ class TestDatatableHostdependencies(TestDatatableBase):
         """Datatable - hosts dependencies table"""
         print('test hostdependency table')
 
-        global items_count
-
         print('get page /hostdependencys/table')
         response = self.app.get('/hostdependencys/table')
         response.mustcontain(
@@ -853,6 +848,44 @@ class TestDatatableHostdependencies(TestDatatableBase):
         )
 
         response = self.app.post('/hostdependencys/table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['alias'] is not None
+
+
+class TestDatatableHostEscalations(TestDatatableBase):
+    def test_hosts_escalations(self):
+        """Datatable - hosts escalations table"""
+        print('test hostescalation table')
+
+        print('get page /hostescalations/table')
+        response = self.app.get('/hostescalations/table')
+        response.mustcontain(
+            '<div id="hostescalations_table" class="alignak_webui_table ">',
+            "$('#tbl_hostescalation').DataTable( {",
+            '<table id="tbl_hostescalation" ',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="hosts" data-type="list"',
+            '<th data-name="hostgroups" data-type="list"',
+            '<th data-name="escalation_period" data-type="objectid"',
+            '<th data-name="escalation_options" data-type="list"',
+            '<th data-name="users" data-type="list"',
+            '<th data-name="usergroups" data-type="list"',
+        )
+
+        response = self.app.post('/hostescalations/table_data')
         response_value = response.json
         print(response_value)
         # Temporary
@@ -925,8 +958,6 @@ class TestDatatableServicegroups(TestDatatableBase):
         """Datatable - services groups table"""
         print('test servicegroup table')
 
-        global items_count
-
         print('get page /servicegroups/table')
         response = self.app.get('/servicegroups/table')
         response.mustcontain(
@@ -969,8 +1000,6 @@ class TestDatatableServicedependencies(TestDatatableBase):
         """Datatable - services dependencies table"""
         print('test servicedependency table')
 
-        global items_count
-
         print('get page /servicedependencys/table')
         response = self.app.get('/servicedependencys/table')
         response.mustcontain(
@@ -1009,6 +1038,45 @@ class TestDatatableServicedependencies(TestDatatableBase):
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['definition_order'] is not None
+                assert response.json['data'][x]['alias'] is not None
+
+
+class TestDatatableServiceEscalations(TestDatatableBase):
+    def test_services_escalations(self):
+        """Datatable - services escalationstable"""
+        print('test serviceescalation table')
+
+        print('get page /serviceescalations/table')
+        response = self.app.get('/serviceescalations/table')
+        response.mustcontain(
+            '<div id="serviceescalations_table" class="alignak_webui_table ">',
+            "$('#tbl_serviceescalation').DataTable( {",
+            '<table id="tbl_serviceescalation" ',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="services" data-type="list"',
+            '<th data-name="hosts" data-type="list"',
+            '<th data-name="hostgroups" data-type="list"',
+            '<th data-name="escalation_period" data-type="objectid"',
+            '<th data-name="escalation_options" data-type="list"',
+            '<th data-name="users" data-type="list"',
+            '<th data-name="usergroups" data-type="list"',
+        )
+
+        response = self.app.post('/serviceescalations/table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
                 assert response.json['data'][x]['alias'] is not None
 
 
