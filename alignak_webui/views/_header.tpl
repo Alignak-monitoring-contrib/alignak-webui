@@ -51,6 +51,8 @@
 
       <!-- Right part ... -->
       <div id="navbar-collapsible-part" class="collapse navbar-collapse">
+         %include("_menubar.tpl")
+
          <ul class="nav navbar-nav navbar-left">
             <!-- Page filtering ... -->
             %include("_filters.tpl")
@@ -62,8 +64,6 @@
                </a>
             </li>
          </ul>
-
-         %include("_menubar.tpl")
 
          <ul class="nav navbar-nav navbar-right">
             %try:

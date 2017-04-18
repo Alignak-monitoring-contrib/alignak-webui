@@ -124,13 +124,3 @@ class History(BackendElement):
         return super(History, self).get_html_state(object_type=self.get_type(), object_item=self,
                                                    extra=extra, icon=icon, text=text,
                                                    title=title, disabled=disabled, size=size)
-
-    def get_check_date(self, timestamp=False, fmt=None, duration=False):
-        """Returns a string formatted data"""
-        if self.date == self.__class__._default_date and not timestamp:
-            return 'XxX'
-
-        if timestamp:
-            return self.date
-
-        return super(History, self).get_date(self.date, fmt, duration)

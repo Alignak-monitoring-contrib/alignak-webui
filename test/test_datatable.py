@@ -52,6 +52,7 @@ from alignak_webui.backend.datamanager import DataManager
 
 items_count = 0
 backend_process = None
+backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
     # Set test mode for applications backend
@@ -1274,6 +1275,7 @@ class TestDatatableLogs(TestDatatableBase):
 
         response = self.app.post('/logcheckresults/table_data')
         response_value = response.json
+        print(response_value)
 
 
 class TestDatatableHistorys(TestDatatableBase):

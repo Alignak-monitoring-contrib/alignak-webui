@@ -137,10 +137,6 @@ class Datatable(object):
                 the ui in its plugin_table.
 
             :return: list of fields name/title"""
-        if not plugin_table:
-            logger.error("get_data_model, missing plugin_table")
-            return None
-
         self.data_model = []
         self.table_columns = []
         for field, model in plugin_table.iteritems():
@@ -504,23 +500,27 @@ class Datatable(object):
                 logger.info("decoded search pattern: %s", search)
 
                 # Old strategy: search for the value in all the searchable columns...
-                if not search:
-                    logger.info("applying datatable search pattern...")
-                    for column in params['columns']:
-                        if not column['searchable']:
-                            continue
-                        logger.debug("search global '%s' for '%s'",
-                                     column['data'], params['search']['value'])
-                        if 'regex' in params['search']:
-                            if params['search']['regex']:
-                                s_global.update(
-                                    {column['data']: {
-                                        "$regex": ".*" + params['search']['value'] + ".*"}})
-                            else:
-                                s_global.update({column['data']: params['search']['value']})
+                # if not search:
+                #     logger.info("applying datatable search pattern...")
+                #     for column in params['columns']:
+                #         if not column['searchable']:
+                #             continue
+                #         logger.debug("search global '%s' for '%s'",
+                #                      column['data'], params['search']['value'])
+                #         if 'regex' in params['search']:
+                #             if params['search']['regex']:
+                #                 s_global.update(
+                #                     {column['data']: {
+                #                         "$regex": ".*" + params['search']['value'] + ".*"}})
+                #             else:
+                #                 s_global.update({column['data']: params['search']['value']})
                 s_global = search
 
             logger.info("backend search global parameters: %s", s_global)
+
+        # Specific hack to filter the log check results that are not dated!
+        if self.object_type == 'logcheckresult':
+            s_columns.append({"last_check": {"$ne": 0}})
 
         if s_columns and s_global:
             parameters['where'] = {"$and": [{"$and": s_columns}, s_global]}
@@ -548,10 +548,6 @@ class Datatable(object):
         else:
             self.records_total = self.backend.count(self.object_type)
 
-        # Specific hack to filter the log check results that are not dated!
-        if self.object_type == 'logcheckresult':
-            parameters.update({'where': {"last_check": {"$ne": 0}}})
-
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
@@ -570,7 +566,7 @@ class Datatable(object):
         # Create an object ...
         object_class = [kc for kc in self.datamgr.known_classes
                         if kc.get_type() == self.object_type]
-        if not object_class:
+        if not object_class:  # pragma: no cover, should never happen!
             logger.warning("datatable, unknown object type: %s", self.object_type)
             # Empty response
             return json.dumps({
@@ -640,7 +636,7 @@ class Datatable(object):
                         )
                         # Use the item overall state to specify the table row class
                         row['DT_RowClass'] = "table-row-%s" % (overall_status)
-                    else:
+                    else:  # pragma: no cover, should never happen!
                         logger.warning("Missing get_overall_state method for: %s", self.object_type)
                         row[field['data']] = 'XxX'
                     continue
