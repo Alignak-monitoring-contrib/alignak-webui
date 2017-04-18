@@ -235,12 +235,55 @@ class TestLivestate(unittest2.TestCase):
         self.app.get('/logout')
 
     def test_livestate(self):
-        """ Web - livestate """
+        """Web - default livestate (table)"""
         print('get page /livestate')
         redirected_response = self.app.get('/livestate')
         print(redirected_response)
         redirected_response.mustcontain(
             '<div id="livestate-bi--1">'
+        )
+
+        # Update test application - livestate is panels
+        self.app.get('/logout')
+        alignak_webui.app.app.config['livestate_layout'] = 'panels'
+        self.app = TestApp(alignak_webui.app.session_app)
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        print('get page /livestate')
+        redirected_response = self.app.get('/livestate')
+        print(redirected_response)
+        redirected_response.mustcontain(
+            '<div id="livestate-bi-5"> </div>',
+            '<div id="livestate-bi-4"> </div>',
+            '<div id="livestate-bi-3"> </div>',
+            '<div id="livestate-bi-2"> </div>',
+            '<div id="livestate-bi-1"> </div>',
+            '<div id="livestate-bi-0"> </div>'
+        )
+
+        # Update test application - livestate is tabs
+        self.app.get('/logout')
+        alignak_webui.app.app.config['livestate_layout'] = 'tabs'
+        self.app = TestApp(alignak_webui.app.session_app)
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        print('get page /livestate')
+        redirected_response = self.app.get('/livestate')
+        print(redirected_response)
+        redirected_response.mustcontain(
+            '<div class="tab-content">',
+            '<div id="tab-bi-5" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-5"></div>',
+            '<div id="tab-bi-4" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-4"></div>',
+            '<div id="tab-bi-3" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-3"></div>',
+            '<div id="tab-bi-2" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-2"></div>',
+            '<div id="tab-bi-1" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-1"></div>',
+            '<div id="tab-bi-0" class="tab-pane fade active in" role="tabpanel">',
+            '<div id="livestate-bi-0"></div>'
         )
 
 

@@ -162,7 +162,6 @@ class Plugin(object):
             if 'get_all' not in self.pages:
                 plugin_dir = os.path.join(self.webui.plugins_dir, self.plugin_dirname)
                 all_view = os.path.join(plugin_dir, 'views', '%ss.tpl' % self.backend_endpoint)
-                logger.warning("All view: %s", all_view)
                 if os.path.exists(all_view):
                     self.pages.update({
                         'get_all': {
@@ -487,6 +486,7 @@ class Plugin(object):
                 logger.warning("plugin %s overrides default configuration: %s.%s = %s",
                                self.name, p[1], p[2], self.plugin_config[param])
 
+        logger.debug("Table: %s", self.table)
         if initialization:
             return True
 

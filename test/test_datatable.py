@@ -234,7 +234,6 @@ def teardown_module(module):
 # Generic tests for the data tables
 # ---
 class TestDataTable(unittest2.TestCase):
-
     """Generic datatables tests
 
     Those tests are done with the commands table. It was needed to use one :)
@@ -258,7 +257,7 @@ class TestDataTable(unittest2.TestCase):
         self.items_count = 0
 
     def test_get(self):
-        """ Datatable - get table """
+        """Datatable - get table"""
         print('test get table')
 
         print('get page /commands/table')
@@ -281,7 +280,7 @@ class TestDataTable(unittest2.TestCase):
         )
 
     def test_02_change(self):
-        """ Datatable - change content """
+        """Datatable - change content"""
         print('test get table')
 
         print('change content with /commands/table_data')
@@ -363,7 +362,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['data'] == []
 
     def test_03_sort(self):
-        """ Datatable - sort table """
+        """Datatable - sort table"""
         print('test sort table')
 
         # Sort ascending ...
@@ -423,7 +422,7 @@ class TestDataTable(unittest2.TestCase):
         # TODO : check order of element ?
 
     def test_04_filter(self):
-        """ Datatable - filter table """
+        """Datatable - filter table"""
         print('test filter table')
 
         print('change content with /commands/table_data')
@@ -646,7 +645,7 @@ class TestDatatableBase(unittest2.TestCase):
 
 class TestDatatableCommands(TestDatatableBase):
     def test_commands(self):
-        """ Datatable - commands table """
+        """Datatable - commands table"""
         print('test commands table')
 
         print('get page /commands')
@@ -690,7 +689,7 @@ class TestDatatableCommands(TestDatatableBase):
 
 class TestDatatableRealms(TestDatatableBase):
     def test_realms(self):
-        """ Datatable - realms table """
+        """Datatable - realms table"""
         print('test realm table')
 
         print('get page /realms/table')
@@ -701,7 +700,7 @@ class TestDatatableRealms(TestDatatableBase):
             '<table id="tbl_realm" ',
             '<th data-name="name" data-type="string"',
             # '<th data-name="definition_order" data-type="integer"',
-            '<th data-name="alias" data-type="string"',
+            # '<th data-name="alias" data-type="string"',
             '<th data-name="default" data-type="boolean"',
             '<th data-name="_level" data-type="integer"',
             '<th data-name="_parent" data-type="objectid"',
@@ -734,7 +733,7 @@ class TestDatatableRealms(TestDatatableBase):
 
 class TestDatatableHosts(TestDatatableBase):
     def test_hosts(self):
-        """ Datatable - hosts table """
+        """Datatable - hosts table"""
         print('test hosts table')
 
         print('get page /hosts/table')
@@ -749,7 +748,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="business_impact" data-type="integer"',
-            '<th data-name="ls_last_check" data-type="datetime"',
+            '<th data-name="ls_last_check" data-type="integer"',
             '<th data-name="ls_state_type" data-type="string"',
             '<th data-name="ls_state_id" data-type="integer"',
             '<th data-name="ls_acknowledged" data-type="boolean"',
@@ -760,7 +759,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_current_attempt" data-type="integer"',
             '<th data-name="ls_max_attempts" data-type="integer"',
             '<th data-name="ls_next_check" data-type="integer"',
-            '<th data-name="ls_last_state_changed" data-type="datetime"',
+            '<th data-name="ls_last_state_changed" data-type="integer"',
             '<th data-name="ls_last_state" data-type="string"',
             '<th data-name="ls_last_state_type" data-type="string"',
             '<th data-name="ls_latency" data-type="float"',
@@ -786,7 +785,7 @@ class TestDatatableHosts(TestDatatableBase):
 
 class TestDatatableHostgroups(TestDatatableBase):
     def test_hosts_groups(self):
-        """ Datatable - hosts groups table """
+        """Datatable - hosts groups table"""
         print('test hostgroup table')
 
         global items_count
@@ -830,7 +829,7 @@ class TestDatatableHostgroups(TestDatatableBase):
 
 class TestDatatableHostdependencies(TestDatatableBase):
     def test_hosts_dependencies(self):
-        """ Datatable - hosts dependencies table """
+        """Datatable - hosts dependencies table"""
         print('test hostdependency table')
 
         global items_count
@@ -872,7 +871,7 @@ class TestDatatableHostdependencies(TestDatatableBase):
 
 class TestDatatableServices(TestDatatableBase):
     def test_services(self):
-        """ Datatable - services table """
+        """Datatable - services table"""
         print('test services table')
 
         global items_count
@@ -887,7 +886,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
-            '<th data-name="ls_last_check" data-type="datetime"',
+            '<th data-name="ls_last_check" data-type="integer"',
             '<th data-name="ls_state_type" data-type="string"',
             '<th data-name="ls_state_id" data-type="integer"',
             '<th data-name="ls_acknowledged" data-type="boolean"',
@@ -898,7 +897,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="ls_current_attempt" data-type="integer"',
             '<th data-name="ls_max_attempts" data-type="integer"',
             '<th data-name="ls_next_check" data-type="integer"',
-            '<th data-name="ls_last_state_changed" data-type="datetime"',
+            '<th data-name="ls_last_state_changed" data-type="integer"',
             '<th data-name="ls_last_state" data-type="string"',
             '<th data-name="ls_last_state_type" data-type="string"',
             '<th data-name="ls_latency" data-type="float"',
@@ -923,7 +922,7 @@ class TestDatatableServices(TestDatatableBase):
 
 class TestDatatableServicegroups(TestDatatableBase):
     def test_services_groups(self):
-        """ Datatable - services groups table """
+        """Datatable - services groups table"""
         print('test servicegroup table')
 
         global items_count
@@ -967,7 +966,7 @@ class TestDatatableServicegroups(TestDatatableBase):
 
 class TestDatatableServicedependencies(TestDatatableBase):
     def test_services_dependencies(self):
-        """ Datatable - services dependencies table """
+        """Datatable - services dependencies table"""
         print('test servicedependency table')
 
         global items_count
@@ -1015,7 +1014,7 @@ class TestDatatableServicedependencies(TestDatatableBase):
 
 class TestDatatableUsers(TestDatatableBase):
     def test_users(self):
-        """ Datatable - users table """
+        """Datatable - users table"""
         print('test users table')
 
         global items_count
@@ -1030,7 +1029,6 @@ class TestDatatableUsers(TestDatatableBase):
             '<th data-name="is_admin" data-type="boolean"',
             '<th data-name="can_submit_commands" data-type="boolean"',
             '<th data-name="role" data-type="string"',
-            '<th data-name="alias" data-type="string"',
             '<th data-name="email" data-type="string"',
             '<th data-name="min_business_impact" data-type="integer"',
             '<th data-name="host_notifications_enabled" data-type="boolean"',
@@ -1055,7 +1053,7 @@ class TestDatatableUsers(TestDatatableBase):
 
 class TestDatatableUsergroups(TestDatatableBase):
     def test_usergroups(self):
-        """ Datatable - users groups table """
+        """Datatable - users groups table"""
         print('test usergroup table')
 
         global items_count
@@ -1099,7 +1097,7 @@ class TestDatatableUsergroups(TestDatatableBase):
 
 class TestDatatableTimeperiods(TestDatatableBase):
     def test_timeperiod(self):
-        """ Datatable - timeperiods table """
+        """Datatable - timeperiods table"""
         print('test timeperiod table')
 
         global items_count
@@ -1111,9 +1109,6 @@ class TestDatatableTimeperiods(TestDatatableBase):
             "$('#tbl_timeperiod').DataTable( {",
             '<table id="tbl_timeperiod" ',
             '<th data-name="name" data-type="string"',
-            '<th data-name="definition_order" data-type="integer"',
-            '<th data-name="alias" data-type="string"',
-            '<th data-name="is_active" data-type="boolean"',
             '<th data-name="dateranges" data-type="list"',
             '<th data-name="exclude" data-type="list"'
         )
@@ -1138,7 +1133,7 @@ class TestDatatableTimeperiods(TestDatatableBase):
 
 class TestDatatableUserRestrictRoles(TestDatatableBase):
     def test_userrestrictrole(self):
-        """ Datatable - users restrictions table """
+        """Datatable - users restrictions table"""
         print('test userrestrictrole table')
 
         global items_count
@@ -1180,7 +1175,7 @@ class TestDatatableUserRestrictRoles(TestDatatableBase):
 
 class TestDatatableLogs(TestDatatableBase):
     def test_logcheckresult(self):
-        """ Datatable - logs table """
+        """Datatable - logs table"""
         print('test logcheckresult table')
 
         global items_count
@@ -1191,8 +1186,8 @@ class TestDatatableLogs(TestDatatableBase):
             '<div id="logcheckresults_table" class="alignak_webui_table ">',
             "$('#tbl_logcheckresult').DataTable( {",
             '<table id="tbl_logcheckresult" ',
-            '<th data-name="last_check" data-type="datetime"',
-            '<th data-name="host" data-type="objectid"',
+            '<th data-name="last_check" data-type="integer"',
+            '<th data-name="host_name" data-type="string"',
             '<th data-name="service_name" data-type="string"',
             '<th data-name="state" data-type="string"',
             '<th data-name="state_type" data-type="string"',
@@ -1205,7 +1200,7 @@ class TestDatatableLogs(TestDatatableBase):
             '<th data-name="last_state" data-type="string"',
             '<th data-name="last_state_type" data-type="string"',
             '<th data-name="last_state_id" data-type="integer"',
-            '<th data-name="last_state_changed" data-type="datetime"',
+            '<th data-name="last_state_changed" data-type="integer"',
             '<th data-name="output" data-type="string"',
             '<th data-name="long_output" data-type="string"',
             '<th data-name="perf_data" data-type="string"',

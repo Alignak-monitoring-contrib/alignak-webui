@@ -440,6 +440,7 @@ class Helper(object):
                     field = 'business_impact'
 
                 # Get the column definition for the searched field
+                logger.debug("Data model: %s", data_model)
                 if field not in data_model:
                     if 'ls_' + field not in data_model:
                         logger.warning("decode_search, unknown column '%s' in table fields", field)
@@ -460,6 +461,7 @@ class Helper(object):
                     regex = False
                 else:
                     regex = c_def.get('regex', True)
+                logger.warning("Field: %s, regex: %s", field, regex)
 
                 for pattern in patterns:
                     logger.debug("decode_search, pattern: %s", pattern)

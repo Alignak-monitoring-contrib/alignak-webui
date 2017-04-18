@@ -374,8 +374,6 @@ class PluginActions(Plugin):
                 {'error': "the plugin for '%s' is not existing or not installed" % elements_type}
             )
         logger.info("Found plugin: %s", plugin.name)
-        # logger.info("Got plugin fields table for %s: %s", elements_type, plugin.table)
-        logger.info("Got plugin fields table for %s: %s", elements_type, plugin.table["ls_state_id"])
 
         # Provide the described parameters
         parameters = {}

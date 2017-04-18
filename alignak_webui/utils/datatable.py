@@ -48,12 +48,12 @@ class Datatable(object):
 
     """jQuery  Datatable plugin interface for backend elements """
 
-    def __init__(self, object_type, datamgr, schema, templates=False):
+    def __init__(self, object_type, datamgr, plugin_table, templates=False):
         """ Create a new datatable:
 
         - object_type: object type in the backend
         - backend: backend endpoint (http://127.0.0.1:5002)
-        - schema: table configuration as defined in a plugin
+        - plugin_table: table configuration as defined in a plugin
         - templates: templates table or objects table (False)
         """
         self.object_type = object_type
@@ -103,17 +103,18 @@ class Datatable(object):
         # Get table structure and description
         self.templates = templates
         self.is_templated = False
-        self.get_data_model(schema)
+        self.get_data_model(plugin_table)
 
         # Templates management
         if self.is_templated:
             self.records_total = self.backend.count(self.object_type,
-                                                    params={'where': {'_is_template':
-                                                                          self.templates}})
+                                                    params={
+                                                        'where': {'_is_template': self.templates}
+                                                    })
         else:
             self.records_total = self.backend.count(self.object_type)
 
-    def get_data_model(self, schema):
+    def get_data_model(self, plugin_table):
         """Get the data model for an element type
 
             If the data model specifies that the element is managed in the UI,
@@ -133,18 +134,17 @@ class Datatable(object):
                 a unique identifier field
             - page_title: title format string to be used for an element page
             - fields: list of dictionaries. One dictionary per each field mentioned as visible in
-                the ui in its schema. The dictionary contains all the fields defined in the 'ui'
-                property of the schema of the element.
+                the ui in its plugin_table.
 
             :return: list of fields name/title"""
-        if not schema:
-            logger.error("get_data_model, missing schema")
+        if not plugin_table:
+            logger.error("get_data_model, missing plugin_table")
             return None
 
         self.data_model = []
         self.table_columns = []
-        for field, model in schema.iteritems():
-            logger.debug('get_data_model, field: %s, schema: %s', field, model)
+        for field, model in plugin_table.iteritems():
+            logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
 
             # Global table configuration?
             if field == '_table':
@@ -197,7 +197,7 @@ class Datatable(object):
                 'empty': model.get('empty', False),
                 'unique': model.get('unique', False),
 
-                'regex': model.get('regex', True),
+                'regex_search': model.get('regex_search', True),
                 'title': model.get('title', field),
                 'comment': model.get('comment', ''),
                 'format': model.get('format', ''),
@@ -228,9 +228,10 @@ class Datatable(object):
             # logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
             # If not hidden, return field
-            self.data_model.append(ui_field)
+            # self.data_model.append(ui_field)
             if not model.get('hidden', False):
                 self.table_columns.append(ui_field)
+                logger.warning(ui_field)
 
                 if ui_field['type'] == 'objectid' or \
                         ui_field['content_type'].startswith('objectid'):
@@ -309,7 +310,7 @@ class Datatable(object):
             }
         }
 
-    def table_data(self, data_model):
+    def table_data(self, plugin_table):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
         """Return elements data in json format as of Datatables SSP protocol
@@ -500,7 +501,7 @@ class Datatable(object):
                 logger.debug("search requested, value: %s ", params['search']['value'])
 
                 # New strategy: decode search patterns...
-                search = Helper.decode_search(params['search']['value'], data_model)
+                search = Helper.decode_search(params['search']['value'], plugin_table)
                 logger.info("decoded search pattern: %s", search)
 
                 # Old strategy: search for the value in all the searchable columns...
