@@ -1,0 +1,53 @@
+[
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "address1": "",
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "address5": "",
+        "address6": "",
+        "alias": "User template",
+        "back_role_super_admin": false,
+        "can_submit_commands": false,
+        "can_update_livestate": false,
+        "customs": {},
+        "definition_order": 100,
+        "email": "",
+        "host_notification_commands": [
+            "notify-host-by-email"
+        ],
+        "host_notification_options": [
+            "d",
+            "u",
+            "r",
+            "f",
+            "s"
+        ],
+        "host_notification_period": "24x7",
+        "host_notifications_enabled": true,
+        "imported_from": "alignak-checks-windows-nsca",
+        "is_admin": false,
+        "min_business_impact": 0,
+        "name": "user",
+        "notes": "",
+        "notificationways": [],
+        "pager": "",
+        "service_notification_commands": [
+            "notify-service-by-email"
+        ],
+        "service_notification_options": [
+            "w",
+            "u",
+            "c",
+            "r",
+            "f",
+            "s"
+        ],
+        "service_notification_period": "24x7",
+        "service_notifications_enabled": true,
+        "tags": []
+    }
+]

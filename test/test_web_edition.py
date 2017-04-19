@@ -128,10 +128,36 @@ class TestEditionModeDenied(unittest2.TestCase):
         """Enable / disable edition mode is denied for non admin user"""
 
         print('Enable edition mode - denied')
-        response = self.app.post('/edition_mode', params={'state': 'on'}, status=401)
+        self.app.post('/edition_mode', params={'state': 'on'}, status=401)
 
         print('Disable edition mode - denied')
-        response = self.app.post('/edition_mode', params={'state': 'off'}, status=401)
+        self.app.post('/edition_mode', params={'state': 'off'}, status=401)
+
+        print('get page /host/form (read-only mode) - for a new host - granted')
+        # Authorized...
+        self.app.get('/host/webui/form', status=200)
+
+        print('get page /host/form (edition mode) - for a new host - denied')
+        # Redirected...
+        self.app.get('/host/None/form', status=302)
+
+        print('Host creation without template - denied')
+        data = {
+            "_is_template": False,
+            'name': "New host",
+            'alias': "Friendly name"
+        }
+        self.app.post('/host/None/form', params=data, status=401)
+
+        print('Host templates page - denied')
+        self.app.get('/hosts/templates', status=302)
+
+        print('Post form updates - denied')
+        data = {
+            'name': 'webui',
+            'alias': "Alias edited"
+        }
+        response = self.app.post('/host/webui/form', params=data, status=401)
 
 
 class TestEditionMode(unittest2.TestCase):
@@ -289,6 +315,25 @@ class TestHosts(unittest2.TestCase):
     def tearDown(self):
         print('logout')
         self.app.get('/logout')
+
+    def test_hosts_templates_table(self):
+        """View hosts templates page in edition mode"""
+        print('get page /hosts/templates (edition mode)')
+        response = self.app.get('/hosts/templates')
+        response.mustcontain(
+            '<div id="hosts-templates">',
+            '<form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">',
+            '<legend>Creating a new host:</legend>',
+            '<input class="form-control" type="text" id="name" name="name" placeholder="Host name"  value="">',
+            '<input class="form-control" type="text" id="alias" alias="alias" placeholder="Host alias"  value="">',
+            '<input class="form-control" type="text" id="address" name="address" placeholder="0.0.0.0"  value="">',
+            '<input class="form-control" type="text" id="realm" realm="realm" placeholder="Host realm"  value="">',
+            '<input type="checkbox" id="_is_template" name="_is_template">',
+            '<input id="_dummy" name="_dummy" type="checkbox" data-id="58f7250c06fd4b31e230280a" data-linked="">',
+            '<input id="generic-passive-host" name="generic-passive-host" type="checkbox" data-id="58f7250f06fd4b31e2302814" data-linked="">',
+            '<input id="windows-passive-host" name="windows-passive-host" type="checkbox" data-id="58f7250f06fd4b31e2302815" data-linked="generic-passive-host">'
+        )
+
 
     def test_hosts_templates_table(self):
         """View hosts templates table in edition mode"""

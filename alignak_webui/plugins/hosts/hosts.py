@@ -306,6 +306,16 @@ class PluginHosts(Plugin):
 
     def get_all_templates(self):
         """Get all the hosts templates"""
+        user = request.environ['beaker.session']['current_user']
+        edition_mode = request.environ['beaker.session']['edition_mode']
+        if not edition_mode:
+            self.send_user_message(_("You must activate edition mode to view this page"),
+                                   redirected=True)
+        if not user.can_edit_configuration():
+            logger.warning("Current user '%s' is not authorized to view this page",
+                           user.get_username())
+            self.send_user_message(_("Not authorized to view this page"), redirected=True)
+
         return self.get_all(templates=True, all_elements=True)
 
     def get_one(self, element_id):

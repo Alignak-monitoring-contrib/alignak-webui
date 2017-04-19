@@ -913,7 +913,7 @@ class TestServices(unittest2.TestCase):
         response = self.app.post('/services/widget', status=204)
         response = self.app.post('/services/widget', {'widget_id': 'test_widget'}, status=204)
 
-        # Hosts table
+        # Services table widget
         response = self.app.post('/services/widget', {
             'widget_id': 'services_table_1',
             'widget_template': 'services_table_widget'
@@ -921,7 +921,7 @@ class TestServices(unittest2.TestCase):
         response.mustcontain(
             '<div id="wd_panel_services_table_1" class="panel panel-default alignak_webui_widget ">'
         )
-        # Hosts chart
+        # Services chart widget
         response = self.app.post('/services/widget', {
             'widget_id': 'services_chart_1',
             'widget_template': 'services_chart_widget'

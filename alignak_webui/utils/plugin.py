@@ -745,8 +745,7 @@ class Plugin(object):
             _id (or name) of an object to update.
         """
         user = request.environ['beaker.session']['current_user']
-        edition_mode = request.environ['beaker.session']['edition_mode']
-        if edition_mode and not user.can_edit_configuration():
+        if not user.can_edit_configuration():
             logger.warning("Current user '%s' is not authorized to edit %s elements",
                            user.get_username(), self.backend_endpoint)
             response.status = 401

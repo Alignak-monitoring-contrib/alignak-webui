@@ -404,9 +404,6 @@ class DataManager(object):
 
         Make a simple request for 1 element and we will get back the total count of elements
 
-        Note: The 'daemon' (Daemon class) objects are not concerned whereas they are not stored in
-        the backend
-
         Args:
             object_type: the object type as a backend endpoint (eg. host, realm, ...)
             search: dictionary of key / value to search for
@@ -418,7 +415,7 @@ class DataManager(object):
             'page': 0, 'max_results': 1
         }
         if search is not None:
-            params['where'] = search
+            params.update(search)
 
         return self.backend.count(object_type, params)
 
@@ -1234,7 +1231,6 @@ class DataManager(object):
         """Send an external command to Alignak."""
         logger.info("add_command, send a command, data: %s", data)
         try:
-            logger.debug("get_alignak_state")
             result = self.alignak_ws.post('command', data)
         except AlignakWSException:
             return None
