@@ -918,7 +918,7 @@ def get_user_preference():
 
     response.status = 200
     response.content_type = 'application/json'
-    return json.dumps(value)
+    return json.dumps(key_value)
 
 
 @app.route('/preference/user/delete', 'GET')

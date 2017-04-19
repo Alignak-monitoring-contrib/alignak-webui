@@ -145,13 +145,16 @@ class tests_preferences(unittest2.TestCase):
         print('test user preferences get a value')
 
         # Get user's preferences value - missing key
+        print('- missing key')
         response = self.app.get('/preference/user', status=204)
 
-        # Get user's preferences value - existing key
+        # Get user's preferences value - not existing key without default value
+        print('- unknown key, no default value')
         response = self.app.get('/preference/user?key=elts_per_page', status=404)
         assert response.json == {u'message': u'Unknown key: elts_per_page', u'status': u'ko'}
 
-        # Get user's preferences value - not existing key without default value
+        # Get user's preferences value - not existing key with default value
+        print('- unknown key, with default value')
         response = self.app.get('/preference/user?key=test&default=default')
         assert response.json == 'default'
 
@@ -181,7 +184,7 @@ class tests_preferences(unittest2.TestCase):
 
         # Get user's preferences value
         response = self.app.get('/preference/user?key=test_json')
-        assert response.json == json.dumps({'a': 1, 'b': '1'})
+        assert response.json == {'a': 1, 'b': '1'}
 
     def test_user_preference_delete(self):
         """User preference - set and delete a value"""

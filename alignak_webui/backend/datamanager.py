@@ -389,6 +389,7 @@ class DataManager(object):
 
         objects_count = 0
         for known_class in self.known_classes:
+            log_function("get_objects_count, %s: %d elements", known_class, known_class.get_count())
             objects_count += known_class.get_count()
 
         log_function("get_objects_count, currently %d elements", objects_count)
@@ -544,14 +545,11 @@ class DataManager(object):
         :return: found data, or None
         :rtype: dict
         """
-        logger.info("get_user_preferences, key: %s, for: %s", preference_key, user)
+        logger.debug("get_user_preferences, key: %s, for: %s", preference_key, user)
 
         # Get user stored value
         result = user.get_ui_preference(preference_key)
-        logger.info("get_user_preferences, key: %s = %s (%s)", preference_key, result, default)
-        if result:
-            return result
-        return default
+        return result if result else default
 
     ##
     # Alignak
