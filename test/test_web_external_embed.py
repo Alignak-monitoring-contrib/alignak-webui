@@ -355,7 +355,36 @@ class TestsExternal(unittest2.TestCase):
         )
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
+        # Host view
+        # ---
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/view?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_view" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts view widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/view' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_view" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts view widget -->',
+        )
+
         # Host information
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -383,6 +412,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host configuration
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -410,6 +440,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host metrics
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -437,6 +468,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host timeline
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -467,6 +499,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host services
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(

@@ -56,6 +56,9 @@ hosts_templates_count = 9
 # 5 for nsca_*
 services_templates_count = 12
 
+# 1 generic user template
+users_templates_count = 1
+
 def setup_module(module):
     """
     Start Alignak backend
@@ -185,6 +188,11 @@ class TestCreation(unittest2.TestCase):
         print("Services templates count: %s" % self.services_templates_count)
         assert self.services_templates_count == services_templates_count
 
+        # Count users templates
+        self.users_templates_count = self.datamgr.count_objects('user', search={'where': {'_is_template': True}})
+        print("Users templates count: %s" % self.users_templates_count)
+        assert self.users_templates_count == users_templates_count
+
         # Count hosts
         self.hosts_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
         print("Hosts count: %s" % self.hosts_count)
@@ -192,6 +200,10 @@ class TestCreation(unittest2.TestCase):
         # Count services
         self.services_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
         print("Services count: %s" % self.services_count)
+
+        # Count users
+        self.users_count = self.datamgr.count_objects('user', search={'where': {'_is_template': False}})
+        print("users count: %s" % self.users_count)
 
     def tearDown(self):
         self.app.get('/logout')
@@ -202,7 +214,8 @@ class TestHostCreation(TestCreation):
         """Host creation from the hosts templates table"""
 
         # Get host template in the backend
-        template = self.datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
+        template = self.datamgr.get_host({'where': {'name': 'windows-passive-host',
+                                                    '_is_template': True}})
         print("Host template: %s" % template)
         assert template.name == 'windows-passive-host'
 
@@ -280,9 +293,11 @@ class TestHostCreation(TestCreation):
         """Host creation from the hosts templates page"""
 
         # Get host template in the backend
-        template = self.datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
+        template = self.datamgr.get_host({'where': {'name': 'windows-passive-host',
+                                                    '_is_template': True}})
         assert template.name == 'windows-passive-host'
-        template2 = self.datamgr.get_host({'where': {'name': 'bi-business-critical', '_is_template': True}})
+        template2 = self.datamgr.get_host({'where': {'name': 'bi-business-critical',
+                                                     '_is_template': True}})
         assert template2.name == 'bi-business-critical'
 
         print('get page /hosts/templates (edition mode)')
@@ -352,50 +367,31 @@ class TestHostCreation(TestCreation):
         print("Services count: %s" % new_count)
         assert new_count == self.services_count + 6
 
-    def test_create_service_from_templates_table(self):
-        """Host creation from the services templates table"""
+class TestServiceCreation(TestCreation):
 
-        datamgr = DataManager(alignak_webui.app.app, session=self.session)
+    def test_create_service_from_templates_table(self):
+        """Service creation from the services templates table"""
+
+        # Count hosts
+        new_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
+        print("Hosts count: %s" % new_count)
+
+        # Count services
+        new_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        print("Services count: %s" % new_count)
 
         # Get host template in the backend
-        template = datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
-        print("Host template: %s" % template)
-        assert template.name == 'windows-passive-host'
+        template = self.datamgr.get_host({'where': {'name': '_dummy', '_is_template': True}})
+        assert template.name == '_dummy'
 
-        print('get page /hosts/templates/table (edition mode)')
-        response = self.app.get('/hosts/templates/table')
-        response.mustcontain(
-            '<div id="hosts_templates_table" class="alignak_webui_table ">',
-            "$('#tbl_hosts_templates_table').DataTable( {",
-            # Because of a templates table
-            'titleAttr: "Navigate to the hosts table"',
-            # Because of edition mode...
-            '''titleAttr: "Create a new item"''',
-            '''var url = "/host/None/form";''',
-        )
-
-        # Get templates in the table
-        response = self.app.post('/hosts/templates_table_data')
-        print("Response: %s" % response.json)
-        assert response.json['recordsTotal'] == hosts_templates_count
-        assert response.json['data']
-
-        # Host creation form
-        print('get page /host/form (edition mode) - create a new host')
-        response = self.app.get('/host/None/form')
-        response.mustcontain(
-            '''<div id="form_host">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
-            '''<h4>You are creating a new host.</h4>''',
-            '''$('form[data-element="None"]').on("submit", function (evt) {'''
-        )
-
-        print('Host creation with a template')
+        print('Create a new host')
         data = {
+            "_realm": self.realm.id,
+            "name": "New host ter",
             "_is_template": False,
             "_templates": [template.id],
-            'name': "New host",
-            'alias': "Friendly name"
+            # Without templating services, else we will inherit from all the services templates ;)
+            '_templates_with_services': False
         }
         response = self.app.post('/host/None/form', params=data)
         # Returns the new item _id
@@ -404,34 +400,179 @@ class TestHostCreation(TestCreation):
         resp.pop('_id')
         assert resp == {
             "_message": "New host created",
-            "_realm": realm.id,
+            "_realm": self.realm.id,
 
             "_is_template": False,
             "_templates": [template.id],
-            "name": "New host",
+            '_templates_with_services': False,
+            "name": "New host ter",
+        }
+
+        # Get new host services
+        services = self.datamgr.get_services({'where': {'host': new_host_id}})
+        for service in services:
+            print("- new service: %s" % service)
+
+        # Count hosts - 1 more host
+        new_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
+        print("Hosts count: %s" % new_count)
+        assert new_count == self.hosts_count + 1
+
+        # Count services - not any service more
+        new_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        print("Services count: %s" % new_count)
+        assert new_count == self.services_count
+
+
+        # Get service template in the backend
+        template = self.datamgr.get_service({'where': {'name': 'windows-passive-service',
+                                                       '_is_template': True}})
+        print("Service template: %s" % template)
+        assert template.name == 'windows-passive-service'
+
+        print('get page /services/templates/table (edition mode)')
+        response = self.app.get('/services/templates/table')
+        response.mustcontain(
+            '<div id="services_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_services_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the services table"',
+            # Because of edition mode...
+            '''titleAttr: "Create a new item"''',
+            '''var url = "/service/None/form";''',
+        )
+
+        # Get templates in the table
+        response = self.app.post('/services/templates_table_data')
+        print("Response: %s" % response.json)
+        assert response.json['recordsTotal'] == services_templates_count
+        assert response.json['data']
+
+        # service creation form
+        print('get page /service/form (edition mode) - create a new service')
+        response = self.app.get('/service/None/form')
+        response.mustcontain(
+            '''<div id="form_service">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/service/None/form">''',
+            '''<h4>You are creating a new service.</h4>''',
+            '''$('form[data-element="None"]').on("submit", function (evt) {'''
+        )
+
+        print('service creation with a template')
+        data = {
+            "_realm": self.realm.id,
+            "_is_template": False,
+            "_templates": [template.id],
+            "host": new_host_id,
+            'name': "New service",
+            'alias': "Friendly name"
+        }
+        response = self.app.post('/service/None/form', params=data)
+        print(response.json)
+        # Returns the new item _id
+        new_service_id = response.json['_id']
+        resp = response.json
+        resp.pop('_id')
+        assert resp == {
+            "_message": "New service created",
+            "_realm": self.realm.id,
+
+            "_is_template": False,
+            "_templates": [template.id],
+            "host": new_host_id,
+            "name": "New service",
             'alias': "Friendly name"
         }
 
         # Count hosts templates
-        count = datamgr.count_objects('host', search={'where': {'_is_template': True}})
+        count = self.datamgr.count_objects('host', search={'where': {'_is_template': True}})
         print("Hosts templates count: %s" % count)
         assert count == hosts_templates_count
 
         # Count services templates
-        count = datamgr.count_objects('service', search={'where': {'_is_template': True}})
+        count = self.datamgr.count_objects('service', search={'where': {'_is_template': True}})
         print("Services templates count: %s" % count)
         assert count == services_templates_count
 
         # Count hosts - 1 more host
-        new_count = datamgr.count_objects('host', search={'where': {'_is_template': False}})
+        new_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
         print("Hosts count: %s" % new_count)
         assert new_count == self.hosts_count + 1
 
-        # Count services - 6 more services
-        new_count = datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        # Count services - 1 more service
+        new_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
         print("Services count: %s" % new_count)
-        assert new_count == self.services_count + 6
+        assert new_count == self.services_count + 1
 
+class TestUserCreation(TestCreation):
+
+    def test_create_user(self):
+        """User creation from the users templates table"""
+
+        # Get user template in the backend
+        template = self.datamgr.get_user({'where': {'name': 'user', '_is_template': True}})
+        print("user template: %s" % template)
+        assert template.name == 'user'
+
+        print('get page /users/templates/table (edition mode)')
+        response = self.app.get('/users/templates/table')
+        response.mustcontain(
+            '<div id="users_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_users_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the users table"',
+            # Because of edition mode...
+            '''titleAttr: "Create a new item"''',
+            '''var url = "/user/None/form";''',
+        )
+
+        # Get templates in the table
+        response = self.app.post('/users/templates_table_data')
+        print("Response: %s" % response.json)
+        assert response.json['recordsTotal'] == users_templates_count
+        assert response.json['data']
+
+        # user creation form
+        print('get page /user/form (edition mode) - create a new user')
+        response = self.app.get('/user/None/form')
+        response.mustcontain(
+            '''<div id="form_user">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/user/None/form">''',
+            '''<h4>You are creating a new user.</h4>''',
+            '''$('form[data-element="None"]').on("submit", function (evt) {'''
+        )
+
+        print('user creation with a template')
+        data = {
+            "_is_template": False,
+            "_templates": [template.id],
+            'name': "New user",
+            'alias': "Friendly name"
+        }
+        response = self.app.post('/user/None/form', params=data)
+        # Returns the new item _id
+        new_user_id = response.json['_id']
+        resp = response.json
+        resp.pop('_id')
+        assert resp == {
+            "_message": "New user created",
+            "_realm": self.realm.id,
+
+            "_is_template": False,
+            "_templates": [template.id],
+            "name": "New user",
+            'alias': "Friendly name"
+        }
+
+        # Count users templates
+        count = self.datamgr.count_objects('user', search={'where': {'_is_template': True}})
+        print("users templates count: %s" % count)
+        assert count == users_templates_count
+
+        # Count users - 1 more user
+        new_count = self.datamgr.count_objects('user', search={'where': {'_is_template': False}})
+        print("users count: %s" % new_count)
+        assert new_count == self.users_count + 1
 
 
 if __name__ == '__main__':

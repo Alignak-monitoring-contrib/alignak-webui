@@ -795,6 +795,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="_sub_realm" data-type="boolean"',
             '<th data-name="_is_template" data-type="boolean"',
             '<th data-name="_templates" data-type="list"',
+            '<th data-name="_templates_with_services" data-type="boolean"',
             '<th data-name="_template_fields" data-type="dict"',
             '<th data-name="definition_order" data-type="integer"',
         )
