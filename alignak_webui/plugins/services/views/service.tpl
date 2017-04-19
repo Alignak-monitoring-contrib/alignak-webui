@@ -196,7 +196,7 @@
                %if service.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
-               %for note_url in Helper.get_element_notes_url(service, default_title="Note", default_icon="tag", popover=True):
+               %for note_url in Helper.get_element_notes_url(service, default_title="Note", default_icon="tag"):
                   <button class="btn btn-default btn-xs">{{! note_url}}</button>
                %end
                </dd>
