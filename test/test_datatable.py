@@ -788,6 +788,8 @@ class TestDatatableHosts(TestDatatableBase):
             '<div id="hosts_templates_table" class="alignak_webui_table ">',
             "$('#tbl_hosts_templates_table').DataTable( {",
             '<table id="tbl_hosts_templates_table" ',
+            'titleAttr: "Navigate to the hosts table"',
+
             '<th data-name="name" data-type="string"',
             '<th data-name="_realm" data-type="objectid"',
             '<th data-name="_sub_realm" data-type="boolean"',
@@ -990,6 +992,8 @@ class TestDatatableServices(TestDatatableBase):
             '<div id="services_templates_table" class="alignak_webui_table ">',
             "$('#tbl_services_templates_table').DataTable( {",
             '<table id="tbl_services_templates_table" ',
+            'titleAttr: "Navigate to the services table"',
+
             '<th data-name="host" data-type="objectid"',
             '<th data-name="name" data-type="string"',
             '<th data-name="_realm" data-type="objectid"',
@@ -1188,6 +1192,8 @@ class TestDatatableUsers(TestDatatableBase):
             '<div id="users_templates_table" class="alignak_webui_table ">',
             "$('#tbl_users_templates_table').DataTable( {",
             '<table id="tbl_users_templates_table" ',
+            'titleAttr: "Navigate to the users table"',
+
             '<th data-name="name" data-type="string"',
             '<th data-name="_realm" data-type="objectid"',
             '<th data-name="_sub_realm" data-type="boolean"',

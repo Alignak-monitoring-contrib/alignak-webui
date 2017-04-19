@@ -290,14 +290,50 @@ class TestHosts(unittest2.TestCase):
         print('logout')
         self.app.get('/logout')
 
+    def test_hosts_templates_table(self):
+        """View hosts templates table in edition mode"""
+        print('get page /hosts/templates/table (normal mode)')
+        response = self.app.get('/hosts/templates/table')
+        response.mustcontain(
+            '<div id="hosts_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_hosts_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the hosts table"',
+            # Because of edition mode...
+            no = [
+                '''titleAttr: "Create a new item"''',
+                '''var url = "/host/None/form";''',
+            ]
+        )
+
+        print('Enable edition mode')
+        response = self.app.post('/edition_mode', params={'state': 'on'})
+        session = response.request.environ['beaker.session']
+        # edition_mode is defined and activated in the session...
+        assert 'edition_mode' in session
+        assert True == session['edition_mode']
+        assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
+
+        print('get page /hosts/templates/table (edition mode)')
+        response = self.app.get('/hosts/templates/table')
+        response.mustcontain(
+            '<div id="hosts_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_hosts_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the hosts table"',
+            # Because of edition mode...
+            '''titleAttr: "Create a new item"''',
+            '''var url = "/host/None/form";''',
+        )
+
     def test_hosts_table(self):
         """View hosts table in edition mode"""
         print('get page /hosts/table (normal mode)')
         response = self.app.get('/hosts/table')
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
-            "$('#tbl_host').DataTable( {",
-            '<table id="tbl_host" ',
+            "$('#tbl_hosts_table').DataTable( {",
+            '<table id="tbl_hosts_table" ',
             no = [
                 '''text: "<span class='fa fa-edit'></span>"''',
                 '''titleAttr: "Edit the selected item"''',
@@ -316,8 +352,8 @@ class TestHosts(unittest2.TestCase):
         response = self.app.get('/hosts/table')
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
-            "$('#tbl_host').DataTable( {",
-            '<table id="tbl_host" ',
+            "$('#tbl_hosts_table').DataTable( {",
+            '<table id="tbl_hosts_table" ',
             '''text: "<span class='text-warning fa fa-edit'></span>"''',
             '''titleAttr: "Edit the selected item"''',
         )
