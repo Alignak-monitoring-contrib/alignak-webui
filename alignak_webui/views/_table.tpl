@@ -38,8 +38,12 @@
 %server_url = ''
 %end
 <!-- Table display -->
-<div id="{{object_type}}s_table" class="alignak_webui_table {{'embedded' if embedded else ''}}">
-   <table id="tbl_{{object_type}}" class="{{dt.css}}">
+%table_id = "%ss_table" % object_type
+%if dt.templates:
+%table_id = "%ss_templates_table" % object_type
+%end
+<div id="{{table_id}}" class="alignak_webui_table {{'embedded' if embedded else ''}}">
+   <table id="tbl_{{table_id}}" class="{{dt.css}}">
       <thead>
          <tr>
             %for column in dt.table_columns:
@@ -216,7 +220,7 @@
 
    function resetFilters() {
       if (debugTable) console.debug('Reset table filters');
-      var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+      var table = $('#tbl_{{table_id}}').DataTable({ retrieve: true });
 
       // Reset table columns search
       table
@@ -266,13 +270,13 @@
          $('#webui-search-input input').bind('keyup', function (e) {
             if (e.keyCode != 13) return;
             if (debugTable) console.debug('Datatable global search:', $(this).val());
-            var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+            var table = $('#tbl_{{table_id}}').DataTable({ retrieve: true });
             table.search($(this).val()).draw();
          });
       });
 
       // Apply the search filter for input fields
-      $("#tbl_{{object_type}} thead input").on('keyup change', function () {
+      $("#tbl_{{table_id}} thead input").on('keyup change', function () {
          var parent = $(this).parents('[data-name]')
          var column_index = parent.data('index');
          var column_name = parent.data('name');
@@ -293,7 +297,7 @@
       });
 
       // Apply the search filter for select fields
-      $("#tbl_{{object_type}} thead select").on('change', function () {
+      $("#tbl_{{table_id}} thead select").on('change', function () {
          var parent = $(this).parents('[data-name]')
          var column_index = parent.data('index');
          var column_name = parent.data('name');
@@ -301,7 +305,7 @@
 
          if (debugTable) console.debug("Datatable select event, search column '"+column_name+"' for '" + value + "'");
 
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+         var table = $('#tbl_{{table_id}}').DataTable({ retrieve: true });
          table
             .column(column_index)
               .search(value, false, false)
@@ -312,19 +316,19 @@
       });
       %end
 
-      $('#tbl_{{object_type}}').on( 'init.dt', function ( e, settings ) {
+      $('#tbl_{{table_id}}').on( 'init.dt', function ( e, settings ) {
          if (debugTable) console.debug('Datatable event, init ...');
       });
 
       %if dt.selectable:
-      $('#tbl_{{object_type}}').on( 'select.dt', function ( e, dt, type, indexes ) {
+      $('#tbl_{{table_id}}').on( 'select.dt', function ( e, dt, type, indexes ) {
          if (debugTable) console.debug('Datatable event, selected row ...');
 
          var rowData = table.rows( indexes ).data().toArray();
          if (debugTable) console.debug('Datatable event, selected: ', rowData);
       });
 
-      $('#tbl_{{object_type}}').on( 'deselect.dt', function ( e, dt, type, indexes ) {
+      $('#tbl_{{table_id}}').on( 'deselect.dt', function ( e, dt, type, indexes ) {
          if (debugTable) console.debug('Datatable event, deselected row ...');
 
          var rowData = table.rows( indexes ).data().toArray();
@@ -332,8 +336,8 @@
       });
       %end
 
-      $('#tbl_{{object_type}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+      $('#tbl_{{table_id}}').on( 'stateLoaded.dt', function ( e, settings, data ) {
+         var table = $('#tbl_{{table_id}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, stateLoaded.dt...');
          if (debugTable) console.debug('Saved filters:', where['saved_filters']);
 
@@ -379,7 +383,7 @@
             resetFilters();
 
             if (debugTable) console.debug('Datatable global search:', where);
-            var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+            var table = $('#tbl_{{table_id}}').DataTable({ retrieve: true });
             table.search(where).draw();
 
             /* *****************************
@@ -423,7 +427,7 @@
       });
 
       // Table declaration
-      table = $('#tbl_{{object_type}}').DataTable( {
+      table = $('#tbl_{{table_id}}').DataTable( {
          // Table columns definition
          "columns": {{ ! json.dumps(dt.table_columns) }},
 
@@ -907,8 +911,8 @@
       });
 
       %if dt.responsive:
-      $('#tbl_{{object_type}}').on( 'responsive-resize.dt', function ( e, datatable, columns ) {
-         var table = $('#tbl_{{object_type}}').DataTable({ retrieve: true });
+      $('#tbl_{{table_id}}').on( 'responsive-resize.dt', function ( e, datatable, columns ) {
+         var table = $('#tbl_{{table_id}}').DataTable({ retrieve: true });
          if (debugTable) console.debug('Datatable event, responsive resize...');
 
          $.each(columns, function(index, visibility){
