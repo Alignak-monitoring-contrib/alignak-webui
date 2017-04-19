@@ -788,7 +788,7 @@ class TestObjectUrls(unittest2.TestCase):
         })
         assert host
 
-        html_notes = Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True)
+        html_notes = Helper.get_element_notes_url(host, default_title="Note", default_icon="tag")
         # Empty list when no notes exist
         assert html_notes == []
 
@@ -803,7 +803,7 @@ class TestObjectUrls(unittest2.TestCase):
         })
         assert host
 
-        html_notes = Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True)
+        html_notes = Helper.get_element_notes_url(host, default_title="Note", default_icon="tag")
         # 5 declared notes, but only 2 URLs
         # Expecting 5 links
         assert html_notes == [
@@ -826,7 +826,7 @@ class TestObjectUrls(unittest2.TestCase):
         })
         assert host
 
-        html_actions = Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True)
+        html_actions = Helper.get_element_actions_url(host, default_title="Url", default_icon="globe")
         assert html_actions == []
 
         host = Host({
@@ -839,7 +839,7 @@ class TestObjectUrls(unittest2.TestCase):
         })
         assert host
 
-        html_actions = Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True)
+        html_actions = Helper.get_element_actions_url(host, default_title="Url", default_icon="globe")
         # 3 declared actions, with different parameters
         # Expecting 3 links
         assert html_actions == [

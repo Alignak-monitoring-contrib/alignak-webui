@@ -36,7 +36,7 @@ class Settings(OrderedDict):
     Class used to manage configuration file and application configuration
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, filenames=None):
         """
         Initialize configuration
 
@@ -47,7 +47,7 @@ class Settings(OrderedDict):
         """
         super(Settings, self).__init__()
 
-        self.filename = filename
+        self.filenames = filenames
 
     def read(self, app_name='Alignak-WebUI'):
         # pylint: disable=too-many-nested-blocks
@@ -74,26 +74,11 @@ class Settings(OrderedDict):
         :param app_name: application name (to build configuration file name)
 
         """
-        if not app_name:
-            return None
         app_name = app_name.lower()
 
-        if self.filename:
-            if not isinstance(self.filename, list):
-                settings_filenames = [
-                    os.path.abspath(self.filename)
-                ]
-            else:
-                settings_filenames = self.filename
-        else:
-            settings_filenames = [
-                '/usr/local/etc/%s/settings.cfg' % app_name,
-                '/etc/%s/settings.cfg' % app_name,
-                '~/%s/settings.cfg' % app_name,
-                os.path.abspath('../etc/settings.cfg'),
-                os.path.abspath('../%s/etc/settings.cfg' % app_name),
-                './settings.cfg'
-            ]
+        settings_filenames = self.filenames
+        if not isinstance(self.filenames, list):
+            settings_filenames = [os.path.abspath(self.filenames)]
 
         try:
             config = RawConfigParser()
@@ -116,7 +101,7 @@ class Settings(OrderedDict):
                                 self[section + '.' + option] = False
 
             return found_cfg_file
-        except Exception as exp:
+        except Exception as exp:  # pragma: no cover - bad formated file
             print("Bad formed configuration file.")
             print("Exception: %s" % str(exp))
             print("Traceback: %s" % traceback.format_exc())

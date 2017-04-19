@@ -148,7 +148,7 @@ class TestStart(unittest2.TestCase):
         os.chdir(os.path.join(dir_path, "../alignak_webui"))
         print("Launching application with configuration parameters...")
         process = subprocess.Popen(
-            shlex.split('python ../alignak_webui/app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999'),
+            shlex.split('python ../alignak_webui/app.py -b http://127.0.0.1:8888 -n 127.0.0.1 -p 9999 --ws http://127.0.0.1:8888'),
             stdout = fnull, stderr = fnull
         )
         print('PID = ', process.pid)
@@ -182,7 +182,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with WS configuration in environment...")
         os.environ['ALIGNAK_WEBUI_WS'] = 'http://127.0.0.1:8888'
-        os.environ['ALIGNAK_WEBUI_WS'] = 'http://127.0.0.1:8888'
+        os.environ['ALIGNAK_WEBUI_LOG'] = '/tmp'
         process = subprocess.Popen(
             shlex.split('python ../alignak_webui/app.py')
         )

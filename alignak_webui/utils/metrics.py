@@ -143,7 +143,7 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
         state = s.state_id
         if s.acknowledged:
             state = 4
-        if s.downtime:
+        if s.downtimed:
             state = 5
 
         try:  # pragma: no cover - no existing data when testing :(

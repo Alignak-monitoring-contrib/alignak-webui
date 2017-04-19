@@ -7,7 +7,7 @@
          <div class="modal-header text-center">
             <h4 class="modal-title">{{_('Default waiting message')}}</h4>
          </div>
-         <div class="modal-body" >
+         <div class="modal-body">
             <div style="height:120px" class="text-center">
                <i class="fa fa-spinner fa-spin fa-5x fa-fw"></i>
                <span class="sr-only">{{_('Loading...')}}</span>

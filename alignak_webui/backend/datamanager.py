@@ -1442,6 +1442,7 @@ class DataManager(object):
         return self.get_services(search=search, embedded=embedded, all_elements=True)
 
     def get_host_overall_state(self, host):
+        # pylint: disable=no-self-use
         """Get a host real state (including services states).
 
         Returns a tuple with host overall state and status
@@ -1635,6 +1636,7 @@ class DataManager(object):
         return items[0] if items else None
 
     def get_service_overall_state(self, service):
+        # pylint: disable=no-self-use
         """Get a service real state (including services states).
 
         Returns a tuple with service overall state and status
