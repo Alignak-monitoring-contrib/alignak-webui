@@ -86,3 +86,29 @@ class Log(BackendElement):
         Set Item property acknowledged
         """
         self._acknowledged = acknowledged
+
+    @property
+    def downtimed(self):
+        """
+        Get the inner object propery downtimed
+        """
+        return self._downtimed
+
+    @downtimed.setter
+    def downtimed(self, downtimed):
+        """
+        Set Item property downtimed
+        """
+        self._downtimed = downtimed
+
+    def get_check_date(self, timestamp=False, fmt=None, duration=False):
+        """
+        Returns a string formatted data
+        """
+        if self.last_check == self.__class__._default_date and not timestamp:
+            return _('Never checked!')
+
+        if timestamp:
+            return self.last_check
+
+        return super(Log, self).get_date(self.last_check, fmt, duration)
