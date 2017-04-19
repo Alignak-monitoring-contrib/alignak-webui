@@ -1,6 +1,54 @@
 [
     {
         "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-none",
+        "business_impact": 0
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-low",
+        "business_impact": 1
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-normal",
+        "business_impact": 2
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-important",
+        "business_impact": 3
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-very-important",
+        "business_impact": 4
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-business-critical",
+        "business_impact": 5
+    },
+    {
+        "_is_template": true,
         "_realm": "All",
         "_sub_realm": true,
         "_template_fields": {},

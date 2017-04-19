@@ -781,6 +781,10 @@ class Plugin(object):
             value = request.forms.get(field)
             if value:
                 value = value.decode('utf-8')
+            if field not in self.table:
+                logger.warning("- unknown field: %s = %s", field, value)
+                continue
+
             field_type = self.table[field].get('type')
             logger.info("- posted field: %s (%s) = %s", field, field_type, value)
 
