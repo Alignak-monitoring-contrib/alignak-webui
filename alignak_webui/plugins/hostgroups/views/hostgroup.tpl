@@ -9,7 +9,6 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 
-<!-- hosts filtering and display -->
 <div class="hostgroup" id="hostgroup_{{element.id}}">
    %if debug:
    <div class="panel-group">

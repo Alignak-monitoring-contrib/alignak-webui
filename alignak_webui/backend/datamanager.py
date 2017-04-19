@@ -257,7 +257,7 @@ class DataManager(object):
 
         # Find "Backend object type" classes in file imported modules ...
         object_class = [kc for kc in self.known_classes if kc.get_type() == object_type]
-        if not object_class:
+        if not object_class:  # pragma: no cover, should not happen
             logger.warning("find_object, unknown object type: %s", object_type)
             raise ValueError(
                 '%s, is not currently managed!' % (object_type)

@@ -51,6 +51,11 @@ backend_address = "http://127.0.0.1:5000/"
 # 2 hosts templates
 hosts_templates_count = 9
 
+# 6 templates for freshness
+# 1 generic service template
+# 5 for nsca_*
+services_templates_count = 12
+
 def setup_module(module):
     """
     Start Alignak backend
@@ -129,7 +134,7 @@ def teardown_module(module):
     time.sleep(2)
 
 
-class TestHostCreation(unittest2.TestCase):
+class TestCreation(unittest2.TestCase):
     def setUp(self):
         # Test application
         self.app = TestApp(alignak_webui.app.session_app)
@@ -163,28 +168,195 @@ class TestHostCreation(unittest2.TestCase):
         assert 'edition_mode' in self.session
         assert True == self.session['edition_mode']
 
-        # Count hosts templates
         self.datamgr = DataManager(alignak_webui.app.app, session=self.session)
-        self.templates_count = self.datamgr.count_objects('host', search={'where': {'_is_template': True}})
-        print("Hosts templates count: %s" % self.templates_count)
-        assert self.templates_count == hosts_templates_count
+
+        # Get realm in the backend
+        self.realm = self.datamgr.get_realm({'where': {'name': 'All'}})
+        print("Realm: %s" % self.realm)
+        assert self.realm.name == 'All'
+
+        # Count hosts templates
+        self.hosts_templates_count = self.datamgr.count_objects('host', search={'where': {'_is_template': True}})
+        print("Hosts templates count: %s" % self.hosts_templates_count)
+        assert self.hosts_templates_count == hosts_templates_count
+
+        # Count services templates
+        self.services_templates_count = self.datamgr.count_objects('service', search={'where': {'_is_template': True}})
+        print("Services templates count: %s" % self.services_templates_count)
+        assert self.services_templates_count == services_templates_count
 
         # Count hosts
         self.hosts_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
         print("Hosts count: %s" % self.hosts_count)
 
+        # Count services
+        self.services_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        print("Services count: %s" % self.services_count)
+
     def tearDown(self):
         self.app.get('/logout')
 
-    def test_from_templates_table(self):
+class TestHostCreation(TestCreation):
+
+    def test_create_host_from_templates_table(self):
         """Host creation from the hosts templates table"""
+
+        # Get host template in the backend
+        template = self.datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
+        print("Host template: %s" % template)
+        assert template.name == 'windows-passive-host'
+
+        print('get page /hosts/templates/table (edition mode)')
+        response = self.app.get('/hosts/templates/table')
+        response.mustcontain(
+            '<div id="hosts_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_hosts_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the hosts table"',
+            # Because of edition mode...
+            '''titleAttr: "Create a new item"''',
+            '''var url = "/host/None/form";''',
+        )
+
+        # Get templates in the table
+        response = self.app.post('/hosts/templates_table_data')
+        print("Response: %s" % response.json)
+        assert response.json['recordsTotal'] == hosts_templates_count
+        assert response.json['data']
+
+        # Host creation form
+        print('get page /host/form (edition mode) - create a new host')
+        response = self.app.get('/host/None/form')
+        response.mustcontain(
+            '''<div id="form_host">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
+            '''<h4>You are creating a new host.</h4>''',
+            '''$('form[data-element="None"]').on("submit", function (evt) {'''
+        )
+
+        print('Host creation with a template')
+        data = {
+            "_is_template": False,
+            "_templates": [template.id],
+            'name': "New host",
+            'alias': "Friendly name"
+        }
+        response = self.app.post('/host/None/form', params=data)
+        # Returns the new item _id
+        new_host_id = response.json['_id']
+        resp = response.json
+        resp.pop('_id')
+        assert resp == {
+            "_message": "New host created",
+            "_realm": self.realm.id,
+
+            "_is_template": False,
+            "_templates": [template.id],
+            "name": "New host",
+            'alias': "Friendly name"
+        }
+
+        # Count hosts templates
+        count = self.datamgr.count_objects('host', search={'where': {'_is_template': True}})
+        print("Hosts templates count: %s" % count)
+        assert count == hosts_templates_count
+
+        # Count services templates
+        count = self.datamgr.count_objects('service', search={'where': {'_is_template': True}})
+        print("Services templates count: %s" % count)
+        assert count == services_templates_count
+
+        # Count hosts - 1 more host
+        new_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
+        print("Hosts count: %s" % new_count)
+        assert new_count == self.hosts_count + 1
+
+        # Count services - 6 more services
+        new_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        print("Services count: %s" % new_count)
+        assert new_count == self.services_count + 6
+
+    def test_create_host_from_templates_page(self):
+        """Host creation from the hosts templates page"""
+
+        # Get host template in the backend
+        template = self.datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
+        assert template.name == 'windows-passive-host'
+        template2 = self.datamgr.get_host({'where': {'name': 'bi-business-critical', '_is_template': True}})
+        assert template2.name == 'bi-business-critical'
+
+        print('get page /hosts/templates (edition mode)')
+        response = self.app.get('/hosts/templates')
+        response.mustcontain(
+            '<div id="hosts-templates">',
+            '<form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">',
+            '<legend>Creating a new host:</legend>',
+            '<input class="form-control" type="text" id="name" name="name" placeholder="Host name"  value="">',
+            '<input class="form-control" type="text" id="alias" alias="alias" placeholder="Host alias"  value="">',
+            '<input class="form-control" type="text" id="address" name="address" placeholder="0.0.0.0"  value="">',
+            '<input class="form-control" type="text" id="realm" realm="realm" placeholder="Host realm"  value="">',
+            '<input type="checkbox" id="_is_template" name="_is_template">',
+            '<input id="_dummy" name="_dummy" type="checkbox" data-linked=""',
+            '<input id="generic-passive-host" name="generic-passive-host" type="checkbox" data-linked=""',
+            '<input id="windows-passive-host" name="windows-passive-host" type="checkbox" data-linked="generic-passive-host"',
+            '<input id="bi-none" name="bi-none" type="checkbox" data-linked="" ',
+            '<input id="bi-low" name="bi-low" type="checkbox" data-linked="" ',
+            '<input id="bi-normal" name="bi-normal" type="checkbox" data-linked="" ',
+            '<input id="bi-important" name="bi-important" type="checkbox" data-linked="" ',
+            '<input id="bi-very-important" name="bi-very-important" type="checkbox" data-linked="" ',
+            '<input id="bi-business-critical" name="bi-business-critical" type="checkbox" data-linked="" ',
+        )
+
+        print('Host creation with templates')
+        data = {
+            "realm": self.realm["_id"],
+            "name": "New host bis",
+            "alias": "Friendly name",
+            "address": "127.0.0.1",
+            "_is_template": False,
+            "_templates": [template.id, template2.id],
+        }
+        response = self.app.post('/host/None/form', params=data)
+        # Returns the new item _id
+        new_host_id = response.json['_id']
+        resp = response.json
+        resp.pop('_id')
+        assert resp == {
+            "_message": "New host created",
+            "_realm": self.realm.id,
+
+            "_is_template": False,
+            "_templates": [template.id, template2.id],
+            "name": "New host bis",
+            "alias": "Friendly name",
+            "address": "127.0.0.1"
+        }
+
+        # Count hosts templates
+        count = self.datamgr.count_objects('host', search={'where': {'_is_template': True}})
+        print("Hosts templates count: %s" % count)
+        assert count == hosts_templates_count
+
+        # Count services templates
+        count = self.datamgr.count_objects('service', search={'where': {'_is_template': True}})
+        print("Services templates count: %s" % count)
+        assert count == services_templates_count
+
+        # Count hosts - 1 more host
+        new_count = self.datamgr.count_objects('host', search={'where': {'_is_template': False}})
+        print("Hosts count: %s" % new_count)
+        assert new_count == self.hosts_count + 1
+
+        # Count services - 6 more services
+        new_count = self.datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        print("Services count: %s" % new_count)
+        assert new_count == self.services_count + 6
+
+    def test_create_service_from_templates_table(self):
+        """Host creation from the services templates table"""
 
         datamgr = DataManager(alignak_webui.app.app, session=self.session)
 
-        # Get realm in the backend
-        realm = datamgr.get_realm({'where': {'name': 'All'}})
-        print("Realm: %s" % realm)
-        assert realm.name == 'All'
         # Get host template in the backend
         template = datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
         print("Host template: %s" % template)
@@ -245,82 +417,21 @@ class TestHostCreation(unittest2.TestCase):
         print("Hosts templates count: %s" % count)
         assert count == hosts_templates_count
 
-        # Count hosts
+        # Count services templates
+        count = datamgr.count_objects('service', search={'where': {'_is_template': True}})
+        print("Services templates count: %s" % count)
+        assert count == services_templates_count
+
+        # Count hosts - 1 more host
         new_count = datamgr.count_objects('host', search={'where': {'_is_template': False}})
         print("Hosts count: %s" % new_count)
         assert new_count == self.hosts_count + 1
 
-    def test_from_templates_page(self):
-        """Host creation from the hosts templates page"""
+        # Count services - 6 more services
+        new_count = datamgr.count_objects('service', search={'where': {'_is_template': False}})
+        print("Services count: %s" % new_count)
+        assert new_count == self.services_count + 6
 
-        datamgr = DataManager(alignak_webui.app.app, session=self.session)
-
-        # Get realm in the backend
-        realm = datamgr.get_realm({'where': {'name': 'All'}})
-        print("Realm: %s" % realm)
-        assert realm.name == 'All'
-        # Get host template in the backend
-        template = datamgr.get_host({'where': {'name': 'windows-passive-host', '_is_template': True}})
-        assert template.name == 'windows-passive-host'
-        template2 = datamgr.get_host({'where': {'name': 'bi-business-critical', '_is_template': True}})
-        assert template2.name == 'bi-business-critical'
-
-        print('get page /hosts/templates (edition mode)')
-        response = self.app.get('/hosts/templates')
-        response.mustcontain(
-            '<div id="hosts-templates">',
-            '<form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">',
-            '<legend>Creating a new host:</legend>',
-            '<input class="form-control" type="text" id="name" name="name" placeholder="Host name"  value="">',
-            '<input class="form-control" type="text" id="alias" alias="alias" placeholder="Host alias"  value="">',
-            '<input class="form-control" type="text" id="address" name="address" placeholder="0.0.0.0"  value="">',
-            '<input class="form-control" type="text" id="realm" realm="realm" placeholder="Host realm"  value="">',
-            '<input type="checkbox" id="_is_template" name="_is_template">',
-            '<input id="_dummy" name="_dummy" type="checkbox" data-linked=""',
-            '<input id="generic-passive-host" name="generic-passive-host" type="checkbox" data-linked=""',
-            '<input id="windows-passive-host" name="windows-passive-host" type="checkbox" data-linked="generic-passive-host"',
-            '<input id="bi-none" name="bi-none" type="checkbox" data-linked="" ',
-            '<input id="bi-low" name="bi-low" type="checkbox" data-linked="" ',
-            '<input id="bi-normal" name="bi-normal" type="checkbox" data-linked="" ',
-            '<input id="bi-important" name="bi-important" type="checkbox" data-linked="" ',
-            '<input id="bi-very-important" name="bi-very-important" type="checkbox" data-linked="" ',
-            '<input id="bi-business-critical" name="bi-business-critical" type="checkbox" data-linked="" ',
-        )
-
-        print('Host creation with templates')
-        data = {
-            "realm": realm["_id"],
-            "name": "New host bis",
-            "alias": "Friendly name",
-            "address": "127.0.0.1",
-            "_is_template": False,
-            "_templates": [template.id, template2.id],
-        }
-        response = self.app.post('/host/None/form', params=data)
-        # Returns the new item _id
-        new_host_id = response.json['_id']
-        resp = response.json
-        resp.pop('_id')
-        assert resp == {
-            "_message": "New host created",
-            "_realm": realm.id,
-
-            "_is_template": False,
-            "_templates": [template.id, template2.id],
-            "name": "New host bis",
-            "alias": "Friendly name",
-            "address": "127.0.0.1"
-        }
-
-        # Count hosts templates
-        count = datamgr.count_objects('host', search={'where': {'_is_template': True}})
-        print("Hosts templates count: %s" % count)
-        assert count == hosts_templates_count
-
-        # Count hosts
-        new_count = datamgr.count_objects('host', search={'where': {'_is_template': False}})
-        print("Hosts count: %s" % new_count)
-        assert new_count == self.hosts_count + 1
 
 
 if __name__ == '__main__':

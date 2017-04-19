@@ -438,7 +438,13 @@ class TestRealms(unittest2.TestCase):
         print('get page /realm')
         response = self.app.get('/realm/%s' % self.realm_id)
         response.mustcontain(
-            '<div class="realm" id="realm-%s">' % self.realm_id
+            '<div class="realm" id="realm_%s">' % self.realm_id
+        )
+
+        print('get page /realm')
+        response = self.app.get('/realm/All')
+        response.mustcontain(
+            '<div class="realm" id="realm_%s">' % self.realm_id
         )
 
         print('get page /realm/members')
@@ -548,6 +554,15 @@ class TestHostgroups(unittest2.TestCase):
             '<div class="hostgroup-children panel panel-default">'
         )
 
+        print('get page /hostgroup/All')
+        response = self.app.get('/hostgroup/All')
+        print(response)
+        response.mustcontain(
+            '<div class="hostgroup" id="hostgroup_%s">' % group['_id'],
+            '<div class="hostgroup-members panel panel-default">',
+            '<div class="hostgroup-children panel panel-default">'
+        )
+
         print('get page /hostgroup/members for %s' % group['_id'])
         response = self.app.get('/hostgroup/members/' + group['_id'])
         print(response.json)
@@ -628,6 +643,41 @@ class TestServicegroups(unittest2.TestCase):
                 self.group_id = match
         assert self.group_id
 
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        # Get servicegroup All
+        params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+        response = requests.get('http://127.0.0.1:5000/servicegroup', params=params, auth=auth)
+        resp = response.json()
+        print("Group: %s" % resp)
+        group = resp['_items'][0]
+
+        print('get page /servicegroup/%s' % group['_id'])
+        response = self.app.get('/servicegroup/' + group['_id'])
+        print(response)
+        response.mustcontain(
+            '<div class="servicegroup" id="servicegroup_%s">' % group['_id'],
+            '<div class="servicegroup-members panel panel-default">',
+            '<div class="servicegroup-children panel panel-default">'
+        )
+
+        print('get page /servicegroup/All')
+        response = self.app.get('/servicegroup/All')
+        print(response)
+        response.mustcontain(
+            '<div class="servicegroup" id="servicegroup_%s">' % group['_id'],
+            '<div class="servicegroup-members panel panel-default">',
+            '<div class="servicegroup-children panel panel-default">'
+        )
+
+
         print('get page /servicegroup/members')
         response = self.app.get('/servicegroup/members/' + self.group_id)
         print(response.json)
@@ -698,6 +748,38 @@ class TestUsergroups(unittest2.TestCase):
                 print("Found id: %s" % match)
                 self.group_id = match
         assert self.group_id
+
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        # Get usergroup All
+        params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+        response = requests.get('http://127.0.0.1:5000/usergroup', params=params, auth=auth)
+        resp = response.json()
+        print("Group: %s" % resp)
+        group = resp['_items'][0]
+
+        print('get page /usergroup/%s' % group['_id'])
+        response = self.app.get('/usergroup/' + group['_id'])
+        print(response)
+        response.mustcontain(
+            '<div class="usergroup" id="usergroup_%s">' % group['_id'],
+            '<div class="usergroup-members panel panel-default">',
+        )
+
+        print('get page /usergroup/All')
+        response = self.app.get('/usergroup/All')
+        print(response)
+        response.mustcontain(
+            '<div class="usergroup" id="usergroup_%s">' % group['_id'],
+            '<div class="usergroup-members panel panel-default">',
+        )
 
         print('get page /usergroup/members')
         response = self.app.get('/usergroup/members/' + self.group_id)

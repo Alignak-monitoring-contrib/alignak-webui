@@ -28,7 +28,6 @@ from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
@@ -99,14 +98,7 @@ class PluginHostsGroups(Plugin):
         """
         datamgr = request.app.datamgr
 
-        if not isinstance(element, BackendElement):
-            hostgroup = datamgr.get_hostgroup(element)
-            if not hostgroup:
-                return -1
-        else:
-            hostgroup = element
-
-        (overall_state, overall_status) = datamgr.get_hostgroup_overall_state(hostgroup)
+        (overall_state, overall_status) = datamgr.get_hostgroup_overall_state(element)
         logger.debug(
             " - hostgroup overall state: %d -> %s", overall_state, overall_status
         )
