@@ -1,0 +1,120 @@
+[
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-none",
+        "business_impact": 0
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-low",
+        "business_impact": 1
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-normal",
+        "business_impact": 2
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-important",
+        "business_impact": 3
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-very-important",
+        "business_impact": 4
+    },
+    {
+        "_is_template": true,
+        "_templates_with_services": false,
+        "_realm": "All",
+        "_sub_realm": true,
+        "name": "bi-business-critical",
+        "business_impact": 5
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_template_fields": {},
+        "_templates": [
+        ],
+        "_templates_with_services": true,
+        "active_checks_enabled": false,
+        "address": "n/a",
+        "address6": "n/a",
+        "alias": "",
+        "check_command": "_internal_host_up",
+        "check_command_args": "",
+        "check_freshness": true,
+        "check_interval": 1,
+        "check_period": "24x7",
+        "customs": {},
+        "freshness_state": "d",
+        "freshness_threshold": 3600,
+        "imported_from": "alignak-checks-windows-nsca",
+        "initial_state": "x",
+        "maintenance_period": "Never",
+        "max_check_attempts": 1,
+        "name": "generic-passive-host",
+        "notes": "",
+        "notes_url": "",
+        "notification_interval": 60,
+        "notification_options": [
+            "d",
+            "x",
+            "r",
+            "f",
+            "s"
+        ],
+        "notification_period": "24x7",
+        "notifications_enabled": true,
+        "passive_checks_enabled": true,
+        "retry_interval": 1,
+        "tags": []
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_template_fields": {},
+        "_templates": [
+            "generic-passive-host"
+        ],
+        "_templates_with_services": true,
+        "address": "n/a",
+        "address6": "n/a",
+        "alias": "",
+        "check_command": "_internal_host_up",
+        "check_command_args": "",
+        "check_freshness": true,
+        "check_interval": 1,
+        "check_period": "24x7",
+        "customs": {
+            "_OS": "Windows"
+        },
+        "freshness_state": "d",
+        "freshness_threshold": 3600,
+        "high_flap_threshold": 50,
+        "imported_from": "alignak-checks-windows-nsca",
+        "initial_state": "x",
+        "name": "windows-passive-host",
+        "passive_checks_enabled": true,
+        "tags": []
+    }
+]

@@ -52,15 +52,6 @@ loggerDm = logging.getLogger('alignak_webui.objects.backend')
 loggerDm.setLevel(logging.DEBUG)
 
 
-def setup_module(module):
-    # Get configuration from only one file ...
-    print ("read configuration")
-    cfg = Settings(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg'))
-    found_cfg_files = cfg.read('Alignak-WebUI')
-    assert found_cfg_files
-    set_app_config(cfg)
-
-
 class TestClassElements(unittest2.TestCase):
     def test_class(self):
         """ Items - class variables """

@@ -1,0 +1,14 @@
+[
+    {
+        "_realm": "All",
+        "_sub_realm": true,
+        "action_url": "",
+        "alias": "Windows passively monitored hosts",
+        "hostgroups": [],
+        "hosts": [],
+        "imported_from": "alignak-checks-windows-nsca",
+        "name": "windows-passive-hosts",
+        "notes": "",
+        "notes_url": ""
+    }
+]

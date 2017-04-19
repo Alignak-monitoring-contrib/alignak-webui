@@ -190,9 +190,6 @@ class DataManager(object):
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
 
-                # Get total objects count from the backend
-                # self.get_objects_count(refresh=True, log=False)
-
                 # Load data if load required...
                 if load:
                     self.load(reset=True)
@@ -260,7 +257,7 @@ class DataManager(object):
 
         # Find "Backend object type" classes in file imported modules ...
         object_class = [kc for kc in self.known_classes if kc.get_type() == object_type]
-        if not object_class:
+        if not object_class:  # pragma: no cover, should not happen
             logger.warning("find_object, unknown object type: %s", object_type)
             raise ValueError(
                 '%s, is not currently managed!' % (object_type)
@@ -371,13 +368,10 @@ class DataManager(object):
         self.refresh_required = True
         self.refresh_done = False
 
-    def get_objects_count(self, object_type=None, refresh=False, log=False, search=None):
+    def get_objects_count(self, object_type=None, log=False):
         """Get the count of the objects stored in the data manager cache
 
         If an object_type is specified, only returns the count for this object type
-
-        If refresh is True, get the total count from the backend. This is only useful if total
-        count is required...
 
         If log is set, an information log is made"""
         log_function = logger.debug
@@ -387,26 +381,7 @@ class DataManager(object):
         if object_type:
             for known_class in self.known_classes:
                 if object_type == known_class.get_type():
-                    objects_count = known_class.get_count()
-                    if refresh:
-                        if hasattr(known_class, '_total_count') and \
-                           known_class.get_total_count() != -1:
-                            objects_count = known_class.get_total_count()
-                            log_function(
-                                "get_objects_count, got _total_count attribute: %d",
-                                objects_count
-                            )
-                        else:
-                            objects_count = self.count_objects(object_type, search=search)
-                            # _total_count is a property ... should make it a method?
-                            # pylint: disable=protected-access
-                            known_class._total_count = objects_count
-
-                        log_function(
-                            "get_objects_count, currently %d total %ss for %s",
-                            objects_count, object_type, search
-                        )
-                    return objects_count
+                    return known_class.get_count()
             else:  # pragma: no cover, should not happen
                 # pylint: disable=useless-else-on-loop
                 logger.warning("count_objects, unknown object type: %s", object_type)
@@ -414,20 +389,8 @@ class DataManager(object):
 
         objects_count = 0
         for known_class in self.known_classes:
-            count = known_class.get_count()
-            if refresh:
-                count = self.count_objects(known_class.get_type(), search=search)
-                if search:
-                    log_function(
-                        "get_objects_count, currently %d total %ss for %s",
-                        count, known_class.get_type(), search
-                    )
-                else:
-                    log_function(
-                        "get_objects_count, currently %d total %ss",
-                        count, known_class.get_type()
-                    )
-            objects_count += count
+            log_function("get_objects_count, %s: %d elements", known_class, known_class.get_count())
+            objects_count += known_class.get_count()
 
         log_function("get_objects_count, currently %d elements", objects_count)
         return objects_count
@@ -441,9 +404,6 @@ class DataManager(object):
 
         Make a simple request for 1 element and we will get back the total count of elements
 
-        Note: The 'daemon' (Daemon class) objects are not concerned whereas they are not stored in
-        the backend
-
         Args:
             object_type: the object type as a backend endpoint (eg. host, realm, ...)
             search: dictionary of key / value to search for
@@ -455,7 +415,7 @@ class DataManager(object):
             'page': 0, 'max_results': 1
         }
         if search is not None:
-            params['where'] = search
+            params.update(search)
 
         return self.backend.count(object_type, params)
 
@@ -478,15 +438,19 @@ class DataManager(object):
         else:
             object_id = element.id
 
-        if self.backend.delete(object_type, object_id):
-            # Find object type class...
-            object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
+        try:
+            if self.backend.delete(object_type, object_id):
+                # Find object type class...
+                object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
-            # Delete existing cache object
-            if object_id in object_class.get_cache():
-                del object_class.get_cache()[object_id]
+                # Delete existing cache object
+                if object_id in object_class.get_cache():
+                    del object_class.get_cache()[object_id]
 
-            return True
+                return True
+        except BackendException as exp:  # pragma: no cover, simple protection
+            logger.warning("delete_object, exception: %s", exp)
+
         return False
 
     def update_object(self, element, data):
@@ -552,9 +516,7 @@ class DataManager(object):
 
         # Get user stored value
         if user.set_ui_preference(preference_key, value):
-            return self.update_object(
-                user, {'ui_preferences': user.ui_preferences}
-            )
+            return self.update_object(user, {'ui_preferences': user.ui_preferences})
 
         return False
 
@@ -650,7 +612,7 @@ class DataManager(object):
         result = []
 
         try:
-            logger.debug("get_alignak_state")
+            logger.debug("get_alignak_map")
             result = self.alignak_ws.get('alignak_map')
         except AlignakWSException:
             return result
@@ -845,7 +807,7 @@ class DataManager(object):
                 logger.debug("get_livesynthesis, none found")
                 return default_ls
 
-        if not items:
+        if not items:  # pragma: no cover - should not happen
             return default_ls
 
         synthesis = default_ls
@@ -1022,7 +984,7 @@ class DataManager(object):
             logger.debug("get_livesynthesis_history, none found")
             return []
 
-        if not item:
+        if not item:  # pragma: no cover - should not happen
             return []
 
         # Manage global live synthesis
@@ -1128,7 +1090,7 @@ class DataManager(object):
 
         # Manage livesynthesis history
         history = []
-        for livesynthesis in item['history']:
+        for livesynthesis in item['history']:  # pragma: no cover - really hard with unit tests...
             logger.debug("livesynthesis item: %s", livesynthesis['_created'])
             synthesis = deepcopy(default_ls)
             synthesis['_created'] = livesynthesis['_created']
@@ -1269,7 +1231,6 @@ class DataManager(object):
         """Send an external command to Alignak."""
         logger.info("add_command, send a command, data: %s", data)
         try:
-            logger.debug("get_alignak_state")
             result = self.alignak_ws.post('command', data)
         except AlignakWSException:
             return None
@@ -1311,17 +1272,11 @@ class DataManager(object):
         items = self.get_hostgroups(search=search)
         return items[0] if items else None
 
-    def get_hostgroup_overall_state(self, search):
+    def get_hostgroup_overall_state(self, hostgroup):
         """Get a hosts group real state (including hosts states).
 
-        Returns -1 if any problem"""
-        if not isinstance(search, BackendElement):
-            hostgroup = self.get_hostgroup(search)
-            if not hostgroup:
-                return -1
-        else:
-            hostgroup = search
-
+        Returns a tuple with hostgroup overall state and status
+        """
         logger.debug("get_hostgroup_overall_state, group: %s", hostgroup)
         if hostgroup.members == 'host':
             hostgroup.overall_state = 0
@@ -1486,18 +1441,12 @@ class DataManager(object):
         # Get host services
         return self.get_services(search=search, embedded=embedded, all_elements=True)
 
-    def get_host_overall_state(self, search):
+    def get_host_overall_state(self, host):
+        # pylint: disable=no-self-use
         """Get a host real state (including services states).
 
-        Returns -1 if any problem
+        Returns a tuple with host overall state and status
         """
-        if not isinstance(search, BackendElement):
-            host = self.get_host(search)
-            if not host:
-                return -1
-        else:
-            host = search
-
         return (host.overall_state, host.overall_status)
 
     ##
@@ -1535,17 +1484,11 @@ class DataManager(object):
         items = self.get_servicegroups(search=search)
         return items[0] if items else None
 
-    def get_servicegroup_overall_state(self, search):
+    def get_servicegroup_overall_state(self, servicegroup):
         """Get a services group real state (including services states).
 
-        Returns -1 if any problem"""
-        if not isinstance(search, BackendElement):
-            servicegroup = self.get_servicegroup(search)
-            if not servicegroup:
-                return -1
-        else:
-            servicegroup = search
-
+        Returns a tuple with servicegroup overall state and status
+        """
         logger.debug("get_servicegroup_overall_state, group: %s", servicegroup)
         if servicegroup.members == 'service':
             servicegroup.overall_state = 0
@@ -1692,18 +1635,12 @@ class DataManager(object):
         items = self.get_services(search=search)
         return items[0] if items else None
 
-    def get_service_overall_state(self, search):
+    def get_service_overall_state(self, service):
+        # pylint: disable=no-self-use
         """Get a service real state (including services states).
 
-        Returns -1 if any problem
+        Returns a tuple with service overall state and status
         """
-        if not isinstance(search, BackendElement):
-            service = self.get_service(search)
-            if not service:
-                return -1
-        else:
-            service = search
-
         return (service.overall_state, service.overall_status)
 
     def get_services_synthesis(self, elts=None):
@@ -1718,6 +1655,10 @@ class DataManager(object):
         synthesis = dict()
         synthesis['nb_elts'] = len(services)
         synthesis['nb_problem'] = 0
+        for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
+            synthesis['nb_' + state] = 0
+            synthesis['pct_' + state] = 0
+
         if services:
             for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
                 synthesis['nb_' + state] = 0
@@ -1730,10 +1671,6 @@ class DataManager(object):
                     )
                 else:
                     synthesis['pct_' + state] = 0
-        else:
-            for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
-                synthesis['nb_' + state] = 0
-                synthesis['pct_' + state] = 0
 
         logger.debug("get_services_synthesis: %s", synthesis)
         return synthesis
@@ -1984,7 +1921,7 @@ class DataManager(object):
     # Users
     ##
     def get_userrestrictroles(self, search=None, all_elements=False):
-        """Get a list of known users"""
+        """Get a list of users restriction roles"""
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -2050,40 +1987,6 @@ class DataManager(object):
         items = self.get_users(search=search)
         return items[0] if items else None
 
-    def add_user(self, data):
-        """Add a user."""
-        return self.add_object('user', data)
-
-    def delete_user(self, user):
-        """Delete a user.
-
-        Cannot delete the currently logged in user ...
-
-        If user is a string it is assumed to be the User object id to be searched in
-        the objects cache.
-
-        :param user: User object instance
-        :type user: User (or string)
-
-        Returns True/False depending if user has been deleted
-        """
-        logger.info("delete_user, request to delete the user: %s", user)
-
-        if isinstance(user, basestring):
-            user = self.get_user(user)
-            if not user:
-                return False
-
-        user_id = user.id
-        if user_id == self.logged_in_user.id:
-            logger.warning(
-                "unauthorized request to delete the current logged-in user: %s",
-                user_id
-            )
-            return False
-
-        return self.delete_object('user', user)
-
     ##
     # realms
     ##
@@ -2121,33 +2024,23 @@ class DataManager(object):
         logger.debug("get_realm, got: %s", items)
         return items[0] if items else None
 
-    def get_realm_members(self, search):
+    def get_realm_members(self, realm):
         """Get a realm hosts
 
-        Returns -1 if any problem
+        :param realm: realm to get the hosts
+        :return: list of hosts
         """
-        logger.debug("get_realm_members, search: %s", search)
-        if not isinstance(search, BackendElement):
-            realm = self.get_realm(search)
-            if not realm:
-                return -1
-        else:
-            realm = search
+        logger.debug("get_realm_members, realm: %s", realm)
 
         return self.get_hosts(search={'where': {'_realm': realm.id}}, all_elements=True)
 
-    def get_realm_children(self, search):
-        """Get a realm sub realms
+    def get_realm_children(self, realm):
+        """Get a realm sub-realms
 
-        Returns -1 if any problem
+        :param realm: realm to get the sub-realms
+        :return: list of sub-realms
         """
-        logger.debug("get_realm_children, search: %s", search)
-        if not isinstance(search, BackendElement):
-            realm = self.get_realm(search)
-            if not realm:
-                return -1
-        else:
-            realm = search
+        logger.debug("get_realm_children, realm: %s", realm)
 
         # Realm sub-realms
         return self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)

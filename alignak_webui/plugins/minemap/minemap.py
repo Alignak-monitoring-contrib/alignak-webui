@@ -38,7 +38,7 @@ logger = getLogger(__name__)
 class PluginMinemap(Plugin):
     """ Minemap plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Minemap plugin"""
         self.name = 'Minemap'
         self.backend_endpoint = None
@@ -51,7 +51,7 @@ class PluginMinemap(Plugin):
             }
         }
 
-        super(PluginMinemap, self).__init__(app, webui, cfg_filenames)
+        super(PluginMinemap, self).__init__(webui, plugin_dir, cfg_filenames)
 
         self.search_engine = True
         self.search_filters = {
@@ -122,9 +122,6 @@ class PluginMinemap(Plugin):
         # Sort column names by most frequent ...
         count_columns = collections.Counter(columns)
         columns = [c for c, dummy in count_columns.most_common()]
-
-        # Get last total elements count
-        # total = datamgr.get_objects_count('host', search=search, refresh=True)
 
         return {
             'search_engine': self.search_engine,

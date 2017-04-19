@@ -444,7 +444,7 @@ def before_request():
     # Make session edition mode available in the templates
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
     # Initialize data manager and make it available in the request and in the templates
-    if webui.datamgr is None:
+    if webui.datamgr is None:  # pragma: no cover, should never happen!
         webui.datamgr = DataManager(request.app, session=request.environ['beaker.session'])
         if not webui.datamgr.connected:
             redirect('/login')
@@ -465,7 +465,7 @@ def home_page():
     """Display home page -> redirect to /Dashboard"""
     try:
         redirect(request.app.get_url('Livestate'))
-    except RouteBuildError:
+    except RouteBuildError:  # pragma: no cover, should never happen!
         return "No home page available in the application routes!"
 
 
@@ -504,7 +504,7 @@ def user_logout():
 
 
 # todo: not yet implemented... see #172
-def check_backend_connection(_app, token=None, interval=10):
+def check_backend_connection(_app, token=None, interval=10):  # pragma: no cover, not yet!
     """Thread to check if backend connection is alive"""
     print("Thread for checking backend connection is alive with %s" % app.config['alignak_backend'])
 
@@ -542,7 +542,7 @@ def user_auth():
     session['login_message'] = None
 
     # Empty password?
-    if not password:
+    if not password:  # pragma: no cover, should never happen, tested before calling this function!
         # Redirect to application login page with an error message
         session['login_message'] = _("Login is not authorized without a password")
         logger.warning("user '%s' access denied, no passowrd provided", username)
@@ -638,14 +638,6 @@ def ping():
         response.content_type = 'application/json'
         return json.dumps({'status': 'ok',
                            'message': 'Unknown ping action parameter: %s' % action})
-
-    # Check new data in the data manager for the page refresh
-    session = request.environ['beaker.session']
-    if 'refresh_required' in session and session['refresh_required']:
-        # Require UI refresh
-        response.status = 200
-        response.content_type = 'application/json'
-        return json.dumps({'status': 'ok', 'message': 'refresh'})
 
     response.status = 200
     response.content_type = 'application/json'
@@ -912,11 +904,21 @@ def get_user_preference():
 
     default = request.query.get('default', None)
     if default:
-        default = json.loads(default)
+        try:
+            default = json.loads(default)
+        except Exception:
+            pass
+
+    key_value = datamgr.get_user_preferences(user, _key, default)
+    if key_value is None:
+        response.status = 404
+        response.content_type = 'application/json'
+        return json.dumps({'status': 'ko',
+                           'message': 'Unknown key: %s' % _key})
 
     response.status = 200
     response.content_type = 'application/json'
-    return json.dumps(datamgr.get_user_preferences(user, _key, default))
+    return json.dumps(key_value)
 
 
 @app.route('/preference/user/delete', 'GET')
@@ -955,9 +957,15 @@ def set_user_preference():
     if _key is None or _value is None:
         return WebUI.response_invalid_parameters(_('Missing mandatory parameters'))
 
-    if datamgr.set_user_preferences(user, _key, json.loads(_value)):
+    try:
+        _value = json.loads(_value)
+    except Exception:
+        pass
+
+    if datamgr.set_user_preferences(user, _key, _value):
         return WebUI.response_ok(message=_('User preferences saved'))
-    return WebUI.response_ko(message=_('Problem encountered while saving common preferences'))
+
+    return WebUI.response_ko(message=_('Problem encountered while saving user preferences'))
 
 
 # --------------------------------------------------------------------------------------------------
@@ -1032,7 +1040,7 @@ logger.debug("Session parameters: %s", session_opts)
 session_app = SessionMiddleware(app, session_opts)
 
 
-def main():
+def main():  # pragma: no cover, because of test mode
     """Function called by the setup.py console script"""
     logger.info("Running Bottle, debug mode: %s", app.config.get('debug', False))
 

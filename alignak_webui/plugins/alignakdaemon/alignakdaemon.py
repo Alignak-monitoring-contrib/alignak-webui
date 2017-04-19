@@ -42,7 +42,7 @@ logger = getLogger(__name__)
 class PluginAlignak(Plugin):
     """Alignak plugin"""
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Alignak plugin"""
         self.name = 'AlignakDaemon'
         self.backend_endpoint = 'alignakdaemon'
@@ -83,7 +83,7 @@ class PluginAlignak(Plugin):
             },
         }
 
-        super(PluginAlignak, self).__init__(app, webui, cfg_filenames)
+        super(PluginAlignak, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_alignak_widget(self, embedded=False, identifier=None, credentials=None):
         """Get the Alignak widget"""

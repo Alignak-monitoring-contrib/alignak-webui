@@ -28,7 +28,6 @@ from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
@@ -40,7 +39,7 @@ logger = getLogger(__name__)
 class PluginRealms(Plugin):
     """ Realms plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Realms plugin
 
         Overload the default get route to declare filters.
@@ -55,24 +54,21 @@ class PluginRealms(Plugin):
             },
         }
 
-        super(PluginRealms, self).__init__(app, webui, cfg_filenames)
+        super(PluginRealms, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_one(self, element_id):
         """Show one element"""
         datamgr = request.app.datamgr
 
-        # Get elements from the data manager
-        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
-            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
-
-        logger.debug("get_one, search: %s", element_id)
-        element = f(element_id)
+        # Get realm
+        logger.debug("realm, get_one, search: %s", element_id)
+        element = datamgr.get_realm(element_id)
         if not element:
-            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            # Test if we got a name instead of an id
+            element = datamgr.get_realm(search={'max_results': 1, 'where': {'name': element_id}})
             if not element:
-                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
-        logger.debug("get_one, found: %s - %s", element, element.__dict__)
+                return self.webui.response_invalid_parameters(_('Required realm does not exist'))
+        logger.debug("realm, get_one, found: %s - %s", element, element.__dict__)
 
         return {
             'object_type': self.backend_endpoint,
@@ -91,14 +87,7 @@ class PluginRealms(Plugin):
         """
         datamgr = request.app.datamgr
 
-        if not isinstance(element, BackendElement):
-            realm = datamgr.get_realm(element)
-            if not realm:
-                return -1
-        else:
-            realm = element
-
-        (overall_state, overall_status) = datamgr.get_realm_overall_state(realm)
+        (overall_state, overall_status) = datamgr.get_realm_overall_state(element)
         logger.debug(
             " - realm overall state: %d -> %s", overall_state, overall_status
         )

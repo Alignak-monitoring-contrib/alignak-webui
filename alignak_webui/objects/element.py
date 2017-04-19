@@ -291,7 +291,7 @@ class BackendElement(object):
                            self.__class__)
             return
 
-        if not isinstance(params, dict):
+        if not isinstance(params, dict):  # pragma: no cover, should not happen
             if self.__class__ == params.__class__:
                 params = params.__dict__
             elif self.get_known_classes() and params.__class__ in self.get_known_classes():
@@ -341,7 +341,7 @@ class BackendElement(object):
                                  key, params[key].__class__, value)
 
                     object_type = getattr(self, '_linked_' + key, None)
-                    if object_type is None:
+                    if object_type is None:  # pragma: no cover, should not happen
                         logger.error("__init__, object_type is None, key %s for %s, as %s for %s",
                                      key, self.get_type(), object_type, params[key])
                         continue
@@ -395,7 +395,7 @@ class BackendElement(object):
                                     logger.error("__init__, item not found for %s, %s",
                                                  object_type, value)
                                     continue
-                            except:
+                            except:  # pragma: no cover, should not happen
                                 logger.error("__init__, item not existing for %s, %s",
                                              object_type, value)
                                 continue
@@ -425,7 +425,7 @@ class BackendElement(object):
                                             logger.error("__init__, item not found for %s, %s",
                                                          object_type, value)
                                             continue
-                                    except:
+                                    except:  # pragma: no cover, should not happen
                                         logger.error("__init__, item not existing for %s, %s",
                                                      object_type, value)
                                         continue
@@ -481,16 +481,12 @@ class BackendElement(object):
     @property
     def updated(self):
         """Get Item update date as a timestamp"""
-        if hasattr(self, '_updated'):
-            return self._updated
-        return self._default_date
+        return self._updated
 
     @property
     def created(self):
         """Get Item creation date as a timestamp"""
-        if hasattr(self, '_created'):
-            return self._created
-        return self._default_date
+        return self._created
 
     @property
     def name(self):
@@ -638,7 +634,7 @@ class BackendElement(object):
         return False
 
     @property
-    def downtime(self):
+    def downtimed(self):
         """An element is never in a downtime except if it overloads this method"""
         return False
 

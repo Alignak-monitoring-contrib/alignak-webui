@@ -82,9 +82,9 @@ class WebUI(object):
         self.current_user = None
 
         # Load plugins in the plugins directory ...
-        plugins_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
-        self.plugins_count = self.load_plugins(plugins_dir=plugins_dir)
-        logger.info("loaded %d plugins from: %s", self.plugins_count, plugins_dir)
+        self.plugins_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
+        self.plugins_count = self.load_plugins(plugins_dir=self.plugins_dir)
+        logger.info("loaded %d plugins from: %s", self.plugins_count, self.plugins_dir)
 
     def load_plugins(self, plugins_dir):
         # pylint: disable=too-many-locals, too-many-nested-blocks, undefined-loop-variable
@@ -138,7 +138,7 @@ class WebUI(object):
 
                     for p_class in p_classes:
                         # Create a plugin instance
-                        plugin_instance = p_class(self.app, self, cfg_files)
+                        plugin_instance = p_class(self, plugin_name, cfg_files)
 
                         if not plugin_instance.is_enabled():
                             logger.warning("Plugin '%s' is disabled!", plugin_name)

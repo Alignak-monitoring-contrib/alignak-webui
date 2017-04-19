@@ -145,7 +145,7 @@
             <span class="fa fa-external-link"></span> {{_('Actions') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
-            %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
+            %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe"):
             <li>{{! action_url}}</li>
             %end
          </ul>

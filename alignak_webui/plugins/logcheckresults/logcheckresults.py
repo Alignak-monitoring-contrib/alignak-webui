@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 class PluginLogCheckResults(Plugin):
     """ Services groups plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Log check results plugin
 
         Overload the default get route to declare filters.
@@ -44,4 +44,4 @@ class PluginLogCheckResults(Plugin):
 
         self.pages = {}
 
-        super(PluginLogCheckResults, self).__init__(app, webui, cfg_filenames)
+        super(PluginLogCheckResults, self).__init__(webui, plugin_dir, cfg_filenames)

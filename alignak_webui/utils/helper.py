@@ -246,7 +246,7 @@ class Helper(object):
         return ' '.join(element.split())
 
     @staticmethod
-    def get_urls(url, default_title="Url", default_icon="globe", popover=False):
+    def get_urls(url, default_title="Url", default_icon="globe"):
         """Returns formatted HTML for an element URL
 
         url string may contain a list of urls separated by | (pipe symbol)
@@ -260,10 +260,8 @@ class Helper(object):
 
         If title is not specified, default_title is used as title
         If icon is not specified, default_icon is used as icon
-
-        If popover is true, a bootstrap popover is built, else a standard link ...
         """
-        logger.debug("get_urls: %s / %s / %s / %d", url, default_title, default_icon, popover)
+        logger.debug("get_urls: %s / %s / %s", url, default_title, default_icon)
 
         items_count = url.split('|')
         logger.debug("get_urls, items: %s", items_count)
@@ -294,58 +292,41 @@ class Helper(object):
             logger.debug("get_urls, found title and icon: %s / %s", title, icon)
             logger.debug("get_urls, found description: %s", description)
 
-            if popover:
-                if url != '':
-                    result.append(
-                        '<a href="%s" target="_blank" role="button" data-toggle="popover urls" '
-                        'data-container="body" data-html="true" data-content="%s" '
-                        'data-trigger="hover focus" data-placement="bottom">'
-                        '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
-                            url, description, icon, title
-                        )
+            if url:
+                result.append(
+                    '<a href="%s" target="_blank" role="button" data-toggle="popover urls" '
+                    'data-container="body" data-html="true" data-content="%s" '
+                    'data-trigger="hover focus" data-placement="bottom">'
+                    '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
+                        url, description, icon, title
                     )
-                else:
-                    result.append(
-                        '<a href="#" role="button" data-toggle="popover urls" '
-                        'data-container="body" data-html="true" data-content="%s" '
-                        'data-trigger="hover focus" data-placement="bottom">'
-                        '<span class="fa fa-%s"></span>&nbsp;%s</span></a>' % (
-                            description, icon, title
-                        )
-                    )
+                )
             else:
-                if url != '':
-                    result.append(
-                        '<a href="%s" target="_blank" title="%s">'
-                        '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
-                            url, description, icon, title
-                        )
+                result.append(
+                    '<a href="#" role="button" data-toggle="popover urls" '
+                    'data-container="body" data-html="true" data-content="%s" '
+                    'data-trigger="hover focus" data-placement="bottom">'
+                    '<span class="fa fa-%s"></span>&nbsp;%s</span></a>' % (
+                        description, icon, title
                     )
-                else:
-                    result.append(
-                        '<a href="#" title="%s">'
-                        '<span class="fa fa-%s"></span>&nbsp;%s</a>' % (
-                            description, icon, title
-                        )
-                    )
-
+                )
         return result
 
     @staticmethod
-    def get_element_actions_url(obj, default_title="Url", default_icon="globe", popover=False):
+    def get_element_actions_url(obj, default_title="Url", default_icon="globe"):
         """Return list of element action urls"""
 
         try:
             logger.debug("get_element_actions_url, url: %s", obj.action_url)
             return Helper.get_urls(obj.action_url, default_title=default_title,
-                                   default_icon=default_icon, popover=popover)
+                                   default_icon=default_icon)
         except AttributeError:
             pass
 
         return []
 
     @staticmethod
-    def get_element_notes_url(obj, default_title="Url", default_icon="globe", popover=False):
+    def get_element_notes_url(obj, default_title="Url", default_icon="globe"):
         """Return list of element notes urls"""
 
         if obj is not None and obj.notes:
@@ -364,7 +345,7 @@ class Helper(object):
                 logger.debug("get_element_notes_url, note: %s", notes)
 
             return Helper.get_urls('|'.join(notes), default_title=default_title,
-                                   default_icon=default_icon, popover=popover)
+                                   default_icon=default_icon)
 
         return []
 
@@ -440,6 +421,7 @@ class Helper(object):
                     field = 'business_impact'
 
                 # Get the column definition for the searched field
+                logger.debug("Data model: %s", data_model)
                 if field not in data_model:
                     if 'ls_' + field not in data_model:
                         logger.warning("decode_search, unknown column '%s' in table fields", field)
@@ -460,6 +442,7 @@ class Helper(object):
                     regex = False
                 else:
                     regex = c_def.get('regex', True)
+                logger.warning("Field: %s, regex: %s", field, regex)
 
                 for pattern in patterns:
                     logger.debug("decode_search, pattern: %s", pattern)

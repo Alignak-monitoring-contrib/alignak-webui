@@ -9,7 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 
-<div id="usergroup_{{element.id}}">
+<div class="usergroup" id="usergroup_{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -95,7 +95,7 @@
    %end
 
    %if element._parent and element._parent is not None and element._parent != 'usergroup':
-   <div class="btn-group" role="group" aria-label="{{_('Group navigation')}}">
+   <div class="usergroup-parent btn-group" role="group" aria-label="{{_('Group navigation')}}">
       <a class="btn btn-default btn-raised" href="{{element._parent.endpoint}}" role="button">
          <span class="fa fa-arrow-up"></span>
          {{_('Parent group')}}
@@ -103,7 +103,7 @@
    </div>
    %end
 
-   <div class="panel panel-default">
+   <div class="usergroup-members panel panel-default">
       <div class="panel-body">
          <div class="col-xs-6 col-sm-2 text-center">
             {{! element.get_html_state(text=None, size="fa-3x")}}

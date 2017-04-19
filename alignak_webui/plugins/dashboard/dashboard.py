@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 class PluginDashboard(Plugin):
     """ Dashboard plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Dashboard plugin
         """
@@ -51,7 +51,7 @@ class PluginDashboard(Plugin):
             }
         }
 
-        super(PluginDashboard, self).__init__(app, webui, cfg_filenames)
+        super(PluginDashboard, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_page(self):
         """

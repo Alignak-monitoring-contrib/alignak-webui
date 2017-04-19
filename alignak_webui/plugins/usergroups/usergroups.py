@@ -38,7 +38,7 @@ logger = getLogger(__name__)
 class PluginServicesGroups(Plugin):
     """ Services groups plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Services groups plugin
 
@@ -54,7 +54,7 @@ class PluginServicesGroups(Plugin):
             },
         }
 
-        super(PluginServicesGroups, self).__init__(app, webui, cfg_filenames)
+        super(PluginServicesGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_one(self, element_id):
         """
@@ -64,7 +64,7 @@ class PluginServicesGroups(Plugin):
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover - should not happen!
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         logger.debug("get_one, search: %s", element_id)

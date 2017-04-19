@@ -119,14 +119,8 @@ class tests_preferences(unittest2.TestCase):
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
     def test_global_preferences(self):
-        """ User preferences - global preferences """
+        """User preferences - global preferences"""
         print('test global user preferences page')
-
-        # /ping, still sends a status 200, but refresh is required
-        response = self.app.get('/ping')
-        # response.mustcontain('refresh')
-        response = self.app.get('/ping?action=done')
-        # response.mustcontain('pong')
 
         # Get user's preferences page
         response = self.app.get('/preferences/user')
@@ -146,5 +140,73 @@ class tests_preferences(unittest2.TestCase):
             """No user preferences"""
         )
 
+    def test_user_preference_get(self):
+        """User preference - get a stored value"""
+        print('test user preferences get a value')
+
+        # Get user's preferences value - missing key
+        print('- missing key')
+        response = self.app.get('/preference/user', status=204)
+
+        # Get user's preferences value - not existing key without default value
+        print('- unknown key, no default value')
+        response = self.app.get('/preference/user?key=elts_per_page', status=404)
+        assert response.json == {u'message': u'Unknown key: elts_per_page', u'status': u'ko'}
+
+        # Get user's preferences value - not existing key with default value
+        print('- unknown key, with default value')
+        response = self.app.get('/preference/user?key=test&default=default')
+        assert response.json == 'default'
+
+    def test_user_preference_set(self):
+        """User preference - set a value to store"""
+        print('test user preferences set a value')
+
+        # Set user's preferences value - bad parameters
+        params = {}
+        response = self.app.post('/preference/user', params=params, status=204)
+        params = {'key': 'test'}
+        response = self.app.post('/preference/user', params=params, status=204)
+
+        # Set user's preferences value - simple data
+        params = {'key': 'test', 'value': 'test'}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+
+        # Get user's preferences value
+        response = self.app.get('/preference/user?key=test')
+        assert response.json == 'test'
+
+        # Set user's preferences value - JSON data
+        params = {'key': 'test_json', 'value': json.dumps({'a': 1, 'b': '1'})}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+
+        # Get user's preferences value
+        response = self.app.get('/preference/user?key=test_json')
+        assert response.json == {'a': 1, 'b': '1'}
+
+    def test_user_preference_delete(self):
+        """User preference - set and delete a value"""
+        print('test user preferences set and delete a value')
+
+        # Set user's preferences value - simple data
+        params = {'key': 'test', 'value': 'test'}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+
+        # Delete user's preferences value
+        response = self.app.get('/preference/user/delete?key=test')
+        assert response.json is True
+
+        # Set user's preferences value - JSON data
+        params = {'key': 'test_json', 'value': json.dumps({'a': 1, 'b': '1'})}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+
+        # Get user's preferences value
+        response = self.app.get('/preference/user/delete?key=test_json')
+        assert response.json is True
+
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

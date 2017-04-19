@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 class PluginHosts(Plugin):
     """ Hosts plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Hosts plugin
 
@@ -288,7 +288,7 @@ class PluginHosts(Plugin):
             },
         }
 
-        super(PluginHosts, self).__init__(app, webui, cfg_filenames)
+        super(PluginHosts, self).__init__(webui, plugin_dir, cfg_filenames)
 
         self.search_engine = True
         self.search_filters = {
@@ -306,6 +306,16 @@ class PluginHosts(Plugin):
 
     def get_all_templates(self):
         """Get all the hosts templates"""
+        user = request.environ['beaker.session']['current_user']
+        edition_mode = request.environ['beaker.session']['edition_mode']
+        if not edition_mode:
+            self.send_user_message(_("You must activate edition mode to view this page"),
+                                   redirected=True)
+        if not user.can_edit_configuration():
+            logger.warning("Current user '%s' is not authorized to view this page",
+                           user.get_username())
+            self.send_user_message(_("Not authorized to view this page"), redirected=True)
+
         return self.get_all(templates=True, all_elements=True)
 
     def get_one(self, element_id):

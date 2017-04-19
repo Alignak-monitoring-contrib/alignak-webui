@@ -1,0 +1,14 @@
+[
+    {
+        "_realm": "All",
+        "_sub_realm": true,
+        "action_url": "",
+        "alias": "Windows passively monitored services",
+        "imported_from": "alignak-checks-windows-nsca",
+        "name": "windows-passive-services",
+        "notes": "",
+        "notes_url": "",
+        "servicegroups": [],
+        "services": []
+    }
+]

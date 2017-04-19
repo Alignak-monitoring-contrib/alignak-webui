@@ -34,7 +34,7 @@ logger = getLogger(__name__)
 class PluginGrafana(Plugin):
     """ Grafana plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Grafana plugin"""
         self.name = 'Grafana'
         self.backend_endpoint = None
@@ -42,7 +42,7 @@ class PluginGrafana(Plugin):
         self.pages = {
         }
 
-        super(PluginGrafana, self).__init__(app, webui, cfg_filenames)
+        super(PluginGrafana, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def is_enabled(self):
         """Returns True if plugin is enabled"""

@@ -94,6 +94,72 @@ def teardown_module(module):
     time.sleep(2)
 
 
+class TestEditionModeDenied(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        print('login accepted - go to home page')
+        self.login_response = self.app.post('/login', {'username': 'guest', 'password': 'guest'})
+
+        # A session cookie exist
+        assert self.app.cookies['Alignak-WebUI']
+        for cookie in self.app.cookiejar:
+            if cookie.name=='Alignak-WebUI':
+                assert cookie.expires
+
+        # A session exists and it contains: current user, his realm and his live synthesis
+        self.session = self.login_response.request.environ['beaker.session']
+        assert 'current_user' in self.session and self.session['current_user']
+        assert self.session['current_user'].name == 'guest'
+        assert 'current_realm' in self.session and self.session['current_realm']
+        assert self.session['current_realm'].name == 'All'
+        assert 'current_ls' in self.session and self.session['current_ls']
+
+        # edition_mode is defined but not activated in the session...
+        assert 'edition_mode' in self.session
+        assert False == self.session['edition_mode']
+
+    def tearDown(self):
+        print('logout')
+        self.app.get('/logout')
+
+    def test_enable_disable(self):
+        """Enable / disable edition mode is denied for non admin user"""
+
+        print('Enable edition mode - denied')
+        self.app.post('/edition_mode', params={'state': 'on'}, status=401)
+
+        print('Disable edition mode - denied')
+        self.app.post('/edition_mode', params={'state': 'off'}, status=401)
+
+        print('get page /host/form (read-only mode) - for a new host - granted')
+        # Authorized...
+        self.app.get('/host/webui/form', status=200)
+
+        print('get page /host/form (edition mode) - for a new host - denied')
+        # Redirected...
+        self.app.get('/host/None/form', status=302)
+
+        print('Host creation without template - denied')
+        data = {
+            "_is_template": False,
+            'name': "New host",
+            'alias': "Friendly name"
+        }
+        self.app.post('/host/None/form', params=data, status=401)
+
+        print('Host templates page - denied')
+        self.app.get('/hosts/templates', status=302)
+
+        print('Post form updates - denied')
+        data = {
+            'name': 'webui',
+            'alias': "Alias edited"
+        }
+        response = self.app.post('/host/webui/form', params=data, status=401)
+
+
 class TestEditionMode(unittest2.TestCase):
     def setUp(self):
         # Test application
@@ -250,14 +316,69 @@ class TestHosts(unittest2.TestCase):
         print('logout')
         self.app.get('/logout')
 
+    def test_hosts_templates_table(self):
+        """View hosts templates page in edition mode"""
+        print('get page /hosts/templates (edition mode)')
+        response = self.app.get('/hosts/templates')
+        response.mustcontain(
+            '<div id="hosts-templates">',
+            '<form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">',
+            '<legend>Creating a new host:</legend>',
+            '<input class="form-control" type="text" id="name" name="name" placeholder="Host name"  value="">',
+            '<input class="form-control" type="text" id="alias" alias="alias" placeholder="Host alias"  value="">',
+            '<input class="form-control" type="text" id="address" name="address" placeholder="0.0.0.0"  value="">',
+            '<input class="form-control" type="text" id="realm" realm="realm" placeholder="Host realm"  value="">',
+            '<input type="checkbox" id="_is_template" name="_is_template">',
+            '<input id="_dummy" name="_dummy" type="checkbox" data-id="58f7250c06fd4b31e230280a" data-linked="">',
+            '<input id="generic-passive-host" name="generic-passive-host" type="checkbox" data-id="58f7250f06fd4b31e2302814" data-linked="">',
+            '<input id="windows-passive-host" name="windows-passive-host" type="checkbox" data-id="58f7250f06fd4b31e2302815" data-linked="generic-passive-host">'
+        )
+
+
+    def test_hosts_templates_table(self):
+        """View hosts templates table in edition mode"""
+        print('get page /hosts/templates/table (normal mode)')
+        response = self.app.get('/hosts/templates/table')
+        response.mustcontain(
+            '<div id="hosts_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_hosts_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the hosts table"',
+            # Because of edition mode...
+            no = [
+                '''titleAttr: "Create a new item"''',
+                '''var url = "/host/None/form";''',
+            ]
+        )
+
+        print('Enable edition mode')
+        response = self.app.post('/edition_mode', params={'state': 'on'})
+        session = response.request.environ['beaker.session']
+        # edition_mode is defined and activated in the session...
+        assert 'edition_mode' in session
+        assert True == session['edition_mode']
+        assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
+
+        print('get page /hosts/templates/table (edition mode)')
+        response = self.app.get('/hosts/templates/table')
+        response.mustcontain(
+            '<div id="hosts_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_hosts_templates_table').DataTable( {",
+            # Because of a templates table
+            'titleAttr: "Navigate to the hosts table"',
+            # Because of edition mode...
+            '''titleAttr: "Create a new item"''',
+            '''var url = "/host/None/form";''',
+        )
+
     def test_hosts_table(self):
         """View hosts table in edition mode"""
         print('get page /hosts/table (normal mode)')
         response = self.app.get('/hosts/table')
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
-            "$('#tbl_host').DataTable( {",
-            '<table id="tbl_host" ',
+            "$('#tbl_hosts_table').DataTable( {",
+            '<table id="tbl_hosts_table" ',
             no = [
                 '''text: "<span class='fa fa-edit'></span>"''',
                 '''titleAttr: "Edit the selected item"''',
@@ -276,8 +397,8 @@ class TestHosts(unittest2.TestCase):
         response = self.app.get('/hosts/table')
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
-            "$('#tbl_host').DataTable( {",
-            '<table id="tbl_host" ',
+            "$('#tbl_hosts_table').DataTable( {",
+            '<table id="tbl_hosts_table" ',
             '''text: "<span class='text-warning fa fa-edit'></span>"''',
             '''titleAttr: "Edit the selected item"''',
         )
@@ -352,6 +473,10 @@ class TestHosts(unittest2.TestCase):
         assert True == session['edition_mode']
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
+        # Count hosts
+        count = datamgr.count_objects('host')
+        print("Host count: %s" % count)
+
         print('get page /host/form (edition mode) - for a new host')
         response = self.app.get('/host/unknown_host/form')
         response.mustcontain(
@@ -395,6 +520,11 @@ class TestHosts(unittest2.TestCase):
             'alias': "Friendly name"
         }
 
+        # Count hosts (one more!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count + 1
+
         # Get the new host in the backend
         host = datamgr.get_host({'where': {'name': 'New host'}})
         assert host
@@ -423,6 +553,11 @@ class TestHosts(unittest2.TestCase):
             "name": "New host 2",
             'alias': "Friendly name 2"
         }
+
+        # Count hosts (one more!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count + 2
 
         # Get the new host in the backend
         host = datamgr.get_host({'where': {'name': 'New host 2'}})
@@ -466,6 +601,36 @@ class TestHosts(unittest2.TestCase):
         assert response.json == {
             "_message": "host 'graphite' updated", "alias": "Alias edited"
         }
+
+    def test_host_delete(self):
+        """Delete the newly created hosts"""
+        datamgr = DataManager(alignak_webui.app.app, session=self.session)
+
+        # Count hosts
+        count = datamgr.count_objects('host')
+        print("Host count: %s" % count)
+
+        # Get host and service in the backend
+        host = datamgr.get_host({'where': {'name': 'pi1'}})
+
+        assert datamgr.delete_object('service', host) is False
+        assert datamgr.delete_object('host', host) is True
+
+        # Count hosts (one less!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count - 1
+
+        # Get host and service in the backend
+        host = datamgr.get_host({'where': {'name': 'pi2'}})
+
+        assert datamgr.delete_object('service', host) is False
+        assert datamgr.delete_object('host', host) is True
+
+        # Count hosts (one less!)
+        new_count = datamgr.count_objects('host')
+        print("Host count: %s" % new_count)
+        assert new_count == count - 2
 
 
 if __name__ == '__main__':

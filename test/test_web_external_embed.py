@@ -170,7 +170,7 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
     def test_allowed_widgets(self):
-        """ External - allowed widgets"""
+        """External - allowed widgets"""
         print('allowed widgets external access')
 
         # Allowed - default widgets parameters: widget_id and widget_template
@@ -241,7 +241,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
     def test_allowed_tables(self):
-        """ External - allowed tables"""
+        """External - allowed tables"""
         print('allowed tables external access')
 
         # Allowed - default table parameters: none
@@ -316,7 +316,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
     def test_host_widgets(self):
-        """ External - host widgets"""
+        """External - host widgets"""
         print('allowed host widgets external access')
 
         # Log in to get Data manager in the session
@@ -355,7 +355,36 @@ class TestsExternal(unittest2.TestCase):
         )
         response.mustcontain('<div><h1>Unknown required widget: unknown.</h1><p>The required widget is not available.</p></div>')
 
+        # Host view
+        # ---
+        # Get external host widget
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/view?page' % host.id
+        )
+        response.mustcontain(
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<body>',
+            '<section>',
+            '<div id="wd_panel_view" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts view widget -->',
+            '</section>',
+            '</body>'
+        )
+
+        # Get external host widget, no page parameter
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/host/%s/view' % host.id
+        )
+        response.mustcontain(
+            '<div id="wd_panel_view" class="panel panel-default alignak_webui_widget embedded">',
+            '<!-- Hosts view widget -->',
+        )
+
         # Host information
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -383,6 +412,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host configuration
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -410,6 +440,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host metrics
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -437,6 +468,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host timeline
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -467,6 +499,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
         # Host services
+        # ---
         # Get external host widget
         self.app.authorization = ('Basic', ('admin', 'admin'))
         response = self.app.get(
@@ -522,7 +555,7 @@ class TestsExternal(unittest2.TestCase):
         # )
 
     def test_service_widgets(self):
-        """ External - service widgets"""
+        """External - service widgets"""
         print('allowed service widgets external access')
 
         # Log in to get Data manager in the session
@@ -680,7 +713,7 @@ class TestsExternal(unittest2.TestCase):
         )
 
     def test_user_widgets(self):
-        """ External - user widgets"""
+        """External - user widgets"""
         print('allowed user widgets external access')
 
         # Log in to get Data manager in the session
@@ -759,7 +792,7 @@ class TestAllWidgets(unittest2.TestCase):
         self.app = TestApp(alignak_webui.app.session_app)
 
     def test_widgets(self):
-        """ External - allowed widgets"""
+        """External - get all allowed widgets"""
         print('allowed widgets')
 
         # Hosts table
@@ -803,6 +836,16 @@ class TestAllWidgets(unittest2.TestCase):
             '<div id="pc_services_services_chart">'
         )
 
+        # Livestate table
+        self.app.authorization = ('Basic', ('admin', 'admin'))
+        response = self.app.get(
+            '/external/widget/livestate?widget_id=livestate'
+        )
+        response.mustcontain(
+            '<div id="wd_panel_livestate" class="panel panel-default alignak_webui_widget embedded">',
+            '<div id="livestate-bi--1">'
+        )
+
 
 class TestExternalFiles(unittest2.TestCase):
 
@@ -813,7 +856,7 @@ class TestExternalFiles(unittest2.TestCase):
         self.app = TestApp(alignak_webui.app.session_app)
 
     def test_request_unknown_files(self):
-        """ External - request list of js files - unknown files"""
+        """External - request list of js files - unknown files"""
         print('Request list of js files')
 
         # Allowed - default widgets parameters: widget_id and widget_template
@@ -829,7 +872,7 @@ class TestExternalFiles(unittest2.TestCase):
         assert response.json['message']
 
     def test_request_js_files(self):
-        """ External - request list of js files"""
+        """External - request list of js files"""
         print('Request list of js files')
 
         # Allowed - default widgets parameters: widget_id and widget_template
@@ -866,7 +909,7 @@ class TestExternalFiles(unittest2.TestCase):
         assert reference == response.json['files']
 
     def test_request_css_files(self):
-        """ External - request list of js files - CSS files"""
+        """External - request list of js files - CSS files"""
         print('Request list of css files')
 
         # Allowed - default widgets parameters: widget_id and widget_template

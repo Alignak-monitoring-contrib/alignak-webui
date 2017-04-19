@@ -115,7 +115,7 @@
          %field_type = model.get('type', 'string')
          %content_type = model.get('content_type', field_type)
          %placeholder = model.get('placeholder', label)
-         %hint = model.get('hint', label)
+         %comment = model.get('comment', label)
          %format = model.get('format')
          %unique = model.get('unique')
          %required = model.get('required')
@@ -126,9 +126,9 @@
             <div class="form-group">
                <label class="control-label" for="{{field}}">{{_('Host name:')}}</label>
                <input class="form-control" type="text" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="" {{'readonly="readonly"' if not edition or not editable else ''}}>
-               %if hint:
+               %if comment:
                   <p class="help-block">
-                     {{hint}}
+                     {{comment}}
                      %if unique:
                      <br>{{_('This field must be unique.')}}
                      %end
@@ -149,8 +149,11 @@
          %field_type = model.get('type', 'string')
          %content_type = model.get('content_type', field_type)
          %placeholder = model.get('placeholder', label)
-         %hint = model.get('hint', label)
-         %allowed = model.get('allowed', '').split(',')
+         %comment = model.get('comment', label)
+         %allowed = model.get('allowed', '')
+         %if not isinstance(allowed, list):
+         %allowed = allowed.split(',')
+         %end
          %if allowed[0] == '':
          %  allowed = []
          %end
@@ -190,9 +193,9 @@
                      </select>
                      <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
                   </div>
-                  %if hint:
+                  %if comment:
                   <p class="help-block">
-                     {{hint}}
+                     {{comment}}
                      %if unique:
                      <br>{{_('This field must be unique.')}}
                      %end
@@ -295,7 +298,7 @@
          %model = plugin.table[field]
 
          %label = model.get('title', '')
-         %hint = model.get('hint', label)
+         %comment = model.get('comment', label)
          %editable = model.get('editable', True)
 
          <div class="well page">
@@ -312,9 +315,9 @@
                      </label>
                   </div>
                </div>
-               %if hint:
+               %if comment:
                <p class="help-block">
-                  {{hint}}
+                  {{comment}}
                </p>
                %end
             </div>
@@ -330,8 +333,11 @@
          %field_type = model.get('type', 'string')
          %content_type = model.get('content_type', field_type)
          %placeholder = model.get('placeholder', label)
-         %hint = model.get('hint', label)
-         %allowed = model.get('allowed', '').split(',')
+         %comment = model.get('comment', label)
+         %allowed = model.get('allowed', '')
+         %if not isinstance(allowed, list):
+         %allowed = allowed.split(',')
+         %end
          %if allowed[0] == '':
          %  allowed = []
          %end
@@ -371,9 +377,9 @@
                      </select>
                      <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
                   </div>
-                  %if hint:
+                  %if comment:
                   <p class="help-block">
-                     {{hint}}
+                     {{comment}}
                      %if unique:
                      <br>{{_('This field must be unique.')}}
                      %end
@@ -518,11 +524,14 @@
             %field_type = model.get('type', 'string')
             %content_type = model.get('content_type', field_type)
             %placeholder = model.get('placeholder', label)
-            %hint = model.get('hint', label)
+            %comment = model.get('comment', label)
             %if is_template:
-            %allowed = model.get('allowed_template', model.get('allowed', '')).split(',')
+            %allowed = model.get('allowed_template', model.get('allowed', ''))
             %else:
-            %allowed = model.get('allowed', '').split(',')
+            %allowed = model.get('allowed', '')
+            %end
+            %if not isinstance(allowed, list):
+            %allowed = allowed.split(',')
             %end
             %if allowed[0] == '':
             %  allowed = []
@@ -632,9 +641,9 @@
                            </label>
                         </div>
                      </div>
-                     %if hint:
+                     %if comment:
                      <p class="help-block">
-                     {{hint}}
+                     {{comment}}
                      %if unique:
                      <br>{{_('This field must be unique.')}}
                      %end
@@ -691,9 +700,9 @@
                         %end
                      </span>
                   </div>
-                  %if hint:
+                  %if comment:
                   <p class="help-block">
-                     {{hint}}
+                     {{comment}}
                      %if unique:
                      <br>{{_('This field must be unique.')}}
                      %end

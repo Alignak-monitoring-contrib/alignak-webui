@@ -28,7 +28,6 @@ from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
@@ -40,7 +39,7 @@ logger = getLogger(__name__)
 class PluginHostsGroups(Plugin):
     """ Hosts groups plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """Hosts groups plugin
 
         Overload the default get route to declare filters.
@@ -59,7 +58,7 @@ class PluginHostsGroups(Plugin):
             },
         }
 
-        super(PluginHostsGroups, self).__init__(app, webui, cfg_filenames)
+        super(PluginHostsGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_one(self, element_id):
         """Show one element"""
@@ -67,7 +66,7 @@ class PluginHostsGroups(Plugin):
 
         # Get elements from the data manager
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
-        if not f:
+        if not f:  # pragma: no cover - should not happen!
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
         logger.debug("get_one, search: %s", element_id)
@@ -99,14 +98,7 @@ class PluginHostsGroups(Plugin):
         """
         datamgr = request.app.datamgr
 
-        if not isinstance(element, BackendElement):
-            hostgroup = datamgr.get_hostgroup(element)
-            if not hostgroup:
-                return -1
-        else:
-            hostgroup = element
-
-        (overall_state, overall_status) = datamgr.get_hostgroup_overall_state(hostgroup)
+        (overall_state, overall_status) = datamgr.get_hostgroup_overall_state(element)
         logger.debug(
             " - hostgroup overall state: %d -> %s", overall_state, overall_status
         )

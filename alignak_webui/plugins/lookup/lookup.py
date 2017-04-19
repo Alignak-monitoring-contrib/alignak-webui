@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 class PluginLookup(Plugin):
     """ Dashboard plugin """
 
-    def __init__(self, app, webui, cfg_filenames=None):
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
         """
         Dashboard plugin
         """
@@ -51,7 +51,7 @@ class PluginLookup(Plugin):
             }
         }
 
-        super(PluginLookup, self).__init__(app, webui, cfg_filenames)
+        super(PluginLookup, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def lookup(self):  # pylint:disable=no-self-use
         """

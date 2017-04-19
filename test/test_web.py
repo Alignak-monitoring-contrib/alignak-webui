@@ -30,9 +30,8 @@ import unittest2
 import subprocess
 import requests
 
-from mock import Mock, patch
-
-from nose.tools import *
+from calendar import timegm
+from datetime import datetime
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
@@ -86,6 +85,133 @@ def setup_module(module):
         stdout=fnull
     )
     assert exit_code == 0
+
+    headers = {'Content-Type': 'application/json'}
+    params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+    # Login
+    response = requests.post(backend_address + '/login', json=params, headers=headers)
+    resp = response.json()
+    token = resp['token']
+    auth = requests.auth.HTTPBasicAuth(token, '')
+
+    # Get realms in the backend
+    params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+    response = requests.get(backend_address + '/realm', params=params, auth=auth)
+    resp = response.json()
+    host = resp['_items'][0]
+    print("Realm: %s" % host)
+    realm_all = host['_id']
+
+    # Get hosts in the backend
+    params = {'sort': '_id', 'where': json.dumps({'name': 'KNM-Glpi'})}
+    response = requests.get(backend_address + '/host', params=params, auth=auth)
+    resp = response.json()
+    hosts = resp['_items']
+    host_state_id = 0
+    host_state = "UP"
+    for host in hosts:
+        print("Host: %s" % host)
+        host_id = host['_id']
+
+        # -------------------------------------------
+        # Add a check result for the host
+        data = {
+            "last_check": timegm(datetime.utcnow().timetuple()),
+            "host": host_id,
+            "service": None,
+            'acknowledged': False,
+            'state_id': host_state_id,
+            'state': host_state,
+            'state_type': 'HARD',
+            'last_state_id': 0,
+            'last_state': 'UP',
+            'last_state_type': 'HARD',
+            'state_changed': False,
+            'latency': 0,
+            'execution_time': 0.12,
+            'output': 'Check output',
+            'long_output': 'Check long_output',
+            'perf_data': 'perf_data',
+            "_realm": realm_all
+        }
+        response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+
+        if host_state_id == 0:
+            host_state_id = 1
+        elif host_state_id == 1:
+            host_state_id = 2
+        else:
+            host_state_id = 0
+        if host_state =='UP':
+            host_state = 'DOWN'
+        elif host_state == 'DOWN':
+            host_state = 'UNREACHABLE'
+        else:
+            host_state = 'UP'
+
+        # Get service in the backend
+        params = {'sort': '_id', 'where': json.dumps({'host': host_id})}
+        response = requests.get(backend_address + '/service', params=params, auth=auth)
+        resp = response.json()
+        services = resp['_items']
+        print("Services: %s" % services)
+        service_state_id = 0
+        service_state = "UP"
+        for service in services:
+            print("- service: %s" % service)
+            service_id = service['_id']
+
+            # -------------------------------------------
+            # Add a check result for the host
+            data = {
+                "last_check": timegm(datetime.utcnow().timetuple()),
+                "host": host_id,
+                "service": service_id,
+                'acknowledged': False,
+                'state_id': service_state_id,
+                'state': service_state,
+                'state_type': 'HARD',
+                'last_state_id': 0,
+                'last_state': 'UP',
+                'last_state_type': 'HARD',
+                'state_changed': False,
+                'latency': 0,
+                'execution_time': 0.12,
+                'output': 'Check output',
+                'long_output': 'Check long_output',
+                'perf_data': 'perf_data',
+                "_realm": realm_all
+            }
+            response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+            resp = response.json()
+            assert resp['_status'] == 'OK'
+
+            if service_state_id == 0:
+                service_state_id = 1
+            elif service_state_id == 1:
+                service_state_id = 2
+            elif service_state_id == 2:
+                service_state_id = 3
+            elif service_state_id == 3:
+                service_state_id = 4
+            else:
+                service_state_id = 0
+
+            if service_state =='OK':
+                service_state = 'WARNING'
+            elif service_state == 'WARNING':
+                service_state = 'CRITICAL'
+            elif service_state == 'CRITICAL':
+                service_state = 'UNKNOWN'
+            elif service_state == 'UNKNOWN':
+                service_state = 'UNREACHABLE'
+            elif service_state == 'UNREACHABLE':
+                service_state = 'OK'
+
+        time.sleep(1.0)
+
     print("Fed")
 
 
@@ -109,12 +235,55 @@ class TestLivestate(unittest2.TestCase):
         self.app.get('/logout')
 
     def test_livestate(self):
-        """ Web - livestate """
+        """Web - default livestate (table)"""
         print('get page /livestate')
         redirected_response = self.app.get('/livestate')
         print(redirected_response)
         redirected_response.mustcontain(
             '<div id="livestate-bi--1">'
+        )
+
+        # Update test application - livestate is panels
+        self.app.get('/logout')
+        alignak_webui.app.app.config['livestate_layout'] = 'panels'
+        self.app = TestApp(alignak_webui.app.session_app)
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        print('get page /livestate')
+        redirected_response = self.app.get('/livestate')
+        print(redirected_response)
+        redirected_response.mustcontain(
+            '<div id="livestate-bi-5"> </div>',
+            '<div id="livestate-bi-4"> </div>',
+            '<div id="livestate-bi-3"> </div>',
+            '<div id="livestate-bi-2"> </div>',
+            '<div id="livestate-bi-1"> </div>',
+            '<div id="livestate-bi-0"> </div>'
+        )
+
+        # Update test application - livestate is tabs
+        self.app.get('/logout')
+        alignak_webui.app.app.config['livestate_layout'] = 'tabs'
+        self.app = TestApp(alignak_webui.app.session_app)
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        print('get page /livestate')
+        redirected_response = self.app.get('/livestate')
+        print(redirected_response)
+        redirected_response.mustcontain(
+            '<div class="tab-content">',
+            '<div id="tab-bi-5" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-5"></div>',
+            '<div id="tab-bi-4" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-4"></div>',
+            '<div id="tab-bi-3" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-3"></div>',
+            '<div id="tab-bi-2" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-2"></div>',
+            '<div id="tab-bi-1" class="tab-pane fade " role="tabpanel">',
+            '<div id="livestate-bi-1"></div>',
+            '<div id="tab-bi-0" class="tab-pane fade active in" role="tabpanel">',
+            '<div id="livestate-bi-0"></div>'
         )
 
 
@@ -269,7 +438,13 @@ class TestRealms(unittest2.TestCase):
         print('get page /realm')
         response = self.app.get('/realm/%s' % self.realm_id)
         response.mustcontain(
-            '<div class="realm" id="realm-%s">' % self.realm_id
+            '<div class="realm" id="realm_%s">' % self.realm_id
+        )
+
+        print('get page /realm')
+        response = self.app.get('/realm/All')
+        response.mustcontain(
+            '<div class="realm" id="realm_%s">' % self.realm_id
         )
 
         print('get page /realm/members')
@@ -354,9 +529,42 @@ class TestHostgroups(unittest2.TestCase):
                 self.group_id = match
         assert self.group_id
 
-        print('get page /hostgroup/members for %s' % self.group_id)
-        assert self.group_id
-        response = self.app.get('/hostgroup/members/' + self.group_id)
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        # Get hostgroup All
+        params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+        response = requests.get('http://127.0.0.1:5000/hostgroup', params=params, auth=auth)
+        resp = response.json()
+        print("Group: %s" % resp)
+        group = resp['_items'][0]
+
+        print('get page /hostgroup/%s' % group['_id'])
+        response = self.app.get('/hostgroup/' + group['_id'])
+        print(response)
+        response.mustcontain(
+            '<div class="hostgroup" id="hostgroup_%s">' % group['_id'],
+            '<div class="hostgroup-members panel panel-default">',
+            '<div class="hostgroup-children panel panel-default">'
+        )
+
+        print('get page /hostgroup/All')
+        response = self.app.get('/hostgroup/All')
+        print(response)
+        response.mustcontain(
+            '<div class="hostgroup" id="hostgroup_%s">' % group['_id'],
+            '<div class="hostgroup-members panel panel-default">',
+            '<div class="hostgroup-children panel panel-default">'
+        )
+
+        print('get page /hostgroup/members for %s' % group['_id'])
+        response = self.app.get('/hostgroup/members/' + group['_id'])
         print(response.json)
         for item in response.json:
             print(item)
@@ -435,6 +643,41 @@ class TestServicegroups(unittest2.TestCase):
                 self.group_id = match
         assert self.group_id
 
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        # Get servicegroup All
+        params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+        response = requests.get('http://127.0.0.1:5000/servicegroup', params=params, auth=auth)
+        resp = response.json()
+        print("Group: %s" % resp)
+        group = resp['_items'][0]
+
+        print('get page /servicegroup/%s' % group['_id'])
+        response = self.app.get('/servicegroup/' + group['_id'])
+        print(response)
+        response.mustcontain(
+            '<div class="servicegroup" id="servicegroup_%s">' % group['_id'],
+            '<div class="servicegroup-members panel panel-default">',
+            '<div class="servicegroup-children panel panel-default">'
+        )
+
+        print('get page /servicegroup/All')
+        response = self.app.get('/servicegroup/All')
+        print(response)
+        response.mustcontain(
+            '<div class="servicegroup" id="servicegroup_%s">' % group['_id'],
+            '<div class="servicegroup-members panel panel-default">',
+            '<div class="servicegroup-children panel panel-default">'
+        )
+
+
         print('get page /servicegroup/members')
         response = self.app.get('/servicegroup/members/' + self.group_id)
         print(response.json)
@@ -506,6 +749,38 @@ class TestUsergroups(unittest2.TestCase):
                 self.group_id = match
         assert self.group_id
 
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        # Get usergroup All
+        params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+        response = requests.get('http://127.0.0.1:5000/usergroup', params=params, auth=auth)
+        resp = response.json()
+        print("Group: %s" % resp)
+        group = resp['_items'][0]
+
+        print('get page /usergroup/%s' % group['_id'])
+        response = self.app.get('/usergroup/' + group['_id'])
+        print(response)
+        response.mustcontain(
+            '<div class="usergroup" id="usergroup_%s">' % group['_id'],
+            '<div class="usergroup-members panel panel-default">',
+        )
+
+        print('get page /usergroup/All')
+        response = self.app.get('/usergroup/All')
+        print(response)
+        response.mustcontain(
+            '<div class="usergroup" id="usergroup_%s">' % group['_id'],
+            '<div class="usergroup-members panel panel-default">',
+        )
+
         print('get page /usergroup/members')
         response = self.app.get('/usergroup/members/' + self.group_id)
         print(response.json)
@@ -515,6 +790,102 @@ class TestUsergroups(unittest2.TestCase):
             assert 'alias' in item
             assert 'icon' in item
             assert 'url' in item
+
+
+class TestHostsEscalations(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.host_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_hosts_escalations(self):
+        """Web - hosts escalations"""
+        print('test hosts escalations')
+
+        print('get page /hostescalations')
+        self.app.get('/hostescalations', status=404)
+        self.app.get('/hostescalation/id', status=404)
+        self.app.get('/hostescalations/settings')
+        self.app.get('/hostescalations/list')
+        self.app.get('/hostescalations/table')
+
+
+class TestServicesEscalations(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.service_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_services_escalations(self):
+        """Web - services escalations"""
+        print('test services escalations')
+
+        print('get page /serviceescalations')
+        self.app.get('/serviceescalations', status=404)
+        self.app.get('/serviceescalation/id', status=404)
+        self.app.get('/serviceescalations/settings')
+        self.app.get('/serviceescalations/list')
+        self.app.get('/serviceescalations/table')
+
+
+class TestHostsdependencys(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.host_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_hosts_dependencys(self):
+        """Web - hosts dependencys"""
+        print('test hosts dependencys')
+
+        print('get page /hostdependencys')
+        self.app.get('/hostdependencys', status=404)
+        self.app.get('/hostdependency/id', status=404)
+        self.app.get('/hostdependencys/settings')
+        self.app.get('/hostdependencys/list')
+        self.app.get('/hostdependencys/table')
+
+
+class TestServicesdependencys(unittest2.TestCase):
+    def setUp(self):
+        # Test application
+        self.app = TestApp(alignak_webui.app.session_app)
+
+        self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+
+        self.service_id = None
+
+    def tearDown(self):
+        self.app.get('/logout')
+
+    def test_services_dependencys(self):
+        """Web - services dependencys"""
+        print('test services dependencys')
+
+        print('get page /servicedependencys')
+        self.app.get('/servicedependencys', status=404)
+        self.app.get('/servicedependency/id', status=404)
+        self.app.get('/servicedependencys/settings')
+        self.app.get('/servicedependencys/list')
+        self.app.get('/servicedependencys/table')
 
 
 class TestHosts(unittest2.TestCase):
@@ -624,7 +995,7 @@ class TestServices(unittest2.TestCase):
         response = self.app.post('/services/widget', status=204)
         response = self.app.post('/services/widget', {'widget_id': 'test_widget'}, status=204)
 
-        # Hosts table
+        # Services table widget
         response = self.app.post('/services/widget', {
             'widget_id': 'services_table_1',
             'widget_template': 'services_table_widget'
@@ -632,7 +1003,7 @@ class TestServices(unittest2.TestCase):
         response.mustcontain(
             '<div id="wd_panel_services_table_1" class="panel panel-default alignak_webui_widget ">'
         )
-        # Hosts chart
+        # Services chart widget
         response = self.app.post('/services/widget', {
             'widget_id': 'services_chart_1',
             'widget_template': 'services_chart_widget'
@@ -788,4 +1159,4 @@ class TestAlignakDaemons(unittest2.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

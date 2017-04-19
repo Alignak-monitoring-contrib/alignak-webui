@@ -67,7 +67,7 @@ function add_field(where, id, obj) {
    if (logs) console.log("Add field", id, obj);
 
    if (! obj.default) obj.default = '';
-   if (! obj.hint) obj.hint = '';
+   if (! obj.comment) obj.comment = '';
 
    if (obj.allowed) {
       add_field_list(where, id, obj);
@@ -84,7 +84,7 @@ function add_field_integer(where, id, obj) {
          <label class="col-md-2 control-label" for="'+ id +'">'+ obj.title +'</label> \
          <div class="col-md-offset-2 col-md-10"> \
             <input id="'+ id +'" name="'+ id +'" class="form-control" type="number" placeholder="'+ obj.default +'" value="'+ obj.default +'" /> \
-            <p class="help-block">'+ obj.hint +'</p> \
+            <p class="help-block">'+ obj.comment +'</p> \
          </div> \
       </div>';
 
@@ -98,7 +98,7 @@ function add_field_text(where, id, obj) {
          <label class="col-md-2 control-label" for="'+ id +'">'+ obj.title +'</label> \
          <div class="col-md-offset-2 col-md-10"> \
             <input id="'+ id +'" name="'+ id +'" class="form-control" type="text" placeholder="'+ obj.default +'" value="'+ obj.default +'" /> \
-            <p class="help-block">'+ obj.hint +'</p> \
+            <p class="help-block">'+ obj.comment +'</p> \
          </div> \
       </div>';
 
@@ -173,7 +173,7 @@ function add_field_list(where, id, obj) {
    }, 500);
 
    html = html + '\
-            <p class="help-block">'+ obj.hint +'</p> \
+            <p class="help-block">'+ obj.comment +'</p> \
          </div> \
       </div>';
 

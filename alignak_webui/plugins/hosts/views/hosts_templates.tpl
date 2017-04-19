@@ -138,7 +138,7 @@
                      <div class="input-group input-group-sm" title="{{_('Check this to select the template')}}">
                         <div class="togglebutton">
                            <label>
-                              <input id="{{elt.name}}" name="{{elt.name}}" type="checkbox" data-id="{{elt.id}}" data-linked="{{','.join([t.name for t in elt._templates])}}">
+                              <input id="{{elt.name}}" name="{{elt.name}}" type="checkbox" data-linked="{{','.join([t.name for t in elt._templates])}}" data-id="{{elt.id}}">
                            </label>
                         </div>
                      </div>

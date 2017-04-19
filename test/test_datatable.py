@@ -52,6 +52,7 @@ from alignak_webui.backend.datamanager import DataManager
 
 items_count = 0
 backend_process = None
+backend_address = "http://127.0.0.1:5000/"
 
 def setup_module(module):
     # Set test mode for applications backend
@@ -86,140 +87,134 @@ def setup_module(module):
         stdout=fnull
     )
     assert exit_code == 0
-    print("Fed")
 
-    # Add history events and logcheckresults into the backend
-    endpoint = 'http://127.0.0.1:5000'
-
-    # Backend authentication
     headers = {'Content-Type': 'application/json'}
-    params = {'username': 'admin', 'password': 'admin'}
-    # Get admin user token (force regenerate)
-    response = requests.post(endpoint + '/login', json=params, headers=headers)
+    params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+    # Login
+    response = requests.post(backend_address + '/login', json=params, headers=headers)
     resp = response.json()
-    auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+    token = resp['token']
+    auth = requests.auth.HTTPBasicAuth(token, '')
 
-    # Get admin user
-    response = requests.get(endpoint + '/user', auth=auth)
+    # Get realms in the backend
+    params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
+    response = requests.get(backend_address + '/realm', params=params, auth=auth)
     resp = response.json()
-    user_admin = resp['_items'][0]
-
-    # Get realms
-    response = requests.get(endpoint + '/realm', auth=auth)
-    resp = response.json()
-    realmAll_id = resp['_items'][0]['_id']
+    host = resp['_items'][0]
+    print("Realm: %s" % host)
+    realm_all = host['_id']
 
     # Get hosts in the backend
-    response = requests.get(endpoint + '/host', params={'sort': 'name'}, auth=auth)
+    params = {'sort': '_id', 'where': json.dumps({'name': 'KNM-Glpi'})}
+    response = requests.get(backend_address + '/host', params=params, auth=auth)
     resp = response.json()
-    rh = resp['_items']
+    hosts = resp['_items']
+    host_state_id = 0
+    host_state = "UP"
+    for host in hosts:
+        print("Host: %s" % host)
+        host_id = host['_id']
 
-    # Get services in the backend
-    response = requests.get(endpoint + '/service', params={'sort': 'name'}, auth=auth)
-    resp = response.json()
-    rs = resp['_items']
+        # -------------------------------------------
+        # Add a check result for the host
+        data = {
+            "last_check": timegm(datetime.utcnow().timetuple()),
+            "host": host_id,
+            "service": None,
+            'acknowledged': False,
+            'state_id': host_state_id,
+            'state': host_state,
+            'state_type': 'HARD',
+            'last_state_id': 0,
+            'last_state': 'UP',
+            'last_state_type': 'HARD',
+            'state_changed': False,
+            'latency': 0,
+            'execution_time': 0.12,
+            'output': 'Check output',
+            'long_output': 'Check long_output',
+            'perf_data': 'perf_data',
+            "_realm": realm_all
+        }
+        response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
 
-    # -------------------------------------------
-    # Add a check result for an host
-    data = {
-        "last_check": timegm(datetime.utcnow().timetuple()),
-        "host": rh[0]['_id'],
-        "service": None,
-        'acknowledged': False,
-        'state_id': 0,
-        'state': 'UP',
-        'state_type': 'HARD',
-        'last_state_id': 0,
-        'last_state': 'UP',
-        'last_state_type': 'HARD',
-        'state_changed': False,
-        'latency': 0,
-        'execution_time': 0.12,
-        'output': 'Check output',
-        'long_output': 'Check long_output',
-        'perf_data': 'perf_data',
-        "_realm": realmAll_id
-    }
-    response = requests.post(endpoint + '/logcheckresult', json=data, headers=headers, auth=auth)
-    resp = response.json()
-    assert resp['_status'] == 'OK'
+        if host_state_id == 0:
+            host_state_id = 1
+        elif host_state_id == 1:
+            host_state_id = 2
+        else:
+            host_state_id = 0
+        if host_state =='UP':
+            host_state = 'DOWN'
+        elif host_state == 'DOWN':
+            host_state = 'UNREACHABLE'
+        else:
+            host_state = 'UP'
 
-    # -------------------------------------------
-    # Add a check result for a service
-    data = {
-        "last_check": timegm(datetime.utcnow().timetuple()),
-        "host": rh[1]['_id'],
-        "service": rs[0]['_id'],
-        'acknowledged': False,
-        'state_id': 0,
-        'state': 'UP',
-        'state_type': 'HARD',
-        'last_state_id': 0,
-        'last_state': 'UP',
-        'last_state_type': 'HARD',
-        'state_changed': False,
-        'latency': 0,
-        'execution_time': 0.12,
-        'output': 'Check output',
-        'long_output': 'Check long_output',
-        'perf_data': 'perf_data',
-        "_realm": realmAll_id
-    }
-    response = requests.post(endpoint + '/logcheckresult', json=data, headers=headers, auth=auth)
-    resp = response.json()
-    assert resp['_status'] == 'OK'
+        # Get service in the backend
+        params = {'sort': '_id', 'where': json.dumps({'host': host_id})}
+        response = requests.get(backend_address + '/service', params=params, auth=auth)
+        resp = response.json()
+        services = resp['_items']
+        print("Services: %s" % services)
+        service_state_id = 0
+        service_state = "UP"
+        for service in services:
+            print("- service: %s" % service)
+            service_id = service['_id']
 
-    # Add an history event
-    data = {
-        "host_name": "chazay",
-        "service_name": "Processus",
-        "user_name": "Alignak",
-        "type": "check.result",
-        "message": "OK[HARD] (False,False): All is ok",
-        "_realm": realmAll_id,
-        "_sub_realm": True
-    }
-    time.sleep(1)
-    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
-    print(rsp.json())
+            # -------------------------------------------
+            # Add a check result for the host
+            data = {
+                "last_check": timegm(datetime.utcnow().timetuple()),
+                "host": host_id,
+                "service": service_id,
+                'acknowledged': False,
+                'state_id': service_state_id,
+                'state': service_state,
+                'state_type': 'HARD',
+                'last_state_id': 0,
+                'last_state': 'UP',
+                'last_state_type': 'HARD',
+                'state_changed': False,
+                'latency': 0,
+                'execution_time': 0.12,
+                'output': 'Check output',
+                'long_output': 'Check long_output',
+                'perf_data': 'perf_data',
+                "_realm": realm_all
+            }
+            response = requests.post(backend_address + '/logcheckresult', json=data, headers=headers, auth=auth)
+            resp = response.json()
+            assert resp['_status'] == 'OK'
 
-    # Add an history event
-    time.sleep(1)
-    data = {
-        "host_name": "denice",
-        "service_name": "Zombies",
-        "user_name": "Alignak",
-        "type": "check.result",
-        "message": "OK[HARD] (False,False): All is ok",
-        "_realm": realmAll_id,
-        "_sub_realm": True
-    }
-    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
-    print(rsp.json())
+            if service_state_id == 0:
+                service_state_id = 1
+            elif service_state_id == 1:
+                service_state_id = 2
+            elif service_state_id == 2:
+                service_state_id = 3
+            elif service_state_id == 3:
+                service_state_id = 4
+            else:
+                service_state_id = 0
 
-    # Add an history event
-    time.sleep(1)
-    data = {
-        "host_name": "denice",
-        "user_name": "Alignak",
-        "type": "monitoring.alert",
-        "message": "HOST ALERT ....",
-        "_realm": realmAll_id,
-        "_sub_realm": True
-    }
-    rsp = requests.post(endpoint + '/history', json=data, headers=headers, auth=auth)
-    print(rsp.json())
-    # ---
+            if service_state =='OK':
+                service_state = 'WARNING'
+            elif service_state == 'WARNING':
+                service_state = 'CRITICAL'
+            elif service_state == 'CRITICAL':
+                service_state = 'UNKNOWN'
+            elif service_state == 'UNKNOWN':
+                service_state = 'UNREACHABLE'
+            elif service_state == 'UNREACHABLE':
+                service_state = 'OK'
 
-    # Get history to confirm that backend is ready
-    # ---
-    response = requests.get(endpoint + '/history', auth=auth,
-                            params={"sort": "-_id", "max_results": 25, "page": 1})
-    resp = response.json()
-    print("Response: %s" % resp)
-    assert len(resp['_items']) == 5
-    # ---
+        time.sleep(1.0)
 
+    print("Fed")
 
 
 def teardown_module(module):
@@ -230,11 +225,11 @@ def teardown_module(module):
     print("Stopped")
     time.sleep(2)
 
+
 # ---
 # Generic tests for the data tables
 # ---
 class TestDataTable(unittest2.TestCase):
-
     """Generic datatables tests
 
     Those tests are done with the commands table. It was needed to use one :)
@@ -258,7 +253,7 @@ class TestDataTable(unittest2.TestCase):
         self.items_count = 0
 
     def test_get(self):
-        """ Datatable - get table """
+        """Datatable - get table"""
         print('test get table')
 
         print('get page /commands/table')
@@ -266,8 +261,8 @@ class TestDataTable(unittest2.TestCase):
         # Other fields exist but they are declared as hidden!
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
-            "$('#tbl_command').DataTable( {",
-            '<table id="tbl_command" ',
+            "$('#tbl_commands_table').DataTable( {",
+            '<table id="tbl_commands_table" ',
             '<th data-name="name" data-type="string"',
             # '<th data-name="_realm" data-type="objectid">Realm</th>',
             # '<th data-name="definition_order" data-type="integer">Definition order</th>',
@@ -281,7 +276,7 @@ class TestDataTable(unittest2.TestCase):
         )
 
     def test_02_change(self):
-        """ Datatable - change content """
+        """Datatable - change content"""
         print('test get table')
 
         print('change content with /commands/table_data')
@@ -363,7 +358,7 @@ class TestDataTable(unittest2.TestCase):
         assert response.json['data'] == []
 
     def test_03_sort(self):
-        """ Datatable - sort table """
+        """Datatable - sort table"""
         print('test sort table')
 
         # Sort ascending ...
@@ -423,7 +418,7 @@ class TestDataTable(unittest2.TestCase):
         # TODO : check order of element ?
 
     def test_04_filter(self):
-        """ Datatable - filter table """
+        """Datatable - filter table"""
         print('test filter table')
 
         print('change content with /commands/table_data')
@@ -646,7 +641,7 @@ class TestDatatableBase(unittest2.TestCase):
 
 class TestDatatableCommands(TestDatatableBase):
     def test_commands(self):
-        """ Datatable - commands table """
+        """Datatable - commands table"""
         print('test commands table')
 
         print('get page /commands')
@@ -656,8 +651,8 @@ class TestDatatableCommands(TestDatatableBase):
         response = self.app.get('/commands/table')
         response.mustcontain(
             '<div id="commands_table" class="alignak_webui_table ">',
-            "$('#tbl_command').DataTable( {",
-            '<table id="tbl_command" ',
+            "$('#tbl_commands_table').DataTable( {",
+            '<table id="tbl_commands_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="alias" data-type="string"',
             '<th data-name="notes" data-type="string"',
@@ -690,18 +685,18 @@ class TestDatatableCommands(TestDatatableBase):
 
 class TestDatatableRealms(TestDatatableBase):
     def test_realms(self):
-        """ Datatable - realms table """
+        """Datatable - realms table"""
         print('test realm table')
 
         print('get page /realms/table')
         response = self.app.get('/realms/table')
         response.mustcontain(
             '<div id="realms_table" class="alignak_webui_table ">',
-            "$('#tbl_realm').DataTable( {",
-            '<table id="tbl_realm" ',
+            "$('#tbl_realms_table').DataTable( {",
+            '<table id="tbl_realms_table" ',
             '<th data-name="name" data-type="string"',
             # '<th data-name="definition_order" data-type="integer"',
-            '<th data-name="alias" data-type="string"',
+            # '<th data-name="alias" data-type="string"',
             '<th data-name="default" data-type="boolean"',
             '<th data-name="_level" data-type="integer"',
             '<th data-name="_parent" data-type="objectid"',
@@ -734,22 +729,22 @@ class TestDatatableRealms(TestDatatableBase):
 
 class TestDatatableHosts(TestDatatableBase):
     def test_hosts(self):
-        """ Datatable - hosts table """
+        """Datatable - hosts table"""
         print('test hosts table')
 
         print('get page /hosts/table')
         response = self.app.get('/hosts/table')
         response.mustcontain(
             '<div id="hosts_table" class="alignak_webui_table ">',
-            "$('#tbl_host').DataTable( {",
-            '<table id="tbl_host" ',
+            "$('#tbl_hosts_table').DataTable( {",
+            '<table id="tbl_hosts_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="business_impact" data-type="integer"',
-            '<th data-name="ls_last_check" data-type="datetime"',
+            '<th data-name="ls_last_check" data-type="integer"',
             '<th data-name="ls_state_type" data-type="string"',
             '<th data-name="ls_state_id" data-type="integer"',
             '<th data-name="ls_acknowledged" data-type="boolean"',
@@ -760,7 +755,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_current_attempt" data-type="integer"',
             '<th data-name="ls_max_attempts" data-type="integer"',
             '<th data-name="ls_next_check" data-type="integer"',
-            '<th data-name="ls_last_state_changed" data-type="datetime"',
+            '<th data-name="ls_last_state_changed" data-type="integer"',
             '<th data-name="ls_last_state" data-type="string"',
             '<th data-name="ls_last_state_type" data-type="string"',
             '<th data-name="ls_latency" data-type="float"',
@@ -783,20 +778,52 @@ class TestDatatableHosts(TestDatatableBase):
                 assert response.json['data'][x] is not None
                 assert response.json['data'][x]['name'] is not None
 
+    def test_hosts_templates(self):
+        """Datatable - hosts templates table"""
+        print('test hosts templates table')
+
+        print('get page /hosts/templates/table')
+        response = self.app.get('/hosts/templates/table')
+        response.mustcontain(
+            '<div id="hosts_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_hosts_templates_table').DataTable( {",
+            '<table id="tbl_hosts_templates_table" ',
+            'titleAttr: "Navigate to the hosts table"',
+
+            '<th data-name="name" data-type="string"',
+            '<th data-name="_realm" data-type="objectid"',
+            '<th data-name="_sub_realm" data-type="boolean"',
+            '<th data-name="_is_template" data-type="boolean"',
+            '<th data-name="_templates" data-type="list"',
+            '<th data-name="_templates_with_services" data-type="boolean"',
+            '<th data-name="_template_fields" data-type="dict"',
+            '<th data-name="definition_order" data-type="integer"',
+        )
+
+        response = self.app.post('/hosts/templates_table_data')
+
+        # Temporary
+        items_count = response.json['recordsTotal']
+        print("Items count: %s" % items_count)
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
+
 
 class TestDatatableHostgroups(TestDatatableBase):
     def test_hosts_groups(self):
-        """ Datatable - hosts groups table """
+        """Datatable - hosts groups table"""
         print('test hostgroup table')
-
-        global items_count
 
         print('get page /hostgroups/table')
         response = self.app.get('/hostgroups/table')
         response.mustcontain(
             '<div id="hostgroups_table" class="alignak_webui_table ">',
-            "$('#tbl_hostgroup').DataTable( {",
-            '<table id="tbl_hostgroup" ',
+            "$('#tbl_hostgroups_table').DataTable( {",
+            '<table id="tbl_hostgroups_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="definition_order" data-type="integer"',
             '<th data-name="alias" data-type="string"',
@@ -830,17 +857,15 @@ class TestDatatableHostgroups(TestDatatableBase):
 
 class TestDatatableHostdependencies(TestDatatableBase):
     def test_hosts_dependencies(self):
-        """ Datatable - hosts dependencies table """
+        """Datatable - hosts dependencies table"""
         print('test hostdependency table')
-
-        global items_count
 
         print('get page /hostdependencys/table')
         response = self.app.get('/hostdependencys/table')
         response.mustcontain(
             '<div id="hostdependencys_table" class="alignak_webui_table ">',
-            "$('#tbl_hostdependency').DataTable( {",
-            '<table id="tbl_hostdependency" ',
+            "$('#tbl_hostdependencys_table').DataTable( {",
+            '<table id="tbl_hostdependencys_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="alias" data-type="string"',
             '<th data-name="hosts" data-type="list"',
@@ -870,9 +895,47 @@ class TestDatatableHostdependencies(TestDatatableBase):
                 assert response.json['data'][x]['alias'] is not None
 
 
+class TestDatatableHostEscalations(TestDatatableBase):
+    def test_hosts_escalations(self):
+        """Datatable - hosts escalations table"""
+        print('test hostescalation table')
+
+        print('get page /hostescalations/table')
+        response = self.app.get('/hostescalations/table')
+        response.mustcontain(
+            '<div id="hostescalations_table" class="alignak_webui_table ">',
+            "$('#tbl_hostescalations_table').DataTable( {",
+            '<table id="tbl_hostescalations_table" ',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="hosts" data-type="list"',
+            '<th data-name="hostgroups" data-type="list"',
+            '<th data-name="escalation_period" data-type="objectid"',
+            '<th data-name="escalation_options" data-type="list"',
+            '<th data-name="users" data-type="list"',
+            '<th data-name="usergroups" data-type="list"',
+        )
+
+        response = self.app.post('/hostescalations/table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['alias'] is not None
+
+
 class TestDatatableServices(TestDatatableBase):
     def test_services(self):
-        """ Datatable - services table """
+        """Datatable - services table"""
         print('test services table')
 
         global items_count
@@ -881,13 +944,13 @@ class TestDatatableServices(TestDatatableBase):
         response = self.app.get('/services/table')
         response.mustcontain(
             '<div id="services_table" class="alignak_webui_table ">',
-            "$('#tbl_service').DataTable( {",
-            '<table id="tbl_service" ',
+            "$('#tbl_services_table').DataTable( {",
+            '<table id="tbl_services_table" ',
             '<th data-name="host" data-type="objectid"',
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
-            '<th data-name="ls_last_check" data-type="datetime"',
+            '<th data-name="ls_last_check" data-type="integer"',
             '<th data-name="ls_state_type" data-type="string"',
             '<th data-name="ls_state_id" data-type="integer"',
             '<th data-name="ls_acknowledged" data-type="boolean"',
@@ -898,7 +961,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="ls_current_attempt" data-type="integer"',
             '<th data-name="ls_max_attempts" data-type="integer"',
             '<th data-name="ls_next_check" data-type="integer"',
-            '<th data-name="ls_last_state_changed" data-type="datetime"',
+            '<th data-name="ls_last_state_changed" data-type="integer"',
             '<th data-name="ls_last_state" data-type="string"',
             '<th data-name="ls_last_state_type" data-type="string"',
             '<th data-name="ls_latency" data-type="float"',
@@ -920,20 +983,52 @@ class TestDatatableServices(TestDatatableBase):
                 assert response.json['data'][x] is not None
                 assert response.json['data'][x]['name'] is not None
 
+    def test_services_templates(self):
+        """Datatable - services templates table"""
+        print('test services templates table')
+
+        print('get page /services/templates/table')
+        response = self.app.get('/services/templates/table')
+        response.mustcontain(
+            '<div id="services_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_services_templates_table').DataTable( {",
+            '<table id="tbl_services_templates_table" ',
+            'titleAttr: "Navigate to the services table"',
+
+            '<th data-name="host" data-type="objectid"',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="_realm" data-type="objectid"',
+            '<th data-name="_sub_realm" data-type="boolean"',
+            '<th data-name="_is_template" data-type="boolean"',
+            '<th data-name="_templates" data-type="list"',
+            '<th data-name="_template_fields" data-type="dict"',
+            '<th data-name="definition_order" data-type="integer"',
+        )
+
+        response = self.app.post('/services/templates_table_data')
+
+        # Temporary
+        items_count = response.json['recordsTotal']
+        print("Items count: %s" % items_count)
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
+
 
 class TestDatatableServicegroups(TestDatatableBase):
     def test_services_groups(self):
-        """ Datatable - services groups table """
+        """Datatable - services groups table"""
         print('test servicegroup table')
-
-        global items_count
 
         print('get page /servicegroups/table')
         response = self.app.get('/servicegroups/table')
         response.mustcontain(
             '<div id="servicegroups_table" class="alignak_webui_table ">',
-            "$('#tbl_servicegroup').DataTable( {",
-            '<table id="tbl_servicegroup" ',
+            "$('#tbl_servicegroups_table').DataTable( {",
+            '<table id="tbl_servicegroups_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="definition_order" data-type="integer"',
             '<th data-name="alias" data-type="string"',
@@ -967,17 +1062,15 @@ class TestDatatableServicegroups(TestDatatableBase):
 
 class TestDatatableServicedependencies(TestDatatableBase):
     def test_services_dependencies(self):
-        """ Datatable - services dependencies table """
+        """Datatable - services dependencies table"""
         print('test servicedependency table')
-
-        global items_count
 
         print('get page /servicedependencys/table')
         response = self.app.get('/servicedependencys/table')
         response.mustcontain(
             '<div id="servicedependencys_table" class="alignak_webui_table ">',
-            "$('#tbl_servicedependency').DataTable( {",
-            '<table id="tbl_servicedependency" ',
+            "$('#tbl_servicedependencys_table').DataTable( {",
+            '<table id="tbl_servicedependencys_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="_realm" data-type="objectid"',
             '<th data-name="definition_order" data-type="integer"',
@@ -1013,9 +1106,48 @@ class TestDatatableServicedependencies(TestDatatableBase):
                 assert response.json['data'][x]['alias'] is not None
 
 
+class TestDatatableServiceEscalations(TestDatatableBase):
+    def test_services_escalations(self):
+        """Datatable - services escalationstable"""
+        print('test serviceescalation table')
+
+        print('get page /serviceescalations/table')
+        response = self.app.get('/serviceescalations/table')
+        response.mustcontain(
+            '<div id="serviceescalations_table" class="alignak_webui_table ">',
+            "$('#tbl_serviceescalations_table').DataTable( {",
+            '<table id="tbl_serviceescalations_table" ',
+            '<th data-name="name" data-type="string"',
+            '<th data-name="alias" data-type="string"',
+            '<th data-name="services" data-type="list"',
+            '<th data-name="hosts" data-type="list"',
+            '<th data-name="hostgroups" data-type="list"',
+            '<th data-name="escalation_period" data-type="objectid"',
+            '<th data-name="escalation_options" data-type="list"',
+            '<th data-name="users" data-type="list"',
+            '<th data-name="usergroups" data-type="list"',
+        )
+
+        response = self.app.post('/serviceescalations/table_data')
+        response_value = response.json
+        print(response_value)
+        # Temporary
+        items_count = response.json['recordsTotal']
+        # assert response.json['recordsTotal'] == items_count
+        # assert response.json['recordsFiltered'] == items_count
+        # if items_count < BACKEND_PAGINATION_DEFAULT else BACKEND_PAGINATION_DEFAULT
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x]
+                assert response.json['data'][x]['name'] is not None
+                assert response.json['data'][x]['alias'] is not None
+
+
 class TestDatatableUsers(TestDatatableBase):
     def test_users(self):
-        """ Datatable - users table """
+        """Datatable - users table"""
         print('test users table')
 
         global items_count
@@ -1024,13 +1156,12 @@ class TestDatatableUsers(TestDatatableBase):
         response = self.app.get('/users/table')
         response.mustcontain(
             '<div id="users_table" class="alignak_webui_table ">',
-            "$('#tbl_user').DataTable( {",
-            '<table id="tbl_user" ',
+            "$('#tbl_users_table').DataTable( {",
+            '<table id="tbl_users_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="is_admin" data-type="boolean"',
             '<th data-name="can_submit_commands" data-type="boolean"',
             '<th data-name="role" data-type="string"',
-            '<th data-name="alias" data-type="string"',
             '<th data-name="email" data-type="string"',
             '<th data-name="min_business_impact" data-type="integer"',
             '<th data-name="host_notifications_enabled" data-type="boolean"',
@@ -1052,10 +1183,44 @@ class TestDatatableUsers(TestDatatableBase):
                 assert response.json['data'][x]
                 assert response.json['data'][x]['name']
 
+    def test_users_templates(self):
+        """Datatable - users templates table"""
+        print('test users templates table')
+
+        print('get page /users/templates/table')
+        response = self.app.get('/users/templates/table')
+        response.mustcontain(
+            '<div id="users_templates_table" class="alignak_webui_table ">',
+            "$('#tbl_users_templates_table').DataTable( {",
+            '<table id="tbl_users_templates_table" ',
+            'titleAttr: "Navigate to the users table"',
+
+            '<th data-name="name" data-type="string"',
+            '<th data-name="_realm" data-type="objectid"',
+            '<th data-name="_sub_realm" data-type="boolean"',
+            '<th data-name="_is_template" data-type="boolean"',
+            '<th data-name="_templates" data-type="list"',
+            '<th data-name="_template_fields" data-type="dict"',
+            '<th data-name="definition_order" data-type="integer"',
+        )
+
+        response = self.app.post('/users/templates_table_data')
+        response_value = response.json
+
+        # Temporary
+        items_count = response.json['recordsTotal']
+        print("Items count: %s" % items_count)
+        assert response.json['data']
+        for x in range(0, items_count + 0):
+            # Only if lower than default pagination ...
+            if x < BACKEND_PAGINATION_DEFAULT:
+                assert response.json['data'][x] is not None
+                assert response.json['data'][x]['name'] is not None
+
 
 class TestDatatableUsergroups(TestDatatableBase):
     def test_usergroups(self):
-        """ Datatable - users groups table """
+        """Datatable - users groups table"""
         print('test usergroup table')
 
         global items_count
@@ -1064,8 +1229,8 @@ class TestDatatableUsergroups(TestDatatableBase):
         response = self.app.get('/usergroups/table')
         response.mustcontain(
             '<div id="usergroups_table" class="alignak_webui_table ">',
-            "$('#tbl_usergroup').DataTable( {",
-            '<table id="tbl_usergroup" ',
+            "$('#tbl_usergroups_table').DataTable( {",
+            '<table id="tbl_usergroups_table" ',
             '<th data-name="name" data-type="string"',
             '<th data-name="definition_order" data-type="integer"',
             '<th data-name="alias" data-type="string"',
@@ -1099,7 +1264,7 @@ class TestDatatableUsergroups(TestDatatableBase):
 
 class TestDatatableTimeperiods(TestDatatableBase):
     def test_timeperiod(self):
-        """ Datatable - timeperiods table """
+        """Datatable - timeperiods table"""
         print('test timeperiod table')
 
         global items_count
@@ -1108,12 +1273,9 @@ class TestDatatableTimeperiods(TestDatatableBase):
         response = self.app.get('/timeperiods/table')
         response.mustcontain(
             '<div id="timeperiods_table" class="alignak_webui_table ">',
-            "$('#tbl_timeperiod').DataTable( {",
-            '<table id="tbl_timeperiod" ',
+            "$('#tbl_timeperiods_table').DataTable( {",
+            '<table id="tbl_timeperiods_table" ',
             '<th data-name="name" data-type="string"',
-            '<th data-name="definition_order" data-type="integer"',
-            '<th data-name="alias" data-type="string"',
-            '<th data-name="is_active" data-type="boolean"',
             '<th data-name="dateranges" data-type="list"',
             '<th data-name="exclude" data-type="list"'
         )
@@ -1138,7 +1300,7 @@ class TestDatatableTimeperiods(TestDatatableBase):
 
 class TestDatatableUserRestrictRoles(TestDatatableBase):
     def test_userrestrictrole(self):
-        """ Datatable - users restrictions table """
+        """Datatable - users restrictions table"""
         print('test userrestrictrole table')
 
         global items_count
@@ -1147,8 +1309,8 @@ class TestDatatableUserRestrictRoles(TestDatatableBase):
         response = self.app.get('/userrestrictroles/table')
         response.mustcontain(
             '<div id="userrestrictroles_table" class="alignak_webui_table ">',
-            "$('#tbl_userrestrictrole').DataTable( {",
-            '<table id="tbl_userrestrictrole" ',
+            "$('#tbl_userrestrictroles_table').DataTable( {",
+            '<table id="tbl_userrestrictroles_table" ',
             '<th data-name="user" data-type="objectid"',
             '<th data-name="realm" data-type="objectid"',
             '<th data-name="subrealm" data-type="boolean"',
@@ -1180,7 +1342,7 @@ class TestDatatableUserRestrictRoles(TestDatatableBase):
 
 class TestDatatableLogs(TestDatatableBase):
     def test_logcheckresult(self):
-        """ Datatable - logs table """
+        """Datatable - logs table"""
         print('test logcheckresult table')
 
         global items_count
@@ -1189,10 +1351,10 @@ class TestDatatableLogs(TestDatatableBase):
         response = self.app.get('/logcheckresults/table')
         response.mustcontain(
             '<div id="logcheckresults_table" class="alignak_webui_table ">',
-            "$('#tbl_logcheckresult').DataTable( {",
-            '<table id="tbl_logcheckresult" ',
-            '<th data-name="last_check" data-type="datetime"',
-            '<th data-name="host" data-type="objectid"',
+            "$('#tbl_logcheckresults_table').DataTable( {",
+            '<table id="tbl_logcheckresults_table" ',
+            '<th data-name="last_check" data-type="integer"',
+            '<th data-name="host_name" data-type="string"',
             '<th data-name="service_name" data-type="string"',
             '<th data-name="state" data-type="string"',
             '<th data-name="state_type" data-type="string"',
@@ -1205,7 +1367,7 @@ class TestDatatableLogs(TestDatatableBase):
             '<th data-name="last_state" data-type="string"',
             '<th data-name="last_state_type" data-type="string"',
             '<th data-name="last_state_id" data-type="integer"',
-            '<th data-name="last_state_changed" data-type="datetime"',
+            '<th data-name="last_state_changed" data-type="integer"',
             '<th data-name="output" data-type="string"',
             '<th data-name="long_output" data-type="string"',
             '<th data-name="perf_data" data-type="string"',
@@ -1215,6 +1377,7 @@ class TestDatatableLogs(TestDatatableBase):
 
         response = self.app.post('/logcheckresults/table_data')
         response_value = response.json
+        print(response_value)
 
 
 class TestDatatableHistorys(TestDatatableBase):
@@ -1228,8 +1391,8 @@ class TestDatatableHistorys(TestDatatableBase):
         response = self.app.get('/historys/table')
         response.mustcontain(
             '<div id="historys_table" class="alignak_webui_table ">',
-            "$('#tbl_history').DataTable( {",
-            '<table id="tbl_history" ',
+            "$('#tbl_historys_table').DataTable( {",
+            '<table id="tbl_historys_table" ',
             '<th data-name="_created" data-type="integer"',
             '<th data-name="host" data-type="objectid"',
             '<th data-name="service" data-type="objectid"',

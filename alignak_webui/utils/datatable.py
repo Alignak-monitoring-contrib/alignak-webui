@@ -48,12 +48,12 @@ class Datatable(object):
 
     """jQuery  Datatable plugin interface for backend elements """
 
-    def __init__(self, object_type, datamgr, schema, templates=False):
+    def __init__(self, object_type, datamgr, plugin_table, templates=False):
         """ Create a new datatable:
 
         - object_type: object type in the backend
         - backend: backend endpoint (http://127.0.0.1:5002)
-        - schema: table configuration as defined in the settings.cfg file of a plugin
+        - plugin_table: table configuration as defined in a plugin
         - templates: templates table or objects table (False)
         """
         self.object_type = object_type
@@ -103,17 +103,18 @@ class Datatable(object):
         # Get table structure and description
         self.templates = templates
         self.is_templated = False
-        self.get_data_model(schema)
+        self.get_data_model(plugin_table)
 
         # Templates management
         if self.is_templated:
             self.records_total = self.backend.count(self.object_type,
-                                                    params={'where': {
-                                                        '_is_template': self.templates}})
+                                                    params={
+                                                        'where': {'_is_template': self.templates}
+                                                    })
         else:
             self.records_total = self.backend.count(self.object_type)
 
-    def get_data_model(self, schema):
+    def get_data_model(self, plugin_table):
         """Get the data model for an element type
 
             If the data model specifies that the element is managed in the UI,
@@ -133,18 +134,13 @@ class Datatable(object):
                 a unique identifier field
             - page_title: title format string to be used for an element page
             - fields: list of dictionaries. One dictionary per each field mentioned as visible in
-                the ui in its schema. The dictionary contains all the fields defined in the 'ui'
-                property of the schema of the element.
+                the ui in its plugin_table.
 
             :return: list of fields name/title"""
-        if not schema:
-            logger.error("get_data_model, missing schema")
-            return None
-
         self.data_model = []
         self.table_columns = []
-        for field, model in schema.iteritems():
-            logger.debug('get_data_model, field: %s, schema: %s', field, model)
+        for field, model in plugin_table.iteritems():
+            logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
 
             # Global table configuration?
             if field == '_table':
@@ -192,14 +188,14 @@ class Datatable(object):
                 'type': model.get('type', 'string'),
                 'content_type': model.get('content_type', model.get('type', 'string')),
                 'allowed': model.get('allowed', ''),
-                'defaultContent': model.get('default', ''),
+                'default': model.get('default', ''),
                 'required': model.get('required', False),
                 'empty': model.get('empty', False),
                 'unique': model.get('unique', False),
 
-                'regex': model.get('regex', True),
+                'regex_search': model.get('regex_search', True),
                 'title': model.get('title', field),
-                'hint': model.get('hint', ''),
+                'comment': model.get('comment', ''),
                 'format': model.get('format', ''),
                 'format_parameters': model.get('format_parameters', ''),
                 'visible': model.get('visible', True),
@@ -218,19 +214,22 @@ class Datatable(object):
                 ui_field.update({'visible': True})
                 ui_field.update({'hidden': False})
 
-            if model.get('type') in ['objectid', 'list'] and model.get('data_relation'):
+            if model.get('type') in ['objectid', 'list'] and model.get('data_relation', None):
+                relation = model.get('data_relation')
+                logger.debug('get_data_model, object/list field: %s / %s',
+                             field, relation.get('resource', None))
                 ui_field.update(
-                    {'content_type': 'objectid:' + model.get('resource', 'unknown')}
-                )
+                    {'content_type': 'objectid:' + relation.get('resource', 'unknown')})
 
             # logger.debug("get_data_model, field: %s = %s", field, ui_field)
 
             # If not hidden, return field
-            self.data_model.append(ui_field)
+            # self.data_model.append(ui_field)
             if not model.get('hidden', False):
                 self.table_columns.append(ui_field)
 
-                if ui_field['type'] == 'objectid' or ui_field['content_type'] == 'objectid':
+                if ui_field['type'] == 'objectid' or \
+                        ui_field['content_type'].startswith('objectid'):
                     self.embedded.append(ui_field['data'])
 
         return self.data_model
@@ -306,7 +305,7 @@ class Datatable(object):
             }
         }
 
-    def table_data(self, data_model):
+    def table_data(self, plugin_table):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
         """Return elements data in json format as of Datatables SSP protocol
@@ -497,27 +496,31 @@ class Datatable(object):
                 logger.debug("search requested, value: %s ", params['search']['value'])
 
                 # New strategy: decode search patterns...
-                search = Helper.decode_search(params['search']['value'], data_model)
+                search = Helper.decode_search(params['search']['value'], plugin_table)
                 logger.info("decoded search pattern: %s", search)
 
                 # Old strategy: search for the value in all the searchable columns...
-                if not search:
-                    logger.info("applying datatable search pattern...")
-                    for column in params['columns']:
-                        if not column['searchable']:
-                            continue
-                        logger.debug("search global '%s' for '%s'",
-                                     column['data'], params['search']['value'])
-                        if 'regex' in params['search']:
-                            if params['search']['regex']:
-                                s_global.update(
-                                    {column['data']: {
-                                        "$regex": ".*" + params['search']['value'] + ".*"}})
-                            else:
-                                s_global.update({column['data']: params['search']['value']})
+                # if not search:
+                #     logger.info("applying datatable search pattern...")
+                #     for column in params['columns']:
+                #         if not column['searchable']:
+                #             continue
+                #         logger.debug("search global '%s' for '%s'",
+                #                      column['data'], params['search']['value'])
+                #         if 'regex' in params['search']:
+                #             if params['search']['regex']:
+                #                 s_global.update(
+                #                     {column['data']: {
+                #                         "$regex": ".*" + params['search']['value'] + ".*"}})
+                #             else:
+                #                 s_global.update({column['data']: params['search']['value']})
                 s_global = search
 
             logger.info("backend search global parameters: %s", s_global)
+
+        # Specific hack to filter the log check results that are not dated!
+        if self.object_type == 'logcheckresult':
+            s_columns.append({"last_check": {"$ne": 0}})
 
         if s_columns and s_global:
             parameters['where'] = {"$and": [{"$and": s_columns}, s_global]}
@@ -545,10 +548,6 @@ class Datatable(object):
         else:
             self.records_total = self.backend.count(self.object_type)
 
-        # Specific hack to filter the log check results that are not dated!
-        if self.object_type == 'logcheckresult':
-            parameters.update({'where': {"last_check": {"$ne": 0}}})
-
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
         items = self.backend.get(self.object_type, params=parameters)
@@ -567,7 +566,7 @@ class Datatable(object):
         # Create an object ...
         object_class = [kc for kc in self.datamgr.known_classes
                         if kc.get_type() == self.object_type]
-        if not object_class:
+        if not object_class:  # pragma: no cover, should never happen!
             logger.warning("datatable, unknown object type: %s", self.object_type)
             # Empty response
             return json.dumps({
@@ -637,26 +636,18 @@ class Datatable(object):
                         )
                         # Use the item overall state to specify the table row class
                         row['DT_RowClass'] = "table-row-%s" % (overall_status)
-                    else:
+                    else:  # pragma: no cover, should never happen!
                         logger.warning("Missing get_overall_state method for: %s", self.object_type)
                         row[field['data']] = 'XxX'
                     continue
 
-                # if field['data'] == "alias":
-                #     row[field['data']] = bo_object.alias
-                #     continue
-                #
-                # if field['data'] == "notes":
-                #     row[field['data']] = bo_object.notes
-                #     continue
-                #
                 if "business_impact" in field['data']:
                     # Replace the BI count with the specific item HTML formatting
                     row[field['data']] = Helper.get_html_business_impact(bo_object.business_impact)
                     continue
 
                 # Specific fields type
-                if field['type'] == 'datetime':
+                if field['type'] == 'datetime' or field['format'] == 'datetime':
                     # Replace the timestamp with the formatted date
                     row[field['data']] = bo_object.get_date(bo_object[field['data']])
                     continue

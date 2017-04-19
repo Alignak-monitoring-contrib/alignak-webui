@@ -9,8 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 
-<!-- hosts filtering and display -->
-<div class="realm" id="realm-{{element.id}}">
+<div class="realm" id="realm_{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
