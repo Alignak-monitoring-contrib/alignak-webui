@@ -219,7 +219,7 @@
                %if host.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
-               %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
+               %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag"):
                   {{! note_url}}
                %end
                </dd>

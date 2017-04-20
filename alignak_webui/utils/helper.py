@@ -442,7 +442,7 @@ class Helper(object):
                     regex = False
                 else:
                     regex = c_def.get('regex', True)
-                logger.warning("Field: %s, regex: %s", field, regex)
+                logger.debug("Field: %s, regex: %s", field, regex)
 
                 for pattern in patterns:
                     logger.debug("decode_search, pattern: %s", pattern)

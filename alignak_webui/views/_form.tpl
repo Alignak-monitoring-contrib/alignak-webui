@@ -822,7 +822,7 @@
    $('form[data-element="{{element.id if element else 'None'}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
       evt.preventDefault();
-      console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
+      //console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
 
       // Submitting message
       wait_message('{{_('Submitting form...')}}', true)
