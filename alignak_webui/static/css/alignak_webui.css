@@ -166,7 +166,7 @@ header span.label {
 /* Medium Devices, Desktops */
 @media only screen and (max-width : 991px) {
     #search {
-        width: 110px;
+        width: 150px;
     }
 }
 

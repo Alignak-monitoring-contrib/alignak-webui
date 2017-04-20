@@ -75,13 +75,14 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
     class __AlignakConnection(object):
         """Base class for Alignak Web Services connection"""
 
-        def __init__(self, alignak_endpoint='http://127.0.0.1:8888'):
+        def __init__(self, alignak_endpoint='http://127.0.0.1:8888', authenticated=True):
             if alignak_endpoint.endswith('/'):
                 self.alignak_endpoint = alignak_endpoint[0:-1]
             else:
                 self.alignak_endpoint = alignak_endpoint
             self.token = None
             self.connected = False
+            self.authenticated = authenticated
 
         def login(self, username, password=None):
             """Log in to the Web Services
@@ -94,6 +95,10 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             """
 
             logger.info("login, connection requested, login: %s", username)
+            if not self.authenticated:
+                self.connected = True
+                logger.warning("Alignak WS, no authentication configured, login: %s", username)
+                return True
 
             self.connected = False
 
@@ -159,14 +164,21 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             if not self.connected:
                 self.login('no_login', None)
 
-            if not self.token:
+            if self.authenticated and not self.token:
                 logger.error("Authentication is required for getting an object.")
                 raise AlignakWSException(1001, "Access denied, please login before trying to get")
+
+            auth = requests.auth.HTTPBasicAuth(self.token, '')
 
             try:
                 logger.info("get, endpoint: %s, parameters: %s",
                             urljoin(self.alignak_endpoint, endpoint), params)
-                response = requests.get(urljoin(self.alignak_endpoint, endpoint), params=params)
+                if self.authenticated:
+                    response = requests.get(urljoin(self.alignak_endpoint, endpoint),
+                                            params=params, auth=auth)
+                else:
+                    response = requests.get(urljoin(self.alignak_endpoint, endpoint),
+                                            params=params)
                 logger.debug("get, response: %s", response)
                 response.raise_for_status()
 
@@ -183,7 +195,7 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
 
             return response.json()
 
-        def post(self, endpoint, params=None, files=None):
+        def post(self, endpoint, params=None):
             """Post information to an Alignak WS endpoint
 
             If an error occurs, an AlignakWSException is raised.
@@ -207,34 +219,28 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             if not self.connected:
                 self.login('no_login', None)
 
-            if not self.token:
+            if self.authenticated and not self.token:
                 logger.error("Authentication is required for posting an object.")
                 raise AlignakWSException(1001, "Access denied, please login before trying to post")
 
             headers = {'Content-Type': 'application/json'}
-            if isinstance(params, dict):
-                params = json.dumps(params)
-            if files:
-                logger.info("post, request to post a %s with files: %s", endpoint, files)
-                # Set header to disable client default behavior
-                headers = {'Content-type': 'multipart/form-data'}
+            params = json.dumps(params)
+            auth = requests.auth.HTTPBasicAuth(self.token, '')
 
             try:
                 logger.info("post, endpoint: %s, parameters: %s",
                             urljoin(self.alignak_endpoint, endpoint), params)
 
-                if not files:
+                if self.authenticated:
                     response = requests.post(urljoin(self.alignak_endpoint, endpoint),
-                                             data=params, files=files, headers=headers)
-                    resp = response.json()
+                                             data=params, headers=headers, auth=auth)
                 else:
-                    # Posting files is not yet used, but reserved for future use...
                     response = requests.post(urljoin(self.alignak_endpoint, endpoint),
-                                             data=params, files=files)
-                    resp = json.loads(response.content)
-                logger.info("post, response: %s", resp)
-
+                                             data=params, headers=headers)
                 response.raise_for_status()
+
+                resp = response.json()
+                logger.info("post, response: %s", resp)
 
             except RequestsConnectionError as exp:
                 logger.warning("WS connection error, error: %s", str(exp))
@@ -255,7 +261,8 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
 
     instance = None
 
-    def __new__(cls, backend_endpoint):
+    def __new__(cls, backend_endpoint, authenticated):
         if not AlignakConnection.instance:
-            AlignakConnection.instance = AlignakConnection.__AlignakConnection(backend_endpoint)
+            AlignakConnection.instance = AlignakConnection.__AlignakConnection(backend_endpoint,
+                                                                               authenticated)
         return AlignakConnection.instance

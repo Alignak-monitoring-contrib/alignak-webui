@@ -313,7 +313,7 @@ class Plugin(object):
                 page_route = [(page_route, page_name)]
 
             for route_url, name in page_route:
-                logger.info("route: %s -> %s", route_url, name)
+                logger.debug("route: %s -> %s", route_url, name)
                 f = self.app.route(route_url, callback=f, method=methods, name=name)
 
                 # Register plugin element list route

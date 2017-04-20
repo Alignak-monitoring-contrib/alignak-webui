@@ -108,7 +108,8 @@ class DataManager(object):
 
         # Alignak Web services client
         self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:8888')
-        self.alignak_ws = AlignakConnection(self.alignak_endpoint)
+        self.alignak_authorization = (app.config.get('alignak_ws_authorization', '1') == '1')
+        self.alignak_ws = AlignakConnection(self.alignak_endpoint, self.alignak_authorization)
         self.alignak_daemons = {}
 
         # Get known objects type from the imported modules
@@ -421,7 +422,9 @@ class DataManager(object):
 
     def add_object(self, object_type, data=None, files=None):
         """Add an element"""
-        logger.info("add_object, request to add a %s: data: %s", object_type, data)
+        if '_realm' not in data:
+            data.update({'_realm': self.my_realm.id})
+        logger.info("add_object, request to add an '%s': %s", object_type, data)
 
         return self.backend.post(object_type, data=data, files=files)
 
