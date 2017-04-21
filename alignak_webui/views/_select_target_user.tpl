@@ -1,6 +1,6 @@
 ﻿
 %# If more than one user declared ...
-%if current_user.is_administrator() and datamgr.get_objects_count('user') > 1:
+%if (current_user.is_super_administrator() or current_user.is_administrator()) and datamgr.get_objects_count('user') > 1:
    <div class="navbar" role="toolbar" aria-label="{{_('Select a user to change dashboard layout')}}">
       <form>
          %# No target user is defined ...

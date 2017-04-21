@@ -1,3 +1,4 @@
+%setdefault('debug', False)
 %setdefault('load', False)
 
 <script>

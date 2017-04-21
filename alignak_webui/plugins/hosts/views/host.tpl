@@ -120,12 +120,11 @@
    </div>
    %end
 
-   <!-- First row : tags and actions ... -->
-   %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
-   %tags = host.tags
-   %templates = host._templates
-   %if host.action_url or tags or groups:
-   <div>
+   <!-- First row : host overview ... -->
+   <div class="host-overview panel panel-default">
+      %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
+      %tags = host.tags
+      %templates = host._templates
       %if groups:
       <div class="host-groups btn-group pull-right">
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -175,17 +174,10 @@
          </ul>
       </div>
       %end
-   </div>
-   %end
-
-   <!-- Second row : host/service overview ... -->
-   <div class="panel panel-default">
       <div class="panel-heading">
-         <h4 class="panel-title">
-            <a class="collapsed" role="button" data-toggle="collapse" href="#collapseHostOverview" aria-expanded="false" aria-controls="collapseHostOverview">
-               <span class="caret"></span>
-               {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
-            </a>
+         <h4 class="panel-title" class="collapsed" data-toggle="collapse" href="#collapseHostOverview" aria-expanded="false" aria-controls="collapseHostOverview">
+            <span class="caret"></span>
+            {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
          </h4>
       </div>
 
@@ -193,7 +185,7 @@
          %if host.customs and ('_DETAILLEDESC' in host.customs or '_IMPACT' in host.customs or '_FIXACTIONS' in host.customs):
          <div class="panel panel-default">
             <div class="panel-body">
-               <dl class="col-sm-12 dl-horizontal">
+               <dl class="col-xs-12 dl-horizontal">
                   %if '_DETAILLEDESC' in host.customs:
                   <dt>{{_('Description:')}}</dt>
                   <dd>{{host.customs['_DETAILLEDESC']}}</dd>
@@ -212,7 +204,7 @@
          %end
 
          <div class="row">
-            <dl class="col-sm-6 col-md-4">
+            <dl class="col-xs-12 col-sm-6">
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
@@ -232,7 +224,7 @@
                <dd>{{!Helper.get_html_business_impact(host.business_impact, icon=True, text=True)}}</dd>
             </dl>
 
-            <dl class="col-sm-6 col-md-4">
+            <dl class="col-xs-12 col-sm-6">
                <dt>{{_('Parents:')}}</dt>
                %if parents:
                %for parent in parents:
@@ -263,10 +255,10 @@
       </div>
    </div>
 
-   <!-- Third row : business impact alerting ... -->
+   <!-- Second row : business impact alerting ... -->
    %if current_user.is_power():
       %if host.is_problem and host.business_impact > 2 and not host.acknowledged:
-      <div class="panel panel-default">
+      <div class="host-bi-alert panel panel-default">
          <div class="panel-body">
             <i class="fa fa-2x fa-spin fa-gear"></i>
             <span class="alert alert-danger">
@@ -279,9 +271,8 @@
 
    %if services:
    %synthesis = datamgr.get_services_synthesis(services)
-   <!-- Fourth row : services synthesis ... -->
-   <div class="panel panel-default">
-     <div class="panel-body">
+   <!-- Third row : services synthesis ... -->
+   <div class="host-services-synthesis panel panel-default">
        <table class="table table-invisible table-condensed" style="margin-bottom: 0px;"><tbody><tr>
           <td><a role="menuitem" href="/services/table?search=host:{{host.id}}">
                <strong>{{synthesis['nb_elts']}} services:&nbsp;</strong>
@@ -290,16 +281,15 @@
           %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
           <td>
             %label = "%s <em>(%s%%)</em>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-            {{! Service({'ls_state': state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
+            {{! Service().get_html_state(use_status=state, text=label, disabled=(not synthesis["nb_" + state]))}}
           </td>
           %end
        </tr></tbody></table>
-     </div>
    </div>
    %end
 
-   <!-- Fifth row : host widgets ... -->
-   <div>
+   <!-- Fourth row : host widgets ... -->
+   <div class="host-widgets">
       <ul class="nav nav-tabs">
          %first=True
          %for widget in webui.get_widgets_for('host'):
@@ -333,10 +323,7 @@
       $('[data-toggle="popover urls"]').popover({
          placement: 'bottom',
          animation: true,
-         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
-         content: function() {
-             return $('#hosts-states-popover-content').html();
-         }
+         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>'
       });
 
       // Tabs management
@@ -349,6 +336,7 @@
          } else {
             $url = $url[1];
          }
+         //console.log("Changed tab", $url);
          var loading='<div class="alert alert-info text-center"><span class="fa fa-spin fa-spinner"></span>&nbsp;{{_("Fetching data...")}}&nbsp;<span class="fa fa-spin fa-spinner"></span></div>';
          $('#'+$url).html(loading);
          $.ajax({

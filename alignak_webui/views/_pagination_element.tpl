@@ -47,8 +47,6 @@
                   <li><a href="#" data-elts="10">{{_('%d elements') % 10}}</a></li>
                   <li><a href="#" data-elts="25">{{_('%d elements') % 25}}</a></li>
                   <li><a href="#" data-elts="50">{{_('%d elements') % 50}}</a></li>
-                  <li><a href="#" data-elts="100">{{_('%d elements') % 100}}</a></li>
-                  <li><a href="#" data-elts="0">{{_('All elements (%d)' % total)}}</a></li>
                </ul>
             </div>
 
@@ -91,7 +89,7 @@
             // Save user preference
             save_user_preference('elts_per_page', value, function() {
                // Force page reloading with new parameters
-               //document.location.href = url;
+               document.location.href = url;
             });
          });
          </script>

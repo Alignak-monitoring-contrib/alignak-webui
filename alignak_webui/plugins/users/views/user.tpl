@@ -72,7 +72,7 @@
                {{ user.notes }}
                </dd>
             </dl>
-            %if current_user.is_administrator():
+            %if current_user.is_super_administrator() or current_user.is_administrator():
             <dl class="col-sm-6 col-md-4">
                <dt>{{_('Login:')}}</dt>
                <dd>{{user.name}}</dd>

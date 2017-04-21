@@ -341,6 +341,27 @@ class Host(BackendElement):
         return 5
 
     @property
+    def variables(self):
+        """Get the host custom variables with a nice name formatting:
+        - remove the leading and inside underscore
+        - lower case the variable name
+
+        Returns a list of dictionaries containing:
+        - name: the original variable name
+        - alias: the nice name
+        - value: the variable value
+
+        The list is ordered with the variables name
+        """
+        variables = []
+        for var in self.customs:
+            varname = var[1:]
+            varname = varname.replace('_', ' ')
+            varname = varname.capitalize()
+            variables.append({'name': var, 'alias': varname, 'value': self.customs[var]})
+        return sorted(variables, key=lambda k: k['name'])
+
+    @property
     def overall_status(self):
         """Return real status string from the real state identifier"""
         return self.overall_state_to_status[self.overall_state]

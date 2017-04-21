@@ -7,9 +7,9 @@ if (debugMaps) {
     console.log("Activated debug maps logs");
 }
 
-var defaultZoom = 6;
+var defaultZoom = 12;
 if (debugMaps) console.log('Default zoom: ', defaultZoom);
-var defaultCenter = [46.60611, 1.87528];
+var defaultCenter = L.latLng(46.60611, 1.87528);
 if (debugMaps) console.log('Default center: ', defaultCenter);
 
 var actions = false;
@@ -179,20 +179,8 @@ mapInit = function(map_id, callback) {
 
     // Markers ...
     var allMarkers = [];
-    var bounds = new L.LatLngBounds(defaultCenter);
-    if (debugMaps) console.log("Initial map bounds:", bounds);
     for (var i = 0; i < hosts.length; i++) {
-        var h = hosts[i];
-        bounds.extend(h.location());
-        allMarkers.push(markerCreate($map, h));
-        if (debugMaps) console.log("- extending map bounds:", bounds);
-    }
-    if (debugMaps) console.log("Extended map bounds:", bounds);
-
-    // Zoom adaptation if bounds are a rectangle
-    if (debugMaps) console.log("Extended map bounds:", bounds.getNorth(), bounds.getSouth());
-    if (bounds.getNorth() != bounds.getSouth()) {
-        $map.fitBounds(bounds);
+        allMarkers.push(markerCreate($map, hosts[i]));
     }
 
     // Build marker cluster
