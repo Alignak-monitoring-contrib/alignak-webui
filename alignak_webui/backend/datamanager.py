@@ -2050,7 +2050,8 @@ class DataManager(object):
         logger.debug("get_realm_children, realm: %s", realm)
 
         # Realm sub-realms
-        return self.get_realms(search={'where': {'_parent': realm.id}}, all_elements=True)
+        return self.get_realms(search={'sort': '_level',
+                                       'where': {'_parent': realm.id}}, all_elements=True)
 
     def get_realm_overall_state(self, search):
         """Get a realm real state (including realm hosts states).
@@ -2083,7 +2084,7 @@ class DataManager(object):
                          realm.name, ov_state)
             overall_state = max(overall_state, ov_state)
 
-        logger.warning("get_realm_overall_state, state: %s", overall_state)
+        logger.warning("get_realm_overall_state, realm: %s, state: %s", realm.name, overall_state)
         overall_status = Realm.overall_state_to_status[overall_state]
         return (overall_state, overall_status)
 
