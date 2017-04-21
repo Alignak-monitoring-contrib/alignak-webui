@@ -51,9 +51,6 @@ body {
  */
 header {
     height: 60px;
-/*
-    z-index: 2000;
-*/
 }
 #topbar {
 }
@@ -101,9 +98,10 @@ header {
     border-radius: 3px;
 }
 .popover-title {
-    /* blue-grey-400 */
+    /* blue-grey-400
     background-color: #78909c;
-    color: #FFF;
+    color: #FFF;*/
+    color: #111;
 }
 
 /*
@@ -111,7 +109,6 @@ header {
  * Styles declared in _header_hosts_states.tpl and _header_services_states.tpl ... because styles
  * of the popovers are not considered when declared here!
  */
-
 header span.label {
     position: relative;
     left: +10px;
@@ -187,7 +184,7 @@ header span.label {
 
 /*
  * Application menu bar - for small devices, menu items are floating and
- * the menu is positionned in the header navigation bar collapsable part.
+ * the menu is positionned in the header navigation bar collapsible part.
  */
 @media (max-width: 767px) {
     #topbar ul.navbar-right > li {
@@ -319,37 +316,6 @@ table.dataTable .selectize-control.multi .selectize-input.input-active:after {
         display: inline-table;
         vertical-align: middle;
     }
-}
-
-/*
- * Sidebar fixed width management - not used anymore... leave it if necessary ;)
- */
-.col-sidebar {
-    margin-left: 0;
-    width:200px;
-    height: 100%;
-    float:left;
-}
-
-.col-offset-sidebar {
-    width:calc(100% - 200px);
-    float:left;
-}
-
-/*
- * On small device and extra small devices:
- * ...
- */
-@media (max-width: 992px) {
-}
-@media (max-width: 768px) {
-}
-
-/*
- * Menu bar
- */
-#topbar form {
-    padding: 0;
 }
 
 /*

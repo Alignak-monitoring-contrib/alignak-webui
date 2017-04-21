@@ -372,7 +372,7 @@ class PluginHosts(Plugin):
         for widget in self.webui.get_widgets_for(widget_place):
             if widget_id.startswith(widget['id']):
                 widget_template = widget['template']
-                logger.info("Widget found, template: %s", widget_template)
+                logger.debug("Widget found, template: %s", widget_template)
                 break
         else:
             logger.info("Widget identifier not found: using default template and no options")
@@ -462,7 +462,7 @@ class PluginHosts(Plugin):
         for widget in self.webui.get_widgets_for(widget_place):
             if widget_id.startswith(widget['id']):
                 widget_template = widget['template']
-                logger.info("Widget found, template: %s", widget_template)
+                logger.debug("Widget found, template: %s", widget_template)
                 break
         else:
             logger.info("Widget identifier not found: using default template and no options")

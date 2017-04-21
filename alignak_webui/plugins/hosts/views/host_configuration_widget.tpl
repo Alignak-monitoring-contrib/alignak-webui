@@ -8,19 +8,19 @@
 
 <table class="table table-condensed table-bordered">
    <colgroup>
-      <col style="width: 40%" />
-      <col style="width: 60%" />
+      <col style="width: 20%" />
+      <col style="width: 80%" />
    </colgroup>
    <thead>
       <tr>
-         <th colspan="3">{{_('Customs:')}}</th>
+         <th colspan="2">{{_('Custom variables:')}}</th>
       </tr>
    </thead>
-   <tbody style="font-size:x-small;">
-   %for var in sorted(host.customs):
+   <tbody>
+   %for var in host.variables:
       <tr>
-         <td>{{var}}</td>
-         <td>{{host.customs[var]}}</td>
+         <td title="{{var['name']}}">{{var['alias']}}</td>
+         <td>{{var['value']}}</td>
       </tr>
    %end
    </tbody>
