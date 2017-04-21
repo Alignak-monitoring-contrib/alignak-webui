@@ -186,21 +186,32 @@ class User(BackendElement):
         """Is user a super administrator?"""
         if getattr(self, 'back_role_super_admin', None):
             return self.back_role_super_admin
+        return False
 
     def is_administrator(self):
-        """Is user an administrator?"""
-        if self.is_super_administrator():
-            return True
+        """Is user an administrator?
 
+        It is not possible to consider that a super-administrator is also an administrator
+        because the Alignak backend manages two different properties! A user can have
+        back_role_super_admin True but is_admin False!
+        """
+        # if self.is_super_administrator():
+        #     return True
+        #
         if isinstance(self.is_admin, bool):
             return self.is_admin
         return getattr(self, 'is_admin', '1') == '1'
 
     def is_power(self):
-        """Is allowed to use commands (power user)?"""
-        if self.is_administrator():
-            return True
+        """Is allowed to use commands (power user)?
 
+        It is not possible to consider that an administrator is allowed to use commands
+        because the Alignak backend manages two different properties! A user can have
+        back_role_super_admin or is_admin True but can_submit_commands False!
+        """
+        # if self.is_administrator():
+        #     return True
+        #
         if isinstance(self.can_submit_commands, bool):
             return self.can_submit_commands
         return getattr(self, 'can_submit_commands', '1') == '1'
