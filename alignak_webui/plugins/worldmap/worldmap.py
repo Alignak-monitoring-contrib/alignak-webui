@@ -171,6 +171,8 @@ class PluginWorldmap(Plugin):
 
         # Get last total elements count
         total = len(valid_hosts)
+        if hosts:
+            total = hosts[0]['_total']
 
         if for_my_widget:
             return valid_hosts
