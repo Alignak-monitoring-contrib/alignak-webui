@@ -209,9 +209,6 @@ class TestLoadCreate(unittest2.TestCase):
         self.dmg = DataManager(alignak_webui.app.app)
         print('Data manager', self.dmg)
 
-    def tearDown(self):
-        print("")
-
     def test_3_1_load(self):
         """ Datamanager load """
         print('test load as admin')

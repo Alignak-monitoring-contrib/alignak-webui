@@ -304,7 +304,10 @@ class DataManager(object):
             self.loading = 0
 
         logger.debug("load, start loading: %s for %s", self, self.logged_in_user)
-        logger.debug("load, start as administrator: %s", self.logged_in_user.is_administrator())
+        logger.debug("load, start as super-administrator: %s",
+                     self.logged_in_user.is_super_administrator())
+        logger.debug("load, start as administrator: %s",
+                     self.logged_in_user.is_administrator())
         start = time.time()
 
         if reset:
@@ -1951,7 +1954,8 @@ class DataManager(object):
 
     def get_users(self, search=None, template=False, all_elements=False):
         """Get a list of known users"""
-        if not self.logged_in_user.is_administrator():
+        if not self.logged_in_user.is_super_administrator() \
+                and not self.logged_in_user.is_administrator():
             return [self.logged_in_user]
 
         if search is None:
