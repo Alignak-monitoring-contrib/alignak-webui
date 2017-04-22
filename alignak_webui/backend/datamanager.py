@@ -801,7 +801,7 @@ class DataManager(object):
                     found = True
                 except BackendException as exp:  # pragma: no cover, simple protection
                     logger.exception("get_livesynthesis, exception: %s", exp)
-                    if exp.code in [404, 1000] and not error:
+                    if exp.code in [404, 1000, 1003] and not error:
                         error = True
                         self.load(reset=True)
         else:
