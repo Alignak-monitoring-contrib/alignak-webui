@@ -567,11 +567,11 @@
                "dataType": "json",
                "type": "GET",
                "data": {
-                  "key": 'table_{{object_type}}s'
+                  "key": '{{table_id}}'
                },
                "async": false,
                "success": function (json) {
-                  if (debugTable) console.debug("state restored for 'tbl_{{object_type}}' ...", json);
+                  if (debugTable) console.debug("state restored for 'tbl_{{table_id}}' ...", json);
                   o = json;
                }
             });
@@ -589,12 +589,12 @@
                "dataType": "json",
                "type": "POST",
                "data": {
-                  "key": 'table_{{object_type}}s',
+                  "key": '{{table_id}}',
                   // Json stringify to avoid complex array formatting ...
-                  "value": JSON.stringify( data )
+                  "value": JSON.stringify(data)
                },
                "success": function () {
-                  //if (debugTable) console.debug("state saved for 'tbl_{{object_type}}' ...", settings);
+                  //if (debugTable) console.debug("state saved for 'tbl_{{table_id}}' ...", settings);
                }
             });
          },
