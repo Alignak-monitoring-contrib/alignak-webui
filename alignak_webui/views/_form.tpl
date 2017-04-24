@@ -1,4 +1,6 @@
 %import json
+%from alignak_webui.objects.element import BackendElement
+%from alignak_webui.objects.element_state import ElementState
 
 %# Default values
 %setdefault('debug', False)
@@ -174,7 +176,6 @@
          %linked_object_type = model.get('resource', '')
          %icon=''
          %if linked_object_type:
-         %  from alignak_webui.objects.element_state import ElementState
          %  icon = ElementState().get_icon_state('realm', 'unknown')
          %  icon=icon['icon'] if icon else ''
          %end
@@ -358,7 +359,6 @@
          %linked_object_type = model.get('resource', '')
          %icon=''
          %if linked_object_type:
-         %  from alignak_webui.objects.element_state import ElementState
          %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
          %  icon=icon['icon'] if icon else ''
          %end
@@ -517,6 +517,7 @@
             <i class="fa fa-bug"></i>{{field}} -> {{model}}<br>
             %end
 
+            %# Is a list of values?
             %is_list = False
             %list_values = []
 
@@ -561,13 +562,11 @@
             %end
             %end
 
-            %from alignak_webui.objects.element import BackendElement
-
             %if field_type=='point':
             %field_value={'latitude': field_value['coordinates'][0], 'longitude': field_value['coordinates'][1]}
             %end
 
-            %# Field value is a list
+            %# The field value is a list
             %if isinstance(field_value, list):
             %  for v in field_value:
             %     if isinstance(v, BackendElement):
@@ -583,7 +582,7 @@
             %  is_list = True
             %  selectize=True
 
-            %# Field value is a dict
+            %# The field value is a dictionary
             %elif isinstance(field_value, dict):
             %  for k,v in field_value.items():
             %     list_values.append(('%s|%s' % (k, v), '%s=%s' % (k, v)))
@@ -610,7 +609,7 @@
                %if is_list:
                {{' is_list %s -> %s (%s) = %s' % (field, field_type, content_type, list_values)}}
                %else:
-               {{'not list %s -> %s = %s' % (field, content_type, field_value)}}
+               {{'not list %s -> %s = %s (%s)' % (field, content_type, field_value, list_values)}}
                %end
                <br>
             %end
@@ -660,7 +659,6 @@
             %linked_object_type = model.get('resource', '')
             %icon=''
             %if linked_object_type:
-            %  from alignak_webui.objects.element_state import ElementState
             %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
             %  icon=icon['icon'] if icon else ''
             %end
@@ -671,6 +669,9 @@
                      <span class="input-group-addon text-info">
                         %if has_template and field in element['_template_fields']:
                         <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                        %end
+                        %if is_list:
+                        <i class="fa fa-list"></i>
                         %end
                      </span>
                      %if is_list:
@@ -735,6 +736,7 @@
                         '</div>';
                      },
                      item: function(item, escape) {
+                        console.log("item {{field}}: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -762,6 +764,7 @@
                               // 10 first items only...
                               // callback(res.slice(0, 10));
                               callback(res);
+
                            }
                         });
                      },
@@ -789,6 +792,7 @@
                   %end
                });
                // Add selected options / items to the control...
+               window.setTimeout(function() {
                var $select = $('#{{field}}').selectize();
                var selectize = $select[0].selectize;
                %for field_id, field_value in list_values:
@@ -797,6 +801,7 @@
                %for field_id, field_value in list_values:
                   selectize.addItem("{{field_id}}");
                %end
+               }, 100);
             </script>
             %end
             %continue
@@ -807,7 +812,7 @@
       <script>
          window.setTimeout(function() { $("div.alert-dismissible").alert('close'); }, 10000);
       </script>
-      %if edition:
+      %if edition and element:
       <div class="well form-group">
          <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
          <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>

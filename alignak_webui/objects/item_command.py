@@ -41,15 +41,8 @@ class Command(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    # def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-    #     # Not that bad ... because __init__ is called from __new__
-    #     # pylint: disable=attribute-defined-outside-init
-    #     """
-    #     Create a History (called only once when an object is newly created)
-    #     """
-    #     # self._linked__realm = 'realm'
-    #
-    #     super(Command, self).__init__(params, date_format, embedded)
+    # Default command common fields
+    _name = 'Undefined command'
 
     # @property
     # def _realm(self):

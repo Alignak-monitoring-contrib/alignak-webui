@@ -857,16 +857,16 @@ class TestItems(unittest2.TestCase):
         assert len(Command.get_cache()) == 1
 
         print(item)
-        assert "%s" % item == "<command, id: command_0, name: anonymous, status: unknown>"
+        assert "%s" % item == "<command, id: command_0, name: Undefined command, status: unknown>"
         assert item._id == 'command_0'  # Because no _id in the parameters ...
         assert item._type == 'command'
-        assert item.name == 'anonymous'
+        assert item.name == 'Undefined command'
         assert item.status == 'unknown'
 
         assert item.status == 'unknown'
 
         print(item.get_html_state())
-        assert item.get_html_state() == '''<div class="item-state item_command " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="anonymous" data-item-type="command" data-item-state="" title=""><span class="fa-stack " ><i class="fa fa-circle fa-stack-2x item_command"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item.id
+        assert item.get_html_state() == '''<div class="item-state item_command " style="display: inline; font-size:0.9em;" data-item-id="%s" data-item-name="Undefined command" data-item-type="command" data-item-state="" title=""><span class="fa-stack " ><i class="fa fa-circle fa-stack-2x item_command"></i><i class="fa fa-bolt fa-stack-1x fa-inverse"></i></span><span></span></div>''' % item.id
 
     def test_hosts(self):
         """ Items - hosts """

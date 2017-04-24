@@ -27,6 +27,8 @@
     This module contains the classes used to manage the application objects with the data manager.
 """
 from alignak_webui.objects.element import BackendElement
+from alignak_webui.objects.item_timeperiod import TimePeriod
+from alignak_webui.objects.item_command import Command
 
 
 class Host(BackendElement):
@@ -122,36 +124,50 @@ class Host(BackendElement):
     @property
     def check_command(self):
         """Return linked object"""
+        if not isinstance(self._linked_check_command, BackendElement):
+            return Command()
         return self._linked_check_command
 
     @property
     def snapshot_command(self):
         """Return linked object"""
+        if not isinstance(self._linked_snapshot_command, BackendElement):
+            return Command()
         return self._linked_snapshot_command
 
     @property
     def event_handler(self):
         """Return linked object"""
+        if not isinstance(self._linked_event_handler, BackendElement):
+            return Command()
         return self._linked_event_handler
 
     @property
     def check_period(self):
         """Return linked object"""
+        if not isinstance(self._linked_check_period, BackendElement):
+            return TimePeriod()
         return self._linked_check_period
 
     @property
     def notification_period(self):
         """Return linked object"""
+        if not isinstance(self._linked_notification_period, BackendElement):
+            return TimePeriod()
         return self._linked_notification_period
 
     @property
     def snapshot_period(self):
         """Return linked object"""
+        if not isinstance(self._linked_snapshot_period, BackendElement):
+            return TimePeriod()
         return self._linked_snapshot_period
 
     @property
     def maintenance_period(self):
         """Return linked object"""
+        if not isinstance(self._linked_maintenance_period, BackendElement):
+            return TimePeriod()
         return self._linked_maintenance_period
 
     @property
