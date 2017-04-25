@@ -24,23 +24,11 @@
       {{! host.get_html_state(text=None, title=_('Host is %s' % host.overall_status), size="fa-4x", use_status=host.overall_status)}}
       <legend><strong>{{host.alias}}</strong></legend>
    </div>
-   %if host.state_id != 0:
-   <div class="real_state">
-      %extra=''
-      %if host.acknowledged:
-      %extra += _(' and acknowledged')
-      %end
-      %if host.downtimed:
-      %extra += _(' and in scheduled downtime')
-      %end
-      {{! host.get_html_state(extra=extra, text=None, title=_('Host is %s' % host.state), size="fa-3x")}}
-   </div>
    <div class="actions">
       %if current_user.is_power():
          {{! Helper.get_html_commands_buttons(host, _('Actions'))}}
       %end
    </div>
-   %end
    %if services:
    <div class="host_services text-left">
       <table class="table table-condensed table-invisible">
@@ -85,7 +73,23 @@
       <div class="panel-body">
          <!-- Last check output -->
          <table class="table table-condensed table-nowrap">
-            <tbody style="font-size:x-small;">
+            <colgroup>
+               <col style="width: 100px;">
+            </colgroup>
+            <tbody>
+               <tr>
+                  <td><strong>{{_('State:')}}</strong></td>
+                  <td>
+                     %extra=''
+                     %if host.acknowledged:
+                     %extra += _(' and acknowledged')
+                     %end
+                     %if host.downtimed:
+                     %extra += _(' and in scheduled downtime')
+                     %end
+                     {{! host.get_html_state(extra=extra, text=None, title=_('Host is %s' % host.state))}}
+                  </td>
+               </tr>
                <tr>
                   <td><strong>{{_('Last check:')}}</strong></td>
                   <td>
@@ -106,16 +110,70 @@
                   </td>
                </tr>
                %end
+               %if host.perf_data:
                <tr>
                   <td><strong>{{_('Performance data:')}}</strong></td>
                   <td>
                      {{! host.perf_data}}
                   </td>
                </tr>
+               %end
             </tbody>
          </table>
       </div>
    </div>
+
+   %if host.perf_data:
+   <div class="panel panel-default">
+      <div class="panel-heading">
+         {{ _('My metrics') }}
+      </div>
+
+      <div class="panel-body">
+         %from alignak_webui.utils.helper import Helper
+         %from alignak_webui.utils.perfdata import PerfDatas
+
+         <table class="table table-condensed">
+            <thead>
+               <tr>
+                  <th>{{_('Metric')}}</th>
+                  <th>{{_('Value')}}</th>
+                  <th>{{_('Warning')}}</th>
+                  <th>{{_('Critical')}}</th>
+                  <th>{{_('Min')}}</th>
+                  <th>{{_('Max')}}</th>
+                  <th>{{_('UOM')}}</th>
+                  <th></th>
+               </tr>
+            </thead>
+            <tbody style="font-size:x-small;">
+            %if host.perf_data:
+               %name_line = True
+               %perfdatas = PerfDatas(host.perf_data)
+               %if perfdatas:
+               %for metric in sorted(perfdatas, key=lambda metric: metric.name):
+               %if metric.name:
+               <tr>
+                  <td><strong>{{metric.name}}</strong></td>
+                  <td>{{metric.value}}</td>
+                  <td>{{metric.warning if metric.warning!=None else ''}}</td>
+                  <td>{{metric.critical if metric.critical!=None else ''}}</td>
+                  <td>{{metric.min if metric.min!=None else ''}}</td>
+                  <td>{{metric.max if metric.max!=None else ''}}</td>
+                  <td>{{metric.uom if metric.uom else ''}}</td>
+               </tr>
+               %end
+               %end
+            %else:
+               <tr>
+                  <td colspan="8"><strong>{{_('No metrics are available for this host.')}}</strong></td>
+               </tr>
+            %end
+            </tbody>
+         </table>
+      </div>
+   </div>
+   %end
 
 %if not plugin:
    <center>
