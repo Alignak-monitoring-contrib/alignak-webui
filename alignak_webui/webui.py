@@ -130,10 +130,10 @@ class WebUI(object):
                 if p_classes:
                     logger.debug("Found plugins classes: %s", p_classes)
                     cfg_files = [
-                        '/usr/local/etc/%s/plugin_%s.cfg' % (self.name, plugin_name),
-                        '/etc/%s/plugin_%s.cfg' % (self.name, plugin_name),
+                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg'),
                         '~/%s/plugin_%s.cfg' % (self.name, plugin_name),
-                        os.path.join(os.path.join(plugins_dir, plugin_name), 'settings.cfg')
+                        '/etc/%s/plugin_%s.cfg' % (self.name, plugin_name),
+                        '/usr/local/etc/%s/plugin_%s.cfg' % (self.name, plugin_name),
                     ]
 
                     for p_class in p_classes:

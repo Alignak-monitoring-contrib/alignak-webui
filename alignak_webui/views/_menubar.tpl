@@ -214,9 +214,20 @@
 
          %try:
          <li>
+            <a href="{{ webui.get_url('Histories table') }}">
+               <span class="fa fa-fw fa-history"></span>
+               <span>{{_('System monitoring log')}}</span>
+            </a>
+         </li>
+         %except RouteBuildError:
+         %print("Missing plugin History")
+         %end
+
+         %try:
+         <li>
             <a href="{{ webui.get_url('Log check results table') }}">
                <span class="fa fa-fw fa-history"></span>
-               <span>{{_('Log')}}</span>
+               <span>{{_('Check results log')}}</span>
             </a>
          </li>
          %except RouteBuildError:
