@@ -417,17 +417,17 @@ class Plugin(object):
             backend_schema = BACKEND_MODELS[self.backend_endpoint]['schema']
             logger.debug("Plugin %s backend schema: %s", self.name, backend_schema)
 
+        logger.debug("plugin files: %s", self.plugin_filenames)
         if not cfg_filenames:
             cfg_filenames = self.plugin_filenames
         else:
             self.plugin_filenames = cfg_filenames
 
-        logger.debug("Read plugin configuration file: %s", cfg_filenames)
-
         # Read configuration file
+        logger.debug("Reading plugin configuration file: %s", cfg_filenames)
         self.plugin_config = Settings(cfg_filenames)
         config_file = self.plugin_config.read(self.name)
-        logger.debug("Plugin configuration read from: %s", config_file)
+        logger.warning("Plugin configuration read from: %s", config_file)
         if not self.plugin_config:  # pragma: no cover, all plugins have configuration files
             if initialization:
                 return False
@@ -480,11 +480,10 @@ class Plugin(object):
                     self.table[p[1]] = backend_schema[p[1]]
                 else:
                     self.table[p[1]] = {}
-            if p[2] not in self.table[p[1]]:
-                self.table[p[1]][p[2]] = self.plugin_config[param]
-            else:
+            if p[2] in self.table[p[1]]:
                 logger.warning("plugin %s overrides default configuration: %s.%s = %s",
                                self.name, p[1], p[2], self.plugin_config[param])
+            self.table[p[1]][p[2]] = self.plugin_config[param]
 
         logger.debug("Table: %s", self.table)
         if initialization:

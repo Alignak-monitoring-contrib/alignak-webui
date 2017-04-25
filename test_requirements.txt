@@ -13,13 +13,7 @@ coveralls
 pylint
 pep8
 pep257
-# uWSGI server
-uwsgi
 # alignak (most recent develop)
 -e git+git://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
-# alignak_backend (most recent develop)
--e git+git://github.com/Alignak-monitoring-contrib/alignak-backend.git@develop#egg=alignak_backend
-# alignak_backend_client (most recent develop)
--e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@develop#egg=alignak_backend_client
 # alignak_backend_import (most recent develop)
 -e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-import.git@develop#egg=alignak_backend_import
