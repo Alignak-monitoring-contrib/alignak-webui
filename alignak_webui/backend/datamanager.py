@@ -121,8 +121,9 @@ class DataManager(object):
                globals()[k].get_type() is not None and \
                globals()[k].get_type() != 'item':
                 self.known_classes.append(globals()[k])
-                logger.debug("Known class %s for object type: %s",
-                             globals()[k], globals()[k].get_type())
+                # Really too verbose and of not much interest...
+                # logger.debug("Known class %s for object type: %s",
+                #              globals()[k], globals()[k].get_type())
 
         self.connected = False
         self.logged_in_user = None
@@ -338,10 +339,8 @@ class DataManager(object):
         new_objects_count = self.get_objects_count()
         logger.debug("Load, end, objects in cache: %d", new_objects_count)
 
-        logger.info(
-            "Data manager load (%s), new objects: %d,  duration: %s",
-            refresh, new_objects_count - objects_count, (time.time() - start)
-        )
+        logger.info("Data manager load (%s), new objects: %d,  duration: %s",
+                    refresh, new_objects_count - objects_count, (time.time() - start))
 
         if new_objects_count > objects_count:
             self.require_refresh()
@@ -378,10 +377,6 @@ class DataManager(object):
         If an object_type is specified, only returns the count for this object type
 
         If log is set, an information log is made"""
-        log_function = logger.debug
-        if log:
-            log_function = logger.info
-
         if object_type:
             for known_class in self.known_classes:
                 if object_type == known_class.get_type():
@@ -393,10 +388,13 @@ class DataManager(object):
 
         objects_count = 0
         for known_class in self.known_classes:
-            log_function("get_objects_count, %s: %d elements", known_class, known_class.get_count())
+            if log:
+                logger.info("get_objects_count, %s: %d elements",
+                            known_class, known_class.get_count())
             objects_count += known_class.get_count()
 
-        log_function("get_objects_count, currently %d elements", objects_count)
+        if log:
+            logger.info("get_objects_count, currently %d elements", objects_count)
         return objects_count
 
     ##
@@ -1692,7 +1690,7 @@ class DataManager(object):
 
         aggregations = {}
         for service in services:
-            service.aggregation = service.aggregation.capitalize()
+            service.aggregation = service.aggregation
 
             if not service.aggregation:
                 service.aggregation = _('Global')
@@ -1729,7 +1727,7 @@ class DataManager(object):
             tree_item = {
                 'id': aggregation,
                 'parent': aggregations[aggregation]['parent'],
-                'text': aggregation,
+                'text': aggregation.capitalize(),
                 'icon': 'fa fa-sitemap',
                 'state': {
                     "opened": True,

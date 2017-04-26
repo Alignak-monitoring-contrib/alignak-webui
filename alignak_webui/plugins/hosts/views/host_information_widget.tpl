@@ -20,7 +20,7 @@
             <th colspan="2">{{_('Overview:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Name:')}}</strong></td>
             <td>{{! host.get_html_link()}}{{_(' (%s)') % host.address if host.address else ''}}</td>
@@ -46,7 +46,7 @@
             <th colspan="2">{{_('Status:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Status:')}}</strong></td>
             <td>
@@ -87,7 +87,7 @@
             <th colspan="2">{{_('Last check:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Check command:')}}</strong></td>
             <td>
@@ -101,18 +101,27 @@
             </td>
          </tr>
 
+         %if host.last_check:
          <tr>
-            <td><strong>{{_('Last check:')}}</strong></td>
+            <td><strong>{{_('Last check timestamp:')}}</strong></td>
             <td>
                {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
             </td>
          </tr>
+         %else:
+         <tr>
+            <td></td>
+            <td class="text-danger"><strong>{{_('Not yet checked!')}}</strong></td>
+         </tr>
+         %end
+         %if host.output:
          <tr>
             <td><strong>{{_('Output:')}}</strong></td>
             <td>
                {{! host.output}}
             </td>
          </tr>
+         %end
          %if host.long_output:
          <tr>
             <td><strong>{{_('Long output:')}}</strong></td>
@@ -121,18 +130,22 @@
             </td>
          </tr>
          %end
+         %if host.perf_data:
          <tr>
             <td><strong>{{_('Performance data:')}}</strong></td>
             <td>
                 {{host.perf_data if host.perf_data else '(none)'}}
             </td>
          </tr>
+         %end
+         %if host.execution_time:
          <tr>
             <td><strong>{{_('Check duration (latency):')}}</strong></td>
             <td>
                {{_('%.2f seconds (%.2f)') % (host.execution_time, host.latency) }}
             </td>
          </tr>
+         %end
 
          <tr>
             <td><strong>{{_('Last state changed:')}}</strong></td>
@@ -173,7 +186,7 @@
             <th colspan="2">{{_('Checks configuration:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Check period:')}}</strong></td>
             <td data-name="check_period" class="popover-dismiss"
@@ -264,7 +277,7 @@
             <th colspan="2">{{_('Notifications:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Notifications:')}}</strong></td>
             <td>
@@ -310,7 +323,7 @@
             %end
             <tr class="bg-danger">
                <td><strong>{{_('Last notification:')}}</strong></td>
-               <td class="text-danger">Information not available!</td>
+               <td class="text-danger">{{_('Information not available!')}}</td>
             </tr>
             <tr>
                <td><strong>{{_('Notification interval:')}}</strong></td>
@@ -346,7 +359,7 @@
             <th colspan="2">{{_('Event handler:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Event handler enabled:')}}</strong></td>
             <td>
@@ -384,7 +397,7 @@
             <th colspan="2">{{_('Flapping detection:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Flapping detection:')}}</strong></td>
             <td>
@@ -436,7 +449,7 @@
             <th colspan="2">{{_('Stalking options:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Stalking options:')}}</strong></td>
             <td>{{', '.join(host.stalking_options)}}</td>

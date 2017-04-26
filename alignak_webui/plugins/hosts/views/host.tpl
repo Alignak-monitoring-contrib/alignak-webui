@@ -174,6 +174,7 @@
          </ul>
       </div>
       %end
+
       <div class="panel-heading">
          <h4 class="panel-title" class="collapsed" data-toggle="collapse" href="#collapseHostOverview" aria-expanded="false" aria-controls="collapseHostOverview">
             <span class="caret"></span>

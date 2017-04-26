@@ -94,12 +94,11 @@
    </div>
    %end
 
-   <!-- First row : tags and actions ... -->
-   %groups = datamgr.get_servicegroups({'where': {'services': service.id}})
-   %tags = service.tags
-   %templates = service._templates
-   %if service.action_url or tags or groups:
-   <div>
+   <!-- First row : service overview ... -->
+   <div class="service-overview panel panel-default">
+      %groups = datamgr.get_servicegroups({'where': {'services': service.id}})
+      %tags = service.tags
+      %templates = service._templates
       %if groups:
       <div class="service-groups btn-group pull-right">
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -149,17 +148,11 @@
          </ul>
       </div>
       %end
-   </div>
-   %end
 
-   <!-- Second row : service overview ... -->
-   <div class="panel panel-default">
       <div class="panel-heading">
-         <h4 class="panel-title">
-            <a class="collapsed" role="button" data-toggle="collapse" href="#collapseServiceOverview" aria-expanded="false" aria-controls="collapseServiceOverview">
-               <span class="caret"></span>
+         <h4 class="panel-title" class="collapsed" data-toggle="collapse" href="#collapseServiceOverview" aria-expanded="false" aria-controls="collapseHostOverview">
+            <span class="caret"></span>
                {{_('Overview for %s / %s') % (service.host.name, service.name)}} {{! Helper.get_html_business_impact(service.business_impact, icon=True, text=False)}}
-            </a>
          </h4>
       </div>
 

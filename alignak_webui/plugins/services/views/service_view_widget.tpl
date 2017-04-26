@@ -48,18 +48,27 @@
                      {{! service.get_html_state(extra=extra, text=None, title=_('Service is %s' % service.state))}}
                   </td>
                </tr>
+               %if service.last_check:
                <tr>
-                  <td><strong>{{_('Last check:')}}</strong></td>
+                  <td><strong>{{_('Last check timestamp:')}}</strong></td>
                   <td>
                      {{Helper.print_duration(service.last_check, duration_only=False, x_elts=0)}}
                   </td>
                </tr>
+               %else:
+               <tr>
+                  <td></td>
+                  <td class="text-danger"><strong>{{_('Not yet checked!')}}</strong></td>
+               </tr>
+               %end
+               %if service.output:
                <tr>
                   <td><strong>{{_('Output:')}}</strong></td>
                   <td>
                      {{! service.output}}
                   </td>
                </tr>
+               %end
                %if service.long_output:
                <tr>
                   <td><strong>{{_('Long output:')}}</strong></td>

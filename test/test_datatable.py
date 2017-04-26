@@ -1394,12 +1394,11 @@ class TestDatatableHistorys(TestDatatableBase):
             "$('#tbl_historys_table').DataTable( {",
             '<table id="tbl_historys_table" ',
             '<th data-name="_created" data-type="integer"',
-            '<th data-name="host" data-type="objectid"',
-            '<th data-name="service" data-type="objectid"',
-            '<th data-name="user" data-type="objectid"',
+            '<th data-name="host_name" data-type="string"',
+            '<th data-name="service_name" data-type="string"',
+            '<th data-name="user_name" data-type="string"',
             '<th data-name="type" data-type="string"',
-            '<th data-name="message" data-type="string"',
-            '<th data-name="logcheckresult" data-type="objectid"'
+            '<th data-name="message" data-type="string"'
         )
 
         response = self.app.post('/historys/table_data')

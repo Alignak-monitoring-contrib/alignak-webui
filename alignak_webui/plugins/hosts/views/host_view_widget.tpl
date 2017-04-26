@@ -7,6 +7,9 @@
 %setdefault('credentials', None)
 
 %from alignak_webui.objects.item_host import Host
+%from alignak_webui.utils.helper import Helper
+%from alignak_webui.utils.perfdata import PerfDatas
+
 %plugin = webui.find_plugin('Services')
 %if plugin:
    %# Get host services
@@ -90,18 +93,27 @@
                      {{! host.get_html_state(extra=extra, text=None, title=_('Host is %s' % host.state))}}
                   </td>
                </tr>
+               %if host.last_check:
                <tr>
-                  <td><strong>{{_('Last check:')}}</strong></td>
+                  <td><strong>{{_('Last check timestamp:')}}</strong></td>
                   <td>
                      {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
                   </td>
                </tr>
+               %else:
+               <tr>
+                  <td></td>
+                  <td class="text-danger"><strong>{{_('Not yet checked!')}}</strong></td>
+               </tr>
+               %end
+               %if host.output:
                <tr>
                   <td><strong>{{_('Output:')}}</strong></td>
                   <td>
                      {{! host.output}}
                   </td>
                </tr>
+               %end
                %if host.long_output:
                <tr>
                   <td><strong>{{_('Long output:')}}</strong></td>
@@ -130,9 +142,6 @@
       </div>
 
       <div class="panel-body">
-         %from alignak_webui.utils.helper import Helper
-         %from alignak_webui.utils.perfdata import PerfDatas
-
          <table class="table table-condensed">
             <thead>
                <tr>
@@ -162,6 +171,7 @@
                   <td>{{metric.max if metric.max!=None else ''}}</td>
                   <td>{{metric.uom if metric.uom else ''}}</td>
                </tr>
+               %end
                %end
                %end
             %else:
