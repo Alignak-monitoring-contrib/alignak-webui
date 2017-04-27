@@ -1311,7 +1311,7 @@ class Helper(object):
         app_config = get_app_config()
 
         content = app_config.get('currently.services_panel')
-        logger.info("Services count panel configuration : %s", content)
+        logger.debug("Services count panel configuration : %s", content)
         try:
             content = content % ('fa-caret-up' if collapsed else 'fa-caret-down',
                                  'in' if not collapsed else '')
