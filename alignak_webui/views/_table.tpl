@@ -43,8 +43,8 @@
 %table_id = "%ss_templates_table" % object_type
 %end
 
-   <!-- Page filtering ... -->
-   %include("_filters.tpl")
+<!-- Table filtering ... -->
+%include("_filters.tpl")
 
 <div id="{{table_id}}" class="alignak_webui_table {{'embedded' if embedded else ''}}">
    <table id="tbl_{{table_id}}" class="{{dt.css}}">
@@ -462,13 +462,13 @@
          // Table information
          "info": true,
 
-         /* Table fixed header: #74 */
+         /* Table fixed header: #74
          "fixedHeader": {
             header: true,
-            headerOffset: $('#topbar').outerHeight(),
+            headerOffset: $('#topbar').outerHeight() + $('#filter-bar').outerHeight(),
             footer: true,
             footerOffset: '50px'
-         },
+         }, */
          /* Fixed leftmost column and scrolling mode: #74
          "scrollX": true,
          "fixedColumns": {

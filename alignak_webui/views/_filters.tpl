@@ -7,7 +7,7 @@
 %search_query = request.urlparts.query
 %search_string = request.query.get('search', '')
 %if search_engine and search_filters:
-<nav class="navbar">
+<nav id="filter-bar" class="navbar">
    <div class="container-fluid">
       <ul class="nav navbar-nav">
          <li id="search-filters" class="dropdown">
@@ -41,11 +41,13 @@
          </li>
       </ul>
 
-      <form class="navbar-form navbar-left" role="search" method="get" action="{{ search_action }}">
-         <label class="sr-only" for="search">{{_('Filter input field')}}</label>
-         <div class="form-group">
-            <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}" placeholder="{{_('search filter...')}}">
-        </div>
+      <form class="navbar-form" role="search" method="get" action="{{ search_action }}">
+         <div class="form-group" style="display:inline;">
+            <div class="input-group" style="display:table;">
+               <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-search"></span></span>
+               <input class="form-control" id="search" name="search" value="{{ search_string }}"placeholder="{{_('search filter...')}}" autocomplete="off" autofocus="autofocus" type="search">
+            </div>
+         </div>
       </form>
       <script>
       $('a[data-action="filter"]').on('click', function(e){
