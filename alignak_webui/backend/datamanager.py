@@ -67,6 +67,10 @@ from alignak_webui.objects.item_log import Log
 from alignak_webui.objects.item_actions import ActionAcknowledge, ActionDowntime, \
     ActionForceCheck
 from alignak_webui.objects.item_livesynthesis import LiveSynthesis
+from alignak_webui.objects.item_backend_grafana import BackendGrafana
+from alignak_webui.objects.item_backend_graphite import BackendGraphite
+from alignak_webui.objects.item_backend_statsd import BackendStatsd
+from alignak_webui.objects.item_backend_influxdb import BackendInfluxdb
 
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
@@ -398,9 +402,34 @@ class DataManager(object):
         return objects_count
 
     ##
-    #
-    # Elements add, delete, update, ...
+    # Elements get, add, delete, update, ...
     ##
+    def get_objects(self, object_type, search=None, all_elements=False):
+        """Get a list of specified objects."""
+        if search is None:
+            search = {}
+        if 'sort' not in search:
+            search.update({'sort': '_level'})
+
+        try:
+            logger.debug("get_objects, search: %s", search)
+            items = self.find_object(object_type, search, all_elements)
+            return items
+        except ValueError:  # pragma: no cover - should not happen
+            logger.debug("get_objects, none found")
+
+        return []
+
+    def get_object(self, object_type, search):
+        """Get an object of the specified type by its id."""
+        if isinstance(search, basestring):
+            search = {'max_results': 1, 'where': {'_id': search}}
+        elif 'max_results' not in search:
+            search.update({'max_results': 1})
+
+        items = self.get_objects(object_type, search=search)
+        return items[0] if items else None
+
     def count_objects(self, object_type, search=None):
         """Request objects from the backend to pick-up total records count.
 
