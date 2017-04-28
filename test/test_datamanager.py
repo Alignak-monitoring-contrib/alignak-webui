@@ -61,7 +61,7 @@ backend_process = None
 backend_address = "http://127.0.0.1:5000/"
 datamgr = None
 
-COUNT_KNOWN_CLASSES = 21
+COUNT_KNOWN_CLASSES = 25
 
 
 def setup_module(module):

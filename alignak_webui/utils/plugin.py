@@ -715,14 +715,20 @@ class Plugin(object):
         datamgr = request.app.datamgr
 
         # Get element get method from the data manager
-        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint, None)
         if not f:  # pragma: no cover, simple protection
-            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
-
-        # Get element from the data manager
-        element = f(element_id)
-        if not element:
-            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            f = getattr(datamgr, 'get_object', None)
+            # self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+            # Get element from the data manager
+            element = f(self.backend_endpoint, element_id)
+            if not element:
+                element = f(self.backend_endpoint,
+                            search={'max_results': 1, 'where': {'name': element_id}})
+        else:
+            # Get element from the data manager
+            element = f(element_id)
+            if not element:
+                element = f(search={'max_results': 1, 'where': {'name': element_id}})
         # If not found, element will remain as None to create a new element
 
         if not edition_mode and not element:
@@ -758,16 +764,25 @@ class Plugin(object):
         create = (element_id == 'None')
 
         # Get element get method from the data manager
-        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint, None)
         if not f:  # pragma: no cover, simple protection
-            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+            f = getattr(datamgr, 'get_object', None)
+            # self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        # For an object update...
-        if not create:
-            # Get element from the data manager
-            element = f(element_id)
-            if not element:
-                element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            # For an object update...
+            if not create:
+                # Get element from the data manager
+                element = f(self.backend_endpoint, element_id)
+                if not element:
+                    element = f(self.backend_endpoint,
+                                search={'max_results': 1, 'where': {'name': element_id}})
+        else:
+            # For an object update...
+            if not create:
+                # Get element from the data manager
+                element = f(element_id)
+                if not element:
+                    element = f(search={'max_results': 1, 'where': {'name': element_id}})
         # If not found, element will remain as None to create a new element
 
         # Prepare update request ...

@@ -286,6 +286,61 @@
       </ul>
    </li>
 
+   <!-- Backend views -->
+   <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Alignak backend')}}">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+         <span class="caret"></span>
+         <span class="fa fa-fw fa-database"></span>
+         <span class="sr-only">{{_('Alignak backend')}}</span>
+      </a>
+
+      <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Alignak backend menu')}}">
+         %try:
+         <li>
+            <a href="{{ webui.get_url('BackendStatsd table') }}">
+               <span class="fa fa-fw fa-area-chart"></span>
+               <span>{{_('Backend StatsD')}}</span>
+            </a>
+         </li>
+         %except RouteBuildError:
+         %print("Missing plugin Backend StatsD")
+         %end
+
+         %try:
+         <li>
+            <a href="{{ webui.get_url('BackendGrafana table') }}">
+               <span class="fa fa-fw fa-area-chart"></span>
+               <span>{{_('Backend Grafana')}}</span>
+            </a>
+         </li>
+         %except RouteBuildError:
+         %print("Missing plugin Backend Grafana")
+         %end
+
+         %try:
+         <li>
+            <a href="{{ webui.get_url('BackendGraphite table') }}">
+               <span class="fa fa-fw fa-area-chart"></span>
+               <span>{{_('Backend Graphite')}}</span>
+            </a>
+         </li>
+         %except RouteBuildError:
+         %print("Missing plugin Backend Graphite")
+         %end
+
+         %try:
+         <li>
+            <a href="{{ webui.get_url('BackendInfluxDB table') }}">
+               <span class="fa fa-fw fa-area-chart"></span>
+               <span>{{_('Backend InfluxDB')}}</span>
+            </a>
+         </li>
+         %except RouteBuildError:
+         %print("Missing plugin Backend InfluxDB")
+         %end
+      </ul>
+   </li>
+
    %if widgets_bar and current_user.can_change_dashboard():
       %include("_widgetsbar.tpl")
    %end
