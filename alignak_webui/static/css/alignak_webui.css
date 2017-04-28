@@ -137,14 +137,15 @@ header span.label {
     height: 50px;
 }
 
+/*
 .navbar .navbar-nav > li > a {
     padding-top: 15px;
     padding-bottom: 15px;
 }
+*/
 
 /*
  * Application search filter in the top navigation bar
- */
 #search {
     width: 400px;
 }
@@ -153,34 +154,30 @@ header span.label {
   padding: 3px 20px;
 }
 
-/* Large Devices, Wide Screens */
 @media only screen and (max-width : 1200px) {
     #search {
         width: 320px;
     }
 }
 
-/* Medium Devices, Desktops */
 @media only screen and (max-width : 991px) {
     #search {
         width: 150px;
     }
 }
 
-/* Small Devices, Tablets */
 @media only screen and (max-width : 767px) {
     #search {
         width: 320px;
     }
 }
 
-/* Extra Small Devices, Phones */
 @media only screen and (max-width : 480px) {
 }
 
-/* Custom, iPhone Retina */
 @media only screen and (max-width : 320px) {
 }
+ */
 
 /*
  * Application menu bar - for small devices, menu items are floating and
