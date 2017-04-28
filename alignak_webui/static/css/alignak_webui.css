@@ -137,47 +137,18 @@ header span.label {
     height: 50px;
 }
 
-/*
 .navbar .navbar-nav > li > a {
     padding-top: 15px;
     padding-bottom: 15px;
 }
-*/
 
 /*
- * Application search filter in the top navigation bar
-#search {
-    width: 400px;
-}
-
-#search-filters li[role="presentation"]>a {
-  padding: 3px 20px;
-}
-
-@media only screen and (max-width : 1200px) {
-    #search {
-        width: 320px;
-    }
-}
-
-@media only screen and (max-width : 991px) {
-    #search {
-        width: 150px;
-    }
-}
-
-@media only screen and (max-width : 767px) {
-    #search {
-        width: 320px;
-    }
-}
-
-@media only screen and (max-width : 480px) {
-}
-
-@media only screen and (max-width : 320px) {
-}
+ * Application search filter in the page content
  */
+#search-filters ul > li > a {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
 
 /*
  * Application menu bar - for small devices, menu items are floating and

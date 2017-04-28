@@ -31,7 +31,7 @@
                </li>
                %end
             %end
-            <li role="presentation" class="divider hidden-xs hidden-sm"></li>
+            <li role="presentation" class="divider"></li>
             <li role="presentation" >
                <a role="menuitem" data-action="search-box">
                   <strong>{{! _('<span class="fa fa-question-circle"></span> Search syntax')}}</strong>
