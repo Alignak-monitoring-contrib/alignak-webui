@@ -54,7 +54,6 @@
 .midnight-blue { color: #2c3e50; }
 
 /* Yellows */
-.in_downtime,
 .item_historyCheckResult,
 .item_host_in_downtime,
 .item_host_downtimed,
@@ -72,7 +71,6 @@
 .item_historyMonitoringDowntimeEnd,
 .sunflower { color: #f1c40f !important; }
 
-.acknowledged,
 .item_host_acknowledged,
 .item_service_acknowledged,
 .item_hostgroup_acknowledged,

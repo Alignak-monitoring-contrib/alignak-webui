@@ -33,7 +33,8 @@
                 %elif state in ['in_downtime']:
                     <a href="{{ webui.get_url('Hosts table') }}?search=ls_downtime:yes">
                 %end
-                {{! Host({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
+                %h = Host({'ls_state': state, 'active_checks_enabled': True})
+                {{! h.get_html_state(text=label, title=title, disabled=(not hs["nb_" + state]))}}
                 </a>
             </td>
             %end
@@ -89,7 +90,8 @@
                 %elif state in ['in_downtime']:
                     <a href="{{ webui.get_url('Services table') }}?search=ls_downtime:yes">
                 %end
-                {{! Service({'ls_state': state}).get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
+                %s = Service({'ls_state': state, 'active_checks_enabled': True})
+                {{! s.get_html_state(text=label, title=title, disabled=(not ss["nb_" + state]))}}
                 </a>
             </td>
             %end
