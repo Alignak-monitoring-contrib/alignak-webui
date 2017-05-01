@@ -452,8 +452,6 @@ class DataManager(object):
 
     def add_object(self, object_type, data=None, files=None):
         """Add an element"""
-        if '_realm' not in data:
-            data.update({'_realm': self.my_realm.id})
         logger.info("add_object, request to add an '%s': %s", object_type, data)
 
         return self.backend.post(object_type, data=data, files=files)

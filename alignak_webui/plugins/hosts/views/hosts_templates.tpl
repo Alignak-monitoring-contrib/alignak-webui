@@ -232,16 +232,6 @@
       });
       // Add selected options / items to the control...
       var selectize = $('#realm').selectize();
-
-      /*
-      $.each(obj.allowed, function(key, value) {
-         if (logs) console.log("Add option: "+key+" ; value : "+value);
-         selectize.addOption({id: key, name: value});
-         selectize.addItem("key");
-      });
-      if (logs) console.log("Set default value", obj.default);
-      selectize.setValue(obj.default, false)
-      */
    });
 
    %if edition_mode:

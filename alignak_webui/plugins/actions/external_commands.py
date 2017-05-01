@@ -73,9 +73,49 @@ commands = {
         'title': _("Enable passive host checks"),
         "parameters": []
     },
+    'disable_host_freshness_checks': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable passive host freshness checks"),
+        "parameters": []
+    },
+    'enable_host_freshness_checks': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable passive host freshness checks"),
+        "parameters": []
+    },
     'del_all_host_downtimes': {
         'global': False, 'elements_type': 'host',
         'title': _("Delete all host downtimes"),
+        "parameters": []
+    },
+    'disable_host_notifications': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Disable host notifications"),
+        "parameters": []
+    },
+    'enable_host_notifications': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Enable host notifications"),
+        "parameters": []
+    },
+    'disable_host_event_handler': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Disable host event handler"),
+        "parameters": []
+    },
+    'enable_host_event_handler': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Enable host event handler"),
+        "parameters": []
+    },
+    'disable_host_flap_detection': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Disable host flapping detection"),
+        "parameters": []
+    },
+    'enable_host_flap_detection': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Enable host flapping detection"),
         "parameters": []
     },
 
@@ -110,11 +150,51 @@ commands = {
         'title': _("Enable passive service checks"),
         "parameters": []
     },
+    'disable_service_freshness_checks': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable passive service freshness checks"),
+        "parameters": []
+    },
+    'enable_service_freshness_checks': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable passive service freshness checks"),
+        "parameters": []
+    },
     'del_all_svc_downtimes': {
         'global': False, 'elements_type': 'service',
         'title': _("Delete all service downtimes"),
         "parameters": []
     },
+    'disable_svc_notifications': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable service notifications"),
+        "parameters": []
+    },
+    'enable_svc_notifications': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable service notifications"),
+        "parameters": []
+    },
+    'disable_svc_event_handler': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable service event handler"),
+        "parameters": []
+    },
+    'enable_svc_event_handler': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable service event handler"),
+        "parameters": []
+    },
+    'disable_svc_flap_detection': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Disable service flapping detection"),
+        "parameters": []
+    },
+    'enable_svc_flap_detection': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Enable service flapping detection"),
+        "parameters": []
+    }
 }
 
 # Hereunder are all the Alignak known external commands. They need to be prepared and updated
@@ -210,8 +290,6 @@ alignak_commands = {
         {'global': False, 'args': ['host']},
     'disable_host_flap_detection':
         {'global': False, 'args': ['host']},
-    'disable_host_freshness_checks':
-        {'global': True, 'args': []},
     'disable_host_notifications':
         {'global': False, 'args': ['host']},
     'disable_host_svc_checks':
@@ -238,12 +316,6 @@ alignak_commands = {
         {'global': False, 'args': ['service']},
     'disable_service_freshness_checks':
         {'global': True, 'args': []},
-    'disable_svc_event_handler':
-        {'global': False, 'args': ['service']},
-    'disable_svc_flap_detection':
-        {'global': False, 'args': ['service']},
-    'disable_svc_notifications':
-        {'global': False, 'args': ['service']},
     'enable_all_notifications_beyond_host':
         {'global': False, 'args': ['host']},
     'enable_contactgroup_host_notifications':
@@ -274,14 +346,6 @@ alignak_commands = {
         {'global': True, 'args': ['host_group']},
     'enable_host_and_child_notifications':
         {'global': False, 'args': ['host']},
-    'enable_host_event_handler':
-        {'global': False, 'args': ['host']},
-    'enable_host_flap_detection':
-        {'global': False, 'args': ['host']},
-    'enable_host_freshness_checks':
-        {'global': True, 'args': []},
-    'enable_host_notifications':
-        {'global': False, 'args': ['host']},
     'enable_host_svc_checks':
         {'global': False, 'args': ['host']},
     'enable_host_svc_notifications':
@@ -304,12 +368,6 @@ alignak_commands = {
         {'global': True, 'args': ['service_group']},
     'enable_service_freshness_checks':
         {'global': True, 'args': []},
-    'enable_svc_event_handler':
-        {'global': False, 'args': ['service']},
-    'enable_svc_flap_detection':
-        {'global': False, 'args': ['service']},
-    'enable_svc_notifications':
-        {'global': False, 'args': ['service']},
     'process_file':
         {'global': True, 'args': [None, 'to_bool']},
     'process_host_check_result':

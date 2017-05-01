@@ -287,8 +287,7 @@ class BackendElement(object):
         """
         logger.debug(" --- __init__ %s", self.__class__)
         if params is None:
-            logger.warning("__init__, cannot update an object (%s) with no parameters. ",
-                           self.__class__)
+            logger.debug("__init__, cannot update an object (%s) with no parameters.", self)
             return
 
         if not isinstance(params, dict):  # pragma: no cover, should not happen

@@ -768,6 +768,41 @@ class Helper(object):
         return ' '.join(content.split())
 
     @classmethod
+    def get_html_command_button(cls, bo_object, action, text, icon, unique=False):
+        """Build an html button for an element action
+
+        :param bo_object: concerned object
+        :param action: button action
+        :param text: button text
+        :param icon: button icon
+        :return:
+        """
+        if not bo_object:
+            return ''
+
+        button = ''
+        try:
+            # Get global configuration
+            app_config = get_app_config()
+
+            if unique:
+                button = app_config.get('buttons.action_button')
+            else:
+                button = app_config.get('buttons.livestate_command')
+            button = button.replace("##id##", bo_object.id)
+            button = button.replace("##type##", bo_object.get_type())
+            button = button.replace("##name##", bo_object.name)
+            button = button.replace("##action##", action)
+            button = button.replace("##text##", text)
+            button = button.replace("##icon##", icon)
+
+        except Exception as e:
+            logger.error("get_html_command_button, exception: %s", str(e))
+            logger.error("traceback: %s", traceback.format_exc())
+
+        return button
+
+    @classmethod
     def get_html_commands_buttons(cls, bo_object, text, title=''):
         """Build an html button group for element actions
 
@@ -785,14 +820,10 @@ class Helper(object):
             app_config = get_app_config()
 
             buttons = []
-            if hasattr(bo_object, 'event_handler_enabled'):
-                button = app_config.get('buttons.livestate_command')
-                button = button.replace("##id##", bo_object.id)
-                button = button.replace("##type##", bo_object.get_type())
-                button = button.replace("##name##", bo_object.name)
-                button = button.replace("##action##", 'event_handler')
-                button = button.replace("##text##", _('Try to fix this problem'))
-                button = button.replace("##icon##", 'magic')
+            if hasattr(bo_object, 'event_handler_enabled') and bo_object.event_handler_enabled:
+                button = Helper.get_html_command_button(bo_object, 'event_handler',
+                                                        _('Try to fix this problem'), 'magic')
+
                 if not bo_object.is_problem:
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
@@ -800,13 +831,8 @@ class Helper(object):
                 buttons.append(button)
 
             if hasattr(bo_object, 'acknowledged'):
-                button = app_config.get('buttons.livestate_command')
-                button = button.replace("##id##", bo_object.id)
-                button = button.replace("##type##", bo_object.get_type())
-                button = button.replace("##name##", bo_object.name)
-                button = button.replace("##action##", 'acknowledge')
-                button = button.replace("##text##", _('Acknowledge this problem'))
-                button = button.replace("##icon##", 'check')
+                button = Helper.get_html_command_button(bo_object, 'acknowledge',
+                                                        _('Acknowledge this problem'), 'check')
                 if bo_object.is_problem:
                     if bo_object.acknowledged:
                         button = button.replace("##disabled##", 'disabled="disabled"')
@@ -817,13 +843,9 @@ class Helper(object):
                 buttons.append(button)
 
             if hasattr(bo_object, 'active_checks_enabled'):
-                button = app_config.get('buttons.livestate_command')
-                button = button.replace("##id##", bo_object.id)
-                button = button.replace("##type##", bo_object.get_type())
-                button = button.replace("##name##", bo_object.name)
-                button = button.replace("##action##", 'recheck')
-                button = button.replace("##text##", _('Re-check this element'))
-                button = button.replace("##icon##", 'refresh')
+                button = Helper.get_html_command_button(bo_object, 'recheck',
+                                                        _('Re-check this element'), 'refresh')
+
                 if getattr(bo_object, 'active_checks_enabled', None) is not None:
                     if not getattr(bo_object, 'active_checks_enabled'):
                         button = button.replace("##disabled##", 'disabled="disabled"')
@@ -832,26 +854,16 @@ class Helper(object):
                 buttons.append(button)
 
             if hasattr(bo_object, 'downtimed'):
-                button = app_config.get('buttons.livestate_command')
-                button = button.replace("##id##", bo_object.id)
-                button = button.replace("##type##", bo_object.get_type())
-                button = button.replace("##name##", bo_object.name)
-                button = button.replace("##action##", 'downtime')
-                button = button.replace("##text##", _('Schedule a downtime'))
-                button = button.replace("##icon##", 'ambulance')
+                button = Helper.get_html_command_button(bo_object, 'downtime',
+                                                        _('Schedule a downtime'), 'ambulance')
                 if bo_object.downtimed:
                     button = button.replace("##disabled##", 'disabled="disabled"')
                 else:
                     button = button.replace("##disabled##", '')
                 buttons.append(button)
 
-            button = app_config.get('buttons.livestate_command')
-            button = button.replace("##id##", bo_object.id)
-            button = button.replace("##type##", bo_object.get_type())
-            button = button.replace("##name##", bo_object.name)
-            button = button.replace("##action##", 'command')
-            button = button.replace("##text##", _('Notify a command'))
-            button = button.replace("##icon##", 'rocket')
+            button = Helper.get_html_command_button(bo_object, 'commands-list',
+                                                    _('Notify a command'), 'rocket')
             button = button.replace("##disabled##", '')
             buttons.append(button)
 

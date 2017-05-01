@@ -886,8 +886,15 @@ class Plugin(object):
                     data.update({'_message': _("%s creation failed!") % (self.backend_endpoint)})
                     data.update({'_errors': [_("")]})
                 else:
-                    if '_realm' in self.table and ('_realm' not in data or not data['_realm']):
-                        data.update({'_realm': datamgr.my_realm.id})
+                    if self.backend_endpoint == 'realm':
+                        if '_parent' not in data or not data['_parent']:
+                            logger.info("Added a parent field for a realm creation")
+                            data.update({'_parent': datamgr.my_realm.id})
+                    else:
+                        if '_realm' in self.table and ('_realm' not in data or not data['_realm']):
+                            logger.info("Added a realm field for a %s creation",
+                                        self.backend_endpoint)
+                            data.update({'_realm': datamgr.my_realm.id})
 
                     result = datamgr.add_object(self.backend_endpoint, data=data)
                     if isinstance(result, basestring):

@@ -6,10 +6,11 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
+%import time
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
-<div class="col-md-6">
+<div class="col-sm-6">
    <table class="table table-condensed">
       <colgroup>
          <col style="width: 40%" />
@@ -150,11 +151,7 @@
 
          <tr>
             <td><strong>{{_('Last state changed:')}}</strong></td>
-            <td class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{service.name}}{{_('}} last state changed date')}}"
-                  data-content="{{! Helper.print_duration(service.last_state_changed, duration_only=True, x_elts=0)}}"
-                  >
+            <td>
                 {{! Helper.print_duration(service.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
@@ -166,14 +163,18 @@
          </tr>
          <tr>
             <td><strong>{{_('Next active check:')}}</strong></td>
-            <td class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{service.name}}{{_('}} next check date')}}"
-                  data-content="{{! Helper.print_duration(service.next_check, duration_only=True, x_elts=0)}}"
-                  >
+            <td>
                {{! Helper.print_duration(service.next_check, duration_only=True, x_elts=0)}}
             </td>
          </tr>
+         %if service.active_checks_enabled and current_user.is_power():
+         <tr>
+            <td></td>
+            <td>
+            {{! Helper.get_html_command_button(service, 'recheck', _('Re-check this service'), 'refresh', unique=True)}}
+            </td>
+         </tr>
+         %end
       </tbody>
    </table>
 
@@ -190,11 +191,7 @@
       <tbody>
          <tr>
             <td><strong>{{_('Check period:')}}</strong></td>
-            <td data-name="check_period" class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                  data-title='{{service.check_period}}'
-                  data-content='{{service.check_period}}'
-                  >
+            <td>
                {{! service.check_period.get_html_state_link()}}
             </td>
          </tr>
@@ -202,11 +199,7 @@
          %if service.maintenance_period is not None:
          <tr>
             <td><strong>{{_('Maintenance period:')}}</strong></td>
-            <td data-name="maintenance_period" class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                  data-title='{{service.maintenance_period}}'
-                  data-content='{{service.maintenance_period}}'
-                  >
+            <td>
                {{! service.maintenance_period.get_html_state_link()}}
             </td>
          </tr>
@@ -222,34 +215,70 @@
          <tr>
             <td><strong>{{_('Active checks:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(service.active_checks_enabled)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.active_checks_enabled, message=_('Enabled') if service.active_checks_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_svc_check' if service.active_checks_enabled else 'enable_svc_check'}}"
+                            {{ 'checked="checked"' if service.active_checks_enabled else ''}}>
+                     <small>{{_('Enabled') if service.active_checks_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (service.active_checks_enabled):
-         <tr>
-            <td><strong>{{_('Check interval:')}}</strong></td>
-            <td>{{service.check_interval}} minutes</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Retry interval:')}}</strong></td>
-            <td>{{service.retry_interval}} minutes</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Max check attempts:')}}</strong></td>
-            <td>{{service.max_check_attempts}}</td>
-         </tr>
+            <tr>
+               <td><strong>{{_('Check interval:')}}</strong></td>
+               <td>{{service.check_interval}} minutes</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Retry interval:')}}</strong></td>
+               <td>{{service.retry_interval}} minutes</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Max check attempts:')}}</strong></td>
+               <td>{{service.max_check_attempts}}</td>
+            </tr>
          %end
          <tr>
             <td><strong>{{_('Passive checks:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(service.passive_checks_enabled)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.passive_checks_enabled, message=_('Enabled') if service.passive_checks_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_passive_svc_checks' if service.passive_checks_enabled else 'enable_passive_svc_checks'}}"
+                            {{ 'checked="checked"' if service.passive_checks_enabled else ''}}>
+                     <small>{{_('Enabled') if service.passive_checks_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (service.passive_checks_enabled):
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(service.check_freshness)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.check_freshness, message=_('Enabled') if service.check_freshness else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_service_freshness_checks' if service.check_freshness else 'enable_service_freshness_checks'}}"
+                            {{ 'checked="checked"' if service.check_freshness else ''}}>
+                     <small>{{_('Enabled') if service.check_freshness else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (service.check_freshness):
@@ -267,7 +296,7 @@
    </table>
 </div>
 
-<div class="col-md-6">
+<div class="col-sm-6">
    <table class="table table-condensed">
       <colgroup>
          <col style="width: 40%" />
@@ -280,24 +309,28 @@
       </thead>
       <tbody>
          <tr>
-            <td><strong>{{_('Notifications:')}}</strong></td>
+            <td><strong>{{_('State:')}}</strong></td>
             <td>
-               <input type="checkbox" class="switch"
-                      data-size="mini" data-on-color="success" data-off-color="danger"
-                      data-type="action" action="toggle-notifications"
-                      data-element="{{service.name}}" data-value="{{service.notifications_enabled}}"
-                      {{'checked' if service.notifications_enabled else ''}}>
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.notifications_enabled, message=_('Enabled') if service.notifications_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="notifications_enabled" name="notifications_enabled"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_svc_notifications' if service.notifications_enabled else 'enable_svc_notifications'}}"
+                            {{ 'checked="checked"' if service.notifications_enabled else ''}}>
+                     <small>{{_('Enabled') if service.notifications_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
 
          %if service.notifications_enabled and service.notification_period is not None:
             <tr>
                <td><strong>{{_('Notification period:')}}</strong></td>
-               <td data-name="notification_period" class="popover-dismiss"
-                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                     data-title='{{service.notification_period}}'
-                     data-content='{{service.notification_period}}'
-                     >
+               <td>
                   {{! service.notification_period.get_html_state_link()}}
                </td>
             </tr>
@@ -359,17 +392,30 @@
       </colgroup>
       <thead>
          <tr>
-            <th colspan="2">{{_('Event handler:')}}</th>
+            <th colspan="2">{{_('Event handling:')}}</th>
          </tr>
       </thead>
       <tbody>
          <tr>
-            <td><strong>{{_('Event handler enabled:')}}</strong></td>
+            <td><strong>{{_('State:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(service.event_handler_enabled)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.event_handler_enabled, message=_('Enabled') if service.event_handler_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="event_handler_enabled" name="event_handler_enabled"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_svc_event_handler' if service.event_handler_enabled else 'enable_svc_event_handler'}}"
+                            {{ 'checked="checked"' if service.event_handler_enabled else ''}}>
+                     <small>{{_('Enabled') if service.event_handler_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
-         %if service.event_handler_enabled and service.event_handler:
+         %if service.event_handler_enabled:
+         %if service.event_handler:
          <tr>
             <td><strong>{{_('Event handler:')}}</strong></td>
             %if service.event_handler!='command':
@@ -380,12 +426,12 @@
             <td class="text-warning">{{_('No event handler is defined for this service. Alignak will use the globally defined event handler.')}}</td>
             %end
          </tr>
-         %end
-         %if service.event_handler_enabled and not service.event_handler:
+         %else:
          <tr>
             <td></td>
             <td><strong>{{_('No event handler defined.')}}</strong></td>
          </tr>
+         %end
          %end
       </tbody>
    </table>
@@ -402,21 +448,30 @@
       </thead>
       <tbody>
          <tr>
-            <td><strong>{{_('Flapping detection:')}}</strong></td>
+            <td><strong>{{_('State:')}}</strong></td>
             <td>
-               <input type="checkbox" class="switch"
-                      data-size="mini" data-on-color="success" data-off-color="danger"
-                      data-type="action" action="toggle-flap-detection"
-                      data-element="{{service.name}}" data-value="{{service.flap_detection_enabled}}"
-                      {{'checked' if service.flap_detection_enabled else ''}}>
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.flap_detection_enabled, message=_('Enabled') if service.flap_detection_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="flap_detection_enabled" name="flap_detection_enabled"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_svc_flap_detection' if service.flap_detection_enabled else 'enable_svc_flap_detection'}}"
+                            {{ 'checked="checked"' if service.flap_detection_enabled else ''}}>
+                     <small>{{_('Enabled') if service.flap_detection_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if service.flap_detection_enabled:
             %message = {}
             %message['o'] = {'title': _('Flapping enabled on Ok state'), 'message': _('OK')}
-            %message['w'] = {'title': _('Flapping enabled on Down state'), 'message': _('WARNING')}
-            %message['c'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('CRITICAL')}
-            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNKNOWN')}
+            %message['w'] = {'title': _('Flapping enabled on Warning state'), 'message': _('WARNING')}
+            %message['c'] = {'title': _('Flapping enabled on Critical state'), 'message': _('CRITICAL')}
+            %message['u'] = {'title': _('Flapping enabled on Unknown state'), 'message': _('UNKNOWN')}
+            %message['x'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
             %first=True
             %for m in message:
                <tr>
@@ -443,6 +498,7 @@
       </tbody>
    </table>
 
+   %if service.stalking_options:
    <table class="table table-condensed">
       <colgroup>
          <col style="width: 40%" />
@@ -454,10 +510,27 @@
          </tr>
       </thead>
       <tbody>
-         <tr>
-            <td><strong>{{_('Stalking options:')}}</strong></td>
-            <td>{{', '.join(service.stalking_options)}}</td>
-         </tr>
+         %message = {}
+         %message['o'] = {'title': _('Log enabled on Recovery'), 'message': _('RECOVERY')}
+         %message['w'] = {'title': _('Log enabled on Warning state'), 'message': _('WARNING')}
+         %message['c'] = {'title': _('Log enabled on Critical state'), 'message': _('CRITICAL')}
+         %message['u'] = {'title': _('Log enabled on Unknown state'), 'message': _('UNKNOWN')}
+         %message['x'] = {'title': _('Log enabled on Unreachable'), 'message': _('UNREACHABLE')}
+         %first=True
+         %for m in message:
+            <tr>
+               %if first:
+                  <td><strong>{{_('Options:')}}</strong></td>
+                  %first=False
+               %else:
+                  <td></td>
+               %end
+               <td>
+                  {{! Helper.get_on_off(m in service.stalking_options, message[m]['title'], '&nbsp;' + message[m]['message'])}}
+               </td>
+            </tr>
+         %end
       </tbody>
    </table>
+   %end
 </div>

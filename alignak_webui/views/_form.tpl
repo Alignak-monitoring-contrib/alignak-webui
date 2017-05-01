@@ -143,7 +143,7 @@
          </div>
       %end
 
-      %if not element:
+      %if not element and '_realm' in plugin.table:
          %field = '_realm'
          %model = plugin.table['_realm']
 
@@ -165,11 +165,6 @@
          %editable = model.get('editable', True)
 
          %list_values = []
-         %if element and element['_realm']:
-         %for v in element['_realm']:
-         %  list_values.append((v.id, v.name))
-         %end
-         %end
          %is_list = True
          %selectize=True
 
@@ -494,7 +489,7 @@
 
          %for field, model in plugin.table.iteritems():
             %selectize = False
-            %if not model.get('visible', True) or (field[0] in ['#', '_'] and field not in ['_parent']) or field.startswith('ls_'):
+            %if not model.get('editable', True) or (field[0] in ['#', '_'] and field not in ['_parent', '_realm']) or field.startswith('ls_'):
                %# Some fields are never displayed in a form...
                %if debug:
                %if element:

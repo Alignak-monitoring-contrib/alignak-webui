@@ -47,9 +47,16 @@ class HostGroup(BackendElement):
     ]
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a hostgroup (called only once when an object is newly created)
-        """
+        """Create a hostgroup (called only once when an object is newly created)"""
+        self.overall_state_to_title = [
+            _('All hosts in the group are ok or acknowledged'),
+            _('Some hosts in the group have problems that are acknowledged'),
+            _('Some hosts in the group are in a downtime period'),
+            _('Some hosts in the group are warning'),
+            _('Some hosts in the group are critical'),
+            _('No hosts in this group are monitored')
+        ]
+
         self._linked_hostgroups = 'hostgroup'
         self._linked__parent = 'hostgroup'
         self._linked_hosts = 'host'
