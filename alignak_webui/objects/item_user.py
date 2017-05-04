@@ -32,9 +32,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class User(BackendElement):
-    """
-    Object representing a user
-    """
+    """Object representing a user (contact)"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1

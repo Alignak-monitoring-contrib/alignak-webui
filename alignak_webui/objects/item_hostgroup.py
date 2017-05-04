@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class HostGroup(BackendElement):
-    """
-    Object representing a hostgroup
-    """
+    """Object representing a hostgroup"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -68,27 +66,27 @@ class HostGroup(BackendElement):
 
     @property
     def members(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_hosts
 
     @property
     def hosts(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_hosts
 
     @property
     def hostgroups(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_hostgroups
 
     @property
     def _parent(self):
-        """ Return group parent """
+        """Return group parent"""
         return self._linked__parent
 
     @property
     def level(self):
-        """ Return group level """
+        """Return group level"""
         if not hasattr(self, '_level'):
             return -1
         return self._level

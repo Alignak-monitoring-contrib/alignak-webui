@@ -33,9 +33,7 @@ from alignak_webui.objects.element_state import ElementState
 
 
 class History(BackendElement):
-    """
-    Object representing a History item (host or service)
-    """
+    """Object representing a History item (host or service)"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1

@@ -38,9 +38,7 @@ logger.setLevel(INFO)
 
 
 class Log(BackendElement):
-    """
-    Object representing a log item (host or service)
-    """
+    """Object representing a log item (host or service)"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -55,9 +53,7 @@ class Log(BackendElement):
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
-        """
-        Create a log (called only once when an object is newly created)
-        """
+        """Create a log (called only once when an object is newly created)"""
         self._linked_host = 'host'
         self._linked_service = 'service'
 
@@ -65,46 +61,36 @@ class Log(BackendElement):
 
     @property
     def host(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_host
 
     @property
     def service(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_service
 
     @property
     def acknowledged(self):
-        """
-        Get the inner object propery acknowledged
-        """
+        """Get the inner object propery acknowledged"""
         return self._acknowledged
 
     @acknowledged.setter
     def acknowledged(self, acknowledged):
-        """
-        Set Item property acknowledged
-        """
+        """Set Item property acknowledged"""
         self._acknowledged = acknowledged
 
     @property
     def downtimed(self):
-        """
-        Get the inner object propery downtimed
-        """
+        """Get the inner object propery downtimed"""
         return self._downtimed
 
     @downtimed.setter
     def downtimed(self, downtimed):
-        """
-        Set Item property downtimed
-        """
+        """Set Item property downtimed"""
         self._downtimed = downtimed
 
     def get_check_date(self, timestamp=False, fmt=None, duration=False):
-        """
-        Returns a string formatted data
-        """
+        """Returns a string formatted date"""
         if self.last_check == self.__class__._default_date and not timestamp:
             return _('Never checked!')
 

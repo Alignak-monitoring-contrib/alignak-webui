@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class ServiceDependency(BackendElement):
-    """
-    Object representing a hostdependency
-    """
+    """Object representing a servicedependency"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -42,9 +40,7 @@ class ServiceDependency(BackendElement):
     _cache = {}
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a hostdependency (called only once when an object is newly created)
-        """
+        """Create a servicedependency (called only once when an object is newly created)"""
         self._linked__realm = 'realm'
         self._linked_hosts = 'host'
         self._linked_dependent_hosts = 'host'
@@ -58,40 +54,40 @@ class ServiceDependency(BackendElement):
 
     @property
     def _realm(self):
-        """ Return concerned realm """
+        """Return concerned realm"""
         return self._linked__realm
 
     @property
     def hosts(self):
-        """ Return concerned hosts """
+        """Return concerned hosts"""
         return self._linked_hosts
 
     @property
     def services(self):
-        """ Return concerned services """
+        """Return concerned services"""
         return self._linked_services
 
     @property
     def hostgroups(self):
-        """ Return concerned hosts groups """
+        """Return concerned hosts groups"""
         return self._linked_hostgroups
 
     @property
     def dependent_hosts(self):
-        """ Return dependent hosts """
+        """Return dependent hosts"""
         return self._linked_dependent_hosts
 
     @property
     def dependent_services(self):
-        """ Return dependent services """
+        """Return dependent services"""
         return self._linked_dependent_services
 
     @property
     def dependent_hostgroups(self):
-        """ Return concerned dependent hosts groups """
+        """Return concerned dependent hosts groups"""
         return self._linked_dependent_hostgroups
 
     @property
     def dependency_period(self):
-        """ Return concerned dependency timeperiod """
+        """Return concerned dependency timeperiod"""
         return self._linked_dependency_period

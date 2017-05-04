@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class UserRestrictRole(BackendElement):
-    """
-    Object representing a realm
-    """
+    """Object representing a user restriction role"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -42,9 +40,7 @@ class UserRestrictRole(BackendElement):
     _cache = {}
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a userrestrictrole (called only once when an object is newly created)
-        """
+        """Create a userrestrictrole (called only once when an object is newly created)"""
         self._linked_user = 'user'
         self._linked_realm = 'realm'
 

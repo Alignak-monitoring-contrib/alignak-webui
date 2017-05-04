@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Command(BackendElement):
-    """
-    Object representing a command
-    """
+    """Object representing a command"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -51,7 +49,5 @@ class Command(BackendElement):
 
     @property
     def endpoint(self):
-        """
-        Overload default property. Link to the main objects page with an anchor.
-        """
+        """Overload default property. Link to the main objects page with an anchor."""
         return '/%ss#%s' % (self.object_type, self.id)

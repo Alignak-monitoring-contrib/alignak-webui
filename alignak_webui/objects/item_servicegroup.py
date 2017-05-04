@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class ServiceGroup(BackendElement):
-    """
-    Object representing a servicegroup
-    """
+    """Object representing a servicegroup"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -47,9 +45,7 @@ class ServiceGroup(BackendElement):
     ]
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a servicegroup (called only once when an object is newly created)
-        """
+        """Create a servicegroup (called only once when an object is newly created)"""
         self._linked_servicegroups = 'servicegroup'
         self._linked__parent = 'servicegroup'
         self._linked_services = 'service'
@@ -61,27 +57,27 @@ class ServiceGroup(BackendElement):
 
     @property
     def members(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_services
 
     @property
     def services(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_services
 
     @property
     def servicegroups(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_servicegroups
 
     @property
     def _parent(self):
-        """ Return group parent """
+        """Return group parent"""
         return self._linked__parent
 
     @property
     def level(self):
-        """ Return group level """
+        """Return group level"""
         if not hasattr(self, '_level'):
             return -1
         return self._level
