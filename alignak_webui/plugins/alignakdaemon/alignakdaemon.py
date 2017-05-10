@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin Alignak
+    Plugin Alignak daemon
 
     This plugin allows to display Alignak overall state information. It uses the Alignak
     Backend to get information about the Alignak running daemons.
@@ -39,7 +39,7 @@ from alignak_webui.utils.plugin import Plugin
 logger = getLogger(__name__)
 
 
-class PluginAlignak(Plugin):
+class PluginAlignakDaemon(Plugin):
     """Alignak plugin"""
 
     def __init__(self, webui, plugin_dir, cfg_filenames=None):
@@ -83,7 +83,7 @@ class PluginAlignak(Plugin):
             },
         }
 
-        super(PluginAlignak, self).__init__(webui, plugin_dir, cfg_filenames)
+        super(PluginAlignakDaemon, self).__init__(webui, plugin_dir, cfg_filenames)
 
     def get_alignak_widget(self, embedded=False, identifier=None, credentials=None):
         """Get the Alignak widget"""

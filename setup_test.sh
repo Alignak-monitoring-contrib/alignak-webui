@@ -30,7 +30,7 @@ echo 'Upgrade pip ...'
 pip install --upgrade pip
 
 echo 'Installing application requirements ...'
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
 echo 'Installing application in development mode ...'
 pip install -e .
 echo 'Installing tests requirements ...'

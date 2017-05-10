@@ -48,6 +48,7 @@ from alignak_webui.utils.helper import Helper
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.item_realm import Realm
+from alignak_webui.objects.item_alignak import Alignak
 from alignak_webui.objects.item_daemon import Daemon
 from alignak_webui.objects.item_command import Command
 from alignak_webui.objects.item_timeperiod import TimePeriod

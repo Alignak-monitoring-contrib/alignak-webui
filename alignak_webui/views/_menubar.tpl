@@ -308,6 +308,18 @@
       <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Alignak backend menu')}}">
          %try:
          <li>
+            <a href="{{ webui.get_url('Alignak table') }}">
+               <span class="fa fa-fw fa-heartbeat"></span>
+               <span>{{_('Backend Alignak')}}</span>
+            </a>
+         </li>
+         <li class="divider"></li>
+         %except RouteBuildError:
+         %print("Missing plugin Backend Alignak")
+         %end
+
+         %try:
+         <li>
             <a href="{{ webui.get_url('BackendStatsd table') }}">
                <span class="fa fa-fw fa-area-chart"></span>
                <span>{{_('Backend StatsD')}}</span>

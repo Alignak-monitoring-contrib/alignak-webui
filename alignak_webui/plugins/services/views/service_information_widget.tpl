@@ -262,7 +262,7 @@
                %end
             </td>
          </tr>
-         %if (service.passive_checks_enabled):
+         %if service.passive_checks_enabled:
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>
             <td>

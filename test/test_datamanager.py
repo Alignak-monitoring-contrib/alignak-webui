@@ -61,7 +61,7 @@ backend_process = None
 backend_address = "http://127.0.0.1:5000/"
 datamgr = None
 
-COUNT_KNOWN_CLASSES = 25
+COUNT_KNOWN_CLASSES = 26
 
 
 def setup_module(module):
@@ -529,10 +529,12 @@ class TestBasic(unittest2.TestCase):
         print('test livesynthesis')
 
         self.maxDiff = None
+
+        # Get livesynthesis - user logged-in realm and its sub-realms
         expected_ls = {
             '_id': self.dmg.my_ls['_id'],
             'hosts_synthesis': {
-                'nb_elts': 13,
+                'nb_elts': 11,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -542,17 +544,67 @@ class TestBasic(unittest2.TestCase):
                 'nb_up_hard': 0, 'nb_up_soft': 0,
                 'nb_down': 0, 'pct_down': 0.0,
                 'nb_down_hard': 0, 'nb_down_soft': 0,
-                'nb_unreachable': 13, 'pct_unreachable': 100.0,
-                'nb_unreachable_hard': 13, 'nb_unreachable_soft': 0,
+                'nb_unreachable': 11, 'pct_unreachable': 100.0,
+                'nb_unreachable_hard': 11, 'nb_unreachable_soft': 0,
 
-                'nb_problems': 13, 'pct_problems': 100.0,
+                'nb_problems': 11, 'pct_problems': 100.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
                 'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
             },
             'services_synthesis': {
-                # 'nb_elts': 76, Travis says 74 whereas it is 76 !
-                'nb_elts': 74,
+                'nb_elts': 94,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_ok': 0, 'pct_ok': 0.0,
+                'nb_ok_hard': 0, 'nb_ok_soft': 0,
+                'nb_warning': 0, 'pct_warning': 0.0,
+                'nb_warning_hard': 0, 'nb_warning_soft': 0,
+                'nb_critical': 0, 'pct_critical': 0.0,
+                'nb_critical_hard': 0, 'nb_critical_soft': 0,
+                'nb_unknown': 94, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 94, 'nb_unknown_soft': 0,
+                'nb_unreachable': 0, 'pct_unreachable': 0.0,
+                'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 0, 'pct_problems': 0.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0
+            }
+        }
+        got_ls = self.dmg.get_livesynthesis({'concatenation': '1',
+                                             'where': {'_realm': self.dmg.my_realm.id}})
+        assert got_ls['hosts_synthesis'] == expected_ls['hosts_synthesis']
+        assert got_ls['services_synthesis'] == expected_ls['services_synthesis']
+
+        # Get livesynthesis - user logged-in realm and no sub realms
+        expected_ls = {
+            '_id': self.dmg.my_ls['_id'],
+            'hosts_synthesis': {
+                'nb_elts': 11,
+                'business_impact': 0,
+
+                'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
+                'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
+
+                'nb_up': 0, 'pct_up': 0.0,
+                'nb_up_hard': 0, 'nb_up_soft': 0,
+                'nb_down': 0, 'pct_down': 0.0,
+                'nb_down_hard': 0, 'nb_down_soft': 0,
+                'nb_unreachable': 11, 'pct_unreachable': 100.0,
+                'nb_unreachable_hard': 11, 'nb_unreachable_soft': 0,
+
+                'nb_problems': 11, 'pct_problems': 100.0,
+                'nb_flapping': 0, 'pct_flapping': 0.0,
+                'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
+                'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
+            },
+            'services_synthesis': {
+                'nb_elts': 94,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -565,8 +617,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
                 # Travis says 74 whereas it is 76 !
-                'nb_unknown': 74, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 74, 'nb_unknown_soft': 0,
+                'nb_unknown': 94, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 94, 'nb_unknown_soft': 0,
                 # 'nb_unknown': 76, 'pct_unknown': 100.0,
                 # 'nb_unknown_hard': 76, 'nb_unknown_soft': 0,
                 'nb_unreachable': 0, 'pct_unreachable': 0.0,
@@ -578,10 +630,7 @@ class TestBasic(unittest2.TestCase):
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0
             }
         }
-
-        # Get livesynthesis
         got_ls = self.dmg.get_livesynthesis(self.dmg.my_ls['_id'])
-        print(got_ls)
         assert got_ls['hosts_synthesis'] == expected_ls['hosts_synthesis']
         assert got_ls['services_synthesis'] == expected_ls['services_synthesis']
 
