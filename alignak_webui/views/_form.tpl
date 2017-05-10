@@ -8,6 +8,7 @@
 %setdefault('is_templated', '_is_template' in plugin.table)
 %setdefault('is_template', False)
 %setdefault('has_template', False)
+%setdefault('refresh', False)
 
 %if element:
 %# An element still exists...
