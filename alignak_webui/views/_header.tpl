@@ -54,9 +54,6 @@
          %include("_menubar.tpl")
 
          <ul class="nav navbar-nav navbar-left">
-            <!-- Page filtering ... -->
-            %include("_filters.tpl")
-
             <li class="hidden-xs" id="loading" style="display: none;">
                <a href="#">
                   <span class="fa fa-spinner fa-pulse fa-1x"></span>

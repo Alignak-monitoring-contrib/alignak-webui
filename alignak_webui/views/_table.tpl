@@ -42,6 +42,10 @@
 %if dt.templates:
 %table_id = "%ss_templates_table" % object_type
 %end
+
+<!-- Table filtering ... -->
+%include("_filters.tpl")
+
 <div id="{{table_id}}" class="alignak_webui_table {{'embedded' if embedded else ''}}">
    <table id="tbl_{{table_id}}" class="{{dt.css}}">
       <thead>
@@ -458,13 +462,13 @@
          // Table information
          "info": true,
 
-         /* Table fixed header: #74 */
+         /* Table fixed header: #74
          "fixedHeader": {
             header: true,
-            headerOffset: $('#topbar').outerHeight(),
+            headerOffset: $('#topbar').outerHeight() + $('#filter-bar').outerHeight(),
             footer: true,
             footerOffset: '50px'
-         },
+         }, */
          /* Fixed leftmost column and scrolling mode: #74
          "scrollX": true,
          "fixedColumns": {
@@ -732,6 +736,28 @@
                extend: 'selectedSingle',
                text: "{{! _('<span class=\'text-warning fa fa-edit\'></span>')}}",
                titleAttr: "{{_('Edit the selected item')}}",
+               className: 'btn-raised btn-xs',
+               action: function (e, dt, button, config) {
+                  var selected = dt.rows( { selected: true } );
+                  var count_selected = selected.indexes().length;
+                  if (count_selected != 1) {
+                     return;
+                  }
+                  var url = "";
+                  var first = true;
+                  $.each(selected.data(), function(index, elt){
+                     if (! first) return false;
+                     url = "{{server_url}}/{{object_type}}/" + encodeURIComponent(elt._id) + "/form";
+                  });
+                  window.setTimeout(function(){
+                     window.location.href = url;
+                  }, 50);
+               }
+            }
+            ,{
+               extend: 'selectedSingle',
+               text: "{{! _('<span class=\'text-warning fa fa-trash-o\'></span>')}}",
+               titleAttr: "{{_('Delete the selected item')}}",
                className: 'btn-raised btn-xs',
                action: function (e, dt, button, config) {
                   var selected = dt.rows( { selected: true } );

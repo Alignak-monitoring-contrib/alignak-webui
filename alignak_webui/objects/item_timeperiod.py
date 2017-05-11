@@ -40,9 +40,7 @@ logger.setLevel(INFO)
 
 
 class TimePeriod(BackendElement):
-    """
-    Object representing a timeperiod
-    """
+    """Object representing a timeperiod"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -61,7 +59,5 @@ class TimePeriod(BackendElement):
 
     @property
     def endpoint(self):
-        """
-        Overload default property. Link to the main objects page with an anchor.
-        """
+        """Overload default property. Link to the main objects page with an anchor."""
         return '/%ss#%s' % (self.object_type, self.id)

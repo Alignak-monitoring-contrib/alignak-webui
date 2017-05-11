@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Realm(BackendElement):
-    """
-    Object representing a realm
-    """
+    """Object representing a realm"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -47,9 +45,7 @@ class Realm(BackendElement):
     ]
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
-        """
-        Create a realm (called only once when an object is newly created)
-        """
+        """Create a realm (called only once when an object is newly created)"""
         self._linked__parent = 'realm'
         self._linked__children = 'realm'
 
@@ -57,25 +53,25 @@ class Realm(BackendElement):
 
     @property
     def members(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_hosts
 
     @property
     def hosts(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_hosts
 
     @property
     def realms(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked__children
 
     @property
     def _parent(self):
-        """ Return group parent """
+        """Return realm parent"""
         return self._linked__parent
 
     @property
     def level(self):
-        """ Return realm level """
+        """Return realm level"""
         return self._level

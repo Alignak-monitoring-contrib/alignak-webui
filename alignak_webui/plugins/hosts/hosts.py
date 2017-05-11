@@ -296,8 +296,11 @@ class PluginHosts(Plugin):
             '02': (_('Acknowledged'), 'is:acknowledged'),
             '03': (_('Downtimed'), 'is:in_downtime'),
             '04': (_('Warning'), 'is:warning'),
-            '05': (_('Critical'), 'is:warning'),
+            '05': (_('Critical'), 'is:critical'),
             '06': ('', ''),
+            '07': (_('Up'), 'ls_state:UP'),
+            '08': (_('Down'), 'ls_state:DOWN'),
+            '09': (_('Unreachable'), 'ls_state:UNREACHABLE'),
         }
 
     def get_hosts_widget(self, embedded=False, identifier=None, credentials=None):

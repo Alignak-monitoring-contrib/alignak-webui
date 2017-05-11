@@ -18,7 +18,7 @@
  * along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var actions_logs=false;
+var actions_logs=true;
 var refresh_delay_after_action=1000;
 var alert_info_delay=2;
 var alert_success_delay=3;
@@ -446,9 +446,9 @@ $(document).ready(function() {
          display_modal(url);
       }, 5);
    });
-   // Command
-   $('body').on("click", '[data-action="command"]', function () {
-      if (actions_logs) console.debug("Required a command for:", $(this).data('element'));
+   // Commands list
+   $('body').on("click", '[data-action="commands-list"]', function () {
+      if (actions_logs) console.debug("Requires the commands list for:", $(this).data('element'));
 
       var elt_id = $(this).data('element');
       var elt_name = $(this).data('name');
@@ -457,5 +457,40 @@ $(document).ready(function() {
       window.setTimeout(function(){
          display_modal(url);
       }, 5);
+   });
+   // Command
+   $('body').on("click", '[data-action="command"]', function () {
+      if (actions_logs) console.debug("Required a command for:", $(this).data('element'));
+
+      data = {
+         //"timestamp": {{int(time.time())}},
+         "command": $(this).data('command'),
+         "elements_type": $(this).data('type'),
+         "element_id": $(this).data('element'),
+         "element": $(this).data('name')
+      }
+
+      $.ajax({
+         url: '/command/add',
+         dataType: "json",
+         method: "POST",
+         data: data
+      })
+      .done(function( data, textStatus, jqXHR ) {
+         if (data.status == "ok") {
+            raise_message_ok(data.message);
+         } else {
+            raise_message_ko(data.message);
+         }
+
+         window.setTimeout(function() {
+            // Page refresh required
+            refresh_required = true;
+         }, refresh_delay_after_action);
+      })
+      .fail(function( jqXHR, textStatus, errorThrown ) {
+         console.error(errorThrown);
+         raise_message_ko(textStatus);
+      });
    });
 });

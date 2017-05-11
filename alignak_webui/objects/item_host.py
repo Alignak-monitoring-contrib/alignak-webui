@@ -34,9 +34,7 @@ from alignak_webui.objects.item_command import Command
 class Host(BackendElement):
     # Because there are many methods needed :)
     # pylint: disable=too-many-public-methods
-    """
-    Object representing an host
-    """
+    """Object representing an host"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1

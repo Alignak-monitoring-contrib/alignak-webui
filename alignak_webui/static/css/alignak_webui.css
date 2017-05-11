@@ -143,43 +143,11 @@ header span.label {
 }
 
 /*
- * Application search filter in the top navigation bar
+ * Application search filter in the page content
  */
-#search {
-    width: 400px;
-}
-
-#search-filters li[role="presentation"]>a {
-  padding: 3px 20px;
-}
-
-/* Large Devices, Wide Screens */
-@media only screen and (max-width : 1200px) {
-    #search {
-        width: 320px;
-    }
-}
-
-/* Medium Devices, Desktops */
-@media only screen and (max-width : 991px) {
-    #search {
-        width: 150px;
-    }
-}
-
-/* Small Devices, Tablets */
-@media only screen and (max-width : 767px) {
-    #search {
-        width: 320px;
-    }
-}
-
-/* Extra Small Devices, Phones */
-@media only screen and (max-width : 480px) {
-}
-
-/* Custom, iPhone Retina */
-@media only screen and (max-width : 320px) {
+#search-filters ul > li > a {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 /*
@@ -229,13 +197,11 @@ div[data-type="actions"] ul.dropdown-menu {
 /*
  * Application tables
  */
-/* Set fixed position for table buttons */
+/* Set fixed position for table buttons
 div.dt-buttons {
-   position: fixed; z-index:100;
+    position: fixed; z-index:100;
 }
-div.dataTables_wrapper div.row.table {
-    margin-top: 45px;
-}
+*/
 
 div.dataTables_paginate {
     text-align: center !important;

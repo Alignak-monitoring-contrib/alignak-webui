@@ -617,7 +617,8 @@ class Datatable(object):
 
                 if field['data'] == self.status_property:
                     # Replace the text status with the specific item HTML state
-                    row[self.status_property] = bo_object.get_html_state(text=None)
+                    row[self.status_property] = bo_object.get_html_state(text=None,
+                                                                         title=bo_object.status)
                     # Use the item status to specify the table row class
                     # row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
                     continue
@@ -632,7 +633,9 @@ class Datatable(object):
                         # Get element state configuration
                         row[field['data']] = ElementState().get_html_state(
                             self.object_type, bo_object,
-                            text=None, use_status=overall_status
+                            text=None,
+                            title=bo_object.overall_state_to_title[bo_object.overall_state],
+                            use_status=overall_status
                         )
                         # Use the item overall state to specify the table row class
                         row['DT_RowClass'] = "table-row-%s" % (overall_status)

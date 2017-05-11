@@ -39,9 +39,7 @@ logger.setLevel(INFO)
 
 
 class ActionAcknowledge(BackendElement):
-    """
-    Object representing an actionacknowledge
-    """
+    """Object representing an actionacknowledge"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -52,9 +50,7 @@ class ActionAcknowledge(BackendElement):
 
 
 class ActionDowntime(BackendElement):
-    """
-    Object representing an actiondowntime
-    """
+    """Object representing an actiondowntime"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -65,9 +61,7 @@ class ActionDowntime(BackendElement):
 
 
 class ActionForceCheck(BackendElement):
-    """
-    Object representing an actionforcecheck
-    """
+    """Object representing an actionforcecheck"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1

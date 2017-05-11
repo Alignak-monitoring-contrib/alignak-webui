@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class LiveSynthesis(BackendElement):
-    """
-    Object representing the live synthesis of the system
-    """
+    """Object representing the live synthesis of the system"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
