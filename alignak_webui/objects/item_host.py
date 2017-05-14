@@ -271,14 +271,29 @@ class Host(BackendElement):
         return self.ls_output
 
     @property
+    def html_output(self):
+        """Return HTML formatted host live state output"""
+        return "<code>%s</code>" % self.output
+
+    @property
     def long_output(self):
         """Return host live state long output"""
         return self.ls_long_output
 
     @property
+    def html_long_output(self):
+        """Return HTML formatted host live state long output"""
+        return "<code>%s</code>" % self.long_output.replace('\n', '<br>')
+
+    @property
     def perf_data(self):
         """Return host live state performance data"""
         return self.ls_perf_data
+
+    @property
+    def html_perf_data(self):
+        """Return HTML formatted host live state performance data"""
+        return "<code>%s</code>" % self.perf_data
 
     @property
     def monitored(self):
