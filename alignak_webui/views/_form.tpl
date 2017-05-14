@@ -144,9 +144,12 @@
          </div>
       %end
 
-      %if not element and '_realm' in plugin.table:
+      %if not element and ('_realm' in plugin.table or '_parent' in plugin.table):
          %field = '_realm'
-         %model = plugin.table['_realm']
+         %if '_parent' in plugin.table:
+         %field = '_parent'
+         %end
+         %model = plugin.table[field]
 
          %label = model.get('title', '')
          %field_type = model.get('type', 'string')
