@@ -728,7 +728,16 @@ class Plugin(object):
             # Get element from the data manager
             element = f(element_id)
             if not element:
+                # Search with name rather than id
                 element = f(search={'max_results': 1, 'where': {'name': element_id}})
+                if self.templated and not element:
+                    # Search amnog the templates with id
+                    element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                    '_id': element_id}})
+                    if not element:
+                        # Search amnog the templates with name
+                        element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                        'name': element_id}})
         # If not found, element will remain as None to create a new element
 
         if not edition_mode and not element:
