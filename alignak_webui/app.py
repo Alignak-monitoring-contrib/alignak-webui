@@ -118,6 +118,7 @@ cfg_filenames = [
     '/usr/local/etc/%s/settings.cfg' % app_name,
     '/etc/%s/settings.cfg' % app_name,
     '~/%s/settings.cfg' % app_name,
+    os.path.abspath('./etc/%s/settings.cfg' % app_name),
     os.path.abspath('../etc/settings.cfg'),
     os.path.abspath('./etc/settings.cfg'),
     os.path.abspath('./settings.cfg'),
