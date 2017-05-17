@@ -69,11 +69,14 @@
 
 <div id="host_view_right" class="col-lg-8 col-sm-8">
    <div class="panel panel-default">
-      <div class="panel-heading">
-         {{ _('My last check') }}
+      %collapsed = datamgr.get_user_preferences(current_user, "host-panel-check", {'opened': False})
+      <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+           data-action="save-panel" data-target="#host-panel-check" data-toggle="collapse"
+           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+         <span class="caret"></span>&nbsp;{{ _('My last check') }}
       </div>
 
-      <div class="panel-body">
+      <div id="host-panel-check" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
          <!-- Last check output -->
          <table class="table table-condensed table-nowrap">
             <colgroup>
@@ -137,11 +140,14 @@
 
    %if host.perf_data:
    <div class="panel panel-default">
-      <div class="panel-heading">
-         {{ _('My metrics') }}
+      %collapsed = datamgr.get_user_preferences(current_user, "host-panel-perfdata", {'opened': False})
+      <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+           data-action="save-panel" data-target="#host-panel-perfdata" data-toggle="collapse"
+           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+         <span class="caret"></span>&nbsp;{{ _('My metrics') }}
       </div>
 
-      <div class="panel-body">
+      <div id="host-panel-perfdata" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
          <table class="table table-condensed">
             <thead>
                <tr>
@@ -200,11 +206,14 @@
    %else:
       %if metrics.params:
       <div class="panel panel-default">
-         <div class="panel-heading">
-            {{ _('My metrics graphs') }}
+         %collapsed = datamgr.get_user_preferences(current_user, "host-panel-metrics", {'opened': False})
+         <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+              data-action="save-panel" data-target="#host-panel-metrics" data-toggle="collapse"
+              aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+            <span class="caret"></span>&nbsp;{{ _('My metrics graphs') }}
          </div>
 
-         <div class="panel-body">
+         <div id="host-panel-metrics" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
          %for svc in metrics.params:
             %svc_state, svc_name, svc_min, svc_max, svc_warning, svc_critical, svc_metrics = metrics.get_service_metric(svc)
             %if svc_state == -1:
