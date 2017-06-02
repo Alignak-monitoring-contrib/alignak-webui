@@ -200,8 +200,9 @@ class DataManager(object):
                 # Load data if load required...
                 if load:
                     self.load(reset=True)
+                self.connection_message = _('Access granted')
             else:
-                self.connection_message = _('Backend connection refused...')
+                self.connection_message = _('Access denied! Check your username and password.')
         except BackendException as exp:  # pragma: no cover, should not happen
             logger.exception("configured backend is not available: %s", exp)
             self.connection_message = exp.message
