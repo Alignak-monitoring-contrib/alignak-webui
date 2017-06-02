@@ -927,6 +927,10 @@ class Helper(object):
                 </strong>
 
                 <div class="pull-right">
+                    <a id="dnl-lsh_hosts" download="alignak_lsh_hosts.png"
+                        class="btn btn-default btn-raised btn-xs disabled" tabindex="0" href="#">
+                        <i class="fa fa-download"></i>
+                    </a>
                     <a href="#p_plsh_hosts" class="btn btn-xs btn-raised" data-toggle="collapse">
                         <i class="fa fa-fw %s"></i>
                     </a>
@@ -1044,6 +1048,13 @@ class Helper(object):
                        },
                        stacked: true
                     }]
+                 },
+                 animation: {
+                    onComplete: function (animation) {
+                       var canvases = $("#line-graph-hosts canvas");
+                       var url_base64 = canvases[0].toDataURL("image/png");
+                       $("#dnl-lsh_hosts").attr("href", url_base64).removeClass('disabled');
+                    }
                  }
               }
            });
@@ -1104,6 +1115,10 @@ class Helper(object):
                 </strong>
 
                 <div class="pull-right">
+                    <a id="dnl-lsh_services" download="alignak_lsh_services.png"
+                        class="btn btn-default btn-raised btn-xs disabled" tabindex="0" href="#">
+                        <i class="fa fa-download"></i>
+                    </a>
                     <a href="#p_plsh_services" class="btn btn-xs btn-raised" data-toggle="collapse">
                         <i class="fa fa-fw %s"></i>
                     </a>
@@ -1221,6 +1236,13 @@ class Helper(object):
                        },
                        //stacked: true
                     }]
+                 },
+                 animation: {
+                    onComplete: function (animation) {
+                       var canvases = $("#line-graph-services canvas");
+                       var url_base64 = canvases[0].toDataURL("image/png");
+                       $("#dnl-lsh_services").attr("href", url_base64).removeClass('disabled');
+                    }
                  }
               }
            });
