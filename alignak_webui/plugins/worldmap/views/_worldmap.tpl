@@ -8,9 +8,9 @@
     if (typeof debugMaps === 'undefined') debugMaps=false;
 
     function buildHosts() {
-        // hosts is a global var defined in worldmaps.js
+        // pos_hosts is a global var defined in worldmaps.js
         %# List hosts and their services
-        hosts = [
+        pos_hosts = [
         %for host in hosts:
             new Host(
                 '{{ host['id'] }}', '{{ host['name'] }}', '{{ host['alias'] }}',
@@ -35,10 +35,10 @@
         %end
         ]
 
-        if (debugMaps) console.log("Hosts:", hosts);
+        if (debugMaps) console.log("Hosts:", pos_hosts);
         if (debugMaps) {
-            for (var i = 0; i < hosts.length; i++) {
-                var h = hosts[i];
+            for (var i = 0; i < pos_hosts.length; i++) {
+                var h = pos_hosts[i];
                 if (debugMaps) console.log("- services", h.services);
             }
         }
@@ -50,7 +50,7 @@
         buildHosts();
 
         // Build map
-        var mapCreated = mapInit('{{mapId}}', function($map) {
+        var mapCreated = mapInit('{{mapId}}', '{{'true' if current_user.is_power() else ''}}', function($map) {
             // Map height to be scaled inside the window
             var mapOffset = $('#{{mapId}}').offset().top;
             var footerOffset = $('footer').offset().top;
@@ -70,7 +70,6 @@
         cssfiles.push('/static/plugins/worldmap/static/leaflet/leaflet.css');
         cssfiles.push('/static/plugins/worldmap/static/css/MarkerCluster.css');
         cssfiles.push('/static/plugins/worldmap/static/css/MarkerCluster.Default.css');
-        cssfiles.push('/static/plugins/worldmap/static/css/leaflet.label.css');
         cssfiles.push('/static/plugins/worldmap/static/css/worldmap.css');
 
         $.getCssFiles(cssfiles, function(){
@@ -78,7 +77,6 @@
             jsfiles.push('/static/plugins/worldmap/static/leaflet/leaflet.js');
             jsfiles.push('/static/plugins/worldmap/static/js/leaflet.markercluster.js');
             jsfiles.push('/static/plugins/worldmap/static/js/leaflet.Icon.Glyph.js');
-            jsfiles.push('/static/plugins/worldmap/static/js/leaflet.label.js');
             jsfiles.push('/static/plugins/worldmap/static/js/worldmap.js');
 
             $.getJsFiles(jsfiles, function(){

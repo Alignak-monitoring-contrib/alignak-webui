@@ -167,15 +167,17 @@ class PluginWorldmap(Plugin):
         hosts = datamgr.get_hosts(search, embedded=False)
 
         # Get valid hosts
-        valid_hosts = self.get_valid_elements(hosts)
+        (positionned_hosts, not_positionned_hosts) = self.get_map_elements(hosts)
 
         # Get last total elements count
-        total = len(valid_hosts)
+        total = len(positionned_hosts)
+        logger.info("worldmap, found %d positionned hosts", total)
         if hosts:
             total = hosts[0]['_total']
+            logger.info("worldmap, total %d hosts", total)
 
         if for_my_widget:
-            return valid_hosts
+            return positionned_hosts
 
         map_style = "width: %s; height: %s;" % (self.plugin_parameters.get('map_width', "100%"),
                                                 self.plugin_parameters.get('map_height', "100%"))
@@ -187,48 +189,52 @@ class PluginWorldmap(Plugin):
             'mapId': 'hostsMap',
             'mapStyle': map_style,
             'params': self.plugin_parameters,
-            'hosts': valid_hosts,
+            'hosts': positionned_hosts,
             'pagination': self.webui.helper.get_pagination_control(
                 '/worldmap', total, start, count),
             'title': request.query.get('title', _('Hosts worldmap'))
         }
 
-    def get_valid_elements(self, hosts):
+    def get_map_elements(self, hosts):
         # pylint:disable=no-self-use
         """Get hosts valid for a map:
 
-        - must have custom variables with GPS coordinates
-        - must have a business_impact that match the one defined in this plugin parameters
-
         :param hosts: list of hosts to search in
-        :return: list of hosts to display on the map
+        :return: tuple with a list of positionned hosts and a list of not yet positionned hosts
         """
+        user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
         logger.info("worldmap, searching valid hosts...")
 
-        valid_hosts = []
+        positionned_hosts = []
+        not_positionned_hosts = []
         for host in hosts:
+            map_host = {}
             logger.debug("worldmap, found host '%s'", host.name)
 
+            positionned = True
             if 'type' not in host.position or host.position['type'] != 'Point':
-                logger.warning("worldmap, host '%s', invalid position: %s",
-                               host.name, host.position)
-                continue
+                # logger.warning("worldmap, host '%s', invalid position: %s",
+                #                host.name, host.position)
+                # continue
+                logger.warning("worldmap, host '%s' is not yet positionned", host.name)
+                positionned = False
+                map_host['lat'] = self.plugin_parameters['default_latitude']
+                map_host['lng'] = self.plugin_parameters['default_longitude']
+            else:
+                logger.debug("worldmap, host '%s' located: %s", host.name, host.position)
 
-            logger.info("worldmap, host '%s' located: %s", host.name, host.position)
+                map_host['lat'] = host['position']['coordinates'][0]
+                map_host['lng'] = host['position']['coordinates'][1]
 
-            # logger.info("Host properties: %s", host.__dict__.keys())
-            map_host = {}
             for attr in ['id', 'name', 'alias', 'business_impact', 'tags',
                          'position', 'tags', 'notes', 'notes_url', 'action_url',
                          'overall_state', 'overall_status', 'state_id', 'state_type',
                          'acknowledged', 'downtimed',
                          'last_check', 'output', 'long_output']:
                 map_host[attr] = host[attr]
-            map_host['lat'] = host['position']['coordinates'][0]
-            map_host['lng'] = host['position']['coordinates'][1]
 
             host_iw = self.plugin_parameters['host_info_content']
             host_iw = host_iw.replace("\n", '')
@@ -244,9 +250,12 @@ class PluginWorldmap(Plugin):
             host_iw = host_iw.replace("##html_state##",
                                       host.get_html_state(text=None,
                                                           use_status=host.overall_status))
-            host_iw = host_iw.replace("##html_actions##", Helper.get_html_commands_buttons(
-                host, _('<span class="fa fa-bolt"></span>')
-            ))
+            if user.is_power():
+                host_iw = host_iw.replace("##html_actions##", Helper.get_html_commands_buttons(
+                    host, _('<span class="fa fa-bolt"></span>')
+                ))
+            else:
+                host_iw = host_iw.replace("##html_actions##", "")
 
             # Get host services
             # todo: using a projection with selected fields may help to improve more?
@@ -278,25 +287,31 @@ class PluginWorldmap(Plugin):
                 svc_iw = svc_iw.replace("##html_state##",
                                         service.get_html_state(text=None,
                                                                use_status=service.overall_status))
-                svc_iw = svc_iw.replace("##html_actions##", Helper.get_html_commands_buttons(
-                    service, _('<span class="fa fa-bolt"></span>')
-                ))
+                if user.is_power():
+                    svc_iw = svc_iw.replace("##html_actions##", Helper.get_html_commands_buttons(
+                        service, _('<span class="fa fa-bolt"></span>')
+                    ))
+                else:
+                    svc_iw = svc_iw.replace("##html_actions##", "")
+
                 services_iw += svc_iw
 
-            logger.info("worldmap, host '%s' services: %s", host.name, services)
+            logger.debug("worldmap, host '%s' services: %s", host.name, services)
             map_host.update({'services': services})
 
             host_iw = host_iw.replace("##services##", services_iw)
             map_host.update({'content': host_iw})
-            # logger.debug("worldmap, host '%s' info view: %s", host.name, map_host['content'])
 
-            valid_hosts.append(map_host)
+            if positionned:
+                positionned_hosts.append(map_host)
+            else:
+                not_positionned_hosts.append(map_host)
 
-        logger.info("worldmap, found %d hosts to display on the map", len(valid_hosts))
-        for host in valid_hosts:
-            logger.info("worldmap, host '%s' located: %s", host['name'], host['position'])
 
-        return valid_hosts
+        logger.info("worldmap, found %d positionned hosts and %d not yet positionned",
+                    len(positionned_hosts), len(not_positionned_hosts))
+
+        return (positionned_hosts, not_positionned_hosts)
 
     def get_widget_hosts(self, search):  # pylint: disable=unused-argument
         """Get the hosts list for the widget"""

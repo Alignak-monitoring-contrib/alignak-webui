@@ -9,7 +9,7 @@
 %from alignak_webui.utils.helper import Helper
 
 %plugin = webui.find_plugin('Worldmap')
-%hosts = plugin.get_valid_elements(elements)
+%(hosts, _) = plugin.get_map_elements(elements)
 <!-- HTML map container -->
 <div class="map_container_widget">
    %if not hosts:
