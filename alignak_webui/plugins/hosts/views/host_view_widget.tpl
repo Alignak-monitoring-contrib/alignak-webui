@@ -10,8 +10,8 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
-%plugin = webui.find_plugin('Services')
-%if plugin:
+%services_plugin = webui.find_plugin('Services')
+%if services_plugin:
    %# Get host services
    %services = datamgr.get_services(search={'where': {'host': host.id}})
    %# Aggregate host services in a tree
@@ -72,7 +72,7 @@
       %collapsed = datamgr.get_user_preferences(current_user, "host-panel-check", {'opened': False})
       <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
            data-action="save-panel" data-target="#host-panel-check" data-toggle="collapse"
-           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+           aria-controls="host-panel-check" aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
          <span class="caret"></span>&nbsp;{{ _('My last check') }}
       </div>
 
@@ -98,7 +98,7 @@
                </tr>
                %if host.last_check:
                <tr>
-                  <td><strong>{{_('Last check timestamp:')}}</strong></td>
+                  <td><strong>{{_('When:')}}</strong></td>
                   <td>
                      {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
                   </td>
@@ -138,12 +138,58 @@
       </div>
    </div>
 
+   %#if plugin.variables:
+   <div class="panel panel-default">
+      %collapsed = datamgr.get_user_preferences(current_user, "host-panel-variables", {'opened': False})
+      <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+           data-action="save-panel" data-target="#host-panel-variables" data-toggle="collapse"
+           aria-controls="host-panel-variables" aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+         <span class="caret"></span>&nbsp;{{ _('My variables') }}
+      </div>
+
+      <div id="host-panel-variables" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
+         <table class="table table-condensed table-bordered">
+            <colgroup>
+               <col style="width: 40%" />
+               <col style="width: 60%" />
+            </colgroup>
+            <thead>
+               <tr>
+                  <th colspan="3">{{_('Variables:')}}</th>
+               </tr>
+            </thead>
+            <tbody style="font-size:x-small;">
+            %for var in sorted(plugin.variables):
+               <tr>
+                  %if plugin.variables[var] is True:
+                  % field=plugin.table[var]
+                  % hint = _('Field name: %s\nComment: %s') % (var, field.get('comment', ''))
+                  % name=field.get('title', '')
+                  % value=getattr(host, var, 'XxX')
+                  % if hasattr(value, 'name'):
+                  %  value = getattr(value, 'name')
+                  % end
+                  %else:
+                  % name=var
+                  % value=plugin.variables[var]
+                  % hint = ''
+                  %end
+                  <td>{{name}}</td>
+                  <td title="{{ hint }}">{{ value }}</td>
+               </tr>
+            %end
+            </tbody>
+         </table>
+      </div>
+   </div>
+   %#end
+
    %if host.perf_data:
    <div class="panel panel-default">
       %collapsed = datamgr.get_user_preferences(current_user, "host-panel-perfdata", {'opened': False})
       <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
            data-action="save-panel" data-target="#host-panel-perfdata" data-toggle="collapse"
-           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+           aria-controls="host-panel-perfdata" aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
          <span class="caret"></span>&nbsp;{{ _('My metrics') }}
       </div>
 
@@ -191,13 +237,13 @@
    </div>
    %end
 
-%if not plugin:
+%if not services_plugin:
    <center>
       <h3>{{_('The services plugin is not installed or enabled.')}}</h3>
    </center>
 %else:
    <!-- Service tree view -->
-   %include("services_tree.tpl", tree_items=tree_items, elts=services, tree_type='service', in_host_view=True, title=_('My services tree'), layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
+   %include("services_tree.tpl", tree_items=tree_items, elts=services, tree_type='service', in_host_view=True, title=_('My services'), layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
 
    %if not services:
    <center>
@@ -209,7 +255,7 @@
          %collapsed = datamgr.get_user_preferences(current_user, "host-panel-metrics", {'opened': False})
          <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
               data-action="save-panel" data-target="#host-panel-metrics" data-toggle="collapse"
-              aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+              aria-controls="host-panel-metrics" aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
             <span class="caret"></span>&nbsp;{{ _('My metrics graphs') }}
          </div>
 

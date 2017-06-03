@@ -15,7 +15,7 @@
    </center>
 %else:
 %hosts = [host]
-%hosts = worldmap_plugin.get_valid_elements(hosts)
+%(hosts, hosts2) = worldmap_plugin.get_map_elements(hosts)
 
 <script>
    // Tabs management
@@ -39,5 +39,5 @@
    %end
 </div>
 
-%include("_worldmap")
+%include("_worldmap", load=True)
 %end

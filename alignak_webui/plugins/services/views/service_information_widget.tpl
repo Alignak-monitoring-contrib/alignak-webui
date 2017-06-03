@@ -105,7 +105,7 @@
 
          %if service.last_check:
          <tr>
-            <td><strong>{{_('Last check timestamp:')}}</strong></td>
+            <td><strong>{{_('When:')}}</strong></td>
             <td>
                {{Helper.print_duration(service.last_check, duration_only=False, x_elts=0)}}
             </td>

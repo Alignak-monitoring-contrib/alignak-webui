@@ -416,7 +416,7 @@ class Plugin(object):
         backend_schema = None
         if self.backend_endpoint and self.backend_endpoint in BACKEND_MODELS:
             backend_schema = BACKEND_MODELS[self.backend_endpoint]['schema']
-            logger.warning("Plugin %s backend schema: %s", self.name, backend_schema)
+            logger.debug("Plugin %s backend schema: %s", self.name, backend_schema)
 
         logger.debug("plugin files: %s", self.plugin_filenames)
         if not cfg_filenames:
@@ -485,13 +485,16 @@ class Plugin(object):
                 logger.warning("plugin %s overrides default configuration: %s.%s = %s",
                                self.name, p[1], p[2], self.plugin_config[param])
             if p[2] == 'ui-variable':
-                if self.plugin_config[param] not in ['0', 'no', 'No', 'false', 'False']:
-                    if self.plugin_config[param] in ['1', 'yes', 'Yes', 'true', 'True']:
-                        self.variables[param] = True
+                if self.plugin_config[param]:
+                    logger.info("plugin %s, UI variable: %s (%s)",
+                                self.name, self.plugin_config[param],
+                                type(self.plugin_config[param]))
+                    if self.plugin_config[param] is not True:
+                        self.variables[p[1]] = self.plugin_config[param]
                     else:
-                        self.variables[param] = self.table[p[1]]
-                    logger.warning("plugin %s, UI variable: %s.%s = %s",
-                                   self.name, p[1], p[2], self.variables[param])
+                        self.variables[p[1]] = True
+                    logger.info("plugin %s, UI variable: %s.%s = %s",
+                                self.name, p[1], p[2], self.variables[p[1]])
             self.table[p[1]][p[2]] = self.plugin_config[param]
 
         logger.debug("Table: %s", self.table)

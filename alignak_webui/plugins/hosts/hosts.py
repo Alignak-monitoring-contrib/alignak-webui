@@ -391,6 +391,7 @@ class PluginHosts(Plugin):
             'widget_uri': request.urlparts.path,
             'options': {},
 
+            'plugin': self,
             'plugin_parameters': self.plugin_parameters,
 
             'host': host,
