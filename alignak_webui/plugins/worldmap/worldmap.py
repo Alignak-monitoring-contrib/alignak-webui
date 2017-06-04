@@ -166,8 +166,8 @@ class PluginWorldmap(Plugin):
         # Do not include the embedded fields to improve the loading time...
         hosts = datamgr.get_hosts(search, embedded=False)
 
-        # Get valid hosts
-        (positionned_hosts, not_positionned_hosts) = self.get_map_elements(hosts)
+        # Get positionned and not-positionned hosts
+        (positionned_hosts, dummy) = self.get_map_elements(hosts)
 
         # Get last total elements count
         total = len(positionned_hosts)
@@ -196,7 +196,7 @@ class PluginWorldmap(Plugin):
         }
 
     def get_map_elements(self, hosts):
-        # pylint:disable=no-self-use
+        # pylint:disable=no-self-use, too-many-locals
         """Get hosts valid for a map:
 
         :param hosts: list of hosts to search in
@@ -306,7 +306,6 @@ class PluginWorldmap(Plugin):
                 positionned_hosts.append(map_host)
             else:
                 not_positionned_hosts.append(map_host)
-
 
         logger.info("worldmap, found %d positionned hosts and %d not yet positionned",
                     len(positionned_hosts), len(not_positionned_hosts))

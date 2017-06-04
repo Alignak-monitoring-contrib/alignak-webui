@@ -424,13 +424,15 @@ class PluginActions(Plugin):
         # Provide the described parameters
         parameters = []
         for parameter in commands[command].get('parameters', {}):
-            if request.forms.get(parameter, None) is None:
+            parameter_value = request.forms.get(parameter, None)
+            if parameter_value is None:
                 logger.error("missing command parameter in the request: %s", parameter)
                 return self.webui.response_invalid_parameters(
                     _('Missing parameter: %s' % parameter)
                 )
-            parameters.append(request.forms.get(parameter, None))
-        logger.debug("Command parameters: %s", parameters)
+            logger.debug("Command parameter: %s = %s", parameter, parameter_value)
+            parameters.append(parameter_value)
+        logger.info("Command parameters: %s", parameters)
 
         element_ids = request.forms.getall('element_id')
         if not element_ids:
