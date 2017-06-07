@@ -234,23 +234,6 @@ function raise_message_ko(text){
 
 $(document).ready(function() {
    /*
-    * Refresh start/stop from the UI
-    */
-   $('body').on("click", 'a[data-refresh="start"]', function (evt) {
-      if (refresh_logs) console.debug('Reactivating refresh...');
-
-      // Re-start UI refresh
-      refresh_start();
-   });
-
-   $('body').on("click", 'a[data-refresh="stop"]', function (evt) {
-      if (refresh_logs) console.debug('Stopping refresh...');
-
-      // Stop UI refresh
-      refresh_stop();
-   });
-
-   /*
     * This event handler catches all the submit events for forms that are declared with a
     * data-item attribute.
     */

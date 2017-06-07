@@ -342,9 +342,15 @@ $(document).ready(function(){
    // Toggle refresh ...
    $('body').on("click", '[data-action="toggle-page-refresh"]', function (e, data) {
       if (sessionStorage.getItem("refresh_active") == '1') {
-         refresh_stop();
+          save_user_preference('refresh', JSON.stringify('no'), function(){
+             // Stop UI refresh
+             refresh_stop();
+          });
       } else {
-         refresh_start();
+          save_user_preference('refresh', JSON.stringify('yes'), function(){
+             // Re-start UI refresh
+             refresh_start();
+          });
       }
       if (refresh_logs) console.debug("Refresh active is ", sessionStorage.getItem("refresh_active"));
    });

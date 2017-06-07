@@ -601,14 +601,16 @@ def ping():
     # pylint: disable=too-many-return-statements
     """Request on /ping is a simple check alive that returns an information if UI refresh is needed
 
-    If no session exists, it will always return 'pong' to inform that server is alive.
+    If no session exists, it will return an HTTP 401 to inform that no session exists or the
+    session has expired
 
-    Else:
-        - if UI refresh is needed, requires the UI client to refresh
-        - if action parameter is 'refresh', returns the required template view
-        - if action parameter is 'done', the UI client did refresh the interface.
+    Else, the specified `action` may be:
+        - done, to inform that the server required action has been performed by the client
+        - refresh, to get some information from a specified `template`
 
-    Used by the header refresh to update the hosts/services states.
+    If no action is specified, the application answers with a JSON pong ;)
+
+    Used by the header refresh to update the hosts/services live state.
     """
     session = request.environ['beaker.session']
     if not session:
