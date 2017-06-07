@@ -41,13 +41,6 @@ class User(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    # Displayable strings for the user role
-    roles = {
-        # "user": _("User"),
-        # "power": _("Power user"),
-        # "administrator": _("Administrator")
-    }
-
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
@@ -170,8 +163,15 @@ class User(BackendElement):
         else:
             self.role = 'user'
 
-        if display and self.role in self.__class__.roles:
-            return self.__class__.roles[self.role]
+        # Displayable strings for the user role
+        roles = {
+            "user": _("User"),
+            "power": _("Power user"),
+            "administrator": _("Administrator")
+        }
+
+        if display and self.role in roles:
+            return roles[self.role]
 
         return self.role
 

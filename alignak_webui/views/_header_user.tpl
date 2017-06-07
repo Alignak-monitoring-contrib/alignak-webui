@@ -32,24 +32,19 @@
    </a>
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('User menu')}}">
-      <li class="user-header hidden-xs hidden-sm">
+      <li class="user-header hidden-xs">
          <div class="panel panel-default">
             <div class="panel-body">
-               <!-- User image / name -->
                <p class="username">{{current_user.alias}}</p>
                <p class="usercategory">
                   <small>{{current_user.get_role(display=True)}}</small>
                </p>
-               <img src="{{current_user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % current_user.name}}" title="{{_('Photo: %s') % current_user.name}}">
+               <a href="/user/{{ current_user.name }}">
+                  {{! current_user.get_html_state(text=None)}}
+                  <span>{{_('View my profile')}}</span>
+               </a>
             </div>
          </div>
-      </li>
-
-      <li>
-         <a href="/preferences/user" data-action="user-preferences" >
-            <span class="fa fa-pencil"></span>
-            <span>{{_('User preferences')}}</span>
-         </a>
       </li>
 
       %if current_user.can_edit_configuration():

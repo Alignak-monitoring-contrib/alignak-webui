@@ -1,46 +1,18 @@
-%import json
+<!-- User information widget -->
+%# embedded is True if the widget is got from an external application
+%setdefault('embedded', False)
+%from bottle import request
+%setdefault('links', request.params.get('links', ''))
+%setdefault('identifier', 'widget')
+%setdefault('credentials', None)
 
-%rebase("layout", css=['users/htdocs/css/users.css'], title=_('User preferences'))
+%from alignak_webui.utils.helper import Helper
+%from alignak_webui.utils.perfdata import PerfDatas
 
 <div id="user-preferences">
    <div class="panel">
       <div class="panel-body">
-         <!-- User picture -->
-         <div class="user-header bg-light-blue">
-            <img src="{{current_user.picture}}" class="img-circle user-logo" alt="Photo: {{current_user.name}}" title="Photo: {{current_user.name}}">
-            <p class="username">
-              {{current_user.alias}}
-            </p>
-            <p class="usercategory">
-               <small>{{current_user.get_role(display=True)}}</small>
-            </p>
-         </div>
-
          <div class="user-body">
-            <table class="table table-condensed table-user-identification col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
-               <colgroup>
-                  <col style="width: 40%" />
-                  <col style="width: 60%" />
-               </colgroup>
-               <thead>
-                  <tr><th colspan="2"></th></tr>
-               </thead>
-               <tbody style="font-size:x-small;">
-                  <tr>
-                     <td><strong>{{_('User identification:')}}</strong></td>
-                     <td>{{"%s (%s)" % (current_user.name, current_user.get_username()) if current_user.name != 'none' else current_user.get_username()}}</td>
-                  </tr>
-                  <tr>
-                     <td><strong>{{_('User is allowed to run commands')}}</strong></td>
-                     <td>{{! webui.helper.get_on_off(current_user.is_power(), _('Is this user allowed to launch commands from Web UI?'))}}</td>
-                  </tr>
-                  <tr>
-                     <td><strong>{{_('User can change dashboard widgets')}}</strong></td>
-                     <td>{{! webui.helper.get_on_off(current_user.can_change_dashboard(), _('Is this user allowed to configure dashboard widgets?'))}}</td>
-                  </tr>
-               </tbody>
-            </table>
-
             <table class="table table-condensed table-user-preferences col-sm-12" style="table-layout: fixed; word-wrap: break-word;">
                <colgroup>
                   <col class="col-sm-1">
@@ -52,7 +24,7 @@
                      <th colspan="3">{{_('User preferences:')}}</th>
                   </tr>
                </thead>
-               <tbody style="font-size:x-small;">
+               <tbody>
                   %preferences = datamgr.get_user_preferences(current_user, None)
                   %if preferences:
                   %for key in sorted(preferences):

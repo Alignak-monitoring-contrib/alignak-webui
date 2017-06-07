@@ -21,8 +21,7 @@ class PluginUsers(Plugin):
     """ user backend elements management plugin """
 
     def __init__(self, webui, plugin_dir, cfg_filenames=None):
-        """
-        User plugin
+        """User plugin
 
         Declare routes for adding, deleting a user
 
@@ -65,6 +64,17 @@ class PluginUsers(Plugin):
                         'icon': 'info',
                         'description': _(
                             'User information: displays user general information.'
+                        ),
+                        'options': {}
+                    },
+                    {
+                        'id': 'preferences',
+                        'for': ['user'],
+                        'name': _('Preferences'),
+                        'template': 'user_preferences_widget',
+                        'icon': 'heart',
+                        'description': _(
+                            'User preferences: displays user Web UI preferences.'
                         ),
                         'options': {}
                     },

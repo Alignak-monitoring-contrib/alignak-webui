@@ -9,35 +9,8 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
-<div class="col-md-6">
-   <table class="table table-condensed">
-      <colgroup>
-         <col style="width: 40%" />
-         <col style="width: 60%" />
-      </colgroup>
-      <thead>
-         <tr>
-            <th colspan="2">{{_('Overview:')}}</th>
-         </tr>
-      </thead>
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Name:')}}</strong></td>
-            <td>{{user.name}}</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Alias:')}}</strong></td>
-            <td>{{user.alias}}</td>
-         </tr>
-         <tr>
-            <td></td>
-            <td><img src="{{user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % user.name}}" title="{{_('Photo: %s') % user.name}}"></td>
-         </tr>
-      </tbody>
-   </table>
-</div>
-<div class="col-md-6">
-   <table class="table table-condensed">
+<div id="user-information">
+   <table class="table table-condensed table-rights">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -47,7 +20,7 @@
             <th colspan="2">{{_('Rights:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Administrator')}}</strong></td>
             <td>{{! webui.helper.get_on_off(status=user.is_administrator())}}</td>
@@ -59,7 +32,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-hosts-notifications">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -69,7 +42,26 @@
             <th colspan="2">{{_('Hosts notifications configuration:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
+         <tr>
+            <td><strong>{{_('State:')}}</strong></td>
+            <td>
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(user.host_notifications_enabled, message=_('Enabled') if user.host_notifications_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="hosts_notifications_enabled" name="notifications_enabled"
+                            data-action="command" data-type="user" data-name="{{user.name}}"
+                            data-element="{{user.id}}" data-command="{{'disable_contact_host_notifications' if user.host_notifications_enabled else 'enable_contact_host_notifications'}}"
+                            {{ 'checked="checked"' if user.host_notifications_enabled else ''}}>
+                     <small>{{_('Enabled') if user.host_notifications_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
+            </td>
+         </tr>
+
          <tr>
             <td><strong>{{_('Notification period:')}}</strong></td>
             <td data-name="host_notification_period" class="popover-dismiss"
@@ -78,13 +70,6 @@
                   data-content='{{user.host_notification_period}}'
                   >
                {{! user.host_notification_period.get_html_state_link()}}
-            </td>
-         </tr>
-
-         <tr>
-            <td><strong>{{_('Notifications enabled:')}}</strong></td>
-            <td>
-               {{! Helper.get_on_off(user.host_notifications_enabled)}}
             </td>
          </tr>
 
@@ -112,7 +97,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-services-notifications">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -122,7 +107,26 @@
             <th colspan="2">{{_('Services notifications configuration:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
+         <tr>
+            <td><strong>{{_('State:')}}</strong></td>
+            <td>
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(user.service_notifications_enabled, message=_('Enabled') if user.service_notifications_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="services_notifications_enabled" name="notifications_enabled"
+                            data-action="command" data-type="user" data-name="{{user.name}}"
+                            data-element="{{user.id}}" data-command="{{'disable_contact_svc_notifications' if user.service_notifications_enabled else 'enable_contact_svc_notifications'}}"
+                            {{ 'checked="checked"' if user.service_notifications_enabled else ''}}>
+                     <small>{{_('Enabled') if user.service_notifications_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
+            </td>
+         </tr>
+
          <tr>
             <td><strong>{{_('Notification period:')}}</strong></td>
             <td data-name="service_notification_period" class="popover-dismiss"
@@ -131,13 +135,6 @@
                   data-content='{{user.service_notification_period}}'
                   >
                {{! user.service_notification_period.get_html_state_link()}}
-            </td>
-         </tr>
-
-         <tr>
-            <td><strong>{{_('Notifications enabled:')}}</strong></td>
-            <td>
-               {{! Helper.get_on_off(user.service_notifications_enabled)}}
             </td>
          </tr>
 

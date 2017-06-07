@@ -11,7 +11,7 @@
 %from alignak_webui.utils.perfdata import PerfDatas
 
 <div class="col-sm-6">
-   <table class="table table-condensed">
+   <table class="table table-condensed table-overview">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -41,7 +41,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-status">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -82,7 +82,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed table-nowrap">
+   <table class="table table-condensed table-nowrap table-check-result">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -178,7 +178,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-check">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -297,7 +297,7 @@
 </div>
 
 <div class="col-sm-6">
-   <table class="table table-condensed">
+   <table class="table table-condensed table-notifications">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -385,7 +385,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-event-handler">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -436,7 +436,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-flapping">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -499,7 +499,7 @@
    </table>
 
    %if service.stalking_options:
-   <table class="table table-condensed">
+   <table class="table table-condensed table-stalking">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />

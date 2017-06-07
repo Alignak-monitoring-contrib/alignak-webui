@@ -25,7 +25,7 @@
             <th colspan="2">{{_('Main information:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Realm:')}}</strong></td>
             <td>
