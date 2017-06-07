@@ -37,10 +37,14 @@
 %else:
 %server_url = ''
 %end
-<!-- Table display -->
+<!-- Table identifiers -->
 %table_id = "%ss_table" % object_type
 %if dt.templates:
 %table_id = "%ss_templates_table" % object_type
+%end
+%table_pref = "table_%s" % object_type
+%if dt.templates:
+%table_pref = "templates_table_%s" % object_type
 %end
 
 <!-- Table filtering ... -->
@@ -571,7 +575,7 @@
                "dataType": "json",
                "type": "GET",
                "data": {
-                  "key": '{{table_id}}'
+                  "key": '{{table_pref}}'
                },
                "async": false,
                "success": function (json) {
@@ -593,7 +597,7 @@
                "dataType": "json",
                "type": "POST",
                "data": {
-                  "key": '{{table_id}}',
+                  "key": '{{table_pref}}',
                   // Json stringify to avoid complex array formatting ...
                   "value": JSON.stringify(data)
                },
