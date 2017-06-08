@@ -51,7 +51,11 @@
 
       <!-- Right part ... -->
       <div id="navbar-collapsible-part" class="collapse navbar-collapse">
+         %if current_user.skill_level > 0:
          %include("_menubar.tpl")
+         %else:
+         %include("_menubar_beginner.tpl")
+         %end
 
          <ul class="nav navbar-nav navbar-left">
             <li class="hidden-xs" id="loading" style="display: none;">
