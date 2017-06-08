@@ -129,6 +129,8 @@ class User(BackendElement):
     @property
     def host_notification_commands(self):
         """Return linked object"""
+        if self._linked_host_notification_commands == 'command':
+            return []
         return self._linked_host_notification_commands
 
     @property
@@ -139,6 +141,8 @@ class User(BackendElement):
     @property
     def service_notification_commands(self):
         """Return linked object"""
+        if self._linked_service_notification_commands == 'command':
+            return []
         return self._linked_service_notification_commands
 
     @property

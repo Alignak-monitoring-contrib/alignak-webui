@@ -17,8 +17,9 @@ var actions = false;
 // Markers ...
 var allMaps = [];
 
-// Hosts
-var hosts = []
+// Hosts - positionned or not
+var pos_hosts = []
+var not_pos_hosts = []
 
 
 function hostInfoContent() {
@@ -30,7 +31,7 @@ function gpsLocation() {
 }
 
 function markerIcon() {
-    return "/static/plugins/worldmap/static/img/" + '/glyph-marker-icon-' + this.hostStatus().toLowerCase() + '.png';
+    return "/static/plugins/worldmap/static/img/glyph-marker-icon-" + this.hostStatus().toLowerCase() + ".png";
 }
 
 function hostState() {
@@ -62,32 +63,6 @@ function Host(id, name, alias, overallState, overallStatus, state, bi, content, 
     this.hostStatus = hostStatus;
 }
 
-function serviceInfoContent() {
-    var text = '<li>' + this.stateIcon + ' <a href="/service/' + this.id + '">' + this.name + '</a> ' + this.biIcon;
-    if (this.isDowntimed) {
-        text += '<div><i class="fa fa-ambulance"></i>Currently in scheduled downtime.</div>';
-    }
-    if (this.isProblem) {
-        text += '<div>';
-        if (this.isAcknowledged) {
-            text += '<em><span class="fa fa-check"></span>Problem has been acknowledged.</em>';
-        } else {
-            if (actions) {
-                text += '<button class="btn btn-raised btn-xs" ';
-                text += 'data-type="action" data-action="acknowledge" data-toggle="tooltip" data-placement="top"';
-                text += 'title="Acknowledge this problem"';
-                text += 'data-element_type="service" data-name="'+this.name+'" data-element="'+this.id+'">';
-                text += '<i class="fa fa-check"></i></button>';
-            } else {
-                text += '<em><span class="fa fa-exclamation"></span>Problem should be acknowledged.</em>';
-            }
-        }
-        text += '</div>';
-    }
-    text += '</li>';
-    return text;
-}
-
 function Service(hostId, id, name, alias, overallState, overallStatus, state, bi, content) {
     this.hostId = hostId;
     this.id = id;
@@ -98,8 +73,6 @@ function Service(hostId, id, name, alias, overallState, overallStatus, state, bi
     this.state = state;
     this.bi = bi;
     this.content = content;
-
-    this.infoContent = serviceInfoContent;
 }
 
 //------------------------------------------------------------------------------
@@ -131,20 +104,70 @@ loadScripts = function(scripts, complete) {
 // ------------------------------------------------------------------------------
 // Create a marker for specified host
 // ------------------------------------------------------------------------------
-markerCreate = function($map, host) {
+markerCreate = function($map, host, markerCluster, draggable) {
     if (debugMaps) console.log("-> marker creation for " + host.name + ", state : " + host.hostStatus());
 
     var icon = L.icon.glyph({iconUrl: host.markerIcon(), prefix: 'fa', glyph: 'server'});
 
-    var m = L.marker(host.location(), {icon: icon}).bindLabel(host.name, {
-        noHide: true,
-        direction: 'center',
-        offset: [0, 0]
-    }).bindPopup(host.infoContent()).openPopup();
-    m.state = host.hostState();
-    m.state_text = host.hostStatus();
-    m.name = host.name;
-    return m;
+    var marker = L.marker(host.location(), {id:host.name, icon:icon, draggable:draggable})
+                    .addTo(markerCluster)
+                    .bindTooltip(host.name, {permanent: true, direction: 'center', offset: [0, -12]})
+                    .bindPopup(host.infoContent())
+                    .openPopup();
+    marker.state = host.hostState();
+    marker.state_text = host.hostStatus();
+    marker.name = host.name;
+
+    if (draggable == 'true') {
+        marker.on('dragstart', function(event) {
+            var marker = event.target;
+            marker.opacity = 0.5;
+        });
+
+        marker.on('dragend', function(event){
+            var marker = event.target;
+            var position = marker.getLatLng();
+
+            wait_message('Updating position...', true)
+
+            $.ajax({
+                url: "/host/" + host.name + "/form",
+                type: "POST",
+                data: {"location": ["latitude|"+position.lat, "longitude|"+position.lng]}
+            })
+            .done(function(data, textStatus, jqXHR) {
+                // data is JSON formed with a _message field
+                if (jqXHR.status != 200) {
+                    console.error(jqXHR.status, data);
+                    raise_message_ko(data._message);
+                } else {
+                    raise_message_info(data._message);
+                    $.each(data, function(field, value){
+                        if (field=='_message') return true;
+                        if (field=='_errors') return true;
+                        raise_message_ok("Updated " + field);
+                    });
+
+                    // Update marker
+                    marker.setLatLng(position).update();
+                    $map.panTo(position)
+                }
+            })
+            .fail(function( jqXHR, textStatus, errorThrown ) {
+                // data is JSON formed with a _message field
+                if (jqXHR.status != 409) {
+                    console.error(errorThrown, textStatus);
+                } else {
+                    raise_message_info(data._message);
+                }
+            })
+            .always(function() {
+                wait_message('', false)
+            });
+        });
+    }
+
+    return marker;
 }
 
 // ------------------------------------------------------------------------------
@@ -164,10 +187,10 @@ mapResize = function($map, host) {
 // ------------------------------------------------------------------------------
 // Map initialization
 // ------------------------------------------------------------------------------
-mapInit = function(map_id, callback) {
+mapInit = function(map_id, editable, callback) {
     if (debugMaps) console.log('Initialization function: mapInit for ', map_id);
 
-    if  (hosts.length < 1) {
+    if  (pos_hosts.length < 1) {
         if (debugMaps) console.log('No hosts to display on the map.');
         return false;
     }
@@ -176,12 +199,6 @@ mapInit = function(map_id, callback) {
     if (debugMaps) console.log('Map object: ', map_id, $map)
 
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'}).addTo($map);
-
-    // Markers ...
-    var allMarkers = [];
-    for (var i = 0; i < hosts.length; i++) {
-        allMarkers.push(markerCreate($map, hosts[i]));
-    }
 
     // Build marker cluster
     var markerCluster = L.markerClusterGroup({
@@ -209,9 +226,21 @@ mapInit = function(map_id, callback) {
                 iconSize: new L.Point(60, 60)
             });
         }
-    });
+    }).addTo($map);
+
+    // Markers ...
+    var allMarkers = [];
+    for (var i = 0; i < pos_hosts.length; i++) {
+        var marker = markerCreate($map, pos_hosts[i], markerCluster, editable);
+
+        //$map.addLayer(marker);
+        allMarkers.push(marker);
+    }
     markerCluster.addLayers(allMarkers);
     $map.addLayer(markerCluster);
+
+//    var group = L.featureGroup(allMarkers); //add markers array to featureGroup
+//    $map.fitBounds(group.getBounds());
     $map.fitBounds(markerCluster.getBounds());
 
     allMaps.push($map);

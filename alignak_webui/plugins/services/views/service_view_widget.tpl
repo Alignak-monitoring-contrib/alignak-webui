@@ -31,11 +31,14 @@
 
 <div id="service_view_right" class="col-lg-8 col-sm-8">
    <div class="panel panel-default">
-      <div class="panel-heading">
-         {{ _('My last check') }}
+      %collapsed = datamgr.get_user_preferences(current_user, "service-panel-check", {'opened': False})
+      <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+           data-action="save-panel" data-target="#service-panel-check" data-toggle="collapse"
+           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+         <span class="caret"></span>&nbsp;{{ _('My last check') }}
       </div>
 
-      <div class="panel-body">
+      <div id="service-panel-check" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
          <!-- Last check output -->
          <table class="table table-condensed table-nowrap">
             <colgroup>
@@ -50,7 +53,7 @@
                </tr>
                %if service.last_check:
                <tr>
-                  <td><strong>{{_('Last check timestamp:')}}</strong></td>
+                  <td><strong>{{_('When:')}}</strong></td>
                   <td>
                      {{Helper.print_duration(service.last_check, duration_only=False, x_elts=0)}}
                   </td>
@@ -65,7 +68,7 @@
                <tr>
                   <td><strong>{{_('Output:')}}</strong></td>
                   <td>
-                     {{! service.output}}
+                     {{! service.html_output}}
                   </td>
                </tr>
                %end
@@ -73,7 +76,7 @@
                <tr>
                   <td><strong>{{_('Long output:')}}</strong></td>
                   <td>
-                     {{! service.long_output}}
+                     {{! service.html_long_output}}
                   </td>
                </tr>
                %end
@@ -81,7 +84,7 @@
                <tr>
                   <td><strong>{{_('Performance data:')}}</strong></td>
                   <td>
-                     {{! service.perf_data}}
+                     {{! service.html_perf_data if service.perf_data else '(none)'}}
                   </td>
                </tr>
                %end
@@ -91,11 +94,14 @@
    </div>
 
    <div class="panel panel-default">
-      <div class="panel-heading">
-         {{ _('My metrics') }}
+      %collapsed = datamgr.get_user_preferences(current_user, "service-panel-perfdata", {'opened': False})
+      <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+           data-action="save-panel" data-target="#service-panel-perfdata" data-toggle="collapse"
+           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+         <span class="caret"></span>&nbsp;{{ _('My metrics') }}
       </div>
 
-      <div class="panel-body">
+      <div id="service-panel-perfdata" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
          %from alignak_webui.utils.helper import Helper
          %from alignak_webui.utils.perfdata import PerfDatas
 

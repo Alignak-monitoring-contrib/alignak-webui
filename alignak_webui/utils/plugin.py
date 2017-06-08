@@ -73,6 +73,7 @@ class Plugin(object):
         self.plugin_filenames = cfg_filenames
         self.plugin_parameters = None
         self.table = None
+        self.variables = {}
 
         # Default is to have a search engine for some pages
         # If the default search engine must not be present on the pages, the inherited
@@ -483,6 +484,17 @@ class Plugin(object):
             if p[2] in self.table[p[1]]:
                 logger.warning("plugin %s overrides default configuration: %s.%s = %s",
                                self.name, p[1], p[2], self.plugin_config[param])
+            if p[2] == 'ui-variable':
+                if self.plugin_config[param]:
+                    logger.info("plugin %s, UI variable: %s (%s)",
+                                self.name, self.plugin_config[param],
+                                type(self.plugin_config[param]))
+                    if self.plugin_config[param] is not True:
+                        self.variables[p[1]] = self.plugin_config[param]
+                    else:
+                        self.variables[p[1]] = True
+                    logger.info("plugin %s, UI variable: %s.%s = %s",
+                                self.name, p[1], p[2], self.variables[p[1]])
             self.table[p[1]][p[2]] = self.plugin_config[param]
 
         logger.debug("Table: %s", self.table)
@@ -728,7 +740,16 @@ class Plugin(object):
             # Get element from the data manager
             element = f(element_id)
             if not element:
+                # Search with name rather than id
                 element = f(search={'max_results': 1, 'where': {'name': element_id}})
+                if self.templated and not element:
+                    # Search amnog the templates with id
+                    element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                    '_id': element_id}})
+                    if not element:
+                        # Search amnog the templates with name
+                        element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                        'name': element_id}})
         # If not found, element will remain as None to create a new element
 
         if not edition_mode and not element:
@@ -788,22 +809,23 @@ class Plugin(object):
         # Prepare update request ...
         data = {}
         for field in request.forms:
+            logger.info("- posted field: %s = %s", field, request.forms.getall(field))
             # For arrays in forms ...
             if field.endswith('[]'):
                 field = field[:-2]
             update = False
-            value = request.forms.get(field)
-            if value:
-                value = value.decode('utf-8')
             if field not in self.table:
-                logger.warning("- unknown field: %s = %s", field, value)
+                logger.warning("- unknown field: %s", field)
                 continue
 
             field_type = self.table[field].get('type')
-            logger.info("- posted field: %s (%s) = %s", field, field_type, value)
+            logger.info("- posted field: %s (%s)", field, field_type)
 
             if field_type == 'objectid':
-                if not value:
+                value = request.forms.get(field)
+                if value:
+                    value = value.decode('utf-8')
+                else:
                     value = None
             elif field_type == 'boolean':
                 value = (request.forms.get(field) == 'true')
@@ -812,11 +834,13 @@ class Plugin(object):
             elif field_type == 'float':
                 value = float(request.forms.get(field))
             elif field_type == 'point':
-                value = request.forms.getall(field)
+                value = request.forms.getall(field + '[]')
+                logger.info("- got a point: %s: %s", field, value)
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
                     dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                logger.info("- got a point: %s: %s", field, dict_values)
                 value = {
                     u'type': u'Point',
                     u'coordinates': [
@@ -842,6 +866,10 @@ class Plugin(object):
                         splitted = item.split('|')
                         dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
                     value = [dict_values]
+            else:
+                value = request.forms.get(field)
+                if value:
+                    value = value.decode('utf-8')
 
             if not create and element[field] != value:
                 update = True

@@ -133,7 +133,7 @@ commands = {
     'process_host_check_result': {
         'global': False, 'elements_type': 'host',
         'title': _("Send an host check result"),
-        'parameters': ["ls_state_id", "ls_output"]
+        "parameters": ["ls_state_id", "ls_output", "ls_long_output", "ls_perf_data"]
     },
     'process_host_output': {
         'global': False, 'elements_type': 'host',

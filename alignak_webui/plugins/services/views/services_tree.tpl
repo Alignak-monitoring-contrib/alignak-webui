@@ -58,11 +58,14 @@
       %include("_nothing_found.tpl", search_string=search_string)
    %else:
    <div class="panel panel-default">
-      <div class="panel-heading">
-         {{title}}
+      %collapsed = datamgr.get_user_preferences(current_user, "services-tree", {'opened': False})
+      <div class="panel-heading {{ 'collapsed' if not collapsed['opened'] else ''}}"
+           data-action="save-panel" data-target="#services-tree" data-toggle="collapse"
+           aria-expanded="{{ 'true' if collapsed['opened'] else 'false' }}">
+         <span class="caret"></span>&nbsp;{{title}}
       </div>
 
-      <div class="panel-body">
+      <div id="services-tree" class="panel-body panel-collapse {{ 'collapse' if not collapsed['opened'] else ''}}">
          <div class="row">
             <div class="col-sm-3 col-xs-12">
                <!-- Tree structure to display items -->

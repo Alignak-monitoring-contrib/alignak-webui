@@ -91,6 +91,36 @@
             </td>
          </tr>
 
+         <tr>
+            <td><strong>{{_('Notifications commands:')}}</strong></td>
+            %if not user.host_notification_commands:
+            <td>
+               {{_('No notification commands defined.')}}
+            </td>
+            %else:
+            %first = True
+            %for command in user.host_notification_commands:
+               %if not first:
+               <tr>
+               <td></td>
+               %else:
+               %first = False
+               %end
+               <td>
+                  {{! command.get_html_state_link()}}
+               </td>
+               </tr>
+            %end
+            %end
+         </tr>
+
+         <tr>
+            <td><strong>{{_('Notifications enabled:')}}</strong></td>
+            <td>
+               {{! Helper.get_on_off(user.host_notifications_enabled)}}
+            </td>
+         </tr>
+
          %message = {}
          %message['d'] = {'title': _('Notifications enabled on Down state'), 'message': _('DOWN')}
          %message['u'] = {'title': _('Notifications enabled on Unreachable state'), 'message': _('UNREACHABLE')}
@@ -153,6 +183,13 @@
                   data-content='{{user.service_notification_period}}'
                   >
                {{! user.service_notification_period.get_html_state_link()}}
+            </td>
+         </tr>
+
+         <tr>
+            <td><strong>{{_('Notifications enabled:')}}</strong></td>
+            <td>
+               {{! Helper.get_on_off(user.service_notifications_enabled)}}
             </td>
          </tr>
 

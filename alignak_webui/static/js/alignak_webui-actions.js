@@ -288,6 +288,24 @@ $(document).ready(function() {
 
 
    /*
+    * UI actions
+    */
+   // Save collapsible state
+   $('body').on("click", '[data-action="save-panel"]', function () {
+      if (actions_logs) console.debug("Save preferences for a panel")
+      var id = $(this).data("target");
+      id = id.substring(1, id.length);
+      var panel_data = {
+        "opened": $(this).hasClass("collapsed")
+      };
+      console.log(panel_data)
+      save_user_preference(id, JSON.stringify(panel_data), function () {
+         refresh_bookmarks(search_string);
+      });
+   });
+
+
+   /*
     * Dashboard widgets management
     */
    // Add a widget

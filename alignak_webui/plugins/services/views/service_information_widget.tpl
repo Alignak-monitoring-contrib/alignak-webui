@@ -105,7 +105,7 @@
 
          %if service.last_check:
          <tr>
-            <td><strong>{{_('Last check timestamp:')}}</strong></td>
+            <td><strong>{{_('When:')}}</strong></td>
             <td>
                {{Helper.print_duration(service.last_check, duration_only=False, x_elts=0)}}
             </td>
@@ -120,7 +120,7 @@
          <tr>
             <td><strong>{{_('Output:')}}</strong></td>
             <td>
-               {{! service.output}}
+               {{! service.html_output}}
             </td>
          </tr>
          %end
@@ -128,7 +128,7 @@
          <tr>
             <td><strong>{{_('Long output:')}}</strong></td>
             <td>
-               {{! service.long_output}}
+               {{! service.html_long_output}}
             </td>
          </tr>
          %end
@@ -136,7 +136,7 @@
          <tr>
             <td><strong>{{_('Performance data:')}}</strong></td>
             <td>
-                {{service.perf_data if service.perf_data else '(none)'}}
+                {{! service.html_perf_data if service.perf_data else '(none)'}}
             </td>
          </tr>
          %end

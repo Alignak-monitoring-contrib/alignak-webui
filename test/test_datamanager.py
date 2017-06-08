@@ -133,7 +133,7 @@ class TestCreation(unittest2.TestCase):
         print('DM logging bad password')
         assert not datamanager.user_login('admin', 'fake')
         print(datamanager.connection_message)
-        assert datamanager.connection_message == 'Backend connection refused...'
+        assert datamanager.connection_message == 'Access denied! Check your username and password.'
         print(datamanager.logged_in_user)
         assert not datamanager.logged_in_user
 
@@ -155,14 +155,14 @@ class TestCreation(unittest2.TestCase):
         print('DM logging bad password')
         assert not datamanager.user_login('admin', 'fake')
         print(datamanager.connection_message)
-        assert datamanager.connection_message == 'Backend connection refused...'
+        assert datamanager.connection_message == 'Access denied! Check your username and password.'
         print(datamanager.logged_in_user)
         assert not datamanager.logged_in_user
 
         # User login but do not load yet
         print('DM login ok')
         assert datamanager.user_login('admin', 'admin', load=False)
-        assert datamanager.connection_message == 'Connection successful'
+        assert datamanager.connection_message == 'Access granted'
         print("Logged user: %s" % datamanager.logged_in_user)
         assert datamanager.logged_in_user
         assert datamanager.logged_in_user is not None
@@ -195,7 +195,7 @@ class TestCreation(unittest2.TestCase):
         print(datamanager.logged_in_user.token)
         user_token = datamanager.logged_in_user.token
         assert datamanager.user_login(user_token)
-        assert datamanager.connection_message == 'Connection successful'
+        assert datamanager.connection_message == 'Access granted'
 
         assert datamanager.logged_in_user
         assert datamanager.logged_in_user is not None

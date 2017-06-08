@@ -105,12 +105,12 @@ class TestLogin(unittest2.TestCase):
         print('login refused - credentials')
         response = self.app.post('/login', {'username': None, 'password': None})
         redirected_response = response.follow()
-        redirected_response.mustcontain('Backend connection refused...')
+        redirected_response.mustcontain('Access denied! Check your username and password.')
 
         print('login refused - fake credentials')
         response = self.app.post('/login', {'username': 'fake', 'password': 'fake'})
         redirected_response = response.follow()
-        redirected_response.mustcontain('Backend connection refused...')
+        redirected_response.mustcontain('Access denied! Check your username and password.')
 
         # /heartbeat sends a status 401
         response = self.app.get('/heartbeat', status=401)
