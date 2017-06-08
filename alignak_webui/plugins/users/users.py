@@ -7,9 +7,10 @@
     Plugin Users
 """
 
+import json
 from logging import getLogger
 
-from bottle import request, template
+from bottle import request, response, template
 
 from alignak_webui.utils.plugin import Plugin
 
