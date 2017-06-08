@@ -349,6 +349,7 @@ class Plugin(object):
                             'description': widget['description'],
                             'template': widget['template'],
                             'icon': widget.get('icon', 'leaf'),
+                            'level': widget.get('level', 0),
                             'read_only': widget.get('read_only', False),
                             'options': widget.get('options', None),
                             'picture': os.path.join(
