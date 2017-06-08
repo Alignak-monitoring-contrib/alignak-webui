@@ -157,7 +157,7 @@ class tests_actions(unittest2.TestCase):
             "notify": True,
             "comment": "User comment",
         }
-        self.app.post('/acknowledge/add', data, status=204)
+        self.app.post('/acknowledge/add', data, status=400)
 
         # Acknowledge an host
         data = {
@@ -267,7 +267,7 @@ class tests_actions(unittest2.TestCase):
             'duration': 86400,
             "comment": "User comment",
         }
-        self.app.post('/downtime/add', data, status=204)
+        self.app.post('/downtime/add', data, status=400)
 
         # downtime an host
         data = {
@@ -354,7 +354,7 @@ class tests_actions(unittest2.TestCase):
             "notify": True,
             "comment": "User comment",
         }
-        response = self.app.post('/recheck/add', data, status=204)
+        response = self.app.post('/recheck/add', data, status=400)
 
         # Recheck an host
         data = {
@@ -458,7 +458,7 @@ class tests_actions(unittest2.TestCase):
             "elements_type": 'host',
             "element_id": host.id
         }
-        response = self.app.post('/command/add', data, status=204)
+        response = self.app.post('/command/add', data, status=400)
         print(response)
 
         # Unknown command
@@ -467,7 +467,7 @@ class tests_actions(unittest2.TestCase):
             "elements_type": 'host',
             "element_id": host.id
         }
-        response = self.app.post('/command/add', data, status=204)
+        response = self.app.post('/command/add', data, status=400)
 
         # Missing command parameter
         data = {
@@ -475,7 +475,7 @@ class tests_actions(unittest2.TestCase):
             "elements_type": 'host',
             "element_id": host.id
         }
-        response = self.app.post('/command/add', data, status=204)
+        response = self.app.post('/command/add', data, status=400)
 
         # Command for an host
         data = {

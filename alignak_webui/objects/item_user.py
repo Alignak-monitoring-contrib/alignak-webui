@@ -30,6 +30,11 @@
 """
 from alignak_webui.objects.element import BackendElement
 
+# Users skill levels
+LVL_BEGINNER = 0
+LVL_INTERMEDIATE = 1
+LVL_ADVANCED = 2
+
 
 class User(BackendElement):
     """Object representing a user (contact)"""
@@ -59,6 +64,10 @@ class User(BackendElement):
         # Is an administrator ?
         if not hasattr(self, 'is_admin'):
             self.is_admin = False
+
+        # Skill level
+        if not hasattr(self, 'skill_level'):
+            self.skill_level = 0
 
         # Can submit commands
         if not hasattr(self, 'can_submit_commands'):
@@ -95,8 +104,8 @@ class User(BackendElement):
 
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
-            return "<Authenticated %s, id: %s, name: %s, role: %s>" % (
-                self.__class__._type, self.id, self.name, self.get_role()
+            return "<Authenticated %s, id: %s, name: %s, role: %s, level: %d>" % (
+                self.__class__._type, self.id, self.name, self.get_role(), self.skill_level
             )
         return "<%s, id: %s, name: %s, role: %s>" % (
             self.__class__._type, self.id, self.name, self.get_role()
@@ -148,7 +157,7 @@ class User(BackendElement):
     def get_role(self, display=False):
         """Get the user role.
 
-        If user role is not defined, set the property according to the user attributes:
+        If the user role is not defined, set the property according to the user attributes:
         - role='administrator' if the user is an administrator
         - role='power' if the user can submit commands
         - role='user' else
@@ -175,13 +184,42 @@ class User(BackendElement):
 
         return self.role
 
+    def get_skill_level(self):
+        """Get the user skill level.
+
+        The user skill level allows to display more or less information in the Web UI. This
+        allows to make the UI more simple for beginners and richer for advanced users.
+
+        Each information field stored in the Alignak backend has its own skill level. It the
+        user's SL is higher the the information one, the information will be displayed else it
+        will be hidden.
+
+        This function returns a displayable string to represent the skill level:
+        - beginner (0)
+        - intermediate (1)
+        - advanced (>2)
+        """
+        # Displayable strings for the user skill level
+        levels = [
+            (_("Beginner"), _("The Web UI will present a simplified interface.")),
+            (_("Intermediate"), _("The Web UI will present an intermediate interface. "
+                                  "All the features and information are not yet available.")),
+            (_("Advanced"), _("The Web UI will present the most rich interface. "
+                              "All the system information and features are available."))
+        ]
+        level = min(self.skill_level, LVL_ADVANCED)
+
+        return levels[level]
+
     def is_anonymous(self):
-        """An anonymous user is created when no 'name' attribute exists for the user ... 'anonymous'
-        is the default value of the Item name property."""
+        """An anonymous user is created when no 'name' attribute exists for the user ...
+        'anonymous' is the default value of the Item name property."""
         return self.name == 'anonymous'
 
     def is_super_administrator(self):
-        """Is user a super administrator?"""
+        """Is user a super administrator?
+        TODO: does it have any sense for the Web UI?
+        """
         if getattr(self, 'back_role_super_admin', None):
             return self.back_role_super_admin
         return False
@@ -215,7 +253,14 @@ class User(BackendElement):
         return getattr(self, 'can_submit_commands', '1') == '1'
 
     def can_change_dashboard(self):
-        """Can the user change dashboard (edit widgets,...)?"""
+        """Can the user change dashboard (edit widgets,...)?
+
+        The user skill level must be intermediate or higher.
+        And, only powered users can change the dashboard.
+        """
+        if self.skill_level < 1:
+            return False
+
         if self.is_power():
             return True
 
@@ -226,8 +271,12 @@ class User(BackendElement):
     def can_edit_configuration(self):
         """Can the user edit the configuration?
 
-        Currently, only the administrator users can edit the configuration
+        The user skill level must be intermediate or higher.
+        And, only administrator users can edit the configuration
         """
+        if self.skill_level < 1:
+            return False
+
         return self.is_administrator()
 
     def get_ui_preference(self, key=None):

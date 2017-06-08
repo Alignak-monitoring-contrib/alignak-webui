@@ -127,7 +127,6 @@ class Datatable(object):
                 of the linked object
                 - if the field contains 'allowed' values, format is set to 'select'
 
-
             Returns a dictionary containing:
             - element_type: element type
             - uid: unique identifier for the element type. Contains the field that is to be used as
@@ -137,10 +136,18 @@ class Datatable(object):
                 the ui in its plugin_table.
 
             :return: list of fields name/title"""
+        # Current logged user skill level
+        user_level = self.datamgr.logged_in_user.skill_level
+
         self.data_model = []
         self.table_columns = []
         for field, model in plugin_table.iteritems():
             logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
+
+            if 'skill_level' in model and model['skill_level'] > user_level:
+                logger.warning("UI field has a skill level: %s.%s vs %s",
+                               field, model['skill_level'], user_level)
+                continue
 
             # Global table configuration?
             if field == '_table':

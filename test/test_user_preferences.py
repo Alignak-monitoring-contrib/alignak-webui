@@ -118,6 +118,7 @@ class tests_preferences(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
+    @unittest2.skip("Page removed from the UI...")
     def test_global_preferences(self):
         """User preferences - global preferences"""
         print('test global user preferences page')
@@ -146,7 +147,7 @@ class tests_preferences(unittest2.TestCase):
 
         # Get user's preferences value - missing key
         print('- missing key')
-        response = self.app.get('/preference/user', status=204)
+        response = self.app.get('/preference/user', status=400)
 
         # Get user's preferences value - not existing key without default value
         print('- unknown key, no default value')
@@ -164,9 +165,9 @@ class tests_preferences(unittest2.TestCase):
 
         # Set user's preferences value - bad parameters
         params = {}
-        response = self.app.post('/preference/user', params=params, status=204)
+        response = self.app.post('/preference/user', params=params, status=400)
         params = {'key': 'test'}
-        response = self.app.post('/preference/user', params=params, status=204)
+        response = self.app.post('/preference/user', params=params, status=400)
 
         # Set user's preferences value - simple data
         params = {'key': 'test', 'value': 'test'}

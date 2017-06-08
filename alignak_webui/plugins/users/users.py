@@ -31,10 +31,16 @@ class PluginUsers(Plugin):
         self.backend_endpoint = 'user'
 
         self.pages = {
-            'show_user_preferences': {
-                'name': 'User preferences',
-                'route': '/preferences/user',
-                'view': 'preferences'
+            'show_password_change': {
+                'name': 'Password change form',
+                'route': '/password_change_request',
+                'view': 'change_password'
+            },
+
+            'change_password': {
+                'name': 'Change password',
+                'route': '/change_password',
+                'method': 'POST'
             },
 
             'get_all': {
@@ -84,12 +90,87 @@ class PluginUsers(Plugin):
 
         super(PluginUsers, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    def show_user_preferences(self):
-        # pylint: disable=no-self-use
+    def show_password_change(self):  # pylint: disable=no-self-use
+        """Show form to change a password"""
+        return {
+            'title': request.query.get('title', _('Request to change a user password')),
+            'action': request.query.get('action', 'password'),
+            'elements_type': request.query.get('elements_type'),
+            'element_id': request.query.getall('element_id'),
+            'element_name': request.query.getall('element_name'),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1'
+        }
+
+    def change_password(self):
+        """Change a password
+
+        Parameters:
+        - element_id[]: all the users identifiers to be updated (usual way is to have only one!)
+
+        - password1 and password2
         """
-            Show the user preferences view
-        """
-        return {}
+        datamgr = request.app.datamgr
+
+        element_ids = request.forms.getall('element_id')
+        if not element_ids:
+            logger.error("request to change a password: missing element_id parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing user identifier: element_id')
+            )
+
+        if not request.forms.get('password1'):
+            logger.error("request to change a password: missing password1 parameter!")
+            return self.webui.response_invalid_parameters(
+                _('The first password field must not be empty')
+            )
+
+        if not request.forms.get('password2'):
+            logger.error("request to change a password: missing password2 parameter!")
+            return self.webui.response_invalid_parameters(
+                _('The second password field must not be empty')
+            )
+
+        # Is the form considered as valid by the client
+        if request.forms.get('valid_form', 'false') != 'true':
+            logger.error("request to change a password: invalid for content!")
+            return self.webui.response_invalid_parameters(
+                _('The form is not validated because of its content.')
+            )
+
+        problem = False
+        status = ""
+
+        # Method to get elements from the data manager
+        elements_type = request.forms.get('elements_type', 'user')
+        f = getattr(datamgr, 'get_%s' % elements_type)
+        if not f:
+            status += (_("No method to get a %s element") % elements_type)
+        else:
+            for element_id in element_ids:
+                element = f(element_id)
+                if not element:
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                    continue
+
+                # Prepare post request ...
+                data = {
+                    '_id': element_id,
+                    'password': request.forms.get('password1')
+                }
+
+                logger.info("Changing a user password...")
+                if not datamgr.update_object(element, data=data):
+                    status += _("Failed updating data for the user '%s'. ") % element.name
+                    problem = True
+                else:
+                    status += _('User %s updated.') % element.name
+
+        logger.info("Change a password, result: %s", status)
+
+        if not problem:
+            return self.webui.response_ok(message=status)
+        return self.webui.response_ko(message=status)
 
     def get_user_widget(self, element_id, widget_id,
                         embedded=False, identifier=None, credentials=None):

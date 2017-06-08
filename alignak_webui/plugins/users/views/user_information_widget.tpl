@@ -29,6 +29,24 @@
             <td><strong>{{_('Commands')}}</strong></td>
             <td>{{! webui.helper.get_on_off(user.is_power())}}</td>
          </tr>
+         <tr>
+            <td><strong>{{_('Skill level')}}</strong></td>
+            %skill,title = user.get_skill_level()
+            <td title="{{title}}">{{skill}}</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Password')}}</strong></td>
+            <td>
+               <a class="btn btn-default btn-xs btn-raised" href="#"
+                  data-action="change-user-password"
+                  data-element_type="user" data-name="{{user.name}}" data-element="{{user.id}}"
+                  data-message="{{_('User preference deleted')}}"
+                  data-toggle="tooltip" data-placement="top"
+                  title="{{_('Change my password')}}">
+                     <span class="fa fa-user-secret"></span>
+                </a>
+            </td>
+         </tr>
       </tbody>
    </table>
 

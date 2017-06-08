@@ -707,7 +707,7 @@ class TestItems(unittest2.TestCase):
         assert item.is_admin == False
 
         assert item.get_role() == 'user'
-        assert item.get_role(display=True) == 'user'
+        assert item.get_role(display=True) == 'User'
         assert item.is_administrator() == False
         assert item.is_anonymous() == True
         assert item.can_submit_commands == False
@@ -731,10 +731,12 @@ class TestItems(unittest2.TestCase):
         assert item._id == 'user_1'  # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.get_role() == 'power'
-        assert item.get_role(display=True) == 'power'
+        assert item.get_role(display=True) == 'Power user'
         assert item.is_administrator() == False
         assert item.is_anonymous() == False
         assert item.is_power() == True
+        assert item.can_change_dashboard() == False # Because default skill_level is 0
+        item.skill_level = 1
         assert item.can_change_dashboard() == True
         assert item.picture == '/static/images/user_default.png'
         assert item.token == 'token'
@@ -748,14 +750,15 @@ class TestItems(unittest2.TestCase):
             'user_name': 'test',
             'friendly_name': 'Friendly name',
             'password': 'test',
-            'is_admin': True
+            'is_admin': True,
+            'skill_level': 2
         })
         assert item._id == 'user_2'  # Not 0 because parameters are provided but auto generated because no _id in the parameters!
 
         assert item.name == 'test'
         assert item.friendly_name == 'Friendly name'
         assert item.get_role() == 'administrator'
-        assert item.get_role(display=True) == 'administrator'
+        assert item.get_role(display=True) == 'Administrator'
         assert item.is_administrator() == True
         assert item.is_anonymous() == False
         assert item.is_power() == True
@@ -781,7 +784,7 @@ class TestItems(unittest2.TestCase):
         assert item.alias == 'Real name'
         assert item.get_username() == 'test_priority'
         assert item.get_role() == 'user'
-        assert item.get_role(display=True) == 'user'
+        assert item.get_role(display=True) == 'User'
         assert item.is_administrator() == False
         assert item.is_anonymous() == False
         assert item.is_power() == False
@@ -809,7 +812,8 @@ class TestItems(unittest2.TestCase):
         item = User({
             '_id': item._id,
             'alias': 'Aliased name (bis)',
-            'is_admin': True
+            'is_admin': True,
+            'skill_level': 2
         })
         assert item.alias == 'Aliased name (bis)'
         assert item.get_username() == 'test_priority'

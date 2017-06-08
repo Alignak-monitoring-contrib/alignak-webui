@@ -427,7 +427,7 @@ class Plugin(object):
         logger.debug("Reading plugin configuration file: %s", cfg_filenames)
         self.plugin_config = Settings(cfg_filenames)
         config_file = self.plugin_config.read(self.name)
-        logger.warning("Plugin configuration read from: %s", config_file)
+        logger.info("Plugin configuration read from: %s", config_file)
         if not self.plugin_config:  # pragma: no cover, all plugins have configuration files
             if initialization:
                 return False

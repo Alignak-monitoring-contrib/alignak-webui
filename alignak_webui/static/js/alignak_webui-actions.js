@@ -18,7 +18,7 @@
  * along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var actions_logs=true;
+var actions_logs=false;
 var refresh_delay_after_action=1000;
 var alert_info_delay=2;
 var alert_success_delay=3;
@@ -387,6 +387,19 @@ $(document).ready(function() {
             window.location.reload(true);
          });
       }
+   });
+
+   // Change a user password
+   $('body').on("click", '[data-action="change-user-password"]', function () {
+      if (actions_logs) console.debug("Required a password change for:", $(this).data('element'));
+
+      var elt_id = $(this).data('element');
+      var elt_name = $(this).data('name');
+      var elt_type = $(this).data('element_type');
+      var url = "/password_change_request?elements_type="+encodeURIComponent(elt_type)+"&element_id="+encodeURIComponent(elt_id)+'&element_name='+encodeURIComponent(elt_name);
+      window.setTimeout(function(){
+         display_modal(url);
+      }, 5);
    });
 
 

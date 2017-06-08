@@ -915,11 +915,14 @@ class TestHosts(unittest2.TestCase):
         self.app.get('/hosts/table')
         self.app.get('/hosts/templates/list')
         self.app.get('/hosts/templates/table')
-        self.app.get('/host/localhost')
+        # Host exists
+        self.app.get('/host/webui')
+        # Host does not exist
+        self.app.get('/host/localhost', status=400)
 
         print('get page /hosts/widget')
-        self.app.post('/hosts/widget', status=204)
-        self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=204)
+        self.app.post('/hosts/widget', status=400)
+        self.app.post('/hosts/widget', {'widget_id': 'test_widget'}, status=400)
 
         # Hosts table
         response = self.app.post('/hosts/widget', {
@@ -992,8 +995,8 @@ class TestServices(unittest2.TestCase):
         response = self.app.get('/services/templates/table')
 
         print('get page /services/widget')
-        response = self.app.post('/services/widget', status=204)
-        response = self.app.post('/services/widget', {'widget_id': 'test_widget'}, status=204)
+        response = self.app.post('/services/widget', status=400)
+        response = self.app.post('/services/widget', {'widget_id': 'test_widget'}, status=400)
 
         # Services table widget
         response = self.app.post('/services/widget', {
@@ -1143,8 +1146,8 @@ class TestAlignakDaemons(unittest2.TestCase):
 
         # Widget
         print('get page /alignak/widget')
-        self.app.post('/alignak/widget', status=204)
-        self.app.post('/alignak/widget', {'widget_id': 'test_widget'}, status=204)
+        self.app.post('/alignak/widget', status=400)
+        self.app.post('/alignak/widget', {'widget_id': 'test_widget'}, status=400)
 
         # Hosts table
         response = self.app.post('/alignak/widget', {

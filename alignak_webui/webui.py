@@ -380,7 +380,7 @@ class WebUI(object):
     @staticmethod
     def response_invalid_parameters(message="Missing parameter"):
         """Request parameters are invalid"""
-        response.status = 204
+        response.status = 400
         response.content_type = 'application/json'
         return json.dumps(
             {'status': 'ko', 'message': message}

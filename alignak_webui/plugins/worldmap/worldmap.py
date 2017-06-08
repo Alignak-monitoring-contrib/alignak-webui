@@ -117,7 +117,7 @@ class PluginWorldmap(Plugin):
         else:
             bis = [int(num) for num in bis]
         self.plugin_parameters['services_business_impacts'] = bis
-        logger.info("Plugin parameters: %s", self.plugin_parameters)
+        logger.debug("Plugin parameters: %s", self.plugin_parameters)
 
     def show_worldmap(self, for_my_widget=False):
         """Get the hosts list to build a worldmap
