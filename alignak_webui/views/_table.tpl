@@ -114,6 +114,11 @@
                %format_parameters = field.get('format_parameters')
                %required = field.get('required')
 
+               %column_class = ''
+               %if field['data'].startswith('ls_'):
+               %column_class = 'livestate'
+               %end
+
                %is_list = False
                %if field_type=='list':
                %  is_list = True
@@ -128,7 +133,7 @@
                %  end
                %end
 
-               <td data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectized="{{selectize}}"
+               <td class="{{column_class}}" data-index="{{idx}}" data-name="{{ field['data'] }}" data-selectized="{{selectize}}"
                    data-searchable="{{ field['searchable'] }}" data-regex="{{ field['regex_search'] }}"
                    data-type="{{ field['type'] }}" data-content-type="{{ field['content_type'] }}"
                    data-format="{{ field['format'] }}" data-format-parameters="{{ field['format_parameters'] }}"
@@ -632,6 +637,10 @@
             ,{
                extend: 'colvis',
                className: 'btn-raised btn-xs'
+            }
+            ,{
+               extend: 'columnsToggle',
+               columns: '.livestate'
             }
             %if dt.printable:
             ,{

@@ -133,7 +133,7 @@ class PluginUsers(Plugin):
 
         # Is the form considered as valid by the client
         if request.forms.get('valid_form', 'false') != 'true':
-            logger.error("request to change a password: invalid for content!")
+            logger.error("request to change a password: invalid form content!")
             return self.webui.response_invalid_parameters(
                 _('The form is not validated because of its content.')
             )
@@ -155,7 +155,6 @@ class PluginUsers(Plugin):
 
                 # Prepare post request ...
                 data = {
-                    '_id': element_id,
                     'password': request.forms.get('password1')
                 }
 

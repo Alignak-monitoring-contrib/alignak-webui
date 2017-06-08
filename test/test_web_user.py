@@ -101,7 +101,7 @@ def teardown_module(module):
     time.sleep(2)
 
 
-class tests_actions(unittest2.TestCase):
+class tests_users(unittest2.TestCase):
 
     def setUp(self):
         # Test application
