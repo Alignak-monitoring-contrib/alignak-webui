@@ -57,7 +57,7 @@ backend_address = "http://127.0.0.1:5000/"
 def setup_module(module):
     # Set test mode for applications backend
     os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-    os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+    os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-webui-tests'
 
     # Delete used mongo DBs
     exit_code = subprocess.call(
@@ -741,12 +741,14 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
+            '<th data-name="_templates" data-type="list"',
             '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
+            '<th data-name="address6" data-type="string"',
+            '<th data-name="check_command" data-type="objectid"',
             '<th data-name="business_impact" data-type="integer"',
             '<th data-name="ls_last_check" data-type="integer"',
             '<th data-name="ls_state_type" data-type="string"',
-            '<th data-name="ls_state_id" data-type="integer"',
             '<th data-name="ls_acknowledged" data-type="boolean"',
             '<th data-name="ls_downtimed" data-type="boolean"',
             '<th data-name="ls_output" data-type="string"',

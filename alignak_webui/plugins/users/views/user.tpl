@@ -29,63 +29,8 @@
       </div>
    </div>
    %end
-   <!-- First row : user/service overview ... -->
-   <div class="panel panel-default">
-      <div class="panel-heading">
-         <h4 class="panel-title">
-            <a class="collapsed" role="button" data-toggle="collapse" href="#collapseuserOverview" aria-expanded="false" aria-controls="collapseuserOverview">
-               <span class="caret"></span>
-               {{_('Overview for %s') % user.name}}
-            </a>
-         </h4>
-      </div>
 
-      <div id="collapseuserOverview" class="panel-body panel-collapse collapse">
-         %if user.customs and ('_DETAILLEDESC' in user.customs or '_IMPACT' in user.customs or '_FIXACTIONS' in user.customs):
-         <div class="panel panel-default">
-            <div class="panel-body">
-               <dl class="col-sm-12 dl-horizontal">
-                  %if '_DETAILLEDESC' in user.customs:
-                  <dt>{{_('Description:')}}</dt>
-                  <dd>{{user.customs['_DETAILLEDESC']}}</dd>
-                  %end
-                  %if '_IMPACT' in user.customs:
-                  <dt>{{_('Impact:')}}</dt>
-                  <dd>{{user.customs['_IMPACT']}}</dd>
-                  %end
-                  %if '_FIXACTIONS' in user.customs:
-                  <dt>{{_('Fix actions:')}}</dt>
-                  <dd>{{user.customs['_FIXACTIONS']}}</dd>
-                  %end
-               </dl>
-            </div>
-         </div>
-         %end
-
-         <div class="row">
-            <dl class="col-sm-6 col-md-4">
-               <dt>{{_('Alias:')}}</dt>
-               <dd>{{user.alias}}</dd>
-
-               <dt>{{_('Notes:')}}</dt>
-               <dd>
-               {{ user.notes }}
-               </dd>
-            </dl>
-            %if current_user.is_super_administrator() or current_user.is_administrator():
-            <dl class="col-sm-6 col-md-4">
-               <dt>{{_('Login:')}}</dt>
-               <dd>{{user.name}}</dd>
-
-               <dt>{{_('Token:')}}</dt>
-               <dd>{{user.token}}</dd>
-            </dl>
-            %end
-         </div>
-      </div>
-   </div>
-
-   <!-- Second row : user widgets ... -->
+   <!-- First row : user widgets ... -->
    <div>
       <ul class="nav nav-tabs">
          <li class="active">
@@ -99,11 +44,13 @@
          </li>
 
          %for widget in webui.get_widgets_for('user'):
+            %if 'level' in widget and widget['level'] > current_user.skill_level:
+            % continue
+            %end
             <li>
                <a href="#user_tab_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
-                  title="{{! widget['description']}}"
-                  >
+                  title="{{! widget['description']}}">
                   <span class="fa fa-{{widget['icon']}}"></span>
                   <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
@@ -117,6 +64,9 @@
          </div>
 
          %for widget in webui.get_widgets_for('user'):
+            %if 'level' in widget and widget['level'] > current_user.skill_level:
+            % continue
+            %end
             <div id="user_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
                %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
             </div>

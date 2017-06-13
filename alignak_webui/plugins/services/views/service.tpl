@@ -256,6 +256,9 @@
       <ul class="nav nav-tabs">
          %first=True
          %for widget in webui.get_widgets_for('service'):
+            %if 'level' in widget and widget['level'] > current_user.skill_level:
+            % continue
+            %end
             <li {{'class="active"' if first else ''}}>
                <a href="#service_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
@@ -271,6 +274,9 @@
       <div class="tab-content">
          %first=True
          %for widget in webui.get_widgets_for('service'):
+            %if 'level' in widget and widget['level'] > current_user.skill_level:
+            % continue
+            %end
             <div id="service_{{widget['id']}}" class="tab-pane fade {{'active in' if first else ''}}" role="tabpanel">
             </div>
             %first=False

@@ -9,47 +9,85 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
-<div id="user-information">
-   <table class="table table-condensed table-rights">
-      <colgroup>
-         <col style="width: 40%" />
-         <col style="width: 60%" />
-      </colgroup>
-      <thead>
-         <tr>
-            <th colspan="2">{{_('Rights:')}}</th>
-         </tr>
-      </thead>
-      <tbody>
-         <tr>
-            <td><strong>{{_('Administrator')}}</strong></td>
-            <td>{{! webui.helper.get_on_off(status=user.is_administrator())}}</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Commands')}}</strong></td>
-            <td>{{! webui.helper.get_on_off(user.is_power())}}</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Skill level')}}</strong></td>
-            %skill,title = user.get_skill_level()
-            <td title="{{title}}">{{skill}}</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Password')}}</strong></td>
-            <td>
-               <a class="btn btn-default btn-xs btn-raised" href="#"
-                  data-action="change-user-password"
-                  data-element_type="user" data-name="{{user.name}}" data-element="{{user.id}}"
-                  data-message="{{_('User preference deleted')}}"
-                  data-toggle="tooltip" data-placement="top"
-                  title="{{_('Change my password')}}">
-                     <span class="fa fa-user-secret"></span>
-                </a>
-            </td>
-         </tr>
-      </tbody>
-   </table>
+<div class="row">
+   <div class="col-sm-6">
+      <table class="table table-condensed table-rights">
+         <colgroup>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+         </colgroup>
+         <thead>
+            <tr>
+               <th colspan="2">{{_('Rights:')}}</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr>
+               <td><strong>{{_('Administrator')}}</strong></td>
+               <td>{{! webui.helper.get_on_off(status=user.is_administrator())}}</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Commands')}}</strong></td>
+               <td>{{! webui.helper.get_on_off(user.is_power())}}</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Skill level')}}</strong></td>
+               %skill,title = user.get_skill_level()
+               <td title="{{title}}">{{skill}}</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Password')}}</strong></td>
+               <td>
+                  <a class="btn btn-default btn-xs btn-raised" href="#"
+                     data-action="change-user-password"
+                     data-element_type="user" data-name="{{user.name}}" data-element="{{user.id}}"
+                     data-message="{{_('User preference deleted')}}"
+                     data-toggle="tooltip" data-placement="top"
+                     title="{{_('Change my password')}}">
+                        <span class="fa fa-user-secret"></span>
+                   </a>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+   <div class="col-sm-6">
+      <table class="table table-condensed table-notes">
+         <colgroup>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+         </colgroup>
+         <thead>
+            <tr>
+               <th colspan="2">{{_('Notes:')}}</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr>
+               <td><strong>{{_('Alias')}}</strong></td>
+               <td>{{ user.alias }}</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Notes')}}</strong></td>
+               <td>{{ user.notes }}</td>
+            </tr>
+            %if current_user.is_super_administrator() or current_user.is_administrator():
+            <tr>
+               <td><strong>{{_('Login')}}</strong></td>
+               <td>{{ user.name }}</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Token')}}</strong></td>
+               <td>{{ user.token }}</td>
+            </tr>
+            %end
+         </tbody>
+      </table>
+   </div>
+</div>
 
+<div class="row">
+   <div class="col-sm-6">
    <table class="table table-condensed table-hosts-notifications">
       <colgroup>
          <col style="width: 40%" />
@@ -144,7 +182,9 @@
          %end
       </tbody>
    </table>
+   </div>
 
+   <div class="col-sm-6">
    <table class="table table-condensed table-services-notifications">
       <colgroup>
          <col style="width: 40%" />
@@ -218,4 +258,5 @@
          %end
       </tbody>
    </table>
+   </div>
 </div>

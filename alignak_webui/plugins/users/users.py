@@ -65,7 +65,9 @@ class PluginUsers(Plugin):
                     {
                         'id': 'information',
                         'for': ['user'],
+                        'order': 2,
                         'name': _('Information'),
+                        'level': 0,
                         'template': 'user_information_widget',
                         'icon': 'info',
                         'description': _(
@@ -77,6 +79,7 @@ class PluginUsers(Plugin):
                         'id': 'preferences',
                         'for': ['user'],
                         'name': _('Preferences'),
+                        'level': 2,
                         'template': 'user_preferences_widget',
                         'icon': 'heart',
                         'description': _(
