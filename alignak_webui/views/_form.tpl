@@ -489,7 +489,7 @@
       %end
 
       %#if element:
-         <i class="fa fa-clone"></i>Element: {{element}} - {{element is None}}
+         <div class="well page">
          %if debug and has_template:
          <div>
          <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
@@ -827,6 +827,7 @@
             %end
             %continue
          %end
+         </div>
       %#end
       </fieldset>
 
