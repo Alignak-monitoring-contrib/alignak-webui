@@ -24,7 +24,7 @@
 """
 from logging import getLogger
 
-from bottle import request, template
+from bottle import request, template, redirect
 
 from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
@@ -238,9 +238,18 @@ class PluginServices(Plugin):
         datamgr = request.app.datamgr
 
         # Get service
+        is_template = False
         service = datamgr.get_service(element_id)
         if not service:
-            return self.webui.response_invalid_parameters(_('Service does not exist'))
+            is_template = True
+            # Search among the templates with id
+            service = datamgr.get_service(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                              '_id': element_id}})
+            if not service:
+                return self.webui.response_invalid_parameters(_('Service does not exist'))
+
+        if is_template:
+            redirect('/service/%s/form' % element_id)
 
         # Get service host
         host = datamgr.get_host(search={'where': {'_id': service.host.id}})

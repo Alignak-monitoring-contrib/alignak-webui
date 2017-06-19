@@ -66,9 +66,13 @@
       %if is_template:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
-            <h4>{{_('You are viewing or editing a %s template.') % plugin.backend_endpoint}}</h4>
+            %if edition:
+            <h4>{{_('You are editing a %s template.') % plugin.backend_endpoint}}</h4>
             <hr/>
             <p>{{_('All the %ss based upon this template may be affected by your modifications.') % plugin.backend_endpoint}}</p>
+            %else:
+            <h4>{{_('You are viewing a %s template.') % plugin.backend_endpoint}}</h4>
+            %end
          </div>
 
          <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
