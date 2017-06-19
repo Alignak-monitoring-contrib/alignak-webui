@@ -130,6 +130,13 @@
          </tr>
 
          <tr>
+            <td><strong>{{_('Notifications enabled:')}}</strong></td>
+            <td>
+               {{! Helper.get_on_off(user.host_notifications_enabled)}}
+            </td>
+         </tr>
+
+         <tr>
             <td><strong>{{_('Notifications commands:')}}</strong></td>
             %if not user.host_notification_commands:
             <td>
@@ -150,13 +157,6 @@
                </tr>
             %end
             %end
-         </tr>
-
-         <tr>
-            <td><strong>{{_('Notifications enabled:')}}</strong></td>
-            <td>
-               {{! Helper.get_on_off(user.host_notifications_enabled)}}
-            </td>
          </tr>
 
          %message = {}
@@ -231,6 +231,29 @@
             <td>
                {{! Helper.get_on_off(user.service_notifications_enabled)}}
             </td>
+         </tr>
+
+         <tr>
+            <td><strong>{{_('Notifications commands:')}}</strong></td>
+            %if not user.service_notification_commands:
+            <td>
+               {{_('No notification commands defined.')}}
+            </td>
+            %else:
+            %first = True
+            %for command in user.service_notification_commands:
+               %if not first:
+               <tr>
+               <td></td>
+               %else:
+               %first = False
+               %end
+               <td>
+                  {{! command.get_html_state_link()}}
+               </td>
+               </tr>
+            %end
+            %end
          </tr>
 
          %message = {}
