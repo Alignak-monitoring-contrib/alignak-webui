@@ -798,6 +798,17 @@ class Plugin(object):
                 if not element:
                     element = f(self.backend_endpoint,
                                 search={'max_results': 1, 'where': {'name': element_id}})
+
+                    if self.templated and not element:
+                        # Search amnog the templates with id
+                        element = f(self.backend_endpoint,
+                                    search={'max_results': 1, 'where': {'_is_template': True,
+                                                                        '_id': element_id}})
+                        if not element:
+                            # Search amnog the templates with name
+                            element = f(self.backend_endpoint,
+                                        search={'max_results': 1, 'where': {'_is_template': True,
+                                                                            'name': element_id}})
         else:
             # For an object update...
             if not create:
@@ -805,6 +816,15 @@ class Plugin(object):
                 element = f(element_id)
                 if not element:
                     element = f(search={'max_results': 1, 'where': {'name': element_id}})
+
+                    if self.templated and not element:
+                        # Search amnog the templates with id
+                        element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                        '_id': element_id}})
+                        if not element:
+                            # Search amnog the templates with name
+                            element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                            'name': element_id}})
         # If not found, element will remain as None to create a new element
 
         # Prepare update request ...
@@ -842,6 +862,9 @@ class Plugin(object):
                     splitted = item.split('|')
                     dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
                 logger.info("- got a point: %s: %s", field, dict_values)
+                if not dict_values:
+                    logger.warning("Missing information in the value: %s: %s", field, dict_values)
+                    continue
                 value = {
                     u'type': u'Point',
                     u'coordinates': [
