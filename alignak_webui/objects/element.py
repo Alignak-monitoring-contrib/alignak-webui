@@ -488,6 +488,13 @@ class BackendElement(object):
         return self._created
 
     @property
+    def is_template(self):
+        """An element object may be a template"""
+        if hasattr(self, '_is_template') and self._is_template:
+            return True
+        return False
+
+    @property
     def name(self):
         """Get Item object name
 
@@ -663,9 +670,12 @@ class BackendElement(object):
         if not object_item:
             object_item = self
 
-        return ElementState().get_html_state(object_type, object_item,
-                                             extra, icon, text, title, disabled, size,
-                                             use_status)
+        if not self.is_template:
+            return ElementState().get_html_state(object_type, object_item,
+                                                 extra, icon, text, title, disabled, size,
+                                                 use_status)
+
+        return self.get_html_link(title=title)
 
     def get_date(self, _date, fmt=None, duration=False):
         """Format the provided `_date` as a string according to the specified format.

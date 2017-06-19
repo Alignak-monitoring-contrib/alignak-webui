@@ -725,18 +725,20 @@ class Helper(object):
         app_config = get_app_config()
 
         content = ''
-        if len(objects_list) == 1:
-            item = objects_list[0]
-            list_item = app_config.get('tables.lists.unique')
-            if isinstance(item, basestring):
-                content = list_item.replace("##content##", item)
-            elif isinstance(item, dict):
-                content = list_item.replace("##content##", str(item))
-            elif hasattr(item, '_type'):
-                content = list_item.replace("##content##", item.get_html_state_link())
-            else:
-                content = list_item.replace("##content##", item)
-            return content
+        if len(objects_list) <= 3:
+            content_list = []
+            for item in objects_list:
+                list_item = app_config.get('tables.lists.unique')
+                if isinstance(item, basestring):
+                    content = list_item.replace("##content##", item)
+                elif isinstance(item, dict):
+                    content = list_item.replace("##content##", str(item))
+                elif hasattr(item, '_type'):
+                    content = list_item.replace("##content##", item.get_html_state_link())
+                else:
+                    content = list_item.replace("##content##", item)
+                content_list.append(content)
+            return ', '.join(content_list)
 
         button = app_config.get('tables.lists.button')
         button = button.replace("##id##", object_id)
