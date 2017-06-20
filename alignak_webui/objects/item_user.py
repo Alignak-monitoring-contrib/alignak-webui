@@ -102,6 +102,10 @@ class User(BackendElement):
         if not hasattr(self, 'ui_preferences'):
             self.ui_preferences = {}
 
+        # Email?
+        if not hasattr(self, 'email'):
+            self.email = _("No defined mail address")
+
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
             return "<Authenticated %s, id: %s, name: %s, role: %s, level: %d>" % (
