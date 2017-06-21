@@ -55,7 +55,7 @@
       <div class="panel-body">
          %if edition_mode:
          <form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">
-
+            <div class="well page">
             <fieldset>
                <legend>{{_('Creating a new host:')}}</legend>
 
@@ -96,15 +96,19 @@
                </div>
 
                <div class="form-group">
-                  <label class="col-xs-4 control-label" for="_is_template">{{_('Host is a template:')}}</label>
-                  <div class="togglebutton col-xs-8">
-                     <label>
-                        <input type="checkbox" id="_is_template" name="_is_template">
-                     </label>
-                     <p class="help-block">{{_('Indicate if the host to be created is a template or a real host.')}}</p>
+                  <div class="checkbox">
+                     <div class="togglebutton col-xs-8">
+                        <label for="_is_template">
+                           <input type="checkbox" id="_is_template" name="_is_template"> {{_('Host is a template:')}}
+                           <p class="help-block">
+                              {{_('Indicate if the host to be created is a template or a real host.')}}
+                           </p>
+                        </label>
+                     </div>
                   </div>
                </div>
             </fieldset>
+            </div>
 
             <div class="well form-group">
                <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
@@ -112,6 +116,7 @@
                <div class="clearfix"></div>
             </div>
 
+         <div class="well page">
          <fieldset>
             <legend>{{_('Choose the inherited templates:')}}</legend>
          %end
@@ -122,9 +127,6 @@
 
          <table class="table table-condensed">
             <thead><tr>
-               %if edition_mode:
-               <th></th>
-               %end
                <th>{{_('Template name')}}</th>
                <th>{{_('Inherits from')}}</th>
                <th>{{_('Notes / description')}}</th>
@@ -138,16 +140,15 @@
                      <div class="input-group input-group-sm" title="{{_('Check this to select the template')}}">
                         <div class="togglebutton">
                            <label>
+                              %if edition_mode:
                               <input id="{{elt.name}}" name="{{elt.name}}" type="checkbox" data-linked="{{','.join([t.name for t in elt._templates])}}" data-id="{{elt.id}}">
+                              %end
                            </label>
+                           {{elt.alias}} (<small>{{elt.name}}</small>)
                         </div>
                      </div>
                   </td>
                   %end
-                  <td title="{{elt.alias}}">
-                     <small>{{elt.name}}</small>
-                  </td>
-
                   <td>
                      %for tpl in elt._templates:
                      <small>{{!tpl.get_html_link()}}</small>
@@ -164,6 +165,7 @@
 
          %if edition_mode:
          </fieldset>
+         </div>
          </form>
          %end
       </div>

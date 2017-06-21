@@ -61,6 +61,7 @@
    %end
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
+      <div class="well page">
       <fieldset>
       %# Editing a template
       %if is_template:
@@ -182,119 +183,111 @@
          %  icon = ElementState().get_icon_state('realm', 'unknown')
          %  icon=icon['icon'] if icon else ''
          %end
-         <div class="well page">
-            <h4>{{_('Realm:')}}</h4>
-            <div class="form-group"  style="margin-bottom: 20px">
-               <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
-               <div class="col-md-10">
-                  <div class="input-group">
-                     <span class="input-group-addon text-info">
-                        <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                     </span>
-                     <select id="{{field}}" name="{{field}}"
-                            class="form-control"
-                            {{'readonly="readonly"' if not edition or not editable else ''}}>
-                     </select>
-                     <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
-                  </div>
-                  %if comment:
-                  <p class="help-block">
-                     {{comment}}
-                     %if unique:
-                     <br>{{_('This field must be unique.')}}
-                     %end
-                     %if required:
-                     <br>{{_('This field is required.')}}
-                     %end
-                  </p>
+         <div class="form-group label-static">
+            <label for="{{field}}" class="control-label">{{label}}
+                  %if required:
+                  *
                   %end
-               </div>
-            </div>
-            <br/>
-            %if selectize and edition:
-            <script>
-               $('#{{field}}').selectize({
-                  %if not required:
-                  'plugins': ["remove_button"],
-                  %end
-
-                  valueField: 'id',
-                  labelField: 'name',
-                  searchField: 'name',
-                  create: false,
-
-                  render: {
-                     option: function(item, escape) {
-                        return '<div>' +
-                           %if icon:
-                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                           %end
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                        '</div>';
-                     },
-                     item: function(item, escape) {
-                        return '<div>' +
-                           %if icon:
-                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                           %end
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                        '</div>';
-                     }
-                  },
-
-                  %if allowed:
-                  %  # List of allowed values
-                  %  if allowed[0].startswith('inner://'):
-                     preload: true,
-                     openOnFocus: true,
-                     load: function(query, callback) {
-                        //if (!query.length) return callback();
-                        $.ajax({
-                           url: "{{allowed[0].replace('inner://', '/')}}",
-                           type: 'GET',
-                           error: function() {
-                              callback();
-                           },
-                           success: function(res) {
-                              // 10 first items only...
-                              // callback(res.slice(0, 10));
-                              callback(res);
-                           }
-                        });
-                     },
-                  %  else:
-                     options: [
-                     %     for option in allowed:
-                        {
-                           'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
-                        },
-                     %     end
-                     ],
-                  %  end
-                  %end
-
-                  maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
-                  closeAfterSelect: {{'true' if format == 'select' else 'false'}},
-
-                  placeholder: '{{placeholder}}',
-                  hideSelected: true,
-                  %if not required:
-                  allowEmptyOption: true
-                  %end
-               });
-               // Add selected options / items to the control...
-               var $select = $('#{{field}}').selectize();
-               var selectize = $select[0].selectize;
-               %for field_id, field_value in list_values:
-                  selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+                  <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                  <i class="fa fa-list"></i>
+            </label>
+            <select id="{{field}}" name="{{field}}"
+                   class="form-control"
+                   {{'readonly="readonly"' if not edition or not editable else ''}}>
+            </select>
+            <p class="help-block">
+               {{comment}}
+               %if unique:
+                - {{_('This field must be unique.')}}
                %end
-               %for field_id, field_value in list_values:
-                  selectize.addItem("{{field_id}}");
+               %if required:
+                - * {{_('This field is required.')}}
                %end
-            </script>
-            %end
+            </p>
          </div>
+        %if selectize and edition:
+        <script>
+           $('#{{field}}').selectize({
+              %if not required:
+              'plugins': ["remove_button"],
+              %end
+
+              valueField: 'id',
+              labelField: 'name',
+              searchField: 'name',
+              create: false,
+
+              render: {
+                 option: function(item, escape) {
+                    return '<div>' +
+                       %if icon:
+                       '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                       %end
+                       (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                       (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                    '</div>';
+                 },
+                 item: function(item, escape) {
+                    return '<div>' +
+                       %if icon:
+                       '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                       %end
+                       (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                    '</div>';
+                 }
+              },
+
+              %if allowed:
+              %  # List of allowed values
+              %  if allowed[0].startswith('inner://'):
+                 preload: true,
+                 openOnFocus: true,
+                 load: function(query, callback) {
+                    //if (!query.length) return callback();
+                    $.ajax({
+                       url: "{{allowed[0].replace('inner://', '/')}}",
+                       type: 'GET',
+                       error: function() {
+                          callback();
+                       },
+                       success: function(res) {
+                          // 10 first items only...
+                          // callback(res.slice(0, 10));
+                          callback(res);
+                       }
+                    });
+                 },
+              %  else:
+                 options: [
+                 %     for option in allowed:
+                    {
+                       'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
+                    },
+                 %     end
+                 ],
+              %  end
+              %end
+
+              maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
+              closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+
+              placeholder: '{{placeholder}}',
+              hideSelected: true,
+              %if not required:
+              allowEmptyOption: true
+              %end
+           });
+           // Add selected options / items to the control...
+           var $select = $('#{{field}}').selectize();
+           var selectize = $select[0].selectize;
+           %for field_id, field_value in list_values:
+              selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+           %end
+           %for field_id, field_value in list_values:
+              selectize.addItem("{{field_id}}");
+           %end
+        </script>
+        %end
       %end
 
       %if not element and is_templated:
@@ -305,27 +298,16 @@
          %comment = model.get('comment', label)
          %editable = model.get('editable', True)
 
-         <div class="well page">
-         <h4>{{_('The new %s element is a template:') % plugin.backend_endpoint.capitalize()}}</h4>
-         <div class="form-group"  style="margin-bottom: 20px">
-            <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
-            <div class="col-md-offset-2 col-md-10">
-               <div class="input-group">
-                  <div class="togglebutton">
-                     <label>
-                        <input id="{{field}}" name="{{field}}" type="checkbox"
-                           {{'disabled="disabled"' if not edition or not editable else ''}}
-                           >
-                     </label>
-                  </div>
-               </div>
-               %if comment:
-               <p class="help-block">
-                  {{comment}}
-               </p>
-               %end
+         <div class="form-group">
+            <div class="togglebutton">
+               <label for="{{field}}">
+                  <input id="{{field}}" name="{{field}}" type="checkbox"
+                      {{'disabled="disabled"' if not edition or not editable else ''}}> {{label}} ({{_('the new %s element is a template') % plugin.backend_endpoint}})
+               </label>
             </div>
-         </div>
+            <p class="help-block">
+                {{comment}}
+            </p>
          </div>
       %end
 
@@ -365,131 +347,126 @@
          %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
          %  icon=icon['icon'] if icon else ''
          %end
-         <div class="well page">
-            <h4>{{_('Inherited templates:')}}</h4>
-            <div class="form-group"  style="margin-bottom: 20px">
-               <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
-               <div class="col-md-10">
-                  <div class="input-group">
-                     <span class="input-group-addon text-info">
-                        <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                     </span>
-                     <select id="{{field}}" name="{{field}}"
-                            class="form-control"
-                            {{'readonly="readonly"' if not edition or not editable else ''}}>
-                     </select>
-                     <span class="input-group-addon text-info"><i class="fa fa-list"></i></span>
-                  </div>
-                  %if comment:
-                  <p class="help-block">
-                     {{comment}}
-                     %if unique:
-                     <br>{{_('This field must be unique.')}}
-                     %end
-                     %if required:
-                     <br>{{_('This field is required.')}}
-                     %end
-                  </p>
+         <div class="form-group label-static">
+            <label for="{{field}}" class="control-label">{{label}} ({{_('Inherited templates:')}})
+                  %if required:
+                  *
                   %end
-               </div>
-            </div>
-            <br/>
-            %if selectize and edition:
-            <script>
-               $('#{{field}}').selectize({
-                  %if not required:
-                  'plugins': ["remove_button"],
+                  %if has_template and field in element['_template_fields']:
+                  <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
                   %end
-
-                  valueField: 'id',
-                  labelField: 'name',
-                  searchField: 'name',
-                  create: false,
-
-                  render: {
-                     option: function(item, escape) {
-                        return '<div>' +
-                           %if icon:
-                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                           %end
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                           (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
-                        '</div>';
-                     },
-                     item: function(item, escape) {
-                        return '<div>' +
-                           %if icon:
-                           '<i class="fa fa-{{icon}}"></i>&nbsp;' +
-                           %end
-                           (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
-                        '</div>';
-                     }
-                  },
-
-                  %if allowed:
-                  %  # List of allowed values
-                  %  if allowed[0].startswith('inner://'):
-                     preload: true,
-                     openOnFocus: true,
-                     load: function(query, callback) {
-                        //if (!query.length) return callback();
-                        $.ajax({
-                           url: "{{allowed[0].replace('inner://', '/')}}",
-                           type: 'GET',
-                           error: function() {
-                              callback();
-                           },
-                           success: function(res) {
-                              // 10 first items only...
-                              // callback(res.slice(0, 10));
-                              callback(res);
-                           }
-                        });
-                     },
-                  %  else:
-                     options: [
-                     %     for option in allowed:
-                        {
-                           'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
-                        },
-                     %     end
-                     ],
-                  %  end
-                  %end
-
-                  maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
-                  closeAfterSelect: {{'true' if format == 'select' else 'false'}},
-
-                  placeholder: '{{placeholder}}',
-                  hideSelected: true,
-                  %if not required:
-                  allowEmptyOption: true
-                  %end
-               });
-               // Add selected options / items to the control...
-               var $select = $('#{{field}}').selectize();
-               var selectize = $select[0].selectize;
-               %for field_id, field_value in list_values:
-                  selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+                  <i class="fa fa-list"></i>
+            </label>
+            <select id="{{field}}" name="{{field}}"
+                   class="form-control"
+                   {{'readonly="readonly"' if not edition or not editable else ''}}>
+            </select>
+            <p class="help-block">
+               {{comment}}
+               %if unique:
+                - {{_('This field must be unique.')}}
                %end
-               %for field_id, field_value in list_values:
-                  selectize.addItem("{{field_id}}");
+               %if required:
+                - * {{_('This field is required.')}}
                %end
-            </script>
-            %end
+            </p>
          </div>
+        %if selectize and edition:
+        <script>
+           $('#{{field}}').selectize({
+              %if not required:
+              'plugins': ["remove_button"],
+              %end
+
+              valueField: 'id',
+              labelField: 'name',
+              searchField: 'name',
+              create: false,
+
+              render: {
+                 option: function(item, escape) {
+                    return '<div>' +
+                       %if icon:
+                       '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                       %end
+                       (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                       (item.alias ? '<small><em><span class="alias"> (' + escape(item.alias) + ')</span></em></small>' : '') +
+                    '</div>';
+                 },
+                 item: function(item, escape) {
+                    return '<div>' +
+                       %if icon:
+                       '<i class="fa fa-{{icon}}"></i>&nbsp;' +
+                       %end
+                       (item.name ? '<span class="name">' + escape(item.name) + '</span>' : '') +
+                    '</div>';
+                 }
+              },
+
+              %if allowed:
+              %  # List of allowed values
+              %  if allowed[0].startswith('inner://'):
+                 preload: true,
+                 openOnFocus: true,
+                 load: function(query, callback) {
+                    //if (!query.length) return callback();
+                    $.ajax({
+                       url: "{{allowed[0].replace('inner://', '/')}}",
+                       type: 'GET',
+                       error: function() {
+                          callback();
+                       },
+                       success: function(res) {
+                          // 10 first items only...
+                          // callback(res.slice(0, 10));
+                          callback(res);
+                       }
+                    });
+                 },
+              %  else:
+                 options: [
+                 %     for option in allowed:
+                    {
+                       'id': '{{option}}', 'name': '{{model.get("allowed_%s" % option, option)}}'
+                    },
+                 %     end
+                 ],
+              %  end
+              %end
+
+              maxItems: {{'null' if is_list or format == 'multiple' else '1'}},
+              closeAfterSelect: {{'true' if format == 'select' else 'false'}},
+
+              placeholder: '{{placeholder}}',
+              hideSelected: true,
+              %if not required:
+              allowEmptyOption: true
+              %end
+           });
+           // Add selected options / items to the control...
+           var $select = $('#{{field}}').selectize();
+           var selectize = $select[0].selectize;
+           %for field_id, field_value in list_values:
+              selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+           %end
+           %for field_id, field_value in list_values:
+              selectize.addItem("{{field_id}}");
+           %end
+        </script>
+        %end
       %end
 
       %if edition:
-      <div class="well form-group">
+      </div>
+      <div class="well page">
          <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
          <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
          <div class="clearfix"></div>
       </div>
+      <div class="well page">
       %end
 
       %#if element:
-         <div class="well page">
          %if debug and has_template:
          <div>
          <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
@@ -827,9 +804,9 @@
             %end
             %continue
          %end
-         </div>
       %#end
       </fieldset>
+      </div>
 
       <script>
          window.setTimeout(function() { $("div.alert-dismissible").alert('close'); }, 10000);
