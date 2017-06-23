@@ -5,7 +5,7 @@
     %#Actions ?
     actions = {{ 'true' if current_user.is_power() else 'false' }};
 
-    if (typeof debugMaps === 'undefined') debugMaps=false;
+    if (typeof debugMaps === 'undefined') debugMaps=true;
 
     function buildHosts() {
         // pos_hosts is a global var defined in worldmaps.js
