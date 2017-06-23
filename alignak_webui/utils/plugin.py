@@ -1030,12 +1030,7 @@ class Plugin(object):
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
-        f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
-        if not f:  # pragma: no cover, simple protection
-            response.status = 204
-            response.content_type = 'application/json'
-            return json.dumps({'error': 'No method available to get %s elements'
-                                        % self.backend_endpoint})
+        f = getattr(datamgr, 'get_%ss' % self.backend_endpoint, None)
 
         search = {
             'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})
@@ -1056,7 +1051,11 @@ class Plugin(object):
                     'where': {'_is_template': False}
                 }
 
-        elts = f(search, all_elements=True)
+        if f:
+            elts = f(search, all_elements=True)
+        else:
+            elts = datamgr.get_objects(self.backend_endpoint, search, all_elements=True)
+
         for elt in elts:
             items.append({'id': elt.id, 'name': elt.name, 'alias': elt.alias})
 

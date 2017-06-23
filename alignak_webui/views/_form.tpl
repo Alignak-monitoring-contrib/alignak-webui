@@ -131,7 +131,7 @@
          <div class="well page">
             <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
             <div class="form-group">
-               <label class="control-label" for="{{field}}">{{_('Host name:')}}</label>
+               <label class="control-label" for="{{field}}">{{_('Name:')}}</label>
                <input class="form-control" type="text" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="" {{'readonly="readonly"' if not edition or not editable else ''}}>
                %if comment:
                   <p class="help-block">
@@ -489,6 +489,7 @@
       %end
 
       %#if element:
+         <i class="fa fa-clone"></i>Element: {{element}} - {{element is None}}
          %if debug and has_template:
          <div>
          <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
@@ -544,6 +545,11 @@
             %unique = model.get('unique')
             %required = model.get('required')
             %editable = model.get('editable', True)
+
+            % # Only include required fields if we are creating a new object
+            %if element is None and not required:
+            %  continue
+            %end
 
             %if element:
             %field_value=element[field]
@@ -629,11 +635,16 @@
                   <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
                   <div class="col-md-offset-2 col-md-10">
                      <div class="input-group">
-                        <span class="input-group-addon text-info">
-                           %if has_template and field in element['_template_fields']:
-                           <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                           %end
-                        </span>
+                        %if required:
+                           <span class="input-group-addon text-danger">
+                              <i class="fa fa-asterisk" title="{{_('The value of this field is required')}}"></i>
+                           </span>
+                        %end
+                        %if has_template and field in element['_template_fields']:
+                           <span class="input-group-addon text-info">
+                              <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                           </span>
+                        %end
                         <div class="checkbox">
                            <label>
                               <input id="{{field}}" name="{{field}}" type="checkbox"
@@ -669,14 +680,21 @@
                <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
                <div class="col-md-10">
                   <div class="input-group">
-                     <span class="input-group-addon text-info">
-                        %if has_template and field in element['_template_fields']:
-                        <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                        %end
-                        %if is_list:
-                        <i class="fa fa-list"></i>
-                        %end
-                     </span>
+                     %if required:
+                        <span class="input-group-addon text-danger">
+                           <i class="fa fa-asterisk" title="{{_('The value of this field is required')}}"></i>
+                        </span>
+                     %end
+                     %if (has_template and field in element['_template_fields']) or is_list:
+                        <span class="input-group-addon text-info">
+                           %if has_template and field in element['_template_fields']:
+                           <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
+                           %end
+                           %if is_list:
+                           <i class="fa fa-list"></i>
+                           %end
+                        </span>
+                     %end
                      %if is_list:
                      <select id="{{field}}" name="{{field}}"
                             class="form-control"
