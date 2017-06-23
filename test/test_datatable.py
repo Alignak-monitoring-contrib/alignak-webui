@@ -795,11 +795,11 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="name" data-type="string"',
             '<th data-name="_realm" data-type="objectid"',
             '<th data-name="_sub_realm" data-type="boolean"',
-            '<th data-name="_is_template" data-type="boolean"',
+            # '<th data-name="_is_template" data-type="boolean"',
             '<th data-name="_templates" data-type="list"',
             '<th data-name="_templates_with_services" data-type="boolean"',
-            '<th data-name="_template_fields" data-type="dict"',
-            '<th data-name="definition_order" data-type="integer"',
+            # '<th data-name="_template_fields" data-type="dict"',
+            # '<th data-name="definition_order" data-type="integer"',
         )
 
         response = self.app.post('/hosts/templates_table_data')
@@ -999,12 +999,12 @@ class TestDatatableServices(TestDatatableBase):
 
             '<th data-name="host" data-type="objectid"',
             '<th data-name="name" data-type="string"',
-            '<th data-name="_realm" data-type="objectid"',
-            '<th data-name="_sub_realm" data-type="boolean"',
-            '<th data-name="_is_template" data-type="boolean"',
+            # '<th data-name="_realm" data-type="objectid"',
+            # '<th data-name="_sub_realm" data-type="boolean"',
+            # '<th data-name="_is_template" data-type="boolean"',
             '<th data-name="_templates" data-type="list"',
-            '<th data-name="_template_fields" data-type="dict"',
-            '<th data-name="definition_order" data-type="integer"',
+            # '<th data-name="_template_fields" data-type="dict"',
+            # '<th data-name="definition_order" data-type="integer"',
         )
 
         response = self.app.post('/services/templates_table_data')
@@ -1202,8 +1202,8 @@ class TestDatatableUsers(TestDatatableBase):
             '<th data-name="_sub_realm" data-type="boolean"',
             '<th data-name="_is_template" data-type="boolean"',
             '<th data-name="_templates" data-type="list"',
-            '<th data-name="_template_fields" data-type="dict"',
-            '<th data-name="definition_order" data-type="integer"',
+            # '<th data-name="_template_fields" data-type="dict"',
+            # '<th data-name="definition_order" data-type="integer"',
         )
 
         response = self.app.post('/users/templates_table_data')

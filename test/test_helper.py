@@ -23,9 +23,16 @@
 from __future__ import print_function
 from collections import OrderedDict
 
+import os
 import time
 
 import unittest2
+
+# Set test mode ...
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
+print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
 import alignak_webui.app
 
@@ -744,8 +751,13 @@ class TestHtmlList(unittest2.TestCase):
         print("Result:", s)
         assert s == ''
 
-        # Default
+        # Less than 3 items
         s = helper.get_html_item_list('id', 'type', ['1', '2'])
+        print("Short list:", s)
+        assert s == '1, 2'
+
+        # Default
+        s = helper.get_html_item_list('id', 'type', ['1', '2', '3', '4'])
         print("Result:", s)
         assert s == \
                          '<button class="btn btn-xs btn-raised" ' \
@@ -756,11 +768,13 @@ class TestHtmlList(unittest2.TestCase):
                          '<ul class="list-group">' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</span></li>' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;3</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;4</span></li>' \
                          '</ul>' \
                          '</div>'
 
         # Default
-        s = helper.get_html_item_list('id', 'type', ['1', '2'], 'title')
+        s = helper.get_html_item_list('id', 'type', ['1', '2', '3', '4'], 'title')
         print("Result:", s)
         assert s == \
                          '<button class="btn btn-xs btn-raised" ' \
@@ -771,6 +785,8 @@ class TestHtmlList(unittest2.TestCase):
                          '<ul class="list-group">' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</span></li>' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;3</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;4</span></li>' \
                          '</ul>' \
                          '</div>'
 

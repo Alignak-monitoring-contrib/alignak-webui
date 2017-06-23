@@ -571,7 +571,7 @@ class TestHosts(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=self.session)
 
         # Get host and service in the backend
-        host = datamgr.get_host({'where': {'name': 'graphite'}})
+        host = datamgr.get_host({'where': {'name': 'graphite_host'}})
         services = datamgr.get_host_services(host)
         service = services[0]
 
@@ -599,7 +599,7 @@ class TestHosts(unittest2.TestCase):
         }
         response = self.app.post('/host/%s/form' % host.id, params=data)
         assert response.json == {
-            "_message": "host 'graphite' updated", "alias": "Alias edited"
+            "_message": "host 'graphite_host' updated", "alias": "Alias edited"
         }
 
     def test_host_delete(self):
