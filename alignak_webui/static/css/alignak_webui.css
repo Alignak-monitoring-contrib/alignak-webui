@@ -240,7 +240,7 @@ table.dataTable .selectize-control.multi .selectize-dropdown {
   left: 0 !important;
   height: auto;
   background-color: #FFF;
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  /* -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24); */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   border-radius: 2px;
   padding: 0;
@@ -342,5 +342,5 @@ form.template_form {
     margin-left: 1%;
 
     margin-top: 50vh; /* poussé de la moitié de hauteur de viewport */
-    transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */}
+    transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */
 }
