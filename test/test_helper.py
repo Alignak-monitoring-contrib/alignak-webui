@@ -239,48 +239,48 @@ class TestOnOff(unittest2.TestCase):
         # Call errors
         s = helper.get_on_off()
         print("Result:", s)
-        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger"></span>'
+        assert s == '<span title="Disabled" class="fa fa fa-close text-danger"><small>&nbsp;</small></span>'
 
         # Status only
         s = helper.get_on_off(False)
         print("Result:", s)
-        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger"></span>'
+        assert s == '<span title="Disabled" class="fa fa fa-close text-danger"><small>&nbsp;</small></span>'
 
         s = helper.get_on_off(True)
         print("Result:", s)
-        assert s == '<span title="Enabled" class="fa fa-fw fa-check text-success"></span>'
+        assert s == '<span title="Enabled" class="fa fa fa-check text-success"><small>&nbsp;</small></span>'
 
         # Title
         s = helper.get_on_off(False, 'Title')
         print("Result:", s)
-        assert s == '<span title="Title" class="fa fa-fw fa-close text-danger"></span>'
+        assert s == '<span title="Title" class="fa fa fa-close text-danger"><small>&nbsp;</small></span>'
 
         s = helper.get_on_off(True, 'Title')
         print("Result:", s)
-        assert s == '<span title="Title" class="fa fa-fw fa-check text-success"></span>'
+        assert s == '<span title="Title" class="fa fa fa-check text-success"><small>&nbsp;</small></span>'
 
         # Message
         s = helper.get_on_off(False, message='Message')
         print("Result:", s)
-        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger">Message</span>'
+        assert s == '<span title="Disabled" class="fa fa fa-close text-danger"><small>&nbsp;Message</small></span>'
 
         s = helper.get_on_off(True, message='Message')
         print("Result:", s)
-        assert s == '<span title="Enabled" class="fa fa-fw fa-check text-success">Message</span>'
+        assert s == '<span title="Enabled" class="fa fa fa-check text-success"><small>&nbsp;Message</small></span>'
 
         # Title and message
         s = helper.get_on_off(True, title='Title', message='Message')
         print("Result:", s)
-        assert s == '<span title="Title" class="fa fa-fw fa-check text-success">Message</span>'
+        assert s == '<span title="Title" class="fa fa fa-check text-success"><small>&nbsp;Message</small></span>'
 
         # Title as array
         s = helper.get_on_off(True, title=['on', 'off'], message='Message')
         print("Result:", s)
-        assert s == '<span title="on" class="fa fa-fw fa-check text-success">Message</span>'
+        assert s == '<span title="on" class="fa fa fa-check text-success"><small>&nbsp;Message</small></span>'
 
         s = helper.get_on_off(False, title=['on', 'off'], message='Message')
         print("Result:", s)
-        assert s == '<span title="off" class="fa fa-fw fa-close text-danger">Message</span>'
+        assert s == '<span title="off" class="fa fa fa-close text-danger"><small>&nbsp;Message</small></span>'
 
 
 class TestNavigation(unittest2.TestCase):
