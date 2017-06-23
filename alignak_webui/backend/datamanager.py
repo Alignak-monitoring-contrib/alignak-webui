@@ -1420,7 +1420,7 @@ class DataManager(object):
         """Get a host by its id (default)."""
         if isinstance(search, basestring):
             search = {'max_results': 1, 'where': {'_id': search}}
-        elif 'max_results' not in search:
+        elif search and 'max_results' not in search:
             search.update({'max_results': 1})
 
         items = self.get_hosts(search=search, embedded=embedded)

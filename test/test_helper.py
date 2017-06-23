@@ -232,48 +232,48 @@ class TestOnOff(unittest2.TestCase):
         # Call errors
         s = helper.get_on_off()
         print("Result:", s)
-        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger"></span>'
+        assert s == '<span title="Disabled" class="fa fa fa-close text-danger"><small>&nbsp;</small></span>'
 
         # Status only
         s = helper.get_on_off(False)
         print("Result:", s)
-        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger"></span>'
+        assert s == '<span title="Disabled" class="fa fa fa-close text-danger"><small>&nbsp;</small></span>'
 
         s = helper.get_on_off(True)
         print("Result:", s)
-        assert s == '<span title="Enabled" class="fa fa-fw fa-check text-success"></span>'
+        assert s == '<span title="Enabled" class="fa fa fa-check text-success"><small>&nbsp;</small></span>'
 
         # Title
         s = helper.get_on_off(False, 'Title')
         print("Result:", s)
-        assert s == '<span title="Title" class="fa fa-fw fa-close text-danger"></span>'
+        assert s == '<span title="Title" class="fa fa fa-close text-danger"><small>&nbsp;</small></span>'
 
         s = helper.get_on_off(True, 'Title')
         print("Result:", s)
-        assert s == '<span title="Title" class="fa fa-fw fa-check text-success"></span>'
+        assert s == '<span title="Title" class="fa fa fa-check text-success"><small>&nbsp;</small></span>'
 
         # Message
         s = helper.get_on_off(False, message='Message')
         print("Result:", s)
-        assert s == '<span title="Disabled" class="fa fa-fw fa-close text-danger">Message</span>'
+        assert s == '<span title="Disabled" class="fa fa fa-close text-danger"><small>&nbsp;Message</small></span>'
 
         s = helper.get_on_off(True, message='Message')
         print("Result:", s)
-        assert s == '<span title="Enabled" class="fa fa-fw fa-check text-success">Message</span>'
+        assert s == '<span title="Enabled" class="fa fa fa-check text-success"><small>&nbsp;Message</small></span>'
 
         # Title and message
         s = helper.get_on_off(True, title='Title', message='Message')
         print("Result:", s)
-        assert s == '<span title="Title" class="fa fa-fw fa-check text-success">Message</span>'
+        assert s == '<span title="Title" class="fa fa fa-check text-success"><small>&nbsp;Message</small></span>'
 
         # Title as array
         s = helper.get_on_off(True, title=['on', 'off'], message='Message')
         print("Result:", s)
-        assert s == '<span title="on" class="fa fa-fw fa-check text-success">Message</span>'
+        assert s == '<span title="on" class="fa fa fa-check text-success"><small>&nbsp;Message</small></span>'
 
         s = helper.get_on_off(False, title=['on', 'off'], message='Message')
         print("Result:", s)
-        assert s == '<span title="off" class="fa fa-fw fa-close text-danger">Message</span>'
+        assert s == '<span title="off" class="fa fa fa-close text-danger"><small>&nbsp;Message</small></span>'
 
 
 class TestNavigation(unittest2.TestCase):
@@ -744,8 +744,13 @@ class TestHtmlList(unittest2.TestCase):
         print("Result:", s)
         assert s == ''
 
-        # Default
+        # Less than 3 items
         s = helper.get_html_item_list('id', 'type', ['1', '2'])
+        print("Short list:", s)
+        assert s == '1, 2'
+
+        # Default
+        s = helper.get_html_item_list('id', 'type', ['1', '2', '3', '4'])
         print("Result:", s)
         assert s == \
                          '<button class="btn btn-xs btn-raised" ' \
@@ -756,11 +761,13 @@ class TestHtmlList(unittest2.TestCase):
                          '<ul class="list-group">' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</span></li>' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;3</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;4</span></li>' \
                          '</ul>' \
                          '</div>'
 
         # Default
-        s = helper.get_html_item_list('id', 'type', ['1', '2'], 'title')
+        s = helper.get_html_item_list('id', 'type', ['1', '2', '3', '4'], 'title')
         print("Result:", s)
         assert s == \
                          '<button class="btn btn-xs btn-raised" ' \
@@ -771,6 +778,8 @@ class TestHtmlList(unittest2.TestCase):
                          '<ul class="list-group">' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;1</span></li>' \
                          '<li class="list-group-item"><span class="fa fa-check">&nbsp;2</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;3</span></li>' \
+                         '<li class="list-group-item"><span class="fa fa-check">&nbsp;4</span></li>' \
                          '</ul>' \
                          '</div>'
 
