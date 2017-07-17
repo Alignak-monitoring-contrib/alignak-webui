@@ -266,7 +266,10 @@ class Service(BackendElement):
 
     @property
     def long_output(self):
-        """Return service live state long output"""
+        """Return service live state long output, except if it is identical to the output"""
+        if self.ls_long_output == self.ls_output:
+            return ''
+
         return self.ls_long_output
 
     @property
