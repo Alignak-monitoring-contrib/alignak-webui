@@ -855,7 +855,7 @@ class Plugin(object):
             elif field_type == 'float':
                 value = float(request.forms.get(field))
             elif field_type == 'point':
-                value = request.forms.getall(field)
+                value = request.forms.getall(field + '[]')
                 logger.info("- got a point: %s: %s", field, value)
                 dict_values = {}
                 for item in value:
