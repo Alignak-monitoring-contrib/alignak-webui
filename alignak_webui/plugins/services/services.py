@@ -141,7 +141,7 @@ class PluginServices(Plugin):
             },
             'get_service_grafana': {
                 'name': 'service grafana widget',
-                'route': '/service_tab_grafana/<element_id>',
+                'route': '/service_grafana/<element_id>',
                 'view': 'service',
                 'widgets': [
                     {

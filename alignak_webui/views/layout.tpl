@@ -323,6 +323,10 @@
       %include("_main_modal")
 
       <!-- Specific page scripts ...-->
+      <!--<script>
+         import L from 'leaflet';
+         import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+      </script>-->
       %for f in js:
       <script type="text/javascript" src="/static/plugins/{{f}}"></script>
       %end
