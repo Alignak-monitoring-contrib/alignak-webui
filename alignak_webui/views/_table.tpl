@@ -782,7 +782,7 @@
                   var first = true;
                   $.each(selected.data(), function(index, elt){
                      if (! first) return false;
-                     url = "{{server_url}}/{{object_type}}/" + encodeURIComponent(elt._id) + "/form";
+                     url = "{{server_url}}/{{object_type}}/" + encodeURIComponent(elt._id) + "/delete";
                   });
                   window.setTimeout(function(){
                      window.location.href = url;

@@ -2011,8 +2011,9 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_realms, search: %s", search)
+            logger.info("get_realms, search: %s", search)
             items = self.find_object('realm', search, all_elements)
+            logger.info("get_realms, items: %s", items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_realms, none found")
@@ -2026,7 +2027,7 @@ class DataManager(object):
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
-        logger.debug("get_realm, search: %s", search)
+        logger.info("get_realm, search: %s", search)
         items = self.get_realms(search=search)
         logger.debug("get_realm, got: %s", items)
         return items[0] if items else None
@@ -2084,7 +2085,7 @@ class DataManager(object):
                          realm.name, ov_state)
             overall_state = max(overall_state, ov_state)
 
-        logger.warning("get_realm_overall_state, realm: %s, state: %s", realm.name, overall_state)
+        logger.info("get_realm_overall_state, realm: %s, state: %s", realm.name, overall_state)
         overall_status = Realm.overall_state_to_status[overall_state]
         return (overall_state, overall_status)
 

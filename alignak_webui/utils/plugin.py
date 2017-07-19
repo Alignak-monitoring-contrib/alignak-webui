@@ -181,12 +181,30 @@ class Plugin(object):
                     }
                 })
 
+            if 'confirm_delete_form' not in self.pages:
+                self.pages.update({
+                    'confirm_delete_form': {
+                        'name': '%s deletion form' % self.name,
+                        'route': '/%s/<element_id>/delete' % self.backend_endpoint,
+                        'view': '_form_delete'
+                    }
+                })
+
+            if 'delete_element' not in self.pages:
+                self.pages.update({
+                    'delete_element': {
+                        'name': '%s deletion' % self.name,
+                        'route': '/%s/<element_id>/delete' % self.backend_endpoint,
+                        'method': 'POST'
+                    }
+                })
+
             if 'get_form' not in self.pages:
                 self.pages.update({
                     'get_form': {
                         'name': '%s form' % self.name,
                         'route': '/%s/<element_id>/form' % self.backend_endpoint,
-                        'view': '_form',
+                        'view': '_form'
                     }
                 })
 
@@ -710,6 +728,88 @@ class Plugin(object):
             'title': request.query.get('title', _('All %ss tree view') % self.backend_endpoint)
         }
 
+    def confirm_delete_form(self, element_id):
+        """Build the form to delete an element.
+
+            element_id is the _id (or name) of an element to delete.
+        """
+        logger.info("Get delete form: %s", element_id)
+        user = request.environ['beaker.session']['current_user']
+        edition_mode = request.environ['beaker.session']['edition_mode']
+        if not edition_mode:
+            logger.warning("Element deletion is authorized only in edition mode.")
+            self.send_user_message(_("Element deletion is authorized only in edition mode"))
+
+        if not user.can_edit_configuration():
+            logger.warning("Current user '%s' is not authorized to delete %s elements",
+                           user.get_username(), self.backend_endpoint)
+            self.send_user_message(_("Not authorized to delete a %s element")
+                                   % self.backend_endpoint, redirected=True)
+
+        datamgr = request.app.datamgr
+
+        # Get element get method from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint, None)
+        if not f:  # pragma: no cover, simple protection
+            f = getattr(datamgr, 'get_object', None)
+            # self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
+            # Get element from the data manager
+            element = f(self.backend_endpoint, element_id)
+            if not element:
+                element = f(self.backend_endpoint,
+                            search={'max_results': 1, 'where': {'name': element_id}})
+        else:
+            # Get element from the data manager
+            element = f(element_id)
+            if not element:
+                # Search with name rather than id
+                element = f(search={'max_results': 1, 'where': {'name': element_id}})
+                if self.templated and not element:
+                    # Search amnog the templates with id
+                    element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                    '_id': element_id}})
+                    if not element:
+                        # Search amnog the templates with name
+                        element = f(search={'max_results': 1, 'where': {'_is_template': True,
+                                                                        'name': element_id}})
+
+        # If not found, raise an error message
+        if not element:
+            logger.warning("Cannot delete a not found %s element",
+                           self.backend_endpoint)
+            self.send_user_message(_("Cannot delete a not found %s element")
+                                   % self.backend_endpoint, redirected=True)
+
+        return {
+            'plugin': self,
+            'element': element
+        }
+
+    def delete_element(self, element_id):
+        # pylint: disable=too-many-locals, not-an-iterable
+        """Delete an element
+
+            If element_id is string 'None' then it is a new object creation, else element_id is the
+            _id (or name) of an object to update.
+        """
+        user = request.environ['beaker.session']['current_user']
+        if not user.can_edit_configuration():
+            logger.warning("Current user '%s' is not authorized to delete %s elements",
+                           user.get_username(), self.backend_endpoint)
+            response.status = 401
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': 'Not authorized to delete %s elements' % self.backend_endpoint}
+            )
+
+        datamgr = request.app.datamgr
+
+        data = {'_message': _("%s %s not deleted") % (self.backend_endpoint, element_id)}
+        if datamgr.delete_object(self.backend_endpoint, element_id):
+            data = {'_message': _("%s %s deleted") % (self.backend_endpoint, element_id)}
+
+        return self.webui.response_data(data)
+
     def get_form(self, element_id):
         """Build the form for an element.
 
@@ -855,7 +955,7 @@ class Plugin(object):
             elif field_type == 'float':
                 value = float(request.forms.get(field))
             elif field_type == 'point':
-                value = request.forms.getall(field)
+                value = request.forms.getall(field + '[]')
                 logger.info("- got a point: %s: %s", field, value)
                 dict_values = {}
                 for item in value:
