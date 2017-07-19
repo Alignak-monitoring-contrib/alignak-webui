@@ -277,7 +277,10 @@ class Host(BackendElement):
 
     @property
     def long_output(self):
-        """Return host live state long output"""
+        """Return host live state long output, except if it is identical to the output"""
+        if self.ls_long_output == self.ls_output:
+            return ''
+
         return self.ls_long_output
 
     @property
