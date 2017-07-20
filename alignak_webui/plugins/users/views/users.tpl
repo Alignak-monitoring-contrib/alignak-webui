@@ -75,7 +75,7 @@
                   </td>
 
                   <td>
-                     <small data-toggle="tooltip" data-placement="top" title="{{user.notes}}">{{user.name}}</small>
+                     <small data-toggle="tooltip" data-placement="top" title="{{user.notes}}">{{! user.get_html_link()}}</small>
                   </td>
 
                   <td>

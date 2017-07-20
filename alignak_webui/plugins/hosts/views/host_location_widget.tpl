@@ -15,7 +15,7 @@
    </center>
 %else:
 %hosts = [host]
-%(hosts, hosts2) = worldmap_plugin.get_map_elements(hosts)
+%hosts = worldmap_plugin.get_map_elements(hosts)
 
 <script>
    // Tabs management

@@ -285,7 +285,7 @@ class PluginServices(Plugin):
             'parents': parents,
             'children': children,
             'title': request.params.get('title', _('Service view: %s/%s'
-                                                   % (host.alias, service.alias)))
+                                                   % (host.alias if host else '', service.alias)))
         }
 
     def get_service_simple_widget(self, element_id, widget_id=None,

@@ -2,14 +2,13 @@
 %setdefault('load', False)
 
 <script>
-    %#Actions ?
+    %# Actions are allowed?
     actions = {{ 'true' if current_user.is_power() else 'false' }};
 
-    if (typeof debugMaps === 'undefined') debugMaps=true;
+    if (typeof debugMaps === 'undefined') debugMaps=false;
 
     function buildHosts() {
         // pos_hosts is a global var defined in worldmaps.js
-        %# List hosts and their services
         pos_hosts = [
         %for host in hosts:
             new Host(
@@ -17,7 +16,7 @@
                 '{{ host['overall_state'] }}', '{{ host['overall_status'] }}',
                 '{{ host['state_id'] }}', '{{ host['business_impact'] }}',
                 '{{ ! host['content'] }}',
-                {{ host['lat'] }}, {{ host['lng'] }},
+                {{ host['lat'] }}, {{ host['lng'] }}, {{ 'true' if host['positioned'] else 'false' }},
                 [
                     %for service in host['services']:
                         %status = service.get_html_state(text=None, use_status=service.overall_status)
@@ -34,12 +33,10 @@
             ),
         %end
         ]
-
-        if (debugMaps) console.log("Hosts:", pos_hosts);
+        if (debugMaps) console.log("Hosts (positioned):", pos_hosts);
         if (debugMaps) {
             for (var i = 0; i < pos_hosts.length; i++) {
-                var h = pos_hosts[i];
-                if (debugMaps) console.log("- services", h.services);
+                console.log("- services", pos_hosts[i].services);
             }
         }
     }
@@ -50,13 +47,13 @@
         buildHosts();
 
         // Build map
-        var mapCreated = mapInit('{{mapId}}', '{{'true' if current_user.is_power() else ''}}', function($map) {
+        var mapCreated = mapInit('{{mapId}}', "{{'true' if current_user.is_power() else ''}}", function($map) {
             // Map height to be scaled inside the window
             var mapOffset = $('#{{mapId}}').offset().top;
             var footerOffset = $('footer').offset().top;
             $('#{{mapId}}').height(footerOffset - mapOffset - 35)
 
-            if (debugMaps) console.log('Resizing map:', $map.id)
+            if (debugMaps) console.log('Resizing map:', $map._containerId)
             mapResize($map);
         });
         if (! mapCreated) {
@@ -71,12 +68,16 @@
         cssfiles.push('/static/plugins/worldmap/static/css/MarkerCluster.css');
         cssfiles.push('/static/plugins/worldmap/static/css/MarkerCluster.Default.css');
         cssfiles.push('/static/plugins/worldmap/static/css/worldmap.css');
+        cssfiles.push('/static/plugins/worldmap/static/geocoder/Control.OSMGeocoder.css');
+        cssfiles.push('/static/plugins/worldmap/static/geocoder2/Control.Geocoder.css');
 
         $.getCssFiles(cssfiles, function(){
             var jsfiles=[];
             jsfiles.push('/static/plugins/worldmap/static/leaflet/leaflet.js');
             jsfiles.push('/static/plugins/worldmap/static/js/leaflet.markercluster.js');
             jsfiles.push('/static/plugins/worldmap/static/js/leaflet.Icon.Glyph.js');
+            jsfiles.push('/static/plugins/worldmap/static/geocoder/Control.OSMGeocoder.js');
+            jsfiles.push('/static/plugins/worldmap/static/geocoder2/Control.Geocoder.js');
             jsfiles.push('/static/plugins/worldmap/static/js/worldmap.js');
 
             $.getJsFiles(jsfiles, function(){

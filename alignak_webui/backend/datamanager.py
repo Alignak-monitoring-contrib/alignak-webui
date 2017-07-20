@@ -332,7 +332,7 @@ class DataManager(object):
         # This realm identifier will be used when it is necessaty to provide a realm
         # (eg. for new objects creation)
         self.my_realm = self.get_realm({'max_results': 1, 'sort': '_level'})
-        logger.info("user's default higher level realm: %s", self.my_realm['name'])
+        logger.info("user's default higher level realm: %s", self.my_realm)
 
         # Get the live synthesis identifier for the user's realm
         # This will allow to request the user's specific realm LS for as the backend
@@ -1255,7 +1255,8 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1, '_parent': 1, 'hostgroups': 1, 'hosts': 1
+                    # '_realm': 1,
+                    '_parent': 1, 'hostgroups': 1, 'hosts': 1
                 }
             })
 
@@ -1467,7 +1468,8 @@ class DataManager(object):
         if 'embedded' not in search:
             search.update({
                 'embedded': {
-                    '_realm': 1, '_parent': 1, 'hostgroups': 1, 'hosts': 1
+                    # '_realm': 1,
+                    '_parent': 1, 'hostgroups': 1, 'hosts': 1
                 }
             })
 

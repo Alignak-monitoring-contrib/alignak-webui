@@ -1,5 +1,5 @@
 %setdefault('debug', False)
-%setdefault('title', _('Hosts group view'))
+%setdefault('title', _('Services group view'))
 
 %from bottle import request
 %search_string = request.query.get('search', '')
@@ -119,7 +119,7 @@
             <table class="table table-condensed">
                <thead><tr>
                   <th style="width: 40px"></th>
-                  <th>{{_('Host name')}}</th>
+                  <th>{{_('Service')}}</th>
                   <th>{{_('Business impact')}}</th>
                   <th>{{_('Last check')}}</th>
                   <th>{{_('Output')}}</th>
@@ -169,9 +169,9 @@
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
-               <th>{{_('Name')}}</th>
-               <th>{{_('Alias')}}</th>
-               <th>{{_('Level')}}</th>
+               <th>{{_('Group')}}</th>
+               <th>{{_('Notes')}}</th>
+               <th>{{_('Parent')}}</th>
             </tr></thead>
 
             <tbody>
@@ -191,11 +191,13 @@
                   </td>
 
                   <td>
-                     {{elt.alias}}
+                     {{elt.notes}}
                   </td>
 
                   <td>
-                     {{elt.level}}
+                     %if elt._parent and elt._parent != 'servicegroup':
+                     {{elt._parent.alias}}
+                     %end
                   </td>
                </tr>
             %end

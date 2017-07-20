@@ -41,19 +41,25 @@ class ServiceGroup(BackendElement):
 
     # Converting real state identifier to text status
     overall_state_to_status = [
-        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical'
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'nope'
     ]
 
     def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
         """Create a servicegroup (called only once when an object is newly created)"""
         self._linked_servicegroups = 'servicegroup'
         self._linked__parent = 'servicegroup'
+        self._linked__realm = 'realm'
         self._linked_services = 'service'
 
         super(ServiceGroup, self).__init__(params, date_format, embedded)
 
         if not hasattr(self, '_overall_state'):
             setattr(self, '_overall_state', 0)
+
+    @property
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def members(self):

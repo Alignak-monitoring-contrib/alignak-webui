@@ -44,7 +44,7 @@
                <th style="width: 40px"></th>
                <th>{{_('Name')}}</th>
                <th>{{_('Alias')}}</th>
-               <th>{{_('Level')}}</th>
+               <th>{{_('Notes')}}</th>
                <th>{{_('Parent')}}</th>
             </tr></thead>
 
@@ -65,7 +65,7 @@
                      </td>
 
                      <td>
-                        {{hostgroup.level}}
+                        {{hostgroup.notes}}
                      </td>
 
                      <td>

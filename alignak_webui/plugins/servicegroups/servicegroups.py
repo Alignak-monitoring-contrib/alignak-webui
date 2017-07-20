@@ -53,8 +53,8 @@ class PluginServicesGroups(Plugin):
                 'route': '/servicegroup/members/<group_id>'
             },
             'get_overall_state': {
-                'name': 'Host group status',
-                'route': '/hostgroup/status/<element_id>'
+                'name': 'Services group status',
+                'route': '/servicegroup/status/<element_id>'
             },
         }
 
@@ -82,6 +82,9 @@ class PluginServicesGroups(Plugin):
             groups = datamgr.get_servicegroups(search={'where': {'_level': 1}})
 
         return {
+            'plugin': self,
+            'plugin_parameters': self.plugin_parameters,
+
             'object_type': self.backend_endpoint,
             'element': element,
             'groups': groups
@@ -100,7 +103,7 @@ class PluginServicesGroups(Plugin):
 
         (overall_state, overall_status) = datamgr.get_servicegroup_overall_state(element)
         logger.debug(
-            " - hostgroup overall state: %d -> %s", overall_state, overall_status
+            " - servicegroup overall state: %d -> %s", overall_state, overall_status
         )
 
         return (overall_state, overall_status)

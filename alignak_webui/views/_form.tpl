@@ -528,6 +528,21 @@
             %  continue
             %end
 
+            % # Do not include field if dependent field is not True
+            %depends = model.get('depends', None)
+            %if depends:
+            % depends = depends.split(',')
+            % ignore = False
+            % for depend in depends:
+            %  if getattr(element, depend, None) is False:
+            %   ignore = True
+            %  end
+            % end
+            % if ignore:
+            %  continue
+            % end
+            %end
+
             %if element:
             %field_value=element[field]
             %else:
@@ -734,7 +749,7 @@
                         '</div>';
                      },
                      item: function(item, escape) {
-                        console.log("item {{field}}: ", item);
+                        //console.log("item {{field}}: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -826,7 +841,8 @@
    $('form[data-element="{{element.id if element else 'None'}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
       evt.preventDefault();
-      //console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
+      console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
+      console.log($(this).serialize());
 
       // Submitting message
       wait_message('{{_('Submitting form...')}}', true)

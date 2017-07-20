@@ -395,8 +395,8 @@ class BackendElement(object):
                                                  object_type, value)
                                     continue
                             except:  # pragma: no cover, should not happen
-                                logger.error("__init__, item not existing for %s, %s",
-                                             object_type, value)
+                                logger.error("__init__, item not existing for %s, %s (%s)",
+                                             object_type, value, params[key])
                                 continue
 
                             # Create a new object
@@ -425,8 +425,9 @@ class BackendElement(object):
                                                          object_type, value)
                                             continue
                                     except:  # pragma: no cover, should not happen
-                                        logger.error("__init__, item not existing for %s, %s",
-                                                     object_type, value)
+                                        logger.error("__init__, item in list not "
+                                                     "existing for %s, %s (%s)",
+                                                     object_type, value, element)
                                         continue
 
                                     # Create a new object
@@ -634,16 +635,16 @@ class BackendElement(object):
         """An element is never a problem except if it overloads this method"""
         return False
 
-    @property
-    def acknowledged(self):
-        """An element is never acknowledged except if it overloads this method"""
-        return False
-
-    @property
-    def downtimed(self):
-        """An element is never in a downtime except if it overloads this method"""
-        return False
-
+    # @property
+    # def acknowledged(self):
+    #     """An element is never acknowledged except if it overloads this method"""
+    #     return False
+    #
+    # @property
+    # def downtimed(self):
+    #     """An element is never in a downtime except if it overloads this method"""
+    #     return False
+    #
     def get_state(self):
         """Get Item object state
 

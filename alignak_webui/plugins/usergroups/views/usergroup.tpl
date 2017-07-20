@@ -108,6 +108,12 @@
          <div class="col-xs-6 col-sm-2 text-center">
             {{! element.get_html_state(text=None, size="fa-3x")}}
             <legend><strong>{{element.alias}}</strong></legend>
+
+            <div class="actions">
+               %if current_user.is_power():
+                  {{! Helper.get_html_commands_buttons(element, _('Actions'))}}
+               %end
+            </div>
          </div>
          <div class="col-xs-6 col-sm-10">
          %if not element.members or isinstance(element.members, basestring):
@@ -118,7 +124,8 @@
             <table class="table table-condensed">
                <thead><tr>
                   <th style="width: 40px"></th>
-                  <th>{{_('Name')}}</th>
+                  <th>{{_('User')}}</th>
+                  <th>{{_('Realm')}}</th>
                   <th>{{_('Administrator')}}</th>
                   <th>{{_('Commands')}}</th>
                   <th>{{_('Email')}}</th>
@@ -133,6 +140,10 @@
 
                      <td title="{{elt.alias}}">
                         <small>{{!elt.get_html_link()}}</small>
+                     </td>
+
+                     <td>
+                        <small>{{! elt._realm.get_html_link()}}</small>
                      </td>
 
                      <td>
@@ -167,9 +178,9 @@
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
-               <th>{{_('Name')}}</th>
-               <th>{{_('Alias')}}</th>
-               <th>{{_('Level')}}</th>
+               <th>{{_('Group')}}</th>
+               <th>{{_('Notes')}}</th>
+               <th>{{_('Parent')}}</th>
             </tr></thead>
 
             <tbody>
@@ -188,11 +199,13 @@
                   </td>
 
                   <td>
-                     {{elt.alias}}
+                     {{elt.notes}}
                   </td>
 
                   <td>
-                     {{elt.level}}
+                     %if elt._parent and elt._parent != 'usergroup':
+                     {{elt._parent.alias}}
+                     %end
                   </td>
                </tr>
             %end

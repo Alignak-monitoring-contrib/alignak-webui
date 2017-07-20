@@ -181,7 +181,7 @@
          <div class="row">
             <dl class="col-sm-6 col-md-4">
                <dt>{{_('Host:')}}</dt>
-               <dd>{{! host.html_state_link}}</dd>
+               <dd>{{! host.html_state_link if host else ''}}</dd>
 
                <dt>{{_('Alias:')}}</dt>
                <dd>{{service.alias}}</dd>

@@ -42,8 +42,10 @@
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
-               <th>{{_('Name')}}</th>
+               <th>{{_('Group')}}</th>
                <th>{{_('Alias')}}</th>
+               <th>{{_('Notes')}}</th>
+               <th>{{_('Parent')}}</th>
             </tr></thead>
 
             <tbody>
@@ -59,6 +61,16 @@
 
                   <td>
                      <small>{{usergroup.alias}}</small>
+                  </td>
+
+                  <td>
+                     <small>{{usergroup.notes}}</small>
+                  </td>
+
+                  <td>
+                     %if usergroup._parent and usergroup._parent != 'usergroup':
+                     {{usergroup._parent.alias}}
+                     %end
                   </td>
                </tr>
                %end

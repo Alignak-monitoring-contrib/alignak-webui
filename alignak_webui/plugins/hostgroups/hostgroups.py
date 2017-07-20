@@ -49,11 +49,11 @@ class PluginHostsGroups(Plugin):
 
         self.pages = {
             'get_group_members': {
-                'name': 'Host group members',
+                'name': 'Hosts group members',
                 'route': '/hostgroup/members/<element_id>'
             },
             'get_overall_state': {
-                'name': 'Host group status',
+                'name': 'Hosts group status',
                 'route': '/hostgroup/status/<element_id>'
             },
         }
@@ -82,6 +82,9 @@ class PluginHostsGroups(Plugin):
             groups = datamgr.get_hostgroups(search={'where': {'_level': 1}})
 
         return {
+            'plugin': self,
+            'plugin_parameters': self.plugin_parameters,
+
             'object_type': self.backend_endpoint,
             'element': element,
             'groups': groups

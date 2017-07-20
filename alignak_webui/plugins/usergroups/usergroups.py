@@ -80,6 +80,9 @@ class PluginServicesGroups(Plugin):
             groups = datamgr.get_usergroups(search={'where': {'_level': 1}})
 
         return {
+            'plugin': self,
+            'plugin_parameters': self.plugin_parameters,
+
             'object_type': self.backend_endpoint,
             'element': element,
             'groups': groups

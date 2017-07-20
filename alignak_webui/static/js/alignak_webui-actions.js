@@ -214,8 +214,12 @@ function raise_message_ko(text){
          })
          .map(function (i, elem) {
              var val = $(this).val();
+             console.log(i, elem, val);
              return val == null ?
-             null :
+             {
+                 name: elem.name,
+                 value: val
+             } :
              $.isArray(val) ?
              $.map(val, function (val, i) {
                  return { name: elem.name, value: val };
