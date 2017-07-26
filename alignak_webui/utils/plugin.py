@@ -974,6 +974,8 @@ class Plugin(object):
                 }
             elif field_type == 'dict':
                 value = request.forms.getall(field)
+                if value == ['']:
+                    value = []
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
