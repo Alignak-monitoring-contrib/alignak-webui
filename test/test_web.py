@@ -360,6 +360,15 @@ class TestCommands(unittest2.TestCase):
         self.app.get('/commands/list')
         self.app.get('/commands/table')
 
+    def test_command(self):
+        """ Web - realm"""
+        print('test realm')
+
+        print('get page /command')
+        response = self.app.get('/command/check_ping')
+        response.mustcontain(
+            '<div class="command" id="command_'
+        )
 
 class TestTimeperiods(unittest2.TestCase):
     def setUp(self):

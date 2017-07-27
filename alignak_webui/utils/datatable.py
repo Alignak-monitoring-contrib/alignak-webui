@@ -85,7 +85,7 @@ class Datatable(object):
         self.editable = True
         self.responsive = True
         self.recursive = False
-        self.commands = (object_type == 'host') or (object_type == 'service')
+        self.commands = object_type in ['host', 'service', 'user']
 
         self.css = "compact nowrap"
 
@@ -606,14 +606,14 @@ class Datatable(object):
         for item in items:
             bo_object = object_class(item)
             logger.debug("table data object: %s", bo_object)
-            """
-            This is an awful hack that allows to update the objects filtered for a table. 
-            Two main interests:
-            - update the backend because some massive modifications are necessary for testing
-            - prepare a massive update feature in the Web UI :)
-            """
+            # This is an awful hack that allows to update the objects filtered for a table.
+            # Two main interests:
+            # - update the backend because some massive modifications are necessary for testing
+            # - prepare a massive update feature in the Web UI :)
+            # -----
             # if self.is_templated and self.templates and self.object_type == 'service':
-            #     logger.warning("service template: %s for host: %s", bo_object.name, bo_object['host'])
+            #     logger.warning("service template: %s for host: %s",
+            #                    bo_object.name, bo_object['host'])
             #     if bo_object['host'].name.startswith('fdj'):
             #         logger.info("To be updated...")
             #         data = {
@@ -627,6 +627,7 @@ class Datatable(object):
             #             logger.info("updated.")
             #         else:
             #             logger.error("update failed!")
+            # -----
 
             # Each item contains the total number of records matching the search filter
             self.records_filtered = item['_total']

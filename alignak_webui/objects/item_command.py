@@ -42,12 +42,3 @@ class Command(BackendElement):
     # Default command common fields
     _name = 'Undefined command'
 
-    # @property
-    # def _realm(self):
-    #     """ Return concerned realm """
-    #     return self._linked__realm
-
-    @property
-    def endpoint(self):
-        """Overload default property. Link to the main objects page with an anchor."""
-        return '/%ss#%s' % (self.object_type, self.id)
