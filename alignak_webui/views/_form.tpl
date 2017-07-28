@@ -636,7 +636,7 @@
                      <i class="fa fa-list"></i>
                      %end
                   %end
-                  {{label}} {{field_type}}
+                  {{label}}
                      %if required:
                      *
                      %end
