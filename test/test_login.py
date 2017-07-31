@@ -142,7 +142,7 @@ class TestLogin(unittest2.TestCase):
         assert session['current_user'].name == 'admin'
         assert 'current_realm' in session and session['current_realm']
         assert session['current_realm'].name == 'All'
-        assert 'current_ls' in session and session['current_ls']
+        # assert 'current_ls' in session and session['current_ls']
 
     def test_login_accepted(self):
         """ Login - accepted"""

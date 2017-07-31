@@ -395,8 +395,8 @@ class BackendElement(object):
                                                  object_type, value)
                                     continue
                             except:  # pragma: no cover, should not happen
-                                logger.error("__init__, item not existing for %s, %s (%s)",
-                                             object_type, value, params[key])
+                                logger.error("__init__, item not existing for %s, %s in %s",
+                                             object_type, value, self)
                                 continue
 
                             # Create a new object
@@ -426,8 +426,8 @@ class BackendElement(object):
                                             continue
                                     except:  # pragma: no cover, should not happen
                                         logger.error("__init__, item in list not "
-                                                     "existing for %s, %s (%s)",
-                                                     object_type, value, element)
+                                                     "existing for %s, %s (%s) in %s",
+                                                     object_type, value, element, self)
                                         continue
 
                                     # Create a new object

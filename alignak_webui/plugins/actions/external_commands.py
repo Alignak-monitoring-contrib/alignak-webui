@@ -46,14 +46,14 @@ commands = {
         'title': _("Enable flapping detection"),
         'parameters': []
     },
-    'disable_notification': {
+    'disable_notifications': {
         'global': True, 'elements_type': None,
-        'title': _("Disable notification"),
+        'title': _("Disable notifications"),
         'parameters': []
     },
-    'enable_notification': {
+    'enable_notifications': {
         'global': True, 'elements_type': None,
-        'title': _("Enable notification"),
+        'title': _("Enable notifications"),
         'parameters': []
     },
     'disable_performance_data': {

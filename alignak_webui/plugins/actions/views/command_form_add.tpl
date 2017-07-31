@@ -10,15 +10,15 @@
 %# command attributes
 %setdefault('element', 'command')
 %setdefault('action', 'add')
-%setdefault('elements_type', 'host')
-%setdefault('element_id', '-1')
+%setdefault('elements_type', '')
+%setdefault('element_id', [])
 %setdefault('element_name', 'unknown')
 
 <div class="modal-header">
    <a class="close" data-dismiss="modal">×</a>
    <h3>{{title}}</h3>
    <small><em>
-      {{', '.join(element_name)}}
+      {{', '.join(element_name) if elements_type else _("Alignak global command")}}
    </em></small>
 </div>
 

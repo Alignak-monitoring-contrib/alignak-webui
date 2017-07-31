@@ -313,9 +313,19 @@
                <span>{{_('Backend Alignak')}}</span>
             </a>
          </li>
-         <li class="divider"></li>
          %except RouteBuildError:
          %print("Missing plugin Backend Alignak")
+         %end
+         %try:
+         <li>
+            <a href="#" data-action="global-commands-list">
+               <span class="fa fa-fw fa-heartbeat"></span>
+               <span>{{_('Alignak global commands')}}</span>
+            </a>
+         </li>
+         <li class="divider"></li>
+         %except RouteBuildError:
+         %print("Missing plugin Actions")
          %end
 
          %try:

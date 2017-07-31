@@ -465,6 +465,14 @@ $(document).ready(function() {
       }, 5);
    });
    // Commands list
+   $('body').on("click", '[data-action="global-commands-list"]', function () {
+      if (actions_logs) console.debug("Requires the global commands list");
+
+      var url = "/command/global/add";
+      window.setTimeout(function(){
+         display_modal(url);
+      }, 5);
+   });
    $('body').on("click", '[data-action="commands-list"]', function () {
       if (actions_logs) console.debug("Requires the commands list for:", $(this).data('element'));
 

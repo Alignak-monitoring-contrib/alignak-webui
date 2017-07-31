@@ -66,6 +66,11 @@ class PluginActions(Plugin):
                 'route': '/command/form/add',
                 'view': 'command_form_add'
             },
+            'show_global_commands': {
+                'name': 'Global commands',
+                'route': '/command/global/add',
+                'view': 'command_form_add'
+            },
             'get_command_parameters': {
                 'name': 'Command parameters',
                 'route': '/command/parameters'
@@ -349,6 +354,23 @@ class PluginActions(Plugin):
             'commands_list': commands_list
         }
 
+    def show_global_commands(self):  # pylint:disable=no-self-use
+        """Show form to send global commands"""
+        commands_list = {}
+        for command in commands:
+            # Get only global commands
+            if not commands[command].get('global', True):
+                continue
+            commands_list.update({command: commands[command]})
+
+        return {
+            'title': request.query.get('title', _('Send a command')),
+            'comment': request.query.get('comment', _('Global command requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1',
+            'commands_list': commands_list
+        }
+
     def get_command_parameters(self):
         """Get a command parameters list
 
@@ -366,36 +388,47 @@ class PluginActions(Plugin):
             )
 
         logger.info("Element type: %s", elements_type)
-        plugin = self.webui.find_plugin(elements_type)
-        if not plugin:
-            response.status = 409
-            response.content_type = 'application/json'
-            return json.dumps(
-                {'error': "the plugin for '%s' is not existing or not installed" % elements_type}
-            )
-        logger.info("Found plugin: %s", plugin.name)
+        if elements_type:
+            plugin = self.webui.find_plugin(elements_type)
+            if not plugin:
+                response.status = 409
+                response.content_type = 'application/json'
+                return json.dumps(
+                    {'error': "the plugin for '%s' is not existing or not installed"
+                              % elements_type}
+                )
+            logger.info("Found plugin: %s", plugin.name)
 
-        # Provide the described parameters
-        parameters = {}
-        for parameter in commands[command].get('parameters', {}):
-            logger.debug("Got plugin table parameter: %s / %s", parameter, plugin.table[parameter])
-            parameters[parameter] = deepcopy(plugin.table[parameter])
-            logger.info("Got plugin parameter: %s / %s", parameter, parameters[parameter])
+            # Provide the described parameters
+            parameters = {}
+            for parameter in commands[command].get('parameters', {}):
+                logger.debug("Got plugin table parameter: %s / %s",
+                             parameter, plugin.table[parameter])
+                parameters[parameter] = deepcopy(plugin.table[parameter])
+                if 'editable' in parameters[parameter]:
+                    parameters[parameter]['editable'] = True
 
-            if 'allowed' in plugin.table[parameter]:
-                allowed_values = {}
-                allowed = plugin.table[parameter].get('allowed', '')
-                if not isinstance(allowed, list):
-                    allowed = allowed.split(',')
-                logger.debug("Get real allowed values for %s: %s", parameter, allowed)
-                if allowed[0] == '':
-                    allowed = []
-                for allowed_value in allowed:
-                    value = plugin.table[parameter].get('allowed_%s' % allowed_value, allowed_value)
-                    allowed_values.update({'%s' % allowed_value: value})
+                if 'allowed' in plugin.table[parameter]:
+                    allowed_values = {}
+                    allowed = plugin.table[parameter].get('allowed', '')
+                    if not isinstance(allowed, list):
+                        allowed = allowed.split(',')
+                    logger.debug("Get real allowed values for %s: %s", parameter, allowed)
+                    if allowed[0] == '':
+                        allowed = []
+                    for allowed_value in allowed:
+                        value = plugin.table[parameter].get('allowed_%s' % allowed_value,
+                                                            allowed_value)
+                        allowed_values.update({'%s' % allowed_value: value})
 
-                parameters[parameter]['allowed'] = allowed_values
-                logger.debug("Real allowed values for %s: %s", parameter, allowed_values)
+                    parameters[parameter]['allowed'] = allowed_values
+                    logger.debug("Real allowed values for %s: %s", parameter, allowed_values)
+
+                logger.info("Got command parameter: %s / %s",
+                            parameter, parameters[parameter])
+        else:
+            # Provide the described parameters
+            parameters = commands[command].get('parameters', {})
 
         logger.info("Parameters: %s", parameters)
         response.status = 200
@@ -413,6 +446,8 @@ class PluginActions(Plugin):
             return self.webui.response_invalid_parameters(
                 _('Missing command name: command')
             )
+
+        logger.info("Request to send a command: %s", command)
 
         # Get elements from the commands list
         if command not in commands:
@@ -434,8 +469,9 @@ class PluginActions(Plugin):
             parameters.append(parameter_value)
         logger.info("Command parameters: %s", parameters)
 
+        elements_type = request.forms.get('elements_type', 'host')
         element_ids = request.forms.getall('element_id')
-        if not element_ids:
+        if elements_type and not element_ids:
             logger.error("request to send an command: missing element_id parameter!")
             return self.webui.response_invalid_parameters(
                 _('Missing element identifier: element_id')
@@ -445,38 +481,51 @@ class PluginActions(Plugin):
         status = ""
 
         # Method to get elements from the data manager
-        elements_type = request.forms.get('elements_type', 'host')
-        f = getattr(datamgr, 'get_%s' % elements_type)
-        if not f:
-            status += (_("No method to get a %s element") % elements_type)
-        else:
-            for element_id in element_ids:
-                element = f(element_id)
-                if not element:
-                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
-                    continue
+        if elements_type:
+            f = getattr(datamgr, 'get_%s' % elements_type)
+            if not f:
+                status += (_("No method to get a %s element") % elements_type)
+            else:
+                for element_id in element_ids:
+                    element = f(element_id)
+                    if not element:
+                        status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                        continue
 
-                # Prepare post request ...
-                data = {
-                    'timestamp': int(time.time()),
-                    'command': command,
-                    'element': element.name,
-                    'parameters': ';'.join(parameters)
-                }
-                if elements_type == 'service':
-                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
-
-                logger.info("Send a command, data: %s", data)
-                if not datamgr.add_command(data=data):
-                    status += _("Failed sending a command for %s. ") % element.name
-                    problem = True
-                else:
+                    # Prepare post request ...
+                    data = {
+                        'timestamp': int(time.time()),
+                        'command': command,
+                        'element': element.name,
+                        'parameters': ';'.join(parameters)
+                    }
                     if elements_type == 'service':
-                        data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Sent a command %s for %s/%s. ') % \
-                            (command, element.host.name, element.name)
+                        data.update({'element': '%s/%s' % (element.host.name, element.name)})
+
+                    logger.info("Send a command, data: %s", data)
+                    if not datamgr.add_command(data=data):
+                        status += _("Failed sending a command for %s. ") % element.name
+                        problem = True
                     else:
-                        status += _('Sent a command %s for %s. ') % (command, element.name)
+                        if elements_type == 'service':
+                            data.update({'host': element.host.id, 'service': element.id})
+                            status += _('Sent a command %s for %s/%s. ') % \
+                                (command, element.host.name, element.name)
+                        else:
+                            status += _('Sent a command %s for %s. ') % (command, element.name)
+        else:
+            # Prepare post request ...
+            data = {
+                'timestamp': int(time.time()),
+                'command': command,
+                'parameters': ';'.join(parameters)
+            }
+            logger.info("Send a command, data: %s", data)
+            if not datamgr.add_command(data=data):
+                status += _("Failed sending a command for Alignak. ")
+                problem = True
+            else:
+                status += _('Sent a command %s for Alignak. ') % (command)
 
         logger.info("Sent a command, result: %s", status)
 

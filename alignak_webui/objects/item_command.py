@@ -42,3 +42,16 @@ class Command(BackendElement):
     # Default command common fields
     _name = 'Undefined command'
 
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        # Not that bad ... because __init__ is called from __new__
+        # pylint: disable=attribute-defined-outside-init
+        """Create a host (called only once when an object is newly created)"""
+
+        self._linked__realm = 'realm'
+
+        super(Command, self).__init__(params, date_format, embedded)
+
+    @property
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm
