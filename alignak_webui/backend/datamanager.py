@@ -148,7 +148,7 @@ class DataManager(object):
         if session:
             if self.user_login(session['current_user'].token, load=False):
                 self.my_realm = session['current_realm']
-                self.my_ls = session['current_ls']
+                # self.my_ls = session['current_ls']
 
     def __repr__(self):
         return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (

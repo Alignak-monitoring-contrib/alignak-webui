@@ -314,7 +314,7 @@ class WebUI(object):
             # Update session variables
             session['current_user'] = self.current_user
             session['current_realm'] = self.datamgr.my_realm
-            session['current_ls'] = self.datamgr.my_ls
+            # session['current_ls'] = self.datamgr.my_ls
 
         logger.debug("user_authentication, current user authenticated")
         return True
