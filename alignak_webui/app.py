@@ -66,6 +66,7 @@ from __future__ import print_function
 
 import os
 import time
+import datetime
 import json
 import logging
 import threading
@@ -438,7 +439,9 @@ def before_request():
                        "Redirecting to the login page...")
         redirect('/login')
 
-    logger.debug("before_request, user authenticated")
+    st = datetime.datetime.fromtimestamp(session['_creation_time']).strftime('%Y-%m-%d %H:%M:%S')
+    logger.debug("before_request, session user: %s", session['current_user'].name)
+    logger.debug("before_request, session %s, created: %s", session.id, st)
 
     # Make session current user available in the templates
     BaseTemplate.defaults['current_user'] = session['current_user']
@@ -1037,7 +1040,7 @@ session_opts = {
     'session.timeout': app.config.get('session.timeout', None),
     'session.data_serializer': app.config.get('session.data_serializer', 'json'),
     # Do not remove! For unit tests only...
-    'sesssion.webtest_varname': __manifest__['name'],
+    'session.webtest_varname': __manifest__['name'],
 }
 logger.debug("Session parameters: %s", session_opts)
 session_app = SessionMiddleware(app, session_opts)

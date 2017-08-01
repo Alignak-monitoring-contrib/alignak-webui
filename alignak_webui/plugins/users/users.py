@@ -65,7 +65,7 @@ class PluginUsers(Plugin):
                     {
                         'id': 'information',
                         'for': ['user'],
-                        'order': 2,
+                        'order': 1,
                         'name': _('Information'),
                         'level': 0,
                         'template': 'user_information_widget',
@@ -78,6 +78,7 @@ class PluginUsers(Plugin):
                     {
                         'id': 'preferences',
                         'for': ['user'],
+                        'order': 2,
                         'name': _('Preferences'),
                         'level': 2,
                         'template': 'user_preferences_widget',

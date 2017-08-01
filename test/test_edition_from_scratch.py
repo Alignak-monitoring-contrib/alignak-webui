@@ -157,7 +157,7 @@ class TestCreation(unittest2.TestCase):
         assert self.session['current_user'].name == 'admin'
         assert 'current_realm' in self.session and self.session['current_realm']
         assert self.session['current_realm'].name == 'All'
-        assert 'current_ls' in self.session and self.session['current_ls']
+        # assert 'current_ls' in self.session and self.session['current_ls']
 
         # edition_mode is defined but not activated in the session...
         assert 'edition_mode' in self.session

@@ -125,7 +125,7 @@
             <table class="table table-condensed">
                <thead><tr>
                   <th style="width: 40px"></th>
-                  <th>{{_('Host name')}}</th>
+                  <th>{{_('Host')}}</th>
                   <th>{{_('Business impact')}}</th>
                   <th>{{_('Last check')}}</th>
                   <th>{{_('Output')}}</th>
@@ -175,9 +175,9 @@
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
-               <th>{{_('Name')}}</th>
-               <th>{{_('Alias')}}</th>
-               <th>{{_('Level')}}</th>
+               <th>{{_('Group')}}</th>
+               <th>{{_('Notes')}}</th>
+               <th>{{_('Parent')}}</th>
             </tr></thead>
 
             <tbody>
@@ -197,11 +197,13 @@
                   </td>
 
                   <td>
-                     {{elt.alias}}
+                     {{elt.notes}}
                   </td>
 
                   <td>
-                     {{elt.level}}
+                     %if elt._parent and elt._parent != 'hostgroup':
+                     {{elt._parent.alias}}
+                     %end
                   </td>
                </tr>
             %end

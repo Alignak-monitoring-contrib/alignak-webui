@@ -36,7 +36,7 @@
    <div class="host_services text-left">
       <table class="table table-condensed table-invisible">
          <tbody>
-            %for service in services:
+            %for service in sorted(services, key=lambda x: x['alias'], reverse=False):
             <tr id="#host-service-{{service.name}}">
                <td title="{{service.alias}}">
                   %extra=''

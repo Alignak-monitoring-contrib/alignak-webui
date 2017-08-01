@@ -46,14 +46,14 @@ commands = {
         'title': _("Enable flapping detection"),
         'parameters': []
     },
-    'disable_notification': {
+    'disable_notifications': {
         'global': True, 'elements_type': None,
-        'title': _("Disable notification"),
+        'title': _("Disable notifications"),
         'parameters': []
     },
-    'enable_notification': {
+    'enable_notifications': {
         'global': True, 'elements_type': None,
-        'title': _("Enable notification"),
+        'title': _("Enable notifications"),
         'parameters': []
     },
     'disable_performance_data': {
@@ -130,6 +130,11 @@ commands = {
     },
 
     # Host commands
+    'remove_host_acknowledgement': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Remove an acknowledge"),
+        "parameters": []
+    },
     'process_host_check_result': {
         'global': False, 'elements_type': 'host',
         'title': _("Send an host check result"),
@@ -227,6 +232,11 @@ commands = {
     },
 
     # Service commands
+    'remove_svc_acknowledgement': {
+        'global': False, 'elements_type': 'service',
+        'title': _("Remove an acknowledge"),
+        "parameters": []
+    },
     'process_service_check_result': {
         'global': False, 'elements_type': 'service',
         'title': _("Send a service check result"),

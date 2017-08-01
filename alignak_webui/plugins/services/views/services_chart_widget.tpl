@@ -28,7 +28,7 @@
       var data=[], labels=[], colors=[], hover_colors=[];
       %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
          labels.push(g_services_states["{{state.lower()}}"]['label']);
-         data.push({{ss["nb_" + state]}});
+         data.push({{ss["nb_" + state] if ss["nb_" + state] >= 0 else 0}});
          colors.push(g_services_states["{{state.lower()}}"]['color'])
          hover_colors.push(g_services_states["{{state.lower()}}"]['background'])
       %end

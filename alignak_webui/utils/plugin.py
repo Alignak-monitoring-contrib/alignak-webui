@@ -930,7 +930,6 @@ class Plugin(object):
         # Prepare update request ...
         data = {}
         for field in request.forms:
-            logger.info("- posted field: %s = %s", field, request.forms.getall(field))
             # For arrays in forms ...
             if field.endswith('[]'):
                 field = field[:-2]
@@ -940,7 +939,8 @@ class Plugin(object):
                 continue
 
             field_type = self.table[field].get('type')
-            logger.info("- posted field: %s (%s)", field, field_type)
+            logger.info("- posted field: %s = %s (%s)",
+                        field, request.forms.getall(field), field_type)
 
             if field_type == 'objectid':
                 value = request.forms.get(field)
@@ -974,6 +974,8 @@ class Plugin(object):
                 }
             elif field_type == 'dict':
                 value = request.forms.getall(field)
+                if value == ['']:
+                    value = []
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
@@ -984,6 +986,8 @@ class Plugin(object):
                     value = request.forms.getall(field + '[]')
                 else:
                     value = request.forms.getall(field)
+                if value == ['']:
+                    value = []
                 if self.table[field].get('content_type') == 'dict':
                     dict_values = {}
                     for item in value:

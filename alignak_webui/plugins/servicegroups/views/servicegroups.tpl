@@ -42,8 +42,10 @@
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
-               <th>{{_('Name')}}</th>
+               <th>{{_('Group')}}</th>
                <th>{{_('Alias')}}</th>
+               <th>{{_('Notes')}}</th>
+               <th>{{_('Parent')}}</th>
             </tr></thead>
 
             <tbody>
@@ -59,6 +61,16 @@
 
                   <td>
                      <small>{{servicegroup.alias}}</small>
+                  </td>
+
+                  <td>
+                     <small>{{servicegroup.notes}}</small>
+                  </td>
+
+                  <td>
+                     %if servicegroup._parent and servicegroup._parent != 'servicegroup':
+                     {{servicegroup._parent.alias}}
+                     %end
                   </td>
                </tr>
                %end

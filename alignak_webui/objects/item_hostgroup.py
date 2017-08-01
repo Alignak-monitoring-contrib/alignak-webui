@@ -57,12 +57,18 @@ class HostGroup(BackendElement):
 
         self._linked_hostgroups = 'hostgroup'
         self._linked__parent = 'hostgroup'
+        self._linked__realm = 'realm'
         self._linked_hosts = 'host'
 
         super(HostGroup, self).__init__(params, date_format, embedded)
 
         if not hasattr(self, '_overall_state'):
             setattr(self, '_overall_state', 0)
+
+    @property
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def members(self):

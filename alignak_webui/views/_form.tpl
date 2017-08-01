@@ -62,7 +62,6 @@
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
       <div class="well page">
-      <fieldset>
       %# Editing a template
       %if is_template:
          <div class="alert alert-dismissible alert-warning">
@@ -129,23 +128,21 @@
          %required = model.get('required')
          %editable = model.get('editable', True)
 
-         <div class="well page">
-            <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
-            <div class="form-group">
-               <label class="control-label" for="{{field}}">{{_('Name:')}}</label>
-               <input class="form-control" type="text" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="" {{'readonly="readonly"' if not edition or not editable else ''}}>
-               %if comment:
-                  <p class="help-block">
-                     {{comment}}
-                     %if unique:
-                     <br>{{_('This field must be unique.')}}
-                     %end
-                     %if required:
-                     <br>{{_('This field is required.')}}
-                     %end
-                  </p>
-               %end
-            </div>
+         <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
+         <div class="form-group">
+            <label class="control-label" for="{{field}}">{{_('Name:')}}</label>
+            <input class="form-control" type="text" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="" {{'readonly="readonly"' if not edition or not editable else ''}}>
+            %if comment:
+               <p class="help-block">
+                  {{comment}}
+                  %if unique:
+                  <br>{{_('This field must be unique.')}}
+                  %end
+                  %if required:
+                  <br>{{_('This field is required.')}}
+                  %end
+               </p>
+            %end
          </div>
       %end
 
@@ -454,19 +451,19 @@
            %end
         </script>
         %end
+      </div>
       %end
 
       %if edition:
-      </div>
       <div class="well page">
          <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
          <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
          <div class="clearfix"></div>
       </div>
-      <div class="well page">
       %end
 
       %#if element:
+      <div class="well page">
          %if debug and has_template:
          <div>
          <i class="fa fa-clone"></i>Templates fields: {{element['_template_fields']}}
@@ -526,6 +523,21 @@
             % # Only include required fields if we are creating a new object
             %if element is None and not required:
             %  continue
+            %end
+
+            % # Do not include field if dependent field is not True
+            %depends = model.get('depends', None)
+            %if depends:
+            % depends = depends.split(',')
+            % ignore = False
+            % for depend in depends:
+            %  if getattr(element, depend, None) is False:
+            %   ignore = True
+            %  end
+            % end
+            % if ignore:
+            %  continue
+            % end
             %end
 
             %if element:
@@ -607,109 +619,67 @@
                %continue
             %end
 
-            %if field_type in ['boolean']:
-               <div class="form-group">
-                  <label class="col-md-2 control-label" for="{{field}}">{{label}}</label>
-                  <div class="col-md-offset-2 col-md-10">
-                     <div class="input-group">
-                        %if required:
-                           <span class="input-group-addon text-danger">
-                              <i class="fa fa-asterisk" title="{{_('The value of this field is required')}}"></i>
-                           </span>
-                        %end
-                        %if has_template and field in element['_template_fields']:
-                           <span class="input-group-addon text-info">
-                              <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                           </span>
-                        %end
-                        <div class="checkbox">
-                           <label>
-                              <input id="{{field}}" name="{{field}}" type="checkbox"
-                                 {{'disabled="disabled"' if not edition or not editable else ''}}
-                                 {{'checked="checked"' if field_value else ''}}
-                                 >
-                           </label>
-                        </div>
-                     </div>
-                     %if comment:
-                     <p class="help-block">
-                     {{comment}}
-                     %if unique:
-                     <br>{{_('This field must be unique.')}}
-                     %end
-                     %if required:
-                     <br>{{_('This field is required.')}}
-                     %end
-                     </p>
-                     %end
-                  </div>
-               </div>
-               %continue
-            %end
-
             %linked_object_type = model.get('resource', '')
             %icon=''
             %if linked_object_type:
             %  icon = ElementState().get_icon_state(linked_object_type, 'unknown')
-            %  icon=icon['icon'] if icon else ''
+            %  icon = icon['icon'] if icon else ''
             %end
-            <div class="form-group">
-               <label for="{{field}}" class="col-md-2 control-label">{{label}}</label>
-               <div class="col-md-10">
-                  <div class="input-group">
-                     %if required:
-                        <span class="input-group-addon text-danger">
-                           <i class="fa fa-asterisk" title="{{_('The value of this field is required')}}"></i>
-                        </span>
-                     %end
-                     %if (has_template and field in element['_template_fields']) or is_list:
-                        <span class="input-group-addon text-info">
-                           %if has_template and field in element['_template_fields']:
-                           <i class="fa fa-clone" title="{{_('The value of this field is inherited from a template')}}"></i>
-                           %end
-                           %if is_list:
-                           <i class="fa fa-list"></i>
-                           %end
-                        </span>
+            <div class="form-group row">
+               <div class="col-md-3">
+               <label for="{{field}}" class="control-label">
+                  %if (has_template and field in element['_template_fields']) or is_list:
+                     %if has_template and field in element['_template_fields']:
+                     <i class="fa fa-clone text-info" title="{{_('The value of this field is inherited from a template')}}"></i>
                      %end
                      %if is_list:
-                     <select id="{{field}}" name="{{field}}"
-                            class="form-control"
-                            {{'readonly="readonly"' if not edition or not editable else ''}}>
-                     </select>
-                     %elif format == 'textarea':
-                     <textarea id="{{field}}" name="{{field}}"
-                        class="form-control"
-                        rows="3"
-                        placeholder="{{placeholder}}"
-                        {{'readonly="readonly"' if not edition or not editable else ''}}
-                        >{{field_value}}</textarea>
-                     %else:
-                     <input id="{{field}}" name="{{field}}"
-                        class="form-control"
-                        type="{{'number' if field_type=='integer' else 'text'}}"
-                        placeholder="{{placeholder}}"
-                        value="{{field_value}}"
-                        {{'readonly="readonly"' if not edition or not editable else ''}}
-                        >
+                        <i class="fa fa-list text-info" title="{{_('The value of this field is a list of items')}}"></i>
                      %end
-                     <span class="input-group-addon text-info">
-                        %if is_list:
-                        <i class="fa fa-fw fa-list" title="{{_('The value of this field is a list of items')}}"></i>
-                        %end
-                     </span>
-                  </div>
-                  %if comment:
-                  <p class="help-block">
-                     {{comment}}
-                     %if unique:
-                     <br>{{_('This field must be unique.')}}
-                     %end
-                     %if required:
-                     <br>{{_('This field is required.')}}
-                     %end
-                  </p>
                   %end
+                  {{label}}
+                     %if required:
+                     <span class="text-danger">
+                        <i class="fa fa-asterisk" title="{{_('The value of this field is required')}}"></i>
+                     </span>
+                     %end
+               </label>
+               </div>
+
+               <div class="col-md-9">
+               %if is_list:
+               <select id="{{field}}" name="{{field}}"
+                      class="form-control"
+                      {{'readonly="readonly"' if not edition or not editable else ''}}>
+               </select>
+               %elif format == 'textarea':
+               <textarea id="{{field}}" name="{{field}}"
+                  class="form-control"
+                  rows="3"
+                  placeholder="{{placeholder}}"
+                  {{'readonly="readonly"' if not edition or not editable else ''}}
+                  >{{field_value}}</textarea>
+               %elif field_type == 'boolean':
+               <div class="togglebutton">
+                  <label for="{{field}}">
+                     <input id="{{field}}" name="{{field}}" type="checkbox"
+                         {{'disabled="disabled"' if not edition or not editable else ''}}
+                         {{'checked="checked"' if field_value else ''}}>
+                  </label>
+               </div>
+               %else:
+               <input class="form-control" type="{{'number' if field_type=='integer' else 'text'}}" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="{{field_value}}" {{'readonly="readonly"' if not edition or not editable else ''}}>
+               %end
+               %if comment:
+               <p class="help-block">
+                  {{comment}}
+                  %if unique:
+                   - {{_('This field must be unique.')}}
+                  %end
+                  %if required:
+                   - * {{_('This field is required.')}}
+                  %end
+               </p>
+               %end
                </div>
             </div>
             %if selectize:
@@ -734,7 +704,7 @@
                         '</div>';
                      },
                      item: function(item, escape) {
-                        console.log("item {{field}}: ", item);
+                        //console.log("item {{field}}: ", item);
                         return '<div>' +
                            %if icon:
                            '<i class="fa fa-{{icon}}"></i>&nbsp;' +
@@ -791,21 +761,21 @@
                });
                // Add selected options / items to the control...
                window.setTimeout(function() {
-               var $select = $('#{{field}}').selectize();
-               var selectize = $select[0].selectize;
-               %for field_id, field_value in list_values:
-                  selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
-               %end
-               %for field_id, field_value in list_values:
-                  selectize.addItem("{{field_id}}");
-               %end
-               }, 100);
+                  var $select = $('#{{field}}').selectize();
+                  var selectize = $select[0].selectize;
+                  %for field_id, field_value in list_values:
+                      // console.log({id: "{{field_id}}", name: "{{field_value}}"});
+                     selectize.addOption({id: "{{field_id}}", name: "{{field_value}}"});
+                  %end
+                  %for field_id, field_value in list_values:
+                     selectize.addItem("{{field_id}}");
+                  %end
+               }, 10);
             </script>
             %end
             %continue
          %end
       %#end
-      </fieldset>
       </div>
 
       <script>
@@ -826,7 +796,8 @@
    $('form[data-element="{{element.id if element else 'None'}}"]').on("submit", function (evt) {
       // Do not automatically submit ...
       evt.preventDefault();
-      //console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
+      console.log("Submit form...", $(this).attr('method'), $(this).attr('action'))
+      console.log($(this).serialize());
 
       // Submitting message
       wait_message('{{_('Submitting form...')}}', true)

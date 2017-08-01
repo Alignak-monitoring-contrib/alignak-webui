@@ -1,21 +1,21 @@
 %setdefault('debug', False)
-%setdefault('title', _('Users group view'))
+%setdefault('title', _('Command view'))
 
 %from bottle import request
 %search_string = request.query.get('search', '')
 
-%rebase("layout", title=title, js=[], css=[], page="/usergroup/{{element.name}}")
+%rebase("layout", title=title, js=[], css=[], page="/command/{{command.id}}")
 
 %from alignak_webui.utils.helper import Helper
-%from alignak_webui.objects.item_command import Command
 
-<div class="usergroup" id="usergroup_{{element.id}}">
+<!-- commands filtering and display -->
+<div class="command" id="command_{{element.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
          <div class="panel-heading">
             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_{{element.id}}"><i class="fa fa-bug"></i> usergroup as dictionary</a>
+               <a data-toggle="collapse" href="#collapse_{{element.id}}"><i class="fa fa-bug"></i> command as dictionary</a>
             </h4>
          </div>
          <div id="collapse_{{element.id}}" class="panel-collapse collapse">
@@ -94,124 +94,58 @@
    </div>
    %end
 
-   %if element._parent and element._parent is not None and element._parent != 'usergroup':
-   <div class="usergroup-parent btn-group" role="group" aria-label="{{_('Group navigation')}}">
-      <a class="btn btn-default btn-raised" href="{{element._parent.endpoint}}" role="button">
-         <span class="fa fa-arrow-up"></span>
-         {{_('Parent group')}}
-      </a>
-   </div>
-   %end
-
-   <div class="usergroup-members panel panel-default">
-      <div class="panel-body">
-         <div class="col-xs-6 col-sm-2 text-center">
-            {{! element.get_html_state(text=None, size="fa-3x")}}
-            <legend><strong>{{element.alias}}</strong></legend>
-
-            <div class="actions">
-               %if current_user.is_power():
-                  {{! Helper.get_html_commands_buttons(element, _('Actions'))}}
-               %end
-            </div>
-         </div>
-         <div class="col-xs-6 col-sm-10">
-         %if not element.members or isinstance(element.members, basestring):
-            <div class="text-center alert alert-warning">
-               <h4>{{_('No users found in this group.')}}</h4>
-            </div>
-         %else:
-            <table class="table table-condensed">
-               <thead><tr>
-                  <th style="width: 40px"></th>
-                  <th>{{_('User')}}</th>
-                  <th>{{_('Realm')}}</th>
-                  <th>{{_('Administrator')}}</th>
-                  <th>{{_('Commands')}}</th>
-                  <th>{{_('Email')}}</th>
-               </tr></thead>
-
-               <tbody>
-               %for elt in element.members:
-                  <tr id="#{{elt.id}}">
-                     <td title="{{elt.alias}}">
-                        {{! elt.get_html_state(text=None)}}
-                     </td>
-
-                     <td title="{{elt.alias}}">
-                        <small>{{!elt.get_html_link()}}</small>
-                     </td>
-
-                     <td>
-                        <small>{{! elt._realm.get_html_link()}}</small>
-                     </td>
-
-                     <td>
-                        <small>{{! webui.helper.get_on_off(status=elt.is_administrator())}}</small>
-                     </td>
-
-                     <td>
-                        <small>{{! webui.helper.get_on_off(elt.is_power())}}</small>
-                     </td>
-
-                     <td>
-                        {{! elt.email}}
-                     </td>
-                  </tr>
-               %end
-               </tbody>
-            </table>
-         %end
-            </div>
-      </div>
-   </div>
-
+   %if not element:
+      %include("_nothing_found.tpl", search_string=search_string)
+   %else:
    <div class="panel panel-default">
-      %if not groups or groups == 'usergroup':
-         <!--
-         <div class="text-center alert alert-warning">
-            <h4>{{_('No groups found in this group.')}}</h4>
-         </div>
-         -->
-      %else:
       <div class="panel-body">
          <table class="table table-condensed">
             <thead><tr>
                <th style="width: 40px"></th>
-               <th>{{_('Group')}}</th>
-               <th>{{_('Notes')}}</th>
-               <th>{{_('Parent')}}</th>
+               <th>{{_('Command name')}}</th>
+               <th>{{_('Command line')}}</th>
+               <th>{{_('Timeout')}}</th>
+               <th>{{_('Environment macros')}}</th>
+               <th>{{_('Poller tag')}}</th>
+               <th>{{_('Reactionner tag')}}</th>
             </tr></thead>
 
             <tbody>
-            %plugin = webui.find_plugin('Users groups')
-            %for elt in groups:
-               %if isinstance(elt, basestring):
-               %continue
-               %end
-               <tr id="usergroup_{{elt.id}}">
-                  <td title="{{elt.alias}}">
-                     {{! elt.get_html_state(text=None)}}
+               %elts = [element]
+               %for command in elts:
+               <tr id="#{{command.id}}">
+                  <td>
+                     {{! command.get_html_state()}}
                   </td>
 
                   <td>
-                     {{! elt.get_html_link()}}
+                     <small>{{command.name}}</small>
                   </td>
 
                   <td>
-                     {{elt.notes}}
+                     <small>{{command.command_line}}</small>
                   </td>
 
                   <td>
-                     %if elt._parent and elt._parent != 'usergroup':
-                     {{elt._parent.alias}}
-                     %end
+                     <small>{{command.timeout}}</small>
+                  </td>
+
+                  <td>
+                     <small>{{ ! Helper.get_on_off(command.enable_environment_macros) }}</small>
+                  </td>
+
+                  <td>
+                     <small>{{command.poller_tag}}</small>
+                  </td>
+
+                  <td>
+                     <small>{{command.reactionner_tag}}</small>
                   </td>
                </tr>
-            %end
+             %end
             </tbody>
          </table>
       </div>
-      %end
    </div>
+   %end
  </div>

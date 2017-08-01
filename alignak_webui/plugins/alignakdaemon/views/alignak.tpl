@@ -19,6 +19,7 @@
             <th>{{_('Reachable')}}</th>
             <th>{{_('Spare')}}</th>
             <th>{{_('Passive daemon')}}</th>
+            <th>{{_('Last check')}}</th>
          </tr></thead>
 
          <tbody>
@@ -47,6 +48,10 @@
 
                 <td>
                     <small>{{! Helper.get_on_off(daemon.passive)}}</small>
+                </td>
+
+                <td>
+                    <small>{{! Helper.print_duration(daemon.last_check, duration_only=False, x_elts=0)}}</small>
                 </td>
             </tr>
          %end

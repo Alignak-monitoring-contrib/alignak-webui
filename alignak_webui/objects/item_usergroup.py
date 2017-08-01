@@ -43,9 +43,15 @@ class UserGroup(BackendElement):
         """Create a usergroup (called only once when an object is newly created)"""
         self._linked_usergroups = 'usergroup'
         self._linked__parent = 'usergroup'
+        self._linked__realm = 'realm'
         self._linked_users = 'user'
 
         super(UserGroup, self).__init__(params, date_format, embedded)
+
+    @property
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def members(self):
