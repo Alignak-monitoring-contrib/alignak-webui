@@ -236,7 +236,7 @@
 
               %if allowed:
               %  # List of allowed values
-              %  if allowed[0].startswith('inner://'):
+              %  if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
                  preload: true,
                  openOnFocus: true,
                  load: function(query, callback) {
@@ -402,7 +402,7 @@
 
               %if allowed:
               %  # List of allowed values
-              %  if allowed[0].startswith('inner://'):
+              %  if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
                  preload: true,
                  openOnFocus: true,
                  load: function(query, callback) {
@@ -716,7 +716,7 @@
 
                   %if allowed:
                   %  # List of allowed values
-                  %  if allowed[0].startswith('inner://'):
+                  %  if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
                      create: false,
                      preload: true,
                      openOnFocus: true,
