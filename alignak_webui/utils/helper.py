@@ -1418,7 +1418,8 @@ class Helper(object):
             search.update({'where': {
                 "ls_state_id": {"$nin": [0, 4]},
                 'ls_acknowledged': False,
-                'ls_downtimed': False
+                'ls_downtimed': False,
+                'ls_state_type': 'HARD'
             }})
         if 'sort' not in search:
             search.update({'sort': livestate_sort})
