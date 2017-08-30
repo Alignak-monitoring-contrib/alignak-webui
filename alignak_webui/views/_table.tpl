@@ -739,7 +739,7 @@
                titleAttr: "{{_('Create a new item')}}",
                className: 'btn-raised btn-xs',
                action: function (e, dt, button, config) {
-                  var url = "{{server_url}}/{{object_type}}/None/form";
+                  var url = "{{server_url}}/{{object_type}}/None/form{{'?is_template=1' if dt.templates else ''}}";
                   window.setTimeout(function(){
                      window.location.href = url;
                   }, 50);
@@ -760,7 +760,7 @@
                   var first = true;
                   $.each(selected.data(), function(index, elt){
                      if (! first) return false;
-                     url = "{{server_url}}/{{object_type}}/" + encodeURIComponent(elt._id) + "/form";
+                     url = "{{server_url}}/{{object_type}}/" + encodeURIComponent(elt._id) + "/form{{'?is_template=1' if dt.templates else ''}}";
                   });
                   window.setTimeout(function(){
                      window.location.href = url;

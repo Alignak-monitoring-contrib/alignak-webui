@@ -228,7 +228,6 @@ class TestHostCreation(TestCreation):
             'titleAttr: "Navigate to the hosts table"',
             # Because of edition mode...
             '''titleAttr: "Create a new item"''',
-            '''var url = "/host/None/form";''',
         )
 
         # Get templates in the table
@@ -439,7 +438,6 @@ class TestServiceCreation(TestCreation):
             'titleAttr: "Navigate to the services table"',
             # Because of edition mode...
             '''titleAttr: "Create a new item"''',
-            '''var url = "/service/None/form";''',
         )
 
         # Get templates in the table
@@ -523,7 +521,6 @@ class TestUserCreation(TestCreation):
             'titleAttr: "Navigate to the users table"',
             # Because of edition mode...
             '''titleAttr: "Create a new item"''',
-            '''var url = "/user/None/form";''',
         )
 
         # Get templates in the table

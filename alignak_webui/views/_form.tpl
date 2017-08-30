@@ -1,4 +1,5 @@
 %import json
+%from bottle import request
 %from alignak_webui.objects.element import BackendElement
 %from alignak_webui.objects.element_state import ElementState
 
@@ -27,6 +28,8 @@
 %else:
 %# No element exist...
 %setdefault('title', _('New %s') % (plugin.backend_endpoint))
+%# Is it a template edition?
+%is_template = request.query.get('is_template', False)
 %end
 
 %rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/{{element.name}}/form")
@@ -64,8 +67,9 @@
       <div class="well page">
       %# Editing a template
       %if is_template:
-         <div class="alert alert-dismissible alert-warning">
+         <div class="alert alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
+            %if element:
             %if edition:
             <h4>{{_('You are editing a %s template.') % plugin.backend_endpoint}}</h4>
             <hr/>
@@ -73,13 +77,18 @@
             %else:
             <h4>{{_('You are viewing a %s template.') % plugin.backend_endpoint}}</h4>
             %end
+            %else:
+            <h4>{{_('You are creating a new %s template.') % plugin.backend_endpoint}}</h4>
+            <hr/>
+            <p>{{! _('You must set a name for your new %s template and then submit this form.') % plugin.backend_endpoint}}</p>
+            %end
          </div>
 
-         <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
+         <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name if element else 'unnamed')}}</legend>
       %# Editing an element
       %elif element:
          %if has_template:
-         <div class="alert alert-dismissible alert-info">
+         <div class="alert alert-info">
             <button type="button" class="close" data-dismiss="alert">×</button>
             <h4>{{_('You are modifying a %s based upon one or more template(s).') % plugin.backend_endpoint}}</h4>
          </div>
@@ -107,7 +116,7 @@
             <p>{{! _('You must set a name for your new %s and then submit this form.') % plugin.backend_endpoint}}</p>
             %if is_templated:
             <p>{{_('The %s elements are based upon templates.') % plugin.backend_endpoint}}</p>
-            <p>{{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}</p>
+            <!--<p>{{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}</p>-->
             %end
          </div>
 
@@ -202,8 +211,8 @@
                %end
             </p>
          </div>
-        %if selectize and edition:
-        <script>
+         %if selectize and edition:
+         <script>
            $('#{{field}}').selectize({
               %if not required:
               'plugins': ["remove_button"],
@@ -283,8 +292,8 @@
            %for field_id, field_value in list_values:
               selectize.addItem("{{field_id}}");
            %end
-        </script>
-        %end
+         </script>
+         %end
       %end
 
       %if not element and is_templated:
@@ -298,7 +307,7 @@
          <div class="form-group">
             <div class="togglebutton">
                <label for="{{field}}">
-                  <input id="{{field}}" name="{{field}}" type="checkbox"
+                  <input id="{{field}}" name="{{field}}" type="checkbox" {{'checked="checked"' if is_template else ''}}
                       {{'disabled="disabled"' if not edition or not editable else ''}}> {{label}} ({{_('the new %s element is a template') % plugin.backend_endpoint}})
                </label>
             </div>
@@ -368,8 +377,8 @@
                %end
             </p>
          </div>
-        %if selectize and edition:
-        <script>
+         %if selectize and edition:
+         <script>
            $('#{{field}}').selectize({
               %if not required:
               'plugins': ["remove_button"],
@@ -449,8 +458,8 @@
            %for field_id, field_value in list_values:
               selectize.addItem("{{field_id}}");
            %end
-        </script>
-        %end
+         </script>
+         %end
       </div>
       %end
 

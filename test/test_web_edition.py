@@ -368,7 +368,6 @@ class TestHosts(unittest2.TestCase):
             'titleAttr: "Navigate to the hosts table"',
             # Because of edition mode...
             '''titleAttr: "Create a new item"''',
-            '''var url = "/host/None/form";''',
         )
 
     def test_hosts_table(self):
