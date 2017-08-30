@@ -296,7 +296,7 @@
          %end
       %end
 
-      %if not element and is_templated:
+      %if not element and is_templated and False:
          %field = '_is_template'
          %model = plugin.table[field]
 
@@ -530,7 +530,7 @@
             %editable = model.get('editable', True)
 
             % # Only include required fields if we are creating a new object
-            %if element is None and not required:
+            %if element is None and not required and not model.get('create_template', False):
             %  continue
             %end
 
