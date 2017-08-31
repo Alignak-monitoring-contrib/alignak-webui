@@ -361,8 +361,8 @@ class TestCommands(unittest2.TestCase):
         self.app.get('/commands/table')
 
     def test_command(self):
-        """ Web - realm"""
-        print('test realm')
+        """ Web - command"""
+        print('test command')
 
         print('get page /command')
         response = self.app.get('/command/check_ping')
@@ -444,13 +444,13 @@ class TestRealms(unittest2.TestCase):
                 break
         assert self.realm_id, "Did not found realm identifier in the data!"
 
-        print('get page /realm')
+        print('get page /realm/id')
         response = self.app.get('/realm/%s' % self.realm_id)
         response.mustcontain(
             '<div class="realm" id="realm_%s">' % self.realm_id
         )
 
-        print('get page /realm')
+        print('get page /realm/name')
         response = self.app.get('/realm/All')
         response.mustcontain(
             '<div class="realm" id="realm_%s">' % self.realm_id
@@ -458,7 +458,6 @@ class TestRealms(unittest2.TestCase):
 
         print('get page /realm/members')
         response = self.app.get('/realm/members/%s' % self.realm_id)
-        # print(response)
         print(response.json)
         for item in response.json:
             print(item)
@@ -926,8 +925,8 @@ class TestHosts(unittest2.TestCase):
         self.app.get('/hosts/templates/table')
         # Host exists
         self.app.get('/host/webui')
-        # Host does not exist
-        self.app.get('/host/localhost', status=400)
+        # Host does not exist - redirects to home page
+        self.app.get('/host/localhost', status=302)
 
         print('get page /hosts/widget')
         self.app.post('/hosts/widget', status=400)
@@ -956,22 +955,47 @@ class TestHosts(unittest2.TestCase):
         """ Web - host"""
         print('test host')
 
-        print('get page /hosts')
-        response = self.app.get('/hosts')
-        print(response)
-        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a host id
-        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
-        if matches:
-            for match in matches:
-                self.host_id = match
-                break
-        assert self.host_id
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token (force regenerate)
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
 
-        print('get page /host')
+        # Get host 'webui'
+        params = {'where': json.dumps({'name': 'webui'})}
+        response = requests.get('http://127.0.0.1:5000/host', params=params, auth=auth)
+        resp = response.json()
+        host = resp['_items'][0]
+        print("Host: %s" % host)
+        self.host_id = host['_id']
+
+        print('get page /host/id')
         response = self.app.get('/host/%s' % self.host_id)
-        print(response)
         response.mustcontain(
-            '<div id="host-%s">' % self.host_id
+            '<div class="host" id="host-%s">' % self.host_id
+        )
+
+        print('get page /host/name')
+        response = self.app.get('/host/webui')
+        response.mustcontain(
+            '<div class="host" id="host-%s">' % self.host_id
+        )
+
+        print('get page /host/alias')
+        response = self.app.get('/host/Shinken%20on%20Debian%20Wheezy')
+        response.mustcontain(
+            '<div class="host" id="host-%s">' % self.host_id
+        )
+
+        print('get page /host/template')
+        response = self.app.get('/host/linux-snmp')
+        redirected_response = response.follow()
+        redirected_response.mustcontain(
+            '<div id="form_host">',
+            'You are viewing a host template.'
         )
 
 
@@ -1037,19 +1061,32 @@ class TestServices(unittest2.TestCase):
         token = resp['token']
         auth = requests.auth.HTTPBasicAuth(token, '')
 
-        # Get services
-        params = {'sort': '_id', 'where': json.dumps({'_is_template': False})}
+        # Get host 'webui'
+        params = {'where': json.dumps({'name': 'webui'})}
+        response = requests.get('http://127.0.0.1:5000/host', params=params, auth=auth)
+        resp = response.json()
+        host = resp['_items'][0]
+        print("Host: %s" % host)
+        self.host_id = host['_id']
+
+        # Get the services of this host
+        params = {'sort': '_id', 'where': json.dumps({'host': self.host_id})}
         response = requests.get('http://127.0.0.1:5000/service', params=params, auth=auth)
         resp = response.json()
-        # print("Response: %s" % resp)
         service = resp['_items'][0]
         print("Service: %s" % service)
         self.service_id = service['_id']
 
-        print('get page /service')
-        response = self.app.get('/service/%s' % self.service_id)
+        print('get page /service/hostname/servicename')
+        response = self.app.get('/service/%s/%s' % (host['name'], service['name']))
         response.mustcontain(
-            '<div id="service-%s">' % self.service_id
+            '<div class="service" id="service-%s">' % self.service_id
+        )
+
+        print('get page /service/hostalias/servicename')
+        response = self.app.get('/service/%s/%s' % (host['alias'], service['name']))
+        response.mustcontain(
+            '<div class="service" id="service-%s">' % self.service_id
         )
 
 

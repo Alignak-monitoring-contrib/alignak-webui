@@ -32,7 +32,7 @@
 %is_template = request.query.get('is_template', False)
 %end
 
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/{{element.name}}/form")
+%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}_form/{{element.name}}")
 
 %if debug and element:
 <div class="panel-group">
@@ -58,9 +58,9 @@
    %post=""
    %if edition:
    %if element:
-   %post='''method="post" action="/%s/%s/form"''' % (plugin.backend_endpoint, element.id)
+   %post='''method="post" action="/%s_form/%s"''' % (plugin.backend_endpoint, element.id)
    %else:
-   %post='''method="post" action="/%s/%s/form"''' % (plugin.backend_endpoint, None)
+   %post='''method="post" action="/%s_form/%s"''' % (plugin.backend_endpoint, None)
    %end
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>

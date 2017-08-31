@@ -90,7 +90,7 @@ function setHostPosition(host, marker){
     wait_message('Updating position...', true)
 
     $.ajax({
-        url: "/host/" + host.name + "/form",
+        url: "/host_form/" + host.name,
         type: "POST",
         data: {"location": ["latitude|"+position.lat, "longitude|"+position.lng]}
     })

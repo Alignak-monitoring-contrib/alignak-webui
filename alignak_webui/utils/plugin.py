@@ -155,7 +155,7 @@ class Plugin(object):
                     self.pages.update({
                         'get_one': {
                             'name': '%s' % self.name,
-                            'route': '/%s/<element_id>' % self.backend_endpoint,
+                            'route': '/%s/<element_name>' % self.backend_endpoint,
                             'view': '%s' % self.backend_endpoint
                         }
                     })
@@ -203,7 +203,11 @@ class Plugin(object):
                 self.pages.update({
                     'get_form': {
                         'name': '%s form' % self.name,
-                        'route': '/%s/<element_id>/form' % self.backend_endpoint,
+                        # 'route': '/%s_form/<element_id>' % self.backend_endpoint,
+                        'routes': [
+                            ('/%s_form/<element_id>' % self.backend_endpoint, "Page 1"),
+                            ('/%s_form/<element_id>/<extra_id>' % self.backend_endpoint, "Page 2")
+                        ],
                         'view': '_form'
                     }
                 })
@@ -212,7 +216,7 @@ class Plugin(object):
                 self.pages.update({
                     'update_form': {
                         'name': '%s form post' % self.name,
-                        'route': '/%s/<element_id>/form' % self.backend_endpoint,
+                        'route': '/%s_form/<element_id>' % self.backend_endpoint,
                         'method': 'POST'
                     }
                 })
@@ -524,7 +528,7 @@ class Plugin(object):
         response.content_type = 'application/json'
         return json.dumps(self.plugin_parameters)
 
-    def get_one(self, element_id):
+    def get_one(self, element_name):
         """Show one element"""
         datamgr = request.app.datamgr
 
@@ -533,12 +537,13 @@ class Plugin(object):
         if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        logger.debug("get_one, search: %s", element_id)
-        element = f(element_id)
+        logger.debug("get_one, search for a %s named '%s'", self.backend_endpoint, element_name)
+        element = f(search={'max_results': 1, 'where': {'name': element_name}})
         if not element:
-            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            element = f(element_name)
             if not element:
-                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+                self.send_user_message(_("%s named '%s' not found")
+                                       % (self.backend_endpoint, element_name))
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
         return {
@@ -810,13 +815,14 @@ class Plugin(object):
 
         return self.webui.response_data(data)
 
-    def get_form(self, element_id):
+    def get_form(self, element_id, extra_id=None):
         """Build the form for an element.
 
             element_id is the _id (or name) of an object to read. If no object is found then an
             empty element is sent to the form which means a new object creation with default values.
         """
-        logger.info("Get form: %s", element_id)
+        logger.debug("Get form: %s (extra: %s)", element_id, extra_id)
+
         user = request.environ['beaker.session']['current_user']
         edition_mode = request.environ['beaker.session']['edition_mode']
         if edition_mode and not user.can_edit_configuration():

@@ -133,13 +133,13 @@ class TestEditionModeDenied(unittest2.TestCase):
         print('Disable edition mode - denied')
         self.app.post('/edition_mode', params={'state': 'off'}, status=401)
 
-        print('get page /host/form (read-only mode) - for a new host - granted')
+        print('get page /host_form (read-only mode) - for a new host - granted')
         # Authorized...
-        self.app.get('/host/webui/form', status=200)
+        self.app.get('/host_form/webui', status=200)
 
-        print('get page /host/form (edition mode) - for a new host - denied')
+        print('get page /host_form (edition mode) - for a new host - denied')
         # Redirected...
-        self.app.get('/host/None/form', status=302)
+        self.app.get('/host_form/None', status=302)
 
         print('Host creation without template - denied')
         data = {
@@ -147,7 +147,7 @@ class TestEditionModeDenied(unittest2.TestCase):
             'name': "New host",
             'alias': "Friendly name"
         }
-        self.app.post('/host/None/form', params=data, status=401)
+        self.app.post('/host_form/None', params=data, status=401)
 
         print('Host templates page - denied')
         self.app.get('/hosts/templates', status=302)
@@ -157,7 +157,7 @@ class TestEditionModeDenied(unittest2.TestCase):
             'name': 'webui',
             'alias': "Alias edited"
         }
-        response = self.app.post('/host/webui/form', params=data, status=401)
+        response = self.app.post('/host_form/webui', params=data, status=401)
 
 
 class TestEditionMode(unittest2.TestCase):
@@ -322,7 +322,7 @@ class TestHosts(unittest2.TestCase):
         response = self.app.get('/hosts/templates')
         response.mustcontain(
             '<div id="hosts-templates">',
-            '<form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">',
+            '<form role="form" data-element="None" class="element_form" method="post" action="/host_form/None">',
             '<legend>Creating a new host:</legend>',
             '<input class="form-control" type="text" id="name" name="name" placeholder="Host name"  value="">',
             '<input class="form-control" type="text" id="alias" alias="alias" placeholder="Host alias"  value="">',
@@ -347,7 +347,7 @@ class TestHosts(unittest2.TestCase):
             # Because of edition mode...
             no = [
                 '''titleAttr: "Create a new item"''',
-                '''var url = "/host/None/form";''',
+                '''var url = "/host_form/None";''',
             ]
         )
 
@@ -409,8 +409,8 @@ class TestHosts(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=self.session)
         host = datamgr.get_host({'where': {'name': 'KNM-Shinken'}})
 
-        print('get page /host/form (reading mode)')
-        response = self.app.get('/host/%s/form' % host.id)
+        print('get page /host_form (reading mode)')
+        response = self.app.get('/host_form/%s' % host.id)
         response.mustcontain(
             '''<div id="form_host">''',
             '''<form role="form" data-element="%s" class="element_form " >''' % host.id,
@@ -427,29 +427,29 @@ class TestHosts(unittest2.TestCase):
         assert True == session['edition_mode']
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
-        print('get page /host/form (edition mode) - with an host id')
-        response = self.app.get('/host/%s/form' % host.id)
+        print('get page /host_form (edition mode) - with an host id')
+        response = self.app.get('/host_form/%s' % host.id)
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/%s/form">''' % (
+            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host_form/%s">''' % (
             host.id, host.id),
             '''$('form[data-element="%s"]').on("submit", function (evt) {''' % host.id
         )
 
-        print('get page /host/form (edition mode) - with an host name')
-        response = self.app.get('/host/%s/form' % host.name)
+        print('get page /host_form (edition mode) - with an host name')
+        response = self.app.get('/host_form/%s' % host.name)
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/%s/form">''' % (
+            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host_form/%s">''' % (
             host.id, host.id),
             '''$('form[data-element="%s"]').on("submit", function (evt) {''' % host.id
         )
 
-        print('get page /host/form (edition mode) - for a new host')
-        response = self.app.get('/host/unknown_host/form')
+        print('get page /host_form (edition mode) - for a new host')
+        response = self.app.get('/host_form/unknown_host')
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/host_form/None">''',
             '''<h4>You are creating a new host.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -476,11 +476,11 @@ class TestHosts(unittest2.TestCase):
         count = datamgr.count_objects('host')
         print("Host count: %s" % count)
 
-        print('get page /host/form (edition mode) - for a new host')
-        response = self.app.get('/host/unknown_host/form')
+        print('get page /host_form (edition mode) - for a new host')
+        response = self.app.get('/host_form/unknown_host')
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/host_form/None">''',
             '''<h4>You are creating a new host.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -490,7 +490,7 @@ class TestHosts(unittest2.TestCase):
         data = {
             "_is_template": False,
         }
-        response = self.app.post('/host/None/form', params=data)
+        response = self.app.post('/host_form/None', params=data)
         print(response.json)
         assert response.json == {
             u'_is_template': False,
@@ -505,7 +505,7 @@ class TestHosts(unittest2.TestCase):
             'name': "New host",
             'alias': "Friendly name"
         }
-        response = self.app.post('/host/None/form', params=data)
+        response = self.app.post('/host_form/None', params=data)
         # Returns the new item _id
         new_host_id = response.json['_id']
         resp = response.json
@@ -538,7 +538,7 @@ class TestHosts(unittest2.TestCase):
             'name': "New host 2",
             'alias': "Friendly name 2"
         }
-        response = self.app.post('/host/None/form', params=data)
+        response = self.app.post('/host_form/None', params=data)
         # Returns the new item _id
         new_host_id = response.json['_id']
         resp = response.json
@@ -582,11 +582,11 @@ class TestHosts(unittest2.TestCase):
         assert True == session['edition_mode']
         assert response.json == {'edition_mode': True, 'message': 'Edition mode enabled'}
 
-        print('get page /host/form (edition mode) - with an host id')
-        response = self.app.get('/host/%s/form' % host.id)
+        print('get page /host_form (edition mode) - with an host id')
+        response = self.app.get('/host_form/%s' % host.id)
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host/%s/form">''' % (
+            '''<form role="form" data-element="%s" class="element_form " method="post" action="/host_form/%s">''' % (
             host.id, host.id),
             '''$('form[data-element="%s"]').on("submit", function (evt) {''' % host.id
         )
@@ -596,7 +596,7 @@ class TestHosts(unittest2.TestCase):
             'name': host.name,
             'alias': "Alias edited"
         }
-        response = self.app.post('/host/%s/form' % host.id, params=data)
+        response = self.app.post('/host_form/%s' % host.id, params=data)
         assert response.json == {
             "_message": "host 'graphite_host' updated", "alias": "Alias edited"
         }

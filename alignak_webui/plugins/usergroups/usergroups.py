@@ -56,7 +56,7 @@ class PluginServicesGroups(Plugin):
 
         super(PluginServicesGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    def get_one(self, element_id):
+    def get_one(self, element_name):
         """
             Show one element
         """
@@ -67,12 +67,13 @@ class PluginServicesGroups(Plugin):
         if not f:  # pragma: no cover - should not happen!
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        logger.debug("get_one, search: %s", element_id)
-        element = f(element_id)
+        logger.debug("get_one, search for a %s named '%s'", self.backend_endpoint, element_name)
+        element = f(search={'max_results': 1, 'where': {'name': element_name}})
         if not element:
-            element = f(search={'max_results': 1, 'where': {'name': element_id}})
+            element = f(element_name)
             if not element:
-                self.send_user_message(_("%s '%s' not found") % (self.backend_endpoint, element_id))
+                self.send_user_message(_("%s named '%s' not found")
+                                       % (self.backend_endpoint, element_name))
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
         groups = element.usergroups
