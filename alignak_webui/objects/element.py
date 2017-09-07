@@ -395,7 +395,7 @@ class BackendElement(object):
                                                  object_type, value)
                                     continue
                             except:  # pragma: no cover, should not happen
-                                logger.error("__init__, item not existing for %s, %s in %s",
+                                logger.error("__init__, %s (id = %s) not found for %s",
                                              object_type, value, self)
                                 continue
 

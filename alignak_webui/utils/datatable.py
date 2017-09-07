@@ -145,8 +145,8 @@ class Datatable(object):
             logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
 
             if 'skill_level' in model and model['skill_level'] > user_level:
-                logger.warning("UI field has a skill level: %s.%s vs %s",
-                               field, model['skill_level'], user_level)
+                logger.info("UI field has a greater skill level: %s.%s vs %s",
+                            field, model['skill_level'], user_level)
                 continue
 
             # Global table configuration?
