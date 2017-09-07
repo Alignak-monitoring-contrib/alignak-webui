@@ -817,6 +817,12 @@ class DataManager(object):
 
         if search is None:
             if not self.my_ls or self.my_ls['_id'] is None:
+                if self.my_realm:
+                    logger.warning("Getting livesynthesis for my realm: %s", self.my_realm)
+                    return self.get_livesynthesis({'concatenation': '1',
+                                                   'where': {'_realm': self.my_realm.id}})
+                logger.warning("Using default livesynthesis, my_ls: %s, my realm: %s",
+                               self.my_ls, self.my_realm)
                 return default_ls
             found = False
             error = False
@@ -841,6 +847,7 @@ class DataManager(object):
                 return default_ls
 
         if not items:  # pragma: no cover - should not happen
+            logger.error("Livesynthesis not found, search: %s", search)
             return default_ls
 
         synthesis = default_ls
