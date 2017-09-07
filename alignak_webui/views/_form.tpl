@@ -13,10 +13,15 @@
 
 %if element:
 %# An element still exists...
-%setdefault('title', _('%s %s') % (plugin.backend_endpoint.capitalize(), element.name))
 
 %if '_is_template' in element.__dict__ and element['_is_template']:
 %is_template = True
+%end
+
+%if is_template:
+   %setdefault('title', _('%s template %s') % (plugin.backend_endpoint.capitalize(), element.name))
+%else:
+   %setdefault('title', _('%s %s') % (plugin.backend_endpoint.capitalize(), element.name))
 %end
 
 %if '_is_template' in element.__dict__ and not element['_is_template']:
@@ -27,9 +32,14 @@
 
 %else:
 %# No element exist...
-%setdefault('title', _('New %s') % (plugin.backend_endpoint))
 %# Is it a template edition?
 %is_template = request.query.get('is_template', False)
+
+%if is_template:
+   %setdefault('title', _('New %s template') % (plugin.backend_endpoint))
+%else:
+   %setdefault('title', _('New %s') % (plugin.backend_endpoint))
+%end
 %end
 
 %rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/{{element.name}}/form")
@@ -481,7 +491,7 @@
 
          %for field, model in plugin.table.iteritems():
             %selectize = False
-            %if not model.get('editable', True) or (field[0] in ['#', '_'] and field not in ['_parent', '_realm']) or field.startswith('ls_'):
+            %if not model.get('editable', True) or (field[0] in ['#', '_'] and field not in ['_parent', '_realm', '_sub_realm']) or field.startswith('ls_'):
                %# Some fields are never displayed in a form...
                %if debug:
                %if element:
