@@ -306,25 +306,8 @@
          %end
       %end
 
-      %if not element and is_templated and False:
-         %field = '_is_template'
-         %model = plugin.table[field]
-
-         %label = model.get('title', '')
-         %comment = model.get('comment', label)
-         %editable = model.get('editable', True)
-
-         <div class="form-group">
-            <div class="togglebutton">
-               <label for="{{field}}">
-                  <input id="{{field}}" name="{{field}}" type="checkbox" {{'checked="checked"' if is_template else ''}}
-                      {{'disabled="disabled"' if not edition or not editable else ''}}> {{label}} ({{_('the new %s element is a template') % plugin.backend_endpoint}})
-               </label>
-            </div>
-            <p class="help-block">
-                {{comment}}
-            </p>
-         </div>
+      %if not element and is_template:
+         <input id="_is_template" name="_is_template" type="hidden" value="true"/>
       %end
 
       %if has_template or is_templated:
