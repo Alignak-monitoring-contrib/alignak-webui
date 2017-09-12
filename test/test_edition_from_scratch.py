@@ -237,11 +237,11 @@ class TestHostCreation(TestCreation):
         assert response.json['data']
 
         # Host creation form
-        print('get page /host/form (edition mode) - create a new host')
-        response = self.app.get('/host/None/form')
+        print('get page /host_form (edition mode) - create a new host')
+        response = self.app.get('/host_form/None')
         response.mustcontain(
             '''<div id="form_host">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/host/None/form">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/host_form/None">''',
             '''<h4>You are creating a new host.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -253,7 +253,7 @@ class TestHostCreation(TestCreation):
             'name': "New host",
             'alias': "Friendly name"
         }
-        response = self.app.post('/host/None/form', params=data)
+        response = self.app.post('/host_form/None', params=data)
         # Returns the new item _id
         new_host_id = response.json['_id']
         resp = response.json
@@ -303,7 +303,7 @@ class TestHostCreation(TestCreation):
         response = self.app.get('/hosts/templates')
         response.mustcontain(
             '<div id="hosts-templates">',
-            '<form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">',
+            '<form role="form" data-element="None" class="element_form" method="post" action="/host_form/None">',
             '<legend>Creating a new host:</legend>',
             '<input class="form-control" type="text" id="name" name="name" placeholder="Host name"  value="">',
             '<input class="form-control" type="text" id="alias" alias="alias" placeholder="Host alias"  value="">',
@@ -330,7 +330,7 @@ class TestHostCreation(TestCreation):
             "_is_template": False,
             "_templates": [template.id, template2.id],
         }
-        response = self.app.post('/host/None/form', params=data)
+        response = self.app.post('/host_form/None', params=data)
         # Returns the new item _id
         new_host_id = response.json['_id']
         resp = response.json
@@ -392,7 +392,7 @@ class TestServiceCreation(TestCreation):
             # Without templating services, else we will inherit from all the services templates ;)
             '_templates_with_services': False
         }
-        response = self.app.post('/host/None/form', params=data)
+        response = self.app.post('/host_form/None', params=data)
         # Returns the new item _id
         new_host_id = response.json['_id']
         resp = response.json
@@ -447,11 +447,11 @@ class TestServiceCreation(TestCreation):
         assert response.json['data']
 
         # service creation form
-        print('get page /service/form (edition mode) - create a new service')
-        response = self.app.get('/service/None/form')
+        print('get page /service_form (edition mode) - create a new service')
+        response = self.app.get('/service_form/None')
         response.mustcontain(
             '''<div id="form_service">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/service/None/form">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/service_form/None">''',
             '''<h4>You are creating a new service.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -465,7 +465,7 @@ class TestServiceCreation(TestCreation):
             'name': "New service",
             'alias': "Friendly name"
         }
-        response = self.app.post('/service/None/form', params=data)
+        response = self.app.post('/service_form/None', params=data)
         print(response.json)
         # Returns the new item _id
         new_service_id = response.json['_id']
@@ -530,11 +530,11 @@ class TestUserCreation(TestCreation):
         assert response.json['data']
 
         # user creation form
-        print('get page /user/form (edition mode) - create a new user')
-        response = self.app.get('/user/None/form')
+        print('get page /user_form (edition mode) - create a new user')
+        response = self.app.get('/user_form/None')
         response.mustcontain(
             '''<div id="form_user">''',
-            '''<form role="form" data-element="None" class="element_form " method="post" action="/user/None/form">''',
+            '''<form role="form" data-element="None" class="element_form " method="post" action="/user_form/None">''',
             '''<h4>You are creating a new user.</h4>''',
             '''$('form[data-element="None"]').on("submit", function (evt) {'''
         )
@@ -546,7 +546,7 @@ class TestUserCreation(TestCreation):
             'name': "New user",
             'alias': "Friendly name"
         }
-        response = self.app.post('/user/None/form', params=data)
+        response = self.app.post('/user_form/None', params=data)
         # Returns the new item _id
         new_user_id = response.json['_id']
         resp = response.json

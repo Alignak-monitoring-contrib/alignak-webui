@@ -17,7 +17,7 @@
 %from alignak_webui.objects.item_service import Service
 
 <!-- Service view -->
-<div id="service-{{service.id}}">
+<div class="service" id="service-{{service.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">

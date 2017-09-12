@@ -11,13 +11,13 @@
 
    <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('Edition mode menu')}}">
       <li>
-         <a href="/realm/None/form">
+         <a href="/realm_form/None">
             <span class="fa fa-fw fa-sitemap"></span>
             <span>{{_('Create a new realm')}}</span>
          </a>
       </li>
       <li>
-         <a href="/hostgroup/None/form">
+         <a href="/hostgroup_form/None">
             <span class="fa fa-fw fa-sitemap"></span>
             <span>{{_('Create a new hostgroup')}}</span>
          </a>
@@ -31,16 +31,16 @@
 
       %if plugin and plugin.table['_table']['editable']:
          <li class="divider"></li>
-         %if not '/form' in request.urlparts.path:
+         %if not '_form' in request.urlparts.path:
          <li>
-            <a href="{{ request.urlparts.path + '/form' }}">
+            <a href="{{ request.urlparts.path.replace(plugin.backend_endpoint, plugin.backend_endpoint + '_form') }}">
                <span class="fa fa-fw fa-edit"></span>
                <span>{{_('Edit this %s') % plugin.backend_endpoint}}</span>
             </a>
          </li>
          %else:
          <li>
-            <a href="{{ request.urlparts.path.replace('/form', '') }}">
+            <a href="{{ request.urlparts.path.replace('_form', '') }}">
                <span class="fa fa-fw fa-square-o"></span>
                <span>{{_('View this %s') % plugin.backend_endpoint}}</span>
             </a>
@@ -48,7 +48,7 @@
          %end
          %if '/host/' in request.urlparts.path:
          <li>
-            <a href="/service/None/form">
+            <a href="/service_form/None">
                <span class="fa fa-fw fa-edit"></span>
                <span>{{_('Declare a new service for this host')}}</span>
             </a>

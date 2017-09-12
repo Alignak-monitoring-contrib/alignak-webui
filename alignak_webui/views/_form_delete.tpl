@@ -29,7 +29,7 @@
 %setdefault('title', _('New %s') % (plugin.backend_endpoint))
 %end
 
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}/{{element.name}}/form")
+%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}_form/{{element.name}}")
 
 %if debug and element:
 <div class="panel-group">

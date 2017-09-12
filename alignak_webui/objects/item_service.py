@@ -104,7 +104,8 @@ class Service(BackendElement):
     @property
     def endpoint(self):
         """Get service endpoint (page url)"""
-        return '/service/%s' % (self.id)
+        # return '/service/%s' % (self.id)
+        return '/service/%s/%s' % (self.host.name, self.name)
 
     # @property
     # def _realm(self):

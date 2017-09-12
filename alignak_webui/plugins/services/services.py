@@ -42,6 +42,11 @@ class PluginServices(Plugin):
         self.backend_endpoint = 'service'
 
         self.pages = {
+            'get_one': {
+                'name': '%s' % self.name,
+                'route': '/%s/<host_name>/<service_name>' % self.backend_endpoint,
+                'view': '%s' % self.backend_endpoint
+            },
             'get_service_view': {
                 'name': 'service synthesis view widget',
                 'route': '/service_view/<element_id>',
@@ -231,25 +236,60 @@ class PluginServices(Plugin):
         """Get the services widget"""
         return self.get_widget(None, 'service', embedded, identifier, credentials)
 
-    def get_one(self, element_id):
-        # Because there are many locals needed :)
-        # pylint: disable=too-many-locals
+    def get_one(self, host_name, service_name):  # pylint: disable=arguments-differ
         """Display a service"""
         datamgr = request.app.datamgr
 
-        # Get service
+        logger.warning("Service, get_one: %s / %s", host_name, service_name)
+
+        # Search host by name or alias
         is_template = False
-        service = datamgr.get_service(element_id)
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
+        if not host:
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
+            if not host:
+                is_template = True
+
+                # Search among the hosts templates with name
+                host = datamgr.get_host(search={'max_results': 1,
+                                                'where': {'_is_template': True,
+                                                          'name': host_name}})
+                if not host:
+                    # Search among the templates with alias
+                    host = datamgr.get_host(search={'max_results': 1,
+                                                    'where': {'_is_template': True,
+                                                              'alias': host_name}})
+                    if not host:
+                        self.send_user_message(_("Host '%s' not found") % (host_name))
+
+        # Search service by name or alias
+        service = datamgr.get_service(search={'max_results': 1,
+                                              'where': {'host': host.id,
+                                                        'name': service_name}})
         if not service:
-            is_template = True
-            # Search among the templates with id
-            service = datamgr.get_service(search={'max_results': 1, 'where': {'_is_template': True,
-                                                                              '_id': element_id}})
+            service = datamgr.get_service(search={'max_results': 1,
+                                                  'where': {'host': host.id,
+                                                            'alias': service_name}})
             if not service:
-                return self.webui.response_invalid_parameters(_('Service does not exist'))
+                is_template = True
+
+                # Search among the services templates with name
+                host = datamgr.get_service(search={'max_results': 1,
+                                                   'where': {'_is_template': True,
+                                                             'host': host.id,
+                                                             'name': service_name}})
+                if not service:
+                    # Search among the templates with alias
+                    host = datamgr.get_service(search={'max_results': 1,
+                                                       'where': {'_is_template': True,
+                                                                 'host': host.id,
+                                                                 'alias': service_name}})
+                    if not service:
+                        self.send_user_message(_("Service '%s/%s' not found") % (host_name,
+                                                                                 service_name))
 
         if is_template:
-            redirect('/service/%s/form' % element_id)
+            redirect('/service_form/%s' % service_name)
 
         # Get service host
         host = datamgr.get_host(search={'where': {'_id': service.host.id}})

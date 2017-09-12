@@ -54,7 +54,7 @@
    <div class="panel panel-default">
       <div class="panel-body">
          %if edition_mode:
-         <form role="form" data-element="None" class="element_form" method="post" action="/host/None/form">
+         <form role="form" data-element="None" class="element_form" method="post" action="/host_form/None">
             <div class="well page">
             <fieldset>
                <legend>{{_('Creating a new host:')}}</legend>

@@ -56,18 +56,22 @@ class PluginRealms(Plugin):
 
         super(PluginRealms, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    def get_one(self, element_id):
+    def get_one(self, element_name):
         """Show one element"""
         datamgr = request.app.datamgr
 
         # Get realm
-        logger.debug("realm, get_one, search: %s", element_id)
-        element = datamgr.get_realm(element_id)
+        logger.debug("realm, get_one, search: %s", element_name)
+        element = datamgr.get_realm(search={'max_results': 1, 'where': {'name': element_name}})
         if not element:
-            # Test if we got a name instead of an id
-            element = datamgr.get_realm(search={'max_results': 1, 'where': {'name': element_id}})
+            # Test if we got an alias instead of a name
+            element = datamgr.get_realm(search={'max_results': 1, 'where': {'alias': element_name}})
             if not element:
-                return self.webui.response_invalid_parameters(_('Required realm does not exist'))
+                # Test if we got an id instead of a name
+                element = datamgr.get_realm(element_name)
+                if not element:
+                    return self.webui.response_invalid_parameters(
+                        _('Required realm does not exist'))
         logger.debug("realm, get_one, found: %s - %s", element, element.__dict__)
 
         return {

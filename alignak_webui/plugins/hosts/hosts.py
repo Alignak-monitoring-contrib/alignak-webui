@@ -328,35 +328,38 @@ class PluginHosts(Plugin):
 
         return self.get_all(templates=True, all_elements=True)
 
-    def get_one(self, element_id):
-        # Because there are many locals needed :)
-        # pylint: disable=too-many-locals
+    def get_one(self, element_name):
         """Display an host"""
-        logger.info("Get one host: %s", element_id)
+        logger.info("Get one host: %s", element_name)
         datamgr = request.app.datamgr
 
         # Get host
         is_template = False
-        host = datamgr.get_host(element_id)
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': element_name}})
         if not host:
-            # Test if we got a name instead of an id
-            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': element_id}})
+            # Test if we got an alias instead of a name
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': element_name}})
             if not host:
-                is_template = True
-                # Search among the templates with id
-                host = datamgr.get_host(search={'max_results': 1, 'where': {'_is_template': True,
-                                                                            '_id': element_id}})
+                # Test if we got an id instead of a name
+                host = datamgr.get_host(element_name)
                 if not host:
-                    # Search amnog the templates with name
+                    is_template = True
+                    # Search among the templates with name
                     host = datamgr.get_host(search={'max_results': 1,
                                                     'where': {'_is_template': True,
-                                                              'name': element_id}})
+                                                              'name': element_name}})
                     if not host:
-                        return self.webui.response_invalid_parameters(
-                            _('Host or template does not exist'))
+                        # Search among the templates with alias
+                        host = datamgr.get_host(search={'max_results': 1,
+                                                        'where': {'_is_template': True,
+                                                                  'alias': element_name}})
+                        if not host:
+                            self.send_user_message(_("Host '%s' not found") % (element_name))
+                            # return self.webui.response_invalid_parameters(
+                            #     _('Host or template does not exist'))
 
         if is_template:
-            redirect('/host/%s/form' % element_id)
+            redirect('/host_form/%s' % element_name)
 
         # Get host services
         services = datamgr.get_host_services(host)
