@@ -7,6 +7,8 @@ if (debugMaps) {
     console.log("Activated debug maps logs");
 }
 
+var positionHosts = false;
+
 var defaultZoom = 12;
 if (debugMaps) console.log('Default zoom: ', defaultZoom);
 var defaultCenter = L.latLng(46.60611, 1.87528);
@@ -274,92 +276,31 @@ mapInit = function(map_id, editable, callback) {
         }
     }).addTo($map);
 
-    // Geocoder...
-    var options = {
-        collapsed: true,        // Whether its collapsed or not
-        position: 'topright',   // The position of the control
-        text: 'Search',         // The text of the submit button
-        placeholder: '',        // The text of the search input placeholder
-        bounds: null,           // a L.LatLngBounds object to limit the results to
-        email: null,            // an email string with a contact to provide to Nominatim. Useful if you are doing lots of queries
-        callback: function (results) {
-            wait_message('', false)
-
-			if (results.length == 0) {
-        		raise_message_warning('No matching result.');
-
-				console.log("No matching result.");
-				return;
-			}
-            var bbox = results[0].boundingbox,
-                first = new L.LatLng(bbox[0], bbox[2]),
-                second = new L.LatLng(bbox[1], bbox[3]),
-                bounds = new L.LatLngBounds([first, second]);
-            this._map.fitBounds(bounds);
-            if (debugMaps) console.log("Found: ", results[0]["lat"], results[0]["lon"]);
-/*
-            if (selectedHostIndex != -1) {
-        		raise_message_ok('Host: ' + pos_hosts[selectedHostIndex].name + 'is now positioned.');
-                pos_hosts[selectedHostIndex].lat = results[0]["lat"];
-                pos_hosts[selectedHostIndex].lng = results[0]["lon"];
-                pos_hosts[selectedHostIndex].positioned = true;
-                if (debugMaps) console.log("Position for host: ", pos_hosts[selectedHostIndex].name, ", index:", selectedHostIndex);
-
-                var marker = markerCreate($map, pos_hosts[selectedHostIndex], markerCluster, editable);
-                allMarkers.push(marker);
-                setHostPosition(pos_hosts[selectedHostIndex], marker);
-
-                var elt = $('li[data-hostname="' + pos_hosts[selectedHostIndex].name + '"]');
-                elt.remove();
-                selectedHostIndex = -1;
-            } else {
-*/
-            if (selectedHost) {
-        		raise_message_ok('Host: ' + selectedHost.name + 'is now positioned.');
-                selectedHost.lat = results[0]["lat"];
-                selectedHost.lng = results[0]["lon"];
-                selectedHost.positioned = true;
-                if (debugMaps) console.log("Position for host: ", selectedHost.name);
-
-                var marker = markerCreate($map, selectedHost, markerCluster, editable);
-                allMarkers.push(marker);
-                setHostPosition(selectedHost, marker);
-
-                var elt = $('li[data-hostname="' + selectedHost.name + '"]');
-                elt.remove();
-                selectedHost = null;
-            } else {
-                raise_message_warning('No selected host for this position. Choose an host in the not positioned hosts list.');
-                selectedPosition = {"lat": results[0]["lat"], "lng": results[0]["lon"]};
-            }
-        }
-    };
-    var osmGeocoder = new L.Control.OSMGeocoder(options);
-    $map.addControl(osmGeocoder);
-
-    // Geocoder
-    geocoder_control = L.Control.geocoder({
-        collapsed: false,
-        position: "topright",
-        placeholder: "Search...",
-        errorMessage: "Nothing found :(",
-        showResultIcons:true
-    }).addTo($map);
-    $map.on('click', function(e) {
-        geocoder_control.geocoder.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(results) {
-            var r = results[0];
-            if (r) {
-                if (geocoder_marker) {
-                    geocoder_marker.
-                        setLatLng(r.center).
-                        setPopupContent(r.html || r.name).
-                        openPopup();
-                } else {
-                    geocoder_marker = L.marker(r.center).bindPopup(r.name).addTo(map).openPopup();
+    if (positionHosts) {
+        // Geocoder
+        geocoder_control = L.Control.geocoder({
+            collapsed: false,
+            position: "topright",
+            placeholder: "Search...",
+            errorMessage: "Nothing found :(",
+            showResultIcons:true
+        }).addTo($map);
+        $map.on('click', function(e) {
+            geocoder_control.geocoder.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(results) {
+                var r = results[0];
+                if (r) {
+                    if (geocoder_marker) {
+                        geocoder_marker.
+                            setLatLng(r.center).
+                            setPopupContent(r.html || r.name).
+                            openPopup();
+                    } else {
+                        geocoder_marker = L.marker(r.center).bindPopup(r.name).addTo(map).openPopup();
+                    }
                 }
-            }
+            })
         })
-    })
+    }
 
     // Markers ...
     var allMarkers = [];
@@ -372,6 +313,10 @@ mapInit = function(map_id, editable, callback) {
             var newElt = $('<li data-hostname="' + pos_hosts[i].name + '"><a href="#" class="list-group-item">' + pos_hosts[i].name + '</a></li>');
             newElt.on("click", function () {
                 if (debugMaps) console.log("Selected an unpositioned host: ", $(this).data("hostname"));
+                if (! positionHosts) {
+                    console.log("Positioning hosts on the map is not yet implemented. Feature is yet to come...");
+                    return;
+                }
                 for (var i = 0; i < pos_hosts.length; i++) {
                     if (pos_hosts[i].name == $(this).data("hostname")) {
                         $('#not_positioned_hosts li[data-hostname="' + pos_hosts[i].name + '"]').remove();
@@ -399,6 +344,9 @@ mapInit = function(map_id, editable, callback) {
             $("#not_positioned_hosts ul").append(newElt);
             someHostsAreNotPositioned = true;
         }
+    }
+    if (! positionHosts) {
+        $("#selected_hosts").remove();
     }
     if (! someHostsAreNotPositioned) {
         $("#not_positioned_hosts").remove();

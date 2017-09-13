@@ -279,7 +279,7 @@ class PluginWorldmap(Plugin):
                 allowed_states = [int(value) for value in allowed_states]
                 # {'_overall_state_id': {'$in': [0, 3], '$nin': [4]}}
                 search['where'].update({'_overall_state_id': {"$in": allowed_states}})
-            logger.warning("worldmap, search services: %s", search)
+            logger.info("worldmap, search services: %s", search)
 
             services = datamgr.get_host_services(host, search=search, embedded=False)
             services_iw = ""
