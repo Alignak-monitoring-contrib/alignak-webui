@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# pylint: disable=fixme
 
 # Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@alignak.net
