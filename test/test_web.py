@@ -76,7 +76,7 @@ def setup_module(module):
                                         '--socket', '0.0.0.0:5000',
                                         '--protocol=http', '--enable-threads', '--pidfile',
                                         '/tmp/uwsgi.pid'],
-                                       stdout=fnull)
+                                       stdout=fnull, stderr=fnull)
     print("Started")
 
     print("Feeding Alignak backend... %s" % test_dir)
@@ -958,11 +958,10 @@ class TestHosts(unittest2.TestCase):
         # Backend authentication
         headers = {'Content-Type': 'application/json'}
         params = {'username': 'admin', 'password': 'admin'}
-        # Get admin user token (force regenerate)
+        # Get admin user token
         response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
         resp = response.json()
-        token = resp['token']
-        auth = requests.auth.HTTPBasicAuth(token, '')
+        auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
         # Get host 'webui'
         params = {'where': json.dumps({'name': 'webui'})}
@@ -997,6 +996,29 @@ class TestHosts(unittest2.TestCase):
             '<div id="form_host">',
             'You are viewing a host template.'
         )
+
+    def test_all_hosts_view(self):
+        """Get host page for all hosts in the configuration"""
+
+        # Backend authentication
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # Get admin user token
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
+        # Get all hosts
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get('http://127.0.0.1:5000/host', params=params, auth=auth)
+        resp = response.json()
+        for host in resp['_items']:
+            print("Get host page: %s" % host['name'])
+
+            response = self.app.get('/host/%s' % host['name'])
+            response.mustcontain(
+                '<div class="host" id="host-%s">' % host['_id']
+            )
 
 
 class TestServices(unittest2.TestCase):
@@ -1061,33 +1083,36 @@ class TestServices(unittest2.TestCase):
         token = resp['token']
         auth = requests.auth.HTTPBasicAuth(token, '')
 
-        # Get host 'webui'
-        params = {'where': json.dumps({'name': 'webui'})}
+        # Get all hosts
+        # params = {'where': json.dumps({'name': 'webui'})}
+        params = {'where': json.dumps({'_is_template': False})}
         response = requests.get('http://127.0.0.1:5000/host', params=params, auth=auth)
         resp = response.json()
-        host = resp['_items'][0]
-        print("Host: %s" % host)
-        self.host_id = host['_id']
+        for host in resp['_items']:
+            print("Host: %s" % host['name'])
+            self.host_id = host['_id']
 
-        # Get the services of this host
-        params = {'sort': '_id', 'where': json.dumps({'host': self.host_id})}
-        response = requests.get('http://127.0.0.1:5000/service', params=params, auth=auth)
-        resp = response.json()
-        service = resp['_items'][0]
-        print("Service: %s" % service)
-        self.service_id = service['_id']
+            # Get the services of the current host
+            params = {'sort': '_id', 'where': json.dumps({'host': self.host_id})}
+            response = requests.get('http://127.0.0.1:5000/service', params=params, auth=auth)
+            resp = response.json()
+            for service in resp['_items']:
+                print("Service: %s" % service['name'])
 
-        print('get page /service/hostname/servicename')
-        response = self.app.get('/service/%s/%s' % (host['name'], service['name']))
-        response.mustcontain(
-            '<div class="service" id="service-%s">' % self.service_id
-        )
+                print('get page /service/%s/%s' % (host['name'], service['name']))
+                response = self.app.get('/service/%s/%s' % (host['name'], service['name']))
+                # print(response)
+                response.mustcontain(
+                    '<div class="service" id="service-%s">' % service['_id']
+                )
 
-        print('get page /service/hostalias/servicename')
-        response = self.app.get('/service/%s/%s' % (host['alias'], service['name']))
-        response.mustcontain(
-            '<div class="service" id="service-%s">' % self.service_id
-        )
+                # Not possible for an host alias containing a /
+                if '/' not in host['alias']:
+                    print('get page /service/%s/%s' % (host['alias'], service['name']))
+                    response = self.app.get('/service/%s/%s' % (host['alias'], service['name']))
+                    response.mustcontain(
+                        '<div class="service" id="service-%s">' % service['_id']
+                    )
 
 
 class TestUsers(unittest2.TestCase):

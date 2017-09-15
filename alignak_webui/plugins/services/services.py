@@ -44,7 +44,7 @@ class PluginServices(Plugin):
         self.pages = {
             'get_one': {
                 'name': '%s' % self.name,
-                'route': '/%s/<host_name>/<service_name>' % self.backend_endpoint,
+                'route': '/%s/<host_name>/<service_name:re:.+>' % self.backend_endpoint,
                 'view': '%s' % self.backend_endpoint
             },
             'get_service_view': {
@@ -238,9 +238,9 @@ class PluginServices(Plugin):
 
     def get_one(self, host_name, service_name):  # pylint: disable=arguments-differ
         """Display a service"""
-        datamgr = request.app.datamgr
+        logger.info("Service, view: %s / %s", host_name, service_name)
 
-        logger.warning("Service, get_one: %s / %s", host_name, service_name)
+        datamgr = request.app.datamgr
 
         # Search host by name or alias
         is_template = False

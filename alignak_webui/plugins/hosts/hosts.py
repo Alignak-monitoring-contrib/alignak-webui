@@ -330,7 +330,8 @@ class PluginHosts(Plugin):
 
     def get_one(self, element_name):
         """Display an host"""
-        logger.info("Get one host: %s", element_name)
+        logger.info("Host, view: %s", element_name)
+
         datamgr = request.app.datamgr
 
         # Get host
