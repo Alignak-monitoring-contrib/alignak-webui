@@ -83,7 +83,7 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
         stdout=fnull
     )
     assert exit_code == 0
@@ -452,8 +452,8 @@ class TestDataTable(unittest2.TestCase):
                  "orderable": True, "search": {"value": "", "regex": False}},
             ]),
             'order': json.dumps([{"column": 0, "dir": "asc"}]),
-            # Search 'check_ping' in all columns without regex
-            'search': json.dumps({"value": "check_ping", "regex": False})
+            # Search 'linux_check_snmp_alive' in all columns without regex
+            'search': json.dumps({"value": "linux_check_snmp_alive", "regex": False})
         })
         response_value = response.json
         # Found items_count records and sent 1
@@ -522,7 +522,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 88
+        assert response.json['recordsFiltered'] == 65
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -533,9 +533,9 @@ class TestDataTable(unittest2.TestCase):
             'start': 0,
             'length': 5,
             'columns': json.dumps([
-                # Search 'check_ping' in name column ...
+                # Search 'linux_check_snmp_alive' in name column ...
                 {"data": "name", "name": "name", "searchable": True, "orderable": True,
-                 "search": {"value": "check_ping", "regex": False}},
+                 "search": {"value": "linux_check_snmp_alive", "regex": False}},
                 {"data": "definition_order", "name": "definition_order", "searchable": True,
                  "orderable": True, "search": {"value": "", "regex": False}},
                 {"data": "command_line", "name": "command_line", "searchable": True,
@@ -620,7 +620,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 88
+        assert response.json['recordsFiltered'] == 65
         assert response.json['data']
         assert len(response.json['data']) == 5
 

@@ -79,7 +79,7 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
         stdout=fnull
     )
     assert exit_code == 0
@@ -197,8 +197,11 @@ class TestsExternal(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            '<small>Graphite on VM</small>',
-            '<small>check_host_alive</small>'
+            '<thead><tr>',
+            '<th>Host name</th>',
+            '<th>Business impact</th>',
+            '<th>Check command</th>',
+            '<td title="Glpi / Alignak">'
         )
 
         # Allowed - default widgets parameters: widget_id
@@ -210,8 +213,11 @@ class TestsExternal(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            'Graphite on VM</small>',
-            'check_host_alive</small>'
+            '<thead><tr>',
+            '<th>Host name</th>',
+            '<th>Business impact</th>',
+            '<th>Check command</th>',
+            '<td title="Glpi / Alignak">'
         )
 
         # Allowed - default widgets parameters: widget_id
@@ -224,8 +230,11 @@ class TestsExternal(unittest2.TestCase):
         response.mustcontain(
             '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
             '<a href="http://test/host/',
-            'Graphite on VM</a></small>',
-            'check_host_alive</a></small>'
+            '<thead><tr>',
+            '<th>Host name</th>',
+            '<th>Business impact</th>',
+            '<th>Check command</th>',
+            '<td title="Glpi / Alignak">'
         )
 
         # Allowed - default widgets parameters: widget_id
@@ -337,7 +346,7 @@ class TestsExternal(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
+        host = datamgr.get_host({'where': {'name': 'alignak_glpi'}})
 
         # Get external host widget - no widget identifier
         self.app.authorization = ('Basic', ('admin', 'admin'))
@@ -802,8 +811,11 @@ class TestAllWidgets(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="wd_panel_hosts_table" class="panel panel-default alignak_webui_widget embedded">',
-            '<small>Graphite on VM</small>',
-            '<small>check_host_alive</small>'
+            '<thead><tr>',
+            '<th>Host name</th>',
+            '<th>Business impact</th>',
+            '<th>Check command</th>',
+            '<td title="Glpi / Alignak">'
         )
 
         # Hosts graph
@@ -823,7 +835,10 @@ class TestAllWidgets(unittest2.TestCase):
         )
         response.mustcontain(
             '<div id="wd_panel_services_table" class="panel panel-default alignak_webui_widget embedded">',
-            '<small>BigProcesses</small>'
+            '<th>Host</th>',
+            '<th>Service</th>',
+            '<th>Business impact</th>',
+            '<th>Check command</th>'
         )
 
         # Services graph

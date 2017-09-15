@@ -76,13 +76,12 @@ def setup_module(module):
                                         '--socket', '0.0.0.0:5000',
                                         '--protocol=http', '--enable-threads', '--pidfile',
                                         '/tmp/uwsgi.pid'],
-                                       stdout=fnull, stderr=fnull)
+                                       stdout=fnull)
     print("Started")
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
-        stdout=fnull
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir)
     )
     assert exit_code == 0
 
@@ -365,7 +364,7 @@ class TestCommands(unittest2.TestCase):
         print('test command')
 
         print('get page /command')
-        response = self.app.get('/command/check_ping')
+        response = self.app.get('/command/check_nrpe_version')
         response.mustcontain(
             '<div class="command" id="command_'
         )
@@ -924,9 +923,9 @@ class TestHosts(unittest2.TestCase):
         self.app.get('/hosts/templates/list')
         self.app.get('/hosts/templates/table')
         # Host exists
-        self.app.get('/host/webui')
+        self.app.get('/host/alignak_glpi')
         # Host does not exist - redirects to home page
-        self.app.get('/host/localhost', status=302)
+        self.app.get('/host/unknown', status=302)
 
         print('get page /hosts/widget')
         self.app.post('/hosts/widget', status=400)
@@ -964,7 +963,7 @@ class TestHosts(unittest2.TestCase):
         auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
         # Get host 'webui'
-        params = {'where': json.dumps({'name': 'webui'})}
+        params = {'where': json.dumps({'name': 'localhost'})}
         response = requests.get('http://127.0.0.1:5000/host', params=params, auth=auth)
         resp = response.json()
         host = resp['_items'][0]
@@ -978,13 +977,13 @@ class TestHosts(unittest2.TestCase):
         )
 
         print('get page /host/name')
-        response = self.app.get('/host/webui')
+        response = self.app.get('/host/localhost')
         response.mustcontain(
             '<div class="host" id="host-%s">' % self.host_id
         )
 
         print('get page /host/alias')
-        response = self.app.get('/host/Shinken%20on%20Debian%20Wheezy')
+        response = self.app.get('/host/Web UI')
         response.mustcontain(
             '<div class="host" id="host-%s">' % self.host_id
         )
@@ -1133,7 +1132,7 @@ class TestUsers(unittest2.TestCase):
         response = self.app.get('/users')
         response.mustcontain(
             '<div id="users">',
-            '8 elements out of 8',
+            '9 elements out of 9',
         )
         self.app.get('/users/settings')
         self.app.get('/users/list')
