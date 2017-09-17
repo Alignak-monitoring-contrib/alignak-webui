@@ -37,7 +37,7 @@ from logging import getLogger, INFO
 
 from alignak_webui import get_app_config
 # Import the backend interface class
-from alignak_webui.backend.backend import BackendConnection
+from alignak_webui.backend.backend import BackendConnection, BackendException
 from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
 from alignak_webui.utils.dates import get_ts_date
@@ -394,6 +394,13 @@ class BackendElement(object):
                                     logger.error("__init__, item not found for %s, %s",
                                                  object_type, value)
                                     continue
+                            except BackendException as e:  # pragma: no cover, should not happen
+                                if e.code == 404:
+                                    logger.warning("__init__, %s (id = %s) not found for %s",
+                                                   object_type, value, self)
+                                else:
+                                    logger.exception(e)
+                                continue
                             except:  # pragma: no cover, should not happen
                                 logger.error("__init__, %s (id = %s) not found for %s",
                                              object_type, value, self)
@@ -424,6 +431,14 @@ class BackendElement(object):
                                             logger.error("__init__, item not found for %s, %s",
                                                          object_type, value)
                                             continue
+                                    except BackendException as e:
+                                        if e.code == 404:
+                                            logger.warning("__init__, item in list not existing "
+                                                           "for %s, %s (%s) in %s",
+                                                           object_type, value, element, self)
+                                        else:
+                                            logger.exception(e)
+                                        continue
                                     except:  # pragma: no cover, should not happen
                                         logger.error("__init__, item in list not "
                                                      "existing for %s, %s (%s) in %s",
