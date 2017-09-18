@@ -397,7 +397,7 @@ class PluginActions(Plugin):
                     {'error': "the plugin for '%s' is not existing or not installed"
                               % elements_type}
                 )
-            logger.info("Found plugin: %s", plugin.name)
+            logger.debug("Found plugin: %s", plugin.name)
 
             # Provide the described parameters
             parameters = {}
@@ -423,6 +423,9 @@ class PluginActions(Plugin):
 
                     parameters[parameter]['allowed'] = allowed_values
                     logger.debug("Real allowed values for %s: %s", parameter, allowed_values)
+
+                if 'allowed' in parameters[parameter] and not parameters[parameter]['allowed']:
+                    parameters[parameter].pop('allowed')
 
                 logger.info("Got command parameter: %s / %s",
                             parameter, parameters[parameter])

@@ -1,0 +1,6 @@
+{
+    "address": "127.0.0.1",
+    "port": 8125,
+    "name": "statsd_demo",
+    "_sub_realm": true
+}

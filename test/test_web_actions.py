@@ -85,7 +85,7 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
         stdout=fnull
     )
     assert exit_code == 0
@@ -142,7 +142,7 @@ class tests_actions(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host and user in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
+        host = datamgr.get_host({'where': {'name': 'localhost'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
 
         # -------------------------------------------
@@ -172,10 +172,10 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/acknowledge/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Acknowledge sent for webui. "
+                         "Acknowledge sent for localhost. "
 
         # Acknowledge a service
-        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
         data = {
             "action": "add",
             "elements_type": 'service',
@@ -188,11 +188,11 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/acknowledge/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Acknowledge sent for webui/Shinken2-arbiter. "
+                         "Acknowledge sent for localhost/Cpu. "
 
         # Acknowledge several services
-        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
-        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Memory'}})
         data = {
             "action": "add",
             "elements_type": 'service',
@@ -205,12 +205,12 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/acknowledge/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Acknowledge sent for webui/Shinken2-arbiter. " \
-                         "Acknowledge sent for webui/Shinken2-reactionner. " \
+                         "Acknowledge sent for localhost/Cpu. " \
+                         "Acknowledge sent for localhost/Memory. " \
 
         # Acknowledge several services
-        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
-        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Memory'}})
         data = {
             "action": "add",
             "elements_type": 'service',
@@ -223,8 +223,8 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/acknowledge/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Acknowledge sent for webui/Shinken2-arbiter. " \
-                         "Acknowledge sent for webui/Shinken2-reactionner. " \
+                         "Acknowledge sent for localhost/Cpu. " \
+                         "Acknowledge sent for localhost/Memory. " \
                          "service element test does not exist. "
 
     def test_downtime(self):
@@ -246,7 +246,7 @@ class tests_actions(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host, user and realm in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
+        host = datamgr.get_host({'where': {'name': 'localhost'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
 
         now = datetime.utcnow()
@@ -282,10 +282,10 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Downtime sent for webui. "
+                         "Downtime sent for localhost. "
 
         # downtime a service
-        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
         data = {
             "action": "add",
             "elements_type": 'service',
@@ -299,11 +299,11 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Downtime sent for webui/Shinken2-arbiter. "
+                         "Downtime sent for localhost/Cpu. "
 
         # downtime several services
-        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
-        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Memory'}})
         data = {
             "action": "add",
             "elements_type": 'service',
@@ -317,8 +317,8 @@ class tests_actions(unittest2.TestCase):
         response = self.app.post('/downtime/add', data)
         assert response.json['status'] == "ok"
         assert response.json['message'] == \
-                         "Downtime sent for webui/Shinken2-arbiter. " \
-                         "Downtime sent for webui/Shinken2-reactionner. " \
+                         "Downtime sent for localhost/Cpu. " \
+                         "Downtime sent for localhost/Memory. " \
                          "service element test does not exist. "
 
     def test_recheck(self):
@@ -340,7 +340,7 @@ class tests_actions(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=session)
 
         # Get host, user and realm in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
+        host = datamgr.get_host({'where': {'name': 'localhost'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
 
         # -------------------------------------------
@@ -364,10 +364,10 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/recheck/add', data)
         assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui. "
+        assert response.json['message'] == "Check request sent for localhost. "
 
         # Recheck a service
-        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
+        service = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
         data = {
             "elements_type": 'service',
             "element_id": service.id,
@@ -375,11 +375,11 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/recheck/add', data)
         assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter. "
+        assert response.json['message'] == "Check request sent for localhost/Cpu. "
 
         # Recheck several services
-        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-arbiter'}})
-        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Shinken2-reactionner'}})
+        service1 = datamgr.get_service({'where': {'host': host.id, 'name': 'Cpu'}})
+        service2 = datamgr.get_service({'where': {'host': host.id, 'name': 'Memory'}})
         data = {
             "action": "add",
             "elements_type": 'service',
@@ -388,9 +388,9 @@ class tests_actions(unittest2.TestCase):
         }
         response = self.app.post('/recheck/add', data)
         assert response.json['status'] == "ok"
-        assert response.json['message'] == "Check request sent for webui/Shinken2-arbiter. Check request sent for webui/Shinken2-reactionner. service element test does not exist. "
+        assert response.json['message'] == "Check request sent for localhost/Cpu. Check request sent for localhost/Memory. service element test does not exist. "
 
-    @unittest2.skip("Skipped because difference between Travis and local execution ... to be explained!")
+    @unittest2.skip("Skipped because difference between Travis and local execution (correct!) ... to be explained!")
     def test_command(self):
         """ Actions - command"""
         print('test command')
@@ -400,7 +400,6 @@ class tests_actions(unittest2.TestCase):
         response.mustcontain(
             '<form class="form-horizontal" data-item="command" data-action="add" '
         )
-
 
         print('get page /command/parameters - bad parameters')
         response = self.app.get('/command/parameters', status=409)
@@ -416,24 +415,42 @@ class tests_actions(unittest2.TestCase):
         expected = {
             u"ls_state_id": {
                 u"allowed": {
-                    u"0": u"Up", u"1": u"Down (1)", u"2": u"Down (2)", u"3": u"Unreachable"
+                    u"0": u"Up", u"1": u"Down (1)", u"2": u"Not used (2)", u"3": u"Not used (3)", u"4": u"Unreachable"
                 },
                 u"allowed_0": u"Up",
                 u"allowed_1": u"Down (1)",
-                u"allowed_2": u"Down (2)",
-                u"allowed_3": u"Unreachable",
-                u"comment": u"Current state identifier. O: UP, 1: DOWN, 2: UNREACHABLE",
+                u"allowed_2": u"Not used (2)",
+                u"allowed_3": u"Not used (3)",
+                u"allowed_4": u"Unreachable",
+                u"comment": u"Current state identifier. O: UP, 1: DOWN, 2/3: NOT USED, 4: UNREACHABLE",
                 u"default": 3,
                 u"title": u"State identifier",
-                u"editable": False,
+                u"editable": True,
+                u"hidden": True,
                 u"type": u"integer"
             },
             u"ls_output": {
-                u"default": u"",
+                u"default": u"Check output from WebUI",
                 u"type": u"string",
                 u"title": u"Output",
-                u"editable": False,
+                u"editable": True,
                 u"comment": u"Last check output"
+            },
+            u"ls_long_output": {
+                u"default": u"",
+                u"type": u"string",
+                u"title": u"Long output",
+                u"editable": True,
+                u"visible": False,
+                u"comment": u"Last check long output"
+            },
+            u"ls_perf_data": {
+                u"default": u"",
+                u"type": u"string",
+                u"title": u"Performance data",
+                u"editable": True,
+                u"visible": False,
+                u"comment": u"Last check performance data"
             }
         }
         assert expected == response.json
@@ -446,8 +463,8 @@ class tests_actions(unittest2.TestCase):
         # Data manager
         datamgr = DataManager(alignak_webui.app.app, session=session)
 
-        # Get host, user and realm in the backend
-        host = datamgr.get_host({'where': {'name': 'webui'}})
+        # Get host and user in the backend
+        host = datamgr.get_host({'where': {'name': 'localhost'}})
         user = datamgr.get_user({'where': {'name': 'admin'}})
 
         # -------------------------------------------
@@ -483,12 +500,14 @@ class tests_actions(unittest2.TestCase):
             "elements_type": 'host',
             "element_id": host.id,
             "ls_state_id": '0',
-            "ls_output": "New output..."
+            "ls_output": "New output...",
+            "ls_long_output": "",
+            "ls_perf_data": "",
         }
         response = self.app.post('/command/add', data, status=409)
         # As of #193...
         assert response.json['status'] == "ko"
-        assert response.json['message'] == "Failed sending a command for webui. "
+        assert response.json['message'] == "Failed sending a command for localhost. "
 
 
 if __name__ == '__main__':

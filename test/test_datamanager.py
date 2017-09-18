@@ -93,7 +93,7 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
         stdout=fnull
     )
     assert exit_code == 0
@@ -453,7 +453,7 @@ class TestBasic(unittest2.TestCase):
             print("Got: ", item)
             assert item.id
             item.get_html_state()
-        assert len(items) == 5
+        assert len(items) == 4
 
         # Get commands
         items = self.dmg.get_commands()
@@ -504,7 +504,7 @@ class TestBasic(unittest2.TestCase):
             assert item.id
             if item.level != 0:
                 assert isinstance(item._parent, HostGroup) # Must be an object
-        assert len(items) == 9
+        assert len(items) == 12
 
         # Get servicegroups
         items = self.dmg.get_servicegroups()
@@ -513,7 +513,7 @@ class TestBasic(unittest2.TestCase):
             assert item.id
             if item.level != 0:
                 assert isinstance(item._parent, ServiceGroup) # Must be an object
-        assert len(items) == 6
+        assert len(items) == 10
 
         # Get usergroups
         items = self.dmg.get_usergroups()
@@ -522,7 +522,7 @@ class TestBasic(unittest2.TestCase):
             assert item.id
             if item.level != 0:
                 assert isinstance(item._parent, UserGroup) # Must be an object
-        assert len(items) == 4
+        assert len(items) == 7
 
     def test_5_3_livesynthesis(self):
         """ Datamanager objects get - livesynthesis """
@@ -534,7 +534,7 @@ class TestBasic(unittest2.TestCase):
         expected_ls = {
             '_id': self.dmg.my_ls['_id'],
             'hosts_synthesis': {
-                'nb_elts': 11,
+                'nb_elts': 7,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -544,16 +544,16 @@ class TestBasic(unittest2.TestCase):
                 'nb_up_hard': 0, 'nb_up_soft': 0,
                 'nb_down': 0, 'pct_down': 0.0,
                 'nb_down_hard': 0, 'nb_down_soft': 0,
-                'nb_unreachable': 11, 'pct_unreachable': 100.0,
-                'nb_unreachable_hard': 11, 'nb_unreachable_soft': 0,
+                'nb_unreachable': 7, 'pct_unreachable': 100.0,
+                'nb_unreachable_hard': 7, 'nb_unreachable_soft': 0,
 
-                'nb_problems': 11, 'pct_problems': 100.0,
+                'nb_problems': 7, 'pct_problems': 100.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
                 'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
             },
             'services_synthesis': {
-                'nb_elts': 94,
+                'nb_elts': 151,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -565,8 +565,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                'nb_unknown': 94, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 94, 'nb_unknown_soft': 0,
+                'nb_unknown': 151, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 151, 'nb_unknown_soft': 0,
                 'nb_unreachable': 0, 'pct_unreachable': 0.0,
                 'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
 
@@ -585,7 +585,7 @@ class TestBasic(unittest2.TestCase):
         expected_ls = {
             '_id': self.dmg.my_ls['_id'],
             'hosts_synthesis': {
-                'nb_elts': 11,
+                'nb_elts': 7,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -595,16 +595,16 @@ class TestBasic(unittest2.TestCase):
                 'nb_up_hard': 0, 'nb_up_soft': 0,
                 'nb_down': 0, 'pct_down': 0.0,
                 'nb_down_hard': 0, 'nb_down_soft': 0,
-                'nb_unreachable': 11, 'pct_unreachable': 100.0,
-                'nb_unreachable_hard': 11, 'nb_unreachable_soft': 0,
+                'nb_unreachable': 7, 'pct_unreachable': 100.0,
+                'nb_unreachable_hard': 7, 'nb_unreachable_soft': 0,
 
-                'nb_problems': 11, 'pct_problems': 100.0,
+                'nb_problems': 7, 'pct_problems': 100.0,
                 'nb_flapping': 0, 'pct_flapping': 0.0,
                 'nb_acknowledged': 0, 'pct_acknowledged': 0.0,
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
             },
             'services_synthesis': {
-                'nb_elts': 94,
+                'nb_elts': 151,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -616,11 +616,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                # Travis says 74 whereas it is 76 !
-                'nb_unknown': 94, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 94, 'nb_unknown_soft': 0,
-                # 'nb_unknown': 76, 'pct_unknown': 100.0,
-                # 'nb_unknown_hard': 76, 'nb_unknown_soft': 0,
+                'nb_unknown': 151, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 151, 'nb_unknown_soft': 0,
                 'nb_unreachable': 0, 'pct_unreachable': 0.0,
                 'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
 
@@ -660,7 +657,7 @@ class TestRelations(unittest2.TestCase):
         self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
-        host = self.dmg.get_host({'where': {'name': 'webui'}})
+        host = self.dmg.get_host({'where': {'name': 'localhost'}})
 
         print(host.__dict__)
         print(host.check_period)
@@ -678,7 +675,7 @@ class TestRelations(unittest2.TestCase):
         self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
-        host = self.dmg.get_host({'where': {'name': 'webui'}})
+        host = self.dmg.get_host({'where': {'name': 'localhost'}})
         print("Host: ", host.__dict__)
 
         # Get services of this host
@@ -733,40 +730,40 @@ class TestHosts(unittest2.TestCase):
 
         # Get all hosts templates
         hosts = self.dmg.get_hosts(template=True)
-        assert 30 == len(hosts)
+        assert 28 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host template: %s" % host)
 
         # Get one host
-        hosts = self.dmg.get_hosts({'where': {'name': 'webui'}})
+        hosts = self.dmg.get_hosts({'where': {'name': 'alignak_glpi'}})
         assert 1 == len(hosts)
         print("---")
         for host in hosts:
             print("Got host: %s" % host)
-        assert hosts[0].name == 'webui'
+        assert hosts[0].name == 'alignak_glpi'
 
         # Get one host
-        host = self.dmg.get_host({'where': {'name': 'webui'}})
-        assert host.name == 'webui'
+        host = self.dmg.get_host({'where': {'name': 'alignak_glpi'}})
+        assert host.name == 'alignak_glpi'
 
         # Get one host
         host = self.dmg.get_host(host._id)
-        assert host.name == 'webui'
+        assert host.name == 'alignak_glpi'
         assert host.status == 'UNREACHABLE'
 
         # Get host services
         services = self.dmg.get_host_services({'where': {'name': 'unknown'}})
         assert services == -1
 
-        services = self.dmg.get_host_services({'where': {'name': 'webui'}})
+        services = self.dmg.get_host_services({'where': {'name': 'alignak_glpi'}})
         print("---")
         service_name = ''
         for service in services:
             print("Got service: %s" % service)
             service_name = service['name']
         assert len(services) > 1
-        services = self.dmg.get_host_services({'where': {'name': 'webui'}}, search={'where': {'name': service_name}})
+        services = self.dmg.get_host_services({'where': {'name': 'alignak_glpi'}}, search={'where': {'name': service_name}})
         services = self.dmg.get_host_services(host)
         assert len(services) > 1
 
@@ -787,7 +784,7 @@ class TestHosts(unittest2.TestCase):
         self.dmg.get_timeperiod({'where': {'name': '24x7'}})
 
         # Get host
-        host = self.dmg.get_host({'where': {'name': 'webui'}})
+        host = self.dmg.get_host({'where': {'name': 'localhost'}})
 
         print(host.__dict__)
         print(host.check_period)

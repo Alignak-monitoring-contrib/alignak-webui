@@ -66,7 +66,7 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
         stdout=fnull
     )
     assert exit_code == 0
@@ -132,12 +132,12 @@ class TestGet(unittest2.TestCase):
         # Count all users (no templates)
         result = self.be.count('user', params={'where': {'_is_template': False}})
         print("Result: %s" % result)
-        assert result == 8
+        assert result == 9
 
         # Count all users (and templates)
         result = self.be.count('user')
         print("Result: %s" % result)
-        assert result == 10
+        assert result == 13
 
         parameters = {'where': {"name": "admin"}}
         result = self.be.count('user', parameters)
@@ -170,8 +170,8 @@ class TestGet(unittest2.TestCase):
             assert 'name' in user
             assert '_total' in user  # Each element has an extra _total attribute !
             print(" - %s (one out of %d)" % (user['name'], user['_total']))
-            assert user['_total'] == 8
-        assert len(result) == 8  # Default configuration has 8 users
+            assert user['_total'] == 9
+        assert len(result) == 9  # Default configuration has 8 users
 
         parameters = {'where': {"name": "fake"}}
         result = self.be.get('user', parameters)

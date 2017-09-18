@@ -78,7 +78,7 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/default/_main.cfg' % test_dir),
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
         stdout=fnull
     )
     assert exit_code == 0
@@ -135,7 +135,7 @@ class TestEditionModeDenied(unittest2.TestCase):
 
         print('get page /host_form (read-only mode) - for a new host - granted')
         # Authorized...
-        self.app.get('/host_form/webui', status=200)
+        self.app.get('/host_form/alignak_glpi', status=200)
 
         print('get page /host_form (edition mode) - for a new host - denied')
         # Redirected...
@@ -154,10 +154,10 @@ class TestEditionModeDenied(unittest2.TestCase):
 
         print('Post form updates - denied')
         data = {
-            'name': 'webui',
+            'name': 'alignak_glpi',
             'alias': "Alias edited"
         }
-        response = self.app.post('/host_form/webui', params=data, status=401)
+        response = self.app.post('/host_form/alignak_glpi', params=data, status=401)
 
 
 class TestEditionMode(unittest2.TestCase):
@@ -407,7 +407,7 @@ class TestHosts(unittest2.TestCase):
 
         # Get host in the backend
         datamgr = DataManager(alignak_webui.app.app, session=self.session)
-        host = datamgr.get_host({'where': {'name': 'KNM-Shinken'}})
+        host = datamgr.get_host({'where': {'name': 'alignak_glpi'}})
 
         print('get page /host_form (reading mode)')
         response = self.app.get('/host_form/%s' % host.id)
@@ -570,7 +570,7 @@ class TestHosts(unittest2.TestCase):
         datamgr = DataManager(alignak_webui.app.app, session=self.session)
 
         # Get host and service in the backend
-        host = datamgr.get_host({'where': {'name': 'graphite_host'}})
+        host = datamgr.get_host({'where': {'name': 'alignak_glpi'}})
         services = datamgr.get_host_services(host)
         service = services[0]
 
@@ -598,7 +598,7 @@ class TestHosts(unittest2.TestCase):
         }
         response = self.app.post('/host_form/%s' % host.id, params=data)
         assert response.json == {
-            "_message": "host 'graphite_host' updated", "alias": "Alias edited"
+            "_message": "host 'alignak_glpi' updated", "alias": "Alias edited"
         }
 
     def test_host_delete(self):

@@ -1,0 +1,8 @@
+{
+    "name": "grafana_demo",
+    "address": "10.0.0.8",
+    "port": 3000,
+    "apikey": "eyJrIjoiak9Ta1ZrdXJhdDZWaEVqQkROS0toU1NlZjlMT0hQTFIiLCJuIjoiYWxpZ25hay1iYWNrZW5kIiwiaWQiOjJ9",
+    "_sub_realm": true
+}
+/* Grafana4 key: eyJrIjoicHhpdWxUcFowN0tYdUNIdGxpN2ZqU3AzYUlzcVdsOVYiLCJuIjoiZGVtbyIsImlkIjoyfQ== */
