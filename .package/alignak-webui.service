@@ -1,0 +1,15 @@
+[Unit]
+Description=Alignak WebUI
+After=syslog.target
+
+[Service]
+ExecStart=/usr/bin/uwsgi --ini /usr/local/etc/alignak-webui/uwsgi.ini --plugin logfile
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
