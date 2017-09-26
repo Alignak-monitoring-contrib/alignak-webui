@@ -16,12 +16,37 @@
          <th colspan="3">{{_('Customs:')}}</th>
       </tr>
    </thead>
-   <tbody style="font-size:x-small;">
-   %for var in sorted(service.customs):
+   <tbody>
+   %for var in sorted(service.variables):
+      %if isinstance(var['value'], list):
+      %first_row = True
+      %for list_item in var['value']:
       <tr>
-         <td>{{var}}</td>
-         <td>{{service.customs[var]}}</td>
+         %if first_row:
+         <td title="{{var['name']}}">{{var['alias']}}</td>
+         %first_row=False
+         %else:
+         <td></td>
+         %end
+         <td>
+         %if isinstance(list_item, dict):
+         %data = []
+         %for prop in list_item:
+            %data.append("%s = %s" % (prop, list_item[prop]))
+         %end
+         {{", ".join(data)}}
+         %else:
+         {{list_item}}
+         %end
+         </td>
       </tr>
+      %end
+      %else:
+      <tr>
+         <td title="{{var['name']}}">{{var['alias']}}</td>
+         <td>{{var['value']}}</td>
+      </tr>
+      %end
    %end
    </tbody>
 </table>

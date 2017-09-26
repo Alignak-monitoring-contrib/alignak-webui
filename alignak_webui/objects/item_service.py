@@ -364,6 +364,27 @@ class Service(BackendElement):
         """Return real status string from the real state identifier"""
         return self.overall_state_to_status[self.overall_state]
 
+    @property
+    def variables(self):
+        """Get the host custom variables with a nice name formatting:
+        - remove the leading and inside underscore
+        - lower case the variable name
+
+        Returns a list of dictionaries containing:
+        - name: the original variable name
+        - alias: the nice name
+        - value: the variable value
+
+        The list is ordered with the variables name
+        """
+        variables = []
+        for var in self.customs:
+            varname = var[1:]
+            varname = varname.replace('_', ' ')
+            varname = varname.capitalize()
+            variables.append({'name': var, 'alias': varname, 'value': self.customs[var]})
+        return sorted(variables, key=lambda k: k['name'])
+
     def get_last_check(self, timestamp=False, fmt=None):
         """Get last check date"""
         if self.last_check == self.__class__._default_date and not timestamp:
