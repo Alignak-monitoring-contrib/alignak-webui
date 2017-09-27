@@ -373,6 +373,11 @@ class Host(BackendElement):
         return 5
 
     @property
+    def overall_status(self):
+        """Return real status string from the real state identifier"""
+        return self.overall_state_to_status[self.overall_state]
+
+    @property
     def variables(self):
         """Get the host custom variables with a nice name formatting:
         - remove the leading and inside underscore
@@ -392,11 +397,6 @@ class Host(BackendElement):
             varname = varname.capitalize()
             variables.append({'name': var, 'alias': varname, 'value': self.customs[var]})
         return sorted(variables, key=lambda k: k['name'])
-
-    @property
-    def overall_status(self):
-        """Return real status string from the real state identifier"""
-        return self.overall_state_to_status[self.overall_state]
 
     def get_last_check(self, timestamp=False, fmt=None):
         """Get last check date"""
