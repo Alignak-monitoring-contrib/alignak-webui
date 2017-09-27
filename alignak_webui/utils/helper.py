@@ -1432,7 +1432,7 @@ class Helper(object):
         logger.debug("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_hosts)
         hosts = datamgr.get_hosts(search=search_hosts, embedded=False)
         items.extend(hosts)
-        logger.debug("get_html_livestate, livestate %d (%s), %d hosts", bi, search, len(items))
+        logger.error("get_html_livestate, livestate %d (%s), %d hosts", bi, search, len(items))
 
         # Copy because the search filter is updated by the function ...
         if 'embedded' not in search:
