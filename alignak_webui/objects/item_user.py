@@ -108,9 +108,9 @@ class User(BackendElement):
 
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
-            return "<Authenticated %s, id: %s, name: %s, role: %s, level: %d>" % (
-                self.__class__._type, self.id, self.name, self.get_role(), self.skill_level
-            )
+            return "<Authenticated %s, id: %s, name: %s, role: %s, level: %d, token: %s>" \
+                   % (self.__class__._type, self.id, self.name, self.get_role(),
+                      self.skill_level, self.token)
         return "<%s, id: %s, name: %s, role: %s>" % (
             self.__class__._type, self.id, self.name, self.get_role()
         )

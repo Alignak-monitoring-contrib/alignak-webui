@@ -58,7 +58,6 @@ class Datatable(object):
         """
         self.object_type = object_type
         self.datamgr = datamgr
-        self.backend = self.datamgr.backend
 
         # Update global table records count, require total count from backend
         self.records_total = 0
@@ -107,12 +106,10 @@ class Datatable(object):
 
         # Templates management
         if self.is_templated:
-            self.records_total = self.backend.count(self.object_type,
-                                                    params={
-                                                        'where': {'_is_template': self.templates}
-                                                    })
+            self.records_total = self.datamgr.my_backend.count(self.object_type, params={
+                'where': {'_is_template': self.templates}})
         else:
-            self.records_total = self.backend.count(self.object_type)
+            self.records_total = self.datamgr.my_backend.count(self.object_type)
 
     def get_data_model(self, plugin_table):
         """Get the data model for an element type
@@ -545,7 +542,7 @@ class Datatable(object):
 
         # Count total elements excluding templates if necessary
         if self.is_templated:
-            self.records_total = self.backend.count(
+            self.records_total = self.datamgr.my_backend.count(
                 self.object_type, params={'where': {'_is_template': self.templates}}
             )
             if 'where' in parameters:
@@ -553,11 +550,11 @@ class Datatable(object):
             else:
                 parameters['where'] = {'_is_template': self.templates}
         else:
-            self.records_total = self.backend.count(self.object_type)
+            self.records_total = self.datamgr.my_backend.count(self.object_type)
 
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
-        items = self.backend.get(self.object_type, params=parameters)
+        items = self.datamgr.my_backend.get(self.object_type, params=parameters)
         logger.info("table data got %d items", len(items))
         if not items:
             logger.info("No backend elements match search criteria: %s", parameters)

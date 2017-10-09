@@ -117,7 +117,8 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                 response = requests.post(urljoin(self.alignak_endpoint, 'login'),
                                          json=params, headers=headers)
                 resp = response.json()
-                self.token = resp['_result'][0]
+                if '_result' in resp:
+                    self.token = resp['_result'][0]
             except RequestsConnectionError as exp:
                 message = "configured Web service connection failed with " \
                           "provided login information: %s (%s)" % (self.alignak_endpoint, username)
@@ -126,6 +127,7 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
                 return False
             except Exception as exp:  # pragma: no cover, should not happen
                 logger.exception("WS user login exception: %s", exp)
+                return False
 
             logger.info("login result: %s", self.connected)
             return self.connected

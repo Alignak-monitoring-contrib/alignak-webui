@@ -83,6 +83,7 @@ def teardown_module(module):
 
 
 class TestCreation(unittest2.TestCase):
+    @unittest2.skip("Skipped because it is not a singleton anymore ... but perharps I will restore this!")
     def test_creation(self):
         """ Backend creation - singleton object """
         print("--- creation")
