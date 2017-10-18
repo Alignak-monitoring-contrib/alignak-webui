@@ -116,7 +116,7 @@ class TestCreation(unittest2.TestCase):
         print('test creation')
 
         datamanager = DataManager(alignak_webui.app.app)
-        assert datamanager.backend
+        assert datamanager.my_backend
         assert datamanager.loaded == False
         assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
@@ -140,7 +140,7 @@ class TestCreation(unittest2.TestCase):
         # Create new datamanager - do not use default backend address
         print('DM initialization')
         datamanager = DataManager(alignak_webui.app.app)
-        assert datamanager.backend
+        assert datamanager.my_backend
         assert datamanager.loaded == False
         assert datamanager.logged_in_user is None
         print('Data manager', datamanager)
@@ -343,7 +343,7 @@ class TestNotAdmin(unittest2.TestCase):
         print("-----")
 
         assert self.dmg.user_login('not_admin', 'NOPASSWORDSET', load=False)
-        assert self.dmg.backend.connected
+        assert self.dmg.my_backend.connected
         assert self.dmg.logged_in_user
         print("Logged-in user: %s" % self.dmg.logged_in_user)
         assert self.dmg.logged_in_user.get_username() == 'not_admin'
@@ -413,13 +413,13 @@ class TestNotAdmin(unittest2.TestCase):
 
         # Logout
         self.dmg.reset(logout=True)
-        assert not self.dmg.backend.connected
+        assert not self.dmg.my_backend.connected
         assert self.dmg.logged_in_user is None
         assert self.dmg.loaded == False
 
         # Login as admin
         assert self.dmg.user_login('admin', 'admin', load=False)
-        assert self.dmg.backend.connected
+        assert self.dmg.my_backend.connected
         assert self.dmg.logged_in_user.get_username() == 'admin'
 
         result = self.dmg.delete_user(new_user_id)
@@ -439,7 +439,7 @@ class TestBasic(unittest2.TestCase):
     def tearDown(self):
         # Logout
         self.dmg.reset(logout=True)
-        assert not self.dmg.backend.connected
+        assert not self.dmg.my_backend.connected
         assert self.dmg.logged_in_user is None
         assert self.dmg.loaded == False
 

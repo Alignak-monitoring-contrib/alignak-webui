@@ -32,7 +32,7 @@ import inspect
 from logging import getLogger
 
 # Bottle import
-from bottle import request, response, TEMPLATE_PATH
+from bottle import response, TEMPLATE_PATH
 
 # Application import
 from alignak_webui.backend.datamanager import DataManager
@@ -281,7 +281,7 @@ class WebUI(object):
     # ---------------------------------------------------------------------------------------------
     # User authentication
     # ---------------------------------------------------------------------------------------------
-    def user_authentication(self, username, password):
+    def user_authentication(self, username, password, session=None):
         """
         Authenticate a user thanks to his username / password
 
@@ -294,30 +294,34 @@ class WebUI(object):
         logger.debug("user_authentication, authenticating: %s", username)
 
         # Session...
-        session = request.environ['beaker.session']
+        # session = request.environ['beaker.session']
 
         session['login_message'] = None
+        # if not session:
         if 'current_user' not in session or not session['current_user']:
             # Build DM without any session or user parameter
             self.datamgr = DataManager(self.app)
 
             # Set user for the data manager and try to log-in.
             if not self.datamgr.user_login(username, password, load=(password is not None)):
+                self.datamgr.load()
                 session['login_message'] = self.datamgr.connection_message
+                session['current_user'] = None
 
                 logger.warning("user authentication refused: %s", session['login_message'])
                 return False
 
             # Update application variables
-            self.current_user = self.datamgr.logged_in_user
+            # self.current_user = self.datamgr.logged_in_user
 
             # Update session variables
-            session['current_user'] = self.current_user
+            # session['current_user'] = self.current_user
+            session['current_user'] = self.datamgr.logged_in_user
             session['current_realm'] = self.datamgr.my_realm
             # session['current_ls'] = self.datamgr.my_ls
 
         logger.debug("user_authentication, current user authenticated")
-        return True
+        return session
 
     def find_plugin(self, name):
         """Find a plugin with its name or its backend endpoint"""

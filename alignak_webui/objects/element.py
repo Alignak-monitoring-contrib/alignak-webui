@@ -68,7 +68,7 @@ class BackendElement(object):
     _count = 0
     _total_count = -1
 
-    _backend = None
+    # _backend = None
     _known_classes = None
 
     # Next value used for auto generated id
@@ -228,10 +228,8 @@ class BackendElement(object):
                 params = {}
             now = int(time.time())
             # Force _id in the parameters
-            params.update({
-                id_property: '%s_0' % (cls.get_type()),
-                '_created': now, '_updated': now
-            })
+            params.update({id_property: '%s_0' % (cls.get_type()),
+                           '_created': now, '_updated': now})
 
         try:
             logger.debug("New %s, id: %s, params: %s", cls, id_property, params['name'])
@@ -389,6 +387,7 @@ class BackendElement(object):
                         if params[key] not in object_class._cache:
                             try:
                                 # Object link is a string, so we load the object from the backend
+                                logger.debug("__init__, get %s, %s", object_type, value)
                                 result = self.get_backend().get(object_type + '/' + params[key])
                                 if not result:  # pragma: no cover, should not happen
                                     logger.error("__init__, item not found for %s, %s",
@@ -426,6 +425,7 @@ class BackendElement(object):
                                 if element not in object_class._cache:
                                     try:
                                         # we need to load the object from the backend
+                                        logger.debug("__init__, get %s, %s", object_type, element)
                                         result = self.get_backend().get(object_type + '/' + element)
                                         if not result:  # pragma: no cover, should not happen
                                             logger.error("__init__, item not found for %s, %s",

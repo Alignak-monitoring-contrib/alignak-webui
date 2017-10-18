@@ -112,9 +112,15 @@ class TestLogin(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('Access denied! Check your username and password.')
 
+        # / sends a status 401
+        response = self.app.get('/', status=302)
+        redirected_response = response.follow()
+
+        # /ping sends a status 401
+        response = self.app.get('/ping', status=401)
+
         # /heartbeat sends a status 401
         response = self.app.get('/heartbeat', status=401)
-        response.mustcontain('Session expired')
 
     def test_login_accepted_session(self):
         """ Login - accepted session """
@@ -163,7 +169,7 @@ class TestLogin(unittest2.TestCase):
         print('Redirected response: %s' % redirected_response)
         redirected_response.mustcontain('<div id="livestate">')
 
-        # /ping, still sends a status 200
+        # /ping, now sends a status 200
         response = self.app.get('/ping')
         response.mustcontain('pong')
 

@@ -109,7 +109,7 @@ class DataManager(object):
 
         # Associated backend object
         self.backend_endpoint = app.config.get('alignak_backend', 'http://127.0.0.1:5000')
-        self.backend = BackendConnection(self.backend_endpoint)
+        self.my_backend = BackendConnection(self.backend_endpoint)
 
         # Alignak Web services client
         self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:8888')
@@ -145,6 +145,7 @@ class DataManager(object):
         self.my_ls = None
 
         # Restore session parameters
+        logger.debug("DM __init__, session: %s", session)
         if session:
             if self.user_login(session['current_user'].token, load=False):
                 self.my_realm = session['current_realm']
@@ -174,12 +175,12 @@ class DataManager(object):
         self.connection_message = _('Backend connecting...')
         try:
             # Backend login
-            self.connected = self.backend.login(username, password)
+            self.connected = self.my_backend.login(username, password)
             if self.connected:
                 self.connection_message = _('Connection successful')
 
                 # Set the backend to use by the data manager objects
-                BackendElement.set_backend(self.backend)
+                BackendElement.set_backend(self.my_backend)
                 BackendElement.set_known_classes(self.known_classes)
 
                 # Use the same credentials for Alignak Web Service interface
@@ -187,11 +188,11 @@ class DataManager(object):
 
                 # Fetch the logged-in user
                 if password:
-                    users = self.backend.get('user',
-                                             {'max_results': 1, 'where': {'name': username}})
+                    users = self.my_backend.get('user',
+                                                {'max_results': 1, 'where': {'name': username}})
                 else:
-                    users = self.backend.get('user',
-                                             {'max_results': 1, 'where': {'token': username}})
+                    users = self.my_backend.get('user',
+                                                {'max_results': 1, 'where': {'token': username}})
                 self.logged_in_user = User(users[0])
                 logger.debug("user_login, user: %s", self.logged_in_user)
                 # Tag user as authenticated
@@ -255,7 +256,7 @@ class DataManager(object):
         items = []
 
         try:
-            result = self.backend.get(object_type, params, all_elements)
+            result = self.my_backend.get(object_type, params, all_elements)
             logger.debug("find_object, found: %s: %s", object_type, result)
         except BackendException as exp:  # pragma: no cover, simple protection
             logger.exception("find_object, exception: %s", exp)
@@ -365,7 +366,7 @@ class DataManager(object):
             known_class.clean_cache()
 
         if logout:
-            self.backend.logout()
+            self.my_backend.logout()
             self.user_logout()
 
         self.loaded = False
@@ -450,13 +451,13 @@ class DataManager(object):
         if search is not None:
             params.update(search)
 
-        return self.backend.count(object_type, params)
+        return self.my_backend.count(object_type, params)
 
     def add_object(self, object_type, data=None, files=None):
         """Add an element"""
         logger.info("add_object, request to add an '%s': %s", object_type, data)
 
-        return self.backend.post(object_type, data=data, files=files)
+        return self.my_backend.post(object_type, data=data, files=files)
 
     def delete_object(self, object_type, element):
         """Delete an element
@@ -472,7 +473,7 @@ class DataManager(object):
             object_id = element.id
 
         try:
-            if self.backend.delete(object_type, object_id):
+            if self.my_backend.delete(object_type, object_id):
                 # Find object type class...
                 object_class = [kc for kc in self.known_classes if kc.get_type() == object_type][0]
 
@@ -490,7 +491,7 @@ class DataManager(object):
         """Update an element"""
         logger.debug("update_object, request to update: %s", element)
 
-        return self.backend.update(element, data)
+        return self.my_backend.update(element, data)
 
     ##
     # User's preferences
@@ -819,8 +820,9 @@ class DataManager(object):
             if not self.my_ls or self.my_ls['_id'] is None:
                 if self.my_realm:
                     logger.debug("Getting livesynthesis for my realm: %s", self.my_realm)
-                    return self.get_livesynthesis({'concatenation': '1',
-                                                   'where': {'_realm': self.my_realm.id}})
+                    self.my_ls = self.get_livesynthesis({'concatenation': '1',
+                                                         'where': {'_realm': self.my_realm.id}})
+                    return self.my_ls
                 logger.warning("Using default livesynthesis, my_ls: %s, my realm: %s",
                                self.my_ls, self.my_realm)
                 return default_ls
@@ -828,8 +830,8 @@ class DataManager(object):
             error = False
             while not found and not error:
                 try:
-                    item = self.backend.get('livesynthesis/' + self.my_ls['_id'] +
-                                            '?concatenation=1', params=None)
+                    item = self.my_backend.get('livesynthesis/' + self.my_ls['_id'] +
+                                               '?concatenation=1', params=None)
                     items = [item]
                     found = True
                 except BackendException as exp:  # pragma: no cover, simple protection
@@ -1017,8 +1019,8 @@ class DataManager(object):
 
         try:
             logger.debug("get_livesynthesis_history, history...")
-            item = self.backend.get('livesynthesis/' + self.my_ls['_id'] +
-                                    '?concatenation=1&history=1', params=None)
+            item = self.my_backend.get('livesynthesis/' + self.my_ls['_id'] +
+                                       '?concatenation=1&history=1', params=None)
             logger.debug("get_livesynthesis_history, got: %s", item)
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livesynthesis_history, none found")

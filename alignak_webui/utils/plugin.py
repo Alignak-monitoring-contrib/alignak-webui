@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=not-callable
 
 # Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@alignak.net
@@ -554,8 +555,7 @@ class Plugin(object):
     def get_all(self, templates=None, all_elements=False):
         """Show all elements on one page"""
         user = request.environ['beaker.session']['current_user']
-        webui = request.app.config['webui']
-        datamgr = webui.datamgr
+        datamgr = request.app.datamgr
 
         # Get elements get method from the data manager
         f = getattr(datamgr, 'get_%ss' % self.backend_endpoint)
@@ -645,7 +645,6 @@ class Plugin(object):
             for item in elts:
                 logger.info("Tree item: %s", item)
                 overall_status = 'unknown'
-                # pylint: disable=not-callable
                 if callable(f_get_overall_state):
                     (dummy, overall_status) = f_get_overall_state(element=item)
                 logger.debug("Item status: %s", overall_status)
@@ -1188,8 +1187,7 @@ class Plugin(object):
 
         """
         user = request.environ['beaker.session']['current_user']
-        webui = request.app.config['webui']
-        datamgr = webui.datamgr
+        datamgr = request.app.datamgr
 
         # Get element get method from the data manager
         if not get_method:  # pragma: no cover, simple protection
