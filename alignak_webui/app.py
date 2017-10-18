@@ -386,7 +386,7 @@ def before_request():
         - login / logout
         - static files (js, css, ...)
     """
-    logger.warning("before_request, url: %s %s", request.method, request.urlparts.path)
+    logger.debug("before_request, url: %s %s", request.method, request.urlparts.path)
 
     # Static application and plugins files
     if request.urlparts.path.startswith('/static'):
@@ -688,7 +688,7 @@ def enable_cors(fn):
 @enable_cors
 def external(widget_type, identifier, action=None):
     # pylint: disable=too-many-return-statements, unsupported-membership-test
-    # pylint: disable=unsubscriptable-object
+    # pylint: disable=unsubscriptable-object, too-many-locals
     """Application external identifier
 
     Use internal authentication (if a user is logged-in) or external basic authentication provided
@@ -699,7 +699,8 @@ def external(widget_type, identifier, action=None):
     Use the 'links' parameter to prefix the navigation URLs.
     """
 
-    logger.info("external...")
+    logger.warning("external request, url: %s %s", request.method, request.urlparts.path)
+
     # Get the WebUI instance
     webui = request.app.config['webui']
 
@@ -764,10 +765,10 @@ def external(widget_type, identifier, action=None):
         BaseTemplate.defaults['current_user'] = session['current_user']
 
         # Make data manager available in the request and in the templates
-        bottle.local.datamgr = DataManager(webapp, session=session)
+        request.app.datamgr = DataManager(webapp, session=session)
         request.app.datamgr.load()
         logger.warning("request.app.datamgr: %s", request.app.datamgr)
-        BaseTemplate.defaults['datamgr'] = bottle.local.datamgr
+        BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.info("External request, element type: %s", widget_type)
 
@@ -922,7 +923,7 @@ def get_user_preference():
         - default, default value if parameter does not exist
     """
     user = request.environ['beaker.session']['current_user']
-    datamgr = bottle.local.datamgr
+    datamgr = request.app.datamgr
 
     _key = request.query.get('key', None)
     if not _key:
@@ -956,7 +957,7 @@ def delete_user_preference():
         - key, string identifying the parameter
     """
     user = request.environ['beaker.session']['current_user']
-    datamgr = bottle.local.datamgr
+    datamgr = request.app.datamgr
 
     _key = request.query.get('key', None)
     if not _key:
@@ -976,7 +977,7 @@ def set_user_preference():
         - value, as a JSON formatted string
     """
     user = request.environ['beaker.session']['current_user']
-    datamgr = bottle.local.datamgr
+    datamgr = request.app.datamgr
 
     _key = request.forms.get('key', None)
     _value = request.forms.get('value', None)

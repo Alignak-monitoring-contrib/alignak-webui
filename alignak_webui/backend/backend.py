@@ -59,7 +59,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
         If no password is provided, the username is assumed to be an authentication token and we
         use the backend connect function."""
 
-        logger.error("login, connection requested, login: %s", username)
+        logger.info("login, connection requested, login: %s", username)
 
         self.connected = False
 
