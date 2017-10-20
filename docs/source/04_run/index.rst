@@ -79,3 +79,11 @@ All the command line options::
 
     ./app.py -h
 
+Environment variables
+---------------------
+
+If an environment variable `ALIGNAK_WEBUI_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list used by the application.
+
+If an environment variable `ALIGNAK_WEBUI_UWSGI_FILE` exist, the `alignak-webui-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
+
+
