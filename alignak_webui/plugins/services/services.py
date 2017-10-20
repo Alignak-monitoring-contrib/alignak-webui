@@ -47,6 +47,11 @@ class PluginServices(Plugin):
                 'route': '/%s/<host_name>/<service_name:re:.+>' % self.backend_endpoint,
                 'view': '%s' % self.backend_endpoint
             },
+            'get_form': {
+                'name': '%s form' % self.name,
+                'route': '/%s_form/<host_name>/<service_name:re:.+>' % self.backend_endpoint,
+                'view': '_form'
+            },
             'get_service_view': {
                 'name': 'service synthesis view widget',
                 'route': '/service_view/<element_id>',
@@ -326,6 +331,72 @@ class PluginServices(Plugin):
             'children': children,
             'title': request.params.get('title', _('Service view: %s/%s'
                                                    % (host.alias if host else '', service.alias)))
+        }
+
+    def get_form(self, host_name, service_name):  # pylint: disable=arguments-differ
+        """Build the form for a service.
+
+        """
+        logger.info("Service, form: %s / %s", host_name, service_name)
+
+        datamgr = request.app.datamgr
+        edition_mode = request.environ['beaker.session']['edition_mode']
+
+        # Search host by name or alias
+        is_template = False
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
+        if not host:
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
+            if not host:
+                is_template = True
+
+                # Search among the hosts templates with name
+                host = datamgr.get_host(search={'max_results': 1,
+                                                'where': {'_is_template': True,
+                                                          'name': host_name}})
+                if not host:
+                    # Search among the templates with alias
+                    host = datamgr.get_host(search={'max_results': 1,
+                                                    'where': {'_is_template': True,
+                                                              'alias': host_name}})
+                    if not host:
+                        self.send_user_message(_("Host '%s' not found") % (host_name))
+
+        # Search service by name or alias
+        service = datamgr.get_service(search={'max_results': 1,
+                                              'where': {'host': host.id,
+                                                        'name': service_name}})
+        if not service:
+            service = datamgr.get_service(search={'max_results': 1,
+                                                  'where': {'host': host.id,
+                                                            'alias': service_name}})
+            if not service:
+                is_template = True
+
+                # Search among the services templates with name
+                host = datamgr.get_service(search={'max_results': 1,
+                                                   'where': {'_is_template': True,
+                                                             'host': host.id,
+                                                             'name': service_name}})
+                if not service:
+                    # Search among the templates with alias
+                    host = datamgr.get_service(search={'max_results': 1,
+                                                       'where': {'_is_template': True,
+                                                                 'host': host.id,
+                                                                 'alias': service_name}})
+                    if not service:
+                        self.send_user_message(_("Service '%s/%s' not found") % (host_name,
+                                                                                 service_name))
+
+        if not edition_mode and not service:
+            logger.warning("Cannot create a %s element when not in edition mode",
+                           self.backend_endpoint)
+            self.send_user_message(_("Not authorized to create a %s element")
+                                   % self.backend_endpoint, redirected=True)
+
+        return {
+            'plugin': self,
+            'element': service
         }
 
     def get_service_simple_widget(self, element_id, widget_id=None,

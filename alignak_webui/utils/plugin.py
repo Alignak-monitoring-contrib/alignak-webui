@@ -818,6 +818,9 @@ class Plugin(object):
 
             element_id is the _id (or name) of an object to read. If no object is found then an
             empty element is sent to the form which means a new object creation with default values.
+
+            If extra_id is set, the element is composed as main/second, like an host service which
+            is host/service. So let's consider it as a service!
         """
         logger.debug("Get form: %s (extra: %s)", element_id, extra_id)
 
@@ -848,7 +851,7 @@ class Plugin(object):
                 # Search with name rather than id
                 element = f(search={'max_results': 1, 'where': {'name': element_id}})
                 if self.templated and not element:
-                    # Search amnog the templates with id
+                    # Search among the templates with id
                     element = f(search={'max_results': 1, 'where': {'_is_template': True,
                                                                     '_id': element_id}})
                     if not element:
