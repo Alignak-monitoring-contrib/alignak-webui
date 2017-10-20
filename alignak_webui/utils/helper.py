@@ -1453,6 +1453,10 @@ class Helper(object):
         for item in items:
             logger.debug("get_html_livestate, item: %d / %d / %d / %s",
                          item.business_impact, item.state_id, item.last_state_changed, item)
+            if not item.monitored:
+                logger.debug("Item is not monitored, do not display...")
+                continue
+
             problems_count += 1
 
             if item.object_type == "service" and services_problems == -1:
