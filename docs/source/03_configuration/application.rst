@@ -24,6 +24,8 @@ Each file found takes precedence over the previous files. As of it, for the same
 
 If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_FILE`` exists, this variable is used by the application as the only configuration file name to be loaded by the application. It allows to **override the default file list**.
 
+If an environment variable `ALIGNAK_WEBUI_UWSGI_FILE` exist, the `alignak-webui-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
+
 If an environment variable ``ALIGNAK_WEBUI_CONFIGURATION_THREAD`` exists, the application will check periodically if its configuration file changed. If the configuration file modification time changed, the configuration is reloaded by the application.
 
 If an environment variable ``BOTTLE_DEBUG`` exists and is set to '1', the Bottle application server will run in debug mode. If an environment variable ``ALIGNAK_WEBUI_DEBUG`` exists and is set to '1', the application will run in debug mode; which means that the application logs will be set to a DEBUG level.
