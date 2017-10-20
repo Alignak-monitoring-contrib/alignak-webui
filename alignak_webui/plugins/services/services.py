@@ -49,7 +49,10 @@ class PluginServices(Plugin):
             },
             'get_form': {
                 'name': '%s form' % self.name,
-                'route': '/%s_form/<host_name>/<service_name:re:.+>' % self.backend_endpoint,
+                'routes': [
+                    ('/%s_form/<host_name>' % self.backend_endpoint, "Page 1"),
+                    ('/%s_form/<host_name>/<service_name:re:.+>' % self.backend_endpoint, "Page 2"),
+                ],
                 'view': '_form'
             },
             'get_service_view': {
@@ -333,7 +336,7 @@ class PluginServices(Plugin):
                                                    % (host.alias if host else '', service.alias)))
         }
 
-    def get_form(self, host_name, service_name):  # pylint: disable=arguments-differ
+    def get_form(self, host_name, service_name=None):  # pylint: disable=arguments-differ
         """Build the form for a service.
 
         """
@@ -342,14 +345,18 @@ class PluginServices(Plugin):
         datamgr = request.app.datamgr
         edition_mode = request.environ['beaker.session']['edition_mode']
 
+        # Create a new service
+        if not service_name:
+            return {
+                'plugin': self,
+                'element': None
+            }
+
         # Search host by name or alias
-        is_template = False
         host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
         if not host:
             host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
             if not host:
-                is_template = True
-
                 # Search among the hosts templates with name
                 host = datamgr.get_host(search={'max_results': 1,
                                                 'where': {'_is_template': True,
@@ -371,8 +378,6 @@ class PluginServices(Plugin):
                                                   'where': {'host': host.id,
                                                             'alias': service_name}})
             if not service:
-                is_template = True
-
                 # Search among the services templates with name
                 host = datamgr.get_service(search={'max_results': 1,
                                                    'where': {'_is_template': True,
