@@ -294,8 +294,14 @@
       <ul class="nav nav-tabs">
          %first=True
          %for widget in webui.get_widgets_for('host'):
+            %if widget['id'] in ['grafana']:
+               %plugin = webui.find_plugin('Grafana')
+               %if not plugin or not plugin.is_enabled():
+                  % continue
+               %end
+            %end
             %if 'level' in widget and widget['level'] > current_user.skill_level:
-            % continue
+               % continue
             %end
             <li {{'class="active"' if first else ''}}>
                <a href="#host_{{widget['id']}}"
@@ -312,6 +318,12 @@
       <div class="tab-content">
          %first=True
          %for widget in webui.get_widgets_for('host'):
+            %if widget['id'] in ['grafana']:
+               %plugin = webui.find_plugin('Grafana')
+               %if not plugin or not plugin.is_enabled():
+                  % continue
+               %end
+            %end
             %if 'level' in widget and widget['level'] > current_user.skill_level:
             % continue
             %end

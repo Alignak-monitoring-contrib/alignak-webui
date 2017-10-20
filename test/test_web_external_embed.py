@@ -493,7 +493,7 @@ class TestsExternal(unittest2.TestCase):
             '</section>',
             '</body>',
             '<div class="alert alert-info">',
-            '<p class="font-blue">No available history events.</p>',
+            '<p>No available history events.</p>',
             '</div>'
         )
 
@@ -680,7 +680,7 @@ class TestsExternal(unittest2.TestCase):
             '</section>',
             '</body>',
             '<div class="alert alert-info">',
-            '<p class="font-blue">No available history events.</p>',
+            '<p>No available history events.</p>',
             '</div>'
         )
 
