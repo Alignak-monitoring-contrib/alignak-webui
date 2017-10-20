@@ -58,6 +58,6 @@
 </table>
 %else:
    <div class="alert alert-info">
-      <p class="font-blue">{{_('No metrics available.')}}</p>
+      <p>{{_('No metrics available.')}}</p>
    </div>
 %end

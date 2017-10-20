@@ -12,20 +12,20 @@
 
 %app_config = get_app_config()
 %grafana_url = app_config.get('grafana', '')
-%if not grafana_url:
-   <center>
-      <h3>{{_('Grafana panels is not configured.')}}</h3>
-   </center>
+
+%plugin = webui.find_plugin('Grafana')
+%if not plugin or not plugin.is_enabled():
+    <div class="alert alert-info">
+        <p>{{_('Grafana plugin is disabled. Update the WebUI settings to enable this plugin.')}}</p>
+    </div>
 %else:
    %if service.ls_grafana and service.ls_grafana_panelid:
-   %dashboard_name = service.host.name.replace('.', '-')
-   %panel_id = service.ls_grafana_panelid
-   <iframe src="{{grafana_url}}/dashboard-solo/db/host-{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="320" frameborder="0"></iframe>
+      %dashboard_name = service.host.name.replace('.', '-')
+      %panel_id = service.ls_grafana_panelid
+      <iframe src="{{grafana_url}}/dashboard-solo/db/host-{{dashboard_name}}?panelId={{panel_id}}" width="100%" height="320" frameborder="0"></iframe>
    %else:
-   <!--
-   <div class="alert alert-info">
-      <p class="font-blue">{{_('No Grafana panel available for %s.' % service.name)}}</p>
-   </div>
-   -->
+      <div class="alert alert-info">
+         <p>{{_('No Grafana panel available for %s.' % service.name)}}</p>
+      </div>
    %end
 %end

@@ -200,7 +200,7 @@
 
    %if not history:
       <div class="alert alert-info">
-         <p class="font-blue">{{_('No available history events.')}}</p>
+         <p>{{_('No available history events.')}}</p>
       </div>
    %else:
    <ol id="included_timeline" class="timeline">

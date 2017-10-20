@@ -256,6 +256,12 @@
       <ul class="nav nav-tabs">
          %first=True
          %for widget in webui.get_widgets_for('service'):
+            %if widget['id'] in ['grafana']:
+               %plugin = webui.find_plugin('Grafana')
+               %if not plugin or not plugin.is_enabled():
+                  % continue
+               %end
+            %end
             %if 'level' in widget and widget['level'] > current_user.skill_level:
             % continue
             %end
@@ -274,6 +280,12 @@
       <div class="tab-content">
          %first=True
          %for widget in webui.get_widgets_for('service'):
+            %if widget['id'] in ['grafana']:
+               %plugin = webui.find_plugin('Grafana')
+               %if not plugin or not plugin.is_enabled():
+                  % continue
+               %end
+            %end
             %if 'level' in widget and widget['level'] > current_user.skill_level:
             % continue
             %end
