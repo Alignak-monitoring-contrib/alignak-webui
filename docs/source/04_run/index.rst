@@ -44,7 +44,7 @@ The Alignak Web UI logs its activity in two files that are located in */usr/loca
 
 .. warning:: If you do not have those files when the WebUI is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log/alignak-webui* directory ;)
 
-To stop the Alignak WebUI application:
+To stop / reload the Alignak WebUI application:
 ::
 
     # Ctrl+C in the session where you started the alignak-webui-uwsgi script will stop the WebUI
@@ -52,11 +52,19 @@ To stop the Alignak WebUI application:
     # To gracefully reload all the workers
     $ kill -SIGHUP `cat /tmp/alignak-webui.pid`
 
-    # To brutally reload all the workers
+    # To gently kill all the workers
     $ kill -SIGTERM `cat /tmp/alignak-webui.pid`
 
-    # To brutally reload all the workers
+    # To brutally kill all the workers
     $ kill -SIGINT `cat /tmp/alignak-webui.pid`
+
+Environment variables
+---------------------
+
+If an environment variable `ALIGNAK_WEBUI_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
+
+If an environment variable `ALIGNAK_WEBUI_UWSGI_FILE` exist, the `alignak-backend-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
+
 
 Developer mode
 --------------
