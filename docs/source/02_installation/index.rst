@@ -35,7 +35,14 @@ As an example on Debian::
 Installation with PIP
 ---------------------
 
-**Note** that the recommended way for installing on a production server is mostly often to use the packages existing for your distribution. Nevertheless, the pip installation provides a startup script using an uwsgi server and, for FreeBSD users, rc.d scripts.
+**Note** that the recommended way for installing on a production server is mostly often to use the packages existing for your distribution.
+
+Nevertheless, the pip installation provides:
+- a startup script using an uwsgi server,
+- for FreeBSD users, an rc.d sample script
+- for system based systems (Debian, CentOS), an alignak-webui service unit example.
+
+All this stuff is available in the repository *bin* directory.
 
 End user installation
 ~~~~~~~~~~~~~~~~~~~~~
