@@ -42,7 +42,7 @@ The Alignak Web UI logs its activity in two files that are located in */usr/loca
 
 * *webui-error.log* contains the other messages: start, stop, activity log, ...
 
-.. warning:: If you do not have those files when the WebUI is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log/alignak-webui* directory ;)
+.. warning:: If you do not have those files when the WebUI is started, make sure that the user account used to run the backend is allowed to write in the */usr/local/var/log/alignak-webui* directory ;)
 
 To stop / reload the Alignak WebUI application:
 ::
@@ -57,6 +57,38 @@ To stop / reload the Alignak WebUI application:
 
     # To brutally kill all the workers
     $ kill -SIGINT `cat /tmp/alignak-webui.pid`
+
+
+System service mode
+-------------------
+
+The repository *bin* directory includes some examples:
+
+   - an rc.d sample script for BSD systems
+   - an alignak-webui service unit example for systemd based systems (Debian, CentOS)
+
+Thanks to this, you can edit and easily update the sample scripts to suit your system configuration. Environment variables defined in the service file allow to easily configure the application.
+
+Then, you can:
+::
+
+    $ sudo cp bin/systemd/alignak-webui.service /etc/systemd/system/alignak-webui.service
+
+    # Start Alignak WebUI
+    $ sudo systemctl start alignak-webui
+
+    # Reload Alignak WebUI
+    $ sudo systemctl reload alignak-webui
+
+    # Stop Alignak WebUI
+    $ sudo systemctl stop alignak-webui
+
+    # Enable Alignak WebUI to start on system boot
+    $ sudo systemctl enable alignak-webui
+
+
+.. warning:: The default logger configuration will make log available on the console. In service mode the console log will be pushed to the */var/log/messages* file and it is quite verbose :)
+
 
 Environment variables
 ---------------------
@@ -86,12 +118,3 @@ To gain more control on the application start::
 All the command line options::
 
     ./app.py -h
-
-Environment variables
----------------------
-
-If an environment variable `ALIGNAK_WEBUI_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list used by the application.
-
-If an environment variable `ALIGNAK_WEBUI_UWSGI_FILE` exist, the `alignak-webui-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
-
-
