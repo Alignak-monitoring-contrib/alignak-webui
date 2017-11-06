@@ -547,7 +547,7 @@ class Plugin(object):
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'object_type': self.backend_endpoint,
             'element': element
         }
@@ -784,7 +784,7 @@ class Plugin(object):
                                    % self.backend_endpoint, redirected=True)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'element': element
         }
 
@@ -867,7 +867,7 @@ class Plugin(object):
                                    % self.backend_endpoint, redirected=True)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'element': element
         }
 
