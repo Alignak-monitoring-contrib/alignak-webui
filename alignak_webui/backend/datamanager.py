@@ -1972,9 +1972,11 @@ class DataManager(object):
         if search is None:
             search = {}
         if 'where' not in search:
-            search.update({'where': {'_is_template': template}})
-        elif '_is_template' not in search['where']:
+            search.update({'where': {'webui_visible': True, '_is_template': template}})
+        if '_is_template' not in search['where']:
             search['where'].update({'_is_template': template})
+        if 'webui_visible' not in search['where']:
+            search['where'].update({'webui_visible': True})
         if 'sort' not in search:
             search.update({'sort': 'name'})
         if 'embedded' not in search:

@@ -106,6 +106,9 @@ class User(BackendElement):
         if not hasattr(self, 'email'):
             self.email = _("No defined mail address")
 
+        if not hasattr(self, 'webui_visible'):
+            self.webui_visible = True
+
     def __repr__(self):
         if hasattr(self, 'authenticated') and self.authenticated:
             return "<Authenticated %s, id: %s, name: %s, role: %s, level: %d, token: %s>" \
