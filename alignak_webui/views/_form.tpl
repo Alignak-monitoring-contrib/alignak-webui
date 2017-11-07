@@ -458,7 +458,7 @@
 
       %if edition:
       <div class="well page">
-         <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
+         <button type="reset" class="btn btn-default pull-left">{{_('Clear')}}</button>
          <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
          <div class="clearfix"></div>
       </div>
@@ -785,7 +785,7 @@
       </script>
       %if edition and element:
       <div class="well form-group">
-         <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
+         <button type="reset" class="btn btn-default pull-left">{{_('Clear')}}</button>
          <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
          <div class="clearfix"></div>
       </div>
