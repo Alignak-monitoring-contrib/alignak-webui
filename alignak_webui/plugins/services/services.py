@@ -322,7 +322,7 @@ class PluginServices(Plugin):
         }
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'plugin_parameters': self.plugin_parameters,
 
             'search_engine': self.search_engine,
@@ -348,7 +348,7 @@ class PluginServices(Plugin):
         # Create a new service
         if not service_name:
             return {
-                'plugin': self,
+                'object_plugin': self,
                 'element': None
             }
 
@@ -400,7 +400,7 @@ class PluginServices(Plugin):
                                    % self.backend_endpoint, redirected=True)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'element': service
         }
 

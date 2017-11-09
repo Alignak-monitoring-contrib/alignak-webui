@@ -197,6 +197,10 @@
             $('#clock').jclock({ format: '%H:%M:%S' });
             $('#date').jclock({ format: '%A,  %B %d' });
 
+            %if message:
+                raise_message_{{message.get('status', 'ko')}}("{{! message.get('message')}}");
+            %end
+
             // Fullscreen management
             if (screenfull.enabled) {
                 $('a[data-action="fullscreen-request"]').on('click',  function() {

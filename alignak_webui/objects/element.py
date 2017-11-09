@@ -240,7 +240,8 @@ class BackendElement(object):
         if _id not in cls._cache:
             # print "Create a new %s (%s)" % (cls.get_type(), _id)
             logger.debug("New create an object")
-            cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
+            # cls._cache[_id] = super(BackendElement, cls).__new__(cls, params, date_format)
+            cls._cache[_id] = super(BackendElement, cls).__new__(cls)
             cls._cache[_id]._type = cls.get_type()
             cls._cache[_id]._default_date = cls._default_date
             # print " ... new: %s" % cls._cache[_id]

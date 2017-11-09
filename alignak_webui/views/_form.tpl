@@ -6,7 +6,7 @@
 %# Default values
 %setdefault('debug', False)
 %setdefault('edition', edition_mode)
-%setdefault('is_templated', '_is_template' in plugin.table)
+%setdefault('is_templated', '_is_template' in object_plugin.table)
 %setdefault('is_template', False)
 %setdefault('has_template', False)
 %setdefault('refresh', False)
@@ -19,9 +19,9 @@
 %end
 
 %if is_template:
-   %setdefault('title', _('%s template %s') % (plugin.backend_endpoint.capitalize(), element.name))
+   %setdefault('title', _('%s template %s') % (object_plugin.backend_endpoint.capitalize(), element.name))
 %else:
-   %setdefault('title', _('%s %s') % (plugin.backend_endpoint.capitalize(), element.name))
+   %setdefault('title', _('%s %s') % (object_plugin.backend_endpoint.capitalize(), element.name))
 %end
 
 %if '_is_template' in element.__dict__ and not element['_is_template']:
@@ -36,13 +36,13 @@
 %is_template = request.query.get('is_template', False)
 
 %if is_template:
-   %setdefault('title', _('New %s template') % (plugin.backend_endpoint))
+   %setdefault('title', _('New %s template') % (object_plugin.backend_endpoint))
 %else:
-   %setdefault('title', _('New %s') % (plugin.backend_endpoint))
+   %setdefault('title', _('New %s') % (object_plugin.backend_endpoint))
 %end
 %end
 
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}_form/{{element.name}}")
+%rebase("layout", title=title, page="/{{object_plugin.backend_endpoint}}_form/{{element.name}}")
 
 %if debug and element:
 <div class="panel-group">
@@ -64,13 +64,13 @@
 </div>
 %end
 
-<div id="form_{{plugin.backend_endpoint}}">
+<div id="form_{{object_plugin.backend_endpoint}}">
    %post=""
    %if edition:
    %if element:
-   %post='''method="post" action="/%s_form/%s"''' % (plugin.backend_endpoint, element.id)
+   %post='''method="post" action="/%s_form/%s"''' % (object_plugin.backend_endpoint, element.id)
    %else:
-   %post='''method="post" action="/%s_form/%s"''' % (plugin.backend_endpoint, None)
+   %post='''method="post" action="/%s_form/%s"''' % (object_plugin.backend_endpoint, None)
    %end
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
@@ -81,26 +81,26 @@
             <button type="button" class="close" data-dismiss="alert">×</button>
             %if element:
             %if edition:
-            <h4>{{_('You are editing a %s template.') % plugin.backend_endpoint}}</h4>
+            <h4>{{_('You are editing a %s template.') % object_plugin.backend_endpoint}}</h4>
             <hr/>
-            <p>{{_('All the %ss based upon this template may be affected by your modifications.') % plugin.backend_endpoint}}</p>
+            <p>{{_('All the %ss based upon this template may be affected by your modifications.') % object_plugin.backend_endpoint}}</p>
             %else:
-            <h4>{{_('You are viewing a %s template.') % plugin.backend_endpoint}}</h4>
+            <h4>{{_('You are viewing a %s template.') % object_plugin.backend_endpoint}}</h4>
             %end
             %else:
-            <h4>{{_('You are creating a new %s template.') % plugin.backend_endpoint}}</h4>
+            <h4>{{_('You are creating a new %s template.') % object_plugin.backend_endpoint}}</h4>
             <hr/>
-            <p>{{! _('You must set a name for your new %s template and then submit this form.') % plugin.backend_endpoint}}</p>
+            <p>{{! _('You must set a name for your new %s template and then submit this form.') % object_plugin.backend_endpoint}}</p>
             %end
          </div>
 
-         <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name if element else 'unnamed')}}</legend>
+         <legend>{{! _('%s template <code>%s</code>') % (object_plugin.backend_endpoint.capitalize(), element.name if element else 'unnamed')}}</legend>
       %# Editing an element
       %elif element:
          %if has_template:
          <div class="alert alert-info">
             <button type="button" class="close" data-dismiss="alert">×</button>
-            <h4>{{_('You are modifying a %s based upon one or more template(s).') % plugin.backend_endpoint}}</h4>
+            <h4>{{_('You are modifying a %s based upon one or more template(s).') % object_plugin.backend_endpoint}}</h4>
          </div>
          %end
 
@@ -115,27 +115,27 @@
                 <h4>{{_('Edition mode.')}}</h4>
              </div>
           %end
-         <legend>{{! _('%s <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
+         <legend>{{! _('%s <code>%s</code>') % (object_plugin.backend_endpoint.capitalize(), element.name)}}</legend>
       %# Creating a new element/template
       %else:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
-            <h4>{{_('You are creating a new %s.') % plugin.backend_endpoint}}</h4>
+            <h4>{{_('You are creating a new %s.') % object_plugin.backend_endpoint}}</h4>
 
             <hr/>
-            <p>{{! _('You must set a name for your new %s and then submit this form.') % plugin.backend_endpoint}}</p>
+            <p>{{! _('You must set a name for your new %s and then submit this form.') % object_plugin.backend_endpoint}}</p>
             %if is_templated:
-            <p>{{_('The %s elements are based upon templates.') % plugin.backend_endpoint}}</p>
+            <p>{{_('The %s elements are based upon templates.') % object_plugin.backend_endpoint}}</p>
             <!--<p>{{_('You can specify if the new element is a template and / or if it is based upon one (or several) template(s).')}}</p>-->
             %end
          </div>
 
-         <legend>{{! _('New %s') % (plugin.backend_endpoint)}}</legend>
+         <legend>{{! _('New %s') % (object_plugin.backend_endpoint)}}</legend>
       %end
 
       %if not element:
          %field = 'name'
-         %model = plugin.table[field]
+         %model = object_plugin.table[field]
 
          %label = model.get('title', '')
          %field_type = model.get('type', 'string')
@@ -147,7 +147,7 @@
          %required = model.get('required')
          %editable = model.get('editable', True)
 
-         <h4>{{_('%s name:') % plugin.backend_endpoint.capitalize()}}</h4>
+         <h4>{{_('%s name:') % object_plugin.backend_endpoint.capitalize()}}</h4>
          <div class="form-group">
             <label class="control-label" for="{{field}}">{{_('Name:')}}</label>
             <input class="form-control" type="text" id="{{field}}" name="{{field}}" placeholder="{{placeholder}}" value="" {{'readonly="readonly"' if not edition or not editable else ''}}>
@@ -165,12 +165,12 @@
          </div>
       %end
 
-      %if not element and ('_realm' in plugin.table or '_parent' in plugin.table):
+      %if not element and ('_realm' in object_plugin.table or '_parent' in object_plugin.table):
          %field = '_realm'
-         %if '_parent' in plugin.table:
+         %if '_parent' in object_plugin.table:
          %field = '_parent'
          %end
-         %model = plugin.table[field]
+         %model = object_plugin.table[field]
 
          %label = model.get('title', '')
          %field_type = model.get('type', 'string')
@@ -312,7 +312,7 @@
 
       %if has_template or is_templated:
          %field = '_templates'
-         %model = plugin.table['_templates']
+         %model = object_plugin.table['_templates']
 
          %label = model.get('title', '')
          %field_type = model.get('type', 'string')
@@ -472,7 +472,7 @@
          </div>
          %end
 
-         %for field, model in plugin.table.iteritems():
+         %for field, model in object_plugin.table.iteritems():
             %selectize = False
             %if not model.get('editable', True) or (field[0] in ['#', '_'] and field not in ['_parent', '_realm', '_sub_realm']) or field.startswith('ls_'):
                %# Some fields are never displayed in a form...

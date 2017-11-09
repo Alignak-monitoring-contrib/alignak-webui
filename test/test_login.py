@@ -112,14 +112,14 @@ class TestLogin(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('Access denied! Check your username and password.')
 
-        # / sends a status 401
+        # / sends a status 302: redirected to /login page
         response = self.app.get('/', status=302)
         redirected_response = response.follow()
 
-        # /ping sends a status 401
+        # /ping sends a status 401: unauthorized
         response = self.app.get('/ping', status=401)
 
-        # /heartbeat sends a status 401
+        # /heartbeat sends a status 401: unauthorized
         response = self.app.get('/heartbeat', status=401)
 
     def test_login_accepted_session(self):
@@ -140,7 +140,7 @@ class TestLogin(unittest2.TestCase):
         for cookie in self.app.cookiejar:
             print('cookie: ', cookie.__dict__)
             if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
+                assert cookie.expires is None
 
         # A session exists and it contains: current user, his realm and his live synthesis
         session = response.request.environ['beaker.session']
@@ -164,17 +164,19 @@ class TestLogin(unittest2.TestCase):
 
         # Redirected twice: /login -> / -> /livestate
         redirected_response = response.follow()
-        print('Redirected response: %s' % redirected_response)
+        # print('Redirected response: %s' % redirected_response)
         redirected_response = redirected_response.follow()
-        print('Redirected response: %s' % redirected_response)
+        # print('Redirected response: %s' % redirected_response)
         redirected_response.mustcontain('<div id="livestate">')
 
         # /ping, now sends a status 200
         response = self.app.get('/ping')
+        print('ping response: %s' % response)
         response.mustcontain('pong')
 
         # /heartbeat, now sends a status 200
         response = self.app.get('/heartbeat', status=200)
+        print('heartbeat response: %s' % response)
         response.mustcontain('Current logged-in user: admin')
 
         # Require header refresh
@@ -189,17 +191,13 @@ class TestLogin(unittest2.TestCase):
         response = self.app.get('/logout')
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
-        # A host cookie still exists
+        # A host cookie still exists - sure? looks strange because the session is deleted!
         assert self.app.cookies['Alignak-WebUI']
         print('cookies: ', self.app.cookiejar)
         for cookie in self.app.cookiejar:
             print('cookie: ', cookie.name, cookie.expires)
             if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
-
-        # /heartbeat sends a status 401: unauthorized
-        response = self.app.get('/heartbeat', status=401)
-        response.mustcontain('Session expired')
+                assert cookie.expires is None
 
     def test_logout(self):
         """ Logout from the application"""
@@ -219,7 +217,7 @@ class TestLogin(unittest2.TestCase):
         redirected_response = response.follow()
         redirected_response.mustcontain('<div id="livestate">')
 
-        # /ping, still sends a status 200, but refresh is required
+        # /ping, sends a status 200, but refresh is required
         print('ping refresh required, data loaded')
         response = self.app.get('/ping')
         print(response)
@@ -238,6 +236,10 @@ class TestLogin(unittest2.TestCase):
         # response = response.click(href='/logout')
         # redirected_response = response.follow()
         # redirected_response.mustcontain('<form role="form" method="post" action="/login">')
+
+        # /ping sends a status 401: unauthorized
+        response = self.app.get('/ping', status=401)
+        response.mustcontain('No user session')
 
         # /heartbeat sends a status 401: unauthorized
         response = self.app.get('/heartbeat', status=401)

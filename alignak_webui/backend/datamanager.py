@@ -152,10 +152,11 @@ class DataManager(object):
                 # self.my_ls = session['current_ls']
 
     def __repr__(self):
-        return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
+        return "<DM, id: %s, objects count: %d, user: %s (%s), updated: %s>" % (
             self.id,
             self.get_objects_count(),
             self.logged_in_user.get_username() if self.logged_in_user else 'Not logged in',
+            self.logged_in_user.token if self.logged_in_user else '',
             self.updated
         )
 
@@ -849,7 +850,7 @@ class DataManager(object):
                 return default_ls
 
         if not items:  # pragma: no cover - should not happen
-            logger.error("Livesynthesis not found, search: %s", search)
+            logger.info("Livesynthesis not found, search: %s", search)
             return default_ls
 
         synthesis = default_ls
@@ -1989,7 +1990,7 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_users, search: %s", search)
+            logger.critical("get_users, search: %s", search)
             items = self.find_object('user', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen
