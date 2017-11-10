@@ -106,7 +106,7 @@ class TestEditionModeDenied(unittest2.TestCase):
         assert self.app.cookies['Alignak-WebUI']
         for cookie in self.app.cookiejar:
             if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
+                assert cookie.expires is None
 
         # A session exists and it contains: current user, his realm and his live synthesis
         self.session = self.login_response.request.environ['beaker.session']
@@ -172,7 +172,7 @@ class TestEditionMode(unittest2.TestCase):
         assert self.app.cookies['Alignak-WebUI']
         for cookie in self.app.cookiejar:
             if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
+                assert cookie.expires is None
 
         # A session exists and it contains: current user, his realm and his live synthesis
         self.session = self.login_response.request.environ['beaker.session']
@@ -298,7 +298,7 @@ class TestHosts(unittest2.TestCase):
         assert self.app.cookies['Alignak-WebUI']
         for cookie in self.app.cookiejar:
             if cookie.name=='Alignak-WebUI':
-                assert cookie.expires
+                assert cookie.expires is None
 
         # A session exists and it contains: current user, his realm and his live synthesis
         self.session = self.login_response.request.environ['beaker.session']

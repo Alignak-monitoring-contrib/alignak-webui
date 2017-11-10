@@ -537,7 +537,7 @@ class Plugin(object):
         if not f:  # pragma: no cover, simple protection
             self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        logger.debug("get_one, search for a %s named '%s'", self.backend_endpoint, element_name)
+        logger.critical("get_one, search for a %s named '%s'", self.backend_endpoint, element_name)
         element = f(search={'max_results': 1, 'where': {'name': element_name}})
         if not element:
             element = f(element_name)
@@ -547,7 +547,7 @@ class Plugin(object):
         logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'object_type': self.backend_endpoint,
             'element': element
         }
@@ -784,7 +784,7 @@ class Plugin(object):
                                    % self.backend_endpoint, redirected=True)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'element': element
         }
 
@@ -867,7 +867,7 @@ class Plugin(object):
                                    % self.backend_endpoint, redirected=True)
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'element': element
         }
 

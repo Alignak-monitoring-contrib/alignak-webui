@@ -152,10 +152,11 @@ class DataManager(object):
                 # self.my_ls = session['current_ls']
 
     def __repr__(self):
-        return "<DM, id: %s, objects count: %d, user: %s, updated: %s>" % (
+        return "<DM, id: %s, objects count: %d, user: %s (%s), updated: %s>" % (
             self.id,
             self.get_objects_count(),
             self.logged_in_user.get_username() if self.logged_in_user else 'Not logged in',
+            self.logged_in_user.token if self.logged_in_user else '',
             self.updated
         )
 
@@ -849,7 +850,7 @@ class DataManager(object):
                 return default_ls
 
         if not items:  # pragma: no cover - should not happen
-            logger.error("Livesynthesis not found, search: %s", search)
+            logger.info("Livesynthesis not found, search: %s", search)
             return default_ls
 
         synthesis = default_ls
@@ -1972,9 +1973,11 @@ class DataManager(object):
         if search is None:
             search = {}
         if 'where' not in search:
-            search.update({'where': {'_is_template': template}})
-        elif '_is_template' not in search['where']:
+            search.update({'where': {'webui_visible': True, '_is_template': template}})
+        if '_is_template' not in search['where']:
             search['where'].update({'_is_template': template})
+        if 'webui_visible' not in search['where']:
+            search['where'].update({'webui_visible': True})
         if 'sort' not in search:
             search.update({'sort': 'name'})
         if 'embedded' not in search:
@@ -1987,7 +1990,7 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_users, search: %s", search)
+            logger.critical("get_users, search: %s", search)
             items = self.find_object('user', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen

@@ -103,10 +103,17 @@ class PluginLivestate(Plugin):
         webui = request.app.config['webui']
         datamgr = webui.datamgr
 
+        message = None
+        session = request.environ['beaker.session']
+        if 'user_message' in session and session['user_message']:
+            message = session['user_message']
+            session['user_message'] = None
+
         return {
             'panels': datamgr.get_user_preferences(user, 'livestate', {}),
             'layout': request.app.config.get('livestate_layout', 'table'),
-            'title': request.query.get('title', _('Livestate'))
+            'title': request.query.get('title', _('Livestate')),
+            'message': message
         }
 
     def get_livestate_widget(self, embedded=False, identifier=None, credentials=None):

@@ -73,7 +73,7 @@ import threading
 
 # Bottle Web framework
 import bottle
-from bottle import run, redirect, request, response, static_file
+from bottle import run, abort, redirect, request, response, static_file
 from bottle import template, BaseTemplate, TEMPLATE_PATH
 from bottle import RouteBuildError, parse_auth
 
@@ -396,12 +396,6 @@ def before_request():
     if request.urlparts.path.startswith('/external'):
         return
 
-    # ping and heartbeat URLs
-    if request.urlparts.path.startswith('/ping'):
-        return
-    if request.urlparts.path.startswith('/heartbeat'):
-        return
-
     # Login/logout specific URLs routing ...
     if request.urlparts.path.startswith('/login'):
         return
@@ -410,39 +404,44 @@ def before_request():
 
     # Get the server session (it always exist...)
     session = request.environ['beaker.session']
-    st = datetime.datetime.fromtimestamp(session['_creation_time']).strftime('%Y-%m-%d %H:%M:%S')
-    logger.info("client: %s, session: %s / %s / %s",
-                request.environ.get('HTTP_X_FORWARDED_FOR') or
-                request.environ.get('REMOTE_ADDR'), session.id, st, session)
+    sct = datetime.datetime.fromtimestamp(session['_creation_time']).strftime('%Y-%m-%d %H:%M:%S')
+    sat = datetime.datetime.fromtimestamp(session['_accessed_time']).strftime('%Y-%m-%d %H:%M:%S')
+    logger.debug("client: %s, route: %s, session: %s / %s - %s / %s",
+                 request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR'),
+                 request.urlparts.path,
+                 session.id, sct, sat, session)
 
     current_user = None
     if 'current_user' in session:
         current_user = session['current_user']
 
-        # Make session current user available in the templates
-        BaseTemplate.defaults['current_user'] = session['current_user']
-
     # Session authentication ...
     if not current_user:
+        # ping and heartbeat URLs have a specific HTTP status code
+        if request.urlparts.path.startswith('/ping'):
+            abort(401, json.dumps({'status': 'ok', 'message': 'No user session'}))
+
+        if request.urlparts.path.startswith('/heartbeat'):
+            logger.error("no user: %s", current_user)
+            abort(401, json.dumps({'status': 'ok', 'message': 'Session expired'}))
+
         # Redirect to application login page
-        logger.warning("The session expired or there is no user in the session. "
-                       "Redirecting to the login page...")
+        logger.warning("Requesting %s. "
+                       "The session expired or there is no user in the session. "
+                       "Redirecting to the login page...", request.urlparts.path)
 
         # Stop Alignak backend thread
         # *****
-        logger.warning("before_request, url: %s", request.urlparts.path)
-        logger.warning("client: %s, cookie: %s",
-                       request.environ.get('HTTP_X_FORWARDED_FOR') or
-                       request.environ.get('REMOTE_ADDR'),
-                       request.environ.get('HTTP_COOKIE'))
+        logger.debug("client: %s, cookie: %s",
+                     request.environ.get('HTTP_X_FORWARDED_FOR') or
+                     request.environ.get('REMOTE_ADDR'),
+                     request.environ.get('HTTP_COOKIE'))
 
         redirect('/login')
 
-    # Get the application instance authentication
+    # Authenticate the session user
     logger.debug("webapp: %s, request app: %s", webapp, request.app)
     logger.debug("current_user: %s", current_user)
-    # Authenticate the session user and
-    # Initialize data manager to make it available in the request and in the templates
     if not webapp.user_authentication(current_user.token, None, session):
         # Redirect to application login page
         logger.warning("user in the session is not authenticated. "
@@ -450,23 +449,44 @@ def before_request():
         redirect('/login')
 
     # Make session current user available in the templates
-    BaseTemplate.defaults['current_user'] = session['current_user']
+    BaseTemplate.defaults['current_user'] = current_user
+
     # Make session edition mode available in the templates
     if 'edition_mode' not in session:
         session['edition_mode'] = False
-    # Make session edition mode available in the templates
     BaseTemplate.defaults['edition_mode'] = session['edition_mode']
     logger.debug("before_request, edition mode: %s", session['edition_mode'])
+
+    logger.debug("webapp + datamgr: %s / %s", webapp, webapp.datamgr)
+
     # Initialize data manager and make it available in the request and in the templates
-    if webapp.datamgr is None:  # pragma: no cover, should never happen!
-        webapp.datamgr = DataManager(request.app, session=session)
-        if not webapp.datamgr.connected:
-            redirect('/login')
+    # if webapp.datamgr is None:  # pragma: no cover, should never happen!
+    webapp.datamgr = DataManager(request.app, session=session)
+    if not webapp.datamgr.connected:
+        redirect('/login')
 
     # Load initial objects from the DM
-    request.app.datamgr = DataManager(webapp, session=session)
+    # request.app.datamgr = DataManager(webapp, session=session)
+    request.app.datamgr = webapp.datamgr
     request.app.datamgr.load()
-    logger.warning("request.app.datamgr: %s", request.app.datamgr)
+    # Do not yet remove this... will be made later;)
+    # if request.app.datamgr.logged_in_user.get_username() != 'admin':
+    #     logger.warning("client: %s, session: %s, cookie: %s, route: %s",
+    #                    request.environ.get('HTTP_X_FORWARDED_FOR') or
+    #                    request.environ.get('REMOTE_ADDR'),
+    #                    session.id,
+    #                    request.environ.get('HTTP_COOKIE'),
+    #                    request.urlparts.path)
+    #     logger.warning("request.app.datamgr: %s", request.app.datamgr)
+    # else:
+    #     logger.error("client: %s, session: %s, cookie: %s, route: %s",
+    #                  request.environ.get('HTTP_X_FORWARDED_FOR') or
+    #                  request.environ.get('REMOTE_ADDR'),
+    #                  session.id,
+    #                  request.environ.get('HTTP_COOKIE'),
+    #                  request.urlparts.path)
+    #     logger.error("request.app.datamgr: %s", request.app.datamgr)
+    logger.debug("request.app.datamgr: %s", request.app.datamgr)
     BaseTemplate.defaults['datamgr'] = request.app.datamgr
 
     logger.debug("before_request, call function for route: %s", request.urlparts.path)
@@ -508,9 +528,10 @@ def user_logout():
 
     Clear and delete the user session
     """
-    # Store user information in the server session
+    # Delete the user session
     session = request.environ['beaker.session']
     session.delete()
+    # Now session is an empty dictionary...
 
     # Log-out from application
     logger.info("Logout for current user")
@@ -592,13 +613,7 @@ def user_auth():
 @app.route('/heartbeat')
 def heartbeat():
     """Application heartbeat"""
-    # Session authentication ...
     session = request.environ['beaker.session']
-    if not session or 'current_user' not in session or not session['current_user']:
-        response.status = 401
-        response.content_type = 'application/json'
-        return json.dumps({'status': 'ok', 'message': 'Session expired'})
-
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps({'status': 'ok',
@@ -611,9 +626,6 @@ def ping():
     # pylint: disable=too-many-return-statements
     """Request on /ping is a simple check alive that returns an information if UI refresh is needed
 
-    If no session exists, it will return an HTTP 401 to inform that no session exists or the
-    session has expired
-
     Else, the specified `action` may be:
         - done, to inform that the server required action has been performed by the client
         - refresh, to get some information from a specified `template`
@@ -623,11 +635,6 @@ def ping():
     Used by the header refresh to update the hosts/services live state.
     """
     session = request.environ['beaker.session']
-    if not session or 'current_user' not in session or not session['current_user']:
-        response.status = 401
-        response.content_type = 'application/json'
-        return json.dumps({'status': 'ok', 'message': 'No user session'})
-
     action = request.query.get('action', None)
     if action == 'done':
         # Acknowledge UI refresh
@@ -1055,7 +1062,7 @@ session_opts = {
     'session.data_dir': app.config.get('session.data_dir',
                                        os.path.join('/tmp', __manifest__['name'], 'sessions')),
     'session.auto': app.config.get('session.auto', True),
-    'session.cookie_expires': app.config.get('session.cookie_expires', 43200),
+    'session.cookie_expires': app.config.get('session.cookie_expires', True),
     'session.key': app.config.get('session.key', __manifest__['name']),
     'session.save_accessed_time': True,
     'session.timeout': app.config.get('session.timeout', None),
@@ -1065,6 +1072,7 @@ session_opts = {
 }
 logger.debug("Session parameters: %s", session_opts)
 session_app = SessionMiddleware(app, session_opts)
+print("Session app: %s / %s" % (session_app, session_app.__dict__))
 
 
 def main():  # pragma: no cover, because of test mode

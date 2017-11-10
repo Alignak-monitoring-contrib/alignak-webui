@@ -1,5 +1,5 @@
 %setdefault('templates_bar', False)
-%setdefault('plugin', None)
+%setdefault('object_plugin', None)
 
 <!-- Templates actions bar -->
 <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="{{_('Edition menu')}}">
@@ -29,20 +29,20 @@
          </a>
       </li>
 
-      %if plugin and plugin.table['_table']['editable']:
+      %if object_plugin and object_plugin.table['_table']['editable']:
          <li class="divider"></li>
          %if not '_form' in request.urlparts.path:
          <li>
-            <a href="{{ request.urlparts.path.replace(plugin.backend_endpoint, plugin.backend_endpoint + '_form') }}">
+            <a href="{{ request.urlparts.path.replace(object_plugin.backend_endpoint, object_plugin.backend_endpoint + '_form') }}">
                <span class="fa fa-fw fa-edit"></span>
-               <span>{{_('Edit this %s') % plugin.backend_endpoint}}</span>
+               <span>{{_('Edit this %s') % object_plugin.backend_endpoint}}</span>
             </a>
          </li>
          %else:
          <li>
             <a href="{{ request.urlparts.path.replace('_form', '') }}">
                <span class="fa fa-fw fa-square-o"></span>
-               <span>{{_('View this %s') % plugin.backend_endpoint}}</span>
+               <span>{{_('View this %s') % object_plugin.backend_endpoint}}</span>
             </a>
          </li>
          %end

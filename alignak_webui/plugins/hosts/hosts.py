@@ -370,7 +370,7 @@ class PluginHosts(Plugin):
         parents = datamgr.get_hostdependencys(search={'where': {'dependent_hosts': host.id}})
 
         return {
-            'plugin': self,
+            'object_plugin': self,
             'plugin_parameters': self.plugin_parameters,
 
             'host': host,

@@ -99,7 +99,7 @@ class PluginAlignakDaemon(Plugin):
 
         # Get Alignak state from the data manager
         alignak_daemons = datamgr.get_alignak_map()
-        logger.debug("alignakdaemon, daemons: %s", alignak_daemons)
+        logger.critical("alignakdaemon, daemons: %s", alignak_daemons)
 
         # Sort the daemons list by daemon name
         alignak_daemons.sort(key=lambda x: x.name, reverse=False)
