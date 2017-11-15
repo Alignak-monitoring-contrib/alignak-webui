@@ -43,7 +43,13 @@
             </a>
          </li>
 
+         %hide_widgets = object_plugin.plugin_parameters.get('widgets', None)
          %for widget in webui.get_widgets_for('user'):
+            %if hide_widgets and hide_widgets.get('enabled', True):
+               %if not hide_widgets.get(widget['id'], True):
+                  % continue
+               %end
+            %end
             %if 'level' in widget and widget['level'] > current_user.skill_level:
             % continue
             %end
@@ -64,6 +70,11 @@
          </div>
 
          %for widget in webui.get_widgets_for('user'):
+            %if hide_widgets and hide_widgets.get('enabled', True):
+               %if not hide_widgets.get(widget['id'], True):
+                  % continue
+               %end
+            %end
             %if 'level' in widget and widget['level'] > current_user.skill_level:
             % continue
             %end

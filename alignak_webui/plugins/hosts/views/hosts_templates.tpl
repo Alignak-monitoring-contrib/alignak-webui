@@ -111,7 +111,7 @@
             </div>
 
             <div class="well form-group">
-               <button type="reset" class="btn btn-default pull-left">{{_('Cancel')}}</button>
+               <button type="reset" class="btn btn-default pull-left">{{_('Clear')}}</button>
                <button type="submit" class="btn btn-primary pull-right">{{_('Submit')}}</button>
                <div class="clearfix"></div>
             </div>
@@ -237,6 +237,7 @@
    });
 
    %if edition_mode:
+/*
       function change_linked_recursively(links, check_state) {
          if (links == undefined) return false;
          $.each(links.split(','), function(idx, link) {
@@ -259,7 +260,7 @@
             change_linked_recursively(linked, check_state);
          }
       });
-
+*/
       $('form[data-element="None"]').on("submit", function (evt) {
          // Do not automatically submit ...
          evt.preventDefault();

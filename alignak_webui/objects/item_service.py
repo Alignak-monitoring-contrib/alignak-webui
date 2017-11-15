@@ -366,7 +366,7 @@ class Service(BackendElement):
 
     @property
     def variables(self):
-        """Get the host custom variables with a nice name formatting:
+        """Get the service custom variables with a nice name formatting:
         - remove the leading and inside underscore
         - lower case the variable name
 
