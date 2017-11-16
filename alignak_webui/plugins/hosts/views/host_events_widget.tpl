@@ -8,6 +8,7 @@
 
 %#Only ack events...
 %history_filter = []
+%events=history
 %if events:
    %include("histories.tpl", histories=events, filter=history_filter, layout=False, pagination=webui.helper.get_pagination_control('history', len(events), 0, len(events)))
 %else:
