@@ -293,7 +293,13 @@
    <div class="host-widgets">
       <ul class="nav nav-tabs">
          %first=True
+         %hide_widgets = object_plugin.plugin_parameters.get('widgets', None)
          %for widget in webui.get_widgets_for('host'):
+            %if hide_widgets and hide_widgets.get('enabled', True):
+               %if not hide_widgets.get(widget['id'], True):
+                  % continue
+               %end
+            %end
             %if widget['id'] in ['grafana']:
                %plugin = webui.find_plugin('Grafana')
                %if not plugin or not plugin.is_enabled():
@@ -318,6 +324,11 @@
       <div class="tab-content">
          %first=True
          %for widget in webui.get_widgets_for('host'):
+            %if hide_widgets and hide_widgets.get('enabled', True):
+               %if not hide_widgets.get(widget['id'], True):
+                  % continue
+               %end
+            %end
             %if widget['id'] in ['grafana']:
                %plugin = webui.find_plugin('Grafana')
                %if not plugin or not plugin.is_enabled():

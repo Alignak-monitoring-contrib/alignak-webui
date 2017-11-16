@@ -1990,7 +1990,7 @@ class DataManager(object):
             })
 
         try:
-            logger.critical("get_users, search: %s", search)
+            logger.debug("get_users, search: %s", search)
             items = self.find_object('user', search, all_elements)
             return items
         except ValueError:  # pragma: no cover - should not happen

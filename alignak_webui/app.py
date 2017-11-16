@@ -1072,7 +1072,6 @@ session_opts = {
 }
 logger.debug("Session parameters: %s", session_opts)
 session_app = SessionMiddleware(app, session_opts)
-print("Session app: %s / %s" % (session_app, session_app.__dict__))
 
 
 def main():  # pragma: no cover, because of test mode
