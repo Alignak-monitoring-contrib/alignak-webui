@@ -41,3 +41,7 @@ class LiveSynthesis(BackendElement):
 
     # Status property
     status_property = 'state'
+
+    def __repr__(self):
+        return "<%s, id: %s, hosts: %s, services: %s>" \
+               % (self.__class__.get_type(), self.id, self.hosts_total, self.services_total)
