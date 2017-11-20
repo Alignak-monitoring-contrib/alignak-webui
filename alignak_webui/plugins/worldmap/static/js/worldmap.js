@@ -276,6 +276,7 @@ mapInit = function(map_id, editable, callback) {
         }
     }).addTo($map);
 
+    if (debugMaps) console.log('Manage positioned hosts.');
     if (positionHosts) {
         // Geocoder
         geocoder_control = L.Control.geocoder({
@@ -306,6 +307,7 @@ mapInit = function(map_id, editable, callback) {
     var allMarkers = [];
     var someHostsAreNotPositioned = false;
     for (var i = 0; i < pos_hosts.length; i++) {
+        if (debugMaps) console.log('Host', pos_hosts[i]);
         if (pos_hosts[i].positioned) {
             var marker = markerCreate($map, pos_hosts[i], markerCluster, editable);
             allMarkers.push(marker);
@@ -354,7 +356,8 @@ mapInit = function(map_id, editable, callback) {
     markerCluster.addLayers(allMarkers);
     $map.addLayer(markerCluster);
 
-    $map.fitBounds(markerCluster.getBounds());
+    if (debugMaps) console.log('Fit bounds for the map.');
+    // $map.fitBounds(markerCluster.getBounds());
 
     allMaps.push($map);
 

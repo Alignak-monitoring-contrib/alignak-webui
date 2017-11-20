@@ -56,6 +56,11 @@ class History(BackendElement):
 
         super(History, self).__init__(params, date_format, embedded)
 
+    def __repr__(self):
+        return "<%s, id: %s, item: %s/%s, type: %s>" \
+               % (self.__class__.get_type(), self.id,
+                  self.host_name, self.service_name, self.status)
+
     @property
     def date(self):
         """Return creation date"""
@@ -67,14 +72,47 @@ class History(BackendElement):
         return self._linked_host
 
     @property
+    def host_name(self):
+        """Return host name"""
+        if not hasattr(self, '_host_name'):
+            return '-'
+        return self._host_name
+
+    @host_name.setter
+    def host_name(self, host_name):
+        self._host_name = host_name
+
+    @property
     def service(self):
         """Return linked service object"""
         return self._linked_service
 
     @property
+    def service_name(self):
+        """Return service name"""
+        if not hasattr(self, '_service_name'):
+            return '-'
+        return self._service_name
+
+    @service_name.setter
+    def service_name(self, service_name):
+        self._service_name = service_name
+
+    @property
     def user(self):
         """Return linked user object"""
         return self._linked_user
+
+    @property
+    def user_name(self):
+        """Return user name"""
+        if not hasattr(self, '_user_name'):
+            return ''
+        return self._user_name
+
+    @user_name.setter
+    def user_name(self, user_name):
+        self._user_name = user_name
 
     @property
     def logcheckresult(self):
