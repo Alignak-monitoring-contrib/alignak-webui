@@ -22,6 +22,16 @@
     <table class="table table-invisible">
     <tbody>
         <tr>
+            %if getattr(hs, 'nb_not_monitored', None):
+            <td>
+                %title = _('%s hosts not monitored (%s%%)') % (hs["nb_not_monitored"], hs["pct_not_monitored"])
+                %label = "%s <i>(%s%%)</i>" % (hs["nb_not_monitored"], hs["pct_not_monitored"])
+                <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:not_monitored">
+                %h = Host({'ls_state': "nope", 'active_checks_enabled': False, 'passive_checks_enabled': False})
+                {{! h.get_html_state(text=label, title=title, disabled=(not hs["nb_not_monitored"]))}}
+                </a>
+            </td>
+            %end
             %for state in ['up', 'unreachable', 'down', 'acknowledged', 'in_downtime']:
             <td>
                 %title = _('%s hosts %s (%s%%)') % (hs["nb_" + state], state, hs["pct_" + state])
@@ -79,6 +89,16 @@
     <table class="table table-invisible">
     <tbody>
         <tr>
+            %if getattr(hs, 'nb_not_monitored', None):
+            <td>
+                %title = _('%s hosts not monitored (%s%%)') % (ss["nb_not_monitored"], ss["pct_not_monitored"])
+                %label = "%s <i>(%s%%)</i>" % (ss["nb_not_monitored"], ss["pct_not_monitored"])
+                <a href="{{ webui.get_url('Hosts table') }}?search=ls_state:not_monitored">
+                %s = Service({'ls_state': "nope", 'active_checks_enabled': False, 'passive_checks_enabled': False})
+                {{! s.get_html_state(text=label, title=title, disabled=(not ss["nb_not_monitored"]))}}
+                </a>
+            </td>
+            %end
             %for state in ['ok', 'warning', 'critical', 'unknown', 'unreachable', 'acknowledged', 'in_downtime']:
             <td>
                 %title = _('%s services %s (%s%%)') % (ss["nb_" + state], state, ss["pct_" + state])

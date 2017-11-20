@@ -216,7 +216,7 @@ class PluginHosts(Plugin):
                         'template': 'host_events_widget',
                         'icon': 'calendar',
                         'read_only': True,
-                        'description': _('Host metrics: displays host events: '
+                        'description': _('Host events: displays host events: '
                                          'comments, acknowledges, downtimes,...'),
                         'options': {}
                     },
@@ -620,7 +620,7 @@ class PluginHosts(Plugin):
         }
 
         # Get host history
-        logger.error("History: %s", search)
+        logger.debug("History: %s", search)
         history = datamgr.get_history(search=search)
         if history is None:
             history = []

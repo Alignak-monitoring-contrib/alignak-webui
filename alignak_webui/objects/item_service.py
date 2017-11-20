@@ -101,6 +101,10 @@ class Service(BackendElement):
         if not hasattr(self, '_overall_state'):
             setattr(self, '_overall_state', 0)
 
+    def __repr__(self):
+        return "<%s, id: %s, name: %s/%s, status: %s>" \
+               % (self.__class__.get_type(), self.id, self.host.name, self.name, self.status)
+
     @property
     def endpoint(self):
         """Get service endpoint (page url)"""

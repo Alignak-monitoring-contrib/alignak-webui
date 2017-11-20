@@ -398,7 +398,7 @@ class Helper(object):
                 if field not in qualifiers:
                     qualifiers[field] = []
                 qualifiers[field].append(match.group('value'))
-        logger.debug("decode_search, search patterns: %s", qualifiers)
+        logger.warning("decode_search, search patterns: %s", qualifiers)
 
         parameters = {}
         try:
@@ -548,7 +548,7 @@ class Helper(object):
                 logger.debug("decode_search, - $ne query: %s", search_type['pattern'])
                 query.update({field: {'$ne': search_type['pattern']}})
 
-        logger.debug("decode_search, result query: %s", query)
+        logger.warning("decode_search, result query: %s", query)
         return query
 
     @staticmethod
@@ -1415,8 +1415,10 @@ class Helper(object):
         if search is None or not isinstance(search, dict):
             search = {}
         if 'where' not in search:
+            # Search monitored items that have a bad status not acknowledged nor downtimed
             search.update({'where': {
-                "ls_state_id": {"$nin": [0, 4]},
+                'ls_state_id': {'$nin': [0, 4]},
+                '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_acknowledged': False,
                 'ls_downtimed': False,
                 'ls_state_type': 'HARD'
@@ -1430,7 +1432,7 @@ class Helper(object):
         # Copy because the search filter is updated by the function ...
         search_hosts = search.copy()
         logger.debug("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_hosts)
-        hosts = datamgr.get_hosts(search=search_hosts, embedded=False)
+        hosts = datamgr.get_hosts(search=search_hosts, embedded=False, all_elements=True)
         items.extend(hosts)
         logger.debug("get_html_livestate, livestate %d (%s), %d hosts", bi, search, len(items))
 
@@ -1439,32 +1441,35 @@ class Helper(object):
             search.update({'embedded': {'host': 1}})
         search_services = search.copy()
         logger.debug("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_services)
-        services = datamgr.get_services(search=search_services, embedded=True)
+        services = datamgr.get_services(search=search_services, embedded=True, all_elements=True)
         items.extend(services)
         logger.debug("get_html_livestate, livestate %d (%s), %d services", bi, search, len(items))
 
         rows = []
         problems_count = 0
         current_host = ''
-        hosts_problems = -1
-        services_problems = -1
+        hosts_problems = 0
+        services_problems = 0
         worst_hosts_state = 0
         worst_services_state = 0
         for item in items:
-            logger.debug("get_html_livestate, item: %d / %d / %d / %s",
-                         item.business_impact, item.state_id, item.last_state_changed, item)
             if not item.monitored:
-                logger.debug("Item is not monitored, do not display...")
+                logger.warning("Item %s is not monitored, do not display...", item)
+                continue
+            if not item.is_problem:
+                logger.warning("Item %s is not a problem, do not care...", item)
                 continue
 
+            logger.debug("get_html_livestate, item: %d / %d / %d / %s",
+                         item.business_impact, item.overall_state, item.last_state_changed, item)
             problems_count += 1
 
-            if item.object_type == "service" and services_problems == -1:
-                worst_services_state = max(worst_services_state, item.state_id)
-                services_problems = item.get_total_count()
-            if item.object_type == "host" and hosts_problems == -1:
-                worst_hosts_state = max(worst_hosts_state, item.state_id)
-                hosts_problems = item.get_total_count()
+            if item.object_type == "service":
+                worst_services_state = max(worst_services_state, item.overall_state)
+                services_problems = services_problems + 1
+            if item.object_type == "host":
+                worst_hosts_state = max(worst_hosts_state, item.overall_state)
+                hosts_problems = hosts_problems + 1
 
             host_url = ''
             if current_host != item.name:

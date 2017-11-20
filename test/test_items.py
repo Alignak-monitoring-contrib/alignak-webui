@@ -973,7 +973,7 @@ class TestItems(unittest2.TestCase):
         print(item)
         print(item.__dict__)
         # status is None because there is no status_property defined
-        assert "%s" % item == "<service, id: service_0, name: anonymous, status: None>"
+        assert "%s" % item == "<service, id: service_0, name: anonymous/anonymous, status: None>"
         assert item._id == 'service_0'
         assert item._type == 'service'
         assert item.name == 'anonymous'

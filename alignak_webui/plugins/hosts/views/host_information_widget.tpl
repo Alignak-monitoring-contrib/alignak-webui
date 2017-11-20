@@ -160,12 +160,14 @@
                {{_('%s / %s %s state') % (host.current_attempt, host.max_attempts, host.state_type) }}
             </td>
          </tr>
+         %if host.active_checks_enabled:
          <tr>
             <td><strong>{{_('Next active check:')}}</strong></td>
             <td>
                {{! Helper.print_duration(host.next_check, duration_only=False, x_elts=0)}}
             </td>
          </tr>
+         %end
          %if host.active_checks_enabled and current_user.is_power():
          <tr>
             <td></td>
