@@ -33,8 +33,8 @@
             ),
         %end
         ]
-        if (debugMaps) console.log("Hosts (positioned):", pos_hosts);
         if (debugMaps) {
+            console.log("Hosts (positioned):", pos_hosts);
             for (var i = 0; i < pos_hosts.length; i++) {
                 console.log("- services", pos_hosts[i].services);
             }
@@ -83,6 +83,7 @@
             $.getJsFiles(jsfiles, function(){
                 // Wait for a while to let the scripts get executed...
                 window.setTimeout(function() {
+                    if (debugMaps) console.log('Calling initWorldmap after files loading...')
                     initWorldmap();
                 }, 1000);
             });
