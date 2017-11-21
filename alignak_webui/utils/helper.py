@@ -924,7 +924,7 @@ class Helper(object):
                     <span class="hosts-all text-%s"
                             data-count="#nb_elts#"
                             data-problems="#nb_problems#">
-                        &nbsp; #nb_elts# hosts #problems#
+                        &nbsp; #nb_elts# monitored hosts #problems#
                     </span>
                 </strong>
 
@@ -956,7 +956,7 @@ class Helper(object):
                graph_height, json.dumps(labels))
 
         content = content.replace("#problems#", "%s" % problems)
-        content = content.replace("#nb_elts#", "%d" % hs['nb_elts'])
+        content = content.replace("#nb_elts#", "%d" % (hs['nb_elts'] - hs['nb_not_monitored']))
         content = content.replace("#nb_problems#", "%d" % hs['nb_problems'])
         content = content.replace("#nb_unmanaged_problems#", "%d" % max(0, unmanaged_problems))
         content = content.replace("#nb_up#", "%d" % hs['nb_up'])
@@ -1112,7 +1112,7 @@ class Helper(object):
                     <span class="services-all text-%s"
                             data-count="#nb_elts#"
                             data-problems="#nb_problems#">
-                        &nbsp; #nb_elts# services #problems#
+                        &nbsp; #nb_elts# monitored services #problems#
                     </span>
                 </strong>
 
@@ -1144,7 +1144,7 @@ class Helper(object):
                graph_height, json.dumps(labels))
 
         content = content.replace("#problems#", "%s" % problems)
-        content = content.replace("#nb_elts#", "%d" % ss['nb_elts'])
+        content = content.replace("#nb_elts#", "%d" % (ss['nb_elts'] - ss['nb_not_monitored']))
         content = content.replace("#nb_problems#", "%d" % ss['nb_problems'])
         content = content.replace("#nb_unmanaged_problems#", "%d" % max(0, unmanaged_problems))
         content = content.replace("#nb_ok#", "%d" % ss['nb_ok'])
@@ -1300,7 +1300,7 @@ class Helper(object):
         content = content.replace("##hosts_percentage##", hosts_percentage)
         content = content.replace("##hosts_counters##", hosts_counters)
         content = content.replace("##problems##", "%s" % problems)
-        content = content.replace("##nb_elts##", "%d" % hs['nb_elts'])
+        content = content.replace("##nb_elts##", "%d" % (hs['nb_elts'] - hs['nb_not_monitored']))
         content = content.replace("##nb_problems##", "%d" % hs['nb_problems'])
         content = content.replace("##nb_unmanaged_problems##", "%d" % max(0, unmanaged_problems))
         content = content.replace("##nb_up##", "%d" % hs['nb_up'])
@@ -1368,7 +1368,7 @@ class Helper(object):
         content = content.replace("##services_percentage##", services_percentage)
         content = content.replace("##services_counters##", services_counters)
         content = content.replace("##problems##", "%s" % problems)
-        content = content.replace("##nb_elts##", "%d" % ss['nb_elts'])
+        content = content.replace("##nb_elts##", "%d" % (ss['nb_elts'] - ss['nb_not_monitored']))
         content = content.replace("##nb_problems##", "%d" % ss['nb_problems'])
         content = content.replace("##nb_unmanaged_problems##", "%d" % max(0, unmanaged_problems))
         content = content.replace("##nb_ok##", "%d" % ss['nb_ok'])
