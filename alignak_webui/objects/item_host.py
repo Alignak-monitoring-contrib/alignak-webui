@@ -199,11 +199,11 @@ class Host(BackendElement):
 
         Consider if the host is indeed monitored or not
         """
-        if self.monitored:
-            return self.ls_state
         if not hasattr(self, self.status_property):
             return None
-        return "NOPE"
+        if self.monitored:
+            return self.ls_state
+        return "nope"
 
     @property
     def state_id(self):
@@ -325,8 +325,9 @@ class Host(BackendElement):
 
     @property
     def is_problem(self):
-        """An host is considered as a problem if it is DOWN or UNREACHABLE and in a hard state"""
-        if self.status in ['DOWN', 'UNREACHABLE'] and self.state_type == "HARD":
+        """An host is considered as a problem if it is monitored, and its state is DOWN
+        or UNREACHABLE and in a hard state"""
+        if self.monitored and self.status in ['DOWN', 'UNREACHABLE'] and self.state_type == "HARD":
             return True
         return False
 
@@ -345,6 +346,7 @@ class Host(BackendElement):
         - the downtime state
 
         The worst state is (prioritized):
+        - an host not monitored (5)
         - an host down (4)
         - an host unreachable (3)
         - an host downtimed (2)
@@ -366,11 +368,11 @@ class Host(BackendElement):
             at least one of its services is WARNING
         - 4 if the host is DOWN or
             at least one of its services is CRITICAL
+        - 5 if the host is not monitored (active_checks_enabled is False and
+        passive_checks_enabled is False)
 
         """
-        if self.monitored:
-            return self._overall_state_id
-        return 5
+        return self._overall_state_id
 
     @property
     def overall_status(self):

@@ -68,7 +68,7 @@ class BackendElement(object):
     _count = 0
     _total_count = -1
 
-    # _backend = None
+    _backend = None
     _known_classes = None
 
     # Next value used for auto generated id

@@ -535,6 +535,7 @@ class TestBasic(unittest2.TestCase):
             '_id': self.dmg.my_ls['_id'],
             'hosts_synthesis': {
                 'nb_elts': 7,
+                'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -554,6 +555,7 @@ class TestBasic(unittest2.TestCase):
             },
             'services_synthesis': {
                 'nb_elts': 151,
+                'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -586,6 +588,7 @@ class TestBasic(unittest2.TestCase):
             '_id': self.dmg.my_ls['_id'],
             'hosts_synthesis': {
                 'nb_elts': 7,
+                'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
@@ -605,6 +608,7 @@ class TestBasic(unittest2.TestCase):
             },
             'services_synthesis': {
                 'nb_elts': 151,
+                'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
                 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,

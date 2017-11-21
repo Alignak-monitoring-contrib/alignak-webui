@@ -193,11 +193,11 @@ class Service(BackendElement):
 
         Consider if the service is indeed monitored or not
         """
-        if self.monitored:
-            return self.ls_state
         if not hasattr(self, self.status_property):
             return None
-        return "NOPE"
+        if self.monitored:
+            return self.ls_state
+        return "nope"
 
     @property
     def state_id(self):
@@ -319,9 +319,11 @@ class Service(BackendElement):
 
     @property
     def is_problem(self):
-        """A service is consdered as a problem if is WARNING, CRITICAL or UNKNOWN
-        and in a hard state"""
-        if self.status in ['WARNING', 'CRITICAL', 'UNKNOWN'] and self.state_type == "HARD":
+        """A service is considered as a problem if its host is monitored and it is itself
+        monitored, and its state is WARNING, CRITICAL or UNKNOWN and in a hard state"""
+        if self.host.monitored and self.monitored \
+                and self.status in ['WARNING', 'CRITICAL', 'UNKNOWN'] \
+                and self.state_type == "HARD":
             return True
         return False
 
@@ -350,6 +352,7 @@ class Service(BackendElement):
         - the downtime state
 
         The worst state is (prioritized):
+        - a service not monitored (5)
         - a service critical or unreachable (4)
         - a service warning or unknown (3)
         - a service downtimed (2)
@@ -359,9 +362,7 @@ class Service(BackendElement):
         *Note* that services in unknown state are considered as warning, and unreachable ones
         are considered as critical!
         """
-        if self.monitored:
-            return self._overall_state_id
-        return 5
+        return self._overall_state_id
 
     @property
     def overall_status(self):

@@ -398,7 +398,7 @@ class Helper(object):
                 if field not in qualifiers:
                     qualifiers[field] = []
                 qualifiers[field].append(match.group('value'))
-        logger.warning("decode_search, search patterns: %s", qualifiers)
+        logger.debug("decode_search, search patterns: %s", qualifiers)
 
         parameters = {}
         try:
@@ -548,7 +548,7 @@ class Helper(object):
                 logger.debug("decode_search, - $ne query: %s", search_type['pattern'])
                 query.update({field: {'$ne': search_type['pattern']}})
 
-        logger.warning("decode_search, result query: %s", query)
+        logger.debug("decode_search, result query: %s", query)
         return query
 
     @staticmethod

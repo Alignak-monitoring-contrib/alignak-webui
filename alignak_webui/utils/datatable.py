@@ -602,7 +602,7 @@ class Datatable(object):
         self.records_filtered = self.records_total
         for item in items:
             bo_object = object_class(item)
-            logger.debug("table data object: %s", bo_object)
+            logger.warning("table data object: %s", bo_object)
             # This is an awful hack that allows to update the objects filtered for a table.
             # Two main interests:
             # - update the backend because some massive modifications are necessary for testing
@@ -633,6 +633,7 @@ class Datatable(object):
             row['DT_RowData'] = {}
             row['_id'] = bo_object.id
             for field in self.table_columns:
+                logger.warning(" - field: %s", field)
                 # Specific fields
                 if field['data'] == self.name_property:
                     # Create a link to navigate to the item page
@@ -723,7 +724,7 @@ class Datatable(object):
                             row[field['data']] = '...'
                     continue
 
-                # For ny non-specific fields, send the firled value to the table
+                # For any non-specific fields, send the field value to the table
                 row[field['data']] = getattr(bo_object, field['data'])
             logger.debug("table data row: %s", row)
 
