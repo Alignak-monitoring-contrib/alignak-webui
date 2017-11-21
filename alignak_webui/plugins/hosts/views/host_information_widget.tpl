@@ -89,6 +89,7 @@
          </tr>
       </thead>
       <tbody>
+         %if host.active_checks_enabled:
          <tr>
             <td><strong>{{_('Check command:')}}</strong></td>
             <td>
@@ -97,10 +98,10 @@
                %else:
                {{ host.check_command }}
                %end
-            </td>
-            <td>
+               {{ host.check_command_args }}
             </td>
          </tr>
+         %end
 
          %if host.last_check:
          <tr>

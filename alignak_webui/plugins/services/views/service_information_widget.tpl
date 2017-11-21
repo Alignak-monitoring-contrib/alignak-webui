@@ -93,15 +93,19 @@
          </tr>
       </thead>
       <tbody>
+         %if service.active_checks_enabled:
          <tr>
             <td><strong>{{_('Check command:')}}</strong></td>
             <td>
+               %if service.check_command != 'command':
                {{! service.check_command.get_html_state_link(title=service.check_command.name)}}
+               %else:
+               {{ service.check_command }}
+               %end
                {{ service.check_command_args }}
             </td>
-            <td>
-            </td>
          </tr>
+         %end
 
          %if service.last_check:
          <tr>
