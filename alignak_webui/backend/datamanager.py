@@ -916,13 +916,13 @@ class DataManager(object):
                 hosts_synthesis.update({
                     'pct_' + state: round(
                         100.0 * hosts_synthesis['nb_' + state] / nb_monitored_hosts, 2
-                    ) if hosts_synthesis['nb_elts'] else 0.0
+                    ) if nb_monitored_hosts else 0.0
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
                 hosts_synthesis.update({
                     'pct_' + state: round(
                         100.0 * hosts_synthesis['nb_' + state] / nb_monitored_hosts, 2
-                    ) if hosts_synthesis['nb_elts'] else 0.0
+                    ) if nb_monitored_hosts else 0.0
                 })
 
             # Services synthesis
@@ -977,13 +977,13 @@ class DataManager(object):
                 services_synthesis.update({
                     'pct_' + state: round(
                         100.0 * services_synthesis['nb_' + state] / nb_monitored_services, 2
-                    ) if services_synthesis['nb_elts'] else 0.0
+                    ) if nb_monitored_services else 0.0
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
                 services_synthesis.update({
                     'pct_' + state: round(
                         100.0 * services_synthesis['nb_' + state] / nb_monitored_services, 2
-                    ) if services_synthesis['nb_elts'] else 0.0
+                    ) if nb_monitored_services else 0.0
                 })
 
         synthesis['hosts_synthesis'] = hosts_synthesis
@@ -1118,13 +1118,13 @@ class DataManager(object):
             hosts_synthesis.update({
                 "pct_" + state: round(
                     100.0 * hosts_synthesis['nb_' + state] / nb_monitored_hosts,
-                    2) if hosts_synthesis['nb_elts'] else 0.0
+                    2) if nb_monitored_hosts else 0.0
             })
         for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
             hosts_synthesis.update({
                 "pct_" + state: round(
                     100.0 * hosts_synthesis['nb_' + state] / nb_monitored_hosts,
-                    2) if hosts_synthesis['nb_elts'] else 0.0
+                    2) if nb_monitored_hosts else 0.0
             })
 
         # Services synthesis
@@ -1176,13 +1176,13 @@ class DataManager(object):
             services_synthesis.update({
                 "pct_" + state: round(
                     100.0 * services_synthesis['nb_' + state] / nb_monitored_services, 2
-                ) if services_synthesis['nb_elts'] else 0.0
+                ) if nb_monitored_services else 0.0
             })
         for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
             services_synthesis.update({
                 "pct_" + state: round(
                     100.0 * services_synthesis['nb_' + state] / nb_monitored_services, 2
-                ) if services_synthesis['nb_elts'] else 0.0
+                ) if nb_monitored_services else 0.0
             })
 
         synthesis['hosts_synthesis'] = hosts_synthesis
