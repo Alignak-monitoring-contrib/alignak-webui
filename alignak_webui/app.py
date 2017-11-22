@@ -945,7 +945,7 @@ def get_user_preference():
 
     key_value = datamgr.get_user_preferences(user, _key, default)
     if key_value is None:
-        response.status = 404
+        response.status = 200
         response.content_type = 'application/json'
         return json.dumps({'status': 'ko',
                            'message': 'Unknown key: %s' % _key})
