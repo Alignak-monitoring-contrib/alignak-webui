@@ -1,5 +1,5 @@
 // Set true to activate javascript console logs
-var debugMaps = true;
+var debugMaps = false;
 if (debugMaps && !window.console) {
     alert('Your web browser does not have any console object ... you should stop using IE ;-) !');
 }
@@ -7,9 +7,10 @@ if (debugMaps) {
     console.log("Activated debug maps logs");
 }
 
-var positionHosts = false;
+// Set to true to activate the host positioning feature...
+var positionHosts = true;
 
-var defaultZoom = 12;
+var defaultZoom = 6;
 if (debugMaps) console.log('Default zoom: ', defaultZoom);
 var defaultCenter = L.latLng(46.60611, 1.87528);
 if (debugMaps) console.log('Default center: ', defaultCenter);
@@ -21,8 +22,9 @@ var geocoder_control;
 var geocoder;
 var geocoder_marker;
 
-var selectedHosts = [];
-var selectedHostIndex = -1;
+var selectedHost = null;
+// var selectedHosts = [];
+// var selectedHostIndex = -1;
 var selectedPosition = null;
 
 // Markers ...
@@ -129,13 +131,16 @@ function setHostPosition(host, marker){
 
 function selectHost(host){
     if (debugMaps) console.log("Select an host: ", host.name);
-    selectedHosts.push(host);
+    // selectedHosts.push(host);
+    selectedHost = host;
     var newElt = $('<li data-hostname="' + host.name + '"><a href="#" class="list-group-item">' + host.name + '</a></li>');
     newElt.on("click", function () {
         if (debugMaps) console.log("Unselect an host: ", $(this).data("hostname"));
         for (var i = 0; i < pos_hosts.length; i++) {
             if (pos_hosts[i].name == $(this).data("hostname")) {
+                selectedHost = null;
                 $('#selected_hosts li[data-hostname="' + pos_hosts[i].name + '"]').remove();
+                $("#selected_hosts").hide();
 
                 if (! pos_hosts[i].positioned) {
                     var newElt = $('<li data-hostname="' + pos_hosts[i].name + '"><a href="#" class="list-group-item">' + pos_hosts[i].name + '</a></li>');
@@ -145,6 +150,7 @@ function selectHost(host){
         }
     });
     $("#selected_hosts ul").append(newElt);
+    $("#selected_hosts").show();
     if (debugMaps) console.log("Selected host: ", host.name);
 };
 
@@ -274,10 +280,12 @@ mapInit = function(map_id, editable, callback) {
                 iconSize: new L.Point(60, 60)
             });
         }
-    }).addTo($map);
+//    }).addTo($map);
+    });
 
     if (debugMaps) console.log('Manage positioned hosts.');
     if (positionHosts) {
+        if (debugMaps) console.log('Manage positioned hosts.');
         // Geocoder
         geocoder_control = L.Control.geocoder({
             collapsed: false,
@@ -287,17 +295,38 @@ mapInit = function(map_id, editable, callback) {
             showResultIcons:true
         }).addTo($map);
         $map.on('click', function(e) {
-            geocoder_control.geocoder.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(results) {
+            if (debugMaps) console.log('Geocoder:', geocoder_control, geocoder_control.geocoder);
+            geocoder_control.options.geocoder.reverse(e.latlng, $map.options.crs.scale($map.getZoom()), function(results) {
                 var r = results[0];
                 if (r) {
+                    if (selectedHost) {
+                        var marker = markerCreate($map, selectedHost, markerCluster, editable);
+                        allMarkers.push(marker);
+                        setHostPosition(selectedHost, marker);
+
+                        raise_message_ok('Host: ' + selectedHost.name + 'is now positioned.');
+                        selectedHost = null;
+                        $("#selected_hosts").hide();
+                    }
+
+/*
                     if (geocoder_marker) {
                         geocoder_marker.
                             setLatLng(r.center).
                             setPopupContent(r.html || r.name).
                             openPopup();
                     } else {
-                        geocoder_marker = L.marker(r.center).bindPopup(r.name).addTo(map).openPopup();
+                        geocoder_marker = L.marker(r.center).bindPopup(r.name).addTo($map).openPopup();
+                        geocoder_marker.on('dragstart', function(event) {
+                            var marker = event.target;
+                            marker.opacity = 0.5;
+                        });
+
+                        geocoder_marker.on('dragend', function(event) {
+                            setHostPosition(host, event.target);
+                        });
                     }
+*/
                 }
             })
         })
@@ -306,11 +335,13 @@ mapInit = function(map_id, editable, callback) {
     // Markers ...
     var allMarkers = [];
     var someHostsAreNotPositioned = false;
+    var someHostsArePositioned = false;
     for (var i = 0; i < pos_hosts.length; i++) {
         if (debugMaps) console.log('Host', pos_hosts[i]);
         if (pos_hosts[i].positioned) {
             var marker = markerCreate($map, pos_hosts[i], markerCluster, editable);
             allMarkers.push(marker);
+            someHostsArePositioned = true;
         } else {
             var newElt = $('<li data-hostname="' + pos_hosts[i].name + '"><a href="#" class="list-group-item">' + pos_hosts[i].name + '</a></li>');
             newElt.on("click", function () {
@@ -353,11 +384,16 @@ mapInit = function(map_id, editable, callback) {
     if (! someHostsAreNotPositioned) {
         $("#not_positioned_hosts").remove();
     }
+    if (! selectedHost) {
+        $("#selected_hosts").hide();
+    }
     markerCluster.addLayers(allMarkers);
     $map.addLayer(markerCluster);
 
-    if (debugMaps) console.log('Fit bounds for the map.');
-    // $map.fitBounds(markerCluster.getBounds());
+    if (someHostsArePositioned) {
+        if (debugMaps) console.log('Fit bounds for the map.', markerCluster.getBounds());
+        $map.fitBounds(markerCluster.getBounds());
+    }
 
     allMaps.push($map);
 

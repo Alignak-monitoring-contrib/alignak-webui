@@ -215,11 +215,12 @@ class PluginWorldmap(Plugin):
             map_host = {}
             logger.debug("worldmap, found host '%s'", host.name)
 
+            if not host.monitored:
+                logger.debug("worldmap, host is not monitored")
+                continue
+
             map_host['positioned'] = True
             if 'type' not in host.position or host.position['type'] != 'Point':
-                # logger.warning("worldmap, host '%s', invalid position: %s",
-                #                host.name, host.position)
-                # continue
                 logger.warning("worldmap, host '%s' has an invalid position", host.name)
                 continue
             else:
