@@ -725,7 +725,7 @@ class Datatable(object):
                     continue
 
                 # For any non-specific fields, send the field value to the table
-                row[field['data']] = getattr(bo_object, field['data'])
+                row[field['data']] = getattr(bo_object, field['data'], 'unset')
             logger.debug("table data row: %s", row)
 
             # logger.debug("Table row: %s", row)

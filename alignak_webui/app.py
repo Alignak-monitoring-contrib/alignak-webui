@@ -1080,7 +1080,7 @@ def main():  # pragma: no cover, because of test mode
 
     run(
         app=session_app,
-        server='cherrypy',
+        # server='cherrypy',
         host=app.config.get('host', '127.0.0.1'),
         port=int(app.config.get('port', 5001)),
         debug=app.config.get('debug', False),
