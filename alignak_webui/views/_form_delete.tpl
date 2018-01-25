@@ -5,14 +5,14 @@
 %# Default values
 %setdefault('debug', False)
 %setdefault('edition', edition_mode)
-%setdefault('is_templated', '_is_template' in plugin.table)
+%setdefault('is_templated', '_is_template' in object_plugin.table)
 %setdefault('is_template', False)
 %setdefault('has_template', False)
 %setdefault('refresh', False)
 
 %if element:
 %# An element still exists...
-%setdefault('title', _('%s %s') % (plugin.backend_endpoint.capitalize(), element.name))
+%setdefault('title', _('%s %s') % (object_plugin.backend_endpoint.capitalize(), element.name))
 
 %if '_is_template' in element.__dict__ and element['_is_template']:
 %is_template = True
@@ -26,10 +26,10 @@
 
 %else:
 %# No element exist...
-%setdefault('title', _('New %s') % (plugin.backend_endpoint))
+%setdefault('title', _('New %s') % (object_plugin.backend_endpoint))
 %end
 
-%rebase("layout", title=title, page="/{{plugin.backend_endpoint}}_form/{{element.name}}")
+%rebase("layout", title=title, page="/{{object_plugin.backend_endpoint}}_form/{{element.name}}")
 
 %if debug and element:
 <div class="panel-group">
@@ -51,10 +51,10 @@
 </div>
 %end
 
-<div id="form_delete_{{plugin.backend_endpoint}}">
+<div id="form_delete_{{object_plugin.backend_endpoint}}">
    %post=""
    %if edition:
-   %post='''method="post" action="/%s/%s/delete"''' % (plugin.backend_endpoint, element.id)
+   %post='''method="post" action="/%s/%s/delete"''' % (object_plugin.backend_endpoint, element.id)
    %end
    <form role="form" data-element="{{element.id if element else 'None'}}" class="element_form {{'template_form' if is_template else ''}}" {{! post}}>
       <div class="well page">
@@ -63,19 +63,19 @@
       %if is_template:
          <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">×</button>
-            <h4>{{_('You are deleting a %s template.') % plugin.backend_endpoint}}</h4>
+            <h4>{{_('You are deleting a %s template.') % object_plugin.backend_endpoint}}</h4>
             <hr/>
-            <p>{{_('All the %ss based upon this template may be affected by your modifications.') % plugin.backend_endpoint}}</p>
+            <p>{{_('All the %ss based upon this template may be affected by your modifications.') % object_plugin.backend_endpoint}}</p>
          </div>
 
-         <legend>{{! _('%s template <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
+         <legend>{{! _('%s template <code>%s</code>') % (object_plugin.backend_endpoint.capitalize(), element.name)}}</legend>
       %# Editing an element
       %elif element:
           <div class="alert alert-dismissible alert-warning">
              <button type="button" class="close" data-dismiss="alert">×</button>
              <h4>{{_('Please confirm that this element must be deleted.')}}</h4>
           </div>
-         <legend>{{! _('%s <code>%s</code>') % (plugin.backend_endpoint.capitalize(), element.name)}}</legend>
+         <legend>{{! _('%s <code>%s</code>') % (object_plugin.backend_endpoint.capitalize(), element.name)}}</legend>
       %end
 
       %if edition:
