@@ -9,6 +9,8 @@ if (debugMaps) {
 
 var positionHosts = false;
 
+var $map = null;
+
 var defaultZoom = 12;
 if (debugMaps) console.log('Default zoom: ', defaultZoom);
 var defaultCenter = L.latLng(46.60611, 1.87528);
@@ -238,12 +240,19 @@ mapInit = function(map_id, editable, callback) {
 
     var map_object = $('#' + map_id);
     if (map_object && map_object._leaflet_id) {
-        console.warning('Map is already initialized.');
+        console.log('Map is already initialized.');
         return false;
     }
 
-    $map = L.map(map_id, {zoom: defaultZoom, center: defaultCenter});
-    if (debugMaps) console.log('Map object: ', map_id, $map)
+    if ($map != undefined) { $map.remove(); }
+    try {
+        $map = L.map(map_id, {zoom: defaultZoom, center: defaultCenter});
+        if (debugMaps) console.log('Map object: ', map_id, $map)
+    } catch (e) {
+        if (debugMaps) console.log('Map already initialized: ', map_id, $map)
+        console.log('Map is already initialized.');
+        return false;
+    }
 
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'}).addTo($map);
 

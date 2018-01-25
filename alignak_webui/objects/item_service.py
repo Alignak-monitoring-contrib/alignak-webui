@@ -207,6 +207,8 @@ class Service(BackendElement):
     @property
     def state(self):
         """Return service live state"""
+        if not self.monitored:
+            return 'not monitored'
         return self.ls_state
 
     @property

@@ -97,7 +97,7 @@ class PluginHosts(Plugin):
                         'for': ['host'],
                         'order': 3,
                         'name': _('Configuration'),
-                        'level': 1,
+                        # 'level': 1,
                         'template': 'host_configuration_widget',
                         'icon': 'gear',
                         'read_only': True,

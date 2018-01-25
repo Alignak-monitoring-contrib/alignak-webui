@@ -228,6 +228,9 @@ log_level = 'INFO'
 if app.config.get('%s.debug' % app_name, False):  # pragma: no cover - not testable easily...
     print("-> Activated DEBUG log")
     log_level = 'DEBUG'
+if os.environ.get('ALIGNAK_WEBUI_LOG_LEVEL'):  # pragma: no cover, tested but not coverable
+    log_level = os.environ.get('ALIGNAK_WEBUI_LOG_LEVEL', 'INFO')
+    print("Application log level from environment: %s" % log_level)
 
 # Search log file location
 log_locations = [
