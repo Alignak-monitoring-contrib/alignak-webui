@@ -704,7 +704,6 @@ class DataManager(object):
 
                     'services_total': 89,
                     'services_not_monitored': 0,
-                    'services_business_impact': 0,
                     'services_ok_hard': 8,
                     'services_ok_soft': 0,
                     'services_warning_hard': 0,
@@ -721,7 +720,6 @@ class DataManager(object):
 
                     'hosts_total': 13,
                     'hosts_not_monitored': 0,
-                    'hosts_business_impact': 0,
                     'hosts_up_hard': 3,
                     'hosts_up_soft': 0,
                     'hosts_down_hard': 14,
@@ -778,7 +776,7 @@ class DataManager(object):
             'hosts_synthesis': {
                 'nb_elts': 0,
                 'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
-                'business_impact': 0,
+                # 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
@@ -798,7 +796,7 @@ class DataManager(object):
             'services_synthesis': {
                 'nb_elts': 0,
                 'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
-                'business_impact': 0,
+                # 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
@@ -882,10 +880,10 @@ class DataManager(object):
                         100.0 * hosts_synthesis['nb_not_monitored'] / hosts_synthesis['nb_elts'], 2
                     ) if hosts_synthesis['nb_elts'] else 0.0
                 })
-            hosts_synthesis.update({
-                'business_impact': min(hosts_synthesis['business_impact'],
-                                       livesynthesis['hosts_business_impact']),
-            })
+            # hosts_synthesis.update({
+            #     'business_impact': min(hosts_synthesis['business_impact'],
+            #                            livesynthesis['hosts_business_impact']),
+            # })
             for state in 'up', 'down', 'unreachable':
                 hosts_synthesis.update({
                     'nb_%s_hard' % state:
@@ -940,10 +938,10 @@ class DataManager(object):
                         100.0 * services_synthesis['nb_not_monitored'] /
                         services_synthesis['nb_elts'], 2) if services_synthesis['nb_elts'] else 0.0
                 })
-            services_synthesis.update({
-                'business_impact': min(services_synthesis['business_impact'],
-                                       livesynthesis['services_business_impact']),
-            })
+            # services_synthesis.update({
+            #     'business_impact': min(services_synthesis['business_impact'],
+            #                            livesynthesis['services_business_impact']),
+            # })
             for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
                 services_synthesis.update({
                     'nb_%s_hard' % state:
@@ -1011,7 +1009,7 @@ class DataManager(object):
             'hosts_synthesis': {
                 'nb_elts': 0,
                 'nb_not_monitored': 0,
-                'business_impact': 0,
+                # 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
@@ -1031,7 +1029,7 @@ class DataManager(object):
             'services_synthesis': {
                 'nb_elts': 0,
                 'nb_not_monitored': 0,
-                'business_impact': 0,
+                # 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
@@ -1087,10 +1085,10 @@ class DataManager(object):
                     100.0 * hosts_synthesis['nb_not_monitored'] / hosts_synthesis['nb_elts'], 2
                 ) if hosts_synthesis['nb_elts'] else 0.0
             })
-        hosts_synthesis.update({
-            'business_impact': min(hosts_synthesis['business_impact'],
-                                   item["hosts_business_impact"]),
-        })
+        # hosts_synthesis.update({
+        #     'business_impact': min(hosts_synthesis['business_impact'],
+        #                            item["hosts_business_impact"]),
+        # })
         for state in 'up', 'down', 'unreachable':
             hosts_synthesis.update({
                 "nb_%s_hard" % state:
@@ -1141,10 +1139,10 @@ class DataManager(object):
                     100.0 * services_synthesis['nb_not_monitored'] / services_synthesis['nb_elts'],
                     2) if services_synthesis['nb_elts'] else 0.0
             })
-        services_synthesis.update({
-            'business_impact': min(services_synthesis['business_impact'],
-                                   item["services_business_impact"]),
-        })
+        # services_synthesis.update({
+        #     'business_impact': min(services_synthesis['business_impact'],
+        #                            item["services_business_impact"]),
+        # })
         for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
             services_synthesis.update({
                 "nb_%s_hard" % state:
@@ -1207,10 +1205,10 @@ class DataManager(object):
             hs.update({"nb_elts": livesynthesis["hosts_total"]})
             if getattr(livesynthesis, 'hosts_not_monitored', None):
                 hs.update({"nb_monitored": livesynthesis["hosts_not_monitored"]})
-            hs.update({
-                'business_impact': min(hs['business_impact'],
-                                       livesynthesis["hosts_business_impact"]),
-            })
+            # hs.update({
+            #     'business_impact': min(hs['business_impact'],
+            #                            livesynthesis["hosts_business_impact"]),
+            # })
             for state in 'up', 'down', 'unreachable':
                 hs.update({"nb_%s_hard" % state: livesynthesis["hosts_%s_hard" % state]})
                 hs.update({"nb_%s_soft" % state: livesynthesis["hosts_%s_soft" % state]})
@@ -1237,10 +1235,10 @@ class DataManager(object):
             ss.update({"nb_elts": livesynthesis["services_total"]})
             if getattr(livesynthesis, 'services_not_monitored', None):
                 ss.update({"nb_monitored": livesynthesis["services_not_monitored"]})
-            ss.update({
-                'business_impact': min(ss['business_impact'],
-                                       livesynthesis["services_business_impact"]),
-            })
+            # ss.update({
+            #     'business_impact': min(ss['business_impact'],
+            #                            livesynthesis["services_business_impact"]),
+            # })
             for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
                 ss.update({"nb_%s_hard" % state: livesynthesis["services_%s_hard" % state]})
                 ss.update({"nb_%s_soft" % state: livesynthesis["services_%s_soft" % state]})
