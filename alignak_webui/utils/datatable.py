@@ -92,8 +92,9 @@ class Datatable(object):
         self.exportable = True
         self.printable = True
 
-        # Table concers a templated backend endpoint (host, service, user)
+        # Table concerns a templated / ui visible backend endpoint (host, service, user)
         self.is_templated = False
+        self.ui_visibility = False
 
         self.id_property = None
         self.name_property = None
@@ -101,15 +102,27 @@ class Datatable(object):
 
         # Get table structure and description
         self.templates = templates
-        self.is_templated = False
         self.get_data_model(plugin_table)
 
-        # Templates management
+        # Count total elements excluding templates if necessary
         if self.is_templated:
-            self.records_total = self.datamgr.my_backend.count(self.object_type, params={
-                'where': {'_is_template': self.templates}})
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates,
+                                                        'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates}}
+                )
         else:
-            self.records_total = self.datamgr.my_backend.count(self.object_type)
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(self.object_type)
+
 
     def get_data_model(self, plugin_table):
         """Get the data model for an element type
@@ -172,6 +185,9 @@ class Datatable(object):
 
             if field == '_is_template':
                 self.is_templated = True
+
+            if field == 'webui_visible':
+                self.ui_visibility = True
 
             if self.templates:
                 self.title = self.templates_title
@@ -542,15 +558,32 @@ class Datatable(object):
 
         # Count total elements excluding templates if necessary
         if self.is_templated:
-            self.records_total = self.datamgr.my_backend.count(
-                self.object_type, params={'where': {'_is_template': self.templates}}
-            )
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates,
+                                                        'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates}}
+                )
             if 'where' in parameters:
                 parameters['where'].update({'_is_template': self.templates})
             else:
                 parameters['where'] = {'_is_template': self.templates}
         else:
-            self.records_total = self.datamgr.my_backend.count(self.object_type)
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(self.object_type)
+
+        if self.ui_visibility:
+            if 'where' in parameters:
+                parameters['where'].update({'webui_visible': True})
+            else:
+                parameters['where'] = {'webui_visible': True}
 
         # Request objects from the backend ...
         logger.info("table data get parameters: %s", parameters)
@@ -602,7 +635,11 @@ class Datatable(object):
         self.records_filtered = self.records_total
         for item in items:
             bo_object = object_class(item)
-            logger.warning("table data object: %s", bo_object)
+            if not bo_object.ui_visible:
+                logger.debug("Not UI visible object: %s", bo_object)
+                continue
+
+            logger.info("table data object: %s", bo_object)
             # This is an awful hack that allows to update the objects filtered for a table.
             # Two main interests:
             # - update the backend because some massive modifications are necessary for testing
@@ -633,7 +670,7 @@ class Datatable(object):
             row['DT_RowData'] = {}
             row['_id'] = bo_object.id
             for field in self.table_columns:
-                logger.warning(" - field: %s", field)
+                logger.debug(" - field: %s", field)
                 # Specific fields
                 if field['data'] == self.name_property:
                     # Create a link to navigate to the item page

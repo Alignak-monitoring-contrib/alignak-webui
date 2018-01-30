@@ -245,7 +245,7 @@ class Host(BackendElement):
     @property
     def max_attempts(self):
         """Return host live state maximum attempts"""
-        return self.ls_max_attempts
+        return self.max_check_attempts
 
     @property
     def next_check(self):

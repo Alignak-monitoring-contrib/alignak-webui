@@ -232,20 +232,6 @@
                %end
             </td>
          </tr>
-         %if (host.active_checks_enabled):
-         <tr>
-            <td><strong>{{_('Check interval:')}}</strong></td>
-            <td>{{host.check_interval}} minutes</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Retry interval:')}}</strong></td>
-            <td>{{host.retry_interval}} minutes</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Max check attempts:')}}</strong></td>
-            <td>{{host.max_check_attempts}}</td>
-         </tr>
-         %end
          <tr>
             <td><strong>{{_('Passive checks:')}}</strong></td>
             <td>
@@ -263,6 +249,18 @@
                </div>
                %end
             </td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Check interval:')}}</strong></td>
+            <td>{{host.check_interval}} minutes</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Retry interval:')}}</strong></td>
+            <td>{{host.retry_interval}} minutes</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Max check attempts:')}}</strong></td>
+            <td>{{host.max_attempts}}</td>
          </tr>
          %if (host.passive_checks_enabled):
          <tr>

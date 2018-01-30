@@ -80,6 +80,10 @@
                <td><strong>{{_('Token')}}</strong></td>
                <td>{{ user.token }}</td>
             </tr>
+            <tr>
+               <td><strong>{{_('UUID')}}</strong></td>
+               <td>{{ user.id }}</td>
+            </tr>
             %end
          </tbody>
       </table>

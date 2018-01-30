@@ -429,8 +429,8 @@ class BackendElement(object):
                                         logger.debug("__init__, get %s, %s", object_type, element)
                                         result = self.get_backend().get(object_type + '/' + element)
                                         if not result:  # pragma: no cover, should not happen
-                                            logger.error("__init__, item not found for %s, %s",
-                                                         object_type, value)
+                                            logger.error("__init__, item in list not found "
+                                                         "for %s, %s", object_type, value)
                                             continue
                                     except BackendException as e:
                                         if e.code == 404:
@@ -645,6 +645,13 @@ class BackendElement(object):
         if hasattr(self, '_total'):
             return self._total
         return 0
+
+    @property
+    def ui_visible(self):
+        """Get Item object UI visibility"""
+        if hasattr(self, 'webui_visible'):
+            return getattr(self, 'webui_visible')
+        return True
 
     @property
     def is_problem(self):

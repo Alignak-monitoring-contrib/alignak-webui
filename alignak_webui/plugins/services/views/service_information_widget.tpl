@@ -234,20 +234,6 @@
                %end
             </td>
          </tr>
-         %if (service.active_checks_enabled):
-            <tr>
-               <td><strong>{{_('Check interval:')}}</strong></td>
-               <td>{{service.check_interval}} minutes</td>
-            </tr>
-            <tr>
-               <td><strong>{{_('Retry interval:')}}</strong></td>
-               <td>{{service.retry_interval}} minutes</td>
-            </tr>
-            <tr>
-               <td><strong>{{_('Max check attempts:')}}</strong></td>
-               <td>{{service.max_check_attempts}}</td>
-            </tr>
-         %end
          <tr>
             <td><strong>{{_('Passive checks:')}}</strong></td>
             <td>
@@ -266,6 +252,18 @@
                %end
             </td>
          </tr>
+        <tr>
+           <td><strong>{{_('Check interval:')}}</strong></td>
+           <td>{{service.check_interval}} minutes</td>
+        </tr>
+        <tr>
+           <td><strong>{{_('Retry interval:')}}</strong></td>
+           <td>{{service.retry_interval}} minutes</td>
+        </tr>
+        <tr>
+           <td><strong>{{_('Max check attempts:')}}</strong></td>
+           <td>{{service.max_attempts}}</td>
+        </tr>
          %if service.passive_checks_enabled:
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>

@@ -177,23 +177,25 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
         logger.debug("get, %s, params: %s", object_type, params)
 
-        if isinstance(params, basestring):
-            params = {'where': {'_id': params}}
-            logger.debug("get, %s, params: %s", object_type, params)
+        if '/' not in object_type:
+            # Do not Get a specific element, manage search parameters
+            if isinstance(params, basestring):
+                params = {'where': {'_id': params}}
+                logger.debug("get, %s, params: %s", object_type, params)
 
-        # Update backend search parameters
-        if params is None:
-            params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
-        if 'where' in params:
-            params['where'] = json.dumps(params['where'])
-        if 'embedded' in params:
-            params['embedded'] = json.dumps(params['embedded'])
-        if 'where' not in params:
-            params['where'] = {}
-        if 'page' not in params:
-            params['page'] = 0
-        if 'max_results' not in params:
-            params['max_results'] = BACKEND_PAGINATION_LIMIT
+            # Update backend search parameters
+            if params is None:
+                params = {'page': 0, 'max_results': BACKEND_PAGINATION_LIMIT}
+            if 'where' in params:
+                params['where'] = json.dumps(params['where'])
+            if 'embedded' in params:
+                params['embedded'] = json.dumps(params['embedded'])
+            if 'where' not in params:
+                params['where'] = {}
+            if 'page' not in params:
+                params['page'] = 0
+            if 'max_results' not in params:
+                params['max_results'] = BACKEND_PAGINATION_LIMIT
         logger.debug("get, search in the backend for %s: parameters=%s, all: %s",
                      object_type, params, all_elements)
 
@@ -222,9 +224,8 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             total = len(result['_items'])
             if '_meta' in result:
                 total = result['_meta']['total']
-            logger.info("get %s %s, %d total elements found in the backend",
-                        object_type, ' (All required)' if all_elements else ' (filtered)',
-                        total)
+            logger.debug("get %s %s, %d total elements found in the backend",
+                         object_type, ' (All required)' if all_elements else ' (filtered)', total)
             for item in result['_items']:
                 item.update({'_total': total})
             return result['_items']
