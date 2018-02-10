@@ -1,3 +1,7 @@
+*The Travis CI tests are currently broken because of recent pep8/pylint updates that are not yet considered in the tests suites. Moreover some modifications are also currently on progress in Alignak and it also breaks some tests tha tneed to be refactored*
+-----
+
+
 Alignak Web UI
 ##############
 
