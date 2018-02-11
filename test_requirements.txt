@@ -11,7 +11,7 @@ coverage
 coveralls
 # Static code analysis libraries
 pylint
-pep8
+pycodestyle
 pep257
 # alignak (most recent develop)
 -e git+git://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak

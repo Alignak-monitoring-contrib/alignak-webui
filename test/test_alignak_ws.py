@@ -84,7 +84,7 @@ def setup_module(module):
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
         shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
-        stdout=fnull, stderr=fnull
+        # stdout=fnull, stderr=fnull
     )
     assert exit_code == 0
     print("Fed")
