@@ -268,19 +268,7 @@
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>
             <td>
-               %if not current_user.is_power():
-                  {{! Helper.get_on_off(service.check_freshness, message=_('Enabled') if service.check_freshness else _('Disabled'))}}
-               %else:
-               <div class="togglebutton">
-                  <label>
-                     <input type="checkbox"
-                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
-                            data-element="{{service.id}}" data-command="{{'disable_service_freshness_checks' if service.check_freshness else 'enable_service_freshness_checks'}}"
-                            {{ 'checked="checked"' if service.check_freshness else ''}}>
-                     <small>{{_('Enabled') if service.check_freshness else _('Disabled') }}</small>
-                  </label>
-               </div>
-               %end
+              {{! Helper.get_on_off(service.check_freshness, message=_('Enabled') if service.check_freshness else _('Disabled'))}}
             </td>
          </tr>
          %if (service.check_freshness):
