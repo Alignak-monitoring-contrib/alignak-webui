@@ -142,7 +142,7 @@
     background-color: #FDF4F3 !important;
 }
 
-.table-row-unknown,
+.table-row-unknown {
     background-color: #F2F7FA !important;
 }
 
