@@ -161,8 +161,8 @@ setup(
         'pymongo>=3.2', 'requests>=2.9.1',
         'python-gettext', 'termcolor',
         'python-dateutil>=2.4.2', 'pytz',
-        'uwsgi',
-        'alignak-backend-client'
+        # 'uwsgi',
+        'alignak-backend',
     ],
 
     # Entry points (if some) ...
