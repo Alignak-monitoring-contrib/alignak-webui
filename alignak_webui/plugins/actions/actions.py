@@ -177,8 +177,8 @@ class PluginActions(Plugin):
                     problem = True
                 else:
                     if elements_type == 'service':
-                        status += _('Sent a command %s for %s/%s. ') % \
-                                  (command, element.host.name, element.name)
+                        status += _('Sent a command %s for %s/%s. ') \
+                                  % (command, element.host.name, element.name)
                     else:
                         status += _('Sent a command %s for %s. ') % (command, element.name)
 
@@ -249,11 +249,10 @@ class PluginActions(Plugin):
                     problem = True
                 else:
                     if elements_type == 'service':
-                        status += _('Sent a command %s for %s/%s. ') % \
-                                  (command, element.host.name, element.name)
+                        status += _('Sent a command %s for %s/%s. ') \
+                                  % (command, element.host.name, element.name)
                     else:
                         status += _('Sent a command %s for %s. ') % (command, element.name)
-
 
         logger.info("Request a re-check, result: %s", status)
 
@@ -333,8 +332,8 @@ class PluginActions(Plugin):
                     problem = True
                 else:
                     if elements_type == 'service':
-                        status += _('Sent a command %s for %s/%s. ') % \
-                                  (command, element.host.name, element.name)
+                        status += _('Sent a command %s for %s/%s. ') \
+                                  % (command, element.host.name, element.name)
                     else:
                         status += _('Sent a command %s for %s. ') % (command, element.name)
 

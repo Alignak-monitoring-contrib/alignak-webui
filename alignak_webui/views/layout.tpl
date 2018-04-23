@@ -195,7 +195,7 @@
             % if options_panel:
             <div id="options-panel">
                <div class="card slider-card">
-                  <h3>Hosts:</h3>
+                  <h3>{{_('Top ten hosts:')}}</h3>
                   <div class="list-group list-group-flush">
                    %for host in datamgr.my_hosts:
                       <li class="list-group-item">

@@ -360,7 +360,6 @@ class DataManager(object):
             'max_results': 10,
             'sort': '-_overall_state_id'
         }
-        # self.my_hosts = self.get_hosts(search=search, embedded=False, all_elements=True, projection={"name": 1})
         self.my_hosts = self.get_hosts(search=search, embedded=False)
         logger.info("Get hosts names list, got %d hosts: %s", len(self.my_hosts), self.my_hosts)
 
@@ -844,8 +843,8 @@ class DataManager(object):
             error = False
             while not found and not error:
                 try:
-                    item = self.my_backend.get('livesynthesis/' + self.my_ls['_id'] +
-                                               '?concatenation=1', params=None)
+                    item = self.my_backend.get(
+                        'livesynthesis/' + self.my_ls['_id'] + '?concatenation=1', params=None)
                     items = [item]
                     found = True
                 except BackendException as exp:  # pragma: no cover, simple protection
@@ -883,8 +882,7 @@ class DataManager(object):
             if getattr(livesynthesis, 'hosts_not_monitored', None):
                 hosts_synthesis.update({
                     'nb_not_monitored':
-                        hosts_synthesis['nb_not_monitored'] +
-                        livesynthesis['hosts_not_monitored']
+                        hosts_synthesis['nb_not_monitored'] + livesynthesis['hosts_not_monitored']
                 })
                 hosts_synthesis.update({
                     'pct_not_monitored': round(
@@ -941,8 +939,8 @@ class DataManager(object):
             if getattr(livesynthesis, 'services_not_monitored', None):
                 services_synthesis.update({
                     'nb_not_monitored':
-                        services_synthesis['nb_not_monitored'] +
-                        livesynthesis['services_not_monitored']
+                        services_synthesis['nb_not_monitored']
+                        + livesynthesis['services_not_monitored']
                 })
                 services_synthesis.update({
                     'pct_not_monitored': round(
@@ -960,14 +958,12 @@ class DataManager(object):
                     livesynthesis['services_%s_hard' % state]
                 })
                 services_synthesis.update({
-                    'nb_%s_soft' % state:
-                    services_synthesis['nb_%s_soft' % state] +
-                    livesynthesis['services_%s_soft' % state]
+                    'nb_%s_soft' % state: services_synthesis['nb_%s_soft' % state]
+                                          + livesynthesis['services_%s_soft' % state]
                 })
                 services_synthesis.update({
-                    'nb_' + state:
-                    services_synthesis['nb_%s_hard' % state] +
-                        services_synthesis['nb_%s_soft' % state]
+                    'nb_' + state: services_synthesis['nb_%s_hard' % state]
+                                   + services_synthesis['nb_%s_soft' % state]
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 services_synthesis.update({
@@ -1157,18 +1153,15 @@ class DataManager(object):
         for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
             services_synthesis.update({
                 "nb_%s_hard" % state:
-                services_synthesis["nb_%s_hard" % state] +
-                item["services_%s_hard" % state]
+                services_synthesis["nb_%s_hard" % state] + item["services_%s_hard" % state]
             })
             services_synthesis.update({
                 "nb_%s_soft" % state:
-                services_synthesis["nb_%s_soft" % state] +
-                item["services_%s_soft" % state]
+                services_synthesis["nb_%s_soft" % state] + item["services_%s_soft" % state]
             })
             services_synthesis.update({
                 "nb_" + state:
-                services_synthesis["nb_%s_hard" % state] +
-                    services_synthesis["nb_%s_soft" % state]
+                services_synthesis["nb_%s_hard" % state] + services_synthesis["nb_%s_soft" % state]
             })
         for state in 'acknowledged', 'in_downtime', 'flapping':
             services_synthesis.update({
@@ -1237,8 +1230,7 @@ class DataManager(object):
             for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
                 hs.update({
                     "pct_" + state: round(
-                        100.0 * hs['nb_' + state] /
-                        (hs['nb_elts'] - hs['nb_not_monitored']), 2
+                        100.0 * hs['nb_' + state] / (hs['nb_elts'] - hs['nb_not_monitored']), 2
                     ) if hs['nb_elts'] else 0.0
                 })
 
@@ -1257,8 +1249,7 @@ class DataManager(object):
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 ss.update({
                     "pct_" + state: round(
-                        100.0 * ss['nb_' + state] /
-                        (ss['nb_elts'] - ss['nb_not_monitored']), 2
+                        100.0 * ss['nb_' + state] / (ss['nb_elts'] - ss['nb_not_monitored']), 2
                     ) if ss['nb_elts'] else 0.0
                 })
             ss.update({
@@ -1268,15 +1259,13 @@ class DataManager(object):
             for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
                 ss.update({
                     "pct_" + state: round(
-                        100.0 * ss['nb_' + state] /
-                        (ss['nb_elts'] - ss['nb_not_monitored']), 2
+                        100.0 * ss['nb_' + state] / (ss['nb_elts'] - ss['nb_not_monitored']), 2
                     ) if ss['nb_elts'] else 0.0
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':
                 ss.update({
                     "pct_" + state: round(
-                        100.0 * ss['nb_' + state] /
-                        (ss['nb_elts'] - ss['nb_not_monitored']), 2
+                        100.0 * ss['nb_' + state] / (ss['nb_elts'] - ss['nb_not_monitored']), 2
                     ) if ss['nb_elts'] else 0.0
                 })
 

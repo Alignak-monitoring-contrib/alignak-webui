@@ -123,7 +123,6 @@ class Datatable(object):
             else:
                 self.records_total = self.datamgr.my_backend.count(self.object_type)
 
-
     def get_data_model(self, plugin_table):
         """Get the data model for an element type
 

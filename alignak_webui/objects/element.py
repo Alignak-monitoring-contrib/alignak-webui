@@ -401,7 +401,7 @@ class BackendElement(object):
                                 else:
                                     logger.exception(e)
                                 continue
-                            except:  # pragma: no cover, should not happen
+                            except:  # pylint: disable=bare-except
                                 logger.error("__init__, %s (id = %s) not found for %s",
                                              object_type, value, self)
                                 continue
@@ -440,7 +440,7 @@ class BackendElement(object):
                                         else:
                                             logger.exception(e)
                                         continue
-                                    except:  # pragma: no cover, should not happen
+                                    except:  # pylint: disable=bare-except
                                         logger.error("__init__, item in list not "
                                                      "existing for %s, %s (%s) in %s",
                                                      object_type, value, element, self)
