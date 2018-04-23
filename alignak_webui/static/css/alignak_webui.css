@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2015-2017 F. Mohier
+* Copyright (c) 2015-2018 F. Mohier
 *
 **/
 
@@ -338,8 +338,8 @@ form.template_form {
  * Options slider
 */
 .slider-card {
-    width: 98%;
-    margin-left: 1%;
+    width: 90%;
+    margin-left: 5%;
 
     margin-top: 50vh; /* poussé de la moitié de hauteur de viewport */
     transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */

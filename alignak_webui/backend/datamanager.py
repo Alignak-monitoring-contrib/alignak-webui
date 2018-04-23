@@ -6,7 +6,7 @@
 # Necessary to import all backend elements objects!
 # pylint: disable=wildcard-import,unused-wildcard-import
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
@@ -29,6 +29,7 @@
 """
 
 import time
+import json
 from datetime import datetime
 from copy import deepcopy
 import logging
@@ -352,6 +353,16 @@ class DataManager(object):
 
         if new_objects_count > objects_count:
             self.require_refresh()
+
+        # Copy because the search filter is updated by the function ...
+        search = {
+            'page': 1,
+            'max_results': 10,
+            'sort': '-_overall_state_id'
+        }
+        # self.my_hosts = self.get_hosts(search=search, embedded=False, all_elements=True, projection={"name": 1})
+        self.my_hosts = self.get_hosts(search=search, embedded=False)
+        logger.info("Get hosts names list, got %d hosts: %s", len(self.my_hosts), self.my_hosts)
 
         self.loaded = True
         self.loading = 0
@@ -735,7 +746,7 @@ class DataManager(object):
                     ... / ...
                 }
 
-            The new backend (as of 08/01/2017) introduces a new API, with two parameters:
+            The new backend (as of 08/01/2018) introduces a new API, with two parameters:
                 * *history=1*: get the history in field *history* with all
                 history for the last minutes
                 * *concatenation=1*: get the livesynthesis data merged with livesynthesis
@@ -1463,7 +1474,8 @@ class DataManager(object):
     ##
     # Hosts
     ##
-    def get_hosts(self, search=None, template=False, all_elements=False, embedded=True):
+    def get_hosts(self, search=None, template=False, all_elements=False,
+                  embedded=True, projection=None):
         """Get a list of all hosts."""
         if search is None:
             search = {}
@@ -1483,6 +1495,8 @@ class DataManager(object):
                     'parents': 1, 'hostgroups': 1, 'users': 1, 'usergroups': 1
                 }
             })
+        if projection is not None:
+            search.update({'projection': json.dumps(projection)})
 
         try:
             logger.debug("get_hosts, search: %s", search)
@@ -1839,7 +1853,7 @@ class DataManager(object):
             tree_item = {
                 'id': service.id,
                 'parent': parent,
-                'text': service.alias,
+                'text': service.name,
                 'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
                 'state': {
                     "opened": True,
@@ -1857,10 +1871,11 @@ class DataManager(object):
                 'a_attr': {},
                 # Attributes for the tree node <li>
                 'li_attr': {
-                    'title': "%s - %s (%s)" % (service.status,
-                                               Helper.print_duration(service.last_check,
-                                                                     duration_only=True, x_elts=0),
-                                               service.output),
+                    'title': "%s - %s - %s (%s)"
+                             % (service.name, service.status,
+                                Helper.print_duration(service.last_check,
+                                                      duration_only=True, x_elts=0),
+                                service.output),
 
                 }
             }

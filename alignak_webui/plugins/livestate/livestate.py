@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
@@ -110,6 +110,7 @@ class PluginLivestate(Plugin):
             session['user_message'] = None
 
         return {
+            'options_panel': True,
             'panels': datamgr.get_user_preferences(user, 'livestate', {}),
             'layout': request.app.config.get('livestate_layout', 'table'),
             'title': request.query.get('title', _('Livestate')),

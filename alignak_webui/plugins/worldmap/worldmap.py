@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
@@ -98,7 +98,7 @@ class PluginWorldmap(Plugin):
             '02': (_('Acknowledged'), 'is:acknowledged'),
             '03': (_('Downtimed'), 'is:in_downtime'),
             '04': (_('Warning'), 'is:warning'),
-            '05': (_('Critical'), 'is:warning'),
+            '05': (_('Critical'), 'is:critical'),
             '06': ('', ''),
         }
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=fixme
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
@@ -1457,7 +1457,7 @@ class Helper(object):
                 logger.warning("Item %s is not monitored, do not display...", item)
                 continue
             if not item.is_problem:
-                logger.warning("Item %s is not a problem, do not care...", item)
+                logger.debug("Item %s is not a problem, do not care...", item)
                 continue
 
             logger.debug("get_html_livestate, item: %d / %d / %d / %s",

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
@@ -152,31 +152,35 @@ class PluginActions(Plugin):
                     continue
 
                 # Prepare post request ...
+                command = 'acknowledge_host_problem'
+                if elements_type == 'service':
+                    command = 'acknowledge_svc_problem'
+                parameters = [
+                    '2' if request.forms.get('sticky', 'false') == 'true' else '0',
+                    '1' if request.forms.get('notify', 'false') == 'true' else '0',
+                    '1' if request.forms.get('persistent', 'false') == 'true' else '0',
+                    user.name,
+                    request.forms.get('comment', _('No comment'))
+                ]
                 data = {
-                    'action': 'add',
-                    'host': element.id,
-                    'service': None,
-                    'user': user.id,
-                    'sticky': request.forms.get('sticky', 'false') == 'true',
-                    'notify': request.forms.get('notify', 'false') == 'true',
-                    'persistent': request.forms.get('persistent', 'false') == 'true',
-                    'comment': request.forms.get('comment', _('No comment'))
+                    'timestamp': int(time.time()),
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
                 }
                 if elements_type == 'service':
-                    data.update({'host': element.host.id, 'service': element.id})
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
 
-                logger.info("Request an acknowledge, data: %s", data)
-                if not datamgr.add_acknowledge(data=data):
-                    status += _("Failed adding an acknowledge for %s. ") % element.name
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
                     problem = True
                 else:
                     if elements_type == 'service':
-                        data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Acknowledge sent for %s/%s. ') % \
-                            (element.host.name, element.name)
+                        status += _('Sent a command %s for %s/%s. ') % \
+                                  (command, element.host.name, element.name)
                     else:
-                        status += _('Acknowledge sent for %s. ') % \
-                            element.name
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
 
         logger.info("Request an acknowledge, result: %s", status)
 
@@ -224,26 +228,32 @@ class PluginActions(Plugin):
                     continue
 
                 # Prepare post request ...
+                command = 'schedule_forced_host_check'
+                if elements_type == 'service':
+                    command = 'schedule_forced_svc_check'
+                parameters = [
+                    "%s" % int(time.time() + 5)
+                ]
                 data = {
-                    'host': element.id,
-                    'service': None,
-                    'user': user.id,
-                    'comment': request.forms.get('comment', _('No comment'))
+                    'timestamp': int(time.time()),
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
                 }
                 if elements_type == 'service':
-                    data.update({'host': element.host.id, 'service': element.id})
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
 
-                logger.info("Request a recheck, data: %s", data)
-                if not datamgr.add_recheck(data=data):
-                    status += _("Failed adding a check request for %s. ") % element.name
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
                     problem = True
                 else:
                     if elements_type == 'service':
-                        data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Check request sent for %s/%s. ') % \
-                            (element.host.name, element.name)
+                        status += _('Sent a command %s for %s/%s. ') % \
+                                  (command, element.host.name, element.name)
                     else:
-                        status += _('Check request sent for %s. ') % element.name
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
+
 
         logger.info("Request a re-check, result: %s", status)
 
@@ -296,32 +306,37 @@ class PluginActions(Plugin):
                     continue
 
                 # Prepare post request ...
+                command = 'schedule_host_downtime'
+                if elements_type == 'service':
+                    command = 'schedule_svc_downtime'
+                parameters = [
+                    request.forms.get('start_time'),
+                    request.forms.get('end_time'),
+                    '1' if request.forms.get('fixed', 'false') == 'true' else '0',
+                    '0',
+                    request.forms.get('duration', '86400'),
+                    user.name,
+                    request.forms.get('comment', _('No comment'))
+                ]
                 data = {
-                    'action': 'add',
-                    'host': element.id,
-                    'service': None,
-                    'user': user.id,
-                    'start_time': request.forms.get('start_time'),
-                    'end_time': request.forms.get('end_time'),
-                    'fixed': request.forms.get('fixed', 'false') == 'true',
-                    'duration': int(request.forms.get('duration', '86400')),
-                    'comment': request.forms.get('comment', _('No comment'))
+                    'timestamp': int(time.time()),
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
                 }
                 if elements_type == 'service':
-                    data.update({'host': element.host.id, 'service': element.id})
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
 
-                logger.info("Request a downtime, data: %s", data)
-                if not datamgr.add_downtime(data=data):
-                    status += _("Failed adding a downtime for %s. ") % element.name
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
                     problem = True
                 else:
                     if elements_type == 'service':
-                        data.update({'host': element.host.id, 'service': element.id})
-                        status += _('Downtime sent for %s/%s. ') % \
-                            (element.host.name, element.name)
+                        status += _('Sent a command %s for %s/%s. ') % \
+                                  (command, element.host.name, element.name)
                     else:
-                        status += _('Downtime sent for %s. ') % \
-                            element.name
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
 
         logger.info("Request a downtime, result: %s", status)
 

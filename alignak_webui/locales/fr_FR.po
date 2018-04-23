@@ -1,5 +1,5 @@
 # French translations for alignak_webui.
-# Copyright (C) 2015-2017 Frederic MOHIER
+# Copyright (C) 2015-2018 Frederic MOHIER
 # This file is distributed under the same license as the alignak_webui
 # project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.

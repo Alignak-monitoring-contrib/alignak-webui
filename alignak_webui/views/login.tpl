@@ -78,8 +78,16 @@
                      {{message}}
                   </div>
                   %end
+                  %login_alert=request.app.config.get('login_alert', _('Bla bla bla...'))
+                  %if login_alert:
+                  <div id="login-alert" class="alert alert-warning" role="alert">
+                     <strong>{{_('Alignak WebUI is a nice Proof of Concept!')}}</strong>
+                     <br>
+                     {{! login_alert}}
+                  </div>
+                  %end
                </div>
-               %login_text=request.app.config.get('login_text', _('Welcome!<br> Log-in to use the application'))
+               %login_text=request.app.config.get('login_text', _('Welcome to <strong>Alignak WebUI</strong><br> Log-in to use the application'))
                %if login_text:
                <div class="panel-footer">
                   <h4>{{! login_text}}</h4>

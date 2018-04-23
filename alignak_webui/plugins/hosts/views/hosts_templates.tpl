@@ -133,7 +133,7 @@
             </tr></thead>
 
             <tbody>
-            %for elt in elts:
+            %for elt in sorted(elts, key=lambda host: host.alias):
                <tr id="#{{elt.id}}">
                   %if edition_mode:
                   <td>

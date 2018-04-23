@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017:
+ * Copyright (c) 2015-2018:
  *   Frederic Mohier, frederic.mohier@alignak.net
  *
  * This file is part of (WebUI).

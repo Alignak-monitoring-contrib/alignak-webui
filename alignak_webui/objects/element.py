@@ -5,7 +5,7 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
@@ -529,13 +529,15 @@ class BackendElement(object):
     @property
     def html_link(self):
         """Get Item html link"""
-        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.name, self.json_alias)
+        return '<a href="%s" title="%s">%s</a>' % (self.endpoint, self.json_alias, self.name)
 
-    def get_html_link(self, prefix=None, title=None):
+    def get_html_link(self, prefix=None, title=None, full=True):
         """Get Item html link with an optional prefix and an optional title"""
         if prefix is not None:
             return '<a href="%s%s">%s</a>' % (
-                prefix, self.endpoint, self.alias if not title else title
+                prefix, self.endpoint,
+                (self.name if not full else
+                 "%s (%s)" % (self.name, self.alias)) if not title else title
             )
         if title:
             return '<a href="%s">%s</a>' % (self.endpoint, title)
@@ -572,8 +574,8 @@ class BackendElement(object):
     def alias(self):
         """Get Item object alias - raw form"""
         if hasattr(self, '_alias') and getattr(self, '_alias', None):
-            return getattr(self, '_alias', self.name)
-        return getattr(self, 'name', '')
+            return getattr(self, '_alias')
+        return ''
 
     @property
     def json_alias(self):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=global-statement
 
-# Copyright (c) 2015-2017:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #
 
@@ -27,7 +27,7 @@ __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 
 __author__ = u"Frédéric Mohier"
 __author_email__ = u"frederic.mohier@alignak.net"
-__copyright__ = u"(c) 2015-2017 - %s" % __author__
+__copyright__ = u"(c) 2015-2018 - %s" % __author__
 __license__ = u"GNU Affero General Public License, version 3"
 __git_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-webui"
 __doc_url__ = "http://alignak-web-ui.readthedocs.io/?badge=latest"
