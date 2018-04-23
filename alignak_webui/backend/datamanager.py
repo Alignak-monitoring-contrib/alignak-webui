@@ -144,6 +144,7 @@ class DataManager(object):
 
         self.my_realm = None
         self.my_ls = None
+        self.my_hosts = None
 
         # Restore session parameters
         logger.debug("DM __init__, session: %s", session)

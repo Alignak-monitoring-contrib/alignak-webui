@@ -202,7 +202,6 @@ class PluginActions(Plugin):
 
     def add_recheck(self):
         """Request a forced check"""
-        user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
         element_ids = request.forms.getall('element_id')

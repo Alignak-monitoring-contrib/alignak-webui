@@ -186,7 +186,7 @@ class BackendElement(object):
             # Get global configuration
             app_config = get_app_config()
             if not app_config:  # pragma: no cover, should not happen
-                return
+                return None
 
             cls._backend = BackendConnection(
                 app_config.get('alignak_backend', 'http://127.0.0.1:5000')

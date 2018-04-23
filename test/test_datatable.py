@@ -761,7 +761,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_last_state" data-type="string"',
             '<th data-name="ls_last_state_type" data-type="string"',
             '<th data-name="ls_latency" data-type="float"',
-            '<th data-name="ls_execution_time" data-type="float"'
+            # '<th data-name="ls_execution_time" data-type="float"'
         )
 
         response = self.app.post('/hosts/table_data')

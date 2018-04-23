@@ -33,9 +33,10 @@ import json
 from collections import OrderedDict
 
 from logging import getLogger
-from bottle import request, response, template, view, redirect
 
 from alignak_backend.models import register_models
+
+from bottle import request, response, template, view, redirect
 
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState

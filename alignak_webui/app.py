@@ -71,17 +71,17 @@ import json
 import logging
 import threading
 
-# Bottle Web framework
-import bottle
-from bottle import run, abort, redirect, request, response, static_file
-from bottle import template, BaseTemplate, TEMPLATE_PATH
-from bottle import RouteBuildError, parse_auth
-
 # Session management
 from beaker.middleware import SessionMiddleware
 
 # Command line interpreter
 from docopt import docopt, DocoptExit
+
+# Bottle Web framework
+import bottle
+from bottle import run, abort, redirect, request, response, static_file
+from bottle import template, BaseTemplate, TEMPLATE_PATH
+from bottle import RouteBuildError, parse_auth
 
 # Application import
 from alignak_webui import __manifest__, set_app_config
@@ -506,6 +506,8 @@ def home_page():
     except RouteBuildError:  # pragma: no cover, should never happen!
         return "No home page available in the application routes!"
 
+    return
+
 
 @app.route('/login', 'GET')
 def user_login():
@@ -689,6 +691,7 @@ def enable_cors(fn):
             return fn(*_args, **_kwargs)
 
         # response.status = 204
+        return
 
     return _enable_cors
 

@@ -536,7 +536,7 @@ class TestBasic(unittest2.TestCase):
             'hosts_synthesis': {
                 'nb_elts': 7,
                 'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
-                'business_impact': 0,
+                # 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
@@ -556,7 +556,7 @@ class TestBasic(unittest2.TestCase):
             'services_synthesis': {
                 'nb_elts': 151,
                 'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
-                'business_impact': 0,
+                # 'business_impact': 0,
 
                 'warning_threshold': 2.0, 'global_warning_threshold': 2.0,
                 'critical_threshold': 5.0, 'global_critical_threshold': 5.0,
