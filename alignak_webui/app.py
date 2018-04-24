@@ -4,6 +4,9 @@
 # Else pylint alerts on declared global variables
 # pylint: disable=invalid-name
 
+# Because some functions redirect, the is not always a return
+# pylint: disable=inconsistent-return-statements
+
 # Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
 #

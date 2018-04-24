@@ -1061,7 +1061,7 @@ class DataManager(object):
         try:
             logger.debug("get_livesynthesis_history, history...")
             item = self.my_backend.get('livesynthesis/%s?concatenation=1&history=1',
-                                       self.my_ls['_id'], params=None)
+                                       self.my_ls['_id'], None)
             logger.debug("get_livesynthesis_history, got: %s", item)
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livesynthesis_history, none found")
