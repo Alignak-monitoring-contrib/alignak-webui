@@ -435,10 +435,8 @@ def before_request():
 
         # Stop Alignak backend thread
         # *****
-        logger.debug("client: %s, cookie: %s",
-                     request.environ.get('HTTP_X_FORWARDED_FOR')
-                     or request.environ.get('REMOTE_ADDR'),
-                     request.environ.get('HTTP_COOKIE'))
+        origin = request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR')
+        logger.debug("client: %s, cookie: %s", origin, request.environ.get('HTTP_COOKIE'))
 
         redirect('/login')
 
@@ -720,9 +718,8 @@ def external(widget_type, identifier, action=None):
     # Get the server session (it always exist...)
     session = request.environ['beaker.session']
     st = datetime.datetime.fromtimestamp(session['_creation_time']).strftime('%Y-%m-%d %H:%M:%S')
-    logger.info("client: %s, session: %s / %s / %s",
-                request.environ.get('HTTP_X_FORWARDED_FOR')
-                or request.environ.get('REMOTE_ADDR'), session.id, st, session)
+    origin = request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR')
+    logger.debug("client: %s, session: %s / %s / %s", origin, session.id, st, session)
 
     current_user = None
     if 'current_user' in session and session['current_user']:

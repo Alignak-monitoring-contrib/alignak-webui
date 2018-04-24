@@ -755,7 +755,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_long_output" data-type="string"',
             '<th data-name="ls_perf_data" data-type="string"',
             '<th data-name="ls_current_attempt" data-type="integer"',
-            '<th data-name="ls_max_attempts" data-type="integer"',
+            # '<th data-name="ls_max_attempts" data-type="integer"',
             '<th data-name="ls_next_check" data-type="integer"',
             '<th data-name="ls_last_state_changed" data-type="integer"',
             '<th data-name="ls_last_state" data-type="string"',
