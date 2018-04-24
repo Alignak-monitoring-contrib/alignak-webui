@@ -152,6 +152,7 @@ class tests_preferences(unittest2.TestCase):
         # Get user's preferences value - not existing key without default value
         print('- unknown key, no default value')
         response = self.app.get('/preference/user?key=elts_per_page', status=404)
+        print(response.json)
         assert response.json == {u'message': u'Unknown key: elts_per_page', u'status': u'ko'}
 
         # Get user's preferences value - not existing key with default value

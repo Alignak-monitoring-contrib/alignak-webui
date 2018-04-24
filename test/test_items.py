@@ -457,7 +457,7 @@ class TestItems(unittest2.TestCase):
         assert item2.foo == 'bar'
         assert item2.foo_int == 1
         assert item.name == 'anonymous'
-        assert item.alias == 'anonymous'
+        assert item.alias == ''
         assert item.json_alias == 'anonymous'
         assert item.notes == ''
 

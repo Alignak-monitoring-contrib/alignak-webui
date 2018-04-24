@@ -872,18 +872,18 @@ class DataManager(object):
         # Services synthesis
         services_synthesis = default_ls['services_synthesis']
 
-        for livesynthesis in items:
-            logger.debug("livesynthesis item: %s", livesynthesis)
-            synthesis['_id'] = livesynthesis['_id']
+        for ls in items:
+            logger.debug("livesynthesis item: %s", ls)
+            synthesis['_id'] = ls['_id']
 
             # Hosts synthesis
             hosts_synthesis.update({
-                'nb_elts': hosts_synthesis['nb_elts'] + livesynthesis['hosts_total']
+                'nb_elts': hosts_synthesis['nb_elts'] + ls['hosts_total']
             })
-            if getattr(livesynthesis, 'hosts_not_monitored', None):
+            if getattr(ls, 'hosts_not_monitored', None):
                 hosts_synthesis.update({
                     'nb_not_monitored':
-                        hosts_synthesis['nb_not_monitored'] + livesynthesis['hosts_not_monitored']
+                        hosts_synthesis['nb_not_monitored'] + ls['hosts_not_monitored']
                 })
                 hosts_synthesis.update({
                     'pct_not_monitored': round(
@@ -897,11 +897,11 @@ class DataManager(object):
             for state in 'up', 'down', 'unreachable':
                 hosts_synthesis.update({
                     'nb_%s_hard' % state:
-                    hosts_synthesis['nb_%s_hard' % state] + livesynthesis['hosts_%s_hard' % state]
+                    hosts_synthesis['nb_%s_hard' % state] + ls['hosts_%s_hard' % state]
                 })
                 hosts_synthesis.update({
                     'nb_%s_soft' % state:
-                    hosts_synthesis['nb_%s_soft' % state] + livesynthesis['hosts_%s_soft' % state]
+                    hosts_synthesis['nb_%s_soft' % state] + ls['hosts_%s_soft' % state]
                 })
                 hosts_synthesis.update({
                     'nb_' + state:
@@ -910,14 +910,14 @@ class DataManager(object):
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 hosts_synthesis.update({
                     'nb_' + state:
-                    hosts_synthesis['nb_%s' % state] + livesynthesis['hosts_%s' % state]
+                    hosts_synthesis['nb_%s' % state] + ls['hosts_%s' % state]
                 })
             hosts_synthesis.update({
                 'nb_problems':
                 hosts_synthesis['nb_down_hard'] + hosts_synthesis['nb_unreachable_hard']
             })
             nb_monitored_hosts = hosts_synthesis['nb_elts']
-            if getattr(livesynthesis, 'hosts_not_monitored', None):
+            if getattr(ls, 'hosts_not_monitored', None):
                 nb_monitored_hosts = \
                     hosts_synthesis['nb_elts'] - hosts_synthesis['nb_not_monitored']
             for state in 'up', 'down', 'unreachable':
@@ -935,13 +935,12 @@ class DataManager(object):
 
             # Services synthesis
             services_synthesis.update({
-                'nb_elts': services_synthesis['nb_elts'] + livesynthesis['services_total']
+                'nb_elts': services_synthesis['nb_elts'] + ls['services_total']
             })
-            if getattr(livesynthesis, 'services_not_monitored', None):
+            if getattr(ls, 'services_not_monitored', None):
                 services_synthesis.update({
                     'nb_not_monitored':
-                        services_synthesis['nb_not_monitored']
-                        + livesynthesis['services_not_monitored']
+                        services_synthesis['nb_not_monitored'] + ls['services_not_monitored']
                 })
                 services_synthesis.update({
                     'pct_not_monitored': round(
@@ -955,12 +954,11 @@ class DataManager(object):
             for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
                 services_synthesis.update({
                     'nb_%s_hard' % state:
-                    services_synthesis['nb_%s_hard' % state] +
-                    livesynthesis['services_%s_hard' % state]
+                    services_synthesis['nb_%s_hard' % state] + ls['services_%s_hard' % state]
                 })
                 services_synthesis.update({
                     'nb_%s_soft' % state: services_synthesis['nb_%s_soft' % state]
-                                          + livesynthesis['services_%s_soft' % state]
+                                          + ls['services_%s_soft' % state]
                 })
                 services_synthesis.update({
                     'nb_' + state: services_synthesis['nb_%s_hard' % state]
@@ -968,15 +966,14 @@ class DataManager(object):
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping':
                 services_synthesis.update({
-                    'nb_' + state:
-                        services_synthesis['nb_%s' % state] + livesynthesis['services_%s' % state]
+                    'nb_' + state: services_synthesis['nb_%s' % state] + ls['services_%s' % state]
                 })
             services_synthesis.update({
                 'nb_problems':
                 services_synthesis['nb_warning_hard'] + services_synthesis['nb_critical_hard']
             })
             nb_monitored_services = services_synthesis['nb_elts']
-            if getattr(livesynthesis, 'services_not_monitored', None):
+            if getattr(ls, 'services_not_monitored', None):
                 nb_monitored_services = \
                     services_synthesis['nb_elts'] - services_synthesis['nb_not_monitored']
             for state in 'ok', 'warning', 'critical', 'unknown', 'unreachable':
@@ -1062,8 +1059,8 @@ class DataManager(object):
 
         try:
             logger.debug("get_livesynthesis_history, history...")
-            item = self.my_backend.get('livesynthesis/' + self.my_ls['_id'] +
-                                       '?concatenation=1&history=1', params=None)
+            item = self.my_backend.get('livesynthesis/%s?concatenation=1&history=1',
+                                       self.my_ls['_id'], params=None)
             logger.debug("get_livesynthesis_history, got: %s", item)
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_livesynthesis_history, none found")
@@ -1224,8 +1221,7 @@ class DataManager(object):
             for state in 'up', 'down', 'unreachable':
                 hs.update({
                     "pct_" + state: round(
-                        100.0 * hs['nb_' + state] /
-                        (hs['nb_elts'] - hs['nb_not_monitored']), 2
+                        100.0 * hs['nb_' + state] / (hs['nb_elts'] - hs['nb_not_monitored']), 2
                     ) if hs['nb_elts'] else 0.0
                 })
             for state in 'acknowledged', 'in_downtime', 'flapping', 'problems':

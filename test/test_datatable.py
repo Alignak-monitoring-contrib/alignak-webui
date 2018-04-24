@@ -252,7 +252,7 @@ class TestDataTable(unittest2.TestCase):
 
         self.items_count = 0
 
-    def test_get(self):
+    def test_01_get(self):
         """Datatable - get table"""
         print('test get table')
 
@@ -742,7 +742,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
             '<th data-name="_templates" data-type="list"',
-            '<th data-name="tags" data-type="list"',
+            # '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
             '<th data-name="address6" data-type="string"',
             '<th data-name="check_command" data-type="objectid"',
@@ -761,7 +761,7 @@ class TestDatatableHosts(TestDatatableBase):
             '<th data-name="ls_last_state" data-type="string"',
             '<th data-name="ls_last_state_type" data-type="string"',
             '<th data-name="ls_latency" data-type="float"',
-            # '<th data-name="ls_execution_time" data-type="float"'
+            '<th data-name="ls_execution_time" data-type="float"'
         )
 
         response = self.app.post('/hosts/table_data')
@@ -961,7 +961,7 @@ class TestDatatableServices(TestDatatableBase):
             '<th data-name="ls_long_output" data-type="string"',
             '<th data-name="ls_perf_data" data-type="string"',
             '<th data-name="ls_current_attempt" data-type="integer"',
-            '<th data-name="ls_max_attempts" data-type="integer"',
+            # '<th data-name="ls_max_attempts" data-type="integer"',
             '<th data-name="ls_next_check" data-type="integer"',
             '<th data-name="ls_last_state_changed" data-type="integer"',
             '<th data-name="ls_last_state" data-type="string"',

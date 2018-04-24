@@ -436,8 +436,8 @@ def before_request():
         # Stop Alignak backend thread
         # *****
         logger.debug("client: %s, cookie: %s",
-                     request.environ.get('HTTP_X_FORWARDED_FOR') or
-                     request.environ.get('REMOTE_ADDR'),
+                     request.environ.get('HTTP_X_FORWARDED_FOR')
+                     or request.environ.get('REMOTE_ADDR'),
                      request.environ.get('HTTP_COOKIE'))
 
         redirect('/login')
@@ -721,8 +721,8 @@ def external(widget_type, identifier, action=None):
     session = request.environ['beaker.session']
     st = datetime.datetime.fromtimestamp(session['_creation_time']).strftime('%Y-%m-%d %H:%M:%S')
     logger.info("client: %s, session: %s / %s / %s",
-                request.environ.get('HTTP_X_FORWARDED_FOR') or
-                request.environ.get('REMOTE_ADDR'), session.id, st, session)
+                request.environ.get('HTTP_X_FORWARDED_FOR')
+                or request.environ.get('REMOTE_ADDR'), session.id, st, session)
 
     current_user = None
     if 'current_user' in session and session['current_user']:
@@ -1094,6 +1094,7 @@ def main():  # pragma: no cover, because of test mode
     )
     # remember to remove reloader=True and debug(True) when you move your application
     # from development to a production environment
+
 
 if __name__ == '__main__':
     main()

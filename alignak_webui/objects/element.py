@@ -4,6 +4,7 @@
 # pylint: disable=protected-access
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
+# pylint: disable=bare-except
 
 # Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@alignak.net
@@ -401,7 +402,7 @@ class BackendElement(object):
                                 else:
                                     logger.exception(e)
                                 continue
-                            except:  # pylint: disable=bare-except
+                            except:
                                 logger.error("__init__, %s (id = %s) not found for %s",
                                              object_type, value, self)
                                 continue
@@ -440,7 +441,7 @@ class BackendElement(object):
                                         else:
                                             logger.exception(e)
                                         continue
-                                    except:  # pylint: disable=bare-except
+                                    except:
                                         logger.error("__init__, item in list not "
                                                      "existing for %s, %s (%s) in %s",
                                                      object_type, value, element, self)
