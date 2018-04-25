@@ -346,52 +346,67 @@ class PluginServices(Plugin):
         edition_mode = request.environ['beaker.session']['edition_mode']
 
         # Create a new service
-        if not service_name:
+        if not host_name and not service_name:
             return {
                 'object_plugin': self,
                 'element': None
             }
 
-        # Search host by name or alias
-        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
-        if not host:
-            host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
+        # I only have one information, conside it is a service identifier
+        if host_name and not service_name:
+            service_name = host_name
+            # Search service by identifier
+            service = datamgr.get_service(search={'max_results': 1,
+                                                  'where': {'_id': service_name}})
+            if not service:
+                service = datamgr.get_service(search={'max_results': 1,
+                                                      'where': {'_is_template': True,
+                                                                '_id': service_name}})
+                if not service:
+                    logger.warning("Service, get form, I did not found a service")
+                    self.send_user_message(_("Service '%s' not found") % (service_name))
+        else:
+            # Search host by name or alias
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
             if not host:
-                # Search among the hosts templates with name
-                host = datamgr.get_host(search={'max_results': 1,
-                                                'where': {'_is_template': True,
-                                                          'name': host_name}})
+                host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
                 if not host:
-                    # Search among the templates with alias
+                    # Search among the hosts templates with name
                     host = datamgr.get_host(search={'max_results': 1,
                                                     'where': {'_is_template': True,
-                                                              'alias': host_name}})
+                                                              'name': host_name}})
                     if not host:
-                        self.send_user_message(_("Host '%s' not found") % (host_name))
+                        # Search among the templates with alias
+                        host = datamgr.get_host(search={'max_results': 1,
+                                                        'where': {'_is_template': True,
+                                                                  'alias': host_name}})
+                        if not host:
+                            logger.warning("Service, get form, I did not found an host")
+                            self.send_user_message(_("Host '%s' not found") % (host_name))
 
-        # Search service by name or alias
-        service = datamgr.get_service(search={'max_results': 1,
-                                              'where': {'host': host.id,
-                                                        'name': service_name}})
-        if not service:
+            # Search service by name or alias
             service = datamgr.get_service(search={'max_results': 1,
                                                   'where': {'host': host.id,
-                                                            'alias': service_name}})
+                                                            'name': service_name}})
             if not service:
-                # Search among the services templates with name
-                host = datamgr.get_service(search={'max_results': 1,
-                                                   'where': {'_is_template': True,
-                                                             'host': host.id,
-                                                             'name': service_name}})
+                service = datamgr.get_service(search={'max_results': 1,
+                                                      'where': {'host': host.id,
+                                                                'alias': service_name}})
                 if not service:
-                    # Search among the templates with alias
+                    # Search among the services templates with name
                     host = datamgr.get_service(search={'max_results': 1,
                                                        'where': {'_is_template': True,
                                                                  'host': host.id,
-                                                                 'alias': service_name}})
+                                                                 'name': service_name}})
                     if not service:
-                        self.send_user_message(_("Service '%s/%s' not found") % (host_name,
-                                                                                 service_name))
+                        # Search among the templates with alias
+                        host = datamgr.get_service(search={'max_results': 1,
+                                                           'where': {'_is_template': True,
+                                                                     'host': host.id,
+                                                                     'alias': service_name}})
+                        if not service:
+                            self.send_user_message(_("Service '%s/%s' not found") % (host_name,
+                                                                                     service_name))
 
         if not edition_mode and not service:
             logger.warning("Cannot create a %s element when not in edition mode",

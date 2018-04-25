@@ -143,7 +143,7 @@ class PluginLivestate(Plugin):
         # Search in the application widgets (all plugins widgets)
         options = {}
         for widget in self.webui.get_widgets_for(widget_place):
-            logger.debug("Found widget: %s (%s)", widget['name'], widget['id'])
+            logger.debug("found widget: %s (%s)", widget['name'], widget['id'])
             if widget_id.startswith(widget['id']):
                 options = widget['options']
                 widget_template = widget['template']

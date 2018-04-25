@@ -193,7 +193,7 @@
 
          <div class="row">
             % if options_panel:
-            <div id="options-panel">
+            <div id="options-panel" style="display:none;">
                <div class="card slider-card">
                   <h3>{{_('Top ten hosts:')}}</h3>
                   <div class="list-group list-group-flush">

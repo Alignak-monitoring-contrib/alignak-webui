@@ -824,7 +824,7 @@ def external(widget_type, identifier, action=None):
                 '<div><h1>Unknown required widget: %s.</h1>'
                 '<p>The required widget is not available.</p></div>' % identifier
             )
-        logger.debug("Found widget: %s", found_widget)
+        logger.debug("found widget: %s", found_widget)
 
         embedded_element = found_widget['function'](
             embedded=True,

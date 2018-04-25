@@ -1702,7 +1702,7 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_services, search: %s", search)
+            logger.warning("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen
@@ -2093,9 +2093,9 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_realms, search: %s", search)
+            logger.debug("get_realms, search: %s", search)
             items = self.find_object('realm', search, all_elements)
-            logger.info("get_realms, items: %s", items)
+            logger.debug("get_realms, items: %s", items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_realms, none found")
@@ -2109,7 +2109,7 @@ class DataManager(object):
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
-        logger.info("get_realm, search: %s", search)
+        logger.debug("get_realm, search: %s", search)
         items = self.get_realms(search=search)
         logger.debug("get_realm, got: %s", items)
         return items[0] if items else None
