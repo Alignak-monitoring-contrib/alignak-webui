@@ -75,7 +75,7 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
     class __AlignakConnection(object):
         """Base class for Alignak Web Services connection"""
 
-        def __init__(self, alignak_endpoint='http://127.0.0.1:8888', authenticated=True):
+        def __init__(self, alignak_endpoint='http://127.0.0.1:7770', authenticated=True):
             if alignak_endpoint.endswith('/'):
                 self.alignak_endpoint = alignak_endpoint[0:-1]
             else:
@@ -83,6 +83,8 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             self.token = None
             self.connected = False
             self.authenticated = authenticated
+            logger.info("Alignak WS, endpoint: %s, authenticated: %s",
+                        self.alignak_endpoint, self.authenticated)
 
         def login(self, username, password=None):
             """Log in to the Web Services
@@ -173,14 +175,10 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
             auth = requests.auth.HTTPBasicAuth(self.token, '')
 
             try:
-                logger.info("get, endpoint: %s, parameters: %s",
-                            urljoin(self.alignak_endpoint, endpoint), params)
-                if self.authenticated:
-                    response = requests.get(urljoin(self.alignak_endpoint, endpoint),
-                                            params=params, auth=auth)
-                else:
-                    response = requests.get(urljoin(self.alignak_endpoint, endpoint),
-                                            params=params)
+                logger.info("get, endpoint: %s/%s, parameters: %s",
+                            self.alignak_endpoint, endpoint, params)
+                response = requests.get("%s/%s" % (self.alignak_endpoint, endpoint),
+                                        params=params, auth=auth if self.authenticated else None)
                 logger.debug("get, response: %s", response)
                 response.raise_for_status()
 

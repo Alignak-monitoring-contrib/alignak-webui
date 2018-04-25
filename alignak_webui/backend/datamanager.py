@@ -113,8 +113,8 @@ class DataManager(object):
         self.my_backend = BackendConnection(self.backend_endpoint)
 
         # Alignak Web services client
-        self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:8888')
-        self.alignak_authorization = (app.config.get('alignak_ws_authorization', '1') == '1')
+        self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:7770')
+        self.alignak_authorization = (app.config.get('alignak_ws_authorization', '0') == '1')
         self.alignak_ws = AlignakConnection(self.alignak_endpoint, self.alignak_authorization)
         self.alignak_daemons = {}
 
@@ -746,7 +746,7 @@ class DataManager(object):
                     ... / ...
                 }
 
-            The new backend (as of 08/01/2018) introduces a new API, with two parameters:
+            The new backend (as of 08/01/2017) introduces a new API, with two parameters:
                 * *history=1*: get the history in field *history* with all
                 history for the last minutes
                 * *concatenation=1*: get the livesynthesis data merged with livesynthesis
@@ -1702,7 +1702,7 @@ class DataManager(object):
             })
 
         try:
-            logger.warning("get_services, search: %s", search)
+            logger.debug("get_services, search: %s", search)
             items = self.find_object('service', search, all_elements, embedded)
             return items
         except ValueError:  # pragma: no cover - should not happen

@@ -76,8 +76,9 @@ def setup_module(module):
     backend_process = subprocess.Popen(['uwsgi', '--plugin', 'python',
                                         '-w', 'alignak_backend.app:app',
                                         '--socket', '0.0.0.0:5000',
-                                        '--protocol=http', '--enable-threads',
-                                        '--pidfile', '/tmp/uwsgi.pid'])
+                                        '--protocol=http', '--enable-threads', '--pidfile',
+                                        '/tmp/uwsgi.pid'],
+                                       stdout=fnull, stderr=fnull)
     print("Started")
 
     print("Feeding Alignak backend... %s" % test_dir)
