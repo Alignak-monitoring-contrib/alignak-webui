@@ -1,5 +1,7 @@
 # Python requirements for unit tests
 unittest2
+# uWsgi Web server
+uwsgi
 # Web test
 webtest
 # Use py.test as test-runner
