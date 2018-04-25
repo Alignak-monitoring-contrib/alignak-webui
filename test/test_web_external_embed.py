@@ -282,9 +282,9 @@ class TestsExternal(unittest2.TestCase):
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
-            '<th data-name="tags" data-type="list"',
+            # '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
-            # '<th data-name="business_impact" data-type="integer"'
+            '<th data-name="business_impact" data-type="integer"'
         )
 
         # Allowed - default table parameters: none
@@ -300,9 +300,9 @@ class TestsExternal(unittest2.TestCase):
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
-            '<th data-name="tags" data-type="list"',
+            # '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
-            # '<th data-name="business_impact" data-type="integer"'
+            '<th data-name="business_impact" data-type="integer"'
         )
 
         # Allowed - default table parameters: none
@@ -318,9 +318,9 @@ class TestsExternal(unittest2.TestCase):
             '<th data-name="name" data-type="string"',
             '<th data-name="ls_state" data-type="string"',
             '<th data-name="overall_status" data-type="string"',
-            '<th data-name="tags" data-type="list"',
+            # '<th data-name="tags" data-type="list"',
             '<th data-name="address" data-type="string"',
-            # '<th data-name="business_impact" data-type="integer"',
+            '<th data-name="business_impact" data-type="integer"',
             '"url": "http://localhost:80/external/table/hosts_table/hosts/table_data",'
         )
 
