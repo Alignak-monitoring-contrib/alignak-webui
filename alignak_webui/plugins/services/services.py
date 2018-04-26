@@ -364,7 +364,10 @@ class PluginServices(Plugin):
                                                                 '_id': service_name}})
                 if not service:
                     logger.warning("Service, get form, I did not found a service")
-                    self.send_user_message(_("Service '%s' not found") % (service_name))
+                    return {
+                        'object_plugin': self,
+                        'element': None
+                    }
         else:
             # Search host by name or alias
             host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})

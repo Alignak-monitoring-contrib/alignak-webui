@@ -232,6 +232,20 @@
                %end
             </td>
          </tr>
+         %if (host.active_checks_enabled):
+         <tr>
+            <td><strong>{{_('Check interval:')}}</strong></td>
+            <td>{{host.check_interval}} minutes</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Retry interval:')}}</strong></td>
+            <td>{{host.retry_interval}} minutes</td>
+         </tr>
+         <tr>
+            <td><strong>{{_('Max check attempts:')}}</strong></td>
+            <td>{{host.max_check_attempts}}</td>
+         </tr>
+         %end
          <tr>
             <td><strong>{{_('Passive checks:')}}</strong></td>
             <td>
@@ -250,23 +264,23 @@
                %end
             </td>
          </tr>
-         <tr>
-            <td><strong>{{_('Check interval:')}}</strong></td>
-            <td>{{host.check_interval}} minutes</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Retry interval:')}}</strong></td>
-            <td>{{host.retry_interval}} minutes</td>
-         </tr>
-         <tr>
-            <td><strong>{{_('Max check attempts:')}}</strong></td>
-            <td>{{host.max_attempts}}</td>
-         </tr>
          %if (host.passive_checks_enabled):
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>
             <td>
-              {{! Helper.get_on_off(host.check_freshness, message=_('Enabled') if host.check_freshness else _('Disabled'))}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.check_freshness, message=_('Enabled') if host.check_freshness else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_host_freshness_checks' if host.check_freshness else 'enable_host_freshness_checks'}}"
+                            {{ 'checked="checked"' if host.check_freshness else ''}}>
+                     <small>{{_('Enabled') if host.check_freshness else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (host.check_freshness):

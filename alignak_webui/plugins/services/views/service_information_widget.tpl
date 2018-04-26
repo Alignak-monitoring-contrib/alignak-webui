@@ -234,6 +234,20 @@
                %end
             </td>
          </tr>
+         %if (service.active_checks_enabled):
+            <tr>
+               <td><strong>{{_('Check interval:')}}</strong></td>
+               <td>{{service.check_interval}} minutes</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Retry interval:')}}</strong></td>
+               <td>{{service.retry_interval}} minutes</td>
+            </tr>
+            <tr>
+               <td><strong>{{_('Max check attempts:')}}</strong></td>
+               <td>{{service.max_check_attempts}}</td>
+            </tr>
+         %end
          <tr>
             <td><strong>{{_('Passive checks:')}}</strong></td>
             <td>
@@ -252,23 +266,23 @@
                %end
             </td>
          </tr>
-        <tr>
-           <td><strong>{{_('Check interval:')}}</strong></td>
-           <td>{{service.check_interval}} minutes</td>
-        </tr>
-        <tr>
-           <td><strong>{{_('Retry interval:')}}</strong></td>
-           <td>{{service.retry_interval}} minutes</td>
-        </tr>
-        <tr>
-           <td><strong>{{_('Max check attempts:')}}</strong></td>
-           <td>{{service.max_attempts}}</td>
-        </tr>
          %if service.passive_checks_enabled:
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>
             <td>
-              {{! Helper.get_on_off(service.check_freshness, message=_('Enabled') if service.check_freshness else _('Disabled'))}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(service.check_freshness, message=_('Enabled') if service.check_freshness else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="service" data-name="{{service.host.name}}/{{service.name}}"
+                            data-element="{{service.id}}" data-command="{{'disable_service_freshness_checks' if service.check_freshness else 'enable_service_freshness_checks'}}"
+                            {{ 'checked="checked"' if service.check_freshness else ''}}>
+                     <small>{{_('Enabled') if service.check_freshness else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (service.check_freshness):
