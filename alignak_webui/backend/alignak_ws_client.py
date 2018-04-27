@@ -98,18 +98,19 @@ class AlignakConnection(object):  # pragma: no cover, not used currently
 
             logger.info("login, connection requested, login: %s", username)
             if not self.authenticated:
+                self.token = username
                 self.connected = True
-                logger.warning("Alignak WS, no authentication configured, login: %s", username)
-                return True
-
-            self.connected = False
+                logger.info("Alignak WS, no authentication configured, token: %s", self.token)
+                return self.connected
 
             if not password:
                 # Set authentication token (no login request).
-                logger.debug("Update Web service token")
                 self.token = username
                 self.connected = True
+                logger.info("Alignak WS, no password provided, token: %s", self.token)
                 return self.connected
+
+            self.connected = False
 
             try:
                 # WS login

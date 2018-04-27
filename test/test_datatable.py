@@ -324,7 +324,7 @@ class TestDataTable(unittest2.TestCase):
         # Because no filtering is active ... equals to total records
         assert response.json['recordsFiltered'] == self.items_count
         assert response.json['data'] != []
-        assert len(response.json['data']) > BACKEND_PAGINATION_LIMIT
+        assert len(response.json['data']) == BACKEND_PAGINATION_LIMIT
 
         # Rows 5 by 5 ...
         print("Get rows 5 per 5")
