@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -120,7 +120,7 @@ if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    print "RTD build, no data_files"
+    print("RTD build, no data_files")
     data_files = []
 print("Data files: %s" % data_files)
 
