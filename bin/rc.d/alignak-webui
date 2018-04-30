@@ -15,7 +15,7 @@
 #   Default value: /usr/local/etc/alignak-webui/alignak-webui.wsgi
 #   Wsgi application for the Alignak WebUI
 #
-# alignak_backend_config (string):
+# alignak_webui_config (string):
 #   Default value: /usr/local/etc/alignak-webui/settings.cfg
 #   Configuration file for the Alignak WebUI
 #
@@ -72,6 +72,7 @@ load_rc_config "${name}"
 
 : ${alignak_webui_enable="NO"}
 : ${alignak_webui_wsgi="/usr/local/etc/alignak-webui/alignak-webui.wsgi"}
+: ${alignak_webui_config="/usr/local/etc/alignak-webui/settings.cfg"}
 : ${alignak_webui_log="NO"}
 : ${alignak_webui_log_file="/var/log/alignak-webui/${name}.log"}
 : ${alignak_webui_pid_file="/var/run/alignak-webui/${name}.pid"}
