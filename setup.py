@@ -110,10 +110,10 @@ with open(os.path.join('alignak_webui/__init__.py')) as fh:
 # Get the package name from the manifest
 package_name = manifest["__pkg_name__"]
 
-data_files=[('etc/alignak-webui', ['etc/alignak-webui.wsgi', 'etc/settings.cfg',
-                                   'etc/uwsgi.ini', 'etc/logging.json']),
-            ('bin', ['bin/alignak-webui-uwsgi']),
-            ('var/log/alignak-webui', [])]
+data_files=[('etc/alignak-webui',
+             ['etc/alignak-webui.wsgi', 'etc/settings.cfg', 'etc/uwsgi.ini', 'etc/logging.json']),
+            ('bin',
+             ['bin/alignak-webui-uwsgi'])]
 if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
     data_files.append(('etc/rc.d', ['bin/rc.d/alignak-webui']))
 

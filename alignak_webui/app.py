@@ -291,12 +291,14 @@ logger.info("Release notes: %s", __manifest__['release'])
 logger.info("--------------------------------------------------------------------------------")
 
 logger.info("--------------------------------------------------------------------------------")
+logger.info("configuration read from: %s", cfg_filename)
 logger.info("listening on %s:%d (debug mode: %s)",
-            app.config.get('host', '127.0.0.1'),
-            int(app.config.get('port', '5001')),
+            app.config.get('host', '127.0.0.1'), int(app.config.get('port', '5001')),
             app.config.get('%s.debug' % app_name, False))
 logger.info("using Alignak Backend on %s",
             app.config.get('%s.alignak_backend' % app_name, 'http://127.0.0.1:5000'))
+logger.info("using Alignak Web Services on %s",
+            app.config.get('%s.alignak_ws' % app_name, 'http://127.0.0.1:8888'))
 logger.info("--------------------------------------------------------------------------------")
 
 logger.debug("Application settings: ")
@@ -1063,10 +1065,20 @@ TEMPLATE_PATH.append(
 # -----
 # Extend default WSGI application with a session middleware
 # -----
+session_type = app.config.get('session.type', 'file')
+if os.environ.get('ALIGNAK_WEBUI_SESSION_TYPE'):
+    session_type = os.environ.get('ALIGNAK_WEBUI_SESSION_TYPE')
+    print("Session type from environment: %s" % session_type)
+
+session_data = app.config.get('session.session_data',
+                              os.path.join('/tmp', __manifest__['name'], 'sessions'))
+if os.environ.get('ALIGNAK_WEBUI_SESSION_DATA'):
+    session_data = os.environ.get('ALIGNAK_WEBUI_SESSION_DATA')
+    print("Session data from environment: %s" % session_data)
+
 session_opts = {
-    'session.type': app.config.get('session.type', 'file'),
-    'session.data_dir': app.config.get('session.data_dir',
-                                       os.path.join('/tmp', __manifest__['name'], 'sessions')),
+    'session.type': session_type,
+    'session.data_dir': session_data,
     'session.auto': app.config.get('session.auto', True),
     'session.cookie_expires': app.config.get('session.cookie_expires', True),
     'session.key': app.config.get('session.key', __manifest__['name']),

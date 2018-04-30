@@ -19,13 +19,33 @@
 #   Default value: /usr/local/etc/alignak-webui/settings.cfg
 #   Configuration file for the Alignak WebUI
 #
+# alignak_webui_session_type (string):
+#   Default value: file
+#   User session storage type
+#
+# alignak_webui_session_data (string):
+#   Default value: /tmp/${name}/sessions
+#   Session data storage directory
+#
+# alignak_webui_backend (string):
+#   Default value:
+#   The Alignak backend URI. Defaults to empty to use the value defined in the configuration file.
+#
+# alignak_webui_ws (string):
+#   Default value:
+#   The Alignak Web service URI. Defaults to empty to use the value defined in the configuration file.
+#
 # alignak_webui_log (bool):
 #   Set to "NO" by default.
 #   Set it to "YES" to enable alignak_webui logging to file
 #   Default output to /var/log/alignak_webui/alignak_webui.log
 #
+# alignak_webui_log_dir (string):
+#   Default value: "/var/log/alignak-webui"
+#   Log file directory.
+#
 # alignak_webui_log_file (string):
-#   Default value: "/var/log/alignak-webui/${name}.log"
+#   Default value: "${alignak_webui_log_dir}/${name}.log"
 #   Log file name. Note that it is the uWsgi log file and it may be used by the UI, except if the
 #   WebUI logger configuration is set differently (see the /usr/local/etc/logging.json file).
 #
@@ -73,9 +93,15 @@ load_rc_config "${name}"
 : ${alignak_webui_enable="NO"}
 : ${alignak_webui_wsgi="/usr/local/etc/alignak-webui/alignak-webui.wsgi"}
 : ${alignak_webui_config="/usr/local/etc/alignak-webui/settings.cfg"}
+: ${alignak_webui_backend=""}
+: ${alignak_webui_ws=""}
+: ${alignak_webui_session_type="file"}
+: ${alignak_webui_session_data="/tmp/${name}/sessions"}
 : ${alignak_webui_log="NO"}
-: ${alignak_webui_log_file="/var/log/alignak-webui/${name}.log"}
-: ${alignak_webui_pid_file="/var/run/alignak-webui/${name}.pid"}
+: ${alignak_webui_log_dir="/var/log"}
+: ${alignak_webui_log_file="${alignak_webui_log_dir}/${name}.log"}
+: ${alignak_webui_pid_dir="/var/run"}
+: ${alignak_webui_pid_file="${alignak_webui_pid_dir}/${name}.pid"}
 : ${alignak_webui_processes="4"}
 : ${alignak_webui_group="alignak"}
 : ${alignak_webui_user="alignak"}
@@ -93,22 +119,37 @@ if checkyesno alignak_webui_metrics; then
 fi
 
 command="/usr/local/bin/uwsgi"
-command_args="--master --daemonize /dev/null --wsgi-file ${alignak_webui_wsgi} --pidfile ${alignak_webui_pid_file} --http ${alignak_webui_host}:${alignak_webui_port} --processes ${alignak_webui_processes} --uid ${alignak_webui_user} --gid ${alignak_webui_group} ${alignak_webui_log_options} ${alignak_webui_metrics_options}"
+command_args="--master --enable-threads --buffer-size 32768 --lazy-apps --daemonize /dev/null --wsgi-file ${alignak_webui_wsgi} --pidfile ${alignak_webui_pid_file} --http ${alignak_webui_host}:${alignak_webui_port} --processes ${alignak_webui_processes} --uid ${alignak_webui_user} --gid ${alignak_webui_group} ${alignak_webui_log_options} ${alignak_webui_metrics_options}"
 
 # Alignak webui need to get ALIGNAK_WEBUI_CONFIGURATION_FILE for its configuration
 export ALIGNAK_WEBUI_CONFIGURATION_FILE=${alignak_webui_config}
 echo "Alignak WebUI configuration is: $ALIGNAK_WEBUI_CONFIGURATION_FILE"
+if [ -n "${alignak_webui_backend}" ]; then
+   export ALIGNAK_WEBUI_SESSION_TYPE=${alignak_webui_session_type}
+   export ALIGNAK_WEBUI_SESSION_DATA=${alignak_webui_session_data}
+   echo "Alignak WebUI session is: $ALIGNAK_WEBUI_SESSION_TYPE / $ALIGNAK_WEBUI_SESSION_DATA"
+fi
+
+if [ -n "${alignak_webui_backend}" ]; then
+   export ALIGNAK_WEBUI_BACKEND=${alignak_webui_backend}
+   echo "Alignak WebUI backend is: $ALIGNAK_WEBUI_BACKEND"
+fi
+if [ -n "${alignak_webui_ws}" ]; then
+   export ALIGNAK_WEBUI_WS=${alignak_webui_ws}
+   echo "Alignak WebUI Alignak WS is: $ALIGNAK_WEBUI_WS"
+fi
 
 stop_cmd="${name}_stop"
 start_cmd="${name}_start"
+reload_cmd="${name}_reload"
 start_precmd="${name}_precmd"
 
 required_files="${alignak_webui_wsgi}"
 
 alignak_webui_precmd()
 {
-    /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 /var/log/alignak-webui
-    /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 /var/run/alignak-webui
+    /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 ${alignak_webui_log_dir}
+    /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 ${alignak_webui_pid_dir}
 }
 
 alignak_webui_start()
@@ -121,8 +162,15 @@ alignak_webui_start()
 alignak_webui_stop()
 {
     echo "Stopping ${name}..."
-    pkill -2 -F ${alignak_webui_pid_file}
+    /usr/local/bin/uwsgi --stop ${alignak_webui_pid_file}
     echo "Stopped"
+}
+
+alignak_webui_reload()
+{
+    echo "Reloading ${name}..."
+    /usr/local/bin/uwsgi --reload ${alignak_webui_pid_file}
+    echo "Reloaded"
 }
 
 [ -z "${alignak_webui_enable}" ] && alignak_webui_enable="NO"
