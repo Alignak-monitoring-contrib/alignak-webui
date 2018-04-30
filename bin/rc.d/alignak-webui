@@ -50,7 +50,7 @@
 #   Interface listened to.
 #
 # alignak_webui_port (integer):
-#   Default value: 5000
+#   Default value: 5001
 #   Port listened to.
 #
 # alignak_webui_metrics (bool):
@@ -80,7 +80,7 @@ load_rc_config "${name}"
 : ${alignak_webui_group="alignak"}
 : ${alignak_webui_user="alignak"}
 : ${alignak_webui_host="127.0.0.1"}
-: ${alignak_webui_port="5000"}
+: ${alignak_webui_port="5001"}
 : ${alignak_webui_metrics="NO"}
 : ${alignak_webui_carbon="127.0.0.1:2003"}
 
