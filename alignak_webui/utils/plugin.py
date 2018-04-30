@@ -383,7 +383,7 @@ class Plugin(object):
                             'plugin': widget.get('plugin', None),
                             'function': f
                         })
-                        logger.info("Found widget '%s' for %s", widget['id'], place)
+                        logger.debug("found widget '%s' for %s", widget['id'], place)
 
             if 'tables' in entry:
                 for table in entry.get('tables'):
@@ -452,7 +452,7 @@ class Plugin(object):
         logger.debug("Reading plugin configuration file: %s", cfg_filenames)
         self.plugin_config = Settings(cfg_filenames)
         config_file = self.plugin_config.read(self.name)
-        logger.info("Plugin configuration read from: %s", config_file)
+        logger.debug("Plugin configuration read from: %s", config_file)
         if not self.plugin_config:  # pragma: no cover, all plugins have configuration files
             if initialization:
                 return False
@@ -510,15 +510,15 @@ class Plugin(object):
                                self.name, p[1], p[2], self.plugin_config[param])
             if p[2] == 'ui-variable':
                 if self.plugin_config[param]:
-                    logger.info("plugin %s, UI variable: %s (%s)",
-                                self.name, self.plugin_config[param],
-                                type(self.plugin_config[param]))
+                    logger.debug("plugin %s, UI variable: %s (%s)",
+                                 self.name, self.plugin_config[param],
+                                 type(self.plugin_config[param]))
                     if self.plugin_config[param] is not True:
                         self.variables[p[1]] = self.plugin_config[param]
                     else:
                         self.variables[p[1]] = True
-                    logger.info("plugin %s, UI variable: %s.%s = %s",
-                                self.name, p[1], p[2], self.variables[p[1]])
+                    logger.debug("plugin %s, UI variable: %s.%s = %s",
+                                 self.name, p[1], p[2], self.variables[p[1]])
             self.table[p[1]][p[2]] = self.plugin_config[param]
 
         logger.debug("Table: %s", self.table)
@@ -856,7 +856,7 @@ class Plugin(object):
                     element = f(search={'max_results': 1, 'where': {'_is_template': True,
                                                                     '_id': element_id}})
                     if not element:
-                        # Search amnog the templates with name
+                        # Search among the templates with name
                         element = f(search={'max_results': 1, 'where': {'_is_template': True,
                                                                         'name': element_id}})
         # If not found, element will remain as None to create a new element
@@ -1250,7 +1250,7 @@ class Plugin(object):
         # Search in the application widgets (all plugins widgets)
         options = {}
         for widget in self.webui.get_widgets_for(widget_place):
-            logger.debug("Found widget: %s (%s)", widget['name'], widget['id'])
+            logger.debug("found widget: %s (%s)", widget['name'], widget['id'])
             if widget_id.startswith(widget['id']):
                 options = widget['options']
                 widget_template = widget['template']

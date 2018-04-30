@@ -99,7 +99,7 @@ class WebUI(object):
 
         If the plugin has a 'load_config' function, call it
         """
-        logger.info("load plugins from: %s", plugins_dir)
+        logger.debug("load plugins from: %s", plugins_dir)
 
         # Get list of sub directories
         try:
@@ -114,7 +114,7 @@ class WebUI(object):
         # Try to import all found supposed modules
         i = 0
         for plugin_name in plugin_names:
-            logger.info("trying to load plugin '%s' ...", plugin_name)
+            logger.debug("trying to load plugin '%s' ...", plugin_name)
             try:
                 # Import the module in the package namespace
                 plugin = import_module(
@@ -159,7 +159,7 @@ class WebUI(object):
                         os.path.join(plugins_dir, plugin_name), 'views'
                     ))
 
-                logger.info("registered plugin '%s'", plugin_name)
+                logger.debug("registered plugin '%s'", plugin_name)
 
             except Exception as exp:  # pragma: no cover - simple security ...
                 logger.exception("loading plugin %s, exception: %s", plugin_name, exp)

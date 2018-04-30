@@ -449,6 +449,7 @@ class TestServiceCreation(TestCreation):
         # service creation form
         print('get page /service_form (edition mode) - create a new service')
         response = self.app.get('/service_form/None')
+        print(response)
         response.mustcontain(
             '''<div id="form_service">''',
             '''<form role="form" data-element="None" class="element_form " method="post" action="/service_form/None">''',

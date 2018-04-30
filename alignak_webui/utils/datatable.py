@@ -638,7 +638,7 @@ class Datatable(object):
                 logger.debug("Not UI visible object: %s", bo_object)
                 continue
 
-            logger.info("table data object: %s", bo_object)
+            logger.debug("table data object: %s", bo_object)
             # This is an awful hack that allows to update the objects filtered for a table.
             # Two main interests:
             # - update the backend because some massive modifications are necessary for testing

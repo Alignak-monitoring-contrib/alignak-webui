@@ -110,9 +110,12 @@ with open(os.path.join('alignak_webui/__init__.py')) as fh:
 # Get the package name from the manifest
 package_name = manifest["__pkg_name__"]
 
-data_files=[('etc/alignak-webui', ['etc/settings.cfg', 'etc/uwsgi.ini', 'etc/logging.json']),
+data_files=[('etc/alignak-webui', ['etc/alignak-webui.wsgi', 'etc/settings.cfg',
+                                   'etc/uwsgi.ini', 'etc/logging.json']),
             ('bin', ['bin/alignak-webui-uwsgi']),
             ('var/log/alignak-webui', [])]
+if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
+    data_files.append(('etc/rc.d', ['bin/rc.d/alignak-webui']))
 
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
@@ -157,12 +160,12 @@ setup(
     # Dependencies (if some) ...
     install_requires=[
         'future', 'configparser', 'docopt',
-        'bottle>=0.12.0,<0.13', 'Beaker>=1.8.0', 'CherryPy',
+        'bottle>=0.12.9,<0.13', 'Beaker==1.9.0', 'CherryPy',
         'pymongo>=3.2', 'requests>=2.9.1',
         'python-gettext', 'termcolor',
         'python-dateutil>=2.4.2', 'pytz',
-        # 'uwsgi',
-        'alignak-backend',
+        'uwsgi',
+        'alignak-backend', 'alignak-backend-client'
     ],
 
     # Entry points (if some) ...

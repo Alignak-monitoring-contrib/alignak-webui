@@ -113,8 +113,8 @@ class DataManager(object):
         self.my_backend = BackendConnection(self.backend_endpoint)
 
         # Alignak Web services client
-        self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:8888')
-        self.alignak_authorization = (app.config.get('alignak_ws_authorization', '1') == '1')
+        self.alignak_endpoint = app.config.get('alignak_ws', 'http://127.0.0.1:7770')
+        self.alignak_authorization = (app.config.get('alignak_ws_authorization', '0') == '1')
         self.alignak_ws = AlignakConnection(self.alignak_endpoint, self.alignak_authorization)
         self.alignak_daemons = {}
 
@@ -746,7 +746,7 @@ class DataManager(object):
                     ... / ...
                 }
 
-            The new backend (as of 08/01/2018) introduces a new API, with two parameters:
+            The new backend (as of 08/01/2017) introduces a new API, with two parameters:
                 * *history=1*: get the history in field *history* with all
                 history for the last minutes
                 * *concatenation=1*: get the livesynthesis data merged with livesynthesis
@@ -2093,9 +2093,9 @@ class DataManager(object):
             })
 
         try:
-            logger.info("get_realms, search: %s", search)
+            logger.debug("get_realms, search: %s", search)
             items = self.find_object('realm', search, all_elements)
-            logger.info("get_realms, items: %s", items)
+            logger.debug("get_realms, items: %s", items)
             return items
         except ValueError:  # pragma: no cover - should not happen
             logger.debug("get_realms, none found")
@@ -2109,7 +2109,7 @@ class DataManager(object):
         elif 'max_results' not in search:
             search.update({'max_results': 1})
 
-        logger.info("get_realm, search: %s", search)
+        logger.debug("get_realm, search: %s", search)
         items = self.get_realms(search=search)
         logger.debug("get_realm, got: %s", items)
         return items[0] if items else None
