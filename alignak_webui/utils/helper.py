@@ -1419,8 +1419,9 @@ class Helper(object):
             search.update({'max_results': 10,})
         if 'where' not in search:
             # Search monitored items that have a bad status not acknowledged nor downtimed
+            # Ignore 0 for ok, 3 for unknown and 4 for unreachable
             search.update({'where': {
-                'ls_state_id': {'$nin': [0, 4]},
+                'ls_state_id': {'$nin': [0, 3, 4]},
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_acknowledged': False,
                 'ls_downtimed': False,

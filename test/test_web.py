@@ -1229,7 +1229,3 @@ class TestAlignakDaemons(unittest2.TestCase):
             '<div id="wd_panel_alignak_table_1" class="panel panel-default alignak_webui_widget ">',
             '<h4>No Alignak daemons state available...</h4>'
         )
-
-
-if __name__ == '__main__':
-    unittest2.main()

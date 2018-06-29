@@ -2,58 +2,115 @@ language: python
 sudo: true
 python:
   - "2.7"
-  # - "3.4"
+  - "3.4"
+  - "3.5"
+  - "3.6"
 
 services:
   - mongodb
 
-# command to install dependencies
-# some are only used for travis/coveralls so we are installing them here only
+before_install:
+  - export TZ=UTC
+
 install:
-  - bash setup_test.sh
-# command to run tests
-# notice: the nose-cov is used because it is compatible with --processes, but produce a .coverage by process
-# so we must combine them in the end
-script:
-  # so to help eventual debug: knowing what exact versions are in use can be rather useful.
+  # Install packaging requirements
+  - sudo apt-get install -y rpm
+  - sudo pip install virtualenv virtualenv-tools
+  - sudo pip install --upgrade distribute
+  # Install all Python requirements
+  - ./test/setup_test.sh
+  # To help eventual debug: knowing which exact versions are in use can be rather useful.
   - pip freeze
-  # Code static analysis
-  - pycodestyle --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_webui/*
-  - pylint --rcfile=.pylintrc alignak_webui/
-  - pep257 --select=D300 alignak_webui
+
+script:
   # Code dynamic analysis
   - cd test
   # Delete previously existing coverage results
-  - coverage erase
+#  - coverage erase
   # Run test suite with py.test running its coverage plugin
-  - pytest -v --cov=alignak_webui --cov-config .coveragerc test_*.py
-  # Report about coverage
-  - coverage report -m
+  - pytest --cov=alignak_backend --cov-config .coveragerc test_*.py
+  # Report about coverage - Upload coverage results to codecov
+  - bash <(curl -s https://codecov.io/bash)
+#  - coverage report -m
+  # Test code static analysis
+#  - pycodestyle --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' test_*.py
+#  - pylint --rcfile=../.pylintrc test_*.py
   - cd ..
-# specific call to launch coverage data into coveralls.io
 after_success:
   # to get coverage data with relative paths and not absolute we have to
   # execute coveralls from the base directory of the project,
   # so we need to move the .coverage file here :
-  - mv test/.coverage . && coveralls --rcfile=test/.coveragerc
-  # codecov
-  - bash <(curl -s https://codecov.io/bash)
+  - mv test/.coverage . && coveralls --rcfile=test/.coveragerc -v
   - .package/package.sh $TRAVIS_BRANCH $TRAVIS_PYTHON_VERSION
 
-deploy:
-  - provider: bintray
-    skip_cleanup: true
-    file: .package/bintray.json
-    user: ddurieux
-    key:
-      secure: "vGrTcq699ZpuFXL0sgWcfr4EKKAJUpYSFjyKsfC5NhNrylvyJb3Rm54G7tilQ6Kl+7EHS69V907eblpuxHvwnM/Op/EP7vOAvVOHVHychVG/4ViEWR2qrfGzBZ53TE9DrM7O1r7GunM38riHA8/AIo4nOdBakl3sER7yrxm4GV+mvM4Dykhrzjlu4IhfP+zPnqYmI5GGw5aewX+/LJ8DbS+8rRgS2UAL/RIsw2MuJYiHcVeljo+H13WW69RKa3Y9SUTksiQoFj4uHJP4EvuCigQIpNNYMloAH3biPG31YeEO3RWs8psoPPKh7M7f20lGuontovFGh8254z+Ko71N2srSmW213df1vho6bVdkzZwldojQCdWdJopnlaLHwBv97V9BAmz1RZtL1Vq9YN9M/qcIBer6b+xCS1iLP/xM2hi5bQyv3FzumziaZoUakOT87/dBprGjAIJ59MGrL4L0qpAqVPZ1Ossd2JbvuD12PoYSkYN1omINXZWjoTmMcra1kwEuqRVAUWJEhiH45OaIB75B2zdwtcVVqPJkFYf2wNREBrehNDtSjUOLn6jIIppWXMweu5PXUMwXwIDNWzp8YWi1zG652uIXok8IaZyGjQoVAUTHLGIntHw+UsMNnILmAD+bzT6mJc2dQWaBTKOBQE1RlIjsZq7tXJdY19IPGdY="
-    on:
-      branch: develop
-  - provider: bintray
-    skip_cleanup: true
-    file: .package/bintray.json
-    user: ddurieux
-    key:
-      secure: "vGrTcq699ZpuFXL0sgWcfr4EKKAJUpYSFjyKsfC5NhNrylvyJb3Rm54G7tilQ6Kl+7EHS69V907eblpuxHvwnM/Op/EP7vOAvVOHVHychVG/4ViEWR2qrfGzBZ53TE9DrM7O1r7GunM38riHA8/AIo4nOdBakl3sER7yrxm4GV+mvM4Dykhrzjlu4IhfP+zPnqYmI5GGw5aewX+/LJ8DbS+8rRgS2UAL/RIsw2MuJYiHcVeljo+H13WW69RKa3Y9SUTksiQoFj4uHJP4EvuCigQIpNNYMloAH3biPG31YeEO3RWs8psoPPKh7M7f20lGuontovFGh8254z+Ko71N2srSmW213df1vho6bVdkzZwldojQCdWdJopnlaLHwBv97V9BAmz1RZtL1Vq9YN9M/qcIBer6b+xCS1iLP/xM2hi5bQyv3FzumziaZoUakOT87/dBprGjAIJ59MGrL4L0qpAqVPZ1Ossd2JbvuD12PoYSkYN1omINXZWjoTmMcra1kwEuqRVAUWJEhiH45OaIB75B2zdwtcVVqPJkFYf2wNREBrehNDtSjUOLn6jIIppWXMweu5PXUMwXwIDNWzp8YWi1zG652uIXok8IaZyGjQoVAUTHLGIntHw+UsMNnILmAD+bzT6mJc2dQWaBTKOBQE1RlIjsZq7tXJdY19IPGdY="
-    on:
-      tags: true
+jobs:
+  include:
+    - stage: Coding standard
+      python: 3.6
+      script: |
+                # Static code analysis
+                # -- pycodestyle (former pep8)
+                pycodestyle --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402,E722' alignak_backend/* || travis_terminate 1;
+                # -- pylint
+                unset PYTHONWARNINGS
+                pylint --rcfile=.pylintrc -r no alignak_backend || travis_terminate 1;
+                export PYTHONWARNINGS=all
+                # -- pep257
+                pep257 --select=D300 alignak_backend || travis_terminate 1;
+    - stage: Pypi deployment
+      python: 3.6
+      script: echo "Deploying to PyPi..."
+      deploy:
+      - provider: pypi
+        distributions: "sdist bdist_wheel"
+        skip_existing: true
+        user: alignak
+        password:
+          secure: "eoCeoyPlvmE1lHVA+1mi7vDXvabAttW2PE1gyEHBt4KxoiV8rutM+Ka2H6OFjJNNwk2c0XDwdpNXuM94rl8Cg2gsF7SVOcuuaJRzm2f0QIKMld0qXz5h/9H4hiCYYY4A7kmalO0/h63Dha84c7AA/gxdphPg/egMfgU/KnwpSf7Nwhbeiy+Ss2Afs5rOfC1x4A2HScKMe/MpSSnizZC/0WpRI8llZBupwb1sGVD9yclz6rzxs5it6ePgBYYpLxgV0HUPUc9efa3fNVrPme3lrXJqG9xAP152Zoh95jOaLKn6BBwf63CHt2NloKfeqs313T4Z8E7AKMcA2+GUlFlK8mD6vVl4NcVqpCb8noyDUiWb3mH4XGYkvWlWkKhSsqqGR/HkO2YjrRI+4EWt+nUVEva2ydPpKblv0ycg7su06X3nN35+OjacbHyNIBKKC/HAYMJjC/7/maCKgGRHJxoJdCsC43hdhZjjDIlpstndo6NgE9Nl4HJ+rB2sqHJXOUFwMMEvVpcGPPfj8YBVZMR9OG9EJVUsijKpq+/8KIxsyOfXXbmIEEMn7Ct9pSa4oSeo4N6VzPWggpZN9q08uolSBETCUo2mHpyVt2d0RjhcEE9kVDo6Liiv9H0EWnGJg9N2IXBQV3794Ngh1HnJNihcBSqIRC020yQkp1yDZsof34I="
+        on:
+          branch: develop
+          tags: true
+    - stage: Bintray deployment
+      python: 3.6
+      script:
+        - pip freeze
+        - echo "Deploying to BinTray packages..."
+        # Package Alignak-backend for deb/rpm
+        - ./package.sh $TRAVIS_BRANCH $TRAVIS_PYTHON_VERSION deb
+        - ./package.sh $TRAVIS_BRANCH $TRAVIS_PYTHON_VERSION rpm
+        # Not yet available
+        # ./package.sh $TRAVIS_BRANCH $TRAVIS_PYTHON_VERSION freebsd;
+      deploy:
+      - provider: bintray
+        skip_cleanup: true
+        file: .bintray-deb.json
+        user: mohierf
+        key:
+          secure: "xcvRMpwT+Gk0F+EpelwxSxixkrgb+XLS2310zj3j7+eQ2ahPD20yKX7sZsvIJs3DQjUtJwTemvgW6Yi7TFFJyYK9UA3csPbSojTonXUULjxLP8J3tmaioC2l0L3g+rzeVRbGdsBg5MBMgiz1xdheA3dlaoadL7UXIKx+ZiIjSIkcQJNZWUAPtgsnHGpNx94YGDv4zKp9sBm1Y34QPY8sRXRdlYfmBtp1k1wXVqiVk0K81c6PYoL7bGg9tywfZCGAlhzW0F4Dq9GsB+J1aKgT/QnNVS3HKID8W3wXmlIqGfiidECKjRgZuKcC7ayinuGTOhlitPRtlsAs55Suq7EbAUu4SF8QKV8q5wjtdVxln3zxLrJTAAG2rHQYI4JICjUtPocajZd5661IdHu/UnhqKKWcORK00zwTiQqly9Px/FN0C1qCmnz+1nZOECAQpUxUUXISgKQhYHFKCQK3V4DMryPzPsDuvq4aAIrjjzedca1QwC8FvQgRE13TyLm9wtgsCCZ2TM5moigY37Ea1Gw0leDnAnx6sN5ZERLRE59VxWjhO5O617+kuvxlOcAwkiRYtUPuCVlv00TySqKxtjlY9Rkpc1YLqiLiYJQYCm7ubcFMje9Cy6c8xzS0kTO7HBdPbfJ9ODEKHpOZLYD39iOUk/T60IWMIvsM1RhLTVr7z5Y="
+        on:
+          branch: develop
+      - provider: bintray
+        skip_cleanup: true
+        file: .bintray-deb.json
+        user: mohierf
+        key:
+          secure: "xcvRMpwT+Gk0F+EpelwxSxixkrgb+XLS2310zj3j7+eQ2ahPD20yKX7sZsvIJs3DQjUtJwTemvgW6Yi7TFFJyYK9UA3csPbSojTonXUULjxLP8J3tmaioC2l0L3g+rzeVRbGdsBg5MBMgiz1xdheA3dlaoadL7UXIKx+ZiIjSIkcQJNZWUAPtgsnHGpNx94YGDv4zKp9sBm1Y34QPY8sRXRdlYfmBtp1k1wXVqiVk0K81c6PYoL7bGg9tywfZCGAlhzW0F4Dq9GsB+J1aKgT/QnNVS3HKID8W3wXmlIqGfiidECKjRgZuKcC7ayinuGTOhlitPRtlsAs55Suq7EbAUu4SF8QKV8q5wjtdVxln3zxLrJTAAG2rHQYI4JICjUtPocajZd5661IdHu/UnhqKKWcORK00zwTiQqly9Px/FN0C1qCmnz+1nZOECAQpUxUUXISgKQhYHFKCQK3V4DMryPzPsDuvq4aAIrjjzedca1QwC8FvQgRE13TyLm9wtgsCCZ2TM5moigY37Ea1Gw0leDnAnx6sN5ZERLRE59VxWjhO5O617+kuvxlOcAwkiRYtUPuCVlv00TySqKxtjlY9Rkpc1YLqiLiYJQYCm7ubcFMje9Cy6c8xzS0kTO7HBdPbfJ9ODEKHpOZLYD39iOUk/T60IWMIvsM1RhLTVr7z5Y="
+        on:
+          tags: true
+      - provider: bintray
+        skip_cleanup: true
+        file: .bintray-rpm.json
+        user: mohierf
+        key:
+          secure: "xcvRMpwT+Gk0F+EpelwxSxixkrgb+XLS2310zj3j7+eQ2ahPD20yKX7sZsvIJs3DQjUtJwTemvgW6Yi7TFFJyYK9UA3csPbSojTonXUULjxLP8J3tmaioC2l0L3g+rzeVRbGdsBg5MBMgiz1xdheA3dlaoadL7UXIKx+ZiIjSIkcQJNZWUAPtgsnHGpNx94YGDv4zKp9sBm1Y34QPY8sRXRdlYfmBtp1k1wXVqiVk0K81c6PYoL7bGg9tywfZCGAlhzW0F4Dq9GsB+J1aKgT/QnNVS3HKID8W3wXmlIqGfiidECKjRgZuKcC7ayinuGTOhlitPRtlsAs55Suq7EbAUu4SF8QKV8q5wjtdVxln3zxLrJTAAG2rHQYI4JICjUtPocajZd5661IdHu/UnhqKKWcORK00zwTiQqly9Px/FN0C1qCmnz+1nZOECAQpUxUUXISgKQhYHFKCQK3V4DMryPzPsDuvq4aAIrjjzedca1QwC8FvQgRE13TyLm9wtgsCCZ2TM5moigY37Ea1Gw0leDnAnx6sN5ZERLRE59VxWjhO5O617+kuvxlOcAwkiRYtUPuCVlv00TySqKxtjlY9Rkpc1YLqiLiYJQYCm7ubcFMje9Cy6c8xzS0kTO7HBdPbfJ9ODEKHpOZLYD39iOUk/T60IWMIvsM1RhLTVr7z5Y="
+        on:
+          tags: true
+# Not yet available
+#  - provider: bintray
+#    skip_cleanup: true
+#    file: .bintray-freebsd.json
+#    user: mohierf
+#    key:
+#      secure: "xcvRMpwT+Gk0F+EpelwxSxixkrgb+XLS2310zj3j7+eQ2ahPD20yKX7sZsvIJs3DQjUtJwTemvgW6Yi7TFFJyYK9UA3csPbSojTonXUULjxLP8J3tmaioC2l0L3g+rzeVRbGdsBg5MBMgiz1xdheA3dlaoadL7UXIKx+ZiIjSIkcQJNZWUAPtgsnHGpNx94YGDv4zKp9sBm1Y34QPY8sRXRdlYfmBtp1k1wXVqiVk0K81c6PYoL7bGg9tywfZCGAlhzW0F4Dq9GsB+J1aKgT/QnNVS3HKID8W3wXmlIqGfiidECKjRgZuKcC7ayinuGTOhlitPRtlsAs55Suq7EbAUu4SF8QKV8q5wjtdVxln3zxLrJTAAG2rHQYI4JICjUtPocajZd5661IdHu/UnhqKKWcORK00zwTiQqly9Px/FN0C1qCmnz+1nZOECAQpUxUUXISgKQhYHFKCQK3V4DMryPzPsDuvq4aAIrjjzedca1QwC8FvQgRE13TyLm9wtgsCCZ2TM5moigY37Ea1Gw0leDnAnx6sN5ZERLRE59VxWjhO5O617+kuvxlOcAwkiRYtUPuCVlv00TySqKxtjlY9Rkpc1YLqiLiYJQYCm7ubcFMje9Cy6c8xzS0kTO7HBdPbfJ9ODEKHpOZLYD39iOUk/T60IWMIvsM1RhLTVr7z5Y="
+#    on:
+#      tags: true
