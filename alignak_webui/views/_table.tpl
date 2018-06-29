@@ -7,8 +7,6 @@
 
 %# embedded is True if the table is got from an external application
 %setdefault('embedded', False)
-
-%from six import string_types
 %from bottle import request
 %setdefault('links', request.params.get('links', ''))
 %setdefault('identifier', 'widget')
@@ -178,7 +176,7 @@
                         %     end
                            ],
                         %  else:
-                        %     if isinstance(allowed[0], string_types) and allowed[0].startswith('inner://'):
+                        %     if isinstance(allowed[0], str) and allowed[0].startswith('inner://'):
                         preload: true,
                         load: function(query, callback) {
                            $.ajax({

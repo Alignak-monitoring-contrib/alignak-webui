@@ -52,7 +52,7 @@ def init_localization(app):
         print("Opening message file %s for locale %s"
               % (lang_filename, app.config.get('locale', 'en_US')))
         translation = GNUTranslations(open(lang_filename, "rb"))
-        translation.install(str=True)
+        translation.install(True)
         _ = translation.gettext
     except IOError:
         print("Locale not found. Using default language messages (English)")

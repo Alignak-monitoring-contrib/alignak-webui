@@ -404,7 +404,7 @@ class Datatable(object):
         # ... some parameters have been json.stringify on client side !
         params = {}
         for key in list(request.params.keys()):
-            if key == 'columns' or key == 'order' or key == 'search':
+            if key in ['columns', 'order', 'search']:
                 params[key] = json.loads(request.params.get(key))
             else:
                 params[key] = request.params.get(key)
@@ -638,6 +638,7 @@ class Datatable(object):
                 logger.debug("Not UI visible object: %s", bo_object)
                 continue
 
+            logger.info("table data object: %s", bo_object)
             logger.debug("table data object: %s", bo_object)
             # This is an awful hack that allows to update the objects filtered for a table.
             # Two main interests:
@@ -773,7 +774,7 @@ class Datatable(object):
 
         # Send response
         return json.dumps({
-            "draw": int(params.get('draw', '0')),
+            "draw": int(float(params.get('draw', '0'))),
             "recordsTotal": self.records_total,
             "recordsFiltered": self.records_filtered,
             "data": rows

@@ -23,11 +23,12 @@
     This module contains the base class used as time/date utilities
 """
 
-from six import string_types
 import time
 
 from calendar import timegm
 from logging import getLogger, INFO
+
+from six import string_types
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 # pylint: disable=invalid-name
@@ -44,7 +45,8 @@ def get_ts_date(param_date, date_format):
         # ... and assume it is UTC
         # ----------------------------------------------------------------
         return param_date
-    elif isinstance(param_date, string_types):
+
+    if isinstance(param_date, string_types):
         try:
             # Date is supposed to be received as string formatted date
             timestamp = timegm(time.strptime(param_date, date_format))

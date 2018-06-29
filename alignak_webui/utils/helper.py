@@ -26,12 +26,12 @@
     An ``helper`` object linked to the application is created by this module to be used in all
     the application.
 """
-from six import string_types
 import re
 import time
 import json
 import traceback
 from logging import getLogger
+from six import string_types
 
 from alignak_webui import get_app_config
 
@@ -1417,7 +1417,7 @@ class Helper(object):
             search = {}
         # Limit to 10 hosts and 10 services
         if 'max_results' not in search:
-            search.update({'max_results': 10,})
+            search.update({'max_results': 10})
         if 'where' not in search:
             # Search monitored items that have a bad status not acknowledged nor downtimed
             # Ignore 0 for ok, 3 for unknown and 4 for unreachable
@@ -1439,8 +1439,8 @@ class Helper(object):
         logger.info("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_hosts)
         hosts = datamgr.get_hosts(search=search_hosts, embedded=False, all_elements=False)
         items.extend(hosts)
-        logger.info("get_html_livestate, livestate %d (%s), found %d hosts",
-                       bi, search, len(items))
+        logger.debug("get_html_livestate, livestate %d (%s), found %d hosts",
+                     bi, search, len(items))
 
         # Copy because the search filter is updated by the function ...
         if 'embedded' not in search:

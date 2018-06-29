@@ -44,7 +44,7 @@ class PluginUsers(Plugin):
             },
 
             'get_all': {
-                'name': '%s' % self.name,
+                'name': 'All %s' % self.name,
                 'route': '/%ss' % self.backend_endpoint,
                 'view': '%ss' % self.backend_endpoint,
                 'search_engine': True,

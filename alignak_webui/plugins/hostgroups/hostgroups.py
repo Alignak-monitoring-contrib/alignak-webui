@@ -23,9 +23,9 @@
     Plugin hosts groups
 """
 
-from six import string_types
 import json
 from logging import getLogger
+from six import string_types
 
 from bottle import request, response
 

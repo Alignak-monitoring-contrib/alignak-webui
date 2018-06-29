@@ -83,7 +83,6 @@ def setup_logging(path='logging.json', location='/tmp', default_level=logging.IN
         logging.config.dictConfig(config)
         return True
 
-    else:
-        logging.basicConfig(level=default_level)
+    logging.basicConfig(level=default_level)
 
     return False

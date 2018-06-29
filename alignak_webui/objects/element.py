@@ -28,13 +28,14 @@
     with the data manager.
 """
 
-from six import string_types
 import time
 
 from copy import deepcopy
 
 from datetime import datetime
 from logging import getLogger, INFO
+
+from six import string_types
 
 from alignak_webui import get_app_config
 # Import the backend interface class
@@ -70,7 +71,7 @@ class BackendElement(object):
     _total_count = -1
 
     _backend = None
-    _known_classes = None
+    _known_classes = []
 
     # Next value used for auto generated id
     _next_id = 1
@@ -208,12 +209,12 @@ class BackendElement(object):
                         return cls._cache[params.id]
                     logger.info("New %s, id: %s, copy an object", cls, params)
                     return deepcopy(params)
-                else:
-                    logger.critical("Class %s, id_property: %s, invalid params: %s",
-                                    cls, id_property, params)
-                    raise ValueError(
-                        '%s.__new__: object parameters must be a dictionary!' % (cls._type)
-                    )
+
+                logger.critical("Class %s, id_property: %s, invalid params: %s",
+                                cls, id_property, params)
+                raise ValueError(
+                    '%s.__new__: object parameters must be a dictionary!' % (cls._type)
+                )
 
             if id_property in params:
                 if not isinstance(params[id_property], string_types):

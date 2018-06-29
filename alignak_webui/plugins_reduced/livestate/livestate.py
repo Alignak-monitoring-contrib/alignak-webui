@@ -26,7 +26,7 @@
 import json
 from logging import getLogger
 
-from bottle import request, response, template
+from bottle import request, response
 
 from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
@@ -81,7 +81,7 @@ class PluginLivestate(Plugin):
         response.content_type = 'application/json'
         return json.dumps({'livestate': ls})
 
-    def events_log(self):
+    def events_log(self):  # pylint: disable=no-self-use
         """Returns the Json alignak events log
 
         """
@@ -90,7 +90,7 @@ class PluginLivestate(Plugin):
 
         response.status = 200
         response.content_type = 'application/json'
-        return json.dumps(datamgr.get_events_log(json=True))
+        return json.dumps(datamgr.get_events_log(json_dump=True))
 
     def get_livestate(self):  # pylint:disable=no-self-use
         """Display livestate page"""
@@ -105,7 +105,7 @@ class PluginLivestate(Plugin):
             session['user_message'] = None
 
         return {
-            'options_panel': False,
+            'top_ten_hosts': False,
             'panels': datamgr.get_user_preferences(user, 'livestate', {}),
             'layout': request.app.config.get('livestate_layout', 'table'),
             'title': request.query.get('title', _('Livestate')),

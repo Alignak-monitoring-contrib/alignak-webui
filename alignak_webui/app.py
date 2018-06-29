@@ -65,15 +65,14 @@ Use cases:
 
 """
 
-
-
-from six import string_types
 import os
 import time
 import datetime
 import json
 import logging
 import threading
+
+from six import string_types
 
 # Session management
 from beaker.middleware import SessionMiddleware
@@ -101,7 +100,8 @@ app = application = bottle.Bottle()
 # Simple mode for the application
 # -----
 if os.environ.get('ALIGNAK_WEBUI_REDUCED', False):
-    print("Application is in reduced mode. No backend, no authentication. Simple Alignak WS reading!")
+    print("Application is in reduced mode. No backend, no authentication. "
+          "Simple Alignak WS reading!")
 
 # -----
 # Test mode for the application
@@ -298,6 +298,8 @@ logger.info("Doc: %s", __manifest__['doc'])
 logger.info("Release notes: %s", __manifest__['release'])
 logger.info("--------------------------------------------------------------------------------")
 
+logger.info("Application logger configured from: %s", cfg_log_filename)
+
 logger.info("--------------------------------------------------------------------------------")
 logger.info("configuration read from: %s", cfg_filename)
 logger.info("listening on %s:%d (debug mode: %s)",
@@ -341,6 +343,14 @@ print(_("Language is English (default)..."))
 webapp = WebUI(app, name=app_name, config=app.config)
 BaseTemplate.defaults['webui'] = webapp
 app.config['webui'] = webapp
+
+# -----
+# Application layout configuration
+# -----
+if os.environ.get('ALIGNAK_WEBUI_TOP_TEN_HOSTS', False):
+    print("Application displays the top ten hosts")
+    BaseTemplate.defaults['top_ten_hosts'] = True
+
 
 # -----
 # Gloval application configuration
@@ -512,8 +522,10 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 @app.route('/', 'GET')
 def home_page():
-    """Display home page -> redirect to /Dashboard"""
+    """Display home page -> redirect to /Livestate"""
     try:
+        logger.warning("home_page!")
+        logger.warning("home_page: %s", request.app.get_url('Livestate'))
         redirect(request.app.get_url('Livestate'))
     except RouteBuildError:  # pragma: no cover, should never happen!
         return "No home page available in the application routes!"
@@ -1080,14 +1092,10 @@ if os.environ.get('ALIGNAK_WEBUI_SESSION_TYPE'):
     print("Session type from environment: %s" % session_type)
 
 session_data = app.config.get('session.session_data',
-                              os.path.join('/tmp', __manifest__['name'], 'sessions'))
+                              os.path.join('/tmp/alignak-webui/sessions'))
 if os.environ.get('ALIGNAK_WEBUI_SESSION_DATA'):
     session_data = os.environ.get('ALIGNAK_WEBUI_SESSION_DATA')
     print("Session data from environment: %s" % session_data)
-
-# Uncomment this line to make Bottle raise exceptions from the underlying application!
-# Important for unit tests to get the full traceback of the application exceptions.
-app.catchall = False
 
 session_opts = {
     'session.type': session_type,

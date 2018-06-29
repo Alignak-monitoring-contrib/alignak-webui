@@ -28,7 +28,6 @@
     Application data manager
 """
 
-from six import string_types
 import os
 import time
 import json
@@ -36,6 +35,8 @@ from datetime import datetime
 from copy import deepcopy
 import logging
 import traceback
+
+from six import string_types
 
 from alignak_backend_client.client import BackendException
 
@@ -222,11 +223,11 @@ class DataManager(object):
 
                     # Fetch the logged-in user
                     if password:
-                        users = self.my_backend.get('user',
-                                                    {'max_results': 1, 'where': {'name': username}})
+                        users = self.my_backend.get('user', {'max_results': 1,
+                                                             'where': {'name': username}})
                     else:
-                        users = self.my_backend.get('user',
-                                                    {'max_results': 1, 'where': {'token': username}})
+                        users = self.my_backend.get('user', {'max_results': 1,
+                                                             'where': {'token': username}})
                     self.logged_in_user = User(users[0])
                     logger.debug("user_login, user: %s", self.logged_in_user)
                     # Tag user as authenticated
@@ -390,14 +391,15 @@ class DataManager(object):
         if new_objects_count > objects_count:
             self.require_refresh()
 
-        # Copy because the search filter is updated by the function ...
-        search = {
-            'page': 1,
-            'max_results': 10,
-            'sort': '-_overall_state_id'
-        }
-        self.my_hosts = self.get_hosts(search=search, embedded=False)
-        logger.info("Get hosts names list, got %d hosts: %s", len(self.my_hosts), self.my_hosts)
+        if os.environ.get('ALIGNAK_WEBUI_TOP_TEN_HOSTS', False):
+            # Copy because the search filter is updated by the function ...
+            search = {
+                'page': 1,
+                'max_results': 10,
+                'sort': '-_overall_state_id'
+            }
+            self.my_hosts = self.get_hosts(search=search, embedded=False)
+            logger.info("Get hosts names list, got %d hosts: %s", len(self.my_hosts), self.my_hosts)
 
         self.loaded = True
         self.loading = 0
@@ -693,7 +695,7 @@ class DataManager(object):
         result = []
 
         try:
-            logger.debug("get_alignak_map")
+            logger.debug("get_alignak_map, search: %s", search)
             result = self.alignak_ws.get('alignak_map')
         except AlignakWSException:
             return result
@@ -716,6 +718,7 @@ class DataManager(object):
 
     def get_alignak_state(self, search=None, all_elements=False):
         """Get a list of all alignak daemons states."""
+        logger.debug("get_alignak_state, search: %s, all: %s", search, all_elements)
         if search is None:
             search = {}
         if 'sort' not in search:
@@ -728,7 +731,6 @@ class DataManager(object):
             })
 
         try:
-            logger.debug("get_alignak_state, search: %s", search)
             items = self.find_object('alignakdaemon', search, all_elements)
             logger.debug("get_alignak_state, found: %s", items)
             return items
@@ -740,15 +742,17 @@ class DataManager(object):
     ##
     # Live synthesis
     ##
-    def get_events_log(self, json=True):
+    def get_events_log(self, json_dump=True):
+        """BETA - Get events log in reduced mode"""
         # ---
         # Reduced mode without authentication
         # ---
+        logger.debug("get_events_log, json: %s", json_dump)
         result = None
         if self.reduced_mode:
             try:
                 logger.debug("get_events_log")
-                result = self.alignak_ws.get('events_log?details=%s' % ('1' if json else ''))
+                result = self.alignak_ws.get('events_log?details=%s' % ('1' if json_dump else ''))
             except AlignakWSException as exp:
                 logger.error("get_events_log exception: %s\n%s", str(exp), result)
                 return result
@@ -838,6 +842,7 @@ class DataManager(object):
                 else:
                     logger.warning("No monitoring event detected from: %s", log['message'])
                     continue
+                logger.debug("Found: %s", data)
             except ValueError:
                 logger.warning("Unable to decode a monitoring event from: %s", log['message'])
                 logger.warning(traceback.format_exc())
@@ -855,7 +860,8 @@ class DataManager(object):
                         states = {'UP': 'up', 'DOWN': 'down',
                                   'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
 
-                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['state']])
+                    cfg_state = items_states.get_icon_state('logcheckresult',
+                                                            states[event['state']])
                     event_class = 'item_' + cfg_state['class']
 
                     cfg_state = items_states.get_icon_state('history', 'monitoring_alert')
@@ -870,7 +876,8 @@ class DataManager(object):
                         states = {'UP': 'up', 'DOWN': 'down',
                                   'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
 
-                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['state']])
+                    cfg_state = items_states.get_icon_state('logcheckresult',
+                                                            states[event['state']])
                     event_class = 'item_' + cfg_state['class']
 
                     cfg_state = items_states.get_icon_state('history', 'monitoring_notification')
@@ -883,7 +890,8 @@ class DataManager(object):
                     if item_type == 'HOST':
                         states = {0: 'up', 1: 'down', 2: 'down', 3: 'unknown', 4: 'unreachable'}
 
-                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['event_type']])
+                    cfg_state = items_states.get_icon_state('logcheckresult',
+                                                            states[event['event_type']])
                     icon = cfg_state['icon']
                     event_class = 'item_' + cfg_state['class']
                     logger.info(cfg_state)
@@ -896,7 +904,8 @@ class DataManager(object):
                         states = {'UP': 'up', 'DOWN': 'down',
                                   'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
 
-                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['event_type']])
+                    cfg_state = items_states.get_icon_state('logcheckresult',
+                                                            states[event['event_type']])
                     icon = cfg_state['icon']
                     event_class = 'item_' + cfg_state['class']
                     logger.info(cfg_state)
@@ -912,9 +921,11 @@ class DataManager(object):
         return events
 
     def get_problems(self, search=None):
+        """BETA - Get events log in reduced mode"""
         # ---
         # Reduced mode without authentication
         # ---
+        logger.debug("get_problems, search: %s", search)
         result = None
         if self.reduced_mode:
             try:
@@ -1000,6 +1011,7 @@ class DataManager(object):
             :return: hosts and services live state synthesis in a dictionary
             :rtype: dict
         """
+        logger.debug("get_livesynthesis, search: %s", search)
 
         items = None
         default_ls = {
@@ -1109,7 +1121,7 @@ class DataManager(object):
         services_s = default_ls['services_synthesis']
 
         for ls in items:
-            logger.debug("backend livesynthesis item: %s", ls)
+            logger.info("livesynthesis item: %s", ls)
             if getattr(ls, '_id', None) is not None:
                 synthesis['_id'] = ls['_id']
 
@@ -1245,8 +1257,8 @@ class DataManager(object):
             array of livesynthesis for each timestamp
             :rtype: tuple
         """
+        logger.debug("get_livesynthesis_history")
 
-        item = None
         default_ls = {
             '_created': None,
             'hosts_synthesis': {
@@ -1294,6 +1306,7 @@ class DataManager(object):
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0
             }
         }
+        item = None
 
         try:
             logger.debug("get_livesynthesis_history, history...")

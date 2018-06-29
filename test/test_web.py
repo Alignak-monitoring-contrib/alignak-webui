@@ -35,9 +35,14 @@ from datetime import datetime
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
-os.environ['ALIGNAK_WEBUI_DEBUG'] = '0'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -81,7 +86,8 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir)
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
+        stdout=fnull
     )
     assert exit_code == 0
 
@@ -97,12 +103,12 @@ def setup_module(module):
     params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
     response = requests.get(backend_address + '/realm', params=params, auth=auth)
     resp = response.json()
-    host = resp['_items'][0]
-    print("Realm: %s" % host)
-    realm_all = host['_id']
+    realm = resp['_items'][0]
+    print("Realm: %s" % realm)
+    realm_all = realm['_id']
 
     # Get hosts in the backend
-    params = {'sort': '_id', 'where': json.dumps({'name': 'KNM-Glpi'})}
+    params = {'sort': '_id', 'where': json.dumps({'name': 'alignak_glpi'})}
     response = requests.get(backend_address + '/host', params=params, auth=auth)
     resp = response.json()
     hosts = resp['_items']
@@ -369,6 +375,7 @@ class TestCommands(unittest2.TestCase):
         response.mustcontain(
             '<div class="command" id="command_'
         )
+
 
 class TestTimeperiods(unittest2.TestCase):
     def setUp(self):

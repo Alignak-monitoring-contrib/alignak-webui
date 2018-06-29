@@ -33,6 +33,11 @@ os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -92,6 +97,7 @@ class TestLogin(unittest2.TestCase):
 
         # Test application
         self.app = TestApp(alignak_webui.app.session_app)
+        print("App: %s" % self.app)
 
     def test_login_refused(self):
         """ Login - refused"""
@@ -131,12 +137,12 @@ class TestLogin(unittest2.TestCase):
         response.mustcontain('<form role="form" method="post" action="/login">')
 
         print('login accepted - go to home page')
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'}, status=302)
         print('Response: %s' % response)
 
         # A session cookie now exists
         assert self.app.cookies['Alignak-WebUI']
-        print('cookies: ', self.app.cookiejar)
+        print('cookies: ')
         for cookie in self.app.cookiejar:
             print('cookie: ', cookie.__dict__)
             if cookie.name=='Alignak-WebUI':
@@ -159,11 +165,12 @@ class TestLogin(unittest2.TestCase):
         response.mustcontain('<form role="form" method="post" action="/login">')
 
         print('login accepted - go to home page')
-        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
+        response = self.app.post('/login', {'username': 'admin', 'password': 'admin'}, status=302)
         print('Response: %s' % response)
 
         # Redirected twice: /login -> / -> /livestate
         redirected_response = response.follow()
+        print("Redirected response: %s" % redirected_response)
         # print('Redirected response: %s' % redirected_response)
         redirected_response = redirected_response.follow()
         # print('Redirected response: %s' % redirected_response)
@@ -207,6 +214,7 @@ class TestLogin(unittest2.TestCase):
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /livestate !
         redirected_response = response.follow()
+        print("Redirected response: %s" % redirected_response)
         redirected_response = redirected_response.follow()
         redirected_response.mustcontain('<div id="livestate">')
         # A host cookie now exists

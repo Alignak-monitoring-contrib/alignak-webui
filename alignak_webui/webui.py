@@ -23,8 +23,6 @@
     WebUI application
 """
 
-
-
 import json
 import os
 from importlib import import_module
@@ -179,6 +177,9 @@ class WebUI(object):
         :param name:
         :return:
         """
+        print("get_url: %s" % name)
+        url = self.app.get_url(name)
+        print("get_url: %s" % url)
         return self.app.get_url(name)
 
     @property

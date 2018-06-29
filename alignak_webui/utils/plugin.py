@@ -28,12 +28,13 @@
     - create lists for plugin widgets, tables, and lists
     - create a route endpoint for the plugin configuration
 """
-from six import string_types
 import os
 import json
-from collections import OrderedDict
+from collections import OrderedDict, Callable
 
 from logging import getLogger
+
+from six import string_types
 
 from alignak_backend.models import register_models
 
@@ -46,7 +47,6 @@ from alignak_webui.utils.datatable import Datatable
 
 # Settings
 from alignak_webui.utils.settings import Settings
-import collections
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -75,7 +75,9 @@ class Plugin(object):
         self.plugin_dirname = plugin_dir
         self.plugin_filenames = cfg_filenames
         self.plugin_parameters = None
+        self.plugin_config = None
         self.table = None
+        # self.pages = {}
         self.variables = {}
 
         # Default is to have a search engine for some pages
@@ -259,7 +261,7 @@ class Plugin(object):
                         'view': '_table',
                         'tables': [
                             {
-                                'id': '%ss_table' % self.backend_endpoint,
+                                'id': '%ss_templates_table' % self.backend_endpoint,
                                 'for': ['external'],
                                 'name': _('%s templates table' % self.name),
                                 'template': '_table',
@@ -315,7 +317,7 @@ class Plugin(object):
         for (f_name, entry) in list(self.pages.items()):
             logger.debug("page entry: %s -> %s", entry, f_name)
             f = getattr(self, f_name, None)
-            if not isinstance(f, collections.Callable):  # pragma: no cover - method should exist
+            if not isinstance(f, Callable):  # pragma: no cover - method should exist
                 logger.warning("Callable method: %s does not exist!", f_name)
                 continue
 
@@ -412,7 +414,7 @@ class Plugin(object):
                         }
                         for action, f_name2 in list(table.get('actions', {}).items()):
                             f = getattr(self, f_name2, None)
-                            if not isinstance(f, collections.Callable):  # pragma: no cover
+                            if not isinstance(f, Callable):  # pragma: no cover
                                 logger.error("Table action method: %s does not exist!", f_name2)
                                 continue
 
@@ -454,8 +456,9 @@ class Plugin(object):
         logger.debug("Reading plugin configuration file: %s", cfg_filenames)
         self.plugin_config = Settings(cfg_filenames)
         config_file = self.plugin_config.read(self.name)
-        logger.debug("Plugin configuration read from: %s", config_file)
-        if not self.plugin_config:  # pragma: no cover, all plugins have configuration files
+        if config_file:
+            logger.info("Plugin configuration read from: %s", config_file)
+        if not self.plugin_config:  # pragma: no cover, all plugins have a configuration
             if initialization:
                 return False
 
@@ -648,7 +651,7 @@ class Plugin(object):
             for item in elts:
                 logger.info("Tree item: %s", item)
                 overall_status = 'unknown'
-                if isinstance(f_get_overall_state, collections.Callable):
+                if isinstance(f_get_overall_state, Callable):
                     (dummy, overall_status) = f_get_overall_state(element=item)
                 logger.debug("Item status: %s", overall_status)
 
@@ -896,6 +899,7 @@ class Plugin(object):
         create = (element_id == 'None')
 
         # Get element get method from the data manager
+        element = None
         f = getattr(datamgr, 'get_%s' % self.backend_endpoint, None)
         if not f:  # pragma: no cover, simple protection
             f = getattr(datamgr, 'get_object', None)
@@ -955,7 +959,10 @@ class Plugin(object):
             if field_type == 'objectid':
                 value = request.forms.get(field)
                 if value:
-                    value = value.decode('utf-8')
+                    try:
+                        value = value.decode('utf-8')
+                    except AttributeError:
+                        pass
                 else:
                     value = None
             elif field_type == 'boolean':
@@ -970,7 +977,15 @@ class Plugin(object):
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
-                    dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                    try:
+                        splitted[0] = splitted[0].decode('utf8')
+                    except AttributeError:
+                        pass
+                    try:
+                        splitted[1] = splitted[1].decode('utf8')
+                    except AttributeError:
+                        pass
+                    dict_values.update({splitted[0]: splitted[1]})
                 logger.info("- got a point: %s: %s", field, dict_values)
                 if not dict_values:
                     logger.warning("Missing information in the value: %s: %s", field, dict_values)
@@ -989,7 +1004,15 @@ class Plugin(object):
                 dict_values = {}
                 for item in value:
                     splitted = item.split('|')
-                    dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                    try:
+                        splitted[0] = splitted[0].decode('utf8')
+                    except AttributeError:
+                        pass
+                    try:
+                        splitted[1] = splitted[1].decode('utf8')
+                    except AttributeError:
+                        pass
+                    dict_values.update({splitted[0]: splitted[1]})
                 value = dict_values
             elif field_type == 'list':
                 if request.forms.getall(field + '[]'):
@@ -1002,12 +1025,23 @@ class Plugin(object):
                     dict_values = {}
                     for item in value:
                         splitted = item.split('|')
-                        dict_values.update({splitted[0].decode('utf8'): splitted[1].decode('utf8')})
+                        try:
+                            splitted[0] = splitted[0].decode('utf8')
+                        except AttributeError:
+                            pass
+                        try:
+                            splitted[1] = splitted[1].decode('utf8')
+                        except AttributeError:
+                            pass
+                        dict_values.update({splitted[0]: splitted[1]})
                     value = [dict_values]
             else:
                 value = request.forms.get(field)
                 if value:
-                    value = value.decode('utf-8')
+                    try:
+                        value = value.decode('utf-8')
+                    except AttributeError:
+                        pass
 
             if not create and element[field] != value:
                 update = True
@@ -1049,7 +1083,7 @@ class Plugin(object):
             # Create a new object
             if data:
                 if 'name' not in data or not data['name']:
-                    data.update({'_message': _("%s creation failed!") % (self.backend_endpoint)})
+                    data.update({'_message': _("%s creation failed!") % self.backend_endpoint})
                     data.update({'_errors': [_("")]})
                 else:
                     if self.backend_endpoint == 'realm':
@@ -1064,7 +1098,7 @@ class Plugin(object):
 
                     result = datamgr.add_object(self.backend_endpoint, data=data)
                     if isinstance(result, string_types):
-                        data.update({'_message': _("New %s created") % (self.backend_endpoint)})
+                        data.update({'_message': _("New %s created") % self.backend_endpoint})
                         data.update({'_id': result})
                     else:
                         data.update({'_message': _("%s creation failed!") % (
@@ -1141,6 +1175,7 @@ class Plugin(object):
 
         Returns a JSON list containing, for each item, its id, name and alias
         """
+        logger.debug("get_list: %s, embedded: %s", templates, embedded)
         datamgr = request.app.datamgr
 
         # Get elements from the data manager
@@ -1192,6 +1227,7 @@ class Plugin(object):
         - search for specific elements search
 
         """
+        logger.debug("get_widget: %s, embedded: %s", object_type, embedded)
         user = request.environ['beaker.session']['current_user']
         datamgr = request.app.datamgr
 
@@ -1202,7 +1238,7 @@ class Plugin(object):
             if not get_method:
                 self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        if not isinstance(get_method, collections.Callable):
+        if not isinstance(get_method, Callable):
             self.send_user_message(_("Configured method is not callable."))
 
         # Fetch elements per page preference for user, default is 25
