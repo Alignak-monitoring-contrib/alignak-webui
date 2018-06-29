@@ -6,15 +6,15 @@ docopt==0.6.2
 configparser==3.5.0
 
 Bottle>=0.12.9,<0.13
-Beaker==1.9.0
+Beaker==1.10.0
 
 # Alignak WebUI supports the most recent CherryPy
 CherryPy==15.0.0
 
 # Requests to communicate between the daemons
-requests==2.18.4
+requests==2.19.1
 
-pymongo>=3.4
+pymongo==3.7
 python-gettext
 
 # Colored console log
