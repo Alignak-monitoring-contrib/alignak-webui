@@ -107,7 +107,3 @@ class TestInitialization(unittest2.TestCase):
         print('get plugins static files routes - rule starts with /plugins')
         for s_route in [r for r in bottle.app().routes if r.rule.startswith('/plugins')]:
             print("Plugin static files route:", s_route.rule)
-
-
-if __name__ == '__main__':
-    unittest2.main()

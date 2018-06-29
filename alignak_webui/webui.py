@@ -54,8 +54,10 @@ class WebUI(object):
         :param: config
         :type: dict
         """
-
         logger.info("Initializing application...")
+        self.reduced_mode = os.environ.get('ALIGNAK_WEBUI_REDUCED', False)
+        if self.reduced_mode:
+            logger.warning("- reduced mode: %s!", self.reduced_mode)
 
         # Store all the plugins
         self.plugins = []
@@ -99,6 +101,11 @@ class WebUI(object):
 
         If the plugin has a 'load_config' function, call it
         """
+        # ---
+        # Reduced mode without authentication
+        # ---
+        if self.reduced_mode:
+            plugins_dir = "%s_reduced" % plugins_dir
         logger.debug("load plugins from: %s", plugins_dir)
 
         # Get list of sub directories
@@ -291,14 +298,15 @@ class WebUI(object):
         Stores the authenticated User object in the session to make it available
         """
 
-        logger.debug("user_authentication, authenticating: %s", username)
+        logger.warning("user_authentication, authenticating: %s", username)
 
         # Session...
         # session = request.environ['beaker.session']
 
         session['login_message'] = None
         # if not session:
-        if 'current_user' not in session or not session['current_user']:
+        if 'current_user' not in session or not session['current_user'] or \
+                not isinstance(session['current_user'], dict):
             # Build DM without any session or user parameter
             self.datamgr = DataManager(self.app)
 

@@ -1,4 +1,7 @@
 # Python requirements for unit tests
+# Include main application requirements
+-r ../requirements.txt
+
 unittest2
 # uWsgi Web server
 uwsgi
@@ -8,6 +11,9 @@ webtest
 # Use py.test as test-runner
 pytest
 pytest-cov
+
+# Use Tox for Python versions tests
+tox
 
 # Let coverage use the most recent version
 coverage
@@ -26,4 +32,4 @@ pep257
 # alignak (most recent develop)
 -e git+git://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
 # alignak_backend_import (most recent develop)
--e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-import.git@develop#egg=alignak_backend_import
+-e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-import.git@new-alignak#egg=alignak_backend_import

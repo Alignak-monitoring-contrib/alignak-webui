@@ -97,9 +97,15 @@ from alignak_webui.webui import WebUI
 app = application = bottle.Bottle()
 
 # -----
+# Simple mode for the application
+# -----
+if os.environ.get('ALIGNAK_WEBUI_REDUCED', False):
+    print("Application is in reduced mode. No backend, no authentication. Simple Alignak WS reading!")
+
+# -----
 # Test mode for the application
 # -----
-if os.environ.get('ALIGNAK_WEBUI_TEST'):
+if os.environ.get('ALIGNAK_WEBUI_TEST', False):
     print("Application is in test mode")
 else:  # pragma: no cover, because tests are run in test mode
     print("Application is in production mode")
@@ -174,12 +180,12 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):  # pragma: no cover, no
 # -----
 # Debug and test mode
 # -----
-env_debug = os.environ.get('BOTTLE_DEBUG')
+env_debug = os.environ.get('BOTTLE_DEBUG', False)
 if env_debug and env_debug == '1':  # pragma: no cover, tested but not coverable
     app.config['bottle.debug'] = True
     print("Bottle is in debug mode from environment")
 
-env_debug = os.environ.get('ALIGNAK_WEBUI_DEBUG')
+env_debug = os.environ.get('ALIGNAK_WEBUI_DEBUG', False)
 if env_debug and env_debug == '1':  # pragma: no cover, tested but not coverable
     app.config['%s.debug' % app_name] = True
     print("Application is in debug mode from environment")
@@ -433,21 +439,22 @@ def before_request():
             logger.error("no user: %s", current_user)
             abort(401, json.dumps({'status': 'ok', 'message': 'Session expired'}))
 
+        origin = request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR')
+        logger.debug("client: %s, cookie: %s", origin, request.environ.get('HTTP_COOKIE'))
+
+        # Stop Alignak backend thread
+        # ***** Not yet implemented...
+
         # Redirect to application login page
         logger.warning("Requesting %s. "
                        "The session expired or there is no user in the session. "
                        "Redirecting to the login page...", request.urlparts.path)
 
-        # Stop Alignak backend thread
-        # *****
-        origin = request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR')
-        logger.debug("client: %s, cookie: %s", origin, request.environ.get('HTTP_COOKIE'))
-
         redirect('/login')
 
     # Authenticate the session user
     logger.debug("webapp: %s, request app: %s", webapp, request.app)
-    logger.debug("current_user: %s", current_user)
+    logger.info("current_user: %s", current_user)
     if not webapp.user_authentication(current_user.token, None, session):
         # Redirect to application login page
         logger.warning("user in the session is not authenticated. "

@@ -58,6 +58,8 @@ class ColorStreamHandler(StreamHandler):
             print(msg.encode('ascii', 'ignore'))
         except TypeError:
             self.handleError(record)
+        except Exception:
+            pass
 
 
 def setup_logging(path='logging.json', location='/tmp', default_level=logging.INFO):

@@ -1,4 +1,5 @@
 %setdefault('ls', None)
+%setdefault('hosts_url', None)
 
 <style>
     #problems-synthesis {
@@ -53,6 +54,10 @@
     %if ls is None:
     %if datamgr:
     %ls = datamgr.get_livesynthesis()
+    %else:
+    <div class="col-xs-12">
+    No data manager!
+    </div>
     %end
     %end
     %if ls is not None:
@@ -68,7 +73,7 @@
                 <strong><span class="item_host_{{state}}">{{hs["nb_problems"]}}</span></strong>
             </div>
             <div>
-                <a href="{{ webui.get_url('Hosts table') }}">
+                <a href="/hosts">
                     <span class="fa fa-4x fa-{{icon}} item_host_{{state}}"></span>
                 </a>
             </div>
@@ -91,7 +96,7 @@
                 <strong><span class="item_host_{{state}}">{{ss["nb_problems"]}}</span></strong>
             </div>
             <div>
-                <a class="item_host_{{state}}" href="{{ webui.get_url('Services table') }}">
+                <a class="item_host_{{state}}" href="{{ hosts_url }}">
                     <span class="fa fa-4x fa-{{icon}}"></span>
                 </a>
             </div>
@@ -113,7 +118,7 @@
                 <strong><span class="item_host_{{state}}">{{hs["nb_problems"] + ss["nb_problems"]}}</span></strong>
             </div>
             <div>
-                <a href="{{ webui.get_url('Hosts table') }}?search=ls_state_id:1 ls_state_id:2">
+                <a href="{{ hosts_url }}?search=ls_state_id:1 ls_state_id:2">
                     <span class="fa fa-4x fa-exclamation-triangle item_host_{{state}}"></span>
                 </a>
             </div>
@@ -122,6 +127,10 @@
             </div>
         </center>
         %end
+    </div>
+    %else:
+    <div class="col-xs-12">
+    No information!
     </div>
     %end
 </div>

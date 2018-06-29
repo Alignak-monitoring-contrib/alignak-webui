@@ -571,7 +571,3 @@ class TestUserCreation(TestCreation):
         new_count = self.datamgr.count_objects('user', search={'where': {'_is_template': False}})
         print("users count: %s" % new_count)
         assert new_count == self.users_count + 1
-
-
-if __name__ == '__main__':
-    unittest2.main()

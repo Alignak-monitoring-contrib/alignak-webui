@@ -28,11 +28,13 @@
     Application data manager
 """
 
+import os
 import time
 import json
 from datetime import datetime
 from copy import deepcopy
 import logging
+import traceback
 
 from alignak_backend_client.client import BackendException
 
@@ -42,6 +44,7 @@ from alignak_webui.backend.alignak_ws_client import AlignakConnection, AlignakWS
 
 from alignak_webui.utils.dates import get_ts_date
 from alignak_webui.utils.helper import Helper
+from alignak_webui.utils.logevent import LogEvent
 
 # Import all objects we will need -
 # NOTE that all the objects types need to be imported else some errors will raise!
@@ -108,6 +111,10 @@ class DataManager(object):
         # Set a unique id for each DM object
         self.__class__.id += 1
 
+        self.reduced_mode = os.environ.get('ALIGNAK_WEBUI_REDUCED', False)
+        if self.reduced_mode:
+            logger.warning("- reduced mode: %s!", self.reduced_mode)
+
         # Associated backend object
         self.backend_endpoint = app.config.get('alignak_backend', 'http://127.0.0.1:5000')
         self.my_backend = BackendConnection(self.backend_endpoint)
@@ -173,40 +180,63 @@ class DataManager(object):
         If no password is provided, the username is assumed to be an authentication token and we
         use the backend connect function."""
         logger.info("user_login, connection requested: %s, load: %s", username, load)
+        if self.reduced_mode:
+            logger.warning("- reduced mode, user_login, connection requested: %s", username)
 
         self.connected = False
         self.connection_message = _('Backend connecting...')
         try:
             # Backend login
-            self.connected = self.my_backend.login(username, password)
-            if self.connected:
-                self.connection_message = _('Connection successful')
-
-                # Set the backend to use by the data manager objects
-                BackendElement.set_backend(self.my_backend)
-                BackendElement.set_known_classes(self.known_classes)
-
+            if self.reduced_mode:
+                self.connected = True
                 # Use the same credentials for Alignak Web Service interface
                 self.alignak_ws.login(username, password)
+                self.logged_in_user = User({
+                    'name': username,
+                    'password': password,
+                    'is_admin': False,
+                    'widgets_allowed': True,
+                    'can_submit_commands': True,
+                    'email': 'test@gmail.com',
+                    'lync': 'test@lync.com',
+                    'token': password
+                })
 
-                # Fetch the logged-in user
-                if password:
-                    users = self.my_backend.get('user',
-                                                {'max_results': 1, 'where': {'name': username}})
-                else:
-                    users = self.my_backend.get('user',
-                                                {'max_results': 1, 'where': {'token': username}})
-                self.logged_in_user = User(users[0])
                 logger.debug("user_login, user: %s", self.logged_in_user)
                 # Tag user as authenticated
                 self.logged_in_user.authenticated = True
 
-                # Load data if load required...
-                if load:
-                    self.load(reset=True)
                 self.connection_message = _('Access granted')
             else:
-                self.connection_message = _('Access denied! Check your username and password.')
+                self.connected = self.my_backend.login(username, password)
+                if self.connected:
+                    self.connection_message = _('Connection successful')
+
+                    # Set the backend to use by the data manager objects
+                    BackendElement.set_backend(self.my_backend)
+                    BackendElement.set_known_classes(self.known_classes)
+
+                    # Use the same credentials for Alignak Web Service interface
+                    self.alignak_ws.login(username, password)
+
+                    # Fetch the logged-in user
+                    if password:
+                        users = self.my_backend.get('user',
+                                                    {'max_results': 1, 'where': {'name': username}})
+                    else:
+                        users = self.my_backend.get('user',
+                                                    {'max_results': 1, 'where': {'token': username}})
+                    self.logged_in_user = User(users[0])
+                    logger.debug("user_login, user: %s", self.logged_in_user)
+                    # Tag user as authenticated
+                    self.logged_in_user.authenticated = True
+
+                    # Load data if load required...
+                    if load:
+                        self.load(reset=True)
+                    self.connection_message = _('Access granted')
+                else:
+                    self.connection_message = _('Access denied! Check your username and password.')
         except BackendException as exp:  # pragma: no cover, should not happen
             logger.exception("configured backend is not available: %s", exp)
             self.connection_message = exp.message
@@ -313,6 +343,10 @@ class DataManager(object):
                 return False
             logger.error("load, already loading: reset counter")
             self.loading = 0
+
+        if self.reduced_mode:
+            logger.warning("- reduced mode: %s!", self.reduced_mode)
+            return 0
 
         logger.debug("load, start loading: %s for %s", self, self.logged_in_user)
         logger.debug("load, start as super-administrator: %s",
@@ -705,6 +739,191 @@ class DataManager(object):
     ##
     # Live synthesis
     ##
+    def get_events_log(self, json=True):
+        # ---
+        # Reduced mode without authentication
+        # ---
+        result = None
+        if self.reduced_mode:
+            try:
+                logger.debug("get_events_log")
+                result = self.alignak_ws.get('events_log?details=%s' % ('1' if json else ''))
+            except AlignakWSException as exp:
+                logger.error("get_events_log exception: %s\n%s", str(exp), result)
+                return result
+        logger.warning("Events: %s", result)
+        events = []
+
+        items_states = ElementState()
+
+        for log in result:
+            logger.info("Log: %s", log['message'])
+            # command = log['message'].split(':')
+            # fields = []
+            # if len(command) > 1:
+            #     fields = command[1].split(";")
+
+            # Try to get a monitoring event
+            try:
+                event = LogEvent(log['message'])
+                logger.info("Event: %s", event)
+                if event.valid:
+                    # -------------------------------------------
+                    data = {}
+                    if event.event_type == 'TIMEPERIOD':
+                        data = {
+                            "host_name": 'n/a',
+                            "service_name": 'n/a',
+                            "user_name": "Alignak",
+                            "type": "monitoring.timeperiod_transition",
+                            "message": log['message'],
+                        }
+
+                    if event.event_type == 'NOTIFICATION':
+                        data = {
+                            "host_name": event.data['hostname'],
+                            "service_name": event.data['service_desc'] or 'n/a',
+                            "user_name": "Alignak",
+                            "type": "monitoring.notification",
+                            "message": log['message'],
+                        }
+
+                    if event.event_type == 'ALERT':
+                        data = {
+                            "host_name": event.data['hostname'],
+                            "service_name": event.data['service_desc'] or 'n/a',
+                            "user_name": "Alignak",
+                            "type": "monitoring.alert",
+                            "message": log['message'],
+                        }
+
+                    if event.event_type == 'DOWNTIME':
+                        downtime_type = "monitoring.downtime_start"
+                        if event.data['state'] == 'STOPPED':
+                            downtime_type = "monitoring.downtime_end"
+                        if event.data['state'] == 'CANCELLED':
+                            downtime_type = "monitoring.downtime_cancelled"
+
+                        data = {
+                            "host_name": event.data['hostname'],
+                            "service_name": event.data['service_desc'] or 'n/a',
+                            "user_name": "Alignak",
+                            "type": downtime_type,
+                            "message": log['message'],
+                        }
+
+                    if event.event_type == 'FLAPPING':
+                        flapping_type = "monitoring.flapping_start"
+                        if event.data['state'] == 'STOPPED':
+                            flapping_type = "monitoring.flapping_stop"
+
+                        data = {
+                            "host_name": event.data['hostname'],
+                            "service_name": event.data['service_desc'] or 'n/a',
+                            "user_name": "Alignak",
+                            "type": flapping_type,
+                            "message": log['message'],
+                        }
+
+                    if event.event_type == 'COMMENT':
+                        data = {
+                            "host_name": event.data['hostname'],
+                            "service_name": event.data['service_desc'] or 'n/a',
+                            "user_name": event.data['author'] or 'Alignak',
+                            "type": "webui.comment",
+                            "message": event.data['comment'],
+                        }
+
+                else:
+                    logger.warning("No monitoring event detected from: %s", log['message'])
+                    continue
+            except ValueError:
+                logger.warning("Unable to decode a monitoring event from: %s", log['message'])
+                logger.warning(traceback.format_exc())
+                continue
+
+            item_type = ''
+            icon = 'check'
+            event_class = ''
+            if 'event_type' in event:
+                if event['event_type'] == 'ALERT':
+                    item_type = event['item_type']
+                    states = {'OK': 'ok', 'WARNING': 'warning', 'CRITICAL': 'critical',
+                              'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
+                    if item_type == 'HOST':
+                        states = {'UP': 'up', 'DOWN': 'down',
+                                  'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
+
+                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['state']])
+                    event_class = 'item_' + cfg_state['class']
+
+                    cfg_state = items_states.get_icon_state('history', 'monitoring_alert')
+                    icon = cfg_state['icon']
+                    logger.info(cfg_state)
+
+                if event['event_type'] == 'NOTIFICATION':
+                    item_type = event['item_type']
+                    states = {'OK': 'ok', 'WARNING': 'warning', 'CRITICAL': 'critical',
+                              'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
+                    if item_type == 'HOST':
+                        states = {'UP': 'up', 'DOWN': 'down',
+                                  'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
+
+                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['state']])
+                    event_class = 'item_' + cfg_state['class']
+
+                    cfg_state = items_states.get_icon_state('history', 'monitoring_notification')
+                    icon = cfg_state['icon']
+                    logger.info(cfg_state)
+
+                if event['event_type'] == 'CHECK' and event['check_type'] == 'PASSIVE':
+                    item_type = event['item_type']
+                    states = {0: 'ok', 1: 'warning', 2: 'critical', 3: 'unknown', 4: 'unreachable'}
+                    if item_type == 'HOST':
+                        states = {0: 'up', 1: 'down', 2: 'down', 3: 'unknown', 4: 'unreachable'}
+
+                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['event_type']])
+                    icon = cfg_state['icon']
+                    event_class = 'item_' + cfg_state['class']
+                    logger.info(cfg_state)
+
+                if event['event_type'] == 'CHECK' and event['check_type'] == 'ACTIVE':
+                    item_type = event['item_type']
+                    states = {'OK': 'ok', 'WARNING': 'warning', 'CRITICAL': 'critical',
+                              'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
+                    if item_type == 'HOST':
+                        states = {'UP': 'up', 'DOWN': 'down',
+                                  'UNKNOWN': 'unknown', 'UNREACHABLE': 'unreachable'}
+
+                    cfg_state = items_states.get_icon_state('logcheckresult', states[event['event_type']])
+                    icon = cfg_state['icon']
+                    event_class = 'item_' + cfg_state['class']
+                    logger.info(cfg_state)
+
+            events.append({
+                'timestamp': log['timestamp'],
+                'message': log['message'],
+                'level': log['level'],
+                'item_type': item_type,
+                'icon': icon,
+                'class': event_class
+            })
+        return events
+
+    def get_problems(self, search=None):
+        # ---
+        # Reduced mode without authentication
+        # ---
+        result = None
+        if self.reduced_mode:
+            try:
+                logger.debug("get_problems")
+                result = self.alignak_ws.get('problems')
+            except AlignakWSException:
+                return result
+        logger.warning("Problems: %s", result)
+        return result
+
     def get_livesynthesis(self, search=None):
         """Get live state synthesis for hosts and services
 
@@ -830,37 +1049,53 @@ class DataManager(object):
             }
         }
 
-        if search is None:
-            if not self.my_ls or self.my_ls['_id'] is None:
-                if self.my_realm:
-                    logger.debug("Getting livesynthesis for my realm: %s", self.my_realm)
-                    self.my_ls = self.get_livesynthesis({'concatenation': '1',
-                                                         'where': {'_realm': self.my_realm.id}})
-                    return self.my_ls
-                logger.warning("Using default livesynthesis, my_ls: %s, my realm: %s",
-                               self.my_ls, self.my_realm)
-                return default_ls
-            found = False
-            error = False
-            while not found and not error:
-                try:
-                    item = self.my_backend.get(
-                        'livesynthesis/' + self.my_ls['_id'] + '?concatenation=1', params=None)
-                    items = [item]
-                    found = True
-                except BackendException as exp:  # pragma: no cover, simple protection
-                    logger.exception("get_livesynthesis, exception: %s", exp)
-                    if exp.code in [404, 1000, 1003] and not error:
-                        error = True
-                        self.load(reset=True)
-        else:
+        # ---
+        # Reduced mode without authentication
+        # ---
+        if self.reduced_mode:
             try:
-                logger.debug("get_livesynthesis, search: %s", search)
-                items = self.find_object('livesynthesis', search)
-                logger.debug("get_livesynthesis, got: %s", items)
-            except ValueError:  # pragma: no cover - should not happen
-                logger.debug("get_livesynthesis, none found")
-                return default_ls
+                logger.debug("get_alignak_livesynthesis")
+                result = self.alignak_ws.get('livesynthesis')
+
+                if 'livesynthesis' in result:
+                    if '_overall' in result['livesynthesis']:
+                        if 'livesynthesis' in result['livesynthesis']['_overall']:
+                            items = [result['livesynthesis']['_overall']['livesynthesis']]
+            except AlignakWSException as exp:
+                logger.error("Exception when getting livesynthesis: %s", str(exp))
+                return exp
+        else:
+            if search is None:
+                if not self.my_ls or self.my_ls['_id'] is None:
+                    if self.my_realm:
+                        logger.debug("Getting livesynthesis for my realm: %s", self.my_realm)
+                        self.my_ls = self.get_livesynthesis({'concatenation': '1',
+                                                             'where': {'_realm': self.my_realm.id}})
+                        return self.my_ls
+                    logger.warning("Using default livesynthesis, my_ls: %s, my realm: %s",
+                                   self.my_ls, self.my_realm)
+                    return default_ls
+                found = False
+                error = False
+                while not found and not error:
+                    try:
+                        item = self.my_backend.get(
+                            'livesynthesis/' + self.my_ls['_id'] + '?concatenation=1', params=None)
+                        items = [item]
+                        found = True
+                    except BackendException as exp:  # pragma: no cover, simple protection
+                        logger.exception("get_livesynthesis, exception: %s", exp)
+                        if exp.code in [404, 1000, 1003] and not error:
+                            error = True
+                            self.load(reset=True)
+            else:
+                try:
+                    logger.debug("get_livesynthesis, search: %s", search)
+                    items = self.find_object('livesynthesis', search)
+                    logger.debug("get_livesynthesis, got: %s", items)
+                except ValueError:  # pragma: no cover - should not happen
+                    logger.debug("get_livesynthesis, none found")
+                    return default_ls
 
         if not items:  # pragma: no cover - should not happen
             logger.warning("Livesynthesis not found, searched: %s", search)
@@ -873,8 +1108,9 @@ class DataManager(object):
         services_s = default_ls['services_synthesis']
 
         for ls in items:
-            logger.debug("livesynthesis item: %s", ls)
-            synthesis['_id'] = ls['_id']
+            logger.error("livesynthesis item: %s", ls)
+            if '_id' in ls:
+                synthesis['_id'] = ls['_id']
 
             # Hosts synthesis
             hosts_s.update({
