@@ -203,8 +203,6 @@ setup(
     # Unzip Egg
     zip_safe=False,
     platforms='any',
-    # Unzip Egg
-    zip_safe=False,
 
     # Specific data files installer method
     cmdclass={
