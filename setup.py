@@ -174,7 +174,6 @@ setup(
     # Metadata for PyPI
     author=manifest["__author__"],
     author_email=manifest["__author_email__"],
-    keywords="alignak monitoring webui",
     url=manifest["__git_url__"],
     download_url='https://github.com/Alignak-monitoring-webui/alignak-webui/archive/master.tar.gz',
     license=manifest["__license__"],
@@ -184,7 +183,7 @@ setup(
 
     classifiers = manifest["__classifiers__"],
 
-    keywords='python monitoring alignak nagios shinken',
+    keywords='python monitoring alignak nagios shinken webui',
 
     project_urls={
         'Presentation': 'http://alignak.net',
