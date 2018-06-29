@@ -32,7 +32,7 @@ pip install --upgrade pip
 echo 'Installing application and tests requirements ...'
 pip install --upgrade -r test/requirements.txt
 echo 'Installing application in development mode ...'
-pip install -e ..
+pip install -e .
 
 pyversion=$(python -c "import sys; print(''.join(map(str, sys.version_info[:2])))")
 if test -e "test_requirements.py${pyversion}.txt"

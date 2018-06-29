@@ -1,18 +1,35 @@
-future
-configparser
-docopt
+# Needing six for python 2.7/3 compatibility
+future==0.16.0
+six==1.11.0
+
+docopt==0.6.2
+configparser==3.5.0
+
 Bottle>=0.12.9,<0.13
 Beaker==1.9.0
-CherryPy
-pymongo>=3.2
+
+# Alignak WebUI supports the most recent CherryPy
+CherryPy==15.0.0
+
+# Requests to communicate between the daemons
+requests==2.18.4
+
+pymongo>=3.4
 requests>=2.9.1
 python-gettext
-termcolor
+
+# Colored console log
+termcolor==1.1.0
+
+# Set process titles
+setproctitle==1.1.10
+
 python-dateutil>=2.4.2
 pytz
 
 # uWSGI server - a recommended Web server to run the application in a production environment
-# uwsgi
-# alignak_backend and alignak_backend_client
+# uncomment this to install from the Python repository if not installed by the server packaging
+# uwsgi==0.2.16
+
 alignak-backend
 alignak-backend-client
