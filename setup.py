@@ -41,11 +41,11 @@ def read_requirements(filename='requirements.txt'):
     :param filename: Filename to read the requirements from.
                      Uses ``'requirements.txt'`` by default.
 
-    :return: Requirments as list of strings.
+    :return: Requirements as list of strings.
     """
     # allow for some leeway with the argument
-    if not filename.startswith('requirements'):
-        filename = 'requirements-' + filename
+    # if not filename.startswith('requirements'):
+    #     filename = 'requirements-' + filename
     if not os.path.splitext(filename)[1]:
         filename += '.txt'  # no extension, add default
 
@@ -156,7 +156,7 @@ package_name = manifest["__pkg_name__"]
 # Get default configuration files recursively
 data_files = [
     ('share/alignak-webui', ['requirements.txt']),
-    ('share/alignak-webui', ['bin/post-install.sh', 'bin/alignak-backend-uwsgi'])
+    ('share/alignak-webui', ['bin/post-install.sh', 'bin/alignak-webui-uwsgi'])
 ]
 for dir in ['etc', 'bin/rc.d', 'bin/systemd']:
     for subdir, dirs, files in os.walk(dir):
@@ -195,8 +195,8 @@ setup(
     project_urls={
         'Presentation': 'http://alignak.net',
         'Documentation': 'http://docs.alignak.net/en/latest/',
-        'Source': 'https://github.com/alignak-monitoring-contrib/alignak-backed/',
-        'Tracker': 'https://github.com/alignak-monitoring-contrib/alignak-backend/issues',
+        'Source': 'https://github.com/alignak-monitoring-contrib/alignak-webui/',
+        'Tracker': 'https://github.com/alignak-monitoring-contrib/alignak-webui/issues',
         'Contributions': 'https://github.com/alignak-monitoring-contrib/'
     },
 
