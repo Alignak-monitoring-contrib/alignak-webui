@@ -23,6 +23,7 @@
     This module contains the base class used as time/date utilities
 """
 
+from six import string_types
 import time
 
 from calendar import timegm
@@ -38,12 +39,12 @@ def get_ts_date(param_date, date_format):
     """
         Get date as a timestamp
     """
-    if isinstance(param_date, (int, long, float)):
+    if isinstance(param_date, (int, float)):
         # Date is received as a float or integer, store as a timestamp ...
         # ... and assume it is UTC
         # ----------------------------------------------------------------
         return param_date
-    elif isinstance(param_date, basestring):
+    elif isinstance(param_date, string_types):
         try:
             # Date is supposed to be received as string formatted date
             timestamp = timegm(time.strptime(param_date, date_format))

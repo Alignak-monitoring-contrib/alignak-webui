@@ -28,6 +28,7 @@
     Application data manager
 """
 
+from six import string_types
 import os
 import time
 import json
@@ -128,7 +129,7 @@ class DataManager(object):
         # Get known objects type from the imported modules
         # Search for classes including an _type attribute
         self.known_classes = []
-        for k, dummy in globals().items():
+        for k, dummy in list(globals().items()):
             if isinstance(globals()[k], type) and \
                '_type' in globals()[k].__dict__ and \
                globals()[k].get_type() is not None and \
@@ -280,7 +281,7 @@ class DataManager(object):
         logger.debug("find_object, %s, params: %s, all: %s, embedded: %s",
                      object_type, params, all_elements, embedded)
 
-        if isinstance(params, basestring):
+        if isinstance(params, string_types):
             params = {'where': {'_id': params}}
 
         if 'embedded' in params and not embedded:
@@ -471,7 +472,7 @@ class DataManager(object):
 
     def get_object(self, object_type, search):
         """Get an object of the specified type by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -513,7 +514,7 @@ class DataManager(object):
         """
         logger.debug("delete_object, request to delete the %s: %s", object_type, element)
 
-        if isinstance(element, basestring):
+        if isinstance(element, string_types):
             object_id = element
         else:
             object_id = element.id
@@ -1109,8 +1110,8 @@ class DataManager(object):
 
         for ls in items:
             logger.info("livesynthesis item: %s", ls)
-            # if '_id' in ls:
-            #     synthesis['_id'] = ls['_id']
+            if getattr(ls, '_id', None) is not None:
+                synthesis['_id'] = ls['_id']
 
             # Hosts synthesis
             hosts_s.update({
@@ -1581,7 +1582,7 @@ class DataManager(object):
 
     def get_hostgroup(self, search):
         """Get a hostgroup by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1601,7 +1602,7 @@ class DataManager(object):
 
         overall_state = 0
         for member in hostgroup.members:
-            if isinstance(member, basestring):
+            if isinstance(member, string_types):
                 continue
             # Ignore hosts that are not monitored
             if member.overall_state < 5:
@@ -1648,7 +1649,7 @@ class DataManager(object):
 
     def get_hostdependency(self, search):
         """Get a hostdependency by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1686,7 +1687,7 @@ class DataManager(object):
 
     def get_hostescalation(self, search):
         """Get a hostescalation by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1732,7 +1733,7 @@ class DataManager(object):
 
     def get_host(self, search, embedded=True):
         """Get a host by its id (default)."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif search and 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1797,7 +1798,7 @@ class DataManager(object):
 
     def get_servicegroup(self, search):
         """Get a servicegroup by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1817,7 +1818,7 @@ class DataManager(object):
 
         overall_state = 0
         for member in servicegroup.members:
-            if isinstance(member, basestring):
+            if isinstance(member, string_types):
                 continue
 
             overall_state = max(overall_state, member.overall_state)
@@ -1864,7 +1865,7 @@ class DataManager(object):
 
     def get_servicedependency(self, search):
         """Get a servicedependency by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1903,7 +1904,7 @@ class DataManager(object):
 
     def get_serviceescalation(self, search):
         """Get a serviceescalation by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -1948,7 +1949,7 @@ class DataManager(object):
 
     def get_service(self, search):
         """Get a service by its id (default)."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -2123,7 +2124,7 @@ class DataManager(object):
             """
         if not search:
             search = {}
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         if "where" not in search:
             search.update({'where': {"last_check": {"$ne": 0}}})
@@ -2153,7 +2154,7 @@ class DataManager(object):
         """
         if not search:
             search = {}
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         if "sort" not in search:
             search.update({'sort': '-_id'})
@@ -2195,7 +2196,7 @@ class DataManager(object):
 
     def get_command(self, search):
         """Get a command by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -2231,7 +2232,7 @@ class DataManager(object):
 
     def get_usergroup(self, search):
         """Get a usergroup by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -2260,7 +2261,7 @@ class DataManager(object):
 
     def get_userrestrictrole(self, search):
         """Get a userrestricrole by its id or a search pattern"""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -2304,7 +2305,7 @@ class DataManager(object):
 
     def get_user(self, search):
         """Get a user by its id or a search pattern"""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -2340,7 +2341,7 @@ class DataManager(object):
 
     def get_realm(self, search):
         """Get a realm by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})
@@ -2434,7 +2435,7 @@ class DataManager(object):
 
     def get_timeperiod(self, search):
         """Get a timeperiod by its id."""
-        if isinstance(search, basestring):
+        if isinstance(search, string_types):
             search = {'max_results': 1, 'where': {'_id': search}}
         elif 'max_results' not in search:
             search.update({'max_results': 1})

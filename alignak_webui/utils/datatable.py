@@ -150,7 +150,7 @@ class Datatable(object):
 
         self.data_model = []
         self.table_columns = []
-        for field, model in plugin_table.iteritems():
+        for field, model in plugin_table.items():
             logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
 
             if 'skill_level' in model and model['skill_level'] > user_level:
@@ -403,7 +403,7 @@ class Datatable(object):
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
-        for key in request.params.keys():
+        for key in list(request.params.keys()):
             if key == 'columns' or key == 'order' or key == 'search':
                 params[key] = json.loads(request.params.get(key))
             else:

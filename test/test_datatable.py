@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 
 import json
 import os
@@ -522,7 +522,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 65
+        assert response.json['recordsFiltered'] == 67
         assert response.json['data']
         assert len(response.json['data']) == 5
 
@@ -620,7 +620,7 @@ class TestDataTable(unittest2.TestCase):
         response_value = response.json
         print(response_value)
         assert response.json['recordsTotal'] == self.items_count
-        assert response.json['recordsFiltered'] == 65
+        assert response.json['recordsFiltered'] == 67
         assert response.json['data']
         assert len(response.json['data']) == 5
 

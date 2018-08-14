@@ -10,29 +10,29 @@
     Alignak - Web User Interface
 """
 # Package name
-__pkg_name__ = u"alignak_webui"
+__pkg_name__ = "alignak_webui"
 
 # Checks types for PyPI keywords
 # Used for:
 # - PyPI keywords
 # - directory where to store files in the Alignak configuration (eg. arbiter/packs/checks_type)
-__checks_type__ = u"demo"
+__checks_type__ = "demo"
 
 # Application manifest
-__application__ = u"Alignak-WebUI"
+__application__ = "Alignak-WebUI"
 
 VERSION = (0, 10, 2)
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 
-__author__ = u"Frédéric Mohier"
-__author_email__ = u"frederic.mohier@alignak.net"
-__copyright__ = u"(c) 2015-2018 - %s" % __author__
-__license__ = u"GNU Affero General Public License, version 3"
+__author__ = "Frédéric Mohier"
+__author_email__ = "frederic.mohier@alignak.net"
+__copyright__ = "(c) 2015-2018 - %s" % __author__
+__license__ = "GNU Affero General Public License, version 3"
 __git_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-webui"
 __doc_url__ = "http://alignak-web-ui.readthedocs.io/?badge=latest"
-__description__ = u"Alignak - Web User Interface"
-__releasenotes__ = u"""Alignak monitoring framework Web User Interface"""
+__description__ = "Alignak - Web User Interface"
+__releasenotes__ = """Alignak monitoring framework Web User Interface"""
 
 __classifiers__ = [
     'Development Status :: 5 - Production/Stable',

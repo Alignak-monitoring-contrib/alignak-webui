@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import logging
 import time
@@ -73,7 +73,7 @@ class TestClassElements(unittest2.TestCase):
         # _id is created if it does not exist ...
         assert '_id' in item.__dict__
         # ... but it is for the _id==0 object!
-        assert isinstance(item.__dict__['_id'], basestring)
+        assert isinstance(item.__dict__['_id'], str)
         assert item.__dict__['_id'] == 'item_0'
 
         # Declaration without any parameter is allowed
@@ -86,7 +86,7 @@ class TestClassElements(unittest2.TestCase):
         # _id is created if it does not exist ...
         assert '_id' in item.__dict__
         # ... but it is for the _id==0 object!
-        assert isinstance(item.__dict__['_id'], basestring)
+        assert isinstance(item.__dict__['_id'], str)
         assert item.__dict__['_id'] == 'item_0'
 
         # New declaration with _id in args
@@ -94,7 +94,7 @@ class TestClassElements(unittest2.TestCase):
         print("---")
         print(item2)
         print(item2.__dict__)
-        assert isinstance(item2.__dict__['_id'], basestring)  # Even if _id was an int!
+        assert isinstance(item2.__dict__['_id'], str)  # Even if _id was an int!
         assert item2.__dict__['_id'] == 'item_0'
         print(item2.__class__._cache)
         assert len(item.__class__._cache) == 1
@@ -109,7 +109,7 @@ class TestClassElements(unittest2.TestCase):
         print(item.__class__._cache)
         assert item3.__class__._cache == item.__class__._cache
         print("cache ---")
-        for k, v in item.__class__._cache.items():
+        for k, v in list(item.__class__._cache.items()):
             print(k, v)
         print("---")
         assert len(item.__class__._cache) == 1
@@ -119,7 +119,7 @@ class TestClassElements(unittest2.TestCase):
         item3 = BackendElement(params={'_id': 1, 'new_param': 1})
         print(item3.__class__._cache)
         print("cache ---")
-        for k, v in item.__class__._cache.items():
+        for k, v in list(item.__class__._cache.items()):
             print(k, v)
         print("---")
         assert len(item.__class__._cache) == 2
@@ -136,7 +136,7 @@ class TestClassElements(unittest2.TestCase):
         assert BackendElement().__class__._next_id == 1
         # id is not incremented because of empty parameters
         print("cache ---")
-        for k, v in item.__class__._cache.items():
+        for k, v in list(item.__class__._cache.items()):
             print(k, v)
         print("---")
         assert len(item.__class__._cache) == 2
@@ -162,7 +162,7 @@ class TestClassElements(unittest2.TestCase):
         assert item.__dict__['param'] == '0'  # parameter set
         assert item.__dict__['new_param'] == 1  # parameter set
         print("cache ---")
-        for k, v in item.__class__._cache.items():
+        for k, v in list(item.__class__._cache.items()):
             print(k, v)
         print("---")
         print(item.__class__._cache['0'])

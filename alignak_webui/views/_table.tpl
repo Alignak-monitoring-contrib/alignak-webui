@@ -176,7 +176,7 @@
                         %     end
                            ],
                         %  else:
-                        %     if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
+                        %     if isinstance(allowed[0], str) and allowed[0].startswith('inner://'):
                         preload: true,
                         load: function(query, callback) {
                            $.ajax({

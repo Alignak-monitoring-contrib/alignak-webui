@@ -26,6 +26,7 @@
     An ``helper`` object linked to the application is created by this module to be used in all
     the application.
 """
+from six import string_types
 import re
 import time
 import json
@@ -517,7 +518,7 @@ class Helper(object):
             logger.exception("Exception: %s", exp)
 
         query = {}
-        for field, search_type in parameters.iteritems():
+        for field, search_type in parameters.items():
             logger.debug("decode_search, build query: %s - %s", field, search_type)
             if search_type['type'] == 'simple':
                 query.update({field: search_type['pattern']})
@@ -673,7 +674,7 @@ class Helper(object):
             list_item = app_config.get('timeperiods.list')
             items = ""
             for daterange in tp.dateranges:
-                for key in daterange.keys():
+                for key in list(daterange.keys()):
                     item = app_config.get('timeperiods.item')
                     item = item.replace("##period##", key)
                     item = item.replace("##range##", daterange[key])
@@ -685,7 +686,7 @@ class Helper(object):
             list_item = app_config.get('timeperiods.list')
             items = ""
             for daterange in tp.exclude:
-                for key in daterange.keys():
+                for key in list(daterange.keys()):
                     item = app_config.get('timeperiods.item')
                     item = item.replace("##period##", key)
                     item = item.replace("##range##", daterange[key])
@@ -729,7 +730,7 @@ class Helper(object):
             content_list = []
             for item in objects_list:
                 list_item = app_config.get('tables.lists.unique')
-                if isinstance(item, basestring):
+                if isinstance(item, string_types):
                     content = list_item.replace("##content##", item)
                 elif isinstance(item, dict):
                     content = list_item.replace("##content##", str(item))
@@ -755,7 +756,7 @@ class Helper(object):
 
         for item in objects_list:
             list_item = app_config.get('tables.lists.item')
-            if isinstance(item, basestring):
+            if isinstance(item, string_types):
                 content += list_item.replace("##content##", item)
             elif isinstance(item, dict):
                 content += list_item.replace("##content##", str(item))

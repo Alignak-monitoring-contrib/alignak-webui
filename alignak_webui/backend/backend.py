@@ -28,6 +28,7 @@
     This module contains the classes used to manage the objects backend.
 """
 
+from six import string_types
 import json
 import traceback
 from logging import getLogger, WARNING
@@ -108,7 +109,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
         logger.debug("count, %s, params: %s", object_type, params)
 
-        if isinstance(params, basestring):
+        if isinstance(params, string_types):
             params = {'where': {'_id': params}}
 
         # Update backend search parameters
@@ -179,7 +180,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
         if '/' not in object_type:
             # Do not Get a specific element, manage search parameters
-            if isinstance(params, basestring):
+            if isinstance(params, string_types):
                 params = {'where': {'_id': params}}
                 logger.debug("get, %s, params: %s", object_type, params)
 

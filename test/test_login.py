@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import time
 import shlex
@@ -182,7 +182,7 @@ class TestLogin(unittest2.TestCase):
         # Require header refresh
         self.app.get('/ping?action=header', status=204)
         response = self.app.get('/ping?action=refresh', status=200)
-        assert response.json == {u'status': u'ok', u'message': u'missing template name. Use /ping?action=refresh&template=name.'}
+        assert response.json == {'status': 'ok', 'message': 'missing template name. Use /ping?action=refresh&template=name.'}
         response = self.app.get('/ping?action=refresh&template=_header_states', status=200)
         response.mustcontain('"hosts-states-popover-content')
         response.mustcontain('"services-states-popover-content')

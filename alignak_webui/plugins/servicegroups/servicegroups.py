@@ -125,7 +125,7 @@ class PluginServicesGroups(Plugin):
                                                               % group_id)
 
         items = []
-        if not isinstance(servicegroup.members, basestring):
+        if not isinstance(servicegroup.members, str):
             # Get element state configuration
             items_states = ElementState()
 

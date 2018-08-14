@@ -28,6 +28,7 @@
     - create lists for plugin widgets, tables, and lists
     - create a route endpoint for the plugin configuration
 """
+from six import string_types
 import os
 import json
 from collections import OrderedDict
@@ -45,6 +46,7 @@ from alignak_webui.utils.datatable import Datatable
 
 # Settings
 from alignak_webui.utils.settings import Settings
+import collections
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -310,10 +312,10 @@ class Plugin(object):
                     }
                 })
 
-        for (f_name, entry) in self.pages.items():
+        for (f_name, entry) in list(self.pages.items()):
             logger.debug("page entry: %s -> %s", entry, f_name)
             f = getattr(self, f_name, None)
-            if not callable(f):  # pragma: no cover - method should exist
+            if not isinstance(f, collections.Callable):  # pragma: no cover - method should exist
                 logger.warning("Callable method: %s does not exist!", f_name)
                 continue
 
@@ -408,9 +410,9 @@ class Plugin(object):
                             'function': f,
                             'actions': {}
                         }
-                        for action, f_name2 in table.get('actions', {}).items():
+                        for action, f_name2 in list(table.get('actions', {}).items()):
                             f = getattr(self, f_name2, None)
-                            if not callable(f):  # pragma: no cover
+                            if not isinstance(f, collections.Callable):  # pragma: no cover
                                 logger.error("Table action method: %s does not exist!", f_name2)
                                 continue
 
@@ -646,7 +648,7 @@ class Plugin(object):
             for item in elts:
                 logger.info("Tree item: %s", item)
                 overall_status = 'unknown'
-                if callable(f_get_overall_state):
+                if isinstance(f_get_overall_state, collections.Callable):
                     (dummy, overall_status) = f_get_overall_state(element=item)
                 logger.debug("Item status: %s", overall_status)
 
@@ -656,7 +658,7 @@ class Plugin(object):
                     cfg_state = {'icon': 'life-ring', 'class': 'unknown'}
 
                 parent = '#'
-                if item._parent and not isinstance(item._parent, basestring):
+                if item._parent and not isinstance(item._parent, string_types):
                     parent = item['_parent'].id
                 # logger.debug("Item parent: %s", parent)
 
@@ -974,8 +976,8 @@ class Plugin(object):
                     logger.warning("Missing information in the value: %s: %s", field, dict_values)
                     continue
                 value = {
-                    u'type': u'Point',
-                    u'coordinates': [
+                    'type': 'Point',
+                    'coordinates': [
                         float(dict_values['latitude']),
                         float(dict_values['longitude'])
                     ]
@@ -1061,7 +1063,7 @@ class Plugin(object):
                             data.update({'_realm': datamgr.my_realm.id})
 
                     result = datamgr.add_object(self.backend_endpoint, data=data)
-                    if isinstance(result, basestring):
+                    if isinstance(result, string_types):
                         data.update({'_message': _("New %s created") % (self.backend_endpoint)})
                         data.update({'_id': result})
                     else:
@@ -1200,7 +1202,7 @@ class Plugin(object):
             if not get_method:
                 self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-        if not callable(get_method):
+        if not isinstance(get_method, collections.Callable):
             self.send_user_message(_("Configured method is not callable."))
 
         # Fetch elements per page preference for user, default is 25

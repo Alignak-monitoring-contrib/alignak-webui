@@ -191,7 +191,7 @@ class Host(BackendElement):
             if not -90 <= _lat <= 90 or not -180 <= _lng <= 180:
                 return None
 
-        return {u'type': u'Point', u'coordinates': [_lat, _lng]}
+        return {'type': 'Point', 'coordinates': [_lat, _lng]}
 
     @property
     def status(self):

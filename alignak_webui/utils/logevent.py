@@ -267,12 +267,12 @@ class LogEvent(object):  # pylint: disable=too-few-public-methods
         self.syntax = True
 
         matched = event_type_match.group(1)
-        print("Matched: %s" % matched)
+        print(("Matched: %s" % matched))
         matched = matched.split()
         self.pattern = matched[0]
         if self.pattern in ['HOST', 'SERVICE']:
             self.pattern = matched[1]
-        print("Pattern: %s" % self.pattern)
+        print(("Pattern: %s" % self.pattern))
 
         # parse it with it's pattern
         if self.pattern not in EVENT_TYPES:
@@ -280,7 +280,7 @@ class LogEvent(object):  # pylint: disable=too-few-public-methods
 
         event_type = EVENT_TYPES[self.pattern]
         properties_match = re.match(event_type['pattern'], log)
-        print("Properties math: %s" % properties_match)
+        print(("Properties math: %s" % properties_match))
         if not properties_match:
             return
 
@@ -289,9 +289,9 @@ class LogEvent(object):  # pylint: disable=too-few-public-methods
 
         # Populate self.data with the event's properties
         for i, prop in enumerate(event_type['properties']):
-            print("Property: %s / %s" % (prop, properties_match.group(i+1)))
+            print(("Property: %s / %s" % (prop, properties_match.group(i+1))))
             self.data[prop] = properties_match.group(i+1)
-        print("Data: %s" % self.data)
+        print(("Data: %s" % self.data))
 
         # # Convert the time to int
         # self.data['time'] = int(self.data['time'])
@@ -305,7 +305,7 @@ class LogEvent(object):  # pylint: disable=too-few-public-methods
             self.data['attempts'] = int(self.data['attempts'])
 
     def __iter__(self):
-        return self.data.iteritems()
+        return iter(self.data.items())
 
     def __len__(self):
         return len(self.data)

@@ -85,7 +85,7 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
                 continue
             logger.debug("HostMetrics, checking %s / %s", param, params[param])
 
-            for key, config in params[param].iteritems():
+            for key, config in params[param].items():
                 logger.debug("HostMetrics, checking config: %s / %s / %s", param, key, config)
                 if 'name' not in config or \
                         'type' not in config or \

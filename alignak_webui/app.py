@@ -65,8 +65,9 @@ Use cases:
 
 """
 
-from __future__ import print_function
 
+
+from six import string_types
 import os
 import time
 import datetime
@@ -314,12 +315,12 @@ add_to_config = {}
 for key, value in sorted(app.config.items()):
     if key.startswith(app_name):
         add_to_config[key.replace(app_name + '.', '')] = value
-    if isinstance(value, basestring):
+    if isinstance(value, string_types):
         value = value.replace('\n', '')
     logger.debug(" %s = %s", key, value)
 logger.debug("--------------------------------------------------------------------------------")
 logger.debug("Webui settings: ")
-for key, value in add_to_config.items():
+for key, value in list(add_to_config.items()):
     app.config[key] = value
     logger.debug(" %s = %s", key, value)
 logger.debug("--------------------------------------------------------------------------------")

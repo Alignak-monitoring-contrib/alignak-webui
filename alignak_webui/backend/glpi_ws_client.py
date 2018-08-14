@@ -22,7 +22,7 @@
 """
     This module is a wrapper to connect with the Glpi Web Services backend
 """
-import xmlrpclib
+import xmlrpc.client
 
 from logging import getLogger
 
@@ -106,7 +106,7 @@ class Glpi(object):  # pragma: no cover, not used currently
 
         try:
             logger.info("connecting to %s", self.url_endpoint_root)
-            self.connection = xmlrpclib.ServerProxy(self.url_endpoint_root)
+            self.connection = xmlrpc.client.ServerProxy(self.url_endpoint_root)
         except Exception as exp:  # pragma: no cover - security ...
             self.connection = None
             logger.exception("Glpi connection exception, error: %s / %s", type(exp), exp)
@@ -120,10 +120,10 @@ class Glpi(object):  # pragma: no cover, not used currently
             self.token = resp['session']
             self.authenticated = True
             logger.info("authenticated, session : %s", str(self.token))
-        except xmlrpclib.Fault as err:
+        except xmlrpc.client.Fault as err:
             self.connection = None
             logger.error("XMLRPC error: %d / %s", err.faultCode, err.faultString)
-            if isinstance(err.faultString, unicode):
+            if isinstance(err.faultString, str):
                 err.faultString = err.faultString.encode('utf-8')
             raise GlpiException(1001, err.faultString)
         except Exception as exp:  # pragma: no cover - security ...
@@ -152,9 +152,9 @@ class Glpi(object):  # pragma: no cover, not used currently
             args = {'session': self.token}
             self.connection.glpi.doLogout(args)
             logger.info("logged out")
-        except xmlrpclib.Fault as err:  # pragma: no cover - should not happen
+        except xmlrpc.client.Fault as err:  # pragma: no cover - should not happen
             logger.error("XMLRPC error: %d / %s", err.faultCode, err.faultString)
-            if isinstance(err.faultString, unicode):
+            if isinstance(err.faultString, str):
                 err.faultString = err.faultString.encode('utf-8')
             raise GlpiException(1001, err.faultString)
         except Exception as exp:  # pragma: no cover - security ...
@@ -199,9 +199,9 @@ class Glpi(object):  # pragma: no cover, not used currently
             logger.info("methodCall: %s (%s)", method_name, parameters)
             resp = method(parameters)
             logger.debug("methodCall: %s: %s", method_name, resp)
-        except xmlrpclib.Fault as err:  # pragma: no cover - should not happen
+        except xmlrpc.client.Fault as err:  # pragma: no cover - should not happen
             logger.error("XMLRPC error: %d / %s", err.faultCode, err.faultString)
-            if isinstance(err.faultString, unicode):
+            if isinstance(err.faultString, str):
                 err.faultString = err.faultString.encode('utf-8')
             raise GlpiException(1001, "methodCall: %s: %s" % (method_name, err.faultString))
         except Exception as exp:  # pragma: no cover - security ...
