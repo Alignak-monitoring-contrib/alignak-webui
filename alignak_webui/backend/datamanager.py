@@ -1108,9 +1108,9 @@ class DataManager(object):
         services_s = default_ls['services_synthesis']
 
         for ls in items:
-            logger.error("livesynthesis item: %s", ls)
-            if '_id' in ls:
-                synthesis['_id'] = ls['_id']
+            logger.info("livesynthesis item: %s", ls)
+            # if '_id' in ls:
+            #     synthesis['_id'] = ls['_id']
 
             # Hosts synthesis
             hosts_s.update({

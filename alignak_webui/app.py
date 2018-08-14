@@ -264,6 +264,7 @@ else:
 cfg_log_filenames = [
     '/usr/local/etc/%s/logging.json' % app_name,
     '/etc/%s/logging.json' % app_name,
+    '/usr/local/share/%s/etc/logging.json' % app_name,
     '~/%s/logging.json' % app_name,
     os.path.abspath('../etc/logging.json'),
     os.path.abspath('./etc/logging.json'),
