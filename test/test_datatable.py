@@ -640,12 +640,17 @@ class TestDatatableBase(unittest2.TestCase):
 
 
 class TestDatatableCommands(TestDatatableBase):
-    def test_commands(self):
+    def test_commands_page(self):
         """Datatable - commands table"""
-        print('test commands table')
+        print('test commands page')
 
         print('get page /commands')
         response = self.app.get('/commands')
+        print(response)
+
+    def test_commands(self):
+        """Datatable - commands table"""
+        print('test commands table')
 
         print('get page /commands/table')
         response = self.app.get('/commands/table')

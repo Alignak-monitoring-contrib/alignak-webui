@@ -110,7 +110,7 @@ class PluginLivestate(Plugin):
             session['user_message'] = None
 
         return {
-            'options_panel': True,
+            'options_panel': False,
             'panels': datamgr.get_user_preferences(user, 'livestate', {}),
             'layout': request.app.config.get('livestate_layout', 'table'),
             'title': request.query.get('title', _('Livestate')),

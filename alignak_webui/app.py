@@ -1085,6 +1085,10 @@ if os.environ.get('ALIGNAK_WEBUI_SESSION_DATA'):
     session_data = os.environ.get('ALIGNAK_WEBUI_SESSION_DATA')
     print("Session data from environment: %s" % session_data)
 
+# Uncomment this line to make Bottle raise exceptions from the underlying application!
+# Important for unit tests to get the full traceback of the application exceptions.
+app.catchall = False
+
 session_opts = {
     'session.type': session_type,
     'session.data_dir': session_data,

@@ -80,16 +80,16 @@
                      <small>{{command.reactionner_tag}}</small>
                   </td>
                </tr>
-             %end
+               %end
             </tbody>
          </table>
       </div>
    </div>
    %end
- </div>
+</div>
 
- <script>
+<script>
    $(document).ready(function(){
       set_current_page("{{ webui.get_url(request.route.name) }}");
    });
- </script>
+</script>

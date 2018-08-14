@@ -35,7 +35,7 @@ from datetime import datetime
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
-# os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '0'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 
@@ -351,6 +351,7 @@ class TestCommands(unittest2.TestCase):
 
         print('get page /commands')
         response = self.app.get('/commands')
+        print(response)
         response.mustcontain(
             '<div id="commands">',
             '25 elements out of ',
@@ -435,15 +436,19 @@ class TestRealms(unittest2.TestCase):
 
         print('get page /realms')
         response = self.app.get('/realms')
-        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a realm id
-        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
+        print(response.body)
+        print(str(response.body))
+
+        # Search for: tr id="#xxxxxx" to find a realm id
+        self.realm_id = None
+        matches = re.findall(r'<tr id=\"#([0-9a-f]*)\">', str(response.body))
         if matches:
             for match in matches:
                 self.realm_id = match
                 break
         assert self.realm_id, "Did not found realm identifier in the data!"
 
-        print('get page /realm/id')
+        print('get page /realm/id: %s' % self.realm_id)
         response = self.app.get('/realm/%s' % self.realm_id)
         response.mustcontain(
             '<div class="realm" id="realm_%s">' % self.realm_id
@@ -529,7 +534,7 @@ class TestHostgroups(unittest2.TestCase):
         response = self.app.get('/hostgroups/tree')
         print(response)
         # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
-        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
+        matches = re.findall(r'\"id": "([0-9a-f]*)\"', str(response.body))
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
@@ -643,7 +648,7 @@ class TestServicegroups(unittest2.TestCase):
         print('get page /servicegroups/tree')
         response = self.app.get('/servicegroups/tree')
         # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
-        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
+        matches = re.findall(r'\"id": "([0-9a-f]*)\"', str(response.body))
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
@@ -749,7 +754,7 @@ class TestUsergroups(unittest2.TestCase):
 
         response = self.app.get('/usergroups/tree')
         # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
-        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
+        matches = re.findall(r'\"id": "([0-9a-f]*)\"', str(response.body))
         if matches:
             for match in matches:
                 print("Found id: %s" % match)

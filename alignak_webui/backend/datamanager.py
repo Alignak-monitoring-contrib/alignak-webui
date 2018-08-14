@@ -1109,7 +1109,7 @@ class DataManager(object):
         services_s = default_ls['services_synthesis']
 
         for ls in items:
-            logger.info("livesynthesis item: %s", ls)
+            logger.debug("backend livesynthesis item: %s", ls)
             if getattr(ls, '_id', None) is not None:
                 synthesis['_id'] = ls['_id']
 

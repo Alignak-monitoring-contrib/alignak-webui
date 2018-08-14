@@ -17,7 +17,7 @@
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
 %setdefault('current_user', None)
-%setdefault('options_panel', True)
+%setdefault('options_panel', False)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
