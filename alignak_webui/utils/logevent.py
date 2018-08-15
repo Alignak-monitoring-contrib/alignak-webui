@@ -288,7 +288,7 @@ class LogEvent(object):  # pylint: disable=too-few-public-methods
 
         # Populate self.data with the event's properties
         for i, prop in enumerate(event_type['properties']):
-            self.data[prop] = properties_match.group(i+1)
+            self.data[prop] = properties_match.group(i + 1)
 
         # # Convert the time to int
         # self.data['time'] = int(self.data['time'])

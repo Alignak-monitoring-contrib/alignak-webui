@@ -524,8 +524,6 @@ def before_request():
 def home_page():
     """Display home page -> redirect to /Livestate"""
     try:
-        logger.warning("home_page!")
-        logger.warning("home_page: %s", request.app.get_url('Livestate'))
         redirect(request.app.get_url('Livestate'))
     except RouteBuildError:  # pragma: no cover, should never happen!
         return "No home page available in the application routes!"
@@ -1077,11 +1075,12 @@ def edition_mode():
 
 
 # Bottle templates path
-TEMPLATE_PATH.append(
-    os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'views'
-    )
-)
+TEMPLATE_PATH.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'views'))
+
+# Make Bottle raise the inner exceptions when WebUI is in test mode
+# This makes it easier to debug
+if os.environ.get('ALIGNAK_WEBUI_TEST', False):
+    app.catchall = False
 
 # -----
 # Extend default WSGI application with a session middleware

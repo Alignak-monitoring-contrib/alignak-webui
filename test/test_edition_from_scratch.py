@@ -29,7 +29,7 @@ import subprocess
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
-# os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
@@ -211,6 +211,7 @@ class TestCreation(unittest2.TestCase):
         print("users count: %s" % self.users_count)
 
     def tearDown(self):
+        print("Logout!")
         self.app.get('/logout')
 
 class TestHostCreation(TestCreation):
@@ -226,6 +227,7 @@ class TestHostCreation(TestCreation):
 
         print('get page /hosts/templates/table (edition mode)')
         response = self.app.get('/hosts/templates/table')
+        print("Response: %s" % response)
         response.mustcontain(
             '<div id="hosts_templates_table" class="alignak_webui_table ">',
             "$('#tbl_hosts_templates_table').DataTable( {",

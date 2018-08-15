@@ -472,7 +472,7 @@
          </div>
          %end
 
-         %for field, model in object_plugin.table.iteritems():
+         %for field, model in object_plugin.table.items():
             %selectize = False
             %if not model.get('editable', True) or (field[0] in ['#', '_'] and field not in ['_parent', '_realm', '_sub_realm']) or field.startswith('ls_'):
                %# Some fields are never displayed in a form...
