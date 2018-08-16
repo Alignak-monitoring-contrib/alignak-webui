@@ -22,14 +22,14 @@ uWSGI
 
 We recommend to use uWSGI as an application server for the Alignak WebUI and we provide a python pip installer that has `uwsgi` as a requirement.
 
-If you prefer using your Unix/Linux ditribution packaging to install uWSGI and the alignak backend (not yet packaged... help needed for this), please refer to your distribution packages for installing. You will also need to install the uWSGI Python plugin.
+If you prefer using your Unix/Linux ditribution packaging to install uWSGI and the alignak WebUI, please refer to your distribution packages for installing. You will also need to install the uWSGI Python plugin.
 
 As an example on Debian::
 
     sudo apt-get install uwsgi uwsgi-plugin-python
 
 
-.. warning:: If you get some errors with the plugins, you will need to set some options in the alignak backend */usr/local/etc/alignak-backend/uwsgi.ini* configuration file. See this configuration file commented accordingly.
+.. warning:: If you get some errors with the plugins, you will need to set some options in the alignak WebUI */usr/local/share/alignak-webui/etc/uwsgi.ini* configuration file. See this configuration file commented accordingly.
 
 
 Installation with PIP

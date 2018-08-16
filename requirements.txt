@@ -17,6 +17,7 @@ requests
 
 # Not directly useful
 # pymongo==3.7
+# For application localization
 python-gettext
 
 # Colored console log
@@ -32,10 +33,12 @@ pytz
 # uncomment this to install from the Python repository if not installed by the server packaging
 # uwsgi==0.2.16
 
+# Alignak backend (most recent version)
 alignak-backend
 # Alignak backend (most recent develop)
--e git+git://github.com/Alignak-monitoring-contrib/alignak-backend.git@develop#egg=alignak_backend
+# -e git+git://github.com/Alignak-monitoring-contrib/alignak-backend.git@develop#egg=alignak_backend
 
+# Alignak backend client (most recent version)
 alignak-backend-client
 # Alignak backend client (most recent develop)
--e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@develop#egg=alignak_backend_client
+# -e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@develop#egg=alignak_backend_client
