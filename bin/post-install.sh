@@ -115,5 +115,6 @@ echo "Add your own user account as a member of $ACCOUNT group to run daemons fro
 echo "Created."
 
 echo "Installing log rotation script"
-cp $PREFIX/share/alignak-webui/alignak-webui-log-rotate /etc/logrotate.d/
+cp $PREFIX/share/alignak-webui/log-rotate-alignak-webui /etc/logrotate.d/alignak-webui
+cp $PREFIX/share/alignak-webui/log-rotate-uwsgi /etc/logrotate.d/alignak-webui-uwsgi
 echo "Installed."

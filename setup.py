@@ -155,8 +155,11 @@ package_name = manifest["__pkg_name__"]
 
 # Get default configuration files recursively
 data_files = [
-    ('share/alignak-webui', ['requirements.txt']),
-    ('share/alignak-webui', ['bin/post-install.sh', 'bin/alignak-webui-uwsgi'])
+    ('share/alignak-webui', ['requirements.txt',
+                             'bin/post-install.sh',
+                             'bin/log-rotate-alignak-webui',
+                             'bin/log-rotate-uwsgi',
+                             'bin/alignak-webui-uwsgi'])
 ]
 for dir in ['etc', 'bin/rc.d', 'bin/systemd']:
     for subdir, dirs, files in os.walk(dir):

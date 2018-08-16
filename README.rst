@@ -11,13 +11,17 @@ Alignak Web UI
     :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-webui/develop
     :alt: Development code static analysis
 
-.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-webui/badge.svg?branch=develop
-    :target: https://coveralls.io/r/Alignak-monitoring-contrib/alignak-webui
+.. image:: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-webui/branch/develop/graph/badge.svg
+  :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-webui
     :alt: Development code tests coverage
 
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
     :target: http://alignak-web-ui.readthedocs.io/?badge=develop
     :alt: Documentation Status
+
+.. image:: https://badge.fury.io/py/alignak_webui.svg
+    :target: https://badge.fury.io/py/alignak_webui
+    :alt: Most recent PyPi version
 
 .. image:: https://img.shields.io/badge/IRC-%23alignak-1e72ff.svg?style=flat
     :target: http://webchat.freenode.net/?channels=%23alignak
@@ -26,9 +30,6 @@ Alignak Web UI
 .. image:: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
     :target: http://www.gnu.org/licenses/agpl-3.0
     :alt: License AGPL v3
-
-.. image:: https://badge.fury.io/py/alignak_webui.svg
-    :target: https://badge.fury.io/py/alignak_webui
 
 
 Screenshots
