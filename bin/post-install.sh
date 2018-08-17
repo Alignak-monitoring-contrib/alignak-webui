@@ -74,7 +74,7 @@ then
    if [ $? -eq 0 ]
    then
       echo "Installing python 3 packages dependencies from requirements.txt..."
-      sudo pip3 install -r $PREFIX/share/alignak-backend/requirements.txt
+      sudo pip3 install -r $PREFIX/share/alignak-webui/requirements.txt
       echo "Installed."
    else
       echo "pip3 is not available. You can install it by typing: sudo apt install python3-pip"
@@ -89,7 +89,7 @@ else
       if [ $? -eq 0 ]
       then
          echo "Installing python 2 packages dependencies from requirements.txt..."
-         sudo pip install -r $PREFIX/share/alignak-backend/requirements.txt
+         sudo pip install -r $PREFIX/share/alignak-webui/requirements.txt
          echo "Installed."
       else
          echo "pip is not available. You can install it by typing: sudo apt install python-pip"
