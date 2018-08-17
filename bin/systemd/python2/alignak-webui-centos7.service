@@ -7,7 +7,7 @@ After=network.target
 Environment=ALIGNAK_WEBUI_CONFIGURATION_FILE=/usr/local/share/alignak-webui/etc/settings.cfg
 Environment=ALIGNAK_WEBUI_BACKEND=http://127.0.0.1:5000
 Environment=ALIGNAK_WEBUI_WS=http://127.0.0.1:7770
-Environment=ALIGNAK_WEBUI_PID=/var/run/alignak-webui.pid
+Environment=ALIGNAK_WEBUI_PID=/var/run/alignak-webui/alignak-webui.pid
 Environment=ALIGNAK_WEBUI_LOG=/var/log/alignak-webui/alignak-webui.log
 Environment=ALIGNAK_WEBUI_UWSGI_LOG=/var/log/uwsgi/alignak-webui.log
 Environment=ALIGNAK_WEBUI_LOGGER_FILE=/usr/local/share/alignak-webui/etc/logging.json

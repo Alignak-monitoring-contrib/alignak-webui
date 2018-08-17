@@ -66,6 +66,7 @@ Use cases:
 """
 
 import os
+import errno
 import time
 import datetime
 import json
@@ -260,6 +261,18 @@ else:
     print("***** Searched in: %s" % log_locations)
     log_location = '/tmp/%s' % app_name
     os.mkdir(log_location)
+    try:
+        os.makedirs(log_location)
+        dir_stat = os.stat(log_location)
+        print("Created the directory: %s, stat: %s" % (log_location, dir_stat))
+    except OSError as exp:
+        if exp.errno == errno.EEXIST and os.path.isdir(log_location):
+            # Directory still exists...
+            pass
+        else:
+            print("Daemon directory '%s' did not exist, and I could not create. Exception: %s"
+                  % (log_location, exp))
+            exit(3)
 
 # Search logger configuration
 cfg_log_filenames = [
