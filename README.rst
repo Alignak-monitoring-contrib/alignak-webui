@@ -12,7 +12,7 @@ Alignak Web UI
     :alt: Development code static analysis
 
 .. image:: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-webui/branch/develop/graph/badge.svg
-  :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-webui
+    :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-webui
     :alt: Development code tests coverage
 
 .. image:: https://readthedocs.org/projects/alignak-web-ui/badge/?version=develop
