@@ -86,12 +86,12 @@ And then update the repositories list::
 
 Once the download sources are set, you can simply use the standard package tool to have more information about Alignak packages and available versions::
 
-   apt-cache search alignak-webui
+   apt-cache search python-alignak-webui
 
 
 Or you can simply use the standard package tool to install Alignak Web UI::
 
-   sudo apt install alignak-webui
+   sudo apt install python-alignak-webui
 
    # Check Alignak Web UI installation
    # It copied the default shipped files and sample configuration.
@@ -110,7 +110,7 @@ Or you can simply use the standard package tool to install Alignak Web UI::
 
 .. note:: that immediately after the installation the *alignak-webui* service is enabled and started! This is a side effect of the packaging tool that is used (*fpm*).
 
-A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-webui*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+A post-installation script (repository *bin/python-post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-webui*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
@@ -138,6 +138,8 @@ A log rotation file for uWsgi is also shipped with the installation script and c
       notifempty
     }
 
+
+.. note:: for Python 3 version, replace ``python`` with ``python3`` in the package and post-installation script names.
 
 Install on RHEL-like Linux
 --------------------------
@@ -188,7 +190,7 @@ Once the download sources are set, you can simply use the standard package tool 
         ...
         alignak-webui.noarch : Alignak WebUI, Web User Interface for Alignak
 
-   yum info alignak-webui
+   yum info python-alignak-webui
         Modules complémentaires chargés : fastestmirror
         Loading mirror speeds from cached hostfile
         * base: ftp.rezopole.net
@@ -211,18 +213,18 @@ Once the download sources are set, you can simply use the standard package tool 
 Or you can simply use the standard package tool to install Alignak Web UI and its dependencies.
  ::
 
-   sudo yum install alignak-webui
+   sudo yum install python-alignak-webui
 
    # Check Alignak Web UI installation
    # It copied the default shipped files and sample configuration.
    ll /usr/local/share/alignak-webui/
       -rw-rw-r--. 1 root root  527 10 juil. 21:03 requirements.txt
 
-A post-installation script (repository *bin/post-install.sh*) must be executed at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-webui*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+A post-installation script (repository *bin/python-post-install.sh*) must be executed at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-webui*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
  ::
 
-    sudo /usr/local/share/alignak-webui/post-install.sh
+    sudo /usr/local/share/alignak-webui/python-post-install.sh
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
@@ -265,7 +267,8 @@ To terminate the installation of the system services you must::
    sudo systemctl enable alignak-webui
       Created symlink from /etc/systemd/system/multi-user.target.wants/alignak-webui.service to /usr/lib/systemd/system/alignak-webui.service.
 
-.. note:: beware of the different system unit services scripts...
+.. note:: for Python 3 version, replace ``python`` with ``python3`` in the package and post-installation script names.
+
 
 
 Installation with PIP
@@ -311,14 +314,12 @@ If you want to hack into the codebase (e.g for future contribution), just instal
 Install from source without pip
 -------------------------------
 
-If you are on Debian:
-::
+If you are on Debian::
 
     sudo apt-get -y install python python-dev python-pip git
 
 
-Get the project sources:
-::
+Get the project sources::
 
     git clone https://github.com/Alignak-monitoring/alignak-webui
 
@@ -326,4 +327,4 @@ Get the project sources:
 And then install::
 
     cd alignak-webui
-    python setup.py install
+    pip install .

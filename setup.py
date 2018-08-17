@@ -155,8 +155,9 @@ package_name = manifest["__pkg_name__"]
 
 # Get default configuration files recursively
 data_files = [
-    ('share/alignak-webui', ['requirements.txt',
-                             'bin/post-install.sh',
+    ('share/alignak-webui', ['requirements.txt']),
+    ('share/alignak-webui', ['bin/python-post-install.sh',
+                             'bin/python3-post-install.sh',
                              'bin/log-rotate-alignak-webui',
                              'bin/log-rotate-uwsgi',
                              'bin/alignak-webui-uwsgi'])

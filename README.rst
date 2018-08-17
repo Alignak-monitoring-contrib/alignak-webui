@@ -45,8 +45,7 @@ You can find online documentation on `Read The Docs <http://alignak-web-ui.readt
 Installation
 ============
 
-The Alignak WebUI is easily installed and started thanks to the Python Package:
-::
+The Alignak WebUI is easily installed and started thanks to the Python Package::
 
     # Installing...
     pip install alignak-webui
