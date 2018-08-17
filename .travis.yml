@@ -54,7 +54,8 @@ jobs:
         password:
           secure: "YRRx7Yp7tB/fe+Ymya8MmfGB2c7VrOqDNXv0JXh8+xd5nZQQ/cvWWynWL1b0KFAmYGCosLz5LrNJUcKObK93Hvx5/wfN4U6jTppy89pGGlpbwd+OM7PHjeEYCS6G/7MyalBJcHEhsVBLO+xfr6nyu2xCneUeMjXb83+WyQHLEZDhrb9vPLBUXbQVd32FkZzertbovUKWGhYOzJoFPZ3MehzQiRAGqwx7mDJwfZdolrwzfbWsE0wGkHPCthxveHPHAiSNX60MrZi+kPvPUMAnYCTWPOoSbjVXIofVWQ4N2FU8MNDnC2SIg3g711N0WE45UhSqbqCKd/WpydEb26OpbAmxA/aKsoUmkyUjx4qJuI/cVLkZAAPdtZDmAPOgxiok/MohJa0HgJVkWpkhfRoCwUyD8svziMvJxbA/1Ijq9SrMQGOERjx37JLweF7dM34Yo5wI4pi/A/kDt2bp4dIXFf4t5tjbm74sNKiNlRkMl0oi62hnBR0TWX5BdauRu6BE6pyx1dGgFJg7lYqRXnIOACSTsK/nezkE/6D6N05R701CJ+50ej9TiPFUWBzNXAIj6WjQduPVIq08iV60qrFDUb35ZQuOQFk7jjWZihXiVyAQr70maMb97xLwH/ar06w8meI76Vktsm7PnuozjnkQWCxH3mXrfpEDOSM0QxNJOBc="
     - stage: Debian packaging
-      python: 3.6
+      python: 2.7
+      if: (tag IS blank)
       install:
         # Install packaging requirements
         - echo "Installing packaging requirements..."
@@ -71,7 +72,8 @@ jobs:
         key:
           secure: "qfQIlHIIw1QUe5B/lQQ5Bkqg/PnW42kgBLizzTq1zsDTJT1zrDg2HupUF+tbDxWsSDvC1jDQWps3T1HaGBDMTl14EST9owQsOO0XacSgnHRAwP6jMVR3OIA+P7GLhAJvXcJ2Rcq4nKsUvgrWnlyCmUFWQKDxcav3qwvh9Q5NZGgO0RVPK0C6hOHiOV39ZGjzqMWEppgColJNYq+wH3PBS6r9dI7Jeel2zQ+7drEko7p1Aa0WE3rhigbsU2ynUx+iwg9YL1PnijQ6ycfQkZ25begKUPq0nPpnrUfDyD8qDJA4nDl9XoJmL/M1hWadpbU7+sMXzTYIrRG7AdXUL97HE84yHlZnVJSZEJYuA25Urp+LJqJvGiaHOznsNU4+WxJJK65uTzv2J/PtCXB2vgoNeN58hU4pD+aeR+FNdus1i1VCRTj2BFyhIIw7ysopgnpQrbriQccPZPTIV4komOGk3cmuGiVCXw2ABi748HZcUNzQxDq0lmPqX9kZe79/pyKpo4BGZxp76uoywziGQgDBBRFSBtowDNmgWiYsOL5T+HrYAFamA5hfFRJ5SlZebkF86Gw2kzRLvC8Zw806+PR8BrR1EBj1V4e51ExN3ccOECfh1W9N9pcBsMZW98DTo47Y43EFb4FjrBFfARRL56WPc6x0yC2zN3hUrJjWLe7HYwo="
     - stage: RPM packaging
-      python: 3.6
+      python: 2.7
+      if: (tag IS blank)
       install:
         # Install packaging requirements
         - echo "Installing packaging requirements..."
@@ -90,7 +92,8 @@ jobs:
         key:
           secure: "qfQIlHIIw1QUe5B/lQQ5Bkqg/PnW42kgBLizzTq1zsDTJT1zrDg2HupUF+tbDxWsSDvC1jDQWps3T1HaGBDMTl14EST9owQsOO0XacSgnHRAwP6jMVR3OIA+P7GLhAJvXcJ2Rcq4nKsUvgrWnlyCmUFWQKDxcav3qwvh9Q5NZGgO0RVPK0C6hOHiOV39ZGjzqMWEppgColJNYq+wH3PBS6r9dI7Jeel2zQ+7drEko7p1Aa0WE3rhigbsU2ynUx+iwg9YL1PnijQ6ycfQkZ25begKUPq0nPpnrUfDyD8qDJA4nDl9XoJmL/M1hWadpbU7+sMXzTYIrRG7AdXUL97HE84yHlZnVJSZEJYuA25Urp+LJqJvGiaHOznsNU4+WxJJK65uTzv2J/PtCXB2vgoNeN58hU4pD+aeR+FNdus1i1VCRTj2BFyhIIw7ysopgnpQrbriQccPZPTIV4komOGk3cmuGiVCXw2ABi748HZcUNzQxDq0lmPqX9kZe79/pyKpo4BGZxp76uoywziGQgDBBRFSBtowDNmgWiYsOL5T+HrYAFamA5hfFRJ5SlZebkF86Gw2kzRLvC8Zw806+PR8BrR1EBj1V4e51ExN3ccOECfh1W9N9pcBsMZW98DTo47Y43EFb4FjrBFfARRL56WPc6x0yC2zN3hUrJjWLe7HYwo="
     - stage: FreeBSD packaging
-      python: 3.6
+      python: 2.7
+      if: (tag IS blank)
       install:
         # Install packaging requirements
         - echo "Installing packaging requirements..."
