@@ -103,7 +103,7 @@ else
 fi
 
 echo "Creating some necessary directories"
-mkdir -p $PREFIX/var/run/alignak-backend
+mkdir -p $PREFIX/var/run/alignak-webui
 chown -R $ACCOUNT:$ACCOUNT $PREFIX/var/run/alignak-webui
 chmod -R 775 $PREFIX/var/run/alignak-webui
 echo "$ACCOUNT user and members of its group $ACCOUNT are granted 775 on $PREFIX/var/run/alignak-webui"

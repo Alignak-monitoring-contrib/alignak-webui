@@ -178,8 +178,6 @@ if [ "${output_type}" = "deb" ]; then
       --python-package-name-prefix "${python_prefix}" \
       --python-scripts-executable "python" \
       --python-install-lib "/usr/lib/${python_prefix}/dist-packages" \
-      --python-bin 'python' \
-      --python-pip 'pip' \
       --python-install-data '/usr/local' \
       --python-install-bin '/usr/local/bin' \
       --no-python-dependencies \
@@ -205,8 +203,6 @@ elif [ "${output_type}" = "rpm" ]; then
       --python-package-name-prefix "${python_prefix}" \
       --python-scripts-executable "python" \
       --python-install-lib "/usr/lib/python${python_version}/site-packages" \
-      --python-bin 'python' \
-      --python-pip 'pip' \
       --python-install-data '/usr/local' \
       --python-install-bin '/usr/local/bin' \
       --no-python-dependencies \
@@ -226,8 +222,6 @@ else
       --url "${pkg_url}" \
       --vendor "${pkg_team}" \
       --maintainer "${pkg_team}" \
-      --python-bin 'python' \
-      --python-pip 'pip' \
       --python-install-data '/usr/local' \
       --python-install-bin '/usr/local/bin' \
       --no-python-dependencies \
