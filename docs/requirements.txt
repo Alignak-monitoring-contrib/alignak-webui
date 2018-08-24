@@ -1,3 +1,5 @@
 # Python requirements for documentation build
+# Include main application requirements
+-r ../requirements.txt
 
 sphinx
