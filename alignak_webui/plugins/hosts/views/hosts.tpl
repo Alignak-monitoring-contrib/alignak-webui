@@ -6,7 +6,6 @@
 %rebase("layout", title=title, js=[], css=[], pagination=pagination, page="/hosts")
 
 %from alignak_webui.utils.helper import Helper
-%from alignak_webui.objects.item_command import Command
 
 <!-- hosts filtering and display -->
 <div id="hosts">
@@ -20,22 +19,35 @@
          </div>
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
-               %for host in hosts:
-                  <li class="list-group-item"><small>Host: {{host}} - {{host.__dict__}}</small></li>
+               %for host in elts:
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse_{{host.id}}"><i class="fa fa-bug"></i> {{host.name}}</a>
+                     </h4>
+                  </div>
+                  <div id="collapse_{{host.id}}" class="panel-collapse collapse">
+                     <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
+                        %for k,v in sorted(host.__dict__.items()):
+                           <dt>{{k}}</dt>
+                           <dd>{{v}}</dd>
+                        %end
+                     </dl>
+                  </div>
+               </div>
                %end
             </ul>
-            <div class="panel-footer">{{len(hosts)}} elements</div>
+            <div class="panel-footer">{{len(elts)}} elements</div>
          </div>
       </div>
    </div>
    %end
 
+   %if not elts:
+      %include("_nothing_found.tpl", search_string=search_string)
+   %else:
    <div class="panel panel-default">
       <div class="panel-body">
-      %if not hosts:
-         %include("_nothing_found.tpl", search_string=search_string)
-      %else:
-
          %# First element for global data
          %object_type, start, count, total, dummy = pagination[0]
          <i class="pull-right small">{{_('%d elements out of %d') % (count, total)}}</i>
@@ -52,20 +64,16 @@
             </tr></thead>
 
             <tbody>
-               %for host in hosts:
-               %lv_host = datamgr.get_livestate({'where': {'host': host.id}})
-               %lv_host = lv_host[0]
+            %for host in elts:
                <tr id="#{{host.id}}">
                   <td title="{{host.alias}}">
-                  %if lv_host:
-                     %title = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)
-                     {{! lv_host.get_html_state(text=None, title=title)}}
-                  %else:
-                     {{! host.get_html_state(text=None, title=_('No livestate for this element'))}}
-                  %end
+                     %title = "%s - %s (%s)" % (host.state, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
+                     {{! host.get_html_state(text=None, title=title)}}
+
+                     {{! host.get_html_state(text=None, use_status=host.overall_status)}}
                   </td>
 
-                  <td>
+                  <td title="{{host.alias}}">
                      <small>{{!host.get_html_link()}}</small>
                   </td>
 
@@ -74,7 +82,7 @@
                   </td>
 
                   <td>
-                     <small>{{! host.check_command.get_html_state_link()}}</small>
+                     {{! host.check_command.get_html_state_link() if host.check_command != 'command' else ''}}
                   </td>
 
                   <td>
@@ -89,12 +97,12 @@
                      <small>{{! Helper.get_html_business_impact(host.business_impact)}}</small>
                   </td>
                </tr>
-             %end
+            %end
             </tbody>
          </table>
-      %end
       </div>
    </div>
+   %end
  </div>
 
  <script>

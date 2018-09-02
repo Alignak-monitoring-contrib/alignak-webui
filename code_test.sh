@@ -39,10 +39,10 @@ else
 	echo "Do not run tests"
 fi
 
-echo 'pep8 ...'
-pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log, *.log.*' --ignore='E402' alignak_webui/*
+echo 'pycodestyle ...'
+pycodestyle --max-line-length=100 --exclude='*.pyc, *.cfg, *.log, *.log.*' --ignore='E402' alignak_webui/*
 if [ $? -ne 0 ]; then
-    echo "PEP8 not compliant"
+    echo "pycodestyle not compliant"
     exit
 fi
 echo 'pylint ...'

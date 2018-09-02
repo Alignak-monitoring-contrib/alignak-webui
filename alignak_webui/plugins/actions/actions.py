@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -20,271 +20,534 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Plugin actions
+    Plugin actions - actions and commands notified to Alignak from the Web UI
 """
 
+import json
+import time
 from logging import getLogger
+from copy import deepcopy
 
-from bottle import request
+from bottle import request, response
 
-from alignak_webui import _
+from alignak_webui.utils.plugin import Plugin
+from .external_commands import commands
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be valued by the plugin loader
-webui = None
 
+class PluginActions(Plugin):
+    """Actions plugin"""
 
-def show_acknowledge_add():
-    """
-        Show form to add an acknowledge
-    """
-    return {
-        'title': request.query.get('title', _('Request an acknowledge')),
-        'action': request.query.get('action', 'add'),
-        'livestate_id': request.query.getall('livestate_id'),
-        'element_name': request.query.getall('element_name'),
-        'sticky': request.query.get('sticky', '1') == '1',
-        'notify': request.query.get('notify', '0') == '1',
-        'persistent': request.query.get('persistent', '1') == '1',
-        'comment': request.query.get('comment', _('Acknowledge requested from WebUI')),
-        'read_only': request.query.get('read_only', '0') == '1',
-        'auto_post': request.query.get('auto_post', '0') == '1'
-    }
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """Actions plugin"""
+        self.name = 'Actions'
+        self.backend_endpoint = None
 
-
-def add_acknowledge():
-    """
-    Add an acknowledgement
-
-    Parameters:
-    - livestate_id[]: all the livestate elements identifiers to be acknowledged
-
-    - sticky
-    - notify
-    - persistent
-    - comment
-
-    """
-    user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    user_id = user.id
-    if not target_user.is_anonymous():
-        user_id = target_user.id
-
-    livestate_ids = request.forms.getall('livestate_id')
-    if not livestate_ids:
-        logger.error("request to send an acknowledge: missing livestate_id parameter!")
-        return webui.response_invalid_parameters(_('Missing livestate identifier: livestate_id'))
-
-    problem = False
-    status = ""
-    for livestate_id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
-        if not livestate:
-            status += _('Livestate element %s does not exist') % livestate_id
-            continue
-
-        livestate = livestate[0]
-        # Prepare post request ...
-        data = {
-            'action': 'add',
-            'host': livestate.host.id,
-            'service': None,
-            'user': user_id,
-            'sticky': request.forms.get('sticky', 'false') == 'true',
-            'notify': request.forms.get('notify', 'false') == 'true',
-            'persistent': request.forms.get('persistent', 'false') == 'true',
-            'comment': request.forms.get('comment', _('No comment'))
+        self.pages = {
+            'show_acknowledge_add': {
+                'name': 'Acknowledge add form',
+                'route': '/acknowledge/form/add',
+                'view': 'acknowledge_form_add'
+            },
+            'add_acknowledge': {
+                'name': 'Acknowledge',
+                'route': '/acknowledge/add',
+                'method': 'POST'
+            },
+            'show_recheck_add': {
+                'name': 'Recheck add form',
+                'route': '/recheck/form/add',
+                'view': 'recheck_form_add'
+            },
+            'show_command_add': {
+                'name': 'Command add form',
+                'route': '/command/form/add',
+                'view': 'command_form_add'
+            },
+            'show_global_commands': {
+                'name': 'Global commands',
+                'route': '/command/global/add',
+                'view': 'command_form_add'
+            },
+            'get_command_parameters': {
+                'name': 'Command parameters',
+                'route': '/command/parameters'
+            },
+            'add_recheck': {
+                'name': 'Recheck',
+                'route': '/recheck/add',
+                'method': 'POST'
+            },
+            'show_downtime_add': {
+                'name': 'Downtime add form',
+                'route': '/downtime/form/add',
+                'view': 'downtime_form_add'
+            },
+            'add_downtime': {
+                'name': 'Downtime',
+                'route': '/downtime/add',
+                'method': 'POST'
+            },
+            'add_command': {
+                'name': 'Command',
+                'route': '/command/add',
+                'method': 'POST'
+            }
         }
-        if livestate.service != 'service':
-            data.update({'service': livestate.service.id})
 
-        if not datamgr.add_acknowledge(data=data):
-            status += _("Failed adding an acknowledge for %s") % livestate.name
-            problem = True
-        else:
-            status += _('Acknowledge sent for %s.') % livestate.name
+        super(PluginActions, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    logger.info("Request an acknowledge, result: %s", status)
-
-    if not problem:
-        return webui.response_ok(message=status)
-    else:
-        return webui.response_ko(message=status)
-
-
-def show_recheck_add():
-    """
-        Show form to request a forced check
-    """
-    return {
-        'title': request.query.get('title', _('Send a check request')),
-        'livestate_id': request.query.getall('livestate_id'),
-        'element_name': request.query.getall('element_name'),
-        'comment': request.query.get('comment', _('Re-check requested from WebUI')),
-        'read_only': request.query.get('read_only', '0') == '1',
-        'auto_post': request.query.get('auto_post', '0') == '1'
-    }
-
-
-def add_recheck():
-    """
-    Request a forced check
-    """
-    user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    user_id = user.id
-    if not target_user.is_anonymous():
-        user_id = target_user.id
-
-    livestate_ids = request.forms.getall('livestate_id')
-    if not livestate_ids:
-        logger.error("request to send an recheck: missing livestate_id parameter!")
-        return webui.response_invalid_parameters(_('Missing livestate identifier: livestate_id'))
-
-    problem = False
-    status = ""
-    for livestate_id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
-        if not livestate:
-            status += _('Livestate element %s does not exist') % livestate_id
-            continue
-
-        livestate = livestate[0]
-        # Prepare post request ...
-        data = {
-            'host': livestate.host.id,
-            'service': None,
-            'user': user_id,
-            'comment': request.forms.get('comment', _('No comment'))
+    def show_acknowledge_add(self):  # pylint:disable=no-self-use
+        """Show form to add an acknowledge"""
+        return {
+            'title': request.query.get('title', _('Request an acknowledge')),
+            'action': request.query.get('action', 'add'),
+            'elements_type': request.query.get('elements_type'),
+            'element_id': request.query.getall('element_id'),
+            'element_name': request.query.getall('element_name'),
+            'sticky': request.query.get('sticky', '1') == '1',
+            'notify': request.query.get('notify', '1') == '1',
+            'persistent': request.query.get('persistent', '1') == '1',
+            'comment': request.query.get('comment', _('Acknowledge requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1'
         }
-        if livestate.service != 'service':
-            data.update({'service': livestate.service.id})
 
-        if not datamgr.add_recheck(data=data):
-            status += _("Failed adding a check request for %s") % livestate.name
-            problem = True
+    def add_acknowledge(self):
+        """Add an acknowledgement
+
+        Parameters:
+        - element_id[]: all the livestate elements identifiers to be acknowledged
+
+        - sticky
+        - notify
+        - persistent
+        - comment
+        """
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        element_ids = request.forms.getall('element_id')
+        if not element_ids:
+            logger.error("request to send an acknowledge: missing element_id parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing element identifier: element_id')
+            )
+
+        problem = False
+        status = ""
+
+        # Method to get elements from the data manager
+        elements_type = request.forms.get('elements_type', 'host')
+        f = getattr(datamgr, 'get_%s' % elements_type)
+        if not f:
+            status += (_("No method to get a %s element") % elements_type)
         else:
-            status += _('Check request sent for %s.') % livestate.name
+            for element_id in element_ids:
+                element = f(element_id)
+                if not element:
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                    continue
 
-    logger.info("Request a re-check, result: %s", status)
+                # Prepare post request ...
+                command = 'acknowledge_host_problem'
+                if elements_type == 'service':
+                    command = 'acknowledge_svc_problem'
+                parameters = [
+                    '2' if request.forms.get('sticky', 'false') == 'true' else '0',
+                    '1' if request.forms.get('notify', 'false') == 'true' else '0',
+                    '1' if request.forms.get('persistent', 'false') == 'true' else '0',
+                    user.name,
+                    request.forms.get('comment', _('No comment'))
+                ]
+                data = {
+                    'timestamp': int(time.time()),
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
+                }
+                if elements_type == 'service':
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
 
-    if not problem:
-        return webui.response_ok(message=status)
-    else:
-        return webui.response_ko(message=status)
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
+                    problem = True
+                else:
+                    if elements_type == 'service':
+                        status += _('Sent a command %s for %s/%s. ') % (
+                            command, element.host.name, element.name
+                        )
+                    else:
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
 
+        logger.info("Request an acknowledge, result: %s", status)
 
-def show_downtime_add():
-    """
-        Show form to add a downtime
-    """
-    return {
-        'title': request.query.get('title', _('Request a downtime')),
-        'action': request.query.get('action', 'add'),
-        'livestate_id': request.query.getall('livestate_id'),
-        'element_name': request.query.getall('element_name'),
-        'start_time': request.query.get('start_time'),
-        'end_time': request.query.get('end_time'),
-        'fixed': request.query.get('fixed', '1') == '1',
-        'duration': request.query.get('duration', 86400),
-        'comment': request.query.get('comment', _('Downtime requested from WebUI')),
-        'read_only': request.query.get('read_only', '0') == '1',
-        'auto_post': request.query.get('auto_post', '0') == '1'
-    }
+        if not problem:
+            return self.webui.response_ok(message=status)
+        return self.webui.response_ko(message=status)
 
-
-def add_downtime():
-    """
-    Add a downtime
-    """
-    user = request.environ['beaker.session']['current_user']
-    target_user = request.environ['beaker.session']['target_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    user_id = user.id
-    if not target_user.is_anonymous():
-        user_id = target_user.id
-
-    livestate_ids = request.forms.getall('livestate_id')
-    if not livestate_ids:
-        logger.error("request to send an downtime: missing livestate_id parameter!")
-        return webui.response_invalid_parameters(_('Missing livestate identifier: livestate_id'))
-
-    problem = False
-    status = ""
-    for livestate_id in livestate_ids:
-        livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
-        if not livestate:
-            status += _('Livestate element %s does not exist') % livestate_id
-            continue
-
-        livestate = livestate[0]
-
-        # Prepare post request ...
-        data = {
-            'action': 'add',
-            'host': livestate.host.id,
-            'service': None,
-            'user': user_id,
-            'start_time': request.forms.get('start_time'),
-            'end_time': request.forms.get('end_time'),
-            'fixed': request.forms.get('fixed', 'false') == 'true',
-            'duration': int(request.forms.get('duration', '86400')),
-            'comment': request.forms.get('comment', _('No comment'))
+    def show_recheck_add(self):  # pylint:disable=no-self-use
+        """Show form to request a forced check"""
+        return {
+            'title': request.query.get('title', _('Send a check request')),
+            'elements_type': request.query.get('elements_type'),
+            'element_id': request.query.getall('element_id'),
+            'element_name': request.query.getall('element_name'),
+            'comment': request.query.get('comment', _('Re-check requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1'
         }
-        if livestate.service != 'service':
-            data.update({'service': livestate.service.id})
 
-        logger.critical("Request a downtime, data: %s", data)
-        if not datamgr.add_downtime(data=data):
-            status += _("Failed adding a downtime for %s") % livestate.name
-            problem = True
+    def add_recheck(self):
+        """Request a forced check"""
+        datamgr = request.app.datamgr
+
+        element_ids = request.forms.getall('element_id')
+        if not element_ids:
+            logger.error("request to send an recheck: missing element_id parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing element identifier: element_id')
+            )
+
+        problem = False
+        status = ""
+
+        # Method to get elements from the data manager
+        elements_type = request.forms.get('elements_type', 'host')
+        f = getattr(datamgr, 'get_%s' % elements_type)
+        if not f:
+            status += (_("No method to get a %s element") % elements_type)
         else:
-            status += _('downtime sent for %s.') % livestate.name
+            for element_id in element_ids:
+                element = f(element_id)
+                if not element:
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                    continue
 
-    logger.info("Request a downtime, result: %s", status)
+                # Prepare post request ...
+                command = 'schedule_forced_host_check'
+                if elements_type == 'service':
+                    command = 'schedule_forced_svc_check'
+                parameters = [
+                    "%s" % int(time.time() + 5)
+                ]
+                data = {
+                    'timestamp': int(time.time()),
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
+                }
+                if elements_type == 'service':
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
 
-    if not problem:
-        return webui.response_ok(message=status)
-    else:
-        return webui.response_ko(message=status)
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
+                    problem = True
+                else:
+                    if elements_type == 'service':
+                        status += _('Sent a command %s for %s/%s. ') % (
+                            command, element.host.name, element.name
+                        )
+                    else:
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
 
+        logger.info("Request a re-check, result: %s", status)
 
-pages = {
-    show_acknowledge_add: {
-        'name': 'Acknowledge add form',
-        'route': '/acknowledge/form/add',
-        'view': 'acknowledge_form_add'
-    },
-    add_acknowledge: {
-        'name': 'Acknowledge',
-        'route': '/acknowledge/add',
-        'method': 'POST'
-    },
-    show_recheck_add: {
-        'name': 'Recheck add form',
-        'route': '/recheck/form/add',
-        'view': 'recheck_form_add'
-    },
-    add_recheck: {
-        'name': 'Recheck',
-        'route': '/recheck/add',
-        'method': 'POST'
-    },
-    show_downtime_add: {
-        'name': 'Downtime add form',
-        'route': '/downtime/form/add',
-        'view': 'downtime_form_add'
-    },
-    add_downtime: {
-        'name': 'Downtime',
-        'route': '/downtime/add',
-        'method': 'POST'
-    }
-}
+        if not problem:
+            return self.webui.response_ok(message=status)
+        return self.webui.response_ko(message=status)
+
+    def show_downtime_add(self):  # pylint:disable=no-self-use
+        """Show form to add a downtime"""
+        return {
+            'title': request.query.get('title', _('Request a downtime')),
+            'action': request.query.get('action', 'add'),
+            'elements_type': request.query.get('elements_type'),
+            'element_id': request.query.getall('element_id'),
+            'element_name': request.query.getall('element_name'),
+            'start_time': request.query.get('start_time'),
+            'end_time': request.query.get('end_time'),
+            'fixed': request.query.get('fixed', '1') == '1',
+            'duration': request.query.get('duration', 86400),
+            'comment': request.query.get('comment', _('Downtime requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1'
+        }
+
+    def add_downtime(self):
+        """Add a downtime"""
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        element_ids = request.forms.getall('element_id')
+        if not element_ids:
+            logger.error("request to send an downtime: missing element_id parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing element identifier: element_id')
+            )
+
+        problem = False
+        status = ""
+
+        # Method to get elements from the data manager
+        elements_type = request.forms.get('elements_type', 'host')
+        f = getattr(datamgr, 'get_%s' % elements_type)
+        if not f:
+            status += (_("No method to get a %s element") % elements_type)
+        else:
+            for element_id in element_ids:
+                element = f(element_id)
+                if not element:
+                    status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                    continue
+
+                # Prepare post request ...
+                command = 'schedule_host_downtime'
+                if elements_type == 'service':
+                    command = 'schedule_svc_downtime'
+                parameters = [
+                    request.forms.get('start_time'),
+                    request.forms.get('end_time'),
+                    '1' if request.forms.get('fixed', 'false') == 'true' else '0',
+                    '0',
+                    request.forms.get('duration', '86400'),
+                    user.name,
+                    request.forms.get('comment', _('No comment'))
+                ]
+                data = {
+                    'timestamp': int(time.time()),
+                    'command': command,
+                    'element': element.name,
+                    'parameters': ';'.join(parameters)
+                }
+                if elements_type == 'service':
+                    data.update({'element': '%s/%s' % (element.host.name, element.name)})
+
+                logger.info("Send a command, data: %s", data)
+                if not datamgr.add_command(data=data):
+                    status += _("Failed sending a command for %s. ") % element.name
+                    problem = True
+                else:
+                    if elements_type == 'service':
+                        status += _('Sent a command %s for %s/%s. ') % (
+                            command, element.host.name, element.name
+                        )
+                    else:
+                        status += _('Sent a command %s for %s. ') % (command, element.name)
+
+        logger.info("Request a downtime, result: %s", status)
+
+        if not problem:
+            return self.webui.response_ok(message=status)
+        return self.webui.response_ko(message=status)
+
+    def show_command_add(self):  # pylint:disable=no-self-use
+        """Show form to send a command"""
+        elements_type = request.query.get('elements_type')
+
+        commands_list = {}
+        for command in commands:
+            # Ignore global commands
+            if commands[command].get('global', True):
+                continue
+            # Ignore commands that do not concern our current elements type
+            if elements_type != commands[command].get('elements_type', ""):
+                continue
+            commands_list.update({command: commands[command]})
+
+        return {
+            'title': request.query.get('title', _('Send a command')),
+            'elements_type': request.query.get('elements_type'),
+            'element_id': request.query.getall('element_id'),
+            'element_name': request.query.getall('element_name'),
+            'comment': request.query.get('comment', _('Command requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1',
+            'commands_list': commands_list
+        }
+
+    def show_global_commands(self):  # pylint:disable=no-self-use
+        """Show form to send global commands"""
+        commands_list = {}
+        for command in commands:
+            # Get only global commands
+            if not commands[command].get('global', True):
+                continue
+            commands_list.update({command: commands[command]})
+
+        return {
+            'title': request.query.get('title', _('Send a command')),
+            'comment': request.query.get('comment', _('Global command requested from WebUI')),
+            'read_only': request.query.get('read_only', '0') == '1',
+            'auto_post': request.query.get('auto_post', '0') == '1',
+            'commands_list': commands_list
+        }
+
+    def get_command_parameters(self):
+        """Get a command parameters list
+
+        Returns a JSON object containing, for the requested command, all the parameters list
+        """
+        elements_type = request.query.get('elements_type')
+        command = request.query.get('command')
+
+        # Get elements from the commands list
+        if command not in commands:
+            response.status = 409
+            response.content_type = 'application/json'
+            return json.dumps(
+                {'error': "the command '%s' does not exist" % command}
+            )
+
+        logger.info("Element type: %s", elements_type)
+        if elements_type:
+            plugin = self.webui.find_plugin(elements_type)
+            if not plugin:
+                response.status = 409
+                response.content_type = 'application/json'
+                return json.dumps(
+                    {'error': "the plugin for '%s' is not existing or not installed"
+                              % elements_type}
+                )
+            logger.debug("Found plugin: %s", plugin.name)
+
+            # Provide the described parameters
+            parameters = {}
+            for parameter in commands[command].get('parameters', {}):
+                logger.debug("Got plugin table parameter: %s / %s",
+                             parameter, plugin.table[parameter])
+                parameters[parameter] = deepcopy(plugin.table[parameter])
+                if 'editable' in parameters[parameter]:
+                    parameters[parameter]['editable'] = True
+
+                if 'allowed' in plugin.table[parameter]:
+                    allowed_values = {}
+                    allowed = plugin.table[parameter].get('allowed', '')
+                    if not isinstance(allowed, list):
+                        allowed = allowed.split(',')
+                    logger.debug("Get real allowed values for %s: %s", parameter, allowed)
+                    if allowed[0] == '':
+                        allowed = []
+                    for allowed_value in allowed:
+                        value = plugin.table[parameter].get('allowed_%s' % allowed_value,
+                                                            allowed_value)
+                        allowed_values.update({'%s' % allowed_value: value})
+
+                    parameters[parameter]['allowed'] = allowed_values
+                    logger.debug("Real allowed values for %s: %s", parameter, allowed_values)
+
+                if 'allowed' in parameters[parameter] and not parameters[parameter]['allowed']:
+                    parameters[parameter].pop('allowed')
+
+                logger.info("Got command parameter: %s / %s",
+                            parameter, parameters[parameter])
+        else:
+            # Provide the described parameters
+            parameters = commands[command].get('parameters', {})
+
+        logger.info("Parameters: %s", parameters)
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(parameters)
+
+    def add_command(self):
+        """Send a command"""
+        datamgr = request.app.datamgr
+
+        # Get the command from the request parameters
+        command = request.forms.get('command')
+        if not command or command == "None":
+            logger.error("request to send an unknown command: missing command parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing command name: command')
+            )
+
+        logger.info("Request to send a command: %s", command)
+
+        # Get elements from the commands list
+        if command not in commands:
+            logger.error("request to send an unknown command: unknown command: %s!", command)
+            return self.webui.response_invalid_parameters(
+                _('Unknown command: %s' % command)
+            )
+
+        # Provide the described parameters
+        parameters = []
+        for parameter in commands[command].get('parameters', {}):
+            parameter_value = request.forms.get(parameter, None)
+            if parameter_value is None:
+                logger.error("missing command parameter in the request: %s", parameter)
+                return self.webui.response_invalid_parameters(
+                    _('Missing parameter: %s' % parameter)
+                )
+            logger.debug("Command parameter: %s = %s", parameter, parameter_value)
+            parameters.append(parameter_value)
+        logger.info("Command parameters: %s", parameters)
+
+        elements_type = request.forms.get('elements_type', 'host')
+        element_ids = request.forms.getall('element_id')
+        if elements_type and not element_ids:
+            logger.error("request to send an command: missing element_id parameter!")
+            return self.webui.response_invalid_parameters(
+                _('Missing element identifier: element_id')
+            )
+
+        problem = False
+        status = ""
+
+        # Method to get elements from the data manager
+        if elements_type:
+            f = getattr(datamgr, 'get_%s' % elements_type)
+            if not f:
+                status += (_("No method to get a %s element") % elements_type)
+            else:
+                for element_id in element_ids:
+                    element = f(element_id)
+                    if not element:
+                        status += _('%s element %s does not exist. ') % (elements_type, element_id)
+                        continue
+
+                    # Prepare post request ...
+                    data = {
+                        'timestamp': int(time.time()),
+                        'command': command,
+                        'element': element.name,
+                        'parameters': ';'.join(parameters)
+                    }
+                    if elements_type == 'service':
+                        data.update({'element': '%s/%s' % (element.host.name, element.name)})
+
+                    logger.info("Send a command, data: %s", data)
+                    if not datamgr.add_command(data=data):
+                        status += _("Failed sending a command for %s. ") % element.name
+                        problem = True
+                    else:
+                        if elements_type == 'service':
+                            data.update({'host': element.host.id, 'service': element.id})
+                            status += _('Sent a command %s for %s/%s. ') % \
+                                (command, element.host.name, element.name)
+                        else:
+                            status += _('Sent a command %s for %s. ') % (command, element.name)
+        else:
+            # Prepare post request ...
+            data = {
+                'timestamp': int(time.time()),
+                'command': command,
+                'parameters': ';'.join(parameters)
+            }
+            logger.info("Send a command, data: %s", data)
+            if not datamgr.add_command(data=data):
+                status += _("Failed sending a command for Alignak. ")
+                problem = True
+            else:
+                status += _('Sent a command %s for Alignak. ') % (command)
+
+        logger.info("Sent a command, result: %s", status)
+
+        if not problem:
+            return self.webui.response_ok(message=status)
+        return self.webui.response_ko(message=status)

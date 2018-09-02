@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "utc": {
+      "()": "alignak_webui.utils.logger.UTCFormatter",
+      "format": "[%(asctime)s] %(levelname)s: [%(name)s] %(message)s",
+      "datefmt": "%Y-%m-%d %H:%M:%S"
+    },
+    "local": {
+      "format": "[%(asctime)s] %(levelname)s: [%(name)s] %(message)s",
+      "datefmt": "%Y-%m-%d %H:%M:%S"
+    }
+  },
+
+  "handlers": {
+    "console": {
+      "class": "alignak_webui.utils.logger.ColorStreamHandler",
+      "level": "DEBUG",
+      "formatter": "local",
+      "stream": "ext://sys.stdout"
+    },
+    "file": {
+      "class": "logging.handlers.TimedRotatingFileHandler",
+      "level": "DEBUG",
+      "formatter": "local",
+      "filename": "alignak-webui.log",
+      "when": "midnight",
+      "interval": 1,
+      "backupCount": 7,
+      "encoding": "utf8"
+    }
+  },
+
+  "loggers": {
+    "alignak_webui": {
+      "level": "INFO",
+      "handlers": ["console", "file"],
+      "propagate": "no"
+    }
+  },
+
+  "root": {
+    "level": "INFO",
+    "handlers": []
+  }
+}

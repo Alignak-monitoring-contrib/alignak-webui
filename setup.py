@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2018:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -21,9 +21,6 @@
 
 import os
 import sys
-import re
-del os.link
-from importlib import import_module
 
 try:
     from setuptools import setup, find_packages
@@ -39,105 +36,142 @@ if python_version < (2, 7):
 elif python_version >= (3,):
     sys.exit("This application is not yet compatible with Python 3.x, sorry!")
 
-from alignak_webui import __application__, __version__, __copyright__
-from alignak_webui import __releasenotes__, __license__, __doc_url__
-from alignak_webui import __name__ as __pkg_name__
+try:
+    import distutils.cmd
+    import distutils.log
+    import distutils.core
+    from distutils.core import setup
+    from distutils.command.install_data import install_data as _install_data
+except:
+    sys.exit("Error: missing python-distutils library")
 
-package = import_module('alignak_webui')
+# Overloading setup.py install_data
+class install_data(_install_data):
+    """Overload the default data installation"""
+    def run(self):
+        """Overload the default copy of files:"""
+        self.announce("\n====================================================", distutils.log.INFO)
+        self.announce("Installing data files copy...", distutils.log.INFO)
+        self.announce("Installation directory: %s" % self.install_dir, distutils.log.INFO)
 
-install_requires = [
-    'future',
-    'configparser',
-    'docopt',
-    'bottle>=0.12.9,<0.13',
-    'Beaker==1.8.0',
-    'CherryPy',
-    'pymongo>=3.2',
-    'requests>=2.9.1',
-    'python-gettext',
-    'termcolor',
-    'python-dateutil==2.4.2',
-    'pytz',
-    'alignak_backend_client'
-]
+        self.announce("\n====================================================", distutils.log.INFO)
+        self.announce("Before data files copy...", distutils.log.INFO)
+        self.announce("Installation directory: %s" % self.install_dir, distutils.log.INFO)
+        for (target, origin) in self.data_files:
+            for file in origin:
+                filename = os.path.basename(file)
+                self.announce(" - file: '%s'" % (file), distutils.log.INFO)
+                if os.path.isfile(os.path.join(self.install_dir, file)):
+                    self.announce(" - found an existing '%s'" % (filename), distutils.log.INFO)
+        self.announce("====================================================\n", distutils.log.INFO)
 
-# Define paths
-if 'linux' in sys.platform or 'sunos5' in sys.platform:
-    paths = {
-        'bin':     "/usr/bin",
-        'var':     "/var/lib/alignak_webui/",
-        'share':   "/var/lib/alignak_webui/share",
-        'etc':     "/etc/alignak_webui",
-        'run':     "/var/run/alignak_webui",
-        'log':     "/var/log/alignak_webui",
-        'libexec': "/var/lib/alignak_webui/libexec",
-    }
-elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    paths = {
-        'bin':     "/usr/local/bin",
-        'var':     "/usr/local/libexec/alignak_webui",
-        'share':   "/usr/local/share/alignak_webui",
-        'etc':     "/usr/local/etc/alignak_webui",
-        'run':     "/var/run/alignak_webui",
-        'log':     "/var/log/alignak_webui",
-        'libexec': "/usr/local/libexec/alignak_webui/plugins",
-    }
-else:
-    print "Unsupported platform, sorry!"
-    exit(1)
+        # Setuptools install_data ...
+        _install_data.run(self)
 
-data_files = [
-    (paths['etc'], ['etc/settings.cfg'])
-]
+        # After data files installation ...
+        # ... try to find if an installer file exists
+        # ... and then run this installer.
+        self.announce("\n====================================================", distutils.log.INFO)
+        self.announce("After data files copy...", distutils.log.INFO)
+        for (target, origin) in self.data_files:
+            for file in origin:
+                if os.path.basename(file) in ['setup.sh']:
+                    filename = os.path.basename(file)
+                    self.announce(" - found '%s'" % (filename), distutils.log.INFO)
+
+                    # Run found installation script
+                    self.announce("\n----------------------------------------------------",
+                                  distutils.log.INFO)
+                    self.announce(" - running '%s'..." % (
+                        os.path.join(self.install_dir, target, filename)), distutils.log.INFO)
+                    exit_code = subprocess.call(os.path.join(self.install_dir, target, filename))
+                    self.announce(" - result: %s" % (exit_code), distutils.log.INFO)
+                    if exit_code > 0:
+                        self.announce("\n****************************************************",
+                                      distutils.log.INFO)
+                        self.announce("Some errors were encountered during the installation \n"
+                                      "script execution! Please check out the former log to \n"
+                                      "get more information about the encountered problems.",
+                                      distutils.log.INFO)
+                        self.announce("****************************************************\n",
+                                      distutils.log.INFO)
+                    self.announce("----------------------------------------------------\n",
+                                  distutils.log.INFO)
+        self.announce("====================================================\n", distutils.log.INFO)
+
+# Better to use exec to load the package information from a version.py file
+# so to not have to import the package. as of it, the setup.py do not need to be modified
+# for each package that is built from this one...
+with open(os.path.join('alignak_webui/__init__.py')) as fh:
+    manifest = {}
+    exec(fh.read(), manifest)
+# The `manifest` dictionary now contains the package metadata
+
+# Get the package name from the manifest
+package_name = manifest["__pkg_name__"]
+
+data_files=[('etc/alignak-webui',
+             ['etc/alignak-webui.wsgi', 'etc/settings.cfg', 'etc/uwsgi.ini', 'etc/logging.json']),
+            ('bin',
+             ['bin/alignak-webui-uwsgi'])]
+if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
+    data_files.append(('etc/rc.d', ['bin/rc.d/alignak-webui']))
 
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    print "RTD build, no data_files"
+    print("RTD build, no data_files")
     data_files = []
+print("Data files: %s" % data_files)
 
 setup(
-    name=__pkg_name__,
-    version=__version__,
+    # Package name and version
+    name=manifest["__pkg_name__"],
+    version=manifest["__version__"],
 
-    license=__license__,
-
-    # metadata for upload to PyPI
-    author="Frédéric MOHIER",
-    author_email="frederic.mohier@gmail.com",
-    keywords="alignak web ui",
-    url="https://github.com/Alignak-monitoring-contrib/alignak-webui",
-    description=package.__doc__.strip(),
+    # Metadata for PyPI
+    author=manifest["__author__"],
+    author_email=manifest["__author_email__"],
+    keywords="alignak monitoring webui",
+    url=manifest["__git_url__"],
+    license=manifest["__license__"],
+    description=manifest["__description__"],
     long_description=open('README.rst').read(),
 
+    classifiers = manifest["__classifiers__"],
+
+    # Unzip Egg
     zip_safe=False,
 
-    packages=find_packages(),
-    include_package_data=True,
-    # package_data={
-        # 'sample': ['package_data.dat'],
-    # },
-    data_files=data_files,
-
-    install_requires=install_requires,
-
-    entry_points={
-        'console_scripts': [
-            'alignak_webui = alignak_webui.app:main',
-        ],
+    # Specific data files installer method
+    cmdclass={
+        "install_data": install_data
     },
 
-    classifiers = [
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Framework :: Bottle',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Customer Service',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Natural Language :: English',
-        'Programming Language :: Python',
-        'Topic :: System :: Monitoring',
-        'Topic :: System :: Systems Administration'
-    ]
+    # Package data
+    packages=find_packages(),
+    include_package_data=True,
+    # package_data = {'alignak_webui': ['alignak_webui/*']},
+    # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
+
+    # Where to install distributed files
+    data_files=data_files,
+
+    # Dependencies (if some) ...
+    install_requires=[
+        'future', 'configparser', 'docopt',
+        'bottle>=0.12.9,<0.13', 'Beaker==1.9.0', 'CherryPy',
+        'pymongo>=3.2', 'requests>=2.9.1',
+        'python-gettext', 'termcolor',
+        'python-dateutil>=2.4.2', 'pytz',
+        'uwsgi',
+        'alignak-backend', 'alignak-backend-client'
+    ],
+
+    # Entry points (if some) ...
+    entry_points={
+        'console_scripts': [
+            'alignak-webui = alignak_webui.app:main'
+        ],
+    }
 )

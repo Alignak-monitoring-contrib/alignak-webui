@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -27,34 +27,46 @@ import json
 from logging import getLogger
 
 from bottle import request
+from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be valued by the plugin loader
-webui = None
 
+class PluginLookup(Plugin):
+    """ Dashboard plugin """
 
-def lookup():
-    """
-    Search in the livestate for an element name
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """
+        Dashboard plugin
+        """
+        self.name = 'Dashboard'
+        self.backend_endpoint = None
 
-    query = request.query.get('query', '')
+        self.pages = {
+            'lookup': {
+                'name': 'Get Lookup',
+                'route': '/lookup',
+                'method': 'GET'
+            }
+        }
 
-    logger.warning("lookup: %s", query)
+        super(PluginLookup, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    elements = datamgr.get_livestate(search={'where': {'name': {"$regex": ".*" + query + ".*"}}})
-    names = [e.name for e in elements]
-    logger.warning("lookup: %s", names)
+    def lookup(self):  # pylint:disable=no-self-use
+        """
+        Search in the livestate for an element name
+        """
+        datamgr = request.app.datamgr
 
-    return json.dumps(names)
+        query = request.query.get('query', '')
 
+        logger.debug("lookup query: %s", query)
 
-pages = {
-    lookup: {
-        'name': 'GetLookup',
-        'route': '/lookup',
-        'method': 'GET'
-    }
-}
+        elements = datamgr.get_hosts(
+            search={'where': {'name': {"$regex": ".*" + query + ".*"}}}
+        )
+        names = [e.name for e in elements]
+        logger.info("lookup found: %s", names)
+
+        return json.dumps(names)

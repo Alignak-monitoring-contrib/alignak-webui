@@ -30,7 +30,7 @@
    %end
 
    <div class="panel panel-default">
-      %if commands and current_user.is_administrator():
+      %if commands and (current_user.is_super_administrator() or current_user.is_administrator()):
       <div class="panel-heading">
          <div class="btn-toolbar" role="toolbar" aria-label="{{_('Users commands')}}">
             <div class="btn-group btn-lg" role="group" data-type="actions" aria-label="{{_('Users commands')}}">

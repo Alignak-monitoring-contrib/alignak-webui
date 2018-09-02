@@ -8,4 +8,14 @@
 
 %from alignak_webui.utils.helper import Helper
 
-%include("services.tpl", services=services, layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
+%plugin = webui.find_plugin('Services')
+%if plugin:
+    %# Get host services
+    %services = datamgr.get_services(search={'where': {'host': host.id}})
+
+    %include("services.tpl", elts=services, elt_type='service', in_host_view=True, layout=False, pagination=webui.helper.get_pagination_control('service', len(services), 0, len(services)))
+%else:
+    <center>
+        <h3>{{_('The services plugin is not installed or enabled.')}}</h3>
+    </center>
+%end

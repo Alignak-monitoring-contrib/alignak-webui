@@ -9,9 +9,9 @@
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 
-%if not hosts:
+%if not elements:
    <center>
-      <h3>{{_('No hosts matching the filter...')}}</h3>
+      <h4>{{_('No hosts matching the filter...')}}</h4>
    </center>
 %else:
    <table class="table table-condensed">
@@ -22,29 +22,39 @@
          <th>{{_('Check command')}}</th>
       </tr></thead>
       <tbody>
-         %for host in hosts:
-         %lv_host = datamgr.get_livestate({'where': {'host': host.id}})
-         %lv_host = lv_host[0]
+         %for host in elements:
          <tr id="{{host.id}}">
             <td title="{{host.alias}}">
-            %if lv_host:
-               %label = "%s - %s (%s)" % (lv_host.status, Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0), lv_host.output)
-               {{! lv_host.get_html_state(text=None, title=label)}}
-            %else:
-               {{! host.get_html_state(text=None, title=_('No livestate for this element'))}}
-            %end
+            %label = "%s - %s (%s)" % (host.overall_status, Helper.print_duration(host.last_check, duration_only=True, x_elts=0), host.output)
+            {{! host.get_html_state(text=None, use_status=host.overall_status, title=label)}}
             </td>
 
+            %if not embedded:
+            <td>
+               <small>{{! host.get_html_link(links)}}</small>
+            </td>
+            %else:
             <td>
                <small>{{! host.get_html_link(links) if links else host.alias}}</small>
             </td>
+            %end
 
             <td>
                <small>{{! Helper.get_html_business_impact(host.business_impact)}}</small>
             </td>
 
             <td>
+               %if host.check_command and host.check_command != 'command':
                <small>{{! host.check_command.get_html_link(links) if links else host.check_command.alias}}</small>
+               %else:
+               {{_('Command not fetched from the backend')}}
+               %end
+            </td>
+
+            <td>
+               %if current_user.is_power():
+                  {{! Helper.get_html_commands_buttons(host, _('Actions'))}}
+               %end
             </td>
          </tr>
        %end

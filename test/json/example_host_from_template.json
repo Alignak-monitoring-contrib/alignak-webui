@@ -1,0 +1,6 @@
+{
+    "_templates": [
+        "windows-passive-host"
+    ],
+    "alias": "My first host"
+}

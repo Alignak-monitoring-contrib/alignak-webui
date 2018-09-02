@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015:
+# Copyright (c) 2015-2017:
 #   Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of (WebUI).
@@ -20,6 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
+from __future__ import print_function
 import os
 import json
 import time
@@ -31,350 +32,183 @@ import subprocess
 from nose import with_setup
 from nose.tools import *
 
-# Test environment variables
-os.environ['TEST_WEBUI'] = '1'
-os.environ['WEBUI_DEBUG'] = '0'
+# Set test mode ...
+os.environ['ALIGNAK_WEBUI_TEST'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
-print "Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE']
+print ("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
 # To load application configuration used by the objects
 import alignak_webui.app
 
-from alignak_webui import webapp
-from alignak_webui.objects.datamanager import DataManager
-import alignak_webui.utils.datatable
-
-# from logging import getLogger, DEBUG, INFO
-# loggerDm = getLogger('alignak_webui.objects.datamanager')
-# loggerDm.setLevel(DEBUG)
-
-import bottle
-from bottle import BaseTemplate, TEMPLATE_PATH
+# from alignak_webui import webapp
+from alignak_webui.backend.datamanager import DataManager
 
 from webtest import TestApp
 
-pid = None
+backend_process = None
 backend_address = "http://127.0.0.1:5000/"
 
+
 def setup_module(module):
-    print ("")
-    print ("start alignak backend")
+    # Set test mode for applications backend
+    os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+    os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-webui-tests'
 
-    global pid
-    global backend_address
+    # Delete used mongo DBs
+    exit_code = subprocess.call(
+        shlex.split('mongo %s --eval "db.dropDatabase()"'
+                    % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+    )
+    assert exit_code == 0
+    time.sleep(1)
 
-    if backend_address == "http://127.0.0.1:5000/":
-        # Set test mode for applications backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+    test_dir = os.path.dirname(os.path.realpath(__file__))
+    print("Current test directory: %s" % test_dir)
 
-        # Delete used mongo DBs
-        exit_code = subprocess.call(
-            shlex.split('mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
-        )
-        assert exit_code == 0
-        time.sleep(1)
+    print("Starting Alignak backend...")
+    global backend_process
+    fnull = open(os.devnull, 'w')
+    backend_process = subprocess.Popen(['uwsgi', '--plugin', 'python',
+                                        '-w', 'alignak_backend.app:app',
+                                        '--socket', '0.0.0.0:5000',
+                                        '--protocol=http', '--enable-threads', '--pidfile',
+                                        '/tmp/uwsgi.pid'],
+                                       stdout=fnull)
+    print("Started")
 
-        # No console output for the applications backend ...
-        pid = subprocess.Popen(
-            shlex.split('alignak_backend')
-        )
-        print ("PID: %s" % pid)
-        time.sleep(1)
-
-        print ("")
-        print ("populate backend content")
-        exit_code = subprocess.call(
-            shlex.split('alignak_backend_import --delete cfg/default/_main.cfg')
-        )
-        assert exit_code == 0
+    print("Feeding Alignak backend... %s" % test_dir)
+    exit_code = subprocess.call(
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
+        stdout=fnull
+    )
+    assert exit_code == 0
+    print("Fed")
 
 
 def teardown_module(module):
-    print ("")
-    print ("stop applications backend")
-
-    if backend_address == "http://127.0.0.1:5000/":
-        global pid
-        pid.kill()
+    print("Stopping Alignak backend...")
+    global backend_process
+    backend_process.kill()
+    # subprocess.call(['pkill', 'alignak-backend'])
+    print("Stopped")
+    time.sleep(2)
 
 
 class tests_preferences(unittest2.TestCase):
 
     def setUp(self):
-        print ""
-        print "setting up ..."
-
         # Test application
-        self.app = TestApp(
-            webapp
-        )
+        self.app = TestApp(alignak_webui.app.session_app)
 
-        print 'get login page'
         response = self.app.get('/login')
         response.mustcontain('<form role="form" method="post" action="/login">')
 
-        print 'login accepted - go to home page'
         response = self.app.post('/login', {'username': 'admin', 'password': 'admin'})
         # Redirected twice: /login -> / -> /dashboard !
         redirected_response = response.follow()
         redirected_response = redirected_response.follow()
-        redirected_response.mustcontain('<div id="dashboard">')
-        self.stored_response = redirected_response
+        session = redirected_response.request.environ['beaker.session']
+        # A host cookie now exists
+        assert self.app.cookies['Alignak-WebUI']
+        # Get a data manager
+        self.dmg = DataManager(alignak_webui.app.app, session=session)
 
     def tearDown(self):
-        print ""
-        print "tearing down ..."
-
-        print 'logout - go to login page'
         response = self.app.get('/logout')
         redirected_response = response.follow()
         redirected_response.mustcontain('<form role="form" method="post" action="/login">')
 
-    # @unittest2.skip("Broken test ...")
-    def test_1_1_global_preferences(self):
-        print ''
-        print 'test global user preferences page'
-
-        # /ping, still sends a status 200, but refresh is required
-        response = self.app.get('/ping')
-        # response.mustcontain('refresh')
-        response = self.app.get('/ping?action=done')
-        # response.mustcontain('pong')
+    @unittest2.skip("Page removed from the UI...")
+    def test_global_preferences(self):
+        """User preferences - global preferences"""
+        print('test global user preferences page')
 
         # Get user's preferences page
         response = self.app.get('/preferences/user')
         response.mustcontain(
             '<div id="user-preferences">',
-            'admin', 'Administrator',
-            'Preferences'
+            'admin',
+            """<p class="username">
+              Administrator
+            </p>""",
+            """<p class="usercategory">
+               <small>administrator</small>
+            </p>""",
+            """<div class="user-header""",
+            """<div class="user-body">""",
+            """<table class="table table-condensed table-user-identification """,
+            """<table class="table table-condensed table-user-preferences """,
+            """No user preferences"""
         )
 
-    def test_1_2_common(self):
-        print ''
-        print 'test common preferences'
+    def test_user_preference_get(self):
+        """User preference - get a stored value"""
+        print('test user preferences get a value')
 
-        ### Common preferences
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('common', None)
-        for pref in user_prefs:
-            print "Common pref: %s: %s" % (pref['type'], pref['data'])
-            datamgr.delete_user_preferences('common', pref['type'])
-        user_prefs = datamgr.get_user_preferences('common', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 0
+        # Get user's preferences value - missing key
+        print('- missing key')
+        response = self.app.get('/preference/user', status=400)
 
-        # Set a common preference named prefs
-        common_value = { 'foo': 'bar', 'foo_int': 1 }
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/common', {'key': 'prefs', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('Common preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'Common preferences saved'
+        # Get user's preferences value - not existing key without default value
+        print('- unknown key, no default value')
+        response = self.app.get('/preference/user?key=elts_per_page', status=200)
+        print(response.json)
+        assert response.json == {u'message': u'Unknown key: elts_per_page', u'status': u'ko'}
 
-        # Get common preferences
-        response = self.app.get('/preference/common', {'key': 'prefs'})
-        response_value = response.json
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 1
+        # Get user's preferences value - not existing key with default value
+        print('- unknown key, with default value')
+        response = self.app.get('/preference/user?key=test&default=default')
+        assert response.json == 'default'
 
-        # Update common preference named prefs
-        common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/common', {'key': 'prefs', 'value': json.dumps(common_value)})
-        response.mustcontain('Common preferences saved')
+    def test_user_preference_set(self):
+        """User preference - set a value to store"""
+        print('test user preferences set a value')
 
-        # Get common preferences
-        response = self.app.get('/preference/common', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
+        # Set user's preferences value - bad parameters
+        params = {}
+        response = self.app.post('/preference/user', params=params, status=400)
+        params = {'key': 'test'}
+        response = self.app.post('/preference/user', params=params, status=400)
 
+        # Set user's preferences value - simple data
+        params = {'key': 'test', 'value': 'test'}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
 
-        # Set a common preference ; simple value
-        common_value = 10
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/common', {'key': 'simple', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('Common preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'Common preferences saved'
+        # Get user's preferences value
+        response = self.app.get('/preference/user?key=test')
+        assert response.json == 'test'
 
-        # Get common preferences ; simple value
-        response = self.app.get('/preference/common', {'key': 'simple'})
-        response_value = response.json
-        response.mustcontain('value')
-        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
-        assert 'value' in response_value
-        assert response.json['value'] == 10
+        # Set user's preferences value - JSON data
+        params = {'key': 'test_json', 'value': json.dumps({'a': 1, 'b': '1'})}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
 
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('common', None)
-        for pref in user_prefs:
-            print "Common pref: %s: %s" % (pref['type'], pref['data'])
-        assert len(user_prefs) == 2
-        user_prefs = datamgr.get_user_preferences('common', None)
-        for pref in user_prefs:
-            print "Common pref to delete: %s: %s" % (pref['type'], pref['data'])
-            datamgr.delete_user_preferences('common', pref['type'])
-        user_prefs = datamgr.get_user_preferences('common', None)
-        assert len(user_prefs) == 0
+        # Get user's preferences value
+        response = self.app.get('/preference/user?key=test_json')
+        assert response.json == {'a': 1, 'b': '1'}
 
-    def test_1_3_user(self):
-        print ''
-        print 'test user preferences'
+    def test_user_preference_delete(self):
+        """User preference - set and delete a value"""
+        print('test user preferences set and delete a value')
 
-        ### User's preferences
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-            datamgr.delete_user_preferences('admin', pref['type'])
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        assert len(user_prefs) == 0
+        # Set user's preferences value - simple data
+        params = {'key': 'test', 'value': 'test'}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
 
+        # Delete user's preferences value
+        response = self.app.get('/preference/user/delete?key=test')
+        assert response.json is True
 
-        # Set a user's preference
-        common_value = { 'foo': 'bar', 'foo_int': 1 }
-        response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('User preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'User preferences saved'
+        # Set user's preferences value - JSON data
+        params = {'key': 'test_json', 'value': json.dumps({'a': 1, 'b': '1'})}
+        response = self.app.post('/preference/user', params=params)
+        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
 
-        response = self.app.get('/preference/user', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 1
-
-        # Update a user's preference
-        common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.post('/preference/user', {'key': 'prefs', 'value': json.dumps(common_value)})
-        print response
-        response.mustcontain("User preferences saved")
-
-        response = self.app.get('/preference/user', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-
-        # Set another user's preference
-        common_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.post('/preference/user', {'key': 'prefs2', 'value': json.dumps(common_value)})
-        print response
-        response.mustcontain("User preferences saved")
-
-        response = self.app.get('/preference/user', {'key': 'prefs'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-        response = self.app.get('/preference/user', {'key': 'prefs2'})
-        response_value = response.json
-        print response_value
-        assert 'foo' in response_value
-        assert response.json['foo'] == 'bar2'
-        assert 'foo_int' in response_value
-        assert response.json['foo_int'] == 2
-
-
-        # Set a user preference ; simple value
-        common_value = 10
-        # Value must be a string, so json dumps ...
-        response = self.app.post('/preference/user', {'key': 'simple', 'value': json.dumps(common_value)})
-        response_value = response.json
-        response.mustcontain('User preferences saved')
-        assert 'status' in response_value
-        assert response.json['status'] == 'ok'
-        assert 'message' in response_value
-        assert response.json['message'] == 'User preferences saved'
-
-        # Get user preferences ; simple value
-        response = self.app.get('/preference/user', {'key': 'simple'})
-        response_value = response.json
-        response.mustcontain('value')
-        # When a simple value is stored, it is always returned in a json object containing a 'value' field !
-        assert 'value' in response_value
-        assert response.json['value'] == 10
-
-
-        # Get a user preference ; default value, missing default
-        default_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.get('/preference/user', {'key': 'def'})
-        print "Body: '%s'" % response.body
-        # Response do not contain anything ...
-        assert response.body == ''
-
-
-        # Get a user preference ; default value
-        default_value = { 'foo': 'bar2', 'foo_int': 2 }
-        response = self.app.get('/preference/user', {'key': 'def', 'default': json.dumps(default_value)})
-        print response
-        response_value = response.json
-        print response_value
-        # response.mustcontain('value')
-        assert response_value == default_value
-
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        for pref in user_prefs:
-            print "Item: %s: %s" % (pref['type'], pref['data'])
-        self.assertEqual(len(user_prefs), 4)
-        for pref in user_prefs:
-            print "Item to delete: %s: %s" % (pref['type'], pref['data'])
-            datamgr.delete_user_preferences('admin', pref['type'])
-        user_prefs = datamgr.get_user_preferences('admin', None)
-        assert len(user_prefs) == 0
-
-    def test_1_4_all(self):
-        print ''
-        print 'test all preferences'
-
-        ### User's preferences
-        # Get all the preferences in the database
-        session = self.stored_response.request.environ['beaker.session']
-        datamgr = session['datamanager']
-        user_prefs = datamgr.get_user_preferences(None, None)
-        for pref in user_prefs:
-            print "Item: %s: %s for: %s" % (pref['type'], pref['data'], pref['user'])
-
-        # Item: bookmarks
-        # Item: dashboard_widgets
-        # Item: bookmarks
-        # Item: hosts_states_queue
-        # Item: services_states_queue
-        self.assertEqual(len(user_prefs), 5)
-
+        # Get user's preferences value
+        response = self.app.get('/preference/user/delete?key=test_json')
+        assert response.json is True
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

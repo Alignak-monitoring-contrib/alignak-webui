@@ -1,0 +1,20 @@
+{
+    "_sub_realm": true,
+    "password": "user_password",
+    "token": "",
+    "alias": "Web service user",
+    "back_role_super_admin": false,
+    "can_submit_commands": false,
+    "can_update_livestate": false,
+    "email": "",
+    "host_notification_period": "Never",
+    "host_notifications_enabled": false,
+    "is_admin": false,
+    "min_business_impact": 1,
+    "name": "ws_host",
+    "notes": "Host posting data on the Alignak Web Services",
+    "notificationways": [],
+    "pager": "0600000000",
+    "service_notification_period": "Never",
+    "service_notifications_enabled": false
+}

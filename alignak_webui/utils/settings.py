@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -25,17 +25,18 @@ from __future__ import print_function
 
 import os
 import traceback
-from configparser import ConfigParser
+from collections import OrderedDict
+from configparser import RawConfigParser
 
 # Do not use logger in this module ... or it may fail!
 
 
-class Settings(dict):
+class Settings(OrderedDict):
     """
     Class used to manage configuration file and application configuration
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, filenames=None):
         """
         Initialize configuration
 
@@ -46,9 +47,10 @@ class Settings(dict):
         """
         super(Settings, self).__init__()
 
-        self.filename = filename
+        self.filenames = filenames
 
-    def read(self, app_name):
+    def read(self, app_name='Alignak-WebUI'):
+        # pylint: disable=too-many-nested-blocks
         """ Read configuration file
 
         Tries to load a configuration from the following files:
@@ -72,47 +74,35 @@ class Settings(dict):
         :param app_name: application name (to build configuration file name)
 
         """
-        if not app_name:
-            return None
+        app_name = app_name.lower()
 
-        if self.filename:
-            if not isinstance(self.filename, list):
-                settings_filenames = [
-                    os.path.abspath(self.filename)
-                ]
-            else:
-                settings_filenames = self.filename
-        else:
-            settings_filenames = [
-                '/usr/local/etc/%s/settings.cfg' % app_name.lower(),
-                '/etc/%s/settings.cfg' % app_name.lower(),
-                '~/%s/settings.cfg' % app_name.lower(),
-                os.path.abspath('../etc/settings.cfg'),
-                os.path.abspath('../%s/etc/settings.cfg' % app_name.lower()),
-                './settings.cfg'
-            ]
+        settings_filenames = self.filenames
+        if not isinstance(self.filenames, list):
+            settings_filenames = [os.path.abspath(self.filenames)]
 
         try:
-            config = ConfigParser()
+            config = RawConfigParser()
             found_cfg_file = config.read(settings_filenames)
             if found_cfg_file:
                 # Build settings dictionnary for application parameters
                 for section in config.sections():
                     for option in config.options(section):
-                        # noinspection PyBroadException
-                        try:
-                            if app_name in section:
-                                self[option] = config.get(section, option)
-                            else:
-                                self[section + '.' + option] = config.get(section, option)
-                        except Exception:  # pragma: no cover - should never happen ...
-                            self[section + '.' + option] = None
-            else:  # pragma: no cover - should never happen ...
-                print("No configuration file found in %s." % settings_filenames)
+                        if app_name == section.lower():
+                            self[option] = config.get(section, option)
+                            if self[option] in ['True', 'true']:
+                                self[option] = True
+                            if self[option] in ['False', 'false']:
+                                self[option] = False
+                        else:
+                            self[section + '.' + option] = config.get(section, option)
+                            if self[section + '.' + option] in ['True', 'true']:
+                                self[section + '.' + option] = True
+                            if self[section + '.' + option] in ['False', 'false']:
+                                self[section + '.' + option] = False
 
             return found_cfg_file
-        except Exception as e:
+        except Exception as exp:  # pragma: no cover - bad formated file
             print("Bad formed configuration file.")
-            print("Exception: %s" % str(e))
+            print("Exception: %s" % str(exp))
             print("Traceback: %s" % traceback.format_exc())
             return None

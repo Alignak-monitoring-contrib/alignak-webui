@@ -6,11 +6,12 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
+%import time
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.utils.perfdata import PerfDatas
 
-<div class="col-md-6">
-   <table class="table table-condensed">
+<div class="col-sm-6">
+   <table class="table table-condensed table-overview">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -20,14 +21,14 @@
             <th colspan="2">{{_('Overview:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Name:')}}</strong></td>
-            <td>{{host.name}} ({{host.address}})</td>
+            <td>{{! host.get_html_link()}}{{_(' (%s)') % host.address if host.address else ''}}</td>
          </tr>
          <tr>
             <td><strong>{{_('Alias:')}}</strong></td>
-            <td>{{host.alias}} {{! ("<em>(%s)</em>" % host.display_name) if host.display_name else ''}}</td>
+            <td>{{host.alias}}</td>
          </tr>
          <tr>
             <td><strong>{{_('Importance:')}}</strong></td>
@@ -36,7 +37,7 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-status">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -46,41 +47,38 @@
             <th colspan="2">{{_('Status:')}}</th>
          </tr>
       </thead>
-      %if livestate:
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Status:')}}</strong></td>
             <td>
                %extra=''
-               %if livestate.acknowledged:
+               %if host.acknowledged:
                %extra += _(' and acknowledged')
                %end
-               %if livestate.downtime:
+               %if host.downtimed:
                %extra += _(' and in scheduled downtime')
                %end
-               {{! livestate.get_html_state(extra=extra)}}
+               {{! host.get_html_state(extra=extra)}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Since:')}}</strong></td>
             <td>
-               {{! Helper.print_duration(livestate.last_state_changed, duration_only=True, x_elts=0)}}
+               {{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
-      </tbody>
-      %else:
-      <tbody style="font-size:x-small;">
          <tr>
-            <td><strong>{{_('Status:')}}</strong></td>
-            <td class="alert alert-danger">
-               {{_('No livestate data for this host!')}}
+            <td><strong>{{_('Actions:')}}</strong></td>
+            <td>
+               %if current_user.is_power():
+                  {{! Helper.get_html_commands_buttons(host, _('Actions'))}}
+               %end
             </td>
          </tr>
       </tbody>
-      %end
    </table>
 
-   <table class="table table-condensed table-nowrap">
+   <table class="table table-condensed table-nowrap table-check-result">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -90,81 +88,99 @@
             <th colspan="2">{{_('Last check:')}}</th>
          </tr>
       </thead>
-      %if livestate:
-      <tbody style="font-size:x-small;">
+      <tbody>
+         %if host.active_checks_enabled:
          <tr>
-            <td><strong>{{_('Last check:')}}</strong></td>
+            <td><strong>{{_('Check command:')}}</strong></td>
             <td>
-               {{Helper.print_duration(livestate.last_check, duration_only=False, x_elts=0)}}
+               %if host.check_command != 'command':
+               {{! host.check_command.get_html_state_link(title=getattr(host.check_command, 'command_line', ''))}}
+               %else:
+               {{ host.check_command }}
+               %end
+               {{ host.check_command_args }}
             </td>
          </tr>
+         %end
+
+         %if host.last_check:
+         <tr>
+            <td><strong>{{_('When:')}}</strong></td>
+            <td>
+               {{Helper.print_duration(host.last_check, duration_only=False, x_elts=0)}}
+            </td>
+         </tr>
+         %else:
+         <tr>
+            <td></td>
+            <td class="text-danger"><strong>{{_('Not yet checked!')}}</strong></td>
+         </tr>
+         %end
+         %if host.output:
          <tr>
             <td><strong>{{_('Output:')}}</strong></td>
-            <td class="popover-dismiss popover-large"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s check output') % livestate.output}}"
-                  data-content="{{_('%s<br/>%s') % (livestate.output, livestate.long_output.replace('\n', '<br/>') if livestate.long_output else '')}}"
-                  >
-               {{! livestate.output}}
+            <td>
+               {{! host.html_output}}
             </td>
          </tr>
+         %end
+         %if host.long_output:
+         <tr>
+            <td><strong>{{_('Long output:')}}</strong></td>
+            <td>
+               {{! host.html_long_output}}
+            </td>
+         </tr>
+         %end
+         %if host.perf_data:
          <tr>
             <td><strong>{{_('Performance data:')}}</strong></td>
-            <td class="popover-dismiss popover-large ellipsis"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{_('%s performance data') % livestate.output}}"
-                  data-content=" {{livestate.perf_data if livestate.perf_data else '(none)'}}"
-                  >
-                {{livestate.perf_data if livestate.perf_data else '(none)'}}
+            <td>
+                {{! host.html_perf_data if host.perf_data else '(none)'}}
             </td>
          </tr>
+         %end
+         %if host.execution_time:
          <tr>
             <td><strong>{{_('Check duration (latency):')}}</strong></td>
             <td>
-               {{_('%.2f seconds (%.2f)') % (livestate.execution_time, livestate.latency) }}
+               {{_('%.2f seconds (%.2f)') % (host.execution_time, host.latency) }}
             </td>
          </tr>
+         %end
 
          <tr>
-            <td><strong>{{_('Last state change:')}}</strong></td>
-            <td class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{host.name}}{{_('}} last state change date')}}"
-                  data-content="{{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}"
-                  >
-                {{! Helper.print_duration(host.last_state_change, duration_only=True, x_elts=0)}}
+            <td><strong>{{_('Last state changed:')}}</strong></td>
+            <td>
+                {{! Helper.print_duration(host.last_state_changed, duration_only=True, x_elts=0)}}
             </td>
          </tr>
          <tr>
             <td><strong>{{_('Current attempt:')}}</strong></td>
             <td>
-               {{_('%s / %s %s state') % (host.attempt, livestate.max_attempts, livestate.state_type) }}
+               {{_('%s / %s %s state') % (host.current_attempt, host.max_attempts, host.state_type) }}
             </td>
          </tr>
+         %if host.active_checks_enabled:
          <tr>
             <td><strong>{{_('Next active check:')}}</strong></td>
-            <td class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                  data-title="{{host.name}}{{_('}} last state change date')}}"
-                  data-content="{{! Helper.print_duration(host.next_check, duration_only=True, x_elts=0)}}"
-                  >
-               {{! Helper.print_duration(livestate.next_check, duration_only=True, x_elts=0)}}
+            <td>
+               {{! Helper.print_duration(host.next_check, duration_only=False, x_elts=0)}}
             </td>
          </tr>
-      </tbody>
-      %else:
-      <tbody style="font-size:x-small;">
+         %end
+         %if host.active_checks_enabled and current_user.is_power():
          <tr>
-            <td><strong>{{_('Status:')}}</strong></td>
-            <td class="alert alert-danger">
-               {{_('No livestate data for this host!')}}
+            <td></td>
+            <td>
+            {{! Helper.get_html_command_button(host, 'recheck', _('Re-check this host'), 'refresh', unique=True)}}
             </td>
          </tr>
+         %end
       </tbody>
-      %end
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-check">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -174,14 +190,10 @@
             <th colspan="2">{{_('Checks configuration:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
             <td><strong>{{_('Check period:')}}</strong></td>
-            <td data-name="check_period" class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                  data-title='{{host.check_period}}'
-                  data-content='{{host.check_period}}'
-                  >
+            <td>
                {{! host.check_period.get_html_state_link()}}
             </td>
          </tr>
@@ -189,24 +201,11 @@
          %if host.maintenance_period is not None:
          <tr>
             <td><strong>{{_('Maintenance period:')}}</strong></td>
-            <td data-name="maintenance_period" class="popover-dismiss"
-                  data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                  data-title='{{host.maintenance_period}}'
-                  data-content='{{host.maintenance_period}}'
-                  >
+            <td>
                {{! host.maintenance_period.get_html_state_link()}}
             </td>
          </tr>
          %end
-
-         <tr>
-            <td><strong>{{_('Check command:')}}</strong></td>
-            <td>
-               {{! host.check_command.get_html_state_link()}}
-            </td>
-            <td>
-            </td>
-         </tr>
 
          <tr>
             <td><strong>{{_('Process performance data:')}}</strong></td>
@@ -218,7 +217,19 @@
          <tr>
             <td><strong>{{_('Active checks:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(host.active_checks_enabled)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.active_checks_enabled, message=_('Enabled') if host.active_checks_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_host_check' if host.active_checks_enabled else 'enable_host_check'}}"
+                            {{ 'checked="checked"' if host.active_checks_enabled else ''}}>
+                     <small>{{_('Enabled') if host.active_checks_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (host.active_checks_enabled):
@@ -238,14 +249,38 @@
          <tr>
             <td><strong>{{_('Passive checks:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(host.passive_checks_enabled)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.passive_checks_enabled, message=_('Enabled') if host.passive_checks_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_passive_host_checks' if host.passive_checks_enabled else 'enable_passive_host_checks'}}"
+                            {{ 'checked="checked"' if host.passive_checks_enabled else ''}}>
+                     <small>{{_('Enabled') if host.passive_checks_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (host.passive_checks_enabled):
          <tr>
             <td><strong>{{_('Freshness check:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(host.check_freshness)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.check_freshness, message=_('Enabled') if host.check_freshness else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_host_freshness_checks' if host.check_freshness else 'enable_host_freshness_checks'}}"
+                            {{ 'checked="checked"' if host.check_freshness else ''}}>
+                     <small>{{_('Enabled') if host.check_freshness else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if (host.check_freshness):
@@ -253,14 +288,18 @@
             <td><strong>{{_('Freshness threshold:')}}</strong></td>
             <td>{{host.freshness_threshold}} seconds</td>
          </tr>
+         <tr>
+            <td><strong>{{_('Freshness state:')}}</strong></td>
+            <td>{{host.get_freshness_state()}}</td>
+         </tr>
          %end
          %end
       </tbody>
    </table>
 </div>
 
-<div class="col-md-6">
-   <table class="table table-condensed">
+<div class="col-sm-6">
+   <table class="table table-condensed table-notifications">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -270,32 +309,36 @@
             <th colspan="2">{{_('Notifications:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
-            <td><strong>{{_('Notifications:')}}</strong></td>
+            <td><strong>{{_('State:')}}</strong></td>
             <td>
-               <input type="checkbox" class="switch"
-                      data-size="mini" data-on-color="success" data-off-color="danger"
-                      data-type="action" action="toggle-notifications"
-                      data-element="{{host.name}}" data-value="{{host.notifications_enabled}}"
-                      {{'checked' if host.notifications_enabled else ''}}>
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.notifications_enabled, message=_('Enabled') if host.notifications_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="notifications_enabled" name="notifications_enabled"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_host_notifications' if host.notifications_enabled else 'enable_host_notifications'}}"
+                            {{ 'checked="checked"' if host.notifications_enabled else ''}}>
+                     <small>{{_('Enabled') if host.notifications_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
 
          %if host.notifications_enabled and host.notification_period is not None:
             <tr>
                <td><strong>{{_('Notification period:')}}</strong></td>
-               <td data-name="notification_period" class="popover-dismiss"
-                     data-html="true" data-toggle="popover" data-trigger="hover" data-placement="left"
-                     data-title='{{host.notification_period}}'
-                     data-content='{{host.notification_period}}'
-                     >
+               <td>
                   {{! host.notification_period.get_html_state_link()}}
                </td>
             </tr>
             %message = {}
             %message['d'] = {'title': _('Notifications enabled on Down state'), 'message': _('DOWN')}
-            %message['u'] = {'title': _('Notifications enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+            %message['x'] = {'title': _('Notifications enabled on Unreachable state'), 'message': _('UNREACHABLE')}
             %message['r'] = {'title': _('Notifications enabled on Recovery'), 'message': _('RECOVERY')}
             %message['f'] = {'title': _('Notifications enabled on Flapping'), 'message': _('FLAPPING')}
             %message['s'] = {'title': _('Notifications enabled on Downtime'), 'message': _('DOWNTIME')}
@@ -316,7 +359,7 @@
             %end
             <tr class="bg-danger">
                <td><strong>{{_('Last notification:')}}</strong></td>
-               <td class="text-danger">Information not available!</td>
+               <td class="text-danger">{{_('Information not available!')}}</td>
             </tr>
             <tr>
                <td><strong>{{_('Notification interval:')}}</strong></td>
@@ -342,41 +385,58 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-event-handler">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
       </colgroup>
       <thead>
          <tr>
-            <th colspan="2">{{_('Event handler:')}}</th>
+            <th colspan="2">{{_('Event handling:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
-            <td><strong>{{_('Event handler enabled:')}}</strong></td>
+            <td><strong>{{_('State:')}}</strong></td>
             <td>
-               {{! Helper.get_on_off(host.event_handler_enabled)}}
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.event_handler_enabled, message=_('Enabled') if host.event_handler_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="event_handler_enabled" name="event_handler_enabled"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_host_event_handler' if host.event_handler_enabled else 'enable_host_event_handler'}}"
+                            {{ 'checked="checked"' if host.event_handler_enabled else ''}}>
+                     <small>{{_('Enabled') if host.event_handler_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
-         %if host.event_handler_enabled and host.event_handler:
+         %if host.event_handler_enabled:
+         %if host.event_handler:
          <tr>
             <td><strong>{{_('Event handler:')}}</strong></td>
+            %if host.event_handler!='command':
             <td>
-               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name() }}</a>
+               <a href="/commands#{{host.event_handler.name}}">{{ host.event_handler.name }}</a>
             </td>
+            %else:
+            <td class="text-warning">{{_('No event handler is defined for this host. Alignak will use the globally defined event handler.')}}</td>
+            %end
          </tr>
-         %end
-         %if host.event_handler_enabled and not host.event_handler:
+         %else:
          <tr>
             <td></td>
             <td><strong>{{_('No event handler defined.')}}</strong></td>
          </tr>
          %end
+         %end
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   <table class="table table-condensed table-flapping">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -386,22 +446,30 @@
             <th colspan="2">{{_('Flapping detection:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
+      <tbody>
          <tr>
-            <td><strong>{{_('Flapping detection:')}}</strong></td>
+            <td><strong>{{_('State:')}}</strong></td>
             <td>
-               <input type="checkbox" class="switch"
-                      data-size="mini" data-on-color="success" data-off-color="danger"
-                      data-type="action" action="toggle-flap-detection"
-                      data-element="{{host.name}}" data-value="{{host.flap_detection_enabled}}"
-                      {{'checked' if host.flap_detection_enabled else ''}}>
+               %if not current_user.is_power():
+                  {{! Helper.get_on_off(host.flap_detection_enabled, message=_('Enabled') if host.flap_detection_enabled else _('Disabled'))}}
+               %else:
+               <div class="togglebutton">
+                  <label>
+                     <input type="checkbox" id="flap_detection_enabled" name="flap_detection_enabled"
+                            data-action="command" data-type="host" data-name="{{host.name}}"
+                            data-element="{{host.id}}" data-command="{{'disable_host_flap_detection' if host.flap_detection_enabled else 'enable_host_flap_detection'}}"
+                            {{ 'checked="checked"' if host.flap_detection_enabled else ''}}>
+                     <small>{{_('Enabled') if host.flap_detection_enabled else _('Disabled') }}</small>
+                  </label>
+               </div>
+               %end
             </td>
          </tr>
          %if host.flap_detection_enabled:
             %message = {}
             %message['o'] = {'title': _('Flapping enabled on Up state'), 'message': _('UP')}
             %message['d'] = {'title': _('Flapping enabled on Down state'), 'message': _('DOWN')}
-            %message['u'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+            %message['x'] = {'title': _('Flapping enabled on Unreachable state'), 'message': _('UNREACHABLE')}
             %first=True
             %for m in message:
                <tr>
@@ -428,7 +496,8 @@
       </tbody>
    </table>
 
-   <table class="table table-condensed">
+   %if not host.stalking_options:
+   <table class="table table-condensed table-stalking">
       <colgroup>
          <col style="width: 40%" />
          <col style="width: 60%" />
@@ -438,11 +507,26 @@
             <th colspan="2">{{_('Stalking options:')}}</th>
          </tr>
       </thead>
-      <tbody style="font-size:x-small;">
-         <tr>
-            <td><strong>{{_('Stalking options:')}}</strong></td>
-            <td>{{', '.join(host.stalking_options)}}</td>
-         </tr>
+      <tbody>
+         %message = {}
+         %message['o'] = {'title': _('Log enabled on Up state'), 'message': _('UP')}
+         %message['d'] = {'title': _('Log enabled on Down state'), 'message': _('DOWN')}
+         %message['x'] = {'title': _('Log enabled on Unreachable state'), 'message': _('UNREACHABLE')}
+         %first=True
+         %for m in message:
+            <tr>
+               %if first:
+                  <td><strong>{{_('Options:')}}</strong></td>
+                  %first=False
+               %else:
+                  <td></td>
+               %end
+               <td>
+                  {{! Helper.get_on_off(m in host.stalking_options, message[m]['title'], '&nbsp;' + message[m]['message'])}}
+               </td>
+            </tr>
+         %end
       </tbody>
    </table>
+   %end
 </div>

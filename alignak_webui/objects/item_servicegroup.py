@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -26,16 +26,11 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
 class ServiceGroup(BackendElement):
-    """
-    Object representing a servicegroup
-    """
+    """Object representing a servicegroup"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -44,34 +39,56 @@ class ServiceGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
-        """
-        Create a servicegroup (called only once when an object is newly created)
-        """
+    # Converting real state identifier to text status
+    overall_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'nope'
+    ]
+
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        """Create a servicegroup (called only once when an object is newly created)"""
         self._linked_servicegroups = 'servicegroup'
         self._linked__parent = 'servicegroup'
+        self._linked__realm = 'realm'
         self._linked_services = 'service'
 
-        super(ServiceGroup, self)._create(params, date_format)
+        super(ServiceGroup, self).__init__(params, date_format, embedded)
+
+        if not hasattr(self, '_overall_state'):
+            setattr(self, '_overall_state', 0)
+
+    @property
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def members(self):
-        """ Return linked object """
+        """Return linked object"""
+        return self._linked_services
+
+    @property
+    def services(self):
+        """Return linked object"""
         return self._linked_services
 
     @property
     def servicegroups(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_servicegroups
 
     @property
-    def parent(self):
-        """ Return group parent """
+    def _parent(self):
+        """Return group parent"""
         return self._linked__parent
 
     @property
     def level(self):
-        """ Return group level """
+        """Return group level"""
         if not hasattr(self, '_level'):
             return -1
         return self._level
+
+    @property
+    def overall_state(self):
+        """Return real state identifier"""
+        return self._overall_state

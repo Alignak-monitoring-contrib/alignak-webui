@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Command(BackendElement):
-    """
-    Object representing a command
-    """
+    """Object representing a command"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -41,9 +39,19 @@ class Command(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
+    # Default command common fields
+    _name = 'Undefined command'
+
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        # Not that bad ... because __init__ is called from __new__
+        # pylint: disable=attribute-defined-outside-init
+        """Create a host (called only once when an object is newly created)"""
+
+        self._linked__realm = 'realm'
+
+        super(Command, self).__init__(params, date_format, embedded)
+
     @property
-    def endpoint(self):
-        """
-        Overload default property. Link to the main objects page with an anchor.
-        """
-        return '/%ss#%s' % (self.object_type, self.id)
+    def _realm(self):
+        """ Return concerned realm """
+        return self._linked__realm

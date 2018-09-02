@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -26,16 +26,11 @@
 """
     This module contains the classes used to manage the users groups in the backend.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
 class UserGroup(BackendElement):
-    """
-    Object representing a user group
-    """
+    """Object representing a users group"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -44,34 +39,43 @@ class UserGroup(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
-        """
-        Create a contactgroup (called only once when an object is newly created)
-        """
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        """Create a usergroup (called only once when an object is newly created)"""
         self._linked_usergroups = 'usergroup'
         self._linked__parent = 'usergroup'
+        self._linked__realm = 'realm'
         self._linked_users = 'user'
 
-        super(UserGroup, self)._create(params, date_format)
+        super(UserGroup, self).__init__(params, date_format, embedded)
+
+    @property
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def members(self):
-        """ Return linked object """
+        """Return linked object"""
+        return self._linked_users
+
+    @property
+    def users(self):
+        """Return linked object"""
         return self._linked_users
 
     @property
     def usergroups(self):
-        """ Return linked object """
+        """Return linked object"""
         return self._linked_usergroups
 
     @property
-    def parent(self):
-        """ Return group parent """
+    def _parent(self):
+        """Return group parent"""
         return self._linked__parent
 
     @property
     def level(self):
-        """ Return group level """
+        """Return group level"""
         if not hasattr(self, '_level'):
             return -1
         return self._level

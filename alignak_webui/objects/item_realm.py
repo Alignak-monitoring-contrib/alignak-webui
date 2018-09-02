@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class Realm(BackendElement):
-    """
-    Object representing a realm
-    """
+    """Object representing a realm"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -41,20 +39,39 @@ class Realm(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
-        """
-        Create a realm (called only once when an object is newly created)
-        """
-        self._linked__parent = 'realm'
+    # Converting real state identifier to text status
+    overall_state_to_status = [
+        'ok', 'acknowledged', 'in_downtime', 'warning', 'critical', 'nope'
+    ]
 
-        super(Realm, self)._create(params, date_format)
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        """Create a realm (called only once when an object is newly created)"""
+        self._linked__parent = 'realm'
+        self._linked__children = 'realm'
+
+        super(Realm, self).__init__(params, date_format, embedded)
 
     @property
-    def parent(self):
-        """ Return group parent """
+    def members(self):
+        """Return linked object"""
+        return self._linked_hosts
+
+    @property
+    def hosts(self):
+        """Return linked object"""
+        return self._linked_hosts
+
+    @property
+    def realms(self):
+        """Return linked object"""
+        return self._linked__children
+
+    @property
+    def _parent(self):
+        """Return realm parent"""
         return self._linked__parent
 
     @property
     def level(self):
-        """ Return group level """
+        """Return realm level"""
         return self._level

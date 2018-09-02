@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ ${ALIGNAK_WEBUI_UWSGI_FILE} ]; then
+    ALIGNAK_WEBUI_UWSGI_CFG="$ALIGNAK_WEBUI_UWSGI_FILE"
+else
+    ALIGNAK_WEBUI_UWSGI_CFG="/usr/local/etc/alignak-webui/uwsgi.ini"
+fi
+echo "Alignak WebUI uWSGI configuration file: ${ALIGNAK_WEBUI_UWSGI_CFG}"
+
+if [ ${ALIGNAK_WEBUI_CONFIGURATION_FILE} ]; then
+    ALIGNAK_WEBUI_CFG="$ALIGNAK_WEBUI_CONFIGURATION_FILE"
+else
+    ALIGNAK_WEBUI_CFG="/usr/local/etc/alignak-webui/settings.cfg"
+fi
+echo "Alignak WebUI configuration file: ${ALIGNAK_WEBUI_CFG}"
+
+uwsgi --ini "$ALIGNAK_WEBUI_UWSGI_CFG"

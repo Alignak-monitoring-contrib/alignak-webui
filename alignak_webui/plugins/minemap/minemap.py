@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -28,93 +28,107 @@ from logging import getLogger
 
 from bottle import request
 
-from alignak_webui import _
+from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Plugin's parameters
-plugin_parameters = {
-}
+class PluginMinemap(Plugin):
+    """ Minemap plugin """
 
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """Minemap plugin"""
+        self.name = 'Minemap'
+        self.backend_endpoint = None
 
-def show_minemap():
-    """
-    Get the hosts list to build a minemap
-    """
-    # Yes, but that's how it is made, and it suits ;)
-    # pylint: disable=too-many-locals
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
+        self.pages = {
+            'show_minemap': {
+                'name': 'Minemap',
+                'route': '/minemap',
+                'view': 'minemap'
+            }
+        }
 
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
+        super(PluginMinemap, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
+        self.search_engine = True
+        self.search_filters = {
+            '01': (_('Ok'), 'is:ok'),
+            '02': (_('Acknowledged'), 'is:acknowledged'),
+            '03': (_('Downtimed'), 'is:in_downtime'),
+            '04': (_('Warning'), 'is:warning'),
+            '05': (_('Critical'), 'is:critical'),
+            '06': ('', ''),
+        }
 
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = Helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'where': where,
-        'embedded': {}
-    }
+    def show_minemap(self):
+        # Yes, but that's how it is made, and it suits ;)
+        # pylint: disable=too-many-locals
+        """Get the hosts / services list to build a minemap"""
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
 
-    # Get elements from the data manager
-    # hosts = datamgr.get_hosts(search)
-    hosts = datamgr.get_livestate_hosts(search)
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
 
-    minemap = []
-    columns = []
-    for host in hosts:
-        minemap_row = {'host_check': host}
+        # Minemap search engine is based upon host table
+        plugin = self.webui.find_plugin('host')
 
-        # services = datamgr.get_services(search={'where': {'host': host.id}})
-        services = datamgr.get_livestate_services(
-            search={'where': {'host': host.host.id}}
-        )
-        if services:
-            for service_check in services:
-                if isinstance(service_check.service, basestring):
-                    logger.critical(service_check.__dict__)
-                else:
-                    columns.append(service_check.service.name)
-                    minemap_row.update({service_check.service.name: service_check})
+        # Pagination and search
+        start = int(request.params.get('start', '0'))
+        count = int(request.params.get('count', elts_per_page))
+        if count < 1:
+            count = elts_per_page
+        search = Helper.decode_search(request.params.get('search', ''), plugin.table)
+        logger.info("Decoded search pattern: %s", search)
+        for key, pattern in search.iteritems():
+            logger.info("global search pattern '%s' / '%s'", key, pattern)
 
-        minemap.append(minemap_row)
+        search = {
+            'page': (start // count) + 1,
+            'max_results': count,
+            'where': search,
+            'sort': '-_overall_state_id'
+        }
 
-    # Sort column names by most frequent ...
-    count_columns = collections.Counter(columns)
-    columns = [c for c, dummy in count_columns.most_common()]
+        # Get elements from the data manager
+        # Do not include the embedded fields to improve the loading time...
+        hosts = datamgr.get_hosts(search, embedded=False)
 
-    # Get last total elements count
-    total = datamgr.get_objects_count('host', search=where, refresh=True)
-    count = min(len(hosts), total)
+        minemap = []
+        columns = []
+        for host in hosts:
+            # Each item contains the total number of records matching the search filter
+            total = host['_total']
+            minemap_row = {'host_check': host}
 
-    return {
-        'params': plugin_parameters,
-        'minemap': minemap,
-        'columns': columns,
-        'pagination': webui.helper.get_pagination_control('/minemap', total, start, count),
-        'title': request.query.get('title', _('Hosts minemap'))
-    }
+            # Get all host services
+            # Do not include the embedded fields to improve the loading time...
+            services = datamgr.get_services(
+                search={
+                    'where': {'host': host.id},
+                    'sort': '-_overall_state_id'
+                },
+                all_elements=True, embedded=False
+            )
+            for service in services:
+                columns.append(service.name)
+                minemap_row.update({service.name: service})
 
+            minemap.append(minemap_row)
 
-# We export our properties to the webui
-pages = {
-    show_minemap: {
-        'name': 'Minemap',
-        'route': '/minemap',
-        'view': 'minemap'
-    }
-}
+        # Sort column names by most frequent ...
+        count_columns = collections.Counter(columns)
+        columns = [c for c, dummy in count_columns.most_common()]
+
+        return {
+            'search_engine': self.search_engine,
+            'search_filters': self.search_filters,
+            'params': self.plugin_parameters,
+            'minemap': minemap,
+            'columns': columns,
+            'pagination': self.webui.helper.get_pagination_control('/minemap', total, start, count),
+            'title': request.query.get('title', _('Hosts minemap'))
+        }

@@ -1,17 +1,23 @@
 %from bottle import request
-%from alignak_webui import _
+%import json
 
 %#Set default values
+%# debug the HTML templates
 %setdefault('debug', False)
+
+%# Extra css and jss to be loaded
 %setdefault('js', [])
 %setdefault('css', [])
+%# Callback javascript function to call when extra files are loaded
+%setdefault('callback', None)
+
+%# Page title
 %setdefault('title', _('Untitled...'))
+
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
-%setdefault('refresh_header', True)
 %setdefault('current_user', None)
-%setdefault('target_user', None)
-%setdefault('sidebar', False)
+%setdefault('options_panel', True)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
@@ -19,20 +25,18 @@
 %setdefault('edition_mode', False)
 
 %username = current_user.get_username()
-%if not target_user.is_anonymous():
-%username = target_user.get_username()
-%end
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
    <head>
       <!--
+      <!--
          %# Web UI application about content
          %from bottle import request
-         %from alignak_webui import manifest
+         %from alignak_webui import __manifest__
          This file is a part of {{request.app.config.get('name', 'WebUI')}}.
 
-         {{request.app.config.get('about_name', manifest['name'])}} {{request.app.config.get('about_version', manifest['version'])}}, &copy;&nbsp;{{request.app.config.get('about_copyright', manifest['copyright'])}}
+         {{request.app.config.get('about_name', __manifest__['name'])}} {{request.app.config.get('about_version', __manifest__['version'])}}, &copy;&nbsp;{{request.app.config.get('about_copyright', __manifest__['copyright'])}}
       -->
 
       <!--[if lt IE 9]>
@@ -47,75 +51,13 @@
 
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
-      <!-- Stylesheets
-      ================================================== -->
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/bootstrap4/bootstrap.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap.min.css" >
-      <link rel="stylesheet" href="/static/css/bootstrap3/bootstrap-theme.min.css" >
-      %end
-      <link rel="stylesheet" href="/static/css/font-awesome.min.css" >
-      <link rel="stylesheet" href="/static/css/typeahead.css" >
-      <link rel="stylesheet" href="/static/css/daterangepicker.css" >
-      <link rel="stylesheet" href="/static/css/alertify.min.css" >
-      <link rel="stylesheet" href="/static/css/alertify.bootstrap.min.css" >
-
-      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
-      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
-
-      <link rel="stylesheet" href="/static/css/timeline.css" >
-
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Material Design fonts -->
-      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-      <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
-
-      <!-- Bootstrap Material Design -->
-      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
-      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
-      -->
+      <!-- Stylesheets -->
+      %# WebUI CSS files
+      %for f in webui.css_list:
+      <link rel="stylesheet" href="{{f}}">
       %end
 
-      <!-- jsTree jQuery plugin -->
-      <link rel="stylesheet" href="/static/css/jstree/style.min.css" >
-
-      <!-- Datatables jQuery plugin - download builder file
-      <link rel="stylesheet" href="/static/css/datatables/all_datatables.min.css" >
-      -->
-      <!-- Datatable, CDN version:
-      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-flash-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.css"/>
-      -->
-      <!-- Datatables jQuery plugin - separate files -->
-      <link rel="stylesheet" href="/static/css/datatables/jquery.dataTables.min.css" >
-      %if request.app.config.get('material_design', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/dataTables.material.min.css" >
-      %else:
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap4.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/datatables/dataTables.bootstrap.min.css" >
-      %end
-      %end
-
-      <link rel="stylesheet" href="/static/css/datatables/responsive.dataTables.min.css" >
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/responsive.bootstrap4.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/datatables/responsive.bootstrap.min.css" >
-      %end
-
-      <link rel="stylesheet" href="/static/css/datatables/buttons.dataTables.min.css" >
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <link rel="stylesheet" href="/static/css/datatables/buttons.bootstrap4.min.css" >
-      %else:
-      <link rel="stylesheet" href="/static/css/datatables/buttons.bootstrap.min.css" >
-      %end
-
-      <link rel="stylesheet" href="/static/css/datatables/select.dataTables.min.css" >
-      <link rel="stylesheet" href="/static/css/datatables/select.bootstrap.min.css" >
-
-      %# Specific CSS files
+      <!-- Specific page stylesheets...-->
       %for f in css:
       <link rel="stylesheet" href="/static/plugins/{{f}}">
       %end
@@ -124,65 +66,13 @@
       ================================================== -->
       <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Search for hosts and services in Alignak WebUI" />
 
-      <!-- Scripts
-      ================================================== -->
-      <script type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
-      <script type="text/javascript" src="/static/js/jquery-ui-1.11.4.min.js"></script>
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/bootstrap4/bootstrap.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/bootstrap3/bootstrap.min.js"></script>
-      %end
       <!--
-      <script type="text/javascript" src="/static/js/bootstrap-tab-bookmark.js"></script>
+         Application libraries
       -->
-      <script type="text/javascript" src="/static/js/moment-with-langs.min.js"></script>
-      <script type="text/javascript" src="/static/js/daterangepicker.js"></script>
-      <script type="text/javascript" src="/static/js/jquery.jclock.js"></script>
-      <script type="text/javascript" src="/static/js/jquery.jTruncate.js"></script>
-      <script type="text/javascript" src="/static/js/alertify.min.js"></script>
-      <script type="text/javascript" src="/static/js/typeahead.bundle.min.js"></script>
-      <script type="text/javascript" src="/static/js/screenfull.js"></script>
-
-      <!-- jQuery Chart -->
-      <script type="text/javascript" src="/static/js/Chart.min.js"></script>
-
-      <!-- jsTree jQuery plugin -->
-      <script type="text/javascript" src="/static/js/jstree.min.js"></script>
-
-      <!-- Datatables jQuery plugin - download builder file
-      <script type="text/javascript" src="/static/js/datatables/all_datatables.min.js"></script>
-      -->
-      <!-- Datatable, CDN version:
-      <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/pdfmake-0.1.18/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/b-flash-1.2.1/b-html5-1.2.1/b-print-1.2.1/r-2.1.0/se-1.2.0/datatables.min.js"></script>
-      -->
-      <!-- Datatables jQuery plugin - separate files -->
-      <script type="text/javascript" src="/static/js/datatables/jquery.dataTables.min.js"></script>
-      %if request.app.config.get('material_design', '0') == '1':
-      <script type="text/javascript" src="/static/js/datatables/dataTables.material.min.js"></script>
-      %else:
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/datatables/dataTables.bootstrap4.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/datatables/dataTables.bootstrap.min.js"></script>
+      %# WebUI Javascript files
+      %for f in webui.js_list:
+      <script type="text/javascript" src="{{f}}"></script>
       %end
-      %end
-
-      <script type="text/javascript" src="/static/js/datatables/dataTables.responsive.min.js"></script>
-      %if request.app.config.get('bootstrap4', '0') == '1':
-      <script type="text/javascript" src="/static/js/datatables/responsive.bootstrap4.min.js"></script>
-      %else:
-      <script type="text/javascript" src="/static/js/datatables/responsive.bootstrap.min.js"></script>
-      %end
-
-      <script type="text/javascript" src="/static/js/datatables/dataTables.buttons.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.bootstrap.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.colVis.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.flash.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.html5.min.js"></script>
-      <script type="text/javascript" src="/static/js/datatables/buttons.print.min.js"></script>
-
-      <script type="text/javascript" src="/static/js/datatables/dataTables.select.min.js"></script>
 
       <!--
        Application globals ...
@@ -200,13 +90,6 @@
       var app_refresh_period = {{int(request.app.config.get('refresh_period', '60'))}};
       </script>
       <script src="/static/js/alignak_webui-refresh.js"></script>
-      %end
-      %if refresh_header:
-      <script>
-      var header_refresh_period = {{int(request.app.config.get('header_refresh_period', '30'))}};
-      </script>
-      %else:
-      var header_refresh_period = 0;
       %end
 
       <script src="/static/js/alignak_webui-external.js"></script>
@@ -234,13 +117,22 @@
                         <strong>User</strong>: {{current_user}}
                      </small></div>
                      <div><small>
-                        <strong>Target user</strong>: {{target_user}}
-                     </small></div>
-                     <div><small>
                         <strong>Request</strong>:
                         <div class="panel panel-default">
                            <div class="panel-heading">
-                              <a data-toggle="collapse" href="#panel2">Request['environ']:</a>
+                              <a data-toggle="collapse" href="#panel4">request['headers']:</a>
+                           </div>
+                           <div id="panel4" class="panel-collapse collapse">
+                              <ul class="list-group">
+                                 %for k in request.headers:
+                                    <li class="list-group-item"><small>{{k}} - {{request.headers[k]}}</small></li>
+                                 %end
+                              </ul>
+                           </div>
+                        </div>
+                        <div class="panel panel-default">
+                           <div class="panel-heading">
+                              <a data-toggle="collapse" href="#panel2">request['environ']:</a>
                            </div>
                            <div id="panel2" class="panel-collapse collapse">
                               <ul class="list-group">
@@ -252,11 +144,11 @@
                         </div>
                         <div class="panel panel-default">
                            <div class="panel-heading">
-                              <a data-toggle="collapse" href="#panel3">Request['app']:</a>
+                              <a data-toggle="collapse" href="#panel3">request['app'] / request.environ['bottle.app']:</a>
                            </div>
                            <div id="panel3" class="panel-collapse collapse">
                               <ul class="list-group">
-                                 %for k in request.app.__dict__:
+                                 %for k in request.environ['bottle.app'].__dict__:
                                     <li class="list-group-item"><small>{{k}} - {{request.app.__dict__[k]}}</small></li>
                                  %end
                               </ul>
@@ -300,19 +192,28 @@
          %end
 
          <div class="row">
-            % if sidebar:
-            <div class="{{'col-sidebar' if sidebar else ''}}">
-               <!-- Sidebar menu ... -->
-               %include("_sidebar.tpl")
+            % if options_panel:
+            <div id="options-panel">
+               <div class="card slider-card">
+                  <h3>{{_('Top ten hosts:')}}</h3>
+                  <div class="list-group list-group-flush">
+                   %for host in datamgr.my_hosts:
+                      <li class="list-group-item">
+                      {{! host.get_html_state(text=None, use_status=host.overall_status)}}
+                      {{!host.get_html_link()}}
+                      </li>
+                   %end
+                  </div>
+               </div>
             </div>
             %end
 
             <!-- All the content of #page-content is updated when the page refreshes. -->
-            <div id="page-content" class="{{'col-offset-sidebar' if sidebar else 'col-md-12'}}">
+            <div id="page-content" class="col-xs-12">
                <!-- Page content header -->
                <section class="content-header">
                   %if pagination:
-                  %include("_pagination_element", pagination=pagination, page=page, elts_per_page=elts_per_page, display_steps_form=True)
+                  %include("_pagination_element", pagination=pagination, elts_per_page=elts_per_page, display_steps_form=True)
                   %end
                </section>
 
@@ -324,7 +225,7 @@
                %if pagination_bottom:
                <!-- Page content footer -->
                <section class="content-footer">
-                  %include("_pagination_element", pagination=pagination, page=page, elts_per_page=None)
+                  %include("_pagination_element", pagination=pagination, elts_per_page=None)
                </section>
                %end
             </div>
@@ -333,42 +234,73 @@
 
       %include("_footer", commands=True)
 
-      <!-- A modal div that will be filled and shown when we want forms ... -->
-      <div id="mainModal" class="modal fade" role="dialog" aria-labelledby="{{_('Generic modal box')}}" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <h4 class="modal-title">{{_('Generic modal box')}}</h4>
-               </div>
-               <div class="modal-body">
-                  <!-- Filled by application ... -->
-               </div>
-               <div class="modal-footer">
-                  <a href="#" class="btn btn-default" data-dismiss="modal">{{_('Close')}}</a>
-               </div>
-            </div>
-         </div>
-      </div>
+      %include("modal_waiting")
 
-      <!-- Specific scripts ... -->
-      %# Specific Js files ...
+      %include("_main_modal")
+
+      <!-- Specific page scripts ...-->
+      <!--<script>
+         import L from 'leaflet';
+         import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+      </script>-->
       %for f in js:
       <script type="text/javascript" src="/static/plugins/{{f}}"></script>
       %end
 
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design
-      -->
-      <script src="/static/js/material/material.min.js"></script>
-      <script src="/static/js/material/ripples.min.js"></script>
-
-      <!--
-      <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
-      <script defer src="https://cdn.datatables.net/1.10.12/js/dataTables.material.min.js"></script>
-      -->
       <script>
-      $.material.init();
+      $(document).ready(function() {
+         // Initialize alertify library
+         alertify.defaults.transition = "slide";
+         alertify.defaults.theme.ok = "btn btn-primary";
+         alertify.defaults.theme.cancel = "btn btn-danger";
+         alertify.defaults.theme.input = "form-control";
+
+         $.material.init();
+
+         %if callback:
+         window.setTimeout(function () {
+            console.log("Plugin callback function: {{callback}}");
+            {{callback}}();
+         }, 100);
+         %end
+
+         % if options_panel:
+         $('#options-panel').BootSideMenu({
+            // 'left' or 'right'
+            side: "left",
+            // animation speed
+            duration: 500,
+            // restore last menu status on page refresh
+            remember: true,
+            // auto close
+            autoClose: false,
+            // push the whole page
+            pushBody: true,
+            // close on click
+            closeOnClick: true,
+            // width
+            width: "30%",
+            onTogglerClick: function () {
+               //code to be executed when the toggler arrow was clicked
+            },
+            onBeforeOpen: function () {
+               //code to be executed before menu open
+            },
+            onBeforeClose: function () {
+               //code to be executed before menu close
+            },
+            onOpen: function () {
+               //code to be executed after menu open
+            },
+            onClose: function () {
+               //code to be executed after menu close
+            },
+            onStartup: function () {
+               //code to be executed when the plugin is called
+            }
+         });
+         %end
+      });
       </script>
-      %end
    </body>
 </html>

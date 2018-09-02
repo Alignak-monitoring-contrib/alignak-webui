@@ -1,14 +1,20 @@
 %setdefault('read_only', False)
 %setdefault('auto_post', False)
 
+%setdefault('form_class', 'form-horizontal')
+
 %# downtime attributes
+%setdefault('element', 'downtime')
 %setdefault('action', 'add')
-%setdefault('livestate_id', '-1')
+%setdefault('element_id', '-1')
+%setdefault('elements_type', 'host')
+%setdefault('element_name', 'unknown')
+
 %setdefault('fixed', True)
 %setdefault('duration', False)
 
 <div class="modal-header">
-   <a class="close" data-refresh="start" data-dismiss="modal">×</a>
+   <a class="close" data-dismiss="modal">×</a>
    <h3>{{title}}</h3>
    <small><em>
       {{', '.join(element_name)}}
@@ -16,20 +22,21 @@
 </div>
 
 <div class="modal-body">
-   <form data-item="downtime" data-action="{{action}}" class="form-horizontal" method="post" action="/downtime/add" role="form">
+   <form class="{{form_class}}" data-item="{{element}}" data-action="{{action}}" method="post" action="/{{element}}/{{action}}" role="form">
       <div class="form-group" style="display: none">
-         %for id in livestate_id:
-         <input type="text" readonly id="livestate_id" name="livestate_id" value="{{id}}">
+         %for id in element_id:
+         <input type="text" readonly id="element_id" name="element_id" value="{{id}}">
          %end
          %for name in element_name:
          <input type="text" readonly id="element_name" name="element_name" value="{{name}}">
          %end
+         <input type="text" readonly id="elements_type" name="elements_type" value="{{elements_type}}">
       </div>
 
       <div class="form-group">
-         <div class="col-sm-12">
-            <label class="col-sm-3 control-label">{{_('Downtime options')}}</label>
-            <div class="checkbox col-sm-9">
+         <div class="col-xs-12">
+            <label class="col-xs-4 control-label">{{_('Downtime options')}}</label>
+            <div class="checkbox col-xs-8">
                <label>
                   <input type="checkbox" name="fixed" {{'checked' if fixed else ''}} value="{{fixed}}"> {{_('Fixed')}}
                </label>
@@ -38,23 +45,23 @@
       </div>
 
       <div class="form-group">
-         <label class="col-sm-3 control-label" for="duration">{{_('Duration')}}</label>
-         <div class="col-sm-offset-3 col-sm-8 input-group">
+         <label class="col-xs-4 control-label" for="duration">{{_('Duration')}}</label>
+         <div class="col-xs-offset-4 col-xs-8 input-group">
             <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
             <input type="text" name="duration" id="duration" class="form-control" value="{{duration}}"/>
          </div>
       </div>
 
       <div class="form-group">
-         <label class="col-sm-3 control-label" for="dtr_downtime">{{_('Downtime date range')}}</label>
-         <div class="col-sm-offset-3 col-sm-8 input-group">
+         <label class="col-xs-4 control-label" for="dtr_downtime">{{_('Downtime date range')}}</label>
+         <div class="col-xs-offset-4 col-xs-8 input-group">
             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
             <input type="text" name="dtr_downtime" id="dtr_downtime" class="form-control" />
          </div>
       </div>
 
       <div class="form-group">
-         <div class="col-sm-12">
+         <div class="col-xs-12">
             <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
          </div>
       </div>
@@ -64,7 +71,7 @@
          <input type="text" readonly name="end_time" id="end_time" value="{{end_time}}" />
       </div>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request downtime')}}</button>
+      <button type="submit" class="btn btn-success btn-lg btn-raised"> <i class="fa fa-check"></i>&nbsp;{{_('Request downtime')}}</button>
    </form>
 </div>
 
@@ -150,7 +157,7 @@ $(document).ready(function(){
 
    // When update dates on apply button ...
    $('#dtr_downtime').on('apply.daterangepicker', function(ev, picker) {
-      console.log("Apply", picker.startDate.format('MM/DD/YYYY'));
+      //console.log("Apply", picker.startDate.format('MM/DD/YYYY'));
       $('#start_time').val(picker.startDate.format('X'));
       $('#end_time').val(picker.endDate.format('X'));
    });

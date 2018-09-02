@@ -6,12 +6,13 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%if not services:
+%if not elements:
    <center>
-      <h3>{{_('No services matching the filter...')}}</h3>
+      <h4>{{_('No services matching the filter...')}}</h4>
    </center>
 %else:
-   %ss = datamgr.get_livesynthesis()['services_synthesis']
+   %lv = datamgr.get_livesynthesis()
+   %ss = lv['services_synthesis']
    %if ss:
    <div class="well">
       <!-- Chart -->
@@ -27,9 +28,9 @@
       var data=[], labels=[], colors=[], hover_colors=[];
       %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
          labels.push(g_services_states["{{state.lower()}}"]['label']);
-         data.push({{ss["nb_" + state]}});
+         data.push({{ss["nb_" + state] if ss["nb_" + state] >= 0 else 0}});
          colors.push(g_services_states["{{state.lower()}}"]['color'])
-         hover_colors.push(g_hoverBackgroundColor)
+         hover_colors.push(g_services_states["{{state.lower()}}"]['background'])
       %end
       var data = {
          labels: labels,
@@ -48,6 +49,8 @@
          type: 'doughnut',
          data: data,
          options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                display: true,
                text: '{{title}}'

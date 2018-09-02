@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,9 +30,7 @@ from alignak_webui.objects.element import BackendElement
 
 
 class UserRestrictRole(BackendElement):
-    """
-    Object representing a realm
-    """
+    """Object representing a user restriction role"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -41,11 +39,19 @@ class UserRestrictRole(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
-        """
-        Create a userrestrictrole (called only once when an object is newly created)
-        """
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        """Create a userrestrictrole (called only once when an object is newly created)"""
         self._linked_user = 'user'
         self._linked_realm = 'realm'
 
-        super(UserRestrictRole, self)._create(params, date_format)
+        super(UserRestrictRole, self).__init__(params, date_format, embedded)
+
+    @property
+    def realm(self):
+        """Return linked object"""
+        return self._linked_realm
+
+    @property
+    def user(self):
+        """Return linked object"""
+        return self._linked_user

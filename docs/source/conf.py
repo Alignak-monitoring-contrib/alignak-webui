@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Alignak Web UI'
-copyright = u'2015, Frédéric MOHIER'
+copyright = u'2015-2016, Frédéric MOHIER'
 author = u'Frédéric MOHIER'
 
 # The version info for the project you're documenting, acts as replacement for

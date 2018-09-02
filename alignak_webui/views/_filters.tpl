@@ -1,70 +1,70 @@
-%setdefault("common_bookmarks", datamgr.get_user_preferences('common', 'bookmarks', []))
-%setdefault("user_bookmarks", datamgr.get_user_preferences(current_user.get_username(), 'bookmarks', []))
-
 %from bottle import request
-%# If current page defines its own search criteria...
-%search_filters = {}
-%if 'search_engine' in request.route.config and request.route.config['search_engine']:
-%search_action = request.fullpath
-%search_prefix = request.route.config['search_prefix']
-%search_filters = request.route.config['search_filters']
-%search_name = request.route.name
-%search_string = request.query.get('search', '')
-%if search_prefix not in search_string:
-%search_string = search_prefix + ' ' + search_string
-%end
-%end
 
-%if search_filters:
-   <li class="dropdown">
-      <a href="#" class="dropdown-toggle" data-original-title="{{_('Filters  menu')}}" data-toggle="dropdown">
-         <span class="caret"></span>
-         <i class="fa fa-filter"></i>
-         <span class="hidden-sm hidden-xs"> {{_('Filters')}}</span>
-      </a>
-      <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
-         <li role="presentation">
-            <a role="menuitem" href="{{search_action}}?search=">{{_('All')}}</a>
-         </li>
-         <li role="presentation" class="divider"></li>
-         %for k in sorted(search_filters.keys()):
-            %title,filter = search_filters[k]
-            %if not title:
-            <li class="divider"/>
-            %else:
-            <li role="presentation">
-               <a role="menuitem" href="{{search_action}}?search={{filter}}">{{title}}</a>
-            </li>
-            %end
-         %end
-      </ul>
-   </li>
-   <form class="hidden-xs hidden-sm navbar-form navbar-left" role="search" method="get" action="{{ search_action }}">
-      <div class="form-group">
-         <label class="sr-only" for="search">{{_('Filter')}}</label>
-         <div class="input-group">
-            <span class="input-group-addon hidden-xs hidden-sm"><i class="fa fa-search"></i></span>
-            <input class="form-control" type="search" id="search" name="search" value="{{ search_string }}" placeholder="{{_('filter...')}}">
-         </div>
-      </div>
-      %if ('value' in user_bookmarks and user_bookmarks['value']) or ('value' in common_bookmarks and common_bookmarks['value']):
-      <div class="dropdown form-group text-left">
-         <button class="btn btn-default dropdown-toggle" type="button" id="bookmarks_menu" data-toggle="dropdown" aria-expanded="true">
-            <i class="fa fa-bookmark"></i>
-            <span class="hidden-sm hidden-xs hidden-md"> {{_('Bookmarks')}}</span>
+%setdefault('search_engine', False)
+%setdefault('search_filters', {})
+
+%search_action = request.urlparts.path
+%search_query = request.urlparts.query
+%search_string = request.query.get('search', '')
+%if search_engine and search_filters:
+<nav id="filter-bar" class="navbar">
+   <div class="container-fluid">
+      <ul class="nav navbar-nav">
+         <li id="search-filters" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-original-title="{{_('Filters list')}}" data-toggle="dropdown">
             <span class="caret"></span>
-         </button>
-         <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="bookmarks_menu">
-         <script type="text/javascript">
-            %for b in user_bookmarks['value']:
-               declare_bookmark("{{!b['name']}}","{{!b['uri']}}");
+            <span class="fa fa-filter"></span>
+            <span class="hidden-xs"> {{_('Filters')}}</span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="filters_menu">
+            <li role="presentation">
+               <a role="menuitem" data-action="filter" data-filter="">{{_('Clear filter')}}</a>
+            </li>
+            <li role="presentation" class="divider"></li>
+            %for k in sorted(search_filters.keys()):
+               %title,filter = search_filters[k]
+               %if not title:
+               <li class="divider"/>
+               %else:
+               <li role="presentation">
+                  <a role="menuitem" data-action="filter" data-filter="{{filter}}">{{title}}</a>
+               </li>
+               %end
             %end
-            %for b in common_bookmarks['value']:
-               declare_bookmarksro("{{!b['name']}}","{{!b['uri']}}");
-            %end
-            </script>
-         </ul>
-      </div>
-      %end
-   </form>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation" >
+               <a role="menuitem" data-action="search-box">
+                  <strong>{{! _('<span class="fa fa-question-circle"></span> Search syntax')}}</strong>
+               </a>
+            </li>
+            </ul>
+         </li>
+      </ul>
+
+      <form class="navbar-form" role="search" method="get" action="{{ search_action }}">
+         <div class="form-group" style="display:inline;">
+            <div class="input-group" style="display:table;">
+               <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-search"></span></span>
+               <input class="form-control" id="search" name="search" value="{{ search_string }}"placeholder="{{_('search filter...')}}" autocomplete="off" autofocus="autofocus" type="search">
+            </div>
+         </div>
+      </form>
+      <script>
+      $('a[data-action="filter"]').on('click', function(e){
+         var filter = $(this).data('filter');
+         if (filter == undefined) return;
+
+         // Build a new request url
+         var url = window.location.href.replace(window.location.search,'');
+         if (filter == '') {
+            // Empty filter clears the filter
+         } else {
+            url = url + '?search=' + filter;
+         }
+         // Force page reloading with new parameters
+         document.location.href = url;
+      });
+   </script>
+   </div><!-- /.container-fluid -->
+</nav>
 %end

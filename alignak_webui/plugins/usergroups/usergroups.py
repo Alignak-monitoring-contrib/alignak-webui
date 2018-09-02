@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -24,328 +24,106 @@
 """
 
 import json
-from collections import OrderedDict
 from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui import _
-from alignak_webui.plugins.common.common import get_table, get_table_data
+from alignak_webui.objects.element_state import ElementState
+from alignak_webui.utils.plugin import Plugin
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Get the same schema as the applications backend and append information for the datatable view
-# Use an OrderedDict to create an ordered list of fields
-schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-    }
-}
-schema['name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Name'),
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': True,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': True,
-        # This field is orderable (default: True)
-        'orderable': True,
-    },
-}
-schema['definition_order'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Definition order'),
-        'visible': True,
-        'hidden': True,
-        'orderable': False,
-    },
-}
-schema['alias'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Alias'),
-        'visible': True
-    },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
-}
-schema['_level'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Level'),
-        'visible': True,
-    },
-}
-schema['_parent'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Parent'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'usergroup',
-        'embeddable': True
-    }
-}
-schema['usergroups'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Users groups members'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'usergroup',
-        'embeddable': True
-    }
-}
+class PluginServicesGroups(Plugin):
+    """ Services groups plugin """
 
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """
+        Services groups plugin
 
-# This to define the global information for the table
-schema['ui'] = {
-    'type': 'boolean',
-    'default': True,
+        Overload the default get route to declare filters.
+        """
+        self.name = 'Users groups'
+        self.backend_endpoint = 'usergroup'
 
-    # UI parameters for the objects
-    'ui': {
-        'page_title': _('Users groups table (%d items)'),
-        'id_property': '_id',
-        'visible': True,
-        'orderable': True,
-        'editable': False,
-        'selectable': True,
-        'searchable': True,
-        'responsive': False,
-        'recursive': True
-    }
-}
-
-
-def get_usergroups():
-    """
-    Get the usergroups list
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'sort': '-_id',
-        'where': where,
-        'embedded': {
-        }
-    }
-
-    # Get elements from the data manager
-    items = datamgr.get_usergroups(search)
-    # Get last total elements count
-    total = datamgr.get_objects_count('usergroup', search=where, refresh=True)
-    count = min(count, total)
-
-    # Define contextual menu
-    context_menu = {
-        'actions': {
-            'action1': {
-                "label": _('Fake action 1'),
-                "icon": "ion-monitor",
-                "separator_before": False,
-                "separator_after": True,
-                "action": '''
-                    function (obj) {
-                        console.log('Fake action 1');
-                    }
-                '''
+        self.pages = {
+            'get_usergroup_members': {
+                'name': 'Users group members',
+                'route': '/usergroup/members/<group_id>'
             },
-            'action2': {
-                "label": _('Fake action 2!'),
-                "icon": "ion-monitor",
-                "separator_before": False,
-                "separator_after": False,
-                "action": '''function (obj) {
-                   console.log('Fake action 2');
-                }'''
-            }
         }
-    }
 
-    return {
-        'tree_type': 'usergroup',
-        'items': items,
-        'selectable': False,
-        'context_menu': context_menu,
-        'pagination': webui.helper.get_pagination_control('/usergroups', total, start, count),
-        'title': request.query.get('title', _('All usergroups'))
-    }
+        super(PluginServicesGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
+    def get_one(self, element_name):
+        """
+            Show one element
+        """
+        datamgr = request.app.datamgr
 
-def get_usergroups_list():
-    """
-    Get the usergroups list
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:  # pragma: no cover - should not happen!
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-    # Get elements from the data manager
-    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    usergroups = datamgr.get_usergroups(search, all_elements=True)
+        logger.debug("get_one, search for a %s named '%s'", self.backend_endpoint, element_name)
+        element = f(search={'max_results': 1, 'where': {'name': element_name}})
+        if not element:
+            element = f(element_name)
+            if not element:
+                self.send_user_message(_("%s named '%s' not found")
+                                       % (self.backend_endpoint, element_name))
+        logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
-    items = []
-    for usergroup in usergroups:
-        items.append({'id': usergroup.id, 'name': usergroup.alias})
+        groups = element.usergroups
+        if element.level == 0:
+            groups = datamgr.get_usergroups(search={'where': {'_level': 1}})
 
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
+        return {
+            'plugin': self,
+            'plugin_parameters': self.plugin_parameters,
 
-
-def get_usergroup_members(usergroup_id):
-    """
-    Get the usergroup users list
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    usergroup = datamgr.get_usergroup(usergroup_id)
-    if not usergroup:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('users group element does not exist'))
-
-    # Not JSON serializable!
-    # items = usergroup.members
-
-    items = []
-    for user in usergroup.members:
-        items.append({
-            'id': user.id,
-            'name': user.name,
-            'alias': user.alias,
-            'icon': user.get_html_state(text=None, title=user.alias),
-            'url': user.get_html_link()
-        })
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
-
-
-def get_usergroups_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the elements to build a table
-    """
-    return get_table('usergroup', schema, embedded, identifier, credentials)
-
-
-def get_usergroups_table_data():
-    """
-    Get the elements required by the table
-    """
-    return get_table_data('usergroup', schema)
-
-
-def get_usergroup(usergroup_id):
-    """
-    Display the element linked to a usergroup item
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    usergroup = datamgr.get_usergroup(usergroup_id)
-    if not usergroup:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Users group element does not exist'))
-
-    return {
-        'usergroup_id': usergroup_id,
-        'usergroup': usergroup,
-        'title': request.query.get('title', _('Users group view'))
-    }
-
-
-pages = {
-    get_usergroup: {
-        'name': 'Users group',
-        'route': '/usergroup/<usergroup_id>'
-    },
-    get_usergroup_members: {
-        'name': 'Users group members',
-        'route': '/usergroup/members/<usergroup_id>'
-    },
-    get_usergroups: {
-        'routes': [
-            ('/ysergroups', 'Users groups'),
-            ('/usergroups_tree', 'Users groups tree')
-        ],
-        'view': '_tree',
-        'search_engine': False,
-        'search_prefix': '',
-        'search_filters': {
+            'object_type': self.backend_endpoint,
+            'element': element,
+            'groups': groups
         }
-    },
-    get_usergroups_list: {
-        'routes': [
-            ('/usergroups_list', 'Users groups list'),
-        ]
-    },
 
-    get_usergroups_table: {
-        'name': 'Users groups table',
-        'route': '/usergroups_table',
-        'view': '_table',
-        'tables': [
-            {
-                'id': 'usergroups_table',
-                'for': ['external'],
-                'name': _('Users groups table'),
-                'template': '_table',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Users groups table</h4>Displays a datatable for the system '
-                    'users groups.<br>'
-                ),
-                'actions': {
-                    'usergroups_table_data': get_usergroups_table_data
-                }
-            }
-        ]
-    },
+    def get_usergroup_members(self, group_id):
+        """
+        Get the usergroup users list
+        """
+        datamgr = request.app.datamgr
 
-    get_usergroups_table_data: {
-        'name': 'Users groups table data',
-        'route': '/usergroups_table_data',
-        'method': 'POST'
-    },
-}
+        usergroup = datamgr.get_usergroup(group_id)
+        if not usergroup:
+            usergroup = datamgr.get_usergroup(
+                search={'max_results': 1, 'where': {'name': group_id}}
+            )
+            if not usergroup:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % group_id)
+
+        items = []
+        if not isinstance(usergroup.members, basestring):
+            # Get element state configuration
+            items_states = ElementState()
+
+            for member in usergroup.members:
+                logger.debug("Group member: %s", member)
+                cfg_state = items_states.get_icon_state('user', member.status)
+
+                items.append({
+                    'id': member.id,
+                    'type': 'user',
+                    'name': member.name,
+                    'alias': member.alias,
+                    'status': member.status,
+                    'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                    'state': member.get_html_state(text=None, title=member.alias),
+                    'url': member.get_html_link()
+                })
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(items)

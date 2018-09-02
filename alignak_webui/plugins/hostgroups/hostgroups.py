@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -24,343 +24,163 @@
 """
 
 import json
-from collections import OrderedDict
 from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui import _
+from alignak_webui.objects.element_state import ElementState
+from alignak_webui.utils.plugin import Plugin
 from alignak_webui.utils.helper import Helper
-from alignak_webui.plugins.common.common import get_table, get_table_data
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Get the same schema as the applications backend and append information for the datatable view
-# Use an OrderedDict to create an ordered list of fields
-schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-    }
-}
-schema['name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Name'),
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': True,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': True,
-        # This field is orderable (default: True)
-        'orderable': True,
-    },
-}
-schema['definition_order'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Definition order'),
-        'visible': True,
-        'hidden': True,
-        'orderable': False,
-    },
-}
-schema['alias'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Alias'),
-        'visible': True
-    },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
-}
-schema['notes_url'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes URL')
-    }
-}
-schema['action_url'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Action URL')
-    }
-}
-schema['_level'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Level'),
-        'visible': True,
-    },
-}
-schema['_parent'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Parent'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'hostgroup',
-        'embeddable': True
-    }
-}
-schema['hostgroups'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Hosts groups members'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'hostgroup',
-        'embeddable': True
-    }
-}
+class PluginHostsGroups(Plugin):
+    """ Hosts groups plugin """
 
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """Hosts groups plugin
 
-# This to define the global information for the table
-schema['ui'] = {
-    'type': 'boolean',
-    'default': True,
+        Overload the default get route to declare filters.
+        """
+        self.name = 'Hosts groups'
+        self.backend_endpoint = 'hostgroup'
 
-    # UI parameters for the objects
-    'ui': {
-        'page_title': _('Hosts groups table (%d items)'),
-        'id_property': '_id',
-        'visible': True,
-        'orderable': True,
-        'editable': False,
-        'selectable': True,
-        'searchable': True,
-        'responsive': False,
-        'recursive': True
-    }
-}
-
-
-def get_hostgroups():
-    """
-    Get the hostgroups list
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'sort': '-_id',
-        'where': where
-    }
-
-    # Get elements from the data manager
-    items = datamgr.get_hostgroups(search)
-    # Get last total elements count
-    total = datamgr.get_objects_count('hostgroup', search=where, refresh=True)
-    count = min(count, total)
-
-    # Define contextual menu
-    context_menu = {
-        'actions': {
-            'action1': {
-                "label": _('Fake action 1'),
-                "icon": "ion-monitor",
-                "separator_before": False,
-                "separator_after": True,
-                "action": '''
-                    function (obj) {
-                        console.log('Fake action 1');
-                    }
-                '''
+        self.pages = {
+            'get_group_members': {
+                'name': 'Hosts group members',
+                'route': '/hostgroup/members/<element_id>'
             },
-            'action2': {
-                "label": _('Fake action 2!'),
-                "icon": "ion-monitor",
-                "separator_before": False,
-                "separator_after": False,
-                "action": '''function (obj) {
-                   console.log('Fake action 2');
-                }'''
-            }
+            'get_overall_state': {
+                'name': 'Hosts group status',
+                'route': '/hostgroup/status/<element_id>'
+            },
         }
-    }
 
-    return {
-        'tree_type': 'hostgroup',
-        'items': items,
-        'selectable': False,
-        'context_menu': context_menu,
-        'pagination': webui.helper.get_pagination_control('/hostgroups', total, start, count),
-        'title': request.query.get('title', _('All hostgroups'))
-    }
+        super(PluginHostsGroups, self).__init__(webui, plugin_dir, cfg_filenames)
 
+    def get_one(self, element_name):
+        """Show one element"""
+        datamgr = request.app.datamgr
 
-def get_hostgroups_list():
-    """
-    Get the hostgroups list
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+        # Get elements from the data manager
+        f = getattr(datamgr, 'get_%s' % self.backend_endpoint)
+        if not f:  # pragma: no cover - should not happen!
+            self.send_user_message(_("No method to get a %s element") % self.backend_endpoint)
 
-    # Get elements from the data manager
-    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    hostgroups = datamgr.get_hostgroups(search, all_elements=True)
+        logger.debug("get_one, search for a %s named '%s'", self.backend_endpoint, element_name)
+        element = f(search={'max_results': 1, 'where': {'name': element_name}})
+        if not element:
+            element = f(element_name)
+            if not element:
+                self.send_user_message(_("%s named '%s' not found")
+                                       % (self.backend_endpoint, element_name))
+        logger.debug("get_one, found: %s - %s", element, element.__dict__)
 
-    items = []
-    for hostgroup in hostgroups:
-        items.append({'id': hostgroup.id, 'name': hostgroup.alias})
+        groups = element.hostgroups
+        if element.level == 0:
+            groups = datamgr.get_hostgroups(search={'where': {'_level': 1}})
 
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
+        return {
+            'plugin': self,
+            'plugin_parameters': self.plugin_parameters,
 
+            'object_type': self.backend_endpoint,
+            'element': element,
+            'groups': groups
+        }
 
-def get_hostgroup_members(hostgroup_id):
-    """
-    Get the hostgroup hosts list
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+    def get_overall_state(self, element):  # pylint:disable=no-self-use
+        """Get the hostgroup overall state:
 
-    hostgroup = datamgr.get_hostgroup(hostgroup_id)
-    if not hostgroup:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Hosts group element does not exist'))
+        Args:
+            element:
 
-    # Not JSON serializable!
-    # items = hostgroup.members
+        Returns:
+            state (int) or -1 if any problem
+        """
+        datamgr = request.app.datamgr
 
-    items = []
-    for host in hostgroup.members:
-        lv_host = datamgr.get_livestate({'where': {'type': 'host', 'host': host.id}})
-        lv_host = lv_host[0]
-        title = "%s - %s (%s)" % (
-            lv_host.status,
-            Helper.print_duration(lv_host.last_check, duration_only=True, x_elts=0),
-            lv_host.output
+        (overall_state, overall_status) = datamgr.get_hostgroup_overall_state(element)
+        logger.debug(
+            " - hostgroup overall state: %d -> %s", overall_state, overall_status
         )
 
-        items.append({
-            'id': host.id,
-            'name': host.name,
-            'alias': host.alias,
-            'icon': lv_host.get_html_state(text=None, title=title),
-            'url': lv_host.get_html_link()
-        })
+        return (overall_state, overall_status)
 
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
+    def get_group_members(self, element_id):
+        """Get the hostgroup hosts list"""
+        datamgr = request.app.datamgr
 
+        hostgroup = datamgr.get_hostgroup(element_id)
+        if not hostgroup:
+            hostgroup = datamgr.get_hostgroup(
+                search={'max_results': 1, 'where': {'name': element_id}}
+            )
+            if not hostgroup:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % element_id)
 
-def get_hostgroups_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the elements to build a table
-    """
-    return get_table('hostgroup', schema, embedded, identifier, credentials)
+        if not isinstance(hostgroup.members, basestring):
+            # Get element state configuration
+            items_states = ElementState()
 
+            items = []
+            items.append({
+                'id': -1,
+                'type': 'host',
+                'tr': """
+                    <table class="table table-invisible table-condensed">
+                      <thead><tr>
+                        <th></th>
+                        <th>%s</th>
+                        <th>%s</th>
+                        <th>%s</th>
+                        <th>%s</th>
+                        <th>%s</th>
+                      </tr></thead>
 
-def get_hostgroups_table_data():
-    """
-    Get the elements required by the table
-    """
-    return get_table_data('hostgroup', schema)
+                      <tbody>
+                      </tbody>
+                    </table>
+                """ % (
+                    _("BI"), _("Element"),
+                    _("Since"), _("Last check"), _("Output")
+                )
+            })
 
+            for member in hostgroup.members:
+                logger.debug("Group member: %s", member)
+                cfg_state = items_states.get_icon_state('host', member.status)
 
-def get_hostgroup(hostgroup_id):
-    """
-    Display the element linked to a hostgroup item
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+                tr = """<tr>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td class="hidden-xs">%s</td>
+                    <td class="hidden-xs">%s</td>
+                    <td class="hidden-sm hidden-xs">%s: %s</td>
+                </tr>""" % (
+                    member.get_html_state(text=None, title=member.alias),
+                    Helper.get_html_business_impact(member.business_impact, icon=True, text=False),
+                    member.get_html_link(),
+                    Helper.print_duration(member.last_state_changed, duration_only=True, x_elts=2),
+                    Helper.print_duration(member.last_check, duration_only=True, x_elts=2),
+                    Helper.print_date(member.last_check),
+                    member.output
+                )
+                items.append({
+                    'id': member.id,
+                    'type': 'host',
+                    'name': member.name,
+                    'alias': member.alias,
+                    'status': member.status,
+                    'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                    'state': member.get_html_state(text=None, title=member.alias),
+                    'tr': tr
+                })
 
-    hostgroup = datamgr.get_hostgroup(hostgroup_id)
-    if not hostgroup:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Hosts group element does not exist'))
-
-    return get_hostgroups_table()
-
-
-pages = {
-    get_hostgroup: {
-        'name': 'Host group',
-        'route': '/hostgroup/<hostgroup_id>'
-    },
-    get_hostgroup_members: {
-        'name': 'Host group members',
-        'route': '/hostgroup/members/<hostgroup_id>'
-    },
-    get_hostgroups: {
-        'routes': [
-            ('/hostgroups', 'Hosts groups'),
-            ('/hostgroups_tree', 'Hosts groups tree')
-        ],
-        'view': '_tree',
-        'search_engine': False,
-        'search_prefix': '',
-        'search_filters': {
-        }
-    },
-    get_hostgroups_list: {
-        'routes': [
-            ('/hostgroups_list', 'Hosts groups list'),
-        ]
-    },
-
-    get_hostgroups_table: {
-        'name': 'Hosts groups table',
-        'route': '/hostgroups_table',
-        'view': '_table',
-        'tables': [
-            {
-                'id': 'hostgroups_table',
-                'for': ['external'],
-                'name': _('Hosts groups table'),
-                'template': '_table',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Hosts groups table</h4>Displays a datatable for the system '
-                    'hosts groups.<br>'
-                ),
-                'actions': {
-                    'hostgroups_table_data': get_hostgroups_table_data
-                }
-            }
-        ]
-    },
-
-    get_hostgroups_table_data: {
-        'name': 'Hosts groups table data',
-        'route': '/hostgroups_table_data',
-        'method': 'POST'
-    },
-}
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(items)

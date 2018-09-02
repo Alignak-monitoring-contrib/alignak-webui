@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -20,5 +20,5 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    The backend package contains applications backend classes.
+    The utils package contains backend related classes .
 """

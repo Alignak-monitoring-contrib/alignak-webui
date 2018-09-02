@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -33,14 +33,13 @@ from logging import getLogger, INFO
 from alignak_webui.objects.element import BackendElement
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
 class ActionAcknowledge(BackendElement):
-    """
-    Object representing an actionacknowledge
-    """
+    """Object representing an actionacknowledge"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -51,9 +50,7 @@ class ActionAcknowledge(BackendElement):
 
 
 class ActionDowntime(BackendElement):
-    """
-    Object representing an actiondowntime
-    """
+    """Object representing an actiondowntime"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -64,9 +61,7 @@ class ActionDowntime(BackendElement):
 
 
 class ActionForceCheck(BackendElement):
-    """
-    Object representing an actionforcecheck
-    """
+    """Object representing an actionforcecheck"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1

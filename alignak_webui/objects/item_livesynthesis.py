@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -26,16 +26,11 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
 class LiveSynthesis(BackendElement):
-    """
-    Object representing the live synthesis of the system
-    """
+    """Object representing the live synthesis of the system"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -46,3 +41,7 @@ class LiveSynthesis(BackendElement):
 
     # Status property
     status_property = 'state'
+
+    def __repr__(self):
+        return "<%s, id: %s, hosts: %s, services: %s>" \
+               % (self.__class__.get_type(), self.id, self.hosts_total, self.services_total)

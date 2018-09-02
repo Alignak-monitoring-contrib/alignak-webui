@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -27,17 +27,13 @@
     This module contains the classes used to manage the backend history elements
     with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
 # Import the backend interface class
 from alignak_webui.objects.element import BackendElement
 from alignak_webui.objects.element_state import ElementState
 
 
 class History(BackendElement):
-    """
-    Object representing a History item (host or service)
-    """
+    """Object representing a History item (host or service)"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -49,51 +45,114 @@ class History(BackendElement):
     # Status property
     status_property = 'type'
 
-    def _create(self, params, date_format):
-        # Not that bad ... because _create is called from __new__
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        # Not that bad ... because __init__ is called from __new__
         # pylint: disable=attribute-defined-outside-init
-        """
-        Create a History (called only once when an object is newly created)
-        """
+        """Create a History (called only once when an object is newly created)"""
         self._linked_host = 'host'
         self._linked_service = 'service'
         self._linked_user = 'user'
         self._linked_logcheckresult = 'logcheckresult'
 
-        super(History, self)._create(params, date_format)
+        super(History, self).__init__(params, date_format, embedded)
+
+    def __repr__(self):
+        return "<%s, id: %s, item: %s/%s, type: %s>" \
+               % (self.__class__.get_type(), self.id,
+                  self.host_name, self.service_name, self.status)
 
     @property
     def date(self):
-        """ Return linked object """
+        """Return creation date"""
         return self._created
 
     @property
     def host(self):
-        """ Return linked object """
+        """Return linked host object"""
         return self._linked_host
 
     @property
+    def host_name(self):
+        """Return host name"""
+        if not hasattr(self, '_host_name'):
+            return '-'
+        return self._host_name
+
+    @host_name.setter
+    def host_name(self, host_name):
+        self._host_name = host_name
+
+    @property
     def service(self):
-        """ Return linked object """
+        """Return linked service object"""
         return self._linked_service
 
     @property
+    def service_name(self):
+        """Return service name"""
+        if not hasattr(self, '_service_name'):
+            return '-'
+        return self._service_name
+
+    @service_name.setter
+    def service_name(self, service_name):
+        self._service_name = service_name
+
+    @property
     def user(self):
-        """ Return linked object """
+        """Return linked user object"""
         return self._linked_user
 
     @property
+    def user_name(self):
+        """Return user name"""
+        if not hasattr(self, '_user_name'):
+            return ''
+        return self._user_name
+
+    @user_name.setter
+    def user_name(self, user_name):
+        self._user_name = user_name
+
+    @property
     def logcheckresult(self):
-        """ Return linked object """
+        """Return linked log check result object"""
         return self._linked_logcheckresult
+
+    def get_title(self):
+        """Get title according to the status"""
+
+        # todo: should be defined from the alignak backend model definition
+        status_to_title = {
+            'webui.comment': _('Comment set from the Web UI'),
+            'check.request': _('Check request from the Web UI'),
+            'check.requested': _('Check requested on the item'),
+            'check.result': _('Check result'),
+            'ack.add': _('Acknowledge request from the Web UI'),
+            'ack.requested': _('Acknowledge set on the item'),
+            'ack.delete': _('Acknowledge deleted'),
+            'downtime.add': _('Downtime request from the Web UI'),
+            'downtime.requested': _('Downtime set on the item'),
+            'downtime.delete': _('Downtime deleted'),
+            'monitoring.timeperiod_transition': _('Time period transition'),
+            'monitoring.alert': _('Alert'),
+            'monitoring.event_handler': _('Event handler'),
+            'monitoring.flapping_start': _('Start flapping'),
+            'monitoring.flapping_stop': _('Stop flapping'),
+            'monitoring.downtime_start': _('Downtime started'),
+            'monitoring.downtime_cancelled': _('Downtime cancelled'),
+            'monitoring.downtime_end': _('Downtime stopped'),
+            'monitoring.acknowledge': _('Acknowledge'),
+            'monitoring.notification': _('Notification sent'),
+        }
+
+        return status_to_title.get(self.status, self.status)
 
     def get_html_state(self, extra='', icon=True, text='',
                        title='', disabled=False, object_type=None, object_item=None,
-                       size=''):
+                       size='', use_status=None):
         # pylint: disable=too-many-arguments
-        """
-        Uses the ElementState singleton to display HTML state for an item
-        """
+        """Uses the ElementState singleton to display HTML state for an item"""
         if self.type.startswith('check.result') and self.logcheckresult != 'logcheckresult':
             return ElementState().get_html_state('logcheckresult', self.logcheckresult,
                                                  extra, icon, text, title, disabled)
@@ -103,11 +162,9 @@ class History(BackendElement):
                                                    title=title, disabled=disabled, size=size)
 
     def get_check_date(self, timestamp=False, fmt=None, duration=False):
-        """
-        Returns a string formatted data
-        """
+        """Returns a string formatted data"""
         if self.date == self.__class__._default_date and not timestamp:
-            return _('Never dated!')
+            return 'XxX'
 
         if timestamp:
             return self.date

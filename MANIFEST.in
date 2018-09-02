@@ -1,4 +1,13 @@
-include README.rst LICENSE AUTHORS requirements.txt
+include README.rst
+include AUTHORS
+include LICENSE
+include requirements.txt
 include etc/settings.cfg
+include etc/logging.json
+include etc/uwsgi.ini
+include bin/alignak-webui-uwsgi
+include bin/rc.d/alignak-webui
+include bin/systemd/alignak-webui.service
 recursive-include alignak_webui *.*
 global-exclude *.pyc
+global-exclude *.log

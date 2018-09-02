@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 %# When layout is False, this template is embedded
 %setdefault('layout', True)
 
@@ -73,11 +73,11 @@
                   </td>
 
                   <td>
-                     <small>{{! lcr.host.get_html_link()}}</small>
+                     <small>{{! lcr.host.get_html_link() if lcr.host and lcr.host!='host' else lcr.host_name}}</small>
                   </td>
 
                   <td>
-                     <small>{{! lcr.service.get_html_link() if lcr.service and lcr.service!='service' else ''}}</small>
+                     <small>{{! lcr.service.get_html_link() if lcr.service and lcr.service!='service' else lcr.service_name}}</small>
                   </td>
 
                   <td>

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -22,39 +22,51 @@
 """
     Application localization
 """
-import os
-import traceback
+from __future__ import print_function
 
+import os
 
 # Internationalization / localization
-from gettext import GNUTranslations, NullTranslations, gettext as _
+from gettext import GNUTranslations, NullTranslations
 
 # Logs
 from logging import getLogger
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
 # --------------------------------------------------------------------------------------------------
 # Localization
-def init_localization(language):
+def init_localization(app):
     """prepare l10n"""
 
+    # -----
+    # Application localization
+    # -----
     try:
         # Language message file
-        filename = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "../res/%s.mo" % language
+        lang_filename = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            "../locales/%s.mo" % app.config.get('locale', 'en_US')
         )
-        logger.info("Opening message file %s for locale %s", filename, language)
-        translation = GNUTranslations(open(filename, "rb"))
-        translation.install()
+        print("Opening message file %s for locale %s"
+              % (lang_filename, app.config.get('locale', 'en_US')))
+        translation = GNUTranslations(open(lang_filename, "rb"))
+        translation.install(unicode=True)
+        _ = translation.gettext
     except IOError:
-        logger.warning("Locale not found. Using default messages")
-        logger.debug("Backtrace: %s", traceback.format_exc())
-        default = NullTranslations()
-        default.install()
-    except Exception as e:
-        logger.error("Locale not found. Exception: %s", str(e))
-        logger.debug("Backtrace: %s", traceback.format_exc())
-        default = NullTranslations()
-        default.install()
-    logger.info(_("Language is English (default)..."))
+        print("Locale not found. Using default language messages (English)")
+        null_translation = NullTranslations()
+        null_translation.install()
+        _ = null_translation.gettext
+    except Exception as e:  # pragma: no cover - should not happen
+        print("Locale not found. Exception: %s" % str(e))
+        null_translation = NullTranslations()
+        null_translation.install()
+        _ = null_translation.gettext
+
+    # Provide translation methods to templates
+    app.config['_'] = _
+    print(_("Language is English (default)..."))
+
+    return _

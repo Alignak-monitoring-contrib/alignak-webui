@@ -1,0 +1,153 @@
+[
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "freshness_threshold": 1800,
+        "host": "_dummy",
+        "name": "30minutes-freshness"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "freshness_threshold": 3600,
+        "host": "_dummy",
+        "name": "1hour-freshness"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "freshness_threshold": 7200,
+        "host": "_dummy",
+        "name": "2hours-freshness"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "freshness_threshold": 14400,
+        "host": "_dummy",
+        "name": "4hours-freshness"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "freshness_threshold": 43200,
+        "host": "_dummy",
+        "name": "12hours-freshness"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "freshness_threshold": 86400,
+        "host": "_dummy",
+        "name": "1day-freshness"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates_from_host_template": false,
+        "aggregation": "",
+        "alias": "",
+        "check_command": "_echo",
+        "check_command_args": "",
+        "check_freshness": true,
+        "freshness_state": "x",
+        "freshness_threshold": 3600,
+        "host": "windows-passive-host",
+        "imported_from": "alignak-checks-windows-nsca",
+        "initial_state": "u",
+        "name": "windows-passive-service",
+        "notes": "",
+        "notes_url": "",
+        "notification_interval": 60,
+        "notification_options": [
+            "w",
+            "u",
+            "c",
+            "r",
+            "f",
+            "s",
+            "x"
+        ],
+        "notification_period": "24x7",
+        "notifications_enabled": true,
+        "tags": []
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates": [
+            "windows-passive-service"
+        ],
+        "_templates_from_host_template": false,
+        "aggregation": "system",
+        "alias": "Disk",
+        "host": "windows-passive-host",
+        "name": "nsca_disk"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates": [
+            "windows-passive-service"
+        ],
+        "_templates_from_host_template": false,
+        "aggregation": "system",
+        "alias": "Memory",
+        "host": "windows-passive-host",
+        "name": "nsca_memory"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates": [
+            "windows-passive-service"
+        ],
+        "_templates_from_host_template": false,
+        "aggregation": "os",
+        "alias": "Windows services",
+        "host": "windows-passive-host",
+        "name": "nsca_services"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates": [
+            "windows-passive-service"
+        ],
+        "_templates_from_host_template": false,
+        "aggregation": "system",
+        "alias": "CPU",
+        "host": "windows-passive-host",
+        "name": "nsca_cpu"
+    },
+    {
+        "_is_template": true,
+        "_realm": "All",
+        "_sub_realm": true,
+        "_templates": [
+            "windows-passive-service"
+        ],
+        "_templates_from_host_template": false,
+        "aggregation": "system",
+        "alias": "Uptime",
+        "host": "windows-passive-host",
+        "name": "nsca_uptime"
+    }
+]

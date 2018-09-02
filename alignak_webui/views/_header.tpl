@@ -2,22 +2,15 @@
 
 <script type="text/javascript">
    // Check header refresh period (seconds)
-   var header_refresh_period = {{request.app.config.get('header_refresh_period', '30')}};
+   var header_refresh_period = {{request.app.config.get('%s.header_refresh_period' % webui.name, '30')}};
 
    // Periodical header refresh ... this function is called by the global refresh handler.
    function header_refresh() {
       $.ajax({
-         url: "/ping?action=refresh&template=_header_hosts_state"
+         url: "/ping?action=refresh&template=_header_states"
       })
       .done(function(content, textStatus, jqXHR) {
-         $('#overall-hosts-states').html(content);
-      });
-
-      $.ajax({
-         url: "/ping?action=refresh&template=_header_services_state"
-      })
-      .done(function(content, textStatus, jqXHR) {
-         $('#overall-services-states').html(content);
+         $('#_header_states').html(content);
       });
    }
 
@@ -27,14 +20,15 @@
          setInterval("header_refresh();", header_refresh_period*1000);
       } else {
          console.log('Automatic header refresh disabled.');
+         $('#overall-hosts-states').addClass('disabled text-muted');
+         $('#overall-services-states').addClass('disabled text-muted');
       }
    });
 </script>
 
-
 <!-- Page header -->
 <header>
-   <nav id="topbar" class="navbar navbar-fixed-top navbar-material-blue">
+   <nav id="topbar" class="navbar navbar-fixed-top">
       <div class="navbar-header">
          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapsible-part">
             <span class="sr-only">{{_('Toggle navigation')}}</span>
@@ -42,27 +36,28 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="/" style="float: left">
-            <img src="/static/images/{{request.app.config.get('company_logo', 'default_company.png')}}" alt="{{_('Company logo')}}" />
+         <a class="navbar-brand" href="/">
+            <img
+               src="{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
+               style="{{request.app.config.get('app_logo_css', '')}}"
+               alt="{{_('Alignak WebUI logo')}}"
+               title="{{request.app.config.get('app_logo_title', _('Alignak Web User Interface'))}}" />
          </a>
 
-         <ul class="nav navbar-nav navbar-left">
-            <li id="overall-hosts-states" class="pull-left">
-               %include("_header_hosts_state.tpl")
-            </li>
-
-            <li id="overall-services-states" class="pull-left">
-               %include("_header_services_state.tpl")
-            </li>
+         <ul class="nav navbar-nav navbar-left" id="_header_states">
+            %include("_header_states.tpl")
          </ul>
       </div>
 
       <!-- Right part ... -->
       <div id="navbar-collapsible-part" class="collapse navbar-collapse">
-         <ul class="nav navbar-nav navbar-left">
-            <!-- Page filtering ... -->
-            %include("_filters.tpl")
+         %if current_user.skill_level > 0:
+         %include("_menubar.tpl")
+         %else:
+         %include("_menubar_beginner.tpl")
+         %end
 
+         <ul class="nav navbar-nav navbar-left">
             <li class="hidden-xs" id="loading" style="display: none;">
                <a href="#">
                   <span class="fa fa-spinner fa-pulse fa-1x"></span>
@@ -71,9 +66,8 @@
             </li>
          </ul>
 
-         %include("_menubar.tpl", action_bar=True, in_sidebar=True)
-
          <ul class="nav navbar-nav navbar-right">
+            %try:
             <li>
                <a data-action="display-currently"
                   data-toggle="tooltip" data-placement="bottom"
@@ -82,29 +76,30 @@
                   <span class="fa fa-eye"></span>
                </a>
             </li>
+            %except RouteBuildError:
+            %print("Missing plugin Currently")
+            %end
 
             %if request.app.config.get('play_sound', 'no') == 'yes':
-            <li>
+            <li id="sound_alerting">
                <a data-action="toggle-sound-alert"
                   data-toggle="tooltip" data-placement="bottom"
                   title="{{_('Sound alert on/off')}}"
                   href="#">
-                  <span id="sound_alerting" class="fa-stack" style="margin-top: -4px">
-                    <i class="fa fa-music fa-stack-1x"></i>
-                    <i class="fa fa-ban fa-stack-2x text-danger"></i>
-                  </span>
+                  <span class="fa fa-music"></span>
+                  <span class="sr-only">{{_('Change sound playing state')}}</span>
                </a>
             </li>
             %end
 
             %if refresh:
-            <li>
+            <li id="refresh_active">
                <a data-action="toggle-page-refresh"
                   data-toggle="tooltip" data-placement="bottom"
                   title="{{_('Refresh page every %d seconds.') % (int(request.app.config.get('refresh_period', '60')))}}"
                   href="#">
-                  <span id="refresh_active" class="fa fa-refresh"></span>
-                  <span class="sr-only">{{_('Refresh active')}}</span>
+                  <span class="fa fa-refresh"></span>
+                  <span class="sr-only">{{_('Change page refresh state')}}</span>
                </a>
             </li>
             %end
@@ -115,40 +110,6 @@
    </nav>
 </header>
 
-
 %if request.app.config.get('play_sound', 'no') == 'yes':
-   <audio id="alert-sound" volume="1.0">
-      <source src="/static/sound/alert.wav" type="audio/wav">
-      Your browser does not support the <code>HTML5 Audio</code> element.
-      <EMBED src="/static/sound/alert.wav" autostart=true loop=false volume=100 >
-   </audio>
-
-   <script type="text/javascript">
-      get_user_preference('sound', function(data) {
-         // Toggle sound icon...
-         if (data.value == 'no') {
-            sound_activated = false;
-            $('#sound_alerting i.fa-ban').addClass('hidden');
-         } else {
-            sound_activated = true;
-            $('#sound_alerting i.fa-ban').removeClass('hidden');
-         }
-         $('[data-action="toggle-sound-alert"]').on('click', function (e, data) {
-            get_user_preference('sound', function(data) {
-               if (data.value == 'no') {
-                  save_user_preference('sound', JSON.stringify('yes'), function(){
-                     sound_activated = false;
-                     $('#sound_alerting i.fa-ban').removeClass('hidden');
-                  });
-               } else {
-                  save_user_preference('sound', JSON.stringify('no'), function() {
-                     sound_activated = true;
-                     playAlertSound();
-                     $('#sound_alerting i.fa-ban').addClass('hidden');
-                  });
-               }
-            });
-         });
-      }, 'yes');
-   </script>
+   %include("_sound_play.tpl")
 %end

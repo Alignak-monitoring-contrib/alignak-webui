@@ -64,7 +64,7 @@ METRIC_PATTERN = \
     )
 
 
-def to_best_int_float(val):
+def to_best_int_float(val):  # pragma: no cover, not with unit tests ...
     """Get best type for value between int and float
 
     :param val: value
@@ -90,7 +90,7 @@ def to_best_int_float(val):
     return flt
 
 
-def guess_int_or_float(val):
+def guess_int_or_float(val):  # pragma: no cover, not with unit tests ...
     """Wrapper for Util.to_best_int_float
     Basically cast into float or int and compare value
     If they are equal then there is no coma so return integer
@@ -105,7 +105,9 @@ def guess_int_or_float(val):
         return None
 
 
-class Metric:  # pylint: disable=old-style-class, too-few-public-methods, fixme
+# pragma: no cover, not with unit tests ...
+class Metric:  # pragma: no cover, not with unit tests ...
+    # pylint: disable=old-style-class, too-few-public-methods, fixme
     """
     Class providing a small abstraction for one metric of a Perfdatas class
     """
@@ -141,7 +143,9 @@ class Metric:  # pylint: disable=old-style-class, too-few-public-methods, fixme
         return string
 
 
-class PerfDatas:  # pylint: disable=old-style-class, too-few-public-methods
+# pragma: no cover, not with unit tests ...
+class PerfDatas:  # pragma: no cover, not with unit tests ...
+    # pylint: disable=old-style-class, too-few-public-methods
     """
     Class providing performance data extracted from a check output
     """

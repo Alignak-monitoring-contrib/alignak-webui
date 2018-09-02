@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -22,715 +22,579 @@
 """
     Plugin Services
 """
-
-import json
-from collections import OrderedDict
 from logging import getLogger
 
-from bottle import request, template, response
+from bottle import request, template, redirect
 
-from alignak_webui import _
-from alignak_webui.plugins.common.common import get_table, get_table_data
+from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Declare backend element endpoint
-backend_endpoint = 'service'
+class PluginServices(Plugin):
+    """ Services plugin """
 
-# Get the same schema as the applications backend and append information for the datatable view
-# Use an OrderedDict to create an ordered list of fields
-schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-    }
-}
-schema['name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Service name'),
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': True,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': True,
-        # This field is orderable (default: True)
-        'orderable': True,
-    },
-}
-schema['_realm'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Realm'),
-        'visible': True,
-        'hidden': True,
-        'searchable': True
-    },
-    'data_relation': {
-        'resource': 'realm',
-        'embeddable': True
-    }
-}
-schema['_is_template'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Template'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['definition_order'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Definition order'),
-        'visible': True,
-        'hidden': True,
-        'orderable': False,
-    },
-}
-schema['tags'] = {
-    'type': 'list',
-    'default': [],
-    'ui': {
-        'title': _('Tags'),
-        'visible': True,
-    }
-}
-schema['alias'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Service alias'),
-        'visible': True
-    },
-}
-schema['display_name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Service display name'),
-        'visible': True
-    },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
-}
-schema['host'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Host'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'host',
-        'embeddable': True
-    }
-}
-schema['customs'] = {
-    'type': 'list',
-    'default': [],
-    'ui': {
-        'title': _('Customs'),
-        'visible': True,
-    }
-}
-schema['hostgroup_name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Hosts group name'),
-        'visible': True
-    },
-}
-schema['check_command'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Check command'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'command',
-        'embeddable': True
-    }
-}
-schema['check_command_args'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Check command arguments'),
-        'visible': True
-    },
-}
-schema['check_period'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Check period'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'timeperiod',
-        'embeddable': True
-    }
-}
-schema['check_interval'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Check interval'),
-        'visible': True
-    },
-}
-schema['retry_interval'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Retry interval'),
-        'visible': True
-    },
-}
-schema['max_check_attempts'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Maximum check attempts'),
-        'visible': True
-    },
-}
-schema['active_checks_enabled'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Active checks enabled'),
-        'visible': True
-    },
-}
-schema['passive_checks_enabled'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Passive checks enabled'),
-        'visible': True
-    },
-}
-schema['servicegroups'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Services groups'),
-        'visible': True
-    },
-    'schema': {
-        'type': 'objectid',
-        'data_relation': {
-            'resource': 'servicegroup',
-            'embeddable': True,
-        }
-    },
-}
-schema['business_impact'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Business impact'),
-        'visible': True
-    },
-}
-schema['business_impact'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Business impact'),
-        'visible': True
-    },
-}
-schema['contacts'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Users'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'contact',
-        'embeddable': True
-    }
-}
-schema['contact_groups'] = {
-    'type': 'list',
-    'ui': {
-        'title': _('Users groups'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'contactgroup',
-        'embeddable': True
-    }
-}
-schema['notifications_enabled'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Notifications enabled'),
-        'visible': True
-    },
-}
-schema['notification_period'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Notification period'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'timeperiod',
-        'embeddable': True
-    }
-}
-schema['notification_interval'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Notification interval'),
-        'visible': True
-    },
-}
-schema['first_notification_delay'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('First notification delay'),
-        'visible': True
-    },
-}
-schema['notification_options'] = {
-    'type': 'list',
-    'default': ['w', 'u', 'c', 'r', 'f', 's'],
-    'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n'],
-    'ui': {
-        'title': _('Flapping detection options'),
-        'visible': True,
-        'format': {
-            'list_type': "multichoices",
-            'list_allowed': {
-                u"w": u"Send notifications on Warning state",
-                u"c": u"Send notifications on Critical state",
-                u"u": u"Send notifications on Unknown state",
-                u"r": u"Send notifications on recovery",
-                u"f": u"Send notifications on flapping start/stop",
-                u"s": u"Send notifications on scheduled downtime start/stop",
-                u"n": u"Do not send notifications"
-            }
-        }
-    },
-}
-schema['notes_url'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes URL')
-    }
-}
-schema['action_url'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Action URL')
-    }
-}
-schema['stalking_options'] = {
-    'type': 'list',
-    'default': [],
-    'allowed': ['o', 'd', 'u'],
-    'ui': {
-        'title': _('Flapping detection options'),
-        'visible': True,
-        'format': {
-            'list_type': "multichoices",
-            'list_allowed': {
-                u"d": u"Down",
-                u"o": u"Up",
-                u"u": u"Unreachable"
-            }
-        }
-    },
-}
-schema['check_freshness'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Freshness check enabled'),
-        'visible': True
-    },
-}
-schema['freshness_threshold'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Freshness threshold'),
-        'visible': True
-    },
-}
-schema['flap_detection_enabled'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Flapping detection enabled'),
-        'visible': True
-    },
-}
-schema['flap_detection_options'] = {
-    'type': 'list',
-    'default': ['o', 'd', 'u'],
-    'allowed': ['o', 'd', 'u'],
-    'ui': {
-        'title': _('Flapping detection options'),
-        'visible': True
-    },
-}
-schema['low_flap_threshold'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Low flapping threshold'),
-        'visible': True,
-        'hidden': True,
-    },
-}
-schema['high_flap_threshold'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('High flapping threshold'),
-        'visible': True,
-        'hidden': True,
-    },
-}
-schema['event_handler_enabled'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Event handler enabled'),
-        'visible': True
-    },
-}
-schema['event_handler'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Event handler command'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'command',
-        'embeddable': True
-    }
-}
-schema['process_perf_data'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Process performance data'),
-        'visible': True
-    },
-}
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """Services plugin"""
+        self.name = 'Services'
+        self.backend_endpoint = 'service'
 
-# This to define the global information for the table
-schema['ui'] = {
-    'type': 'boolean',
-    'default': True,
-
-    # UI parameters for the objects
-    'ui': {
-        'page_title': _('Services table (%d items)'),
-        'id_property': '_id',
-        'visible': True,
-        'orderable': True,
-        'editable': False,
-        'selectable': True,
-        'searchable': True,
-        'responsive': False
-    }
-}
-
-
-def get_services(templates=False):
-    """
-    Get the services list
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'where': where
-    }
-
-    # Get elements from the data manager
-    services = datamgr.get_services(search, template=templates)
-    # Get last total elements count
-    total = datamgr.get_objects_count('service', search=where, refresh=True)
-    count = min(count, total)
-
-    if request.params.get('list', None):
-        return get_services_list()
-
-    return {
-        'services': services,
-        'pagination': webui.helper.get_pagination_control('/services', total, start, count),
-        'title': request.query.get('title', _('All services'))
-    }
-
-
-def get_services_list(embedded=False):
-    # pylint: disable=unused-argument
-    """
-    Get the services list
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    # Get elements from the data manager
-    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    services = datamgr.get_services(search, all_elements=True)
-
-    items = []
-    for service in services:
-        items.append({'id': service.id, 'name': service.name, 'alias': service.alias})
-
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
-
-
-def get_services_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the elements to build a table
-    """
-    return get_table('service', schema, embedded, identifier, credentials)
-
-
-def get_services_table_data():
-    """
-    Get the elements required by the table
-    """
-    return get_table_data('service', schema)
-
-
-def get_services_templates():
-    """
-    Get the services templates list
-    """
-    return get_services(templates=True)
-
-
-def get_services_widget(embedded=False, identifier=None, credentials=None):
-    # Because there are many locals needed :)
-    # pylint: disable=too-many-locals
-    """
-    Get the services list as a widget
-    - widget_id: widget identifier
-
-    - start and count for pagination
-    - search for specific elements search
-
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.params.get('start', '0'))
-    count = int(request.params.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.params.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'where': where
-    }
-    name_filter = request.params.get('filter', '')
-    if name_filter:
-        search['where'].update({
-            '$or': [
-                {'name': {'$regex': ".*%s.*" % name_filter}},
-                {'alias': {'$regex': ".*%s.*" % name_filter}}
-            ]
-        })
-    logger.info("Search parameters: %s", search)
-
-    # Get elements from the data manager
-    services = datamgr.get_services(search)
-    # Get last total elements count
-    total = datamgr.get_objects_count('service', search=where, refresh=True)
-    count = min(count, total)
-
-    # Widget options
-    widget_id = request.params.get('widget_id', '')
-    if widget_id == '':
-        return webui.response_invalid_parameters(_('Missing widget identifier'))
-
-    widget_place = request.params.get('widget_place', 'dashboard')
-    widget_template = request.params.get('widget_template', 'services_table_widget')
-    widget_icon = request.params.get('widget_icon', 'plug')
-    # Search in the application widgets (all plugins widgets)
-    options = {}
-    for widget in webui.widgets[widget_place]:
-        if widget_id.startswith(widget['id']):
-            options = widget['options']
-            widget_template = widget['template']
-            widget_icon = widget['icon']
-            logger.info("Widget found, template: %s, options: %s", widget_template, options)
-            break
-    else:
-        logger.warning("Widget identifier not found: %s", widget_id)
-        return webui.response_invalid_parameters(_('Unknown widget identifier'))
-
-    if options:
-        options['search']['value'] = request.params.get('search', '')
-        options['count']['value'] = count
-        options['filter']['value'] = name_filter
-    logger.info("Widget options: %s", options)
-
-    title = request.params.get('title', _('Hosts'))
-    if name_filter:
-        title = _('%s (%s)') % (title, name_filter)
-
-    # Use required template to render the widget
-    return template('_widget', {
-        'widget_id': widget_id,
-        'widget_name': widget_template,
-        'widget_place': widget_place,
-        'widget_template': widget_template,
-        'widget_icon': widget_icon,
-        'widget_uri': request.urlparts.path,
-        'services': services,
-        'options': options,
-        'title': title,
-        'embedded': embedded,
-        'identifier': identifier,
-        'credentials': credentials
-    })
-
-
-pages = {
-    get_services: {
-        'routes': [
-            ('/services', 'Services'),
-        ],
-        'view': 'services'
-    },
-    get_services_list: {
-        'routes': [
-            ('/services_list', 'Services list'),
-        ]
-    },
-    get_services_templates: {
-        'routes': [
-            ('/services_templates', 'Services templates'),
-        ]
-    },
-    get_services_table: {
-        'routes': [
-            ('/services_table', 'Services table')
-        ],
-        'view': '_table',
-        'search_engine': True,
-        'search_prefix': '',
-        'search_filters': {
-            '01': (_('Services'), '_is_template:false'),
-            '02': ('', ''),
-            '03': (_('Services templates'), '_is_template:true')
-        },
-        'tables': [
-            {
-                'id': 'services_table',
-                'for': ['external'],
-                'name': _('Services table'),
-                'template': '_table',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Services table</h4>Displays a datatable for the system '
-                    'services.<br>'
-                ),
-                'actions': {
-                    'services_table_data': get_services_table_data
-                }
-            }
-        ]
-    },
-
-    get_services_table_data: {
-        'routes': [
-            ('/services_table_data', 'Services table data')
-        ],
-        'method': 'POST'
-    },
-
-    get_services_widget: {
-        'routes': [
-            ('/services/widget', 'Services widget')
-        ],
-        'method': 'POST',
-        'view': 'services_widget',
-        'widgets': [
-            {
-                'id': 'services_table',
-                'for': ['external', 'dashboard'],
-                'name': _('Services table widget'),
-                'template': 'services_table_widget',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Services table widget</h4>Displays a list of the monitored system '
-                    'services.<br>The number of services in this list can be defined in the widget '
-                    'options. The list of services can be filtered thanks to regex on the '
-                    'service name'
-                ),
-                'picture': 'htdocs/img/services_table_widget.png',
-                'options': {
-                    'search': {
-                        'value': '',
-                        'type': 'text',
-                        'label': _('Filter (ex. status:ok)')
-                    },
-                    'count': {
-                        'value': -1,
-                        'type': 'int',
-                        'label': _('Number of elements')
-                    },
-                    'filter': {
-                        'value': '',
-                        'type': 'hst_srv',
-                        'label': _('Host/service name search')
-                    }
-                }
+        self.pages = {
+            'get_one': {
+                'name': '%s' % self.name,
+                'route': '/%s/<host_name>/<service_name:re:.+>' % self.backend_endpoint,
+                'view': '%s' % self.backend_endpoint
             },
-            {
-                'id': 'services_chart',
-                'for': ['external', 'dashboard'],
-                'name': _('Services chart widget'),
-                'template': 'services_chart_widget',
-                'icon': 'pie-chart',
-                'description': _(
-                    '<h4>Services chart widget</h4>Displays a pie chart with the system '
-                    'services states.'
-                ),
-                'picture': 'htdocs/img/services_chart_widget.png',
-                'options': {}
+            'get_form': {
+                'name': '%s form' % self.name,
+                'routes': [
+                    ('/%s_form/<host_name>' % self.backend_endpoint, "Page 1"),
+                    ('/%s_form/<host_name>/<service_name:re:.+>' % self.backend_endpoint, "Page 2"),
+                ],
+                'view': '_form'
+            },
+            'get_service_view': {
+                'name': 'service synthesis view widget',
+                'route': '/service_view/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'view',
+                        'for': ['service'],
+                        'order': 1,
+                        'name': _('Main view'),
+                        'template': 'service_view_widget',
+                        'icon': 'server',
+                        'read_only': True,
+                        'description': _('Service synthesis: displays service synthesis view.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_service_information': {
+                'name': 'service information widget',
+                'route': '/service_information/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'information',
+                        'for': ['service'],
+                        'order': 2,
+                        'name': _('information'),
+                        'template': 'service_information_widget',
+                        'icon': 'info',
+                        'read_only': True,
+                        'description': _('Service information: '
+                                         'displays service general information.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_service_configuration': {
+                'name': 'service configuration widget',
+                'route': '/service_configuration/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'configuration',
+                        'for': ['service'],
+                        'order': 3,
+                        'name': _('Configuration'),
+                        'level': 1,
+                        'template': 'service_configuration_widget',
+                        'icon': 'gear',
+                        'read_only': True,
+                        'description': _('Service configuration: '
+                                         'displays service customs configuration variables.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_service_metrics': {
+                'name': 'service metrics widget',
+                'route': '/service_metrics/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'metrics',
+                        'for': ['service'],
+                        'order': 4,
+                        'name': _('Metrics'),
+                        'level': 1,
+                        'template': 'service_metrics_widget',
+                        'icon': 'calculator',
+                        'read_only': True,
+                        'description': _('Service metrics: '
+                                         'displays service last received metrics.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_service_timeline': {
+                'name': 'service timeline widget',
+                'route': '/service_timeline/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'timeline',
+                        'for': ['service'],
+                        'order': 5,
+                        'name': _('Timeline'),
+                        'level': 1,
+                        'template': 'service_timeline_widget',
+                        'icon': 'clock-o',
+                        'read_only': True,
+                        'description': _('Service timeline: '
+                                         'displays service events on a timeline.'),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_service_grafana': {
+                'name': 'service grafana widget',
+                'route': '/service_grafana/<element_id>',
+                'view': 'service',
+                'widgets': [
+                    {
+                        'id': 'grafana',
+                        'for': ['service'],
+                        'order': 6,
+                        'name': _('Grafana'),
+                        'level': 1,
+                        'template': 'service_grafana_widget',
+                        'icon': 'line-chart',
+                        'read_only': True,
+                        'description': _(
+                            'service metrics: displays service Grafana panel.'
+                        ),
+                        'options': {}
+                    },
+                ]
+            },
+            'get_services_widget': {
+                'routes': [
+                    ('/services/widget', 'Services widget')
+                ],
+                'method': 'POST',
+                'view': 'services_widget',
+                'widgets': [
+                    {
+                        'id': 'services_table',
+                        'for': ['external', 'dashboard'],
+                        'name': _('Services table widget'),
+                        'template': 'services_table_widget',
+                        'icon': 'table',
+                        'description': _(
+                            '<h4>Services table widget</h4>Displays a list of the monitored system '
+                            'services.<br>The number of services in this list can be defined in '
+                            'the widget options. The list of services can be filtered thanks to '
+                            'regex on the service name'
+                        ),
+                        'picture': 'static/img/services_table_widget.png',
+                        'options': {
+                            'search': {
+                                'value': '',
+                                'type': 'text',
+                                'label': _('Filter (ex. status:ok)')
+                            },
+                            'count': {
+                                'value': -1,
+                                'type': 'int',
+                                'label': _('Number of elements')
+                            },
+                            'filter': {
+                                'value': '',
+                                'type': 'hst_srv',
+                                'label': _('Host/service name search')
+                            }
+                        }
+                    },
+                    {
+                        'id': 'services_chart',
+                        'for': ['external', 'dashboard'],
+                        'name': _('Services chart widget'),
+                        'template': 'services_chart_widget',
+                        'icon': 'pie-chart',
+                        'description': _(
+                            '<h4>Services chart widget</h4>Displays a pie chart with the system '
+                            'services states.'
+                        ),
+                        'picture': 'static/img/services_chart_widget.png',
+                        'options': {}
+                    }
+                ]
+            },
+        }
+
+        super(PluginServices, self).__init__(webui, plugin_dir, cfg_filenames)
+
+        self.search_engine = True
+        self.search_filters = {
+            '01': (_('Ok'), 'is:ok'),
+            '02': (_('Acknowledged'), 'is:acknowledged'),
+            '03': (_('Downtimed'), 'is:in_downtime'),
+            '04': (_('Warning'), 'is:warning'),
+            '05': (_('Critical'), 'is:critical'),
+            '06': ('', ''),
+        }
+
+    def get_services_widget(self, embedded=False, identifier=None, credentials=None):
+        """Get the services widget"""
+        return self.get_widget(None, 'service', embedded, identifier, credentials)
+
+    def get_one(self, host_name, service_name):  # pylint: disable=arguments-differ
+        """Display a service"""
+        logger.info("Service, view: %s / %s", host_name, service_name)
+
+        datamgr = request.app.datamgr
+
+        # Search host by name or alias
+        is_template = False
+        host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
+        if not host:
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
+            if not host:
+                is_template = True
+
+                # Search among the hosts templates with name
+                host = datamgr.get_host(search={'max_results': 1,
+                                                'where': {'_is_template': True,
+                                                          'name': host_name}})
+                if not host:
+                    # Search among the templates with alias
+                    host = datamgr.get_host(search={'max_results': 1,
+                                                    'where': {'_is_template': True,
+                                                              'alias': host_name}})
+                    if not host:
+                        self.send_user_message(_("Host '%s' not found") % (host_name))
+
+        # Search service by name or alias
+        service = datamgr.get_service(search={'max_results': 1,
+                                              'where': {'host': host.id,
+                                                        'name': service_name}})
+        if not service:
+            service = datamgr.get_service(search={'max_results': 1,
+                                                  'where': {'host': host.id,
+                                                            'alias': service_name}})
+            if not service:
+                is_template = True
+
+                # Search among the services templates with name
+                host = datamgr.get_service(search={'max_results': 1,
+                                                   'where': {'_is_template': True,
+                                                             'host': host.id,
+                                                             'name': service_name}})
+                if not service:
+                    # Search among the templates with alias
+                    host = datamgr.get_service(search={'max_results': 1,
+                                                       'where': {'_is_template': True,
+                                                                 'host': host.id,
+                                                                 'alias': service_name}})
+                    if not service:
+                        self.send_user_message(_("Service '%s/%s' not found") % (host_name,
+                                                                                 service_name))
+
+        if is_template:
+            redirect('/service_form/%s' % service_name)
+
+        # Get service host
+        host = datamgr.get_host(search={'where': {'_id': service.host.id}})
+
+        # Get service dependencies
+        children = datamgr.get_servicedependencys(
+            search={'where': {'services': service.id}}
+        )
+        parents = datamgr.get_servicedependencys(
+            search={'where': {'dependent_services': service.id}}
+        )
+
+        # Search filters used for the timeline widget
+        events_search_filters = {
+            '01': (_('Web UI comments'), 'type:webui.comment'),
+            '02': (_('Check results'), 'type:check.'),
+            '03': (_('Alerts'), 'type:monitoring.alert'),
+            '04': (_('Acknowledges'), 'type:monitoring.ack'),
+            '05': (_('Downtimes'), 'type:monitoring.downtime'),
+            '06': (_('Notifications'), 'type:monitoring.notification'),
+            '07': ('', ''),
+        }
+
+        return {
+            'object_plugin': self,
+            'plugin_parameters': self.plugin_parameters,
+
+            'search_engine': self.search_engine,
+            'search_filters': events_search_filters,
+
+            'host': host,
+            'service': service,
+            'parents': parents,
+            'children': children,
+            'title': request.params.get('title', _('Service view: %s/%s'
+                                                   % (host.alias if host else '', service.alias)))
+        }
+
+    def get_form(self, host_name, service_name=None):  # pylint: disable=arguments-differ
+        """Build the form for a service.
+
+        """
+        logger.info("Service, form: %s / %s", host_name, service_name)
+
+        datamgr = request.app.datamgr
+        edition_mode = request.environ['beaker.session']['edition_mode']
+
+        # Create a new service
+        if not host_name and not service_name:
+            return {
+                'object_plugin': self,
+                'element': None
             }
-        ]
-    },
-}
+
+        # I only have one information, conside it is a service identifier
+        if host_name and not service_name:
+            service_name = host_name
+            # Search service by identifier
+            service = datamgr.get_service(search={'max_results': 1,
+                                                  'where': {'_id': service_name}})
+            if not service:
+                service = datamgr.get_service(search={'max_results': 1,
+                                                      'where': {'_is_template': True,
+                                                                '_id': service_name}})
+                if not service:
+                    logger.warning("Service, get form, I did not found a service")
+                    return {
+                        'object_plugin': self,
+                        'element': None
+                    }
+        else:
+            # Search host by name or alias
+            host = datamgr.get_host(search={'max_results': 1, 'where': {'name': host_name}})
+            if not host:
+                host = datamgr.get_host(search={'max_results': 1, 'where': {'alias': host_name}})
+                if not host:
+                    # Search among the hosts templates with name
+                    host = datamgr.get_host(search={'max_results': 1,
+                                                    'where': {'_is_template': True,
+                                                              'name': host_name}})
+                    if not host:
+                        # Search among the templates with alias
+                        host = datamgr.get_host(search={'max_results': 1,
+                                                        'where': {'_is_template': True,
+                                                                  'alias': host_name}})
+                        if not host:
+                            logger.warning("Service, get form, I did not found an host")
+                            self.send_user_message(_("Host '%s' not found") % (host_name))
+
+            # Search service by name or alias
+            service = datamgr.get_service(search={'max_results': 1,
+                                                  'where': {'host': host.id,
+                                                            'name': service_name}})
+            if not service:
+                service = datamgr.get_service(search={'max_results': 1,
+                                                      'where': {'host': host.id,
+                                                                'alias': service_name}})
+                if not service:
+                    # Search among the services templates with name
+                    host = datamgr.get_service(search={'max_results': 1,
+                                                       'where': {'_is_template': True,
+                                                                 'host': host.id,
+                                                                 'name': service_name}})
+                    if not service:
+                        # Search among the templates with alias
+                        host = datamgr.get_service(search={'max_results': 1,
+                                                           'where': {'_is_template': True,
+                                                                     'host': host.id,
+                                                                     'alias': service_name}})
+                        if not service:
+                            self.send_user_message(_("Service '%s/%s' not found") % (host_name,
+                                                                                     service_name))
+
+        if not edition_mode and not service:
+            logger.warning("Cannot create a %s element when not in edition mode",
+                           self.backend_endpoint)
+            self.send_user_message(_("Not authorized to create a %s element")
+                                   % self.backend_endpoint, redirected=True)
+
+        return {
+            'object_plugin': self,
+            'element': service
+        }
+
+    def get_service_simple_widget(self, element_id, widget_id=None,
+                                  embedded=False, identifier=None, credentials=None):
+        """Display a generic service widget"""
+        datamgr = request.app.datamgr
+
+        logger.debug("get_service_simple_widget: %s, %s", element_id, widget_id)
+
+        # Get service
+        service = datamgr.get_service(element_id)
+        if not service:
+            return self.webui.response_invalid_parameters(_('Service does not exist'))
+
+        # Get service host
+        host = datamgr.get_host(search={'where': {'_id': service.host.id}})
+
+        widget_place = request.params.get('widget_place', 'service')
+        widget_template = request.params.get('widget_template', 'service_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        logger.info("get_service_simple_widget: found template: %s", widget_template)
+
+        # Render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'plugin_parameters': self.plugin_parameters,
+
+            'host': host,
+            'service': service,
+
+            'title': None,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })
+
+    def get_service_view(self, element_id, widget_id='view',
+                         embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display a service main view widget"""
+        return self.get_service_simple_widget(element_id, widget_id,
+                                              embedded, identifier, credentials)
+
+    def get_service_information(self, element_id, widget_id='information',
+                                embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display a service information widget"""
+        return self.get_service_simple_widget(element_id, widget_id,
+                                              embedded, identifier, credentials)
+
+    def get_service_configuration(self, element_id, widget_id='configuration',
+                                  embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display a service configuration widget"""
+        return self.get_service_simple_widget(element_id, widget_id,
+                                              embedded, identifier, credentials)
+
+    def get_service_metrics(self, element_id, widget_id=None,
+                            embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display a service metrics widget"""
+        return self.get_service_simple_widget(element_id, 'metrics',
+                                              embedded, identifier, credentials)
+
+    def get_service_timeline(self, element_id, widget_id='timeline',
+                             embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument, too-many-locals
+        """Display a service timeline widget"""
+        user = request.environ['beaker.session']['current_user']
+        datamgr = request.app.datamgr
+
+        # Get service
+        service = datamgr.get_service(element_id)
+        if not service:
+            return self.webui.response_invalid_parameters(_('Service does not exist'))
+
+        # Search the required widget
+        widget_place = request.params.get('widget_place', 'service')
+        widget_template = request.params.get('widget_template', 'service_widget')
+        # Search in the application widgets (all plugins widgets)
+        for widget in self.webui.get_widgets_for(widget_place):
+            if widget_id.startswith(widget['id']):
+                widget_template = widget['template']
+                logger.info("Widget found, template: %s", widget_template)
+                break
+        else:
+            logger.info("Widget identifier not found: using default template and no options")
+
+        logger.debug("get_service_timeline: found template: %s", widget_template)
+
+        # Fetch elements per page preference for user, default is 25
+        elts_per_page = datamgr.get_user_preferences(user, 'elts_per_page', 25)
+
+        # service history pagination and search parameters
+        start = int(request.params.get('start', '0'))
+        count = int(request.params.get('count', elts_per_page))
+        where = {'service': service.id}
+
+        # Find known history types
+        history_plugin = self.webui.find_plugin('Histories')
+        if history_plugin:
+            decoded_search = Helper.decode_search(request.params.get('search', ''),
+                                                  history_plugin.table)
+            logger.info("Decoded search: %s", decoded_search)
+            if decoded_search:
+                where.update(decoded_search)
+
+        search = {
+            'page': (start // count) + 1,
+            'max_results': count,
+            'where': where
+        }
+
+        # Get service history
+        history = datamgr.get_history(search=search)
+        if history is None:
+            history = []
+        total = 0
+        if history:
+            total = history[0]['_total']
+
+        # Search filters used for the timeline widget
+        events_search_filters = {
+            '01': (_('Web UI comments'), 'type:webui.comment'),
+            '02': (_('Check results'), 'type:check.'),
+            '03': (_('Alerts'), 'type:monitoring.alert'),
+            '04': (_('Acknowledges'), 'type:monitoring.ack'),
+            '05': (_('Downtimes'), 'type:monitoring.downtime'),
+            '06': (_('Notifications'), 'type:monitoring.notification'),
+            '07': ('', ''),
+        }
+
+        # Render the widget
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': 'user',
+            'widget_template': widget_template,
+            'widget_uri': request.urlparts.path,
+            'options': {},
+
+            'plugin_parameters': self.plugin_parameters,
+            'search_engine': True,
+            'search_filters': events_search_filters,
+
+            'service': service,
+
+            'history': history,
+            'pagination': self.webui.helper.get_pagination_control(
+                '/service/%s#service_%s' % (service.id, widget_id), total, start, count
+            ),
+
+            'title': None,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })
+
+    def get_service_grafana(self, element_id, widget_id='grafana',
+                            embedded=False, identifier=None, credentials=None):
+        # pylint: disable=unused-argument
+        """Display a service grafana widget"""
+        return self.get_service_simple_widget(element_id, widget_id,
+                                              embedded, identifier, credentials)

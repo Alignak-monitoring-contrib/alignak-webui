@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -24,353 +24,156 @@
 """
 
 import json
-from collections import OrderedDict
 from logging import getLogger
 
 from bottle import request, response
 
-from alignak_webui import _
-from alignak_webui.plugins.common.common import get_table, get_table_data
+from alignak_webui.objects.element_state import ElementState
+from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Get the same schema as the applications backend and append information for the datatable view
-# Use an OrderedDict to create an ordered list of fields
-schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '#',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-    }
-}
-schema['name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Name'),
-        'width': '10px',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': True,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': True,
-        # This field is orderable (default: True)
-        'orderable': True,
-        # 'priority': 0,
-    }
-}
-schema['definition_order'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Definition order'),
-        'visible': True,
-        'hidden': True,
-        'orderable': False,
-    },
-}
-schema['alias'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Alias'),
-        'visible': True
-    },
-}
-schema['notes'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Notes')
-    }
-}
-schema['default'] = {
-    'type': 'boolean',
-    'default': False,
-    'ui': {
-        'title': _('Default realm'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['_level'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Level'),
-        'visible': True,
-    },
-}
-schema['_parent'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Parent'),
-        'visible': True
-    },
-    'data_relation': {
-        'resource': 'realm',
-        'embeddable': True
-    }
-}
-schema['hosts_critical_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Hosts critical threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['hosts_warning_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Hosts warning threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['services_critical_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Services critical threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['services_warning_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Services warning threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['globals_critical_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Global critical threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
-schema['globals_warning_threshold'] = {
-    'type': 'integer',
-    'min': 0,
-    'max': 100,
-    'default': 5,
-    'ui': {
-        'title': _('Global warning threshold'),
-        'visible': True,
-        'hidden': False
-    },
-}
+class PluginRealms(Plugin):
+    """ Realms plugin """
 
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """Realms plugin
 
-# This to define the global information for the table
-schema['ui'] = {
-    'type': 'boolean',
-    'default': True,
+        Overload the default get route to declare filters.
+        """
+        self.name = 'Realms'
+        self.backend_endpoint = 'realm'
 
-    # UI parameters for the objects
-    'ui': {
-        'page_title': _('Realm table (%d items)'),
-        'id_property': '_id',
-        'visible': True,
-        'orderable': True,
-        'editable': False,
-        'selectable': True,
-        'searchable': False,
-        'responsive': False,
-        'recursive': True
-    }
-}
-
-
-def get_realms():
-    """
-    Get the realms list
-    """
-    user = request.environ['beaker.session']['current_user']
-    datamgr = request.environ['beaker.session']['datamanager']
-    target_user = request.environ['beaker.session']['target_user']
-
-    username = user.get_username()
-    if not target_user.is_anonymous():
-        username = target_user.get_username()
-
-    # Fetch elements per page preference for user, default is 25
-    elts_per_page = datamgr.get_user_preferences(username, 'elts_per_page', 25)
-    elts_per_page = elts_per_page['value']
-
-    # Pagination and search
-    start = int(request.query.get('start', '0'))
-    count = int(request.query.get('count', elts_per_page))
-    where = webui.helper.decode_search(request.query.get('search', ''))
-    search = {
-        'page': start // (count + 1),
-        'max_results': count,
-        'sort': '-_id',
-        'where': where,
-        'embedded': {
+        self.pages = {
+            'get_realm_members': {
+                'name': _('Realm members'),
+                'route': '/realm/members/<element_id>'
+            },
         }
-    }
 
-    # Get elements from the data manager
-    items = datamgr.get_realms(search)
-    # Get last total elements count
-    total = datamgr.get_objects_count('realm', search=where, refresh=True)
-    count = min(count, total)
+        super(PluginRealms, self).__init__(webui, plugin_dir, cfg_filenames)
 
-    # Define contextual menu
-    context_menu = {
-        'actions': {
-            'action1': {
-                "label": _('Fake action 1'),
-                "icon": "ion-monitor",
-                "separator_before": False,
-                "separator_after": True,
-                "action": '''
-                    function (obj) {
-                        console.log('Fake action 1');
-                    }
-                '''
-            }
+    def get_one(self, element_name):
+        """Show one element"""
+        datamgr = request.app.datamgr
+
+        # Get realm
+        logger.debug("realm, get_one, search: %s", element_name)
+        element = datamgr.get_realm(search={'max_results': 1, 'where': {'name': element_name}})
+        if not element:
+            # Test if we got an alias instead of a name
+            element = datamgr.get_realm(search={'max_results': 1, 'where': {'alias': element_name}})
+            if not element:
+                # Test if we got an id instead of a name
+                element = datamgr.get_realm(element_name)
+                if not element:
+                    return self.webui.response_invalid_parameters(
+                        _('Required realm does not exist'))
+        logger.debug("realm, get_one, found: %s - %s", element, element.__dict__)
+
+        return {
+            'object_type': self.backend_endpoint,
+            'element': element,
+            'groups': None
         }
-    }
 
-    return {
-        'tree_type': 'realm',
-        'items': items,
-        'selectable': False,
-        'context_menu': context_menu,
-        'pagination': webui.helper.get_pagination_control('/realms', total, start, count),
-        'title': request.query.get('title', _('All realms'))
-    }
+    def get_overall_state(self, element):  # pylint:disable=no-self-use
+        """Get the realm overall state
 
+        Args:
+            element:
 
-def get_realms_list():
-    """
-    Get the realms list
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
+        Returns:
+            state (int) or -1 if any problem
+        """
+        datamgr = request.app.datamgr
 
-    # Get elements from the data manager
-    search = {'projection': json.dumps({"_id": 1, "name": 1, "alias": 1})}
-    realms = datamgr.get_realms(search, all_elements=True)
+        (overall_state, overall_status) = datamgr.get_realm_overall_state(element)
+        logger.debug(
+            " - realm overall state: %d -> %s", overall_state, overall_status
+        )
 
-    items = []
-    for realm in realms:
-        items.append({'id': realm.id, 'name': realm.alias})
+        return (overall_state, overall_status)
 
-    response.status = 200
-    response.content_type = 'application/json'
-    return json.dumps(items)
+    def get_realm_members(self, element_id):
+        """Get the realm hosts list"""
+        datamgr = request.app.datamgr
 
+        realm = datamgr.get_realm(element_id)
+        if not realm:
+            realm = datamgr.get_realm(search={'max_results': 1, 'where': {'name': element_id}})
+            if not realm:
+                return self.webui.response_invalid_parameters(_('Element does not exist: %s')
+                                                              % element_id)
 
-def get_realms_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the elements to build a table
-    """
-    return get_table('realm', schema, embedded, identifier, credentials)
-
-
-def get_realms_table_data():
-    """
-    Get the elements required by the table
-    """
-    return get_table_data('realm', schema)
-
-
-def get_realm(realm_id):
-    """
-    Display the element linked to a realm item
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    realm = datamgr.get_realm({'where': {'_id': realm_id}})
-    if not realm:  # pragma: no cover, should not happen
-        return webui.response_invalid_parameters(_('Realm element does not exist'))
-
-    return {
-        'realm_id': realm_id,
-        'realm': realm,
-        'title': request.query.get('title', _('Realm view'))
-    }
-
-
-pages = {
-    get_realm: {
-        'name': 'Realm',
-        'route': '/realm/<realm_id>',
-        'view': 'realm'
-    },
-    get_realms: {
-        'routes': [
-            ('/realms', 'Realms'),
-            ('/realms_tree', 'Realms tree')
-        ],
-        'view': '_tree',
-        'search_engine': False,
-        'search_prefix': '',
-        'search_filters': {
+        # Get elements from the data manager
+        search = {
+            'where': {'_realm': realm.id},
+            'sort': '-business_impact, -ls_state_id, -ls_last_state_changed'
         }
-    },
-    get_realms_list: {
-        'routes': [
-            ('/realms_list', 'Realms list'),
-        ]
-    },
+        hosts = datamgr.get_hosts(search=search)
+        logger.debug("get_realm_members, search: %s, found %d hosts", search, len(hosts))
 
-    get_realms_table: {
-        'name': 'Realms table',
-        'route': '/realms_table',
-        'view': '_table',
-        'tables': [
-            {
-                'id': 'realms_table',
-                'for': ['external'],
-                'name': _('Realms table'),
-                'template': '_table',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Realms table</h4>Displays a datatable for the system realms.<br>'
-                ),
-                'actions': {
-                    'realms_table_data': get_realms_table_data
-                }
-            }
-        ]
-    },
+        # Get element state configuration
+        items_states = ElementState()
 
-    get_realms_table_data: {
-        'name': 'Realms table data',
-        'route': '/realms_table_data',
-        'method': 'POST'
-    },
-}
+        items = []
+        items.append({
+            'id': -1,
+            'type': 'host',
+            'tr': """
+                <table class="table table-invisible table-condensed">
+                  <thead><tr>
+                    <th></th>
+                    <th>%s</th>
+                    <th>%s</th>
+                    <th>%s</th>
+                    <th>%s</th>
+                    <th>%s</th>
+                  </tr></thead>
+
+                  <tbody>
+                  </tbody>
+                </table>
+            """ % (
+                _("BI"), _("Element"),
+                _("Since"), _("Last check"), _("Output")
+            )
+        })
+        for member in hosts:
+            logger.debug("Realm member: %s", member)
+            cfg_state = items_states.get_icon_state('host', member.status)
+
+            tr = """<tr>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td class="hidden-xs">%s</td>
+                <td class="hidden-xs">%s</td>
+                <td class="hidden-sm hidden-xs">%s: %s</td>
+            </tr>""" % (
+                member.get_html_state(text=None, title=member.alias),
+                Helper.get_html_business_impact(member.business_impact, icon=True, text=False),
+                member.get_html_link(),
+                Helper.print_duration(member.last_state_changed, duration_only=True, x_elts=2),
+                Helper.print_duration(member.last_check, duration_only=True, x_elts=2),
+                Helper.print_date(member.last_check),
+                member.output
+            )
+            items.append({
+                'id': member.id,
+                'type': 'host',
+                'name': member.name,
+                'alias': member.alias,
+                'status': member.status,
+                'icon': 'fa fa-%s item_%s' % (cfg_state['icon'], cfg_state['class']),
+                'state': member.get_html_state(text=None, title=member.alias),
+                'tr': tr
+            })
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps(items)

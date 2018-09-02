@@ -1,0 +1,32 @@
+{
+    "action_url": "/alignak/pnp/index.php?host=$HOSTNAME$",
+    "active_checks_enabled": true,
+    "address": "127.0.0.1",
+    "address6": "::1",
+    "alias": "test_host_0",
+    "business_impact": 3,
+    "check_freshness": false,
+    "check_interval": 1,
+    "customs": {
+        "_OSLICENSE": "gpl",
+        "_OSTYPE": "gnulinux"
+    },
+    "definition_order": 100,
+    "display_name": "test_host_0",
+    "event_handler_enabled": true,
+    "freshness_state": "d",
+    "freshness_threshold": 3600,
+    "initial_state": "o",
+    "location": {
+        "coordinates": [
+            46.60611,
+            1.87528
+        ],
+        "type": "Point"
+    },
+    "max_check_attempts": 3,
+    "name": "test_host_0",
+    "notes": "",
+    "notes_url": "/alignak/wiki/doku.php/$HOSTNAME$",
+    "passive_checks_enabled": true
+}

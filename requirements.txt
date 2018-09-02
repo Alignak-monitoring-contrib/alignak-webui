@@ -2,13 +2,17 @@ future
 configparser
 docopt
 Bottle>=0.12.9,<0.13
-Beaker==1.8.0
+Beaker==1.9.0
 CherryPy
 pymongo>=3.2
 requests>=2.9.1
 python-gettext
 termcolor
-python-dateutil==2.4.2
+python-dateutil>=2.4.2
 pytz
-uwsgi
-alignak_backend_client
+
+# uWSGI server - a recommended Web server to run the application in a production environment
+# uwsgi
+# alignak_backend and alignak_backend_client
+alignak-backend
+alignak-backend-client

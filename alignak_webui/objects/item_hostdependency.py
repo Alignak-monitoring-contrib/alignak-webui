@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -26,16 +26,11 @@
 """
     This module contains the classes used to manage the application objects with the data manager.
 """
-# noinspection PyProtectedMember
-from alignak_webui import _
-
 from alignak_webui.objects.element import BackendElement
 
 
 class HostDependency(BackendElement):
-    """
-    Object representing a hostdependency
-    """
+    """Object representing a hostdependency"""
     _count = 0
     # Next value used for auto generated id
     _next_id = 1
@@ -44,33 +39,43 @@ class HostDependency(BackendElement):
     # _cache is a list of created objects
     _cache = {}
 
-    def _create(self, params, date_format):
-        """
-        Create a hostdependency (called only once when an object is newly created)
-        """
+    def __init__(self, params=None, date_format='%a, %d %b %Y %H:%M:%S %Z', embedded=True):
+        """Create a hostdependency (called only once when an object is newly created)"""
+        self._linked__realm = 'realm'
         self._linked_dependent_hosts = 'host'
         self._linked_dependent_hostgroups = 'hostgroup'
         self._linked_hosts = 'host'
         self._linked_hostgroups = 'hostgroup'
+        self._linked_dependency_period = 'timeperiod'
 
-        super(HostDependency, self)._create(params, date_format)
+        super(HostDependency, self).__init__(params, date_format, embedded)
+
+    @property
+    def _realm(self):
+        """Return concerned realm"""
+        return self._linked__realm
 
     @property
     def hosts(self):
-        """ Return concerned hosts """
+        """Return concerned hosts"""
         return self._linked_hosts
 
     @property
     def hostgroups(self):
-        """ Return concerned hosts groups """
+        """Return concerned hosts groups"""
         return self._linked_hostgroups
 
     @property
     def dependent_hosts(self):
-        """ Return dependent hosts """
+        """Return dependent hosts"""
         return self._linked_dependent_hosts
 
     @property
     def dependent_hostgroups(self):
-        """ Return concerned dependent hosts groups """
+        """Return concerned dependent hosts groups"""
         return self._linked_dependent_hostgroups
+
+    @property
+    def dependency_period(self):
+        """Return concerned dependency timeperiod"""
+        return self._linked_dependency_period

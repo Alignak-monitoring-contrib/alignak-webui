@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -30,37 +30,36 @@
     to implement this interface. The ElementsView class used by (almost ...) all the elements
     contains a property which is a Datatable object.
 """
+
 import json
 from logging import getLogger
+
 from bottle import request
 
-from alignak_webui import _
-
-# Import all objects we will need
-# pylint: disable=wildcard-import,unused-wildcard-import
-# We need all the classes defined whatever their number to use the globals() object.
-# from alignak_webui.objects.datamanager import DataManager
-# from alignak_webui.objects.element import *
-
+from alignak_webui.objects.element_state import ElementState
 from alignak_webui.utils.helper import Helper
+from alignak_webui.objects.element import BackendElement
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
 
 class Datatable(object):
-    """ jQuery  Datatable plugin interface for backend elements """
 
-    def __init__(self, object_type, datamgr, schema):
-        """
-        Create a new datatable:
+    """jQuery  Datatable plugin interface for backend elements """
+
+    def __init__(self, object_type, datamgr, plugin_table, templates=False):
+        """ Create a new datatable:
+
         - object_type: object type in the backend
         - backend: backend endpoint (http://127.0.0.1:5002)
-        - schema: model dictionary (see hosts.py as an example)
+        - plugin_table: table configuration as defined in a plugin
+        - templates: templates table or objects table (False)
         """
         self.object_type = object_type
         self.datamgr = datamgr
-        self.backend = self.datamgr.backend
 
+        # Update global table records count, require total count from backend
         self.records_total = 0
         self.records_filtered = 0
 
@@ -70,18 +69,22 @@ class Datatable(object):
 
         self.title = ""
 
+        # data_model is the complete data model of the plugin
+        self.data_model = []
+        # table_columns only contains the columns displayed in the table view
         self.table_columns = []
         self.initial_sort = []
+        self.embedded = []
 
         self.visible = True
         self.printable = True
         self.orderable = True
         self.selectable = True
         self.searchable = True
-        self.editable = False
+        self.editable = True
         self.responsive = True
         self.recursive = False
-        self.commands = (object_type == 'livestate')
+        self.commands = object_type in ['host', 'service', 'user']
 
         self.css = "compact nowrap"
 
@@ -89,17 +92,39 @@ class Datatable(object):
         self.exportable = True
         self.printable = True
 
+        # Table concerns a templated / ui visible backend endpoint (host, service, user)
+        self.is_templated = False
+        self.ui_visibility = False
+
         self.id_property = None
         self.name_property = None
         self.status_property = None
 
-        self.get_data_model(schema)
+        # Get table structure and description
+        self.templates = templates
+        self.get_data_model(plugin_table)
 
-    ##
-    # Data model
-    ##
-    def get_data_model(self, schema):
-        """ Get the data model for an element type
+        # Count total elements excluding templates if necessary
+        if self.is_templated:
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates,
+                                                        'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates}}
+                )
+        else:
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(self.object_type)
+
+    def get_data_model(self, plugin_table):
+        """Get the data model for an element type
 
             If the data model specifies that the element is managed in the UI,
             all the fields for this element are provided
@@ -111,114 +136,126 @@ class Datatable(object):
                 of the linked object
                 - if the field contains 'allowed' values, format is set to 'select'
 
-
             Returns a dictionary containing:
             - element_type: element type
             - uid: unique identifier for the element type. Contains the field that is to be used as
                 a unique identifier field
             - page_title: title format string to be used for an element page
             - fields: list of dictionaries. One dictionary per each field mentioned as visible in
-                the ui in its schema. The dictionary contains all the fields defined in the 'ui'
-                property of the schema of the element.
+                the ui in its plugin_table.
 
-            :param schema:
-            :return: list of fields name/title
-            :rtype: list
-            :return: dictionary
-            :rtype: dict
-        """
+            :return: list of fields name/title"""
+        # Current logged user skill level
+        user_level = self.datamgr.logged_in_user.skill_level
+
+        self.data_model = []
         self.table_columns = []
+        for field, model in plugin_table.iteritems():
+            logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
 
-        if not schema:
-            logger.error(
-                "get_data_model, missing schema"
-            )
-            return None
-
-        ui_dm = {
-            'element_type': self.object_type,
-            'model': {
-                'id_property': None,
-                'page_title': '',
-                'fields': {}
-            }
-        }
-
-        for field, model in schema.iteritems():
-            if field == 'ui':
-                if 'id_property' not in model['ui']:  # pragma: no cover - should never happen
-                    logger.error(
-                        'get_data_model, UI schema is not well formed: missing uid property'
-                    )
-                    continue
-                logger.debug(
-                    'get_data_model, table UI schema: %s', model['ui']
-                )
-
-                self.id_property = model['ui'].get('id_property', '_id')
-                self.name_property = model['ui'].get('name_property', 'name')
-                self.status_property = model['ui'].get('status_property', 'status')
-
-                self.title = model['ui']['page_title']
-                self.visible = model['ui'].get('visible', True)
-                self.printable = model['ui'].get('printable', True)
-                self.orderable = model['ui'].get('orderable', True)
-                self.selectable = model['ui'].get('selectable', True)
-                self.editable = model['ui'].get('editable', False)
-                self.searchable = model['ui'].get('searchable', True)
-                self.responsive = model['ui'].get('responsive', True)
-                self.recursive = model['ui'].get('recursive', False)
-                self.css = model['ui'].get('css', "display")
-
-                self.initial_sort = model['ui'].get('initial_sort', [[2, 'asc']])
+            if 'skill_level' in model and model['skill_level'] > user_level:
+                logger.info("UI field has a greater skill level: %s.%s vs %s",
+                            field, model['skill_level'], user_level)
                 continue
 
-            # If element is considered for the UI
-            if 'ui' not in model:
+            # Global table configuration?
+            if field == '_table':
+                self.id_property = model.get('id_property', '_id')
+                self.name_property = model.get('name_property', 'name')
+                self.status_property = model.get('status_property', 'status')
+
+                self.items_title = model.get('page_title', _('Items table (%d items)'))
+                self.templates_title = model.get('template_page_title', self.items_title)
+
+                self.visible = model.get('visible', self.visible)
+                self.printable = model.get('printable', self.printable)
+                self.orderable = model.get('orderable', self.orderable)
+                self.selectable = model.get('selectable', self.selectable)
+                self.editable = model.get('editable', self.editable)
+                self.searchable = model.get('searchable', self.searchable)
+                self.responsive = model.get('responsive', self.responsive)
+                self.recursive = model.get('recursive', self.recursive)
+                self.commands = model.get('commands', self.commands)
+                self.paginable = model.get('paginable', self.paginable)
+                self.css = model.get('css', "display nowrap")
+
+                self.initial_sort = model.get('initial_sort', [[0, 'desc']])
                 continue
 
-            if not model['ui'].get('visible'):
+            if field == '_is_template':
+                self.is_templated = True
+
+            if field == 'webui_visible':
+                self.ui_visibility = True
+
+            if self.templates:
+                self.title = self.templates_title
+            else:
+                self.title = self.items_title
+
+            # ignore this field if we display the templates and it is configured as ignored...
+            templates_included = model.get('templates_table', False)
+            if self.templates and not templates_included:
+                logger.debug('get_data_model, templates table filtered: %s', field)
                 continue
 
-            logger.warning("get_data_model, visible field: %s = %s", field, model)
-
-            ui_dm['model']['fields'].update({field: {
+            # Get all the definitions made in the plugin configuration...
+            ui_field = model
+            # Update them with some specific information...
+            ui_field.update({
                 'data': field,
                 'type': model.get('type', 'string'),
-                'allowed': ','.join(model.get('allowed', [])),
-                'defaultContent': model.get('default', ''),
-                'regex': model['ui'].get('regex', True),
-                'title': model['ui'].get('title', field),
-                'format': model['ui'].get('format', 'string'),
-                'size': model['ui'].get('size', 10),
-                'visible': not model['ui'].get('hidden', False),
-                'orderable': model['ui'].get('orderable', True),
-                'editable': model['ui'].get('editable', False),
-                'searchable': model['ui'].get('searchable', True),
-            }})
+                'content_type': model.get('content_type', model.get('type', 'string')),
+                'allowed': model.get('allowed', ''),
+                'default': model.get('default', ''),
+                'required': model.get('required', False),
+                'empty': model.get('empty', False),
+                'unique': model.get('unique', False),
 
-            # Specific format fields
-            if 'allowed' in model:
-                ui_dm['model']['fields'][field].update(
-                    {'format': 'select'}
-                )
-            if 'data_relation' in model and model['data_relation']['embeddable']:
-                ui_dm['model']['fields'][field].update(
-                    {'format': model['data_relation']['resource']}
-                )
-            logger.debug("ui_dm, field: %s = %s", field, ui_dm['model']['fields'][field])
+                'regex_search': model.get('regex_search', True),
+                'title': model.get('title', field),
+                'comment': model.get('comment', ''),
+                'format': model.get('format', ''),
+                'format_parameters': model.get('format_parameters', ''),
+                'visible': model.get('visible', True),
+                'hidden': model.get('hidden', False),
+                'orderable': model.get('orderable', True),
+                'editable': model.get('editable', True),
+                'searchable': model.get('searchable', True),
+            })
 
-            # Convert data model format to datatables' one ...
-            self.table_columns.append(ui_dm['model']['fields'][field])
+            # If one says a field is hidden, it means that it must be visible ...
+            # but it will be hidden!
+            if model.get('hidden', False):
+                ui_field.update({'visible': True})
 
-    ##
-    # Localization
-    ##
+            if self.templates and templates_included:
+                ui_field.update({'visible': True})
+                ui_field.update({'hidden': False})
+
+            if model.get('type') in ['objectid', 'list'] and model.get('data_relation', None):
+                relation = model.get('data_relation')
+                logger.debug('get_data_model, object/list field: %s / %s',
+                             field, relation.get('resource', None))
+                ui_field.update(
+                    {'content_type': 'objectid:' + relation.get('resource', 'unknown')})
+
+            # logger.debug("get_data_model, field: %s = %s", field, ui_field)
+
+            # If not hidden, return field
+            # self.data_model.append(ui_field)
+            if not model.get('hidden', False):
+                self.table_columns.append(ui_field)
+
+                if ui_field['type'] == 'objectid' or \
+                        ui_field['content_type'].startswith('objectid'):
+                    self.embedded.append(ui_field['data'])
+
+        return self.data_model
+
     @staticmethod
     def get_language_strings():
-        """
-        Get DataTable language strings
-        """
+        """Get DataTable language strings"""
         return {
             'decimal': _('.'),
             'thousands': _(','),
@@ -255,7 +292,7 @@ class Datatable(object):
                     '_': _('Show %d rows')
                 },
 
-                'collection': _('<span class="fa fa-external-link"></span>'),
+                'collection': _('<span class="fa fa-download"></span>'),
                 'csv': _('CSV'),
                 'excel': _('Excel'),
                 'pdf': _('PDF'),
@@ -287,14 +324,11 @@ class Datatable(object):
             }
         }
 
-    #
-    # Data source
-    #
-    def table_data(self):
+    def table_data(self, plugin_table):
         # Because there are many locals needed :)
         # pylint: disable=too-many-locals
-        """
-        Return elements data in json format as of Datatables SSP protocol
+        """Return elements data in json format as of Datatables SSP protocol
+
         More info: https://datatables.net/manual/server-side
 
         Example URL::
@@ -319,7 +353,7 @@ class Datatable(object):
 
         Request Parameters:
         - object_type: object type managed by the datatable
-        - links: urel prefix to be used by the links in the table
+        - links: url prefix to be used by the links in the table
         - embedded: true / false whether the table is embedded by an external application
             **Note**: those three first parameters are not datatable specific parameters :)
 
@@ -363,7 +397,8 @@ class Datatable(object):
             Not included if there is no error.
         """
         # Manage request parameters ...
-        logger.info("request data for table: %s", request.params.get('object_type'))
+        logger.info("request data for table: %s, templates: %s",
+                    request.forms.get('object_type'), self.templates)
 
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
@@ -386,10 +421,8 @@ class Datatable(object):
 
         parameters['page'] = (first_row // rows_count) + 1
         parameters['max_results'] = rows_count
-        logger.info(
-            "get %d rows from row #%d -> page: %d",
-            rows_count, first_row, parameters['page']
-        )
+        logger.debug("get %d rows from row #%d -> page: %d",
+                     rows_count, first_row, parameters['page'])
 
         # Columns ordering
         # order:[{"column":2,"dir":"desc"}]
@@ -412,17 +445,15 @@ class Datatable(object):
             logger.info("backend order request parameters: %s", parameters)
 
         # Individual column search parameter
-        searched_columns = []
+        s_columns = []
         if 'columns' in params and params['columns']:
             for column in params['columns']:
                 if 'searchable' not in column or 'search' not in column:  # pragma: no cover
                     continue
                 if 'value' not in column['search'] or not column['search']['value']:
                     continue
-                logger.debug(
-                    "search column '%s' for '%s'",
-                    column['data'], column['search']['value']
-                )
+                logger.debug("search column '%s' for '%s'",
+                             column['data'], column['search']['value'])
 
                 for field in self.table_columns:
                     if field['data'] != column['data']:
@@ -430,17 +461,17 @@ class Datatable(object):
 
                     # Some specific types...
                     if field['type'] == 'boolean':
-                        searched_columns.append(
+                        s_columns.append(
                             {column['data']: column['search']['value'] == 'true'}
                         )
                     elif field['type'] == 'integer':
-                        searched_columns.append(
+                        s_columns.append(
                             {column['data']: int(column['search']['value'])}
                         )
                     elif field['format'] == 'select':
                         values = column['search']['value'].split(',')
                         if len(values) > 1:
-                            searched_columns.append(
+                            s_columns.append(
                                 {
                                     column['data']: {
                                         "$in": values
@@ -448,14 +479,14 @@ class Datatable(object):
                                 }
                             )
                         else:
-                            searched_columns.append(
+                            s_columns.append(
                                 {column['data']: values[0]}
                             )
                     # ... the other fields :)
                     else:
                         # Do not care about 'smart' and 'caseInsensitive' boolean parameters ...
                         if column['search']['regex']:
-                            searched_columns.append(
+                            s_columns.append(
                                 {
                                     column['data']: {
                                         "$regex": ".*" + column['search']['value'] + ".*"
@@ -463,72 +494,102 @@ class Datatable(object):
                                 }
                             )
                         else:
-                            searched_columns.append(
+                            s_columns.append(
                                 {column['data']: column['search']['value']}
                             )
                     break
 
-            logger.info("backend search columns parameters: %s", searched_columns)
+            logger.info("backend search individual columns parameters: %s", s_columns)
 
         # Global search parameter
         # search:{"value":"test","regex":false}
-        searched_global = []
+        s_global = {}
         # pylint: disable=too-many-nested-blocks
         # Will be too complex else ...
         if 'search' in params and 'columns' in params and params['search']:
+            # params['search'] contains something like: {u'regex': False, u'value': u'name:pi1'}
+            # global regex is always ignored ... in favor of the column declared regex
+            logger.info("global search requested: %s ", params['search'])
             if 'value' in params['search'] and params['search']['value']:
-                logger.debug(
-                    "search requested, value: %s ",
-                    params['search']['value']
-                )
-                for column in params['columns']:
-                    if 'searchable' in column and column['searchable']:
-                        logger.debug(
-                            "search global '%s' for '%s'",
-                            column['data'], params['search']['value']
-                        )
-                        if 'regex' in params['search']:
-                            if params['search']['regex']:
-                                searched_global.append(
-                                    {
-                                        column['data']: {
-                                            "$regex": ".*" + params['search']['value'] + ".*"
-                                        }
-                                    }
-                                )
-                            else:
-                                searched_global.append(
-                                    {column['data']: params['search']['value']}
-                                )
+                # There is something to search for...
+                logger.debug("search requested, value: %s ", params['search']['value'])
 
-            logger.info("backend search global parameters: %s", searched_global)
+                # New strategy: decode search patterns...
+                search = Helper.decode_search(params['search']['value'], plugin_table)
+                logger.info("decoded search pattern: %s", search)
 
-        if searched_columns and searched_global:
-            parameters['where'] = {"$and": [
-                {"$and": searched_columns},
-                {"$or": searched_global}
-            ]}
-        if searched_columns:
-            parameters['where'] = {"$and": searched_columns}
-        if searched_global:
-            parameters['where'] = {"$or": searched_global}
+                # Old strategy: search for the value in all the searchable columns...
+                # if not search:
+                #     logger.info("applying datatable search pattern...")
+                #     for column in params['columns']:
+                #         if not column['searchable']:
+                #             continue
+                #         logger.debug("search global '%s' for '%s'",
+                #                      column['data'], params['search']['value'])
+                #         if 'regex' in params['search']:
+                #             if params['search']['regex']:
+                #                 s_global.update(
+                #                     {column['data']: {
+                #                         "$regex": ".*" + params['search']['value'] + ".*"}})
+                #             else:
+                #                 s_global.update({column['data']: params['search']['value']})
+                s_global = search
 
-        # Embed linked resources
+            logger.info("backend search global parameters: %s", s_global)
+
+        # Specific hack to filter the log check results that are not dated!
+        if self.object_type == 'logcheckresult':
+            s_columns.append({"last_check": {"$ne": 0}})
+
+        if s_columns and s_global:
+            parameters['where'] = {"$and": [{"$and": s_columns}, s_global]}
+        elif s_columns:
+            parameters['where'] = {"$and": s_columns}
+        elif s_global:
+            parameters['where'] = s_global
+
+        # Embed linked resources / manage templated resources
         parameters['embedded'] = {}
-        for field in self.table_columns:
-            if field['type'] == 'objectid' and field['format'] != 'objectid':
-                parameters['embedded'].update({field['data']: 1})
-        if parameters['embedded']:
-            logger.info("backend embedded parameters: %s", parameters['embedded'])
+        for field in self.embedded:
+            parameters['embedded'].update({field: 1})
 
-        # Update global table records count, require total count from backend
-        self.records_total = self.backend.count(self.object_type)
+        logger.debug("backend embedded parameters: %s", parameters['embedded'])
+
+        # Count total elements excluding templates if necessary
+        if self.is_templated:
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates,
+                                                        'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'_is_template': self.templates}}
+                )
+            if 'where' in parameters:
+                parameters['where'].update({'_is_template': self.templates})
+            else:
+                parameters['where'] = {'_is_template': self.templates}
+        else:
+            if self.ui_visibility:
+                self.records_total = self.datamgr.my_backend.count(
+                    self.object_type, params={'where': {'webui_visible': True}}
+                )
+            else:
+                self.records_total = self.datamgr.my_backend.count(self.object_type)
+
+        if self.ui_visibility:
+            if 'where' in parameters:
+                parameters['where'].update({'webui_visible': True})
+            else:
+                parameters['where'] = {'webui_visible': True}
 
         # Request objects from the backend ...
-        logger.debug("table data get parameters: %s", parameters)
-        items = self.backend.get(self.object_type, params=parameters)
-
+        logger.info("table data get parameters: %s", parameters)
+        items = self.datamgr.my_backend.get(self.object_type, params=parameters)
+        logger.info("table data got %d items", len(items))
         if not items:
+            logger.info("No backend elements match search criteria: %s", parameters)
             # Empty response
             return json.dumps({
                 # draw is the request number ...
@@ -540,81 +601,179 @@ class Datatable(object):
 
         # Create an object ...
         object_class = [kc for kc in self.datamgr.known_classes
-                        if kc.get_type() == self.object_type][0]
-        bo_object = object_class()
+                        if kc.get_type() == self.object_type]
+        if not object_class:  # pragma: no cover, should never happen!
+            logger.warning("datatable, unknown object type: %s", self.object_type)
+            # Empty response
+            return json.dumps({
+                # draw is the request number ...
+                "draw": int(params.get('draw', '0')),
+                "recordsTotal": 0,
+                "recordsFiltered": 0,
+                "data": []
+            })
 
-        # Update inner properties
+        # Update table inner properties with the object class defined properties
+        object_class = object_class[0]
+
         self.id_property = '_id'
-        if hasattr(bo_object.__class__, 'id_property'):
-            self.id_property = bo_object.__class__.id_property
+        if hasattr(object_class, 'id_property'):
+            self.id_property = object_class.id_property
         self.name_property = 'name'
-        if hasattr(bo_object.__class__, 'name_property'):
-            self.name_property = bo_object.__class__.name_property
+        if hasattr(object_class, 'name_property'):
+            self.name_property = object_class.name_property
         self.status_property = 'status'
-        if hasattr(bo_object.__class__, 'status_property'):
-            self.status_property = bo_object.__class__.status_property
+        if hasattr(object_class, 'status_property'):
+            self.status_property = object_class.status_property
+        logger.debug("datatable, object type: '%s' and properties: %s / %s / %s",
+                     object_class, self.id_property, self.name_property, self.status_property)
 
-        # Change item content ...
-        for item in items:
-            bo_object = object_class(item)
-            logger.debug("livestate object item: %s", bo_object)
-
-            for key in item.keys():
-                for field in self.table_columns:
-                    if field['data'] != key:
-                        continue
-
-                    if field['data'] == self.name_property:
-                        item[key] = bo_object.get_html_link(prefix=request.params.get('links'))
-
-                    if field['data'] == self.status_property:
-                        item[key] = bo_object.get_html_state()
-
-                    if field['data'] == "business_impact":
-                        item[key] = Helper.get_html_business_impact(bo_object.business_impact)
-
-                    # Specific fields type
-                    if field['type'] == 'datetime' or field['format'] == 'date':
-                        item[key] = bo_object.get_date(item[key])
-
-                    if field['type'] == 'boolean':
-                        item[key] = Helper.get_on_off(item[key])
-
-                    if field['type'] == 'list':
-                        item[key] = Helper.get_html_item_list(
-                            bo_object.id, key,
-                            getattr(bo_object, key), title=field['title']
-                        )
-
-                    if field['type'] == 'objectid' and \
-                       key in parameters['embedded'] and item[key]:
-                        related_object_class = [kc for kc in self.datamgr.known_classes
-                                                if kc.get_type() == field['format']][0]
-                        linked_object = related_object_class(item[key])
-                        item[key] = linked_object.get_html_link(
-                            prefix=request.params.get('links')
-                        )
-                        break
-
-            # Very specific fields...
-            if self.responsive:
-                item['#'] = ''
-
+        # Change item content...
+        rows = []
         # Total number of filtered records
         self.records_filtered = self.records_total
-        if 'where' in parameters and parameters['where'] != {}:
-            logger.debug("update filtered records: %s", parameters['where'])
-            self.records_filtered = len(items)
-        logger.info(
-            "filtered records: %d out of total: %d", self.records_filtered, self.records_total
-        )
+        for item in items:
+            bo_object = object_class(item)
+            if not bo_object.ui_visible:
+                logger.debug("Not UI visible object: %s", bo_object)
+                continue
 
-        # Prepare response
-        rsp = {
-            # draw is the request number ...
+            logger.debug("table data object: %s", bo_object)
+            # This is an awful hack that allows to update the objects filtered for a table.
+            # Two main interests:
+            # - update the backend because some massive modifications are necessary for testing
+            # - prepare a massive update feature in the Web UI :)
+            # -----
+            # if self.is_templated and self.templates and self.object_type == 'service':
+            #     logger.warning("service template: %s for host: %s",
+            #                    bo_object.name, bo_object['host'])
+            #     if bo_object['host'].name.startswith('fdj'):
+            #         logger.info("To be updated...")
+            #         data = {
+            #             "check_freshness": True,
+            #             "freshness_threshold": 86400,
+            #             "passive_checks_enabled": True,
+            #             "active_checks_enabled": False
+            #         }
+            #         result = self.datamgr.update_object(element=bo_object, data=data)
+            #         if result is True:
+            #             logger.info("updated.")
+            #         else:
+            #             logger.error("update failed!")
+            # -----
+
+            # Each item contains the total number of records matching the search filter
+            self.records_filtered = item['_total']
+
+            row = {}
+            row['DT_RowData'] = {}
+            row['_id'] = bo_object.id
+            for field in self.table_columns:
+                logger.debug(" - field: %s", field)
+                # Specific fields
+                if field['data'] == self.name_property:
+                    # Create a link to navigate to the item page
+                    row[self.name_property] = bo_object.html_link
+                    # Store the item name in a specific field of the row.
+                    # The value will be retrieved by the table actions (ack, recheck, ...)
+                    row['DT_RowData'].update({"object_%s" % self.object_type: bo_object.name})
+                    continue
+
+                if field['data'] == self.status_property:
+                    # Replace the text status with the specific item HTML state
+                    row[self.status_property] = bo_object.get_html_state(text=None,
+                                                                         title=bo_object.status)
+                    # Use the item status to specify the table row class
+                    # row['DT_RowClass'] = "table-row-%s" % (bo_object.status.lower())
+                    continue
+
+                if field['data'] in ['_overall_state_id', 'overall_state', 'overall_status']:
+                    # Get the item overall state from the data manager
+                    f_get_overall_state = getattr(self.datamgr,
+                                                  'get_%s_overall_state' % self.object_type)
+                    if f_get_overall_state:
+                        (dummy, overall_status) = f_get_overall_state(bo_object)
+
+                        # Get element state configuration
+                        row[field['data']] = ElementState().get_html_state(
+                            self.object_type, bo_object,
+                            text=None,
+                            title=bo_object.overall_state_to_title[bo_object.overall_state],
+                            use_status=overall_status
+                        )
+                        # Use the item overall state to specify the table row class
+                        row['DT_RowClass'] = "table-row-%s" % (overall_status)
+                    else:  # pragma: no cover, should never happen!
+                        logger.warning("Missing get_overall_state method for: %s", self.object_type)
+                        row[field['data']] = 'XxX'
+                    continue
+
+                if "business_impact" in field['data']:
+                    # Replace the BI count with the specific item HTML formatting
+                    row[field['data']] = Helper.get_html_business_impact(bo_object.business_impact)
+                    continue
+
+                # Specific fields type
+                if field['type'] == 'datetime' or field['format'] == 'datetime':
+                    # Replace the timestamp with the formatted date
+                    row[field['data']] = bo_object.get_date(bo_object[field['data']])
+                    continue
+
+                if field['type'] == 'boolean':
+                    # Replace the boolean vaue with the specific item HTML formatting
+                    row[field['data']] = Helper.get_on_off(bo_object[field['data']])
+                    continue
+
+                if field['type'] == 'list':
+                    # Replace the list with the specific list HTML formatting
+                    if hasattr(bo_object, field['data']):
+                        row[field['data']] = Helper.get_html_item_list(
+                            bo_object.id, field['data'],
+                            getattr(bo_object, field['data']), title=field['title']
+                        )
+                    else:
+                        row[field['data']] = 'Unknown'
+                    continue
+
+                if field['type'] == 'dict':
+                    # Replace the dictionary with the specific dict HTML formatting
+                    row[field['data']] = Helper.get_html_item_list(
+                        bo_object.id, field['data'],
+                        getattr(bo_object, field['data']), title=field['title']
+                    )
+                    continue
+
+                if field['type'] == 'objectid':
+                    if isinstance(bo_object[field['data']], BackendElement):
+                        row[field['data']] = bo_object[field['data']].get_html_link(
+                            prefix=request.params.get('links')
+                        )
+                        # row['DT_RowData'].update({
+                        #     "object_%s" % field['data']: bo_object[field['data']].name
+                        # })
+                    else:
+                        logger.warning("Table field is supposed to be an object: %s, %s = %s",
+                                       bo_object.name, field['data'],
+                                       getattr(bo_object, field['data']))
+                        row[field['data']] = getattr(bo_object, field['data'])
+                        if row[field['data']] == field['resource']:
+                            row[field['data']] = '...'
+                    continue
+
+                # For any non-specific fields, send the field value to the table
+                row[field['data']] = getattr(bo_object, field['data'], 'unset')
+            logger.debug("table data row: %s", row)
+
+            # logger.debug("Table row: %s", row)
+            rows.append(row)
+
+        logger.debug("filtered records: %d out of total: %d",
+                     self.records_filtered, self.records_total)
+
+        # Send response
+        return json.dumps({
             "draw": int(params.get('draw', '0')),
             "recordsTotal": self.records_total,
             "recordsFiltered": self.records_filtered,
-            "data": items
-        }
-        return json.dumps(rsp)
+            "data": rows
+        })

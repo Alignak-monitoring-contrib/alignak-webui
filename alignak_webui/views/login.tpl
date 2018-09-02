@@ -4,10 +4,10 @@
       <!--
          %# Web UI application about content
          %from bottle import request
-         %from alignak_webui import manifest
+         %from alignak_webui import __manifest__
          This file is a part of {{request.app.config.get('name', 'WebUI')}}.
 
-         {{request.app.config.get('about_name', manifest['name'])}} {{request.app.config.get('about_version', manifest['version'])}}, &copy;&nbsp;{{request.app.config.get('about_copyright', manifest['copyright'])}}
+         {{request.app.config.get('about_name', __manifest__['name'])}} {{request.app.config.get('about_version', __manifest__['version'])}}, &copy;&nbsp;{{request.app.config.get('about_copyright', __manifest__['copyright'])}}
       -->
 
       <!--[if lt IE 9]>
@@ -22,39 +22,39 @@
 
       <link href="/static/images/favicon.ico" rel="shortcut icon">
 
-      <!-- Stylesheets
-      ================================================== -->
-      <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-      <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
-      <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-      <link href="/static/css/alignak_webui.css" rel="stylesheet">
-
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design -->
-      <link rel="stylesheet" type="text/css" href="/static/css/material/bootstrap-material-design.css">
-      <link rel="stylesheet" type="text/css" href="/static/css/material/ripples.min.css">
+      <!-- Stylesheets -->
+      %# WebUI CSS files
+      %for f in webui.css_list:
+      <link rel="stylesheet" href="{{f}}">
       %end
 
-      <!-- Scripts
-      ================================================== -->
-      <script src="/static/js/jquery-1.12.0.min.js"></script>
-      <script src="/static/js/bootstrap.min.js"></script>
+      <!-- Alignak Web UI (included in the previous files list)
+      <link rel="stylesheet" href="/static/css/alignak_webui.css" >
+      <link rel="stylesheet" href="/static/css/alignak_webui-items.css" >
+      -->
 
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design -->
-      <script src="/static/js/material/material.min.js"></script>
-      <script src="/static/js/material/ripples.min.js"></script>
+      <!--
+         Application libraries
+      -->
+      %# WebUI Javascript files
+      %for f in webui.js_list:
+      <script type="text/javascript" src="{{f}}"></script>
       %end
    </head>
 
    <body>
       <div class="container" style="padding-top: 10vh;">
-         <div class="col-sm-6 col-sm-offset-3">
+         <div class="col-xs-12 col-sm-6 col-sm-offset-3">
             <div class="login-panel panel panel-default" style="padding: 2vh;">
                <div class="panel-heading">
-                  <h2>{{request.app.config.get('about_name', manifest['name'])}} <small>{{_('version ')}}{{request.app.config.get('about_version', manifest['version'])}}</small></h2>
+                  <h2>{{request.app.config.get('about_name', __manifest__['name'])}}</h2>
+                  <h3>{{_('Version ')}}{{request.app.config.get('about_version', __manifest__['version'])}}</h3>
                   <center>
-                     <img src="{{company_logo}}" alt="{{_('Company Logo')}}" style="width: 80%"/>
+                     <img
+                        src="{{request.app.config.get('app_logo', '/static/images/alignak_white_logo.png')}}"
+                        style="{{request.app.config.get('login_logo_css', 'width:90%')}}"
+                        alt="{{_('Alignak WebUI logo')}}"
+                        title="{{request.app.config.get('app_logo_title', _('Alignak Web User Interface'))}}" />
                   </center>
                </div>
                <div class="panel-body">
@@ -78,12 +78,19 @@
                      {{message}}
                   </div>
                   %end
-               </div>
-               %if message or login_text:
-               <div class="panel-footer">
-                  %if login_text:
-                  <h4>{{! login_text}}</h4>
+                  %login_alert=request.app.config.get('login_alert', _('Bla bla bla...'))
+                  %if login_alert:
+                  <div id="login-alert" class="alert alert-warning" role="alert">
+                     <strong>{{_('Alignak WebUI is a nice Proof of Concept!')}}</strong>
+                     <br>
+                     {{! login_alert}}
+                  </div>
                   %end
+               </div>
+               %login_text=request.app.config.get('login_text', _('Welcome to <strong>Alignak WebUI</strong><br> Log-in to use the application'))
+               %if login_text:
+               <div class="panel-footer">
+                  <h4>{{! login_text}}</h4>
                </div>
                %end
             </div>
@@ -91,15 +98,6 @@
       </div>
 
       %include("_footer")
-
-      %if request.app.config.get('material_design', '0') == '1':
-      <!-- Bootstrap Material Design -->
-      <script src="/static/js/material/material.min.js"></script>
-      <script src="/static/js/material/ripples.min.js"></script>
-      <script>
-      $.material.init();
-      </script>
-      %end
 
       <script>
       $(document).ready(function() {
@@ -109,6 +107,8 @@
          $('body').on("submit", 'form[action="/login"]', function (evt) {
             $('#login-message').hide();
          });
+
+         $.material.init();
       });
       </script>
    </body>

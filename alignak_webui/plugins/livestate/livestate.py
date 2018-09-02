@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -23,533 +23,203 @@
     Plugin Livestate
 """
 
-from collections import OrderedDict
+import json
 from logging import getLogger
 
-from bottle import request, redirect
+from bottle import request, response, template
 
-from alignak_webui import _
-from alignak_webui.plugins.common.common import get_widget, get_table, get_table_data
+from alignak_webui.utils.plugin import Plugin
+from alignak_webui.utils.helper import Helper
 
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 
-# Will be populated by the UI with it's own value
-webui = None
 
-# Get the same schema as the applications backend and append information for the datatable view
-# Use an OrderedDict to create an ordered list of fields
-schema = OrderedDict()
-# Specific field to include the responsive + button used to display hidden columns on small devices
-schema['#'] = {
-    'type': 'string',
-    'ui': {
-        'title': '#',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': False,
-        # This field is orderable (default: True)
-        'orderable': False,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': False,
-        # defines the priority for the responsive column hidding (0 is the most important)
-        # Default is 10000
-        # 'priority': 0,
-    }
-}
-schema['type'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Type'),
-        'width': '10px',
-        # This field is visible (default: False)
-        'visible': True,
-        # This field is initially hidden (default: False)
-        'hidden': False,
-        # This field is searchable (default: True)
-        'searchable': True,
-        # search as a regex (else strict value comparing when searching is performed)
-        'regex': True,
-        # This field is orderable (default: True)
-        'orderable': True,
-        # 'priority': 0,
-    },
-    'allowed': ["host", "service"]
-}
-schema['name'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Element name'),
-        'width': '50px',
-        'visible': True,
-        # 'priority': 0,
-    }
-}
-schema['host'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Host'),
-        'width': '10',
-        'visible': True,
-        'hidden': True,
-    },
-    'data_relation': {
-        'resource': 'host',
-        'embeddable': True
-    }
-}
-schema['display_name_host'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Host display name'),
-        'width': '10',
-        'visible': True,
-        'hidden': True,
-    },
-}
-schema['service'] = {
-    'type': 'objectid',
-    'ui': {
-        'title': _('Service'),
-        'width': '10px',
-        'visible': True,
-        'hidden': True,
-    },
-    'data_relation': {
-        'resource': 'service',
-        'embeddable': True
-    }
-}
-schema['display_name_service'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Host display service'),
-        'visible': True,
-        'hidden': True,
-    },
-}
-schema['definition_order'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Definition order'),
-        'visible': True,
-        'hidden': True,
-        'orderable': False,
-    },
-}
-schema['last_check'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Last check'),
-        'format': 'date',
-        'visible': True
-    },
-}
-schema['business_impact'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Business impact'),
-        'visible': True,
-        # 'priority': 1,
-    },
-    'default': '2',
-    'allowed': ["0", "1", "2", "3", "4", "5"]
-}
-schema['state'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('State'),
-        'visible': True,
-        'size': 5,
-        # 'priority': 0,
-    },
-    'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
-}
-schema['state_type'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('State type'),
-        'visible': True,
-        # 'priority': 0,
-    },
-    'allowed': ["HARD", "SOFT"]
-}
-schema['state_id'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('State identifier'),
-        'visible': True,
-        'hidden': True
-    },
-    'allowed': ['0', '1', '2', '3', '4']
-}
-schema['acknowledged'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('Acknowledged'),
-        'visible': True,
-        'size': 2,
-    },
-}
-schema['downtime'] = {
-    'type': 'boolean',
-    'ui': {
-        'title': _('In scheduled downtime'),
-        'visible': True,
-        'width': '20px',
-    },
-}
-schema['output'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Check output'),
-        'visible': True
-    },
-}
-schema['long_output'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Check long output'),
-        'visible': True
-    },
-}
-schema['perf_data'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Performance data'),
-        'visible': True
-    },
-}
-schema['current_attempt'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Current attempt'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['max_attempts'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Max attempts'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['next_check'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Next check'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['last_state_changed'] = {
-    'type': 'integer',
-    'ui': {
-        'title': _('Last state changed'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['last_state'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Last state'),
-        'visible': True,
-        'hidden': True
-    },
-    'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
-}
-schema['last_state_type'] = {
-    'type': 'string',
-    'ui': {
-        'title': _('Last state type'),
-        'visible': True,
-        'hidden': True
-    },
-    'allowed': ["HARD", "SOFT"]
-}
-schema['latency'] = {
-    'type': 'float',
-    'ui': {
-        'title': _('Latency'),
-        'visible': True,
-        'hidden': True
-    },
-}
-schema['execution_time'] = {
-    'type': 'float',
-    'ui': {
-        'title': _('Execution time'),
-        'visible': True,
-        'hidden': True
-    },
-}
+class PluginLivestate(Plugin):
+    """ Livestate plugin """
 
+    def __init__(self, webui, plugin_dir, cfg_filenames=None):
+        """Livestate plugin"""
+        self.name = 'Livestate'
+        self.backend_endpoint = None
 
-# This to define the global information for the table
-schema['ui'] = {
-    'type': 'boolean',
-
-    # UI parameters for the objects
-    'ui': {
-        'page_title': _('Livestate table (%d items)'),
-        'id_property': '_id',
-        'name_property': 'name',
-        'status_property': 'state',
-        'visible': True,
-        'orderable': True,
-        'editable': False,
-        'selectable': True,
-        'searchable': True,
-        'responsive': True,
-
-        'css': "compact",
-
-        # Sort by descending business impact
-        'initial_sort': [[9, "desc"]]
-    }
-}
-
-
-def get_livestates_table(embedded=False, identifier=None, credentials=None):
-    """
-    Get the elements to build a table
-    """
-    return get_table('livestate', schema, embedded, identifier, credentials)
-
-
-def get_livestates_table_data():
-    """
-    Get the elements required by the table
-    """
-    return get_table_data('livestate', schema)
-
-
-def get_livestate(livestate_id):
-    """
-    Display the element linked to a livestate item
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-
-    livestate = datamgr.get_livestate({'where': {'_id': livestate_id}})
-    if not livestate:
-        return webui.response_invalid_parameters(_('Livestate element does not exist'))
-
-    livestate = livestate[0]
-    if livestate.type == 'host':
-        redirect('/host/' + livestate.host.id)
-    else:
-        redirect('/host/' + livestate.host.id + '#services')
-
-
-def get_livestate_widget(embedded=False, identifier=None, credentials=None):
-    # Because there are many locals needed :)
-    # pylint: disable=too-many-locals
-    """
-    Get the livestate as a widget
-    - widget_id: widget identifier
-
-    - start and count for pagination
-    - search for specific elements search
-
-    """
-    datamgr = request.environ['beaker.session']['datamanager']
-    return get_widget(datamgr.get_livestate, 'livestate', embedded, identifier, credentials)
-
-
-pages = {
-    get_livestate: {
-        'name': 'Livestate',
-        'route': '/livestate/<livestate_id>'
-    },
-    get_livestates_table: {
-        'name': 'Livestate table',
-        'route': '/livestates_table',
-        'view': '_table',
-        'search_engine': True,
-        'search_prefix': '',
-        'search_filters': {
-            '01': (_('Hosts only'), 'type:host'),
-            '02': (_('Hosts up'), 'type:host state:UP'),
-            '03': (_('Hosts down'), 'type:host state:DOWN'),
-            '04': (_('Hosts unreachable'), 'type:host state:UNREACHABLE'),
-            '05': ('', ''),
-            '06': (_('Services only'), 'type:service'),
-            '07': (_('Services ok'), 'type:service state:OK'),
-            '08': (_('Services warning'), 'type:service state:WARNING'),
-            '09': (_('Services critical'), 'type:service state:CRITICAL'),
-            '10': (_('Services unknown'), 'type:service state:UNKNOWN'),
-        },
-        'tables': [
-            {
-                'id': 'livestates_table',
-                'for': ['external'],
-                'name': _('Livestate table'),
-                'template': '_table',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Livestate table</h4>Displays a datatable for the monitored '
-                    'system livestate.<br>'
-                ),
-                'actions': {
-                    'livestates_table_data': get_livestates_table_data
-                }
-            }
-        ]
-    },
-
-    get_livestates_table_data: {
-        'name': 'Livestate table data',
-        'route': '/livestates_table_data',
-        'method': 'POST'
-    },
-
-    get_livestate_widget: {
-        'name': 'Livestate widget',
-        'route': '/livestate/widget',
-        'method': 'POST',
-        'view': 'livestate_widget',
-        'widgets': [
-            {
-                'id': 'livestate_table',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate table'),
-                'template': 'livestate_table_widget',
-                'icon': 'table',
-                'description': _(
-                    '<h4>Livestate table widget</h4>Displays a list of the live state of the'
-                    'monitored system hosts and services.<br>'
-                    'The number of hosts/services in this list can be defined in the widget '
-                    'options. The list of hosts/services can be filtered thanks to regex on the '
-                    'host/service name.'
-                ),
-                'picture': 'htdocs/img/livestate_table_widget.png',
-                'options': {
-                    'search': {
-                        'value': '',
-                        'type': 'text',
-                        'label': _('Filter (ex. status:up)')
-                    },
-                    'count': {
-                        'value': -1,
-                        'type': 'int',
-                        'label': _('Number of elements')
-                    },
-                    'filter': {
-                        'value': '',
-                        'type': 'hst_srv',
-                        'label': _('Host/service name search')
+        self.pages = {
+            'bi_livestate': {
+                'name': 'Livestate json',
+                'route': '/bi-livestate',
+                'view': ''
+            },
+            'get_livestate': {
+                'name': 'Livestate',
+                'route': '/livestate',
+                'view': 'livestate'
+            },
+            'get_livestate_widget': {
+                'name': 'Livestate widget',
+                'route': '/livestate/widget',
+                'method': 'POST',
+                'view': 'livestate_widget',
+                'widgets': [
+                    {
+                        'id': 'livestate',
+                        'for': ['external', 'dashboard'],
+                        'name': _('Livestate widget'),
+                        'template': 'livestate_widget',
+                        'icon': 'heartbeat',
+                        'description': _(
+                            '<h4>Livestate widget</h4>Displays the live state of '
+                            'the monitored system.'
+                        ),
+                        'picture': 'static/img/livestate_widget.png',
+                        'options': {}
                     }
-                }
-            },
-            {
-                'id': 'livestate_hosts_chart',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts chart'),
-                'template': 'livestate_hosts_chart_widget',
-                'icon': 'pie-chart',
-                'description': _(
-                    '<h4>Hosts livestate chart widget</h4>Displays a pie chart with the monitored'
-                    'system hosts states.'
-                ),
-                'picture': 'htdocs/img/livestate_hosts_chart_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_services_chart',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate services chart'),
-                'template': 'livestate_services_chart_widget',
-                'icon': 'pie-chart',
-                'description': _(
-                    '<h4>Services livestate chart widget</h4>Displays a pie chart with the '
-                    'monitored system services states.'
-                ),
-                'picture': 'htdocs/img/livestate_services_chart_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_hosts_history_chart',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts history chart'),
-                'template': 'livestate_hosts_history_chart_widget',
-                'icon': 'pie-chart',
-                'description': _(
-                    '<h4>Hosts livestate history chart widget</h4>Displays a line chart with '
-                    'the monitored system hosts states on a recent period of time.'
-                ),
-                'picture': 'htdocs/img/livestate_hosts_history_chart_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_services_history_chart',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate services history chart'),
-                'template': 'livestate_services_history_chart_widget',
-                'icon': 'pie-chart',
-                'description': _(
-                    '<h4>Services livestate history chart widget</h4>Displays a line chart with '
-                    'the monitored system sevices states on a recent period of time.'
-                ),
-                'picture': 'htdocs/img/livestate_services_history_chart_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_hosts_counters',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts counters'),
-                'template': 'livestate_hosts_counters_widget',
-                'icon': 'plus-square',
-                'description': _(
-                    '<h4>Hosts livestate counters widget</h4>Displays counters about the '
-                    'monitored system hosts states.'
-                ),
-                'picture': 'htdocs/img/livestate_hosts_counters_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_services_counters',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate services counters'),
-                'template': 'livestate_services_counters_widget',
-                'icon': 'plus-square',
-                'description': _(
-                    '<h4>Services livestate counters widget</h4>Displays counters about the '
-                    'monitored system services states.'
-                ),
-                'picture': 'htdocs/img/livestate_services_counters_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_hosts_sla',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate hosts SLA'),
-                'template': 'livestate_hosts_sla_widget',
-                'icon': 'life-saver',
-                'description': _(
-                    '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level about the '
-                    'monitored system hosts states.'
-                ),
-                'picture': 'htdocs/img/livestate_hosts_sla_widget.png',
-                'options': {}
-            },
-            {
-                'id': 'livestate_services_sla',
-                'for': ['external', 'dashboard'],
-                'name': _('Livestate services SLA'),
-                'template': 'livestate_services_sla_widget',
-                'icon': 'life-saver',
-                'description': _(
-                    '<h4>Hosts livestate SLA widget</h4>Displays counters and SLA level about the '
-                    'monitored system services states.'
-                ),
-                'picture': 'htdocs/img/livestate_services_sla_widget.png',
-                'options': {}
-            },
-        ]
-    },
-}
+                ]
+            }
+        }
+
+        super(PluginLivestate, self).__init__(webui, plugin_dir, cfg_filenames)
+
+    def bi_livestate(self):  # pylint:disable=no-self-use
+        """Returns the livestate for a specific business impact level
+
+        Used by the view to update the live state page content
+        """
+        user = request.environ['beaker.session']['current_user']
+        webui = request.app.config['webui']
+        datamgr = webui.datamgr
+
+        panels = datamgr.get_user_preferences(user, 'livestate', {})
+
+        ls = Helper.get_html_livestate(datamgr, panels, int(request.query.get('bi', -1)),
+                                       request.query.get('search', {}), actions=user.is_power())
+
+        response.status = 200
+        response.content_type = 'application/json'
+        return json.dumps({'livestate': ls})
+
+    def get_livestate(self):  # pylint:disable=no-self-use
+        """Display livestate page"""
+        user = request.environ['beaker.session']['current_user']
+        webui = request.app.config['webui']
+        datamgr = webui.datamgr
+
+        message = None
+        session = request.environ['beaker.session']
+        if 'user_message' in session and session['user_message']:
+            message = session['user_message']
+            session['user_message'] = None
+
+        return {
+            'options_panel': True,
+            'panels': datamgr.get_user_preferences(user, 'livestate', {}),
+            'layout': request.app.config.get('livestate_layout', 'table'),
+            'title': request.query.get('title', _('Livestate')),
+            'message': message
+        }
+
+    def get_livestate_widget(self, embedded=False, identifier=None, credentials=None):
+        # pylint: disable=too-many-locals
+        """Get the livestate widget"""
+        user = request.environ['beaker.session']['current_user']
+        webui = request.app.config['webui']
+        datamgr = webui.datamgr
+
+        panels = datamgr.get_user_preferences(user, 'livestate', {})
+
+        ls = Helper.get_html_livestate(datamgr, panels, int(request.query.get('bi', -1)),
+                                       request.query.get('search', {}), actions=user.is_power())
+
+        # Widget options
+        widget_id = request.params.get('widget_id', '')
+        if widget_id == '':
+            return self.webui.response_invalid_parameters(_('Missing widget identifier'))
+
+        widget_place = request.params.get('widget_place', 'dashboard')
+        widget_template = request.params.get('widget_template', 'elements_table_widget')
+        widget_icon = request.params.get('widget_icon', 'plug')
+        logger.debug("Searching a widget %s for: %s (%s)",
+                     widget_id, widget_place, widget_template)
+
+        # Search in the application widgets (all plugins widgets)
+        options = {}
+        for widget in self.webui.get_widgets_for(widget_place):
+            logger.debug("found widget: %s (%s)", widget['name'], widget['id'])
+            if widget_id.startswith(widget['id']):
+                options = widget['options']
+                widget_template = widget['template']
+                widget_icon = widget['icon']
+                logger.debug("Widget %s found, template: %s, options: %s",
+                             widget_id, widget_template, options)
+                break
+        else:
+            logger.warning("Widget identifier not found: %s", widget_id)
+            return self.webui.response_invalid_parameters(_('Unknown widget identifier'))
+
+        # Search in the saved dashboard widgets
+        saved_widget = None
+        saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
+        for widget in saved_widgets:
+            if widget_id == widget['id']:
+                saved_widget = widget
+                logger.info("Saved widget found: %s", saved_widget)
+                break
+
+        # Widget freshly created
+        tmp_options = []
+        if not saved_widget or 'options' not in saved_widget:
+            for option in options:
+                tmp_options.append("%s=%s" % (option, options[option]['value']))
+            saved_options = '|'.join(tmp_options)
+        else:
+            saved_options = saved_widget['options']
+
+        tmp_options = []
+        logger.info("Saved widget options: %s", saved_options)
+        for option in saved_options.split('|'):
+            option = option.split('=')
+            logger.info("- saved option: %s", option)
+            if len(option) > 1:
+                if request.params.get(option[0], option[1]) != option[1]:
+                    tmp_options.append("%s=%s" % (option[0], request.params.get(option[0])))
+                    options[option[0]]['value'] = request.params.get(option[0])
+                else:
+                    tmp_options.append("%s=%s" % (option[0], option[1]))
+                    options[option[0]]['value'] = option[1]
+
+        new_options = '|'.join(tmp_options)
+
+        if saved_options != new_options:
+            logger.info("Widget %s new options: %s", widget_id, new_options)
+
+            # Search for the dashboard widgets
+            saved_widgets = datamgr.get_user_preferences(user, 'dashboard_widgets', [])
+            for widget in saved_widgets:
+                if widget_id.startswith(widget['id']):
+                    widget['options'] = new_options
+                    datamgr.set_user_preferences(user, 'dashboard_widgets', saved_widgets)
+                    logger.info("Widget new options saved!")
+                    break
+        saved_options = new_options
+
+        title = request.params.get('title', _('Elements'))
+
+        # Use required template to render the widget
+        logger.info("Rendering widget %s", widget_id)
+        return template('_widget', {
+            'widget_id': widget_id,
+            'widget_name': widget_template,
+            'widget_place': widget_place,
+            'widget_template': widget_template,
+            'widget_icon': widget_icon,
+            'widget_uri': request.urlparts.path,
+
+            'plugin_parameters': self.plugin_parameters,
+
+            'livestate': ls,
+
+            'options': options,
+            'title': title,
+            'embedded': embedded,
+            'identifier': identifier,
+            'credentials': credentials
+        })

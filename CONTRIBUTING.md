@@ -9,7 +9,7 @@ Using issues
 
 The issue tracker is the preferred channel for reporting bugs, requesting new features and submitting pull requests.
 
-If you're suggesting a new feature, please take a look at **writing a new .
+If you're suggesting a new feature, we will discuss this feature together.
 
 
 Reporting bugs
@@ -22,6 +22,7 @@ Guidlines for reporting bugs:
  - Check the issue search to see if it has already been reported
  - Isolate the problem to a simple test case
  - Clearly explain the problem and provide information about framework version, Web UI version, and browser version.
+ - Include a screen capture showing the problem (GitHub allows copying image files in the issues comments).
 
 Please provide any additional details associated with the bug, if it's browser specific, or only happens with a certain configuration or data.
 
@@ -41,4 +42,4 @@ Guidelines:
 License
 -------
 
-By contributing your code, you agree to license your contribution under the GPL version 3.
+By contributing your code, you agree to license your contribution under the `GPL version 3 <http://opensource.org/licenses/GPL-3.0>`_ license terms.

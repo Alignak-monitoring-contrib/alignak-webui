@@ -1,4 +1,4 @@
-%setdefault('debug', True)
+%setdefault('debug', False)
 %# When layout is False, this template is embedded
 %setdefault('layout', True)
 

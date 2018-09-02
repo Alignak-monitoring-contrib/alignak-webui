@@ -13,7 +13,6 @@
             <div class="panel-body">
                <ul class="list-group">
                   <li class="list-group-item"><small>Current user: {{current_user}}</small></li>
-                  <li class="list-group-item"><small>Target user: {{target_user}}</small></li>
                </ul>
                <div class="panel-footer">Total: {{datamgr.get_objects_count('user')}} users</div>
             </div>
@@ -24,72 +23,88 @@
 %end
 
 <!-- User info -->
-<li class="dropdown user user-menu hidden-xs">
-   <a href="#" class="dropdown-toggle" data-original-title="{{_('User menu')}}" data-toggle="dropdown">
+<li class="dropdown user user-menu" data-toggle="tooltip" data-placement="bottom" title="{{_('User')}}">
+   <a href="#" class="dropdown-toggle" data-toggle="dropdown">
       <span class="caret"></span>
       <span class="fa fa-user"></span>
-      %if request.app.config.get('target_user', 'no') == 'yes':
-      %if not target_user.is_anonymous() and current_user.get_username() != target_user.get_username():
-      <span class="label label-warning" style="position:relative; left: 0px">{{target_user.get_username()}}</span>
-      %end
-      %end
       <span class="username hidden-sm hidden-xs hidden-md">{{current_user.name}}</span>
+      <span class="sr-only">{{_('User menu')}}</span>
    </a>
 
-   <ul class="dropdown-menu">
-      %if request.app.config.get('target_user', 'no') == 'yes':
-      <li class="user-header">
-         %include("_select_target_user")
-      </li>
-      %end
-      <li class="user-header">
+   <ul class="dropdown-menu" role="menu" aria-labelledby="{{_('User menu')}}">
+      <li class="user-header hidden-xs">
          <div class="panel panel-default">
             <div class="panel-body">
-               <!-- User image / name -->
                <p class="username">{{current_user.alias}}</p>
                <p class="usercategory">
                   <small>{{current_user.get_role(display=True)}}</small>
                </p>
-               <img src="{{current_user.picture}}" class="img-circle user-logo" alt="{{_('Photo: %s') % current_user.name}}" title="{{_('Photo: %s') % current_user.name}}">
-            </div>
-            <div class="panel-footer">
-               <div class="btn-group" role="group">
-                  <a class="btn btn-default btn-raised" href="#"
-                     data-action="about-box" data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Display application information')}}">
-                     <span class="fa fa-question"></span>
-                  </a>
-                  %if current_user.is_administrator():
-                  <a class="btn btn-default btn-raised" href="#"
-                     data-action="edition-mode" data-state="{{'on' if edition_mode else 'off'}}" data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Enter edition mode')}}">
-                     <span class="text-danger fa fa-edit"></span>
-                  </a>
-
-                  <a class="btn btn-default btn-raised" href="/preferences/user"
-                     data-action="user-preferences" data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Show all the stored user preferences')}}">
-                     <span class="fa fa-pencil"></span>
-                  </a>
-                  %end
-                  <a class="btn btn-default btn-raised" href="/logout"
-                     data-action="logout" data-toggle="tooltip" data-placement="bottom"
-                     title="{{_('Disconnect from the application')}}">
-                     <span class="fa fa-sign-out"></span>
-                  </a>
-               </div>
+               <a href="/user/{{ current_user.name }}">
+                  {{! current_user.get_html_state(text=None)}}
+                  <span>{{_('View my profile')}}</span>
+               </a>
             </div>
          </div>
+      </li>
+
+      %if current_user.can_edit_configuration():
+      <li>
+         %if edition_mode:
+         <a href="#" data-action="edition-mode" data-state="off">
+            <span class="text-warning fa fa-edit"></span>
+            <span>{{_('Leave edition mode')}}</span>
+         </a>
+         %else:
+         <a href="#" data-action="edition-mode" data-state="on">
+            <span class="text-danger fa fa-edit"></span>
+            <span>{{_('Enter edition mode')}}</span>
+         </a>
+         %end
+      </li>
+      <script>
+         // Switch to edition mode
+         $('a[data-action="edition-mode"]').on("click", function () {
+            $.ajax({
+               url: '/edition_mode',
+               method: "POST",
+               data: { 'state' : $(this).data('state') }
+            })
+            .done(function( data, textStatus, jqXHR ) {
+               console.debug('Edition mode:', data);
+               raise_message_ok(data['message']);
+            })
+            .fail(function( jqXHR, textStatus, errorThrown ) {
+               console.error('Edition mode request, error: ', jqXHR, textStatus, errorThrown);
+               raise_message_ko('Access to edition mode failed');
+            })
+            .always(function() {
+               // Current page reload
+               window.location.reload(true);
+            });
+         });
+      </script>
+      <li class="divider">
+      </li>
+      %end
+
+      <li>
+         <a href="#" data-action="about-box">
+            <span class="fa fa-question"></span>
+            <span>{{_('About...')}}</span>
+         </a>
+      </li>
+      <script>
+         // Show application about box
+         $('a[data-action="about-box"]').on("click", function () {
+            display_modal("/modal/about");
+         });
+      </script>
+      <li>
+         <a data-action="logout" href="/logout">
+            <span class="fa fa-sign-out"></span>
+            <span>{{_('Disconnect')}}</span>
+         </a>
       </li>
    </ul>
 </li>
 
-<!-- Logout icon on extra-small devices -->
-<li class="hidden-sm hidden-md hidden-lg">
-   <a data-action="logout"
-      data-toggle="tooltip" data-placement="bottom"
-      title="{{_('Disconnect from the application')}}"
-      href="/logout">
-      <i class="fa fa-sign-out"></i>
-   </a>
-</li>

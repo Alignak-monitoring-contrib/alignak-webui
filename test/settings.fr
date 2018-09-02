@@ -2,78 +2,167 @@
 ; Application configuration file formatted as RFC822 standard
 ; ------------------------------------------------------------------------------------------
 
+; ------------------------------------------------------------------------------------------
+; Configure Bottle Web server
+; ------------------------------------------------------------------------------------------
+[bottle]
+host = 0.0.0.0
+port = 5001
+; Set this to True to have the Bottle server in Debug mode (reloader, traceback, ...)
+debug = False
 
-[Alignak-WebUI]
+; ------------------------------------------------------------------------------------------
+; Configure Application session manager
+; Do not change anything in this section unless you are really aware of what you are doing!
+; Configuration is based upon: https://beaker.readthedocs.io/en/latest/configuration.html#session-options
+; ------------------------------------------------------------------------------------------
+[session]
+; Store sessions in files...
+;type=file
+; ... located in this directory
+;data_dir=/tmp/Alignak-WebUI/sessions
+; Data are stored as json in the sessions files
+;data_serializer=json
+
+; Session cookie life duration
+; Set to True, the cookie will expire on client's browser closing (default)
+; Set to False, the cookie will never expire
+; Set this value to a number of seconds to set an expiry duration
+;cookie_expires=True
+; Cookie identifier
+;key=Alignak-WebUI
+
+; Session life duration, defaults to never expire
+; Set this value to a number of seconds to set an expiry duration
+; Make the cookie and session expiry duration the same ;)
+;timeout=None
+
+; ------------------------------------------------------------------------------------------
+; Configure WebUI application
+; ------------------------------------------------------------------------------------------
+[alignak-webui]
 ; Application debug mode
 ; ------------------------------------------------------------------------------------------
-; # Set to '1' to activate debug mode for the application
-; # This to allow Bottle server to run in debug mode
+; Set to '1' to activate debug mode for the application
+; The application will configure its logger at the DEBUG level to produce
+; more (very verbose...) log
 ; debug=1
 
 test_mode=1
 
-; User authentication:
+test_boolean1=True
+test_boolean2=true
+test_boolean3=False
+test_boolean4=false
+
+; Application UI design
 ; ------------------------------------------------------------------------------------------
-; # Applications backend endpoint
-; # Configure this value to change the default backend configuration
+; Preparing the next Bootstrap version ...
+; Set to '1' to use Bootstrap 4 instead of Bootstrap 3
+; Note that currently, the UI will be broken !!! Bootstrap 4 is still an alpha version :)
+;bootstrap4=1
+
+
+; Alignak backend:
+; ------------------------------------------------------------------------------------------
+; Configure this value to change the default backend configuration
 ; Default is http://127.0.0.1:5000
+; alignak_backend = http://127.0.0.1:5000
 
+
+; Alignak Web Services:
 ; ------------------------------------------------------------------------------------------
-; # Glpi WS endpoint
-; # Configure these values to connect to the Glpi WS (get hosts, ...)
-; Default is None to not connect.
-glpi_ws_backend = https://glpi/plugins/webservices/xmlrpc.php
-glpi_ws_login = test
-glpi_ws_password = test
-
-
-; # Web server configuration
-; ------------------------------------------------------------------------------------------
-; Default is listening on TCP port 8868 on local loop interface
-; host=127.0.0.1
-; port=8868
+; Configure this value to get/post information from/to the Alignak Web Services
+; This is necessary to send external commands to Alignak (change host check result, ...)
+; Default is http://127.0.0.1:8888
+; alignak_ws = http://127.0.0.1:8888
 
 
 ; # WebUI information (about application modal)
 ; ------------------------------------------------------------------------------------------
 ; Overload default information included in the WebUI
-about_name=Alignak-WebUI
-about_version=0.50.0
-about_copyright=2015-2016 - Frédéric MOHIER (frederic.mohier@gmail.com)
-about_release=
+; about_name=Alignak-WebUI
+; about_version=0.0.0
+; about_copyright=2015-2017 - Alignak team
+; about_release=
+; about_url=
+; about_doc=
 
 
 ; # Login form
 ; ------------------------------------------------------------------------------------------
 ; Welcome text in the login form.
-; Default is no login text (Welcome message ...)
-login_text=Welcome to Alignak Web User Interface
+; Default is:
+; Welcome<br> Log-in to use the application
+; login_text=Welcome to Alignak WebUI<br> Log-in to use the application
+login_text=Welcome to <strong>Alignak WebUI</strong><br> Log-in to use the application
 
-; Company logo in the login form and header bar
-; company_logo property is suffixed with .png and searched in photos_dir
-; Default logo is used if company_logo is not found in photos_dir
-; Default logo is always used if company_logo property is empty
-; Default logo is default_company.png (Shinken logo) in webui/htdocs/images
-;company_logo=my_company
+; Application logo in the login form
+; Default logo is: /static/images/alignak_white_logo.png
+; Uncomment this line if you wish to use a blue version of the alignak logo, else specify your url
+;app_logo=/static/images/alignak_blue_logo.png
+
+; # Navigation bar
+; ------------------------------------------------------------------------------------------
+; Defined Css is:
+; .navbar-brand img {
+; height: 100%;
+; padding: 3px;
+; background-color: rgba(255,255,255,0.8);
+; border-radius: 5px;
+; }
+; You can change this default Css in this configuration variable
+; Uncomment this line if you wish to use the alignak blue logo, else specify your Css
+; app_logo_css=    background-color: rgba(255,255,255,0.8); border-radius: 5px;
+; Default logo title
+app_logo_title=Alignak Web User interface
+
+
+; # Footer bar
+; ------------------------------------------------------------------------------------------
+; WebUI logo in the footer bar
+; webui_logo property is a full URL
+; Default logo is: /static/images/logo_webui_xxs.png
+; To remove the logo in the page footer, set this property as empty
+;webui_logo=/static/images/logo_webui_xxs.png
+;webui_logo=
 
 
 ; # Application layout
 ; ------------------------------------------------------------------------------------------
 ; Play sound
 ; Default is no sound
-; play_sound=1
+; play_sound=no
+play_sound=yes
 
 ; Refresh period
 ; Number of seconds between each page refresh
 ; Default value is 60 seconds
 ; Use 0 to disable refresh
-; refresh_period = 10
+; refresh_period = 60
+
+; Header refresh period
+; Number of seconds between each header refresh
+; Default value is 30 seconds
+; Use 0 to disable header refresh
+; header_refresh_period = 30
 
 
 ; # WebUI localization / internationalization
 ; ------------------------------------------------------------------------------------------
+; Not yet localized ... a small part of texts is availbale in French ;)
 ; Preferred locales (default is en_US)
-locale = fr_FR
+; locale = fr_FR
+
+
+; # WebUI livestate layout
+; ------------------------------------------------------------------------------------------
+; Default layout is a single table sorted descending by BI, criticity, state duration
+;livestate_layout = table
+; Layout may be switched to a panels view, with one panel per Business Impact level
+;livestate_layout = panels
+; Layout may be switched to a tabs view, with one tab per Business Impact level
+;livestate_layout = tabs
 
 
 ; # WebUI timezone (default is Europe/Paris)
@@ -85,94 +174,449 @@ locale = fr_FR
 ; timeformat=%d/%m/%Y %H:%M:%S
 
 
-[session]
-; TODO: #3 ...
-
-; Application sessions
-; ------
-; The application maintain a user session
-; Parameters in this section allow to configure sessions management
-; ------
-
-; Store sessions in memory. Default is files
-; type=memory
-
-; Store sessions in files in this directory
-; data_dir=./sessions/
-
-; Session cookie expiration delay in seconds. Default is 6 hours
-; cookie_expires = 3600
+; # External application configuration
+; ------------------------------------------------------------------------------------------
+; Thoses parameters allow configuration of the external access by a third-party application
+; CORS Access-Control-Allow-Origin; default is to allow only localhost access
+; cors_acao=http://127.0.0.1
 
 
+; Grafana configuration
+; ------------------------------------------------------------------------------------------
+; Configure this value to activate the Grafana panels when available in the WebUI
+; Set the Grafana application URL (same as the one defined in the Alignak backend configuration)
+; Default is '' (no Grafana panels)
+;grafana = http://127.0.0.1:3000
 
-[logs]
-; Application log files
-; ------
-; The application buils a log file if launched with --logs command line parameter
-; Parameters in this section allow to configure logs file rotation
-; ------
+; Important note: currently it is not possible to embed Grafana panels in the WebUI without any
+; former user authentication on the Grafana application with the Web browser used for the WebUI
+; With this authentication, Grafana will store a cookie to allow embedding the panels
+; -----
+; Alternative solution:
+; - Allow the anonymous access to Grafana and set the anonymous in a dedicated organization
+; with a viewer role only
 
-# CRITICAL  50
-# ERROR     40
-# WARNING   30
-# INFO      20
-# DEBUG     10
-# Default is INFO (20)
-; level = 20
-level = 10
+; ------------------------------------------------------------------------------------------
+; Currently view
+; ------------------------------------------------------------------------------------------
+;
+[currently]
+; Hosts states to include in the history graph
+; States can be: up,down,unreachable,acknowledged,in_downtime
+; Defaults to: up,down,unreachable,acknowledged,in_downtime
+;hh_states=up,down,unreachable,acknowledged,in_downtime
 
-# Application logs directory
-# Default is /var/log/"application name"
-; dir = .
+; Hosts states history graph height
+; Defaults to: 300
+;hh_height=300
 
-# Application log filename
-# Default is application name with log extension
-; filename = webui.log
+; Services states to include in the history graph
+; States can be: ok,warning,critical,unknown,unreachable,acknowledged,in_downtime
+; Defaults to: ok,warning,critical,unknown,acknowledged,in_downtime
+;sh_states=ok,warning,critical,unknown,acknowledged,in_downtime
 
-# Rotation period (D for day, W0...W6 for a week day, or midnight)
-; when = D
+; Services states history graph height
+; Defaults to: 300
+;sh_height=300
 
-# Rotation period interval
-; interval = 1
+; Hosts panel definition
+hosts_panel=<div id="panel_hosts" class="panel panel-default">
+            <div class="panel-heading clearfix">
+              <strong>
+                <span class="fa fa-server"></span>
+                <span class="hosts-all text-white" data-count="##nb_elts##" data-problems="##nb_problems##">
+                    &nbsp; ##nb_elts## hosts ##problems##
+                </span>
+              </strong>
 
-# Number of backup files before deletion (0 to disable deletion)
-; backup = 6
+              <div class="pull-right">
+                 <a href="#p_ph" class="btn btn-xs btn-raised" data-toggle="collapse">
+                    <i class="fa fa-fw %%s"></i>
+                 </a>
+              </div>
+            </div>
+            <div id="p_ph" class="panel-collapse collapse %%s">
+              <div class="panel-body">
+              ##hosts_counters##
+              <hr>
+              ##hosts_percentage##
+              </div>
+            </div>
+        </div>
+
+hosts_counters=
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 text-center">
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##?search=ls_state:UP"
+              class="item_host_up" title="Up">
+              <span class="hosts-count">##nb_up##</span>
+            </a>
+          </div>
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##?search=ls_state:DOWN"
+              class="item_host_down" title="Down">
+              <span class="hosts-count">##nb_down##</span>
+            </a>
+          </div>
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##?search=ls_state:UNREACHABLE"
+              class="item_host_unreachable" title="Unreachable">
+              <span class="hosts-count">##nb_unreachable##</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-3 text-center">
+          <a href="##hosts_table_url##?search=ls_state:acknowledged"
+            class="item_host_acknowledged" title="Acknowledged">
+            <span class="hosts-count">##nb_acknowledged##</span>
+          </a>
+          <span>/</span>
+          <a href="##hosts_table_url##?search=ls_state:IN_DOWNTIME"
+            class="item_host_in_downtime" title="In downtime">
+            <span class="hosts-count">##nb_in_downtime##</span>
+          </a>
+        </div>
+    </div>
+
+hosts_percentage=
+    <div class="row">
+      <div class="col-xs-3 col-sm-3 text-center">
+        <div class="col-xs-12 text-center">
+          <a href="##hosts_table_url##" class="sla_hosts_##font##">
+            <div>##pct_sla##%%</div>
+            <i class="fa fa-4x fa-server"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-xs-9 col-sm-9 text-center">
+        <div class="row">
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##?search=ls_state:UP"
+              class="item_host_up" title="Up">
+              <span class="hosts-count">##pct_up##%%</span>
+            </a>
+          </div>
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##?search=ls_state:DOWN"
+              class="item_host_down" title="Down">
+              <span class="hosts-count">##pct_down##%%</span>
+            </a>
+          </div>
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##?search=ls_state:UNREACHABLE"
+              class="item_host_unreachable" title="Unreachable">
+              <span class="hosts-count">##pct_unreachable##%%</span>
+            </a>
+          </div>
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url##" title="Fake">
+              <span class="hosts-count">&nbsp;</span>
+            </a>
+          </div>
+          <div class="col-xs-4 text-center">
+            <a href="##hosts_table_url## title="Fake">
+              <span class="hosts-count">&nbsp;</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12 text-center">
+            <a href="##hosts_table_url##?search=ls_state:acknowledged"
+              class="item_host_acknowledged" title="Acknowledged">
+              <span class="hosts-count">##pct_acknowledged##%%</span>
+            </a>
+            <span>/</span>
+            <a href="##hosts_table_url##?search=ls_state:IN_DOWNTIME"
+              class="item_host_in_downtime" title="In downtime">
+              <span class="hosts-count">##pct_in_downtime##%%</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+; Services panel definition
+services_panel=
+    <div id="panel_services" class="panel panel-default">
+        <div class="panel-heading clearfix">
+          <strong>
+            <span class="fa fa-cube"></span>
+            <span class="services-all text-default"
+                    data-count="##nb_elts##"
+                    data-problems="##nb_problems##">
+                &nbsp; ##nb_elts## services ##problems##
+            </span>
+          </strong>
+
+          <div class="pull-right">
+              <a href="#p_ps" class="btn btn-xs btn-raised" data-toggle="collapse">
+                  <i class="fa fa-fw %%s"></i>
+              </a>
+          </div>
+        </div>
+        <div id="p_ps" class="panel-collapse collapse %%s">
+          <div class="panel-body">
+            ##services_counters##
+            <hr>
+            ##services_percentage##
+          </div>
+        </div>
+    </div>
+
+services_counters=
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 text-center">
+          <div class="col-xs-2 text-center">
+            <a href="##services_table_url##?search=ls_state:OK"
+              class="item_service_ok" title="Ok">
+              <span class="services-count">##nb_ok##</span>
+            </a>
+          </div>
+          <div class="col-xs-2 text-center">
+            <a href="##services_table_url##?search=ls_state:WARNING"
+              class="item_service_critical" title="Warning">
+              <span class="services-count">##nb_warning##</span>
+            </a>
+          </div>
+          <div class="col-xs-2 text-center">
+            <a href="##services_table_url##?search=ls_state:CRITICAL"
+              class="item_service_critical" title="Critical">
+              <span class="services-count">##nb_critical##</span>
+            </a>
+          </div>
+          <div class="col-xs-2 text-center">
+            <a href="##services_table_url##?search=ls_state:UNKNOWN"
+              class="item_service_unknown" title="Unknown">
+              <span class="services-count">##nb_unknown##</span>
+            </a>
+          </div>
+          <div class="col-xs-2 text-center">
+            <a href="##services_table_url##?search=ls_state:UNREACHABLE"
+              class="item_service_unreachable" title="Unreachable">
+              <span class="services-count">##nb_unreachable##</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-3 text-center">
+          <a href="##services_table_url##?search=ls_state:acknowledged"
+            class="item_service_acknowledged" title="Acknowledged">
+            <span class="services-count">##nb_acknowledged##</span>
+          </a>
+          <span>/</span>
+          <a href="##services_table_url##?search=ls_state:IN_DOWNTIME"
+            class="item_service_in_downtime" title="In downtime">
+            <span class="services-count">##nb_in_downtime##</span>
+          </a>
+        </div>
+    </div>
+
+
+services_percentage=
+    <div class="row">
+        <div class="col-xs-3 col-sm-3 text-center">
+            <div class="col-xs-12 text-center">
+              <a href="##services_table_url##" class="sla_services_##font##">
+                <div>##pct_ok##%%</div>
+                <i class="fa fa-4x fa-cube"></i>
+              </a>
+            </div>
+            </div>
+
+            <div class="col-xs-9 col-sm-9 text-center">
+            <div class="row">
+              <div class="col-xs-4 text-center">
+                <a href="##services_table_url##?search=ls_state:OK"
+                  class="item_service_ok" title="ok">
+                  <span class="services-count">##pct_ok##%%</span>
+                </a>
+              </div>
+              <div class="col-xs-4 text-center">
+                <a href="##services_table_url##?search=ls_state:WARNING"
+                  class="item_service_warning" title="warning">
+                  <span class="services-count">##pct_warning##%%</span>
+                </a>
+              </div>
+              <div class="col-xs-4 text-center">
+                <a href="##services_table_url##?search=ls_state:CRITICAL"
+                  class="item_service_critical" title="critical">
+                  <span class="services-count">##pct_critical##%%</span>
+                </a>
+              </div>
+              <div class="col-xs-4 text-center">
+                <a href="##services_table_url##?search=ls_state:UNKNONW"
+                  class="item_service_unknown" title="unknown">
+                  <span class="services-count">##pct_unknown##%%</span>
+                </a>
+              </div>
+              <div class="col-xs-4 text-center">
+                <a href="##services_table_url##?search=ls_state:UNREACHABLE"
+                  class="item_service_unreachable" title="unreachable">
+                  <span class="services-count">##pct_unreachable##%%</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-xs-12 text-center">
+                <a href="##services_table_url##?search=ls_state:ACKNOWLEDGED"
+                  class="item_service_acknowledged" title="acknowledged">
+                  <span class="services-count">##pct_acknowledged##%%</span>
+                </a>
+                <span>/</span>
+                <a href="##services_table_url##?search=ls_state:IN_DOWNTIME"
+                  class="item_service_in_downtime" title="in_downtime">
+                  <span class="services-count">##pct_in_downtime##%%</span>
+                </a>
+              </div>
+            </div>
+        </div>
+    </div>
+
+
+; ------------------------------------------------------------------------------------------
+; Timeperiods
+; ------------------------------------------------------------------------------------------
+; The button variable is the element placed inside the table for a list
+; The item variable is the element representing an item in the list
+; The list variable is the element containing the whole list (##content## is replaced with the list items)
+;
+[timeperiods]
+; Do not remove those variables!
+; They MUST be present in the configuration file!
+; Button to display the list
+button=<button class="btn btn-default btn-xs btn-block" type="button" data-toggle="collapse" data-target="#html_tp_##id##" aria-expanded="false" aria-controls="html_tp_##id##">##name##</button><div class="collapse" id="html_tp_##id##"><div class="well">##content##</div></div>
+
+; Global element to be included in the HTML for the list
+list=<ul class="list-group">##content##</ul>
+
+; Each period element to be included in the HTML list (##period## is the name and ##range## is the date range)
+item=<li class="list-group-item"><span class="fa fa-hourglass">&nbsp;##period## - ##range##</li>
+
+; ------------------------------------------------------------------------------------------
+; On/Off
+; ------------------------------------------------------------------------------------------
+; The button variable is the element placed inside the table for a list
+; The item variable is the element representing an item in the list
+; The list variable is the element containing the whole list (##content## is replaced with the list items)
+;
+[on_off]
+; Do not remove those variables!
+; They MUST be present in the configuration file!
+
+; Global element to be included in the HTML and including the items and the text
+on=<span title="##title##" class="fa fa-fw fa-check text-success">##message##</span>
+
+; Element to be included for each BI count
+off=<span title="##title##" class="fa fa-fw fa-close text-danger">##message##</span>
+
+; ------------------------------------------------------------------------------------------
+; Business impact
+; ------------------------------------------------------------------------------------------
+; The global variable is the element containing the whole list:
+; - ##items## is replaced with the list items
+; - ##text## is replaced with the BI text when the application requires
+; The item variable is the element representing an item in the list
+;
+[business_impact]
+; Global element to be included in the HTML and including the items and the text
+;global=<span class="text-default">##items##</span><span>&nbsp;##text##</span>
+
+; Element to be included for each BI count
+;item=<span class="fa fa-trophy"></span>
+; If item is empty, then the following unique is used in place
+;item=
+
+; Unique element
+; ##bi## will be replaced with the business impact level value
+;unique=<div style="display: inline; font-size:0.9em;" title="##text##"><span class="fa-stack"><span class="fa fa-circle fa-stack-2x"></span><span class="fa fa-stack-1x fa-inverse">##bi##</span></span></div>
+
+; Number of elements to remove from the real business impact
+; 0 is meaning that the defined item will be repeated twice for BI=2, third for BI=3
+; 2 is meaning that the defined item will not be repeated for BI=2, and once for BI=3
+;less=0
+
+; ------------------------------------------------------------------------------------------
+; Actions buttons
+; ------------------------------------------------------------------------------------------
+; The button variable is the element placed inside the table for a list
+; The item variable is the element representing an item in the list
+; The list variable is the element containing the whole list (##content## is replaced with the list items)
+;
+[buttons]
+; Do not remove those variables!
+; They MUST be present in the configuration file!
+
+; First solution: a buttons group
+; Global element to be included in the HTML
+;livestate_commands=<div class="btn-group btn-group-xs btn-group-raised" role="group" data-type="actions" title="##title##">##commands##</div>
+; Each command element to be included in the HTML
+;livestate_command=<button class="btn btn-default" data-type="action" data-action="##action##" data-toggle="tooltip" data-placement="top" title="##title##" data-element_type="##type##" data-name="##name##" data-element="##id##" ##disabled##><i class="fa fa-##icon##"></i></button>
+
+; Second solution (preferred one): a buttons dropdown list
+; Global element to be included in the HTML
+livestate_commands=<div class="btn-group btn-group-xs" role="group" data-type="actions" title="##title##"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">##title## <span class="caret"></span></button><ul class="dropdown-menu">##commands##</ul></div>
+; Each command element to be included in the HTML
+livestate_command=<li><button class="btn btn-default" data-type="action" data-action="##action##" data-toggle="tooltip" data-placement="top" title="##title##" data-element_type="##type##" data-name="##name##" data-element="##id##" ##disabled##><i class="fa fa-##icon##"></i>&nbsp;&nbsp;##title##</button></li>
+
+; ------------------------------------------------------------------------------------------
+; Tables lists
+; ------------------------------------------------------------------------------------------
+; The button variable is the element placed inside the table for a list
+; The item variable is the element representing an item in the list
+; The list variable is the element containing the whole list (##content## is replaced with the list items)
+;
+[tables.lists]
+; Do not remove those variables!
+; They MUST be present in the configuration file!
+; Button to display the list
+button=<button class="btn btn-xs btn-raised" data-toggle="collapse" data-target="#list_##type##_##id##" aria-expanded="false">##title##</button><div class="collapse" id="list_##type##_##id##">##content##</div>
+
+; Global element to be included in the HTML for the list
+list=<ul class="list-group">##content##</ul>
+
+; Each command element to be included in the HTML list
+item=<li class="list-group-item"><span class="fa fa-check">&nbsp;##content##</span></li>
+
+; Unique element to be included in the HTML list if the list contains only one element
+unique=##content##
 
 ; ------------------------------------------------------------------------------------------
 ; Specific elements configuration
 ; ------------------------------------------------------------------------------------------
-; The item section defines the parameters common to all elements
+; The items section defines the parameters common to all elements
 ; The session section defines the parameters specific for the session, and so on ...
 ; If a section does not exist the corresponding item or item. section is used in place.
 ; --------
-; Element state is built with 2 templates:
+; Element state is built with 3 templates:
 ; - content
 ; - back
 ; - front
-; In each template a subsitution is made with the live values.
+; In each template a substitution is made with the real values.
 ; ##class## is replaced with the item livestate ... to be used as a class defined in the CSS file
-; See items_states.css for the classes definition. Class is defined with an 'item_' prefix:
+; See items_states.css for the classes definition. Each class is defined with an 'item_' prefix:
 ; 'item_active' is the class used for the active state.
 ;
-; ##type## is the item type
-; ##name## is the item name
-; ##id## is the item id
+; ##id## is replaced with the item id
+; ##name## is replaced with the item name
+; ##type## is replaced with the item type (eg. host, service, ...)
+; ...
 ; ------------------------------------------------------------------------------------------
 [items]
-; ##########################################################################""
-; TODO
-; To be adapted for Alignak objects !!!!
-; ##########################################################################""
-
 ; Do not remove those variables!
 ; They MUST be present in the configuration file!
-content: <div class="item-state ##class## ##state##" style="display: inline; font-size:0.9em;" data-item-id="##id##" data-item-name="##name##" data-item-type="##type##">
-            <span class="fa-stack" ##opacity## title="##title##">##back####front##</span>
+content: <div class="item-state ##class## ##state##" style="display: inline; font-size:0.9em;" data-item-id="##id##" data-item-name="##name##" data-item-type="##type##" data-item-state="##state##" title="##title####extra##">
+            <span class="fa-stack ##size##" ##opacity##>##back####front##</span>
             <span>##text##</span>
          </div>
 
 back: <i class="fa fa-circle fa-stack-2x ##class##"></i>
-front: <i class="fa fa-##icon## fa-stack-1x ##extra##"></i>
+
+front: <i class="fa fa-##icon## fa-stack-1x fa-inverse"></i>
 
 badge:  <span class="item-badge ##class## ##state##" data-item-id="##id##" data-item-type="##type##">
             <span class="fa-stack" title="##title##">
@@ -209,42 +653,180 @@ class: inactive
 text: Inactive
 icon: close
 
-; Session states: open/close
-[items.session.open]
-class: sessionOpened
-text: Session is opened
+; Host: up/down/unreachable
+; Host live state: from the monitoring framework
+[items.host.up]
+class: host_up
+text: Host is up
+icon: server
+
+[items.host.down]
+class: host_down
+text: Host is down
+icon: server
+
+[items.host.unreachable]
+class: host_unreachable
+text: Host is unreachable
+icon: server
+
+
+[items.host.unknown]
+class: host_unknown
+text: Host is unknown
+icon: server
+
+; Host real state: computed from host and its services live states
+[items.host.ok]
+class: host_ok
+text: Host is up and all its services are ok or acknowledged
+icon: cubes
+
+[items.host.warning]
+class: host_warning
+text: Host or some of its services are warning or state are unknown
+icon: cubes
+
+[items.host.critical]
+class: host_critical
+text: text: Host or some of its services are critical
+icon: cubes
+
+[items.host.acknowledged]
+class: host_acknowledged
+text: Host or some of its services are problems but acknowledged
 icon: check
 
-[items.session.close]
-class: sessionClosed
-text: Session is closed
-icon: close
+[items.host.in_downtime]
+class: host_in_downtime
+text: Host or some of its services are in a downtime period
+icon: ambulance
 
-[items.session.unknown]
-class: sessionUnknown
-text:
+
+; Service: ok/warning/critical/unknown/unreachable
+[items.service.ok]
+class: service_ok
+text: Service is ok or problem is handled
+icon: cube
+
+[items.service.critical]
+class: service_critical
+text: Service is critical
+icon: cube
+
+[items.service.warning]
+class: service_warning
+text: Service is warning
+icon: cube
+
+[items.service.unknown]
+class: service_unknown
+text: Service is unknown
 icon: question
 
-; Host: up/down/unreachable
-[items.host.up]
-class: hostUp
+[items.service.unreachable]
+class: service_unreachable
+text: Service is unreachable
+icon: question
+
+[items.service.acknowledged]
+class: service_acknowledged
+text: Service is problem and acknowledged
+icon: check
+
+[items.service.in_downtime]
+class: service_in_downtime
+text: Service is in a downtime period
+icon: ambulance
+
+
+; logcheckresult Host: up/down/unreachable
+[items.logcheckresult.up]
+class: logcheckresult_up
 text: Host is up
 icon: check
 
-[items.host.down]
-class: hostDown
+[items.logcheckresult.down]
+class: logcheckresult_down
 text: Host is down
 icon: close
 
-[items.host.unreachable]
-class: hostUnreachable
+[items.logcheckresult.unreachable]
+class: logcheckresult_unreachable
 text: Host is unreachable
 icon: question
 
-[items.host.unknown]
-class: hostUnknown
-text: Host is unknown
+[items.logcheckresult.unknown]
+class: logcheckresult_unknown
+text: Element is unknown
 icon: question
+
+[items.logcheckresult.acknowledged]
+class: logcheckresult_acknowledged
+text: Element is problem and acknowledged
+icon: check
+
+[items.logcheckresult.in_downtime]
+class: logcheckresult_in_downtime
+text: Element is in a scheduled downtime
+icon: ambulance
+
+; Service: ok/warning/critical
+[items.logcheckresult.ok]
+class: logcheckresult_ok
+text: Service is ok
+icon: check
+
+[items.logcheckresult.critical]
+class: logcheckresult_critical
+text: Service is critical
+icon: close
+
+[items.logcheckresult.warning]
+class: logcheckresult_warning
+text: Service is warning
+icon: question
+
+
+; History
+[items.history.check_result]
+class: historyCheckResult
+text: Check result
+icon: bolt
+[items.history.check_request]
+class: historyCheckRequest
+text: Check request
+icon: send
+[items.history.check_requested]
+class: historyCheckRequested
+text: Check requested
+icon: reply
+
+[items.history.ack_add]
+class: historyAckAdd
+text: Request to add an acknowledge
+icon: send
+[items.history.ack_processed]
+class: historyAckProcessed
+text: Acknowledge set
+icon: reply
+[items.history.ack_delete]
+class: historyAckDelete
+text: Request to delete an acknowledge
+icon: trash
+
+[items.history.downtime_add]
+class: historyDowntimeAdd
+text: Request to add a downtime
+icon: send
+[items.history.downtime_processed]
+class: historyDowntimeProcessed
+text: Downtime set
+icon: reply
+[items.history.downtime_delete]
+class: historyDowntimeDelete
+text: Request to delete a downtime
+icon: trash
 
 ; Commands
 [items.command.unknown]
@@ -252,8 +834,96 @@ class: command
 text:
 icon: bolt
 
+; Timeperiods
+[items.timeperiod.unknown]
+class: timeperiod
+text:
+icon: calendar
+
 ; User states: unknown only! Needs refactoring user/user ...
 [items.user.unknown]
 class: user
 text:
 icon: user
+
+; Users groups
+[items.usergroup.unknown]
+class: usergroup
+text:
+icon: users
+
+; Hosts groups
+; Real state is computed from the real state of the group members
+[items.hostgroup.unknown]
+class: hostgroup_unknown
+text: Hosts group do not have any members.
+icon: server
+[items.hostgroup.ok]
+class: hostgroup_ok
+text: All hosts group members are ok
+icon: server
+[items.hostgroup.acknowledged]
+class: hostgroup_acknowledged
+text: Hosts group worst state is Acknowledge. At least an host or service is an acknowledeged problem.
+icon: check
+[items.hostgroup.in_downtime]
+class: hostgroup_in_downtime
+text: Hosts group worst state is Downtime. At least an host or service is in a scheduled downtime.
+icon: ambulance
+[items.hostgroup.warning]
+class: hostgroup_warning
+text: Hosts group worst state is Warning. Some hosts are unreachable and/or some services are warning.
+icon: server
+[items.hostgroup.critical]
+class: hostgroup_critical
+text: Hosts group worst state is Critical. Some hosts are down and/or some services are critical.
+icon: server
+
+; Services groups
+[items.servicegroup.unknown]
+class: servicegroup
+text:
+icon: cubes
+
+; Realms
+; Real state is computed from the real state of the realm hosts
+[items.realm.unknown]
+class: realm
+text: Realm do not have any members
+icon: sitemap
+[items.realm.ok]
+class: realm_ok
+text: All realm hosts are ok
+icon: sitemap
+[items.realm.acknowledged]
+class: realm_acknowledged
+text: Realm worst state is Acknowledge. At least an host or service is an acknowledeged problem.
+icon: check
+[items.realm.in_downtime]
+class: realm_in_downtime
+text: Realm worst state is Downtime. At least an host or service is in a scheduled downtime.
+icon: ambulance
+[items.realm.warning]
+class: realm_warning
+text: Realm worst state is Warning. Some hosts are unreachable and/or some services are warning.
+icon: sitemap
+[items.realm.critical]
+class: realm_critical
+text: Realm worst state is Critical. Some hosts are down and/or some services are critical.
+icon: sitemap
+
+; Alignak daemons
+[items.alignakdaemon.up]
+class: alignakdaemon_up
+text: Daemon is up and listening
+icon: tty
+
+[items.alignakdaemon.down]
+class: alignakdaemon_down
+text: Daemon is down
+icon: tty
+
+[items.alignakdaemon.unreachable]
+class: alignakdaemon_unreachable
+text: Daemon is unreachable
+icon: tty

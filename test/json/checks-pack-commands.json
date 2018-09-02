@@ -1,0 +1,26 @@
+[
+    {
+        "_realm": "All",
+        "_sub_realm": true,
+        "alias": "Notify for service with simple email",
+        "command_line": "/usr/bin/printf \"%b\" \"Alignak Notification\\n\\nNotification Type: $NOTIFICATIONTYPE$\\n\\nService: $SERVICEDESC$\\nHost: $HOSTNAME$\\nAddress: $HOSTADDRESS$\\nState: $SERVICESTATE$\\n\\nDate/Time: $DATE$ $TIME$\\nAdditional Info : $SERVICEOUTPUT$\\n\" | /usr/bin/mail -s \"** $NOTIFICATIONTYPE$ alert - $HOSTNAME$/$SERVICEDESC$ is $SERVICESTATE$ **\" $CONTACTEMAIL$",
+        "definition_order": 100,
+        "enable_environment_macros": false,
+        "imported_from": "alignak-checks-windows-nsca",
+        "name": "notify-service-by-email",
+        "notes": "",
+        "timeout": -1
+    },
+    {
+        "_realm": "All",
+        "_sub_realm": true,
+        "alias": "Notify for host with simple email",
+        "command_line": "/usr/bin/printf \"%b\" \"Alignak Notification\\n\\nType:$NOTIFICATIONTYPE$\\nHost: $HOSTNAME$\\nState: $HOSTSTATE$\\nAddress: $HOSTADDRESS$\\nInfo: $HOSTOUTPUT$\\nDate/Time: $DATE$ $TIME$\\n\" | /usr/bin/mail -s \"Host $HOSTSTATE$ alert for $HOSTNAME$\" $CONTACTEMAIL$",
+        "definition_order": 100,
+        "enable_environment_macros": false,
+        "imported_from": "alignak-checks-windows-nsca",
+        "name": "notify-host-by-email",
+        "notes": "",
+        "timeout": -1
+    }
+]

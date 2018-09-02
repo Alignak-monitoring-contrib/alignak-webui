@@ -1,15 +1,20 @@
 %setdefault('read_only', False)
 %setdefault('auto_post', False)
 
+%setdefault('form_class', 'form-horizontal')
+
 %# Acknowledge attributes
+%setdefault('element', 'acknowledge')
 %setdefault('action', 'add')
-%setdefault('livestate_id', '-1')
+%setdefault('elements_type', 'host')
+%setdefault('element_id', '-1')
+%setdefault('element_name', 'unknown')
+
 %setdefault('sticky', True)
 %setdefault('notify', False)
-%setdefault('persistent', True)
 
 <div class="modal-header">
-   <a class="close" data-refresh="start" data-dismiss="modal">×</a>
+   <a class="close" data-dismiss="modal">×</a>
    <h3>{{title}}</h3>
    <small><em>
       {{', '.join(element_name)}}
@@ -17,48 +22,48 @@
 </div>
 
 <div class="modal-body">
-   <form data-item="acknowledge" data-action="{{action}}" class="form-horizontal" method="post" action="/acknowledge/add" role="form">
+   <form class="{{form_class}}" data-item="{{element}}" data-action="{{action}}" method="post" action="/{{element}}/{{action}}" role="form">
       <div class="form-group" style="display: none">
-         %for id in livestate_id:
-         <input type="text" readonly id="livestate_id" name="livestate_id" value="{{id}}">
+         %for id in element_id:
+         <input type="text" readonly id="element_id" name="element_id" value="{{id}}"/>
          %end
          %for name in element_name:
-         <input type="text" readonly id="element_name" name="element_name" value="{{name}}">
+         <input type="text" readonly id="element_name" name="element_name" value="{{name}}"/>
          %end
+         <input type="text" readonly id="elements_type" name="elements_type" value="{{elements_type}}"/>
       </div>
 
-      <div class="form-group">
-         <label class="col-sm-offset-1 control-label">{{_('Acknowledge options')}}</label>
-         <div class="col-sm-offset-3 col-sm-9">
-            <div class="checkbox">
+      <fieldset>
+         <div class="form-group">
+            <label class="col-xs-4 control-label" for="sticky">{{_('Acknowledge is sticky:')}}</label>
+            <div class="checkbox col-xs-8">
                <label>
-                  <input type="checkbox" name="sticky" {{'checked' if sticky else ''}} value="{{sticky}}"> {{_('Sticky')}}
+                  <input type="checkbox" id="sticky" name="sticky" {{'checked' if sticky else ''}} value="{{sticky}}" />
                </label>
+               <p class="help-block">{{_('If checked, the acknowledge will remain until the element returns to an OK state.')}}</p>
             </div>
          </div>
-         <div class="col-sm-offset-3 col-sm-9">
-            <div class="checkbox">
-               <label>
-                  <input type="checkbox" name="notify" {{'checked' if notify else ''}} value="{{notify}}"> {{_('Notify')}}
-               </label>
-            </div>
-         </div>
-         <div class="col-sm-offset-3 col-sm-9">
-            <div class="checkbox">
-               <label>
-                  <input type="checkbox" name="persistent" {{'checked' if persistent else ''}} value="{{persistent}}"> {{_('Persistent')}}
-               </label>
-            </div>
-         </div>
-      </div>
 
-      <div class="form-group">
-         <div class="col-sm-12">
-            <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
+         <div class="form-group">
+            <label class="col-xs-4 control-label" for="notify">{{_('Acknowledge notifies:')}}</label>
+            <div class="checkbox col-xs-8">
+               <label>
+                  <input type="checkbox" id="notify" name="notify" {{'checked="checked"' if notify else ''}} />
+               </label>
+               <p class="help-block">{{_('If checked, a notification will be sent out to the related contacts')}}</p>
+            </div>
          </div>
-      </div>
 
-      <button type="submit" class="btn btn-success btn-lg btn-block"> <i class="fa fa-check"></i>{{_('Request acknowledge')}}</button>
+         <div class="form-group">
+            {{_('Acknowledge comment:')}}
+            <div class="col-xs-12">
+               <textarea hidden {{'readonly' if read_only else ''}} class="form-control" name="comment" id="comment" rows="3" placeholder="{{comment}}">{{comment}}</textarea>
+               <p class="help-block">{{_('This comment will be associated to the acknowledge')}}</p>
+            </div>
+         </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn-success btn-lg btn-raised"> <i class="fa fa-check"></i>&nbsp;{{_('Request acknowledge')}}</button>
    </form>
 </div>
 
@@ -66,7 +71,7 @@
 $(document).ready(function(){
    %if auto_post:
       // Submit form
-      $('form[data-item="acknowledge"]').submit();
+      $('form[data-item="{{element}}"]').trigger('submit');
    %end
 });
 </script>

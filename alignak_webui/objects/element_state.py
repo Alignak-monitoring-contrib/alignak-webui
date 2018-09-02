@@ -5,8 +5,8 @@
 # Attributes need to be defined in constructor before initialization
 # pylint: disable=attribute-defined-outside-init
 
-# Copyright (c) 2015-2016:
-#   Frederic Mohier, frederic.mohier@gmail.com
+# Copyright (c) 2015-2018:
+#   Frederic Mohier, frederic.mohier@alignak.net
 #
 # This file is part of (WebUI).
 #
@@ -37,11 +37,13 @@ from dateutil import tz
 from alignak_webui import get_app_config
 
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
+# pylint: disable=invalid-name
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-class ElementState(object):    # pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
+class ElementState(object):
     """
     Singleton design pattern ...
     """
@@ -161,6 +163,8 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             if not object_type or not status:
                 return None
 
+            status = status.lower()
+
             if status not in self.get_icon_states(object_type):
                 return None
 
@@ -171,13 +175,13 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             return None
 
         def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
-                           title='', disabled=False, size=''):
+                           title='', disabled=False, size='', use_status=None):
             # pylint: disable=too-many-arguments
             # Yes, but it is needed ;)
             # pylint: disable=too-many-locals, too-many-return-statements
             # Yes, but else it will be quite difficult :/
-            """
-            Returns an item status as HTML text and icon if needed
+
+            """Returns an item status as HTML text and icon if needed
 
             If parameters are not valid, returns 'n/a'
 
@@ -206,6 +210,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             :return: formatted status HTML string
             :rtype: string
             """
+
             if not object_type:  # pragma: no cover, should not happen
                 return 'n/a - element'
 
@@ -216,6 +221,8 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
                 return 'n/a - icon/text'
 
             status = object_item.status
+            if use_status:
+                status = use_status
             status = status.replace('.', '_').lower()
             if object_type in self.get_objects_types():
                 if status not in self.get_icon_states(object_type):
@@ -236,6 +243,13 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
                 return 'n/a - cfg_state_view'
             # logger.debug("get_html_state, states view: %s", cfg_state_view)
 
+            # If item is acknowledged or downtimed...
+            opacity = False
+            if getattr(object_item, 'acknowledged', False):
+                opacity = True
+            if getattr(object_item, 'downtimed', False):
+                opacity = True
+
             # Text
             res_icon_state = cfg_state['icon']
             res_icon_text = cfg_state['text']
@@ -245,8 +259,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             if not icon:
                 if text == '':
                     return res_text
-                else:
-                    return text
+                return text
 
             # Icon
             res_icon_global = cfg_state_view['content']
@@ -257,15 +270,15 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             if extra:
                 res_extra = extra
             res_opacity = ""
-            if extra:
-                res_opacity = 'style="opacity: 0.7"'
+            if opacity:
+                res_opacity = 'style="opacity: 0.5"'
 
             # Assembling ...
             item_id = object_item.id
             res_icon = res_icon_global
             res_icon = res_icon.replace("##type##", object_type)
             res_icon = res_icon.replace("##id##", item_id)
-            res_icon = res_icon.replace("##name##", object_item.name)
+            res_icon = res_icon.replace("##name##", object_item.json_alias)
             res_icon = res_icon.replace("##state##", object_item.get_state())
             res_icon = res_icon.replace("##back##", res_icon_back)
             res_icon = res_icon.replace("##front##", res_icon_front)
@@ -281,7 +294,7 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
             res_icon = res_icon.replace("##opacity##", res_opacity)
 
             if not title:
-                title = res_text
+                title = res_extra
 
             if text is None:
                 res_text = ''
@@ -306,10 +319,11 @@ class ElementState(object):    # pylint: disable=too-few-public-methods
         return ElementState.instance
 
     def get_html_state(self, object_type, object_item, extra='', icon=True, text='',
-                       title='', disabled=False, size=''):
+                       title='', disabled=False, size='', use_status=None):
         # pylint: disable=too-many-arguments
         """
         Base function used by Item objects
         """
         return self.instance.get_html_state(object_type, object_item,
-                                            extra, icon, text, title, disabled, size)
+                                            extra, icon, text, title, disabled, size,
+                                            use_status)

@@ -6,12 +6,13 @@
 %setdefault('identifier', 'widget')
 %setdefault('credentials', None)
 
-%if not hosts:
+%if not elements:
    <center>
-      <h3>{{_('No hosts matching the filter...')}}</h3>
+      <h4>{{_('No hosts matching the filter...')}}</h4>
    </center>
 %else:
-   %hs = datamgr.get_livesynthesis()['hosts_synthesis']
+   %lv = datamgr.get_livesynthesis()
+   %hs = lv['hosts_synthesis']
    %if hs:
    <div class="well">
       <!-- Chart -->
@@ -26,10 +27,10 @@
    $(document).ready(function() {
       var data=[], labels=[], colors=[], hover_colors=[];
       %for state in 'up', 'unreachable', 'down', 'acknowledged', 'in_downtime':
-         labels.push(g_hosts_states["{{state.lower()}}"]['label']);
-         data.push({{hs["nb_" + state]}});
-         colors.push(g_hosts_states["{{state.lower()}}"]['color'])
-         hover_colors.push(g_hoverBackgroundColor)
+         labels.push(g_hosts_states["{{state}}"]['label']);
+         data.push({{hs["nb_" + state] if hs["nb_" + state] >= 0 else 0}});
+         colors.push(g_hosts_states["{{state}}"]['color'])
+         hover_colors.push(g_hosts_states["{{state}}"]['background'])
       %end
       var data = {
          labels: labels,
@@ -48,6 +49,8 @@
          type: 'doughnut',
          data: data,
          options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                display: true,
                text: '{{title}}'

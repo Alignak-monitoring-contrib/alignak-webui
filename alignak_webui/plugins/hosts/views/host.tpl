@@ -1,16 +1,23 @@
 %setdefault('debug', False)
+%setdefault('host', None)
 %setdefault('services', None)
-%setdefault('livestate', None)
+%setdefault('parents', None)
+%setdefault('children', None)
 %setdefault('history', None)
+%setdefault('events', None)
+%setdefault('timeline_pagination', None)
+%setdefault('types', None)
+%setdefault('selected_types', None)
+%setdefault('title', _('Host view'))
 
-%rebase("layout", title=title, js=[], css=[], page="/host")
+%rebase("layout", title=title, js=[], css=[], page="/host/{{host.id}}")
 
 %from alignak_webui.utils.helper import Helper
 %from alignak_webui.objects.item_command import Command
 %from alignak_webui.objects.item_service import Service
 
 <!-- Host view -->
-<div id="host">
+<div class="host" id="host-{{host.id}}">
    %if debug:
    <div class="panel-group">
       <div class="panel panel-default">
@@ -22,21 +29,6 @@
          <div id="collapse_{{host.id}}" class="panel-collapse collapse">
             <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                %for k,v in sorted(host.__dict__.items()):
-                  <dt>{{k}}</dt>
-                  <dd>{{v}}</dd>
-               %end
-            </dl>
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_livestate_{{host.id}}"><i class="fa fa-bug"></i> Host livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_livestate_{{host.id}}" class="panel-collapse collapse">
-            <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-               %for k,v in sorted(livestate.__dict__.items()):
                   <dt>{{k}}</dt>
                   <dd>{{v}}</dd>
                %end
@@ -58,32 +50,6 @@
                   </h4>
                </div>
                <div id="collapse{{service.id}}_services" class="panel-collapse collapse" style="height: 200px;">
-                  <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
-                     %for k,v in sorted(service.__dict__.items()):
-                        <dt>{{k}}</dt>
-                        <dd>{{v}}</dd>
-                     %end
-                  </dl>
-               </div>
-            </div>
-            %end
-         </div>
-      </div>
-      <div class="panel panel-default">
-         <div class="panel-heading">
-            <h4 class="panel-title">
-               <a data-toggle="collapse" href="#collapse_{{host.id}}_services_livestate"><i class="fa fa-bug"></i> Host services livestate as dictionary</a>
-            </h4>
-         </div>
-         <div id="collapse_{{host.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px; margin-left:20px;">
-            %for service in livestate_services:
-            <div class="panel panel-default">
-               <div class="panel-heading">
-                  <h4 class="panel-title">
-                     <a data-toggle="collapse" href="#collapse{{service.id}}_services_livestate"><i class="fa fa-bug"></i> Service livestate: {{service.name}}</a>
-                  </h4>
-               </div>
-               <div id="collapse{{service.id}}_services_livestate" class="panel-collapse collapse" style="height: 200px;">
                   <dl class="dl-horizontal" style="height: 200px; overflow-y: scroll;">
                      %for k,v in sorted(service.__dict__.items()):
                         <dt>{{k}}</dt>
@@ -154,71 +120,65 @@
    </div>
    %end
 
-   <!-- First row : tags and actions ... -->
-   %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
-   %tags = host.tags
-   %if host.action_url or tags or groups:
-   <div>
+   <!-- First row : host overview ... -->
+   <div class="host-overview panel panel-default">
+      %groups = datamgr.get_hostgroups({'where': {'hosts': host.id}})
+      %tags = host.tags
+      %templates = host._templates
       %if groups:
-      <div class="btn-group pull-right">
-         <button class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-sitemap"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
+      <div class="host-groups btn-group pull-right">
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-sitemap"></span>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
          %for group in groups:
-            <li>
-            <a href="/hostgroup/{{group.id}}">{{group.alias}}</a>
-            </li>
+            <li><a href="/hostgroup/{{group.id}}"><span class="fa fa-tag"></span>&nbsp;{{group.alias}}</a></li>
          %end
          </ul>
       </div>
-      <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if host.action_url != '':
-      <div class="btn-group pull-right">
+      <div class="host-action-url btn-group pull-right">
          %action_urls = host.action_url.split('|')
          <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-external-link"></i> {{_('Action') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
+            <span class="fa fa-external-link"></span> {{_('Actions') if len(action_urls) == 1 else _('Actions')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
-            %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe", popover=True):
-            <li>{{!action_url}}</li>
+            %for action_url in Helper.get_element_actions_url(host, default_title="Url", default_icon="globe"):
+            <li>{{! action_url}}</li>
             %end
          </ul>
       </div>
-      <div class="pull-right">&nbsp;&nbsp;</div>
       %end
       %if tags:
-      <div class="btn-group pull-right">
-         %if len(tags) > 2:
-            <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-               <i class="fa fa-tag"></i>&nbsp;{{_('Groups')}}&nbsp;<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right">
-               %for tag in sorted(tags):
-               <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span> {{tag}}</button></li>
-               %end
-            </ul>
-         %else:
+      <div class="host-tags btn-group pull-right">
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-tag"></span>&nbsp;{{_('Tags')}}&nbsp;<span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu pull-right">
             %for tag in sorted(tags):
-               <a href="{{ webui.get_url('Hosts table') }}?search=tags:{{tag}}">
-                  <span class="fa fa-tag"></span> {{tag}}
-               </a>
+            <li><button class="btn btn-default btn-xs"><span class="fa fa-tag"></span>&nbsp;{{tag}}</button></li>
             %end
-         %end
+         </ul>
       </div>
       %end
-   </div>
-   %end
+      %if templates:
+      <div class="host-templates btn-group pull-right">
+         <button class="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-clone"></span>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu pull-right">
+            %for template in sorted(templates):
+            <li><a href="/host/{{template.id}}"><span class="fa fa-clone"></span>&nbsp;{{template.alias}}</a></li>
+            %end
+         </ul>
+      </div>
+      %end
 
-   <!-- Second row : host/service overview ... -->
-   <div class="panel panel-default">
       <div class="panel-heading">
-         <h4 class="panel-title">
-            <a class="collapsed" role="button" data-toggle="collapse" href="#collapseHostOverview" aria-expanded="false" aria-controls="collapseHostOverview">
-               <span class="caret"></span>
-               {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
-            </a>
+         <h4 class="panel-title" class="collapsed" data-toggle="collapse" data-target="#collapseHostOverview" aria-expanded="false" aria-controls="collapseHostOverview">
+            <span class="caret"></span>
+            {{_('Overview for %s') % host.name}} {{! Helper.get_html_business_impact(host.business_impact, icon=True, text=False)}}
          </h4>
       </div>
 
@@ -226,7 +186,7 @@
          %if host.customs and ('_DETAILLEDESC' in host.customs or '_IMPACT' in host.customs or '_FIXACTIONS' in host.customs):
          <div class="panel panel-default">
             <div class="panel-body">
-               <dl class="col-sm-12 dl-horizontal">
+               <dl class="col-xs-12 dl-horizontal">
                   %if '_DETAILLEDESC' in host.customs:
                   <dt>{{_('Description:')}}</dt>
                   <dd>{{host.customs['_DETAILLEDESC']}}</dd>
@@ -245,16 +205,19 @@
          %end
 
          <div class="row">
-            <dl class="col-sm-6 col-md-4">
+            <dl class="col-xs-12 col-sm-6">
                <dt>{{_('Alias:')}}</dt>
                <dd>{{host.alias}}</dd>
 
+               %if host.notes:
                <dt>{{_('Notes:')}}</dt>
                <dd>
-               %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag", popover=True):
-                  <button class="btn btn-default btn-xs">{{! note_url}}</button>
+               %for note_url in Helper.get_element_notes_url(host, default_title="Note", default_icon="tag"):
+                  {{! note_url}}
                %end
                </dd>
+               %end
+
                <dt>{{_('Address:')}}</dt>
                <dd>{{host.address}}</dd>
 
@@ -262,7 +225,7 @@
                <dd>{{!Helper.get_html_business_impact(host.business_impact, icon=True, text=True)}}</dd>
             </dl>
 
-            <dl class="col-sm-6 col-md-4">
+            <dl class="col-xs-12 col-sm-6">
                <dt>{{_('Parents:')}}</dt>
                %if parents:
                %for parent in parents:
@@ -293,145 +256,138 @@
       </div>
    </div>
 
-   <!-- Third row : business impact alerting ... -->
+   <!-- Second row : business impact alerting ... -->
    %if current_user.is_power():
       %if host.is_problem and host.business_impact > 2 and not host.acknowledged:
-      <div class="panel panel-default">
-         <div class="panel-heading" style="padding-bottom: -10">
-            <div class="aroundpulse pull-left" style="padding: 8px;">
-               <span class="big-pulse pulse"></span>
-               <i class="fa fa-3x fa-spin fa-gear"></i>
-            </div>
-            <div style="margin-left: 60px;">
-            %disabled_ack = '' if host.is_problem and not host.acknowledged else 'disabled'
-            %disabled_fix = '' if host.is_problem and host.event_handler_enabled and host.event_handler else 'disabled'
-            <p class="alert alert-danger" style="margin-bottom:0">
+      <div class="host-bi-alert panel panel-default">
+         <div class="panel-body">
+            <i class="fa fa-2x fa-spin fa-gear"></i>
+            <span class="alert alert-danger">
                {{_('This element has an important impact on your business, you may acknowledge it or try to fix it.')}}
-            </p>
-            </div>
+            </span>
          </div>
       </div>
       %end
    %end
 
+   %if services:
    %synthesis = datamgr.get_services_synthesis(services)
-   <!-- Fourth row : services synthesis ... -->
-   <div class="panel panel-default">
-     <div class="panel-body">
-       <table class="table table-invisible">
-         <tbody>
-           <tr>
-             <td>
-               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}}">
-                  <b>{{synthesis['nb_elts']}} services:&nbsp;</b>
-               </a>
-             </td>
+   <!-- Third row : services synthesis ... -->
+   <div class="host-services-synthesis panel panel-default">
+       <table class="table table-invisible table-condensed" style="margin-bottom: 0px;"><tbody><tr>
+          <td><a role="menuitem" href="/services/table?search=host:{{host.id}}">
+               <strong>{{synthesis['nb_elts']}} services:&nbsp;</strong>
+          </a></td>
 
-             %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
-             <td>
-               %if synthesis['nb_' + state]>0:
-               <a role="menuitem" href="/livestates_table?search=type:service name:{{host.name}} state:{{state.upper()}}">
-               %end
-
-               %label = "%s <i>(%s%%)</i>" % (synthesis["nb_" + state], synthesis["pct_" + state])
-               {{! Service({'status':state}).get_html_state(text=label, title=label, disabled=(not synthesis["nb_" + state]))}}
-
-               %if synthesis['nb_' + state]>0:
-               </a>
-               %end
-             </td>
-             %end
-           </tr>
-         </tbody>
-       </table>
-     </div>
+          %for state in 'ok', 'warning', 'critical', 'unknown', 'acknowledged', 'in_downtime':
+          <td>
+            %label = "%s <em>(%s%%)</em>" % (synthesis["nb_" + state], synthesis["pct_" + state])
+            {{! Service().get_html_state(use_status=state, text=label, disabled=(not synthesis["nb_" + state]))}}
+          </td>
+          %end
+       </tr></tbody></table>
    </div>
+   %end
 
-   <!-- Fifth row : host widgets -->
-   <div>
+   <!-- Fourth row : host widgets ... -->
+   <div class="host-widgets">
       <ul class="nav nav-tabs">
-         <li class="active">
-            <a href="#host_tab_view"
-               role="tab" data-toggle="tab" aria-controls="view"
-               title="{{_('Host synthesis view')}}"
-               >
-               <span class="fa fa-server"></span>
-               <span class="hidden-sm hidden-xs">{{_('Host view')}}</span>
-            </a>
-         </li>
-
-         %for widget in webui.widgets['host']:
-            <li>
-               <a href="#host_tab_{{widget['id']}}"
+         %first=True
+         %hide_widgets = object_plugin.plugin_parameters.get('widgets', None)
+         %for widget in webui.get_widgets_for('host'):
+            %if hide_widgets and hide_widgets.get('enabled', True):
+               %if not hide_widgets.get(widget['id'], True):
+                  % continue
+               %end
+            %end
+            %if widget['id'] in ['grafana']:
+               %plugin = webui.find_plugin('Grafana')
+               %if not plugin or not plugin.is_enabled():
+                  % continue
+               %end
+            %end
+            %if 'level' in widget and widget['level'] > current_user.skill_level:
+               % continue
+            %end
+            <li {{'class="active"' if first else ''}}>
+               <a href="#host_{{widget['id']}}"
                   role="tab" data-toggle="tab" aria-controls="{{widget['id']}}"
-                  title="{{! widget['description']}}"
-                  >
+                  title="{{! widget['description']}}">
                   <span class="fa fa-{{widget['icon']}}"></span>
                   <span class="hidden-sm hidden-xs">{{widget['name']}}</span>
                </a>
             </li>
+            %first=False
          %end
       </ul>
 
       <div class="tab-content">
-         <div id="host_tab_view" class="tab-pane fade active in" role="tabpanel">
-            %include("_widget.tpl", widget_name='host_view', options=None, embedded=True, title=None)
-         </div>
-
-         %for widget in webui.widgets['host']:
-            <div id="host_tab_{{widget['id']}}" class="tab-pane fade" role="tabpanel">
-               %include("_widget.tpl", widget_name=widget['template'], options=widget['options'], embedded=True, title=None)
-            </div>
+         %first=True
+         %for widget in webui.get_widgets_for('host'):
+            %if hide_widgets and hide_widgets.get('enabled', True):
+               %if not hide_widgets.get(widget['id'], True):
+                  % continue
+               %end
+            %end
+            %if widget['id'] in ['grafana']:
+               %plugin = webui.find_plugin('Grafana')
+               %if not plugin or not plugin.is_enabled():
+                  % continue
+               %end
+            %end
+            %if 'level' in widget and widget['level'] > current_user.skill_level:
+            % continue
+            %end
+            <div id="host_{{widget['id']}}" class="tab-pane fade {{'active in' if first else ''}}" role="tabpanel"></div>
+            %first=False
          %end
       </div>
    </div>
- </div>
+</div>
 
 <script>
-   // Automatically navigate to the desired tab if an # exists in the URL
-   function bootstrap_tab_bookmark(selector) {
-      if (selector == undefined) {
-         selector = "";
-      }
-
-      var bookmark_switch = function () {
-         url = document.location.href.split('#');
-         if (url[1] != undefined) {
-            $(selector + '[href="#'+url[1]+'"]').tab('show');
-         }
-      }
-
-      /* Automatically jump on good tab based on anchor */
-      $(document).ready(bookmark_switch);
-      $(window).bind('hashchange', bookmark_switch);
-
-      var update_location = function (event) {
-         document.location.hash = this.getAttribute("href");
-      }
-
-      /* Update hash based on tab */
-      $(selector + "[data-toggle=pill]").click(update_location);
-      $(selector + "[data-toggle=tab]").click(update_location);
-   }
-
-   $(function () {
-      bootstrap_tab_bookmark();
-   })
    $(document).ready(function() {
+      bootstrap_tab_bookmark();
+
       // Activate the popover for the notes and actions urls
       $('[data-toggle="popover urls"]').popover({
          placement: 'bottom',
          animation: true,
-         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>',
-         content: function() {
-            return $('#hosts-states-popover-content').html();
-         }
+         template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-title"></div><div class="popover-content"></div></div></div>'
       });
 
       // Tabs management
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-         console.log(e.target); // newly activated tab
-         console.log(e.relatedTarget); // previous active tab
+         // Changed tab
+         var $url = window.location.href.replace(window.location.search,'');
+         $url = $url.split('#');
+         if (($url[1] == undefined) || ($url[1] == '')) {
+            $url = 'host_view';
+         } else {
+            $url = $url[1];
+         }
+         //console.log("Changed tab", $url);
+         var loading='<div class="alert alert-info text-center"><span class="fa fa-spin fa-spinner"></span>&nbsp;{{_("Fetching data...")}}&nbsp;<span class="fa fa-spin fa-spinner"></span></div>';
+         $('#'+$url).html(loading);
+         $.ajax({
+            url: '/'+$url+'/{{host.id}}'
+         })
+         .done(function(content, textStatus, jqXHR) {
+            $('#'+$url).html(content);
+         })
+         .fail(function( jqXHR, textStatus, errorThrown ) {
+            console.error('get host tab, error: ', jqXHR, textStatus, errorThrown);
+            // raise_message_ko(errorThrown + ': '+ textStatus);
+         });
       })
+
+      // If the requested URL does not contain an anchor, show the first page tab...
+      var url = window.location.href.replace(window.location.search,'');
+      url = url.split('#');
+      if ((url[1] == undefined) || (url[1] == '')) {
+         $('a[data-toggle="tab"]:first').trigger("shown.bs.tab");
+      } else {
+         $('a[href="#'+url[1]+'"]').trigger("shown.bs.tab");
+      }
    });
- </script>
+</script>

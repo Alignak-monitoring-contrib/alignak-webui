@@ -1,0 +1,50 @@
+.map_container_widget {
+   margin: 0;
+   width: 100%;
+   height: 320px;
+}
+
+.map_container_widget .osm {
+   width: 100%;
+   height: 320px;
+}
+
+/* Selected hosts list */
+#selected_hosts {
+   position: absolute;
+   z-index: 1000;
+   bottom: 50px;
+}
+
+/* Not positioned hosts list */
+#not_positioned_hosts {
+   position: absolute;
+   z-index: 1000;
+   bottom: 0px;
+}
+
+.map-iconHostState {
+   width: 32px;
+}
+
+.map-hostname {
+}
+
+.labels {
+   color: red;
+   background-color: white;
+   font-size: 10px;
+   font-weight: bold;
+   text-align: center;
+   width: 100px;
+   white-space: nowrap;
+}
+
+.map-services {
+   list-style-type: none;
+   margin-left: -40px;
+}
+
+.map-infoView hr {
+  margin: 3px;
+}

@@ -8,17 +8,8 @@
 
 %from alignak_webui.utils.helper import Helper
 
-%setdefault('mapId', 'hosts_worldmap')
-
-%hosts = elements
-<script>
-   var cssfiles=['/static/plugins/worldmap/htdocs/css/worldmap.css', '/static/plugins/worldmap/htdocs/css/leaflet.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.css', '/static/plugins/worldmap/htdocs/css/MarkerCluster.Default.css', '/static/plugins/worldmap/htdocs/css/leaflet.label.css'];
-
-   $.getCssFiles(cssfiles, function(){
-       // do something, e.g.
-       // console.log('Loaded all CSS files!');
-   });
-</script>
+%plugin = webui.find_plugin('Worldmap')
+%(hosts, _) = plugin.get_map_elements(elements)
 <!-- HTML map container -->
 <div class="map_container_widget">
    %if not hosts:
@@ -29,11 +20,11 @@
       </div>
    %else:
       <div id="{{mapId}}" class="osm">
-           <div class="alert alert-info">
-              <a href="#" class="alert-link">Loading map ...</a>
+         <div class="alert alert-info">
+            <a href="#" class="alert-link">{{_('Loading map ...')}}</a>
          </div>
       </div>
    %end
-</div>
 
-%include("_worldmap")
+   %include("_worldmap")
+</div>
