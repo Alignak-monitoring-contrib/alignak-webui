@@ -16,12 +16,12 @@ __pkg_name__ = "alignak_webui"
 # Used for:
 # - PyPI keywords
 # - directory where to store files in the Alignak configuration (eg. arbiter/packs/checks_type)
-__checks_type__ = "demo"
+__checks_type__ = "UI"
 
 # Application manifest
 __application__ = "Alignak-WebUI"
 
-VERSION = (0, 11, 1)
+VERSION = (0, 12, 0)
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 
