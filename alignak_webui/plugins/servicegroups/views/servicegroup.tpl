@@ -1,6 +1,7 @@
 %setdefault('debug', False)
 %setdefault('title', _('Services group view'))
 
+%from six import string_types
 %from bottle import request
 %search_string = request.query.get('search', '')
 
@@ -36,7 +37,7 @@
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
                %for elt in element.members:
-               %if isinstance(elt, basestring):
+               %if isinstance(elt, string_types):
                %continue
                %end
                <div class="panel panel-default">
@@ -68,7 +69,7 @@
          <div id="collapse2" class="panel-collapse collapse">
             <ul class="list-group">
                %for elt in groups:
-               %if isinstance(elt, basestring):
+               %if isinstance(elt, string_types):
                %continue
                %end
                <div class="panel panel-default">
@@ -111,7 +112,7 @@
             <legend><strong>{{element.alias}}</strong></legend>
          </div>
          <div class="col-xs-6 col-sm-10">
-         %if not element.members or isinstance(element.members, basestring):
+         %if not element.members or isinstance(element.members, string_types):
             <div class="text-center alert alert-warning">
                <h4>{{_('No services found in this group.')}}</h4>
             </div>
@@ -177,7 +178,7 @@
             <tbody>
             %plugin = webui.find_plugin('Services groups')
             %for elt in groups:
-               %if isinstance(elt, basestring):
+               %if isinstance(elt, string_types):
                %continue
                %end
                <tr id="servicegroup_{{elt.id}}">

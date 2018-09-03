@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import time
 import shlex
@@ -29,9 +29,14 @@ import subprocess
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
-# os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -206,6 +211,7 @@ class TestCreation(unittest2.TestCase):
         print("users count: %s" % self.users_count)
 
     def tearDown(self):
+        print("Logout!")
         self.app.get('/logout')
 
 class TestHostCreation(TestCreation):
@@ -221,6 +227,7 @@ class TestHostCreation(TestCreation):
 
         print('get page /hosts/templates/table (edition mode)')
         response = self.app.get('/hosts/templates/table')
+        print("Response: %s" % response)
         response.mustcontain(
             '<div id="hosts_templates_table" class="alignak_webui_table ">',
             "$('#tbl_hosts_templates_table').DataTable( {",
@@ -571,7 +578,3 @@ class TestUserCreation(TestCreation):
         new_count = self.datamgr.count_objects('user', search={'where': {'_is_template': False}})
         print("users count: %s" % new_count)
         assert new_count == self.users_count + 1
-
-
-if __name__ == '__main__':
-    unittest2.main()

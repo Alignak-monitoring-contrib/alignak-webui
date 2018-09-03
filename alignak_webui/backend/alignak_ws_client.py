@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # Many functions need to use protected members of a base class
 # pylint: disable=protected-access
 # Attributes need to be defined in constructor before initialization
@@ -24,7 +25,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module contains an Alignek Web services interface class
+    This module contains an Alignak Web services interface class
 """
 
 import json

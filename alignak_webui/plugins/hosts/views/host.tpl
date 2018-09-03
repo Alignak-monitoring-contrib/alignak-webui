@@ -168,7 +168,7 @@
             <span class="fa fa-clone"></span>&nbsp;{{_('Templates')}}&nbsp;<span class="caret"></span>
          </button>
          <ul class="dropdown-menu pull-right">
-            %for template in sorted(templates):
+            %for template in templates:
             <li><a href="/host/{{template.id}}"><span class="fa fa-clone"></span>&nbsp;{{template.alias}}</a></li>
             %end
          </ul>

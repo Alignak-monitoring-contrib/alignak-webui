@@ -85,7 +85,7 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
                 continue
             logger.debug("HostMetrics, checking %s / %s", param, params[param])
 
-            for key, config in params[param].iteritems():
+            for key, config in params[param].items():
                 logger.debug("HostMetrics, checking config: %s / %s / %s", param, key, config)
                 if 'name' not in config or \
                         'type' not in config or \
@@ -161,22 +161,22 @@ class HostMetrics(object):  # pragma: no cover, not with unit tests ...
                         if m.min is not None:
                             if same_min == -1:
                                 same_min = m.min
-                            if same_min != -1 and same_min != m.min:
+                            if same_min not in [-1, m.min]:
                                 same_min = -2
                         if m.max is not None:
                             if same_max == -1:
                                 same_max = m.max
-                            if same_max != -1 and same_max != m.max:
+                            if same_max not in [-1, m.max]:
                                 same_max = -2
                         if m.warning is not None:
                             if warning == -1:
                                 warning = m.warning
-                            if warning != -1 and warning != m.warning:
+                            if warning not in [-1, m.warning]:
                                 warning = -2
                         if m.critical is not None:
                             if critical == -1:
                                 critical = m.critical
-                            if critical != -1 and critical != m.critical:
+                            if critical not in [-1, m.critical]:
                                 critical = -2
         except Exception as exp:
             logger.warning("metrics get_service_metric, exception: %s", str(exp))

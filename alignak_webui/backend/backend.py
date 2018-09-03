@@ -31,6 +31,7 @@
 import json
 import traceback
 from logging import getLogger, WARNING
+from six import string_types
 
 from alignak_backend_client.client import BACKEND_PAGINATION_LIMIT
 from alignak_backend_client.client import Backend, BackendException
@@ -108,7 +109,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
         logger.debug("count, %s, params: %s", object_type, params)
 
-        if isinstance(params, basestring):
+        if isinstance(params, string_types):
             params = {'where': {'_id': params}}
 
         # Update backend search parameters
@@ -179,7 +180,7 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
 
         if '/' not in object_type:
             # Do not Get a specific element, manage search parameters
-            if isinstance(params, basestring):
+            if isinstance(params, string_types):
                 params = {'where': {'_id': params}}
                 logger.debug("get, %s, params: %s", object_type, params)
 
@@ -264,13 +265,13 @@ class BackendConnection(object):    # pylint: disable=too-few-public-methods
             if result['_status'] != 'OK':
                 logger.warning("post, error: %s", result)
                 return None
-        except BackendException as e:  # pragma: no cover, simple protection
-            logger.exception("post, backend exception: %s", e)
+        except BackendException as exp:  # pragma: no cover, simple protection
+            logger.exception("post, backend exception: %s", exp)
             error = []
-            if "response" in e and "_issues" in e.response:
-                error = e.response["_issues"]
+            if getattr(exp, "response", None) and "_issues" in exp.response:
+                error = exp.response["_issues"]
             else:
-                error.append(str(e))
+                error.append(str(exp))
             logger.warning("post, error(s): %s", error)
             return error
         except Exception as e:  # pragma: no cover, simple protection

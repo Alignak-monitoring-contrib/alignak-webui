@@ -31,6 +31,7 @@ import time
 import json
 import traceback
 from logging import getLogger
+from six import string_types
 
 from alignak_webui import get_app_config
 
@@ -517,7 +518,7 @@ class Helper(object):
             logger.exception("Exception: %s", exp)
 
         query = {}
-        for field, search_type in parameters.iteritems():
+        for field, search_type in parameters.items():
             logger.debug("decode_search, build query: %s - %s", field, search_type)
             if search_type['type'] == 'simple':
                 query.update({field: search_type['pattern']})
@@ -673,7 +674,7 @@ class Helper(object):
             list_item = app_config.get('timeperiods.list')
             items = ""
             for daterange in tp.dateranges:
-                for key in daterange.keys():
+                for key in list(daterange.keys()):
                     item = app_config.get('timeperiods.item')
                     item = item.replace("##period##", key)
                     item = item.replace("##range##", daterange[key])
@@ -685,7 +686,7 @@ class Helper(object):
             list_item = app_config.get('timeperiods.list')
             items = ""
             for daterange in tp.exclude:
-                for key in daterange.keys():
+                for key in list(daterange.keys()):
                     item = app_config.get('timeperiods.item')
                     item = item.replace("##period##", key)
                     item = item.replace("##range##", daterange[key])
@@ -729,7 +730,7 @@ class Helper(object):
             content_list = []
             for item in objects_list:
                 list_item = app_config.get('tables.lists.unique')
-                if isinstance(item, basestring):
+                if isinstance(item, string_types):
                     content = list_item.replace("##content##", item)
                 elif isinstance(item, dict):
                     content = list_item.replace("##content##", str(item))
@@ -755,7 +756,7 @@ class Helper(object):
 
         for item in objects_list:
             list_item = app_config.get('tables.lists.item')
-            if isinstance(item, basestring):
+            if isinstance(item, string_types):
                 content += list_item.replace("##content##", item)
             elif isinstance(item, dict):
                 content += list_item.replace("##content##", str(item))
@@ -1416,11 +1417,12 @@ class Helper(object):
             search = {}
         # Limit to 10 hosts and 10 services
         if 'max_results' not in search:
-            search.update({'max_results': 10,})
+            search.update({'max_results': 10})
         if 'where' not in search:
             # Search monitored items that have a bad status not acknowledged nor downtimed
+            # Ignore 0 for ok, 3 for unknown and 4 for unreachable
             search.update({'where': {
-                'ls_state_id': {'$nin': [0, 4]},
+                'ls_state_id': {'$nin': [0, 3, 4]},
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_acknowledged': False,
                 'ls_downtimed': False,
@@ -1437,8 +1439,8 @@ class Helper(object):
         logger.info("get_html_livestate, BI: %d, hosts search: '%s'", bi, search_hosts)
         hosts = datamgr.get_hosts(search=search_hosts, embedded=False, all_elements=False)
         items.extend(hosts)
-        logger.info("get_html_livestate, livestate %d (%s), found %d hosts",
-                       bi, search, len(items))
+        logger.debug("get_html_livestate, livestate %d (%s), found %d hosts",
+                     bi, search, len(items))
 
         # Copy because the search filter is updated by the function ...
         if 'embedded' not in search:

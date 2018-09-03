@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 
 import os
 import shlex
@@ -34,6 +34,11 @@ os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -554,7 +559,7 @@ class TestBasic(unittest2.TestCase):
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
             },
             'services_synthesis': {
-                'nb_elts': 151,
+                'nb_elts': 241,
                 'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
                 # 'business_impact': 0,
 
@@ -567,8 +572,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                'nb_unknown': 151, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 151, 'nb_unknown_soft': 0,
+                'nb_unknown': 241, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 241, 'nb_unknown_soft': 0,
                 'nb_unreachable': 0, 'pct_unreachable': 0.0,
                 'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
 
@@ -607,7 +612,7 @@ class TestBasic(unittest2.TestCase):
                 'nb_in_downtime': 0, 'pct_in_downtime': 0.0,
             },
             'services_synthesis': {
-                'nb_elts': 151,
+                'nb_elts': 241,
                 'nb_not_monitored': 0, 'pct_not_monitored': 0.0,
                 # 'business_impact': 0,
 
@@ -620,8 +625,8 @@ class TestBasic(unittest2.TestCase):
                 'nb_warning_hard': 0, 'nb_warning_soft': 0,
                 'nb_critical': 0, 'pct_critical': 0.0,
                 'nb_critical_hard': 0, 'nb_critical_soft': 0,
-                'nb_unknown': 151, 'pct_unknown': 100.0,
-                'nb_unknown_hard': 151, 'nb_unknown_soft': 0,
+                'nb_unknown': 241, 'pct_unknown': 100.0,
+                'nb_unknown_hard': 241, 'nb_unknown_soft': 0,
                 'nb_unreachable': 0, 'pct_unreachable': 0.0,
                 'nb_unreachable_hard': 0, 'nb_unreachable_soft': 0,
 

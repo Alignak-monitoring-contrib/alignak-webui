@@ -20,20 +20,25 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import time
 import shlex
 import unittest2
 import subprocess
 
-from nose.tools import *
+# from nose.tools import *
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -493,9 +498,9 @@ class TestHosts(unittest2.TestCase):
         response = self.app.post('/host_form/None', params=data)
         print(response.json)
         assert response.json == {
-            u'_is_template': False,
-            u'_message': u'host creation failed!',
-            u'_errors': [u'']
+            '_is_template': False,
+            '_message': 'host creation failed!',
+            '_errors': ['']
         }
 
         # A name is enough to create a new host

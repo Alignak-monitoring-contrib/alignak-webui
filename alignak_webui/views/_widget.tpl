@@ -55,7 +55,7 @@
       <input type="hidden" name='widget_template' value='{{widget_template}}'/>
       <input type="hidden" name='title' value='{{title}}'/>
 
-      %for (key, v) in options.iteritems():
+      %for (key, v) in options.items():
          %value = v.get('value', '')
          %label = v.get('label', key)
          %type = v.get('type', 'text')

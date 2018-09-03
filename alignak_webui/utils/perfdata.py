@@ -160,7 +160,7 @@ class PerfDatas:  # pragma: no cover, not with unit tests ...
                 self.metrics[metric.name] = metric
 
     def __iter__(self):
-        return self.metrics.itervalues()
+        return iter(self.metrics.values())
 
     def __len__(self):
         return len(self.metrics)

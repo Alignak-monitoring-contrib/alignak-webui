@@ -51,8 +51,11 @@
 
 <div id="problems-synthesis" class="row">
     %if ls is None:
+    %if datamgr:
     %ls = datamgr.get_livesynthesis()
     %end
+    %end
+    %if ls is not None:
     <div class="col-xs-4">
         %hs = ls['hosts_synthesis']
         %if hs:
@@ -120,4 +123,5 @@
         </center>
         %end
     </div>
+    %end
 </div>

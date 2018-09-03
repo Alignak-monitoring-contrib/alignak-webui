@@ -369,6 +369,7 @@ class PluginHosts(Plugin):
         children = datamgr.get_hostdependencys(search={'where': {'hosts': host.id}})
         parents = datamgr.get_hostdependencys(search={'where': {'dependent_hosts': host.id}})
 
+        logger.debug("Host, call Bottle view")
         return {
             'object_plugin': self,
             'plugin_parameters': self.plugin_parameters,

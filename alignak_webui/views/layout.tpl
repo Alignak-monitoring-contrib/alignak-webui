@@ -17,7 +17,7 @@
 %# Current page may be refreshed or not (default is True)
 %setdefault('refresh', True)
 %setdefault('current_user', None)
-%setdefault('options_panel', True)
+%setdefault('top_ten_hosts', False)
 %setdefault('elts_per_page', 25)
 %setdefault('pagination', None)
 %setdefault('pagination_bottom', False)
@@ -192,7 +192,7 @@
          %end
 
          <div class="row">
-            % if options_panel:
+            % if top_ten_hosts:
             <div id="options-panel">
                <div class="card slider-card">
                   <h3>{{_('Top ten hosts:')}}</h3>
@@ -264,7 +264,7 @@
          }, 100);
          %end
 
-         % if options_panel:
+         % if top_ten_hosts:
          $('#options-panel').BootSideMenu({
             // 'left' or 'right'
             side: "left",

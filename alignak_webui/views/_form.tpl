@@ -255,7 +255,7 @@
 
               %if allowed:
               %  # List of allowed values
-              %  if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
+              %  if isinstance(allowed[0], str) and allowed[0].startswith('inner://'):
                  preload: true,
                  openOnFocus: true,
                  load: function(query, callback) {
@@ -404,7 +404,7 @@
 
               %if allowed:
               %  # List of allowed values
-              %  if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
+              %  if isinstance(allowed[0], str) and allowed[0].startswith('inner://'):
                  preload: true,
                  openOnFocus: true,
                  load: function(query, callback) {
@@ -472,7 +472,7 @@
          </div>
          %end
 
-         %for field, model in object_plugin.table.iteritems():
+         %for field, model in object_plugin.table.items():
             %selectize = False
             %if not model.get('editable', True) or (field[0] in ['#', '_'] and field not in ['_parent', '_realm', '_sub_realm']) or field.startswith('ls_'):
                %# Some fields are never displayed in a form...
@@ -718,7 +718,7 @@
 
                   %if allowed:
                   %  # List of allowed values
-                  %  if isinstance(allowed[0], basestring) and allowed[0].startswith('inner://'):
+                  %  if isinstance(allowed[0], str) and allowed[0].startswith('inner://'):
                      create: false,
                      preload: true,
                      openOnFocus: true,

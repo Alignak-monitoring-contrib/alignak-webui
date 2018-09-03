@@ -35,6 +35,8 @@ from copy import deepcopy
 from datetime import datetime
 from logging import getLogger, INFO
 
+from six import string_types
+
 from alignak_webui import get_app_config
 # Import the backend interface class
 from alignak_webui.backend.backend import BackendConnection, BackendException
@@ -69,7 +71,7 @@ class BackendElement(object):
     _total_count = -1
 
     _backend = None
-    _known_classes = None
+    _known_classes = []
 
     # Next value used for auto generated id
     _next_id = 1
@@ -207,15 +209,15 @@ class BackendElement(object):
                         return cls._cache[params.id]
                     logger.info("New %s, id: %s, copy an object", cls, params)
                     return deepcopy(params)
-                else:
-                    logger.critical("Class %s, id_property: %s, invalid params: %s",
-                                    cls, id_property, params)
-                    raise ValueError(
-                        '%s.__new__: object parameters must be a dictionary!' % (cls._type)
-                    )
+
+                logger.critical("Class %s, id_property: %s, invalid params: %s",
+                                cls, id_property, params)
+                raise ValueError(
+                    '%s.__new__: object parameters must be a dictionary!' % (cls._type)
+                )
 
             if id_property in params:
-                if not isinstance(params[id_property], basestring):
+                if not isinstance(params[id_property], string_types):
                     params[id_property] = str(params[id_property])
                 _id = params[id_property]
             else:
@@ -384,7 +386,7 @@ class BackendElement(object):
                         continue
 
                     # String - object id
-                    if isinstance(params[key], basestring) and params[key] and self.get_backend():
+                    if isinstance(params[key], string_types) and params[key] and self.get_backend():
                         if params[key] not in object_class._cache:
                             try:
                                 # Object link is a string, so we load the object from the backend
@@ -422,7 +424,7 @@ class BackendElement(object):
                     if isinstance(params[key], list):
                         objects_list = []
                         for element in params[key]:
-                            if isinstance(element, basestring) and self.get_backend():
+                            if isinstance(element, string_types) and self.get_backend():
                                 if element not in object_class._cache:
                                     try:
                                         # we need to load the object from the backend

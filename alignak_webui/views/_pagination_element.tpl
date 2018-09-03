@@ -6,6 +6,10 @@
 %setdefault('count', 25)
 %setdefault('total', 0)
 
+%from future.standard_library import install_aliases
+%install_aliases()
+%from urllib.parse import urlencode
+
 %from alignak_webui.utils.helper import Helper
 %setdefault('pagination', Helper.get_pagination_control('unknown', total, start, count))
 
@@ -51,7 +55,6 @@
             </div>
 
             <ul class="pagination pagination-sm" >
-               %from urllib import urlencode
                %first_element=False
                %next_page=False
                %for label, start, count, total, active in pagination:

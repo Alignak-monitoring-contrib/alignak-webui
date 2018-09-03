@@ -1,0 +1,48 @@
+[Unit]
+Description=uWSGI instance to serve Alignak WebUI
+After=network.target
+
+[Service]
+# Environment variables - may be overriden in the /etc/default/alignak-backend
+Environment=ALIGNAK_WEBUI_CONFIGURATION_FILE=/usr/local/share/alignak-webui/etc/settings.cfg
+Environment=ALIGNAK_WEBUI_BACKEND=http://127.0.0.1:5000
+Environment=ALIGNAK_WEBUI_WS=http://127.0.0.1:7770
+Environment=ALIGNAK_WEBUI_PID=/var/run/alignak-webui.pid
+Environment=ALIGNAK_WEBUI_LOG=/var/log/alignak-webui/alignak-webui.log
+Environment=ALIGNAK_WEBUI_UWSGI_LOG=/var/log/uwsgi/alignak-webui.log
+Environment=ALIGNAK_WEBUI_LOGGER_FILE=/usr/local/share/alignak-webui/etc/logging.json
+Environment=ALIGNAK_WEBUI_HOST=127.0.0.1
+Environment=ALIGNAK_WEBUI_PORT=5001
+Environment=ALIGNAK_WEBUI_PROCESSES=4
+Environment=ALIGNAK_USER=alignak
+Environment=ALIGNAK_GROUP=alignak
+EnvironmentFile=-/etc/default/alignak-webui
+
+# Pre-Execution
+ExecStartPre=/bin/mkdir -p /var/run/alignak-webui
+ExecStartPre=/bin/chown alignak:alignak /var/run/alignak-webui
+ExecStartPre=/bin/mkdir -p /var/log/alignak-webui
+ExecStartPre=/bin/chown alignak:alignak /var/log/alignak-webui
+
+# PID file as required to uWsgi
+PIDFile=/var/run/alignak-webui/alignak-webui.pid
+
+ExecStart=/usr/bin/uwsgi --master --enable-threads --plugin python3 --wsgi-file /usr/local/share/alignak-webui/etc/alignak-webui.wsgi --daemonize ${ALIGNAK_WEBUI_UWSGI_LOG} --pidfile ${ALIGNAK_WEBUI_PID} --logto /${ALIGNAK_WEBUI_LOG} --uid ${ALIGNAK_USER} --gid ${ALIGNAK_GROUP} --http-socket ${ALIGNAK_WEBUI_HOST}:${ALIGNAK_WEBUI_PORT} --processes ${ALIGNAK_WEBUI_PROCESSES} --ini /usr/local/share/alignak-webui/etc/uwsgi-service.ini
+
+# See man systemd.kill
+KillMode=process
+KillSignal=SIGINT
+TimeoutStopSec=15
+
+Restart=always
+
+# See man systemd.service
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+# Graceful reload
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

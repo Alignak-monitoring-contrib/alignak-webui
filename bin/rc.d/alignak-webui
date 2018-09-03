@@ -12,11 +12,11 @@
 #   Flag that determines whether Alignak WebUI is enabled.
 #
 # alignak_webui_wsgi (string):
-#   Default value: /usr/local/etc/alignak-webui/alignak-webui.wsgi
+#   Default value: /usr/local/share/alignak-webui/etc/alignak-webui.wsgi
 #   Wsgi application for the Alignak WebUI
 #
 # alignak_webui_config (string):
-#   Default value: /usr/local/etc/alignak-webui/settings.cfg
+#   Default value: /usr/local/share/alignak-webui/etc/settings.cfg
 #   Configuration file for the Alignak WebUI
 #
 # alignak_webui_session_type (string):
@@ -41,13 +41,17 @@
 #   Default output to /var/log/alignak_webui/alignak_webui.log
 #
 # alignak_webui_log_dir (string):
-#   Default value: "/var/log/alignak-webui"
+#   Default value: "/var/log/alignak_webui"
 #   Log file directory.
 #
 # alignak_webui_log_file (string):
 #   Default value: "${alignak_webui_log_dir}/${name}.log"
 #   Log file name. Note that it is the uWsgi log file and it may be used by the UI, except if the
 #   WebUI logger configuration is set differently (see the /usr/local/etc/logging.json file).
+#
+# alignak_webui_pid_dir (string):
+#   Default value: "/var/run/alignak_webui"
+#   Pid file directory.
 #
 # alignak_webui_pid_file (string):
 #   Default value: "/var/run/alignak-webui/${name}.pid"
@@ -91,16 +95,16 @@ rcvar="alignak_webui_enable"
 load_rc_config "${name}"
 
 : ${alignak_webui_enable="NO"}
-: ${alignak_webui_wsgi="/usr/local/etc/alignak-webui/alignak-webui.wsgi"}
-: ${alignak_webui_config="/usr/local/etc/alignak-webui/settings.cfg"}
+: ${alignak_webui_wsgi="/usr/local/share/alignak-webui/etc/alignak-webui.wsgi"}
+: ${alignak_webui_config="/usr/local/share/alignak-webui/etc/settings.cfg"}
 : ${alignak_webui_backend=""}
 : ${alignak_webui_ws=""}
 : ${alignak_webui_session_type="file"}
 : ${alignak_webui_session_data="/tmp/${name}/sessions"}
 : ${alignak_webui_log="NO"}
-: ${alignak_webui_log_dir="/var/log"}
+: ${alignak_webui_log_dir="/var/log/${name}"}
 : ${alignak_webui_log_file="${alignak_webui_log_dir}/${name}.log"}
-: ${alignak_webui_pid_dir="/var/run"}
+: ${alignak_webui_pid_dir="/var/run/${name}"}
 : ${alignak_webui_pid_file="${alignak_webui_pid_dir}/${name}.pid"}
 : ${alignak_webui_processes="4"}
 : ${alignak_webui_group="alignak"}
@@ -149,6 +153,7 @@ required_files="${alignak_webui_wsgi}"
 alignak_webui_precmd()
 {
     /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 ${alignak_webui_log_dir}
+    /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 ${alignak_webui_pid_dir}
     /usr/bin/install -d -o ${alignak_webui_user} -g ${alignak_webui_group} -m 755 ${alignak_webui_pid_dir}
 }
 
