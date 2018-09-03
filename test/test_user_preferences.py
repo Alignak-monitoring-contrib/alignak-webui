@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import json
 import time
@@ -29,14 +29,20 @@ import unittest2
 import subprocess
 # from gettext import gettext as _
 
-from nose import with_setup
-from nose.tools import *
+# from nose import with_setup
+# from nose.tools import *
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print ("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
+
 # To load application configuration used by the objects
 import alignak_webui.app
 
@@ -153,7 +159,7 @@ class tests_preferences(unittest2.TestCase):
         print('- unknown key, no default value')
         response = self.app.get('/preference/user?key=elts_per_page', status=200)
         print(response.json)
-        assert response.json == {u'message': u'Unknown key: elts_per_page', u'status': u'ko'}
+        assert response.json == {'message': 'Unknown key: elts_per_page', 'status': 'ko'}
 
         # Get user's preferences value - not existing key with default value
         print('- unknown key, with default value')
@@ -173,7 +179,7 @@ class tests_preferences(unittest2.TestCase):
         # Set user's preferences value - simple data
         params = {'key': 'test', 'value': 'test'}
         response = self.app.post('/preference/user', params=params)
-        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+        assert response.json == {'message': 'User preferences saved', 'status': 'ok'}
 
         # Get user's preferences value
         response = self.app.get('/preference/user?key=test')
@@ -182,7 +188,7 @@ class tests_preferences(unittest2.TestCase):
         # Set user's preferences value - JSON data
         params = {'key': 'test_json', 'value': json.dumps({'a': 1, 'b': '1'})}
         response = self.app.post('/preference/user', params=params)
-        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+        assert response.json == {'message': 'User preferences saved', 'status': 'ok'}
 
         # Get user's preferences value
         response = self.app.get('/preference/user?key=test_json')
@@ -195,7 +201,7 @@ class tests_preferences(unittest2.TestCase):
         # Set user's preferences value - simple data
         params = {'key': 'test', 'value': 'test'}
         response = self.app.post('/preference/user', params=params)
-        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+        assert response.json == {'message': 'User preferences saved', 'status': 'ok'}
 
         # Delete user's preferences value
         response = self.app.get('/preference/user/delete?key=test')
@@ -204,7 +210,7 @@ class tests_preferences(unittest2.TestCase):
         # Set user's preferences value - JSON data
         params = {'key': 'test_json', 'value': json.dumps({'a': 1, 'b': '1'})}
         response = self.app.post('/preference/user', params=params)
-        assert response.json == {u'message': u'User preferences saved', u'status': u'ok'}
+        assert response.json == {'message': 'User preferences saved', 'status': 'ok'}
 
         # Get user's preferences value
         response = self.app.get('/preference/user/delete?key=test_json')

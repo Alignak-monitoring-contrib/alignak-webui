@@ -36,6 +36,26 @@ commands = {
         'title': _("Enable event handlers"),
         'parameters': []
     },
+    'disable_host_freshness_checks': {
+        'global': True, 'elements_type': None,
+        'title': _("Disable passive host freshness checks"),
+        'parameters': []
+    },
+    'enable_host_freshness_checks': {
+        'global': True, 'elements_type': None,
+        'title': _("Enable passive host freshness checks"),
+        'parameters': []
+    },
+    'disable_service_freshness_checks': {
+        'global': True, 'elements_type': None,
+        'title': _("Disable passive service freshness checks"),
+        'parameters': []
+    },
+    'enable_service_freshness_checks': {
+        'global': True, 'elements_type': None,
+        'title': _("Enable passive service freshness checks"),
+        'parameters': []
+    },
     'disable_flap_detection': {
         'global': True, 'elements_type': None,
         'title': _("Disable flapping detection"),
@@ -165,14 +185,14 @@ commands = {
         'title': _("Enable passive host checks"),
         'parameters': []
     },
-    'disable_host_freshness_checks': {
-        'global': False, 'elements_type': 'service',
-        'title': _("Disable passive host freshness checks"),
+    'disable_host_freshness_check': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Disable host freshness check"),
         'parameters': []
     },
-    'enable_host_freshness_checks': {
-        'global': False, 'elements_type': 'service',
-        'title': _("Enable passive host freshness checks"),
+    'enable_host_freshness_check': {
+        'global': False, 'elements_type': 'host',
+        'title': _("Enable host freshness check"),
         'parameters': []
     },
     'del_all_host_downtimes': {
@@ -267,14 +287,14 @@ commands = {
         'title': _("Enable passive service checks"),
         'parameters': []
     },
-    'disable_service_freshness_checks': {
+    'disable_service_freshness_check': {
         'global': False, 'elements_type': 'service',
-        'title': _("Disable passive service freshness checks"),
+        'title': _("Disable service freshness check"),
         'parameters': []
     },
-    'enable_service_freshness_checks': {
+    'enable_service_freshness_check': {
         'global': False, 'elements_type': 'service',
-        'title': _("Enable passive service freshness checks"),
+        'title': _("Enable service freshness check"),
         'parameters': []
     },
     'del_all_svc_downtimes': {

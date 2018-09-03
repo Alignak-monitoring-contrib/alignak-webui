@@ -25,6 +25,7 @@
 
 import json
 from logging import getLogger
+from six import string_types
 
 from bottle import request, response
 
@@ -122,7 +123,7 @@ class PluginHostsGroups(Plugin):
                 return self.webui.response_invalid_parameters(_('Element does not exist: %s')
                                                               % element_id)
 
-        if not isinstance(hostgroup.members, basestring):
+        if not isinstance(hostgroup.members, string_types):
             # Get element state configuration
             items_states = ElementState()
 

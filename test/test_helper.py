@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 from collections import OrderedDict
 
 import os
@@ -33,6 +33,11 @@ os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -368,97 +373,97 @@ class TestSearch(unittest2.TestCase):
         self.data_model = OrderedDict([
             # Global table field
             ('_table',
-             {u'page_title': u'Hosts table (%d items)', u'searchable': True, u'paginable': True,
-              u'editable': True, u'visible': True, u'responsive': False, u'orderable': True,
-              u'selectable': True, u'template_page_title': u'Hosts templates table (%d items)',
-              u'css': u'display nowrap'}),
+             {'page_title': 'Hosts table (%d items)', 'searchable': True, 'paginable': True,
+              'editable': True, 'visible': True, 'responsive': False, 'orderable': True,
+              'selectable': True, 'template_page_title': 'Hosts templates table (%d items)',
+              'css': 'display nowrap'}),
             # name field
-            (u'name', {u'regex': True, u'required': True, u'searchable': True,
-                       u'hint': u'This field is the host name', u'title': u'Host name',
-                       u'editable': True, u'orderable': True, u'unique': True, u'type': u'string',
-                       u'empty': False, u'templates_table': True}),
+            ('name', {'regex': True, 'required': True, 'searchable': True,
+                       'hint': 'This field is the host name', 'title': 'Host name',
+                       'editable': True, 'orderable': True, 'unique': True, 'type': 'string',
+                       'empty': False, 'templates_table': True}),
             # ...
-            (u'ls_state',
-             {u'hint': u'This field is the host status', u'required': True, u'editable': False,
-              u'allowed': u'UP,DOWN,UNREACHABLE', u'title': u'Status', u'unique': True,
-              u'type': u'string', u'empty': False}),
-            (u'overall_status', {u'regex': False,
-                                 u'hint': u'This field is the real host status, aggregating services status',
-                                 u'title': u'Overall status', u'editable': False, u'visible': True,
-                                 u'allowed': u'ok,acknowledged,in_downtime,warning,critical',
-                                 u'type': u'string'}),
+            ('ls_state',
+             {'hint': 'This field is the host status', 'required': True, 'editable': False,
+              'allowed': 'UP,DOWN,UNREACHABLE', 'title': 'Status', 'unique': True,
+              'type': 'string', 'empty': False}),
+            ('overall_status', {'regex': False,
+                                 'hint': 'This field is the real host status, aggregating services status',
+                                 'title': 'Overall status', 'editable': False, 'visible': True,
+                                 'allowed': 'ok,acknowledged,in_downtime,warning,critical',
+                                 'type': 'string'}),
 
-            (u'fake', {u'default': u'Default value', u'searchable': False, u'type': u'string',
-                       u'title': u'Fake'}),
+            ('fake', {'default': 'Default value', 'searchable': False, 'type': 'string',
+                       'title': 'Fake'}),
 
-            (u'_realm',
-             {u'regex': False, u'resource': u'realm', u'searchable': True, u'title': u'Realm',
-              u'visible': True, u'allowed': u'inner://realms/list', u'hidden': True,
-              u'type': u'objectid', u'templates_table': True}),
-            (u'_is_template',
-             {u'title': u'Template', u'default': False, u'visible': False, u'hidden': True,
-              u'type': u'boolean', u'templates_table': True}),
-            (u'_templates',
-             {u'regex': False, u'resource': u'host', u'format': u'multiple', u'default': u'[]',
-              u'title': u'Templates', u'visible': False, u'content_type': u'objectid',
-              u'allowed': u'inner://hosts/templates/list', u'hidden': True, u'type': u'list',
-              u'templates_table': True}),
+            ('_realm',
+             {'regex': False, 'resource': 'realm', 'searchable': True, 'title': 'Realm',
+              'visible': True, 'allowed': 'inner://realms/list', 'hidden': True,
+              'type': 'objectid', 'templates_table': True}),
+            ('_is_template',
+             {'title': 'Template', 'default': False, 'visible': False, 'hidden': True,
+              'type': 'boolean', 'templates_table': True}),
+            ('_templates',
+             {'regex': False, 'resource': 'host', 'format': 'multiple', 'default': '[]',
+              'title': 'Templates', 'visible': False, 'content_type': 'objectid',
+              'allowed': 'inner://hosts/templates/list', 'hidden': True, 'type': 'list',
+              'templates_table': True}),
 
-            (u'_template_fields',
-             {u'format': u'multiple', u'default': u'[]', u'title': u'Template fields',
-              u'visible': False, u'content_type': u'string', u'hidden': True, u'type': u'list'}),
-            (u'definition_order',
-             {u'title': u'Definition order', u'default': u'100', u'editable': True,
-              u'visible': False, u'orderable': True, u'hidden': True, u'type': u'integer',
-              u'templates_table': True}),
-            (u'tags',
-             {u'regex': False, u'format': u'multiple', u'default': u'[]', u'title': u'Tags',
-              u'content_type': u'string', u'allowed': u'inner://hosts/templates/list',
-              u'type': u'list'}),
-            (u'alias', {u'hidden': True, u'type': u'string', u'title': u'Host alias'}),
-            (u'business_impact', {u'hint': u'Host business impact level', u'default': u'2',
-                                  u'title': u'Business impact', u'allowed_4': u'Very important',
-                                  u'allowed_5': u'Business critical', u'allowed_0': u'None',
-                                  u'allowed_1': u'Low', u'allowed_2': u'Normal',
-                                  u'allowed': u'0,1,2,3,4,5', u'type': u'integer',
-                                  u'allowed_3': u'Important'}),
+            ('_template_fields',
+             {'format': 'multiple', 'default': '[]', 'title': 'Template fields',
+              'visible': False, 'content_type': 'string', 'hidden': True, 'type': 'list'}),
+            ('definition_order',
+             {'title': 'Definition order', 'default': '100', 'editable': True,
+              'visible': False, 'orderable': True, 'hidden': True, 'type': 'integer',
+              'templates_table': True}),
+            ('tags',
+             {'regex': False, 'format': 'multiple', 'default': '[]', 'title': 'Tags',
+              'content_type': 'string', 'allowed': 'inner://hosts/templates/list',
+              'type': 'list'}),
+            ('alias', {'hidden': True, 'type': 'string', 'title': 'Host alias'}),
+            ('business_impact', {'hint': 'Host business impact level', 'default': '2',
+                                  'title': 'Business impact', 'allowed_4': 'Very important',
+                                  'allowed_5': 'Business critical', 'allowed_0': 'None',
+                                  'allowed_1': 'Low', 'allowed_2': 'Normal',
+                                  'allowed': '0,1,2,3,4,5', 'type': 'integer',
+                                  'allowed_3': 'Important'}),
 
             # Some more ... removed for test purpose.
 
-            (u'ls_last_check', {u'editable': False, u'type': u'datetime', u'title': u'Last check'}),
-            (u'ls_state_type', {u'editable': False, u'allowed': u'HARD,SOFT', u'type': u'string',
-                                u'title': u'State type'}),
-            (u'ls_state_id',
-             {u'title': u'State', u'default': u'0', u'hint': u'Choose the host state',
-              u'allowed_3': u'Unreachable', u'editable': False, u'allowed_0': u'Up',
-              u'allowed_1': u'Down (1)', u'allowed_2': u'Down (2)', u'allowed': u'0,1,2,3',
-              u'type': u'integer'}),
-            (u'ls_acknowledged',
-             {u'editable': False, u'type': u'boolean', u'title': u'Acknowledged'}),
-            (u'ls_downtimed',
-             {u'editable': False, u'type': u'boolean', u'title': u'In scheduled downtime'}),
-            (u'ls_output', {u'default': u'Output from WebUI', u'editable': False,
-                            u'hint': u'enter the desired check output', u'type': u'string',
-                            u'title': u'Output'}),
-            (u'ls_long_output', {u'editable': False, u'type': u'string', u'title': u'Long output'}),
-            (u'ls_perf_data',
-             {u'editable': False, u'type': u'string', u'title': u'Performance data'}),
-            (u'ls_current_attempt',
-             {u'editable': False, u'type': u'integer', u'title': u'Current attempt'}),
-            (u'ls_max_attempts',
-             {u'editable': False, u'type': u'integer', u'title': u'Max attempts'}),
-            (u'ls_next_check', {u'editable': False, u'type': u'integer', u'title': u'Next check'}),
-            (u'ls_last_state_changed',
-             {u'editable': False, u'type': u'datetime', u'title': u'Last state changed'}),
-            (u'ls_last_state',
-             {u'editable': False, u'allowed': u'OK,WARNING,CRITICAL,UNKNOWN,UP,DOWN,UNREACHABLE',
-              u'type': u'string', u'title': u'Last state'}),
-            (u'ls_last_state_type',
-             {u'editable': False, u'allowed': u'HARD,SOFT', u'type': u'string',
-              u'title': u'Last state type'}),
-            (u'ls_latency', {u'editable': False, u'type': u'float', u'title': u'Latency'}),
-            (u'ls_execution_time',
-             {u'editable': False, u'type': u'float', u'title': u'Execution time'})
+            ('ls_last_check', {'editable': False, 'type': 'datetime', 'title': 'Last check'}),
+            ('ls_state_type', {'editable': False, 'allowed': 'HARD,SOFT', 'type': 'string',
+                                'title': 'State type'}),
+            ('ls_state_id',
+             {'title': 'State', 'default': '0', 'hint': 'Choose the host state',
+              'allowed_3': 'Unreachable', 'editable': False, 'allowed_0': 'Up',
+              'allowed_1': 'Down (1)', 'allowed_2': 'Down (2)', 'allowed': '0,1,2,3',
+              'type': 'integer'}),
+            ('ls_acknowledged',
+             {'editable': False, 'type': 'boolean', 'title': 'Acknowledged'}),
+            ('ls_downtimed',
+             {'editable': False, 'type': 'boolean', 'title': 'In scheduled downtime'}),
+            ('ls_output', {'default': 'Output from WebUI', 'editable': False,
+                            'hint': 'enter the desired check output', 'type': 'string',
+                            'title': 'Output'}),
+            ('ls_long_output', {'editable': False, 'type': 'string', 'title': 'Long output'}),
+            ('ls_perf_data',
+             {'editable': False, 'type': 'string', 'title': 'Performance data'}),
+            ('ls_current_attempt',
+             {'editable': False, 'type': 'integer', 'title': 'Current attempt'}),
+            ('ls_max_attempts',
+             {'editable': False, 'type': 'integer', 'title': 'Max attempts'}),
+            ('ls_next_check', {'editable': False, 'type': 'integer', 'title': 'Next check'}),
+            ('ls_last_state_changed',
+             {'editable': False, 'type': 'datetime', 'title': 'Last state changed'}),
+            ('ls_last_state',
+             {'editable': False, 'allowed': 'OK,WARNING,CRITICAL,UNKNOWN,UP,DOWN,UNREACHABLE',
+              'type': 'string', 'title': 'Last state'}),
+            ('ls_last_state_type',
+             {'editable': False, 'allowed': 'HARD,SOFT', 'type': 'string',
+              'title': 'Last state type'}),
+            ('ls_latency', {'editable': False, 'type': 'float', 'title': 'Latency'}),
+            ('ls_execution_time',
+             {'editable': False, 'type': 'float', 'title': 'Execution time'})
         ])
 
     def test_decode_search_simple(self):
@@ -722,19 +727,19 @@ class TestTP(unittest2.TestCase):
         tp = TimePeriod(
             {'_updated': 1465548247, '_total': 5, '_type': 'timeperiod', 'definition_order': 100,
              '_default_date': 0, '_comment': '', 'is_active': True,
-             '_name': u'All time default 24x7',
-             'dateranges': [{u'monday': u'00:00-24:00'}, {u'tuesday': u'00:00-24:00'},
-                            {u'wednesday': u'00:00-24:00'}, {u'thursday': u'00:00-24:00'},
-                            {u'friday': u'00:00-24:00'}, {u'saturday': u'00:00-24:00'},
-                            {u'sunday': u'00:00-24:00'}],
-             '_alias': u'',
+             '_name': 'All time default 24x7',
+             'dateranges': [{'monday': '00:00-24:00'}, {'tuesday': '00:00-24:00'},
+                            {'wednesday': '00:00-24:00'}, {'thursday': '00:00-24:00'},
+                            {'friday': '00:00-24:00'}, {'saturday': '00:00-24:00'},
+                            {'sunday': '00:00-24:00'}],
+             '_alias': '',
              '_links': {
-                u'self': {u'href': u'timeperiod/575a7dd74c988c170e857988', u'title': u'Timeperiod'}
+                'self': {'href': 'timeperiod/575a7dd74c988c170e857988', 'title': 'Timeperiod'}
              },
              '_created': 1465548247, 'exclude': [],
              '_status': 'unknown',
-             '_id': u'575a7dd74c988c170e857988',
-             '_etag': u'e9f5fb031b79f9abdc42f44d413f8220c321767b', 'imported_from': u''})
+             '_id': '575a7dd74c988c170e857988',
+             '_etag': 'e9f5fb031b79f9abdc42f44d413f8220c321767b', 'imported_from': ''})
         s = helper.get_html_timeperiod(tp)
         print("Result:", s)
         assert s == '<button class="btn btn-default btn-xs btn-block" type="button" data-toggle="collapse" data-target="#html_tp_575a7dd74c988c170e857988" aria-expanded="false" aria-controls="html_tp_575a7dd74c988c170e857988">All time default 24x7</button><div class="collapse" id="html_tp_575a7dd74c988c170e857988"><div class="well"><ul class="list-group"><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;monday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;tuesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;wednesday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;thursday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;friday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;saturday - 00:00-24:00</li><li class="list-group-item"><span class="fa fa-hourglass">&nbsp;sunday - 00:00-24:00</li></ul></div></div>'
@@ -796,7 +801,7 @@ class TestObjectUrls(unittest2.TestCase):
         """ Helper - get_element_notes_url """
 
         host = Host({
-            '_id': u'575a7dd74c988c170e857988',
+            '_id': '575a7dd74c988c170e857988',
             '_status': 'OK',
             'name': 'test',
             '_created': 1470995433,
@@ -809,12 +814,12 @@ class TestObjectUrls(unittest2.TestCase):
         assert html_notes == []
 
         host = Host({
-            '_id': u'575a7dd74c988c170e857988',
+            '_id': '575a7dd74c988c170e857988',
             '_status': 'OK',
             'name': 'test',
             '_created': 1470995433,
             '_updated': 1470995450,
-            'notes': u'note simple|Libellé::note avec un libellé|KB1023,,tag::<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor.|note simple|Tag::tagged note ...',
+            'notes': 'note simple|Libellé::note avec un libellé|KB1023,,tag::<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor.|note simple|Tag::tagged note ...',
             'notes_url': 'http://www.my-KB.fr?host=$HOSTADDRESS$|http://www.my-KB.fr?host=$HOSTNAME$',
         })
         assert host
@@ -823,18 +828,18 @@ class TestObjectUrls(unittest2.TestCase):
         # 5 declared notes, but only 2 URLs
         # Expecting 5 links
         assert html_notes == [
-            u'<a href="http://www.my-KB.fr?host=$HOSTADDRESS$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</a>',
-            u'<a href="http://www.my-KB.fr?host=$HOSTNAME$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note avec un libellé" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Libellé</a>',
-            u'<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;KB1023</span></a>',
-            u'<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</span></a>',
-            u'<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="tagged note ..." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Tag</span></a>'
+            '<a href="http://www.my-KB.fr?host=$HOSTADDRESS$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</a>',
+            '<a href="http://www.my-KB.fr?host=$HOSTNAME$" target="_blank" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note avec un libellé" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Libellé</a>',
+            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="<strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Proin et leo gravida, lobortis nunc nec, imperdiet odio. Vivamus quam velit, scelerisque nec egestas et, semper ut massa. Vestibulum id tincidunt lacus. Ut in arcu at ex egestas vestibulum eu non sapien. Nulla facilisi. Aliquam non blandit tellus, non luctus tortor. Mauris tortor libero, egestas quis rhoncus in, sollicitudin et tortor." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;KB1023</span></a>',
+            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="note simple" data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Note</span></a>',
+            '<a href="#" role="button" data-toggle="popover urls" data-container="body" data-html="true" data-content="tagged note ..." data-trigger="hover focus" data-placement="bottom"><span class="fa fa-tag"></span>&nbsp;Tag</span></a>'
         ]
 
     def test_actions_url(self):
         """ Helper - get_element_notes_url """
 
         host = Host({
-            '_id': u'575a7dd74c988c170e857988',
+            '_id': '575a7dd74c988c170e857988',
             '_status': 'OK',
             'name': 'test',
             '_created': 1470995433,
@@ -846,7 +851,7 @@ class TestObjectUrls(unittest2.TestCase):
         assert html_actions == []
 
         host = Host({
-            '_id': u'575a7dd74c988c170e857988',
+            '_id': '575a7dd74c988c170e857988',
             '_status': 'OK',
             'name': 'test',
             '_created': 1470995433,

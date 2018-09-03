@@ -17,7 +17,7 @@
       </tr>
    </thead>
    <tbody>
-   %for var in sorted(service.variables):
+   %for var in sorted(service.variables, key = lambda i: i['name']):
       %if isinstance(var['value'], list):
       %first_row = True
       %for list_item in var['value']:

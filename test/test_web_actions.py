@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import time
 import shlex
@@ -30,13 +30,18 @@ import requests
 from calendar import timegm
 from datetime import datetime, timedelta
 
-from nose.tools import *
+# from nose.tools import *
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 # from alignak_webui import webapp
@@ -416,44 +421,44 @@ class tests_actions(unittest2.TestCase):
         print('get page /command/parameters')
         response = self.app.get('/command/parameters?elements_type=host&command=process_host_check_result')
         expected = {
-            u"ls_state_id": {
-                u"allowed": {
-                    u"0": u"Up", u"1": u"Down (1)", u"2": u"Not used (2)", u"3": u"Not used (3)", u"4": u"Unreachable"
+            "ls_state_id": {
+                "allowed": {
+                    "0": "Up", "1": "Down (1)", "2": "Not used (2)", "3": "Not used (3)", "4": "Unreachable"
                 },
-                u"allowed_0": u"Up",
-                u"allowed_1": u"Down (1)",
-                u"allowed_2": u"Not used (2)",
-                u"allowed_3": u"Not used (3)",
-                u"allowed_4": u"Unreachable",
-                u"comment": u"Current state identifier. O: UP, 1: DOWN, 2/3: NOT USED, 4: UNREACHABLE",
-                u"default": 3,
-                u"title": u"State identifier",
-                u"editable": True,
-                u"hidden": True,
-                u"type": u"integer"
+                "allowed_0": "Up",
+                "allowed_1": "Down (1)",
+                "allowed_2": "Not used (2)",
+                "allowed_3": "Not used (3)",
+                "allowed_4": "Unreachable",
+                "comment": "Current state identifier. O: UP, 1: DOWN, 2/3: NOT USED, 4: UNREACHABLE",
+                "default": 3,
+                "title": "State identifier",
+                "editable": True,
+                "hidden": True,
+                "type": "integer"
             },
-            u"ls_output": {
-                u"default": u"Check output from WebUI",
-                u"type": u"string",
-                u"title": u"Output",
-                u"editable": True,
-                u"comment": u"Last check output"
+            "ls_output": {
+                "default": "Check output from WebUI",
+                "type": "string",
+                "title": "Output",
+                "editable": True,
+                "comment": "Last check output"
             },
-            u"ls_long_output": {
-                u"default": u"",
-                u"type": u"string",
-                u"title": u"Long output",
-                u"editable": True,
-                u"visible": False,
-                u"comment": u"Last check long output"
+            "ls_long_output": {
+                "default": "",
+                "type": "string",
+                "title": "Long output",
+                "editable": True,
+                "visible": False,
+                "comment": "Last check long output"
             },
-            u"ls_perf_data": {
-                u"default": u"",
-                u"type": u"string",
-                u"title": u"Performance data",
-                u"editable": True,
-                u"visible": False,
-                u"comment": u"Last check performance data"
+            "ls_perf_data": {
+                "default": "",
+                "type": "string",
+                "title": "Performance data",
+                "editable": True,
+                "visible": False,
+                "comment": "Last check performance data"
             }
         }
         assert expected == response.json

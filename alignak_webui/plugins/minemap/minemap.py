@@ -83,7 +83,7 @@ class PluginMinemap(Plugin):
             count = elts_per_page
         search = Helper.decode_search(request.params.get('search', ''), plugin.table)
         logger.info("Decoded search pattern: %s", search)
-        for key, pattern in search.iteritems():
+        for key, pattern in search.items():
             logger.info("global search pattern '%s' / '%s'", key, pattern)
 
         search = {

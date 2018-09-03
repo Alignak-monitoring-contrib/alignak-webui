@@ -184,7 +184,6 @@ class PluginWorldmap(Plugin):
         return {
             'search_engine': self.search_engine,
             'search_filters': self.search_filters,
-            'options_panel': False,
             'mapId': 'hostsMap',
             'mapStyle': map_style,
             'params': self.plugin_parameters,

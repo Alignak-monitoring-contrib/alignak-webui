@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import re
 import time
@@ -31,7 +31,7 @@ import requests
 
 from mock import Mock, patch
 
-from nose.tools import *
+# from nose.tools import *
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
@@ -39,6 +39,11 @@ os.environ['ALIGNAK_WEBUI_TEST_WS'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -112,9 +117,9 @@ def mocked_requests_get(*args, **kwargs):
         def raise_for_status(self):
             http_error_msg = ''
             if 400 <= self.status_code < 500:
-                http_error_msg = u'%s Error' % (self.status_code)
+                http_error_msg = '%s Error' % (self.status_code)
             elif 500 <= self.status_code < 600:
-                http_error_msg = u'%s Error' % (self.status_code)
+                http_error_msg = '%s Error' % (self.status_code)
 
             if http_error_msg:
                 raise requests.HTTPError(http_error_msg, response=self)
@@ -129,27 +134,27 @@ def mocked_requests_get(*args, **kwargs):
         data = {
             '_status': 'OK',
             '_items': [{
-                u'_templates': [], u'_template_fields': [], u'service_notifications_enabled': False,
-             u'can_submit_commands': True, u'webui_visible': True, u'address2': u'',
-             u'schema_version': 2, u'_sub_realm': True,
-             u'_links': {u'self': {u'href': u'user/5a05605606fd4b21634631dc', u'title': u'User'}},
-             u'_realm': u'5a05605606fd4b21634631d3', u'can_update_livestate': True, u'email': u'',
-             '_total': 1, u'_is_template': False, u'definition_order': 100, u'tags': [],
-             u'address1': u'',
-             u'service_notification_options': [u'w', u'u', u'c', u'r', u'f', u's'],
-             u'address3': u'', u'address4': u'', u'address5': u'', u'address6': u'', u'customs': {},
-             u'is_admin': True, u'skill_level': 2, u'back_role_super_admin': True,
-             u'password': u'pbkdf2:sha1:1000$ZFdUV19s$4e39137f320e132ebb4d3629b79b56e6f05c5791',
-             u'pager': u'', u'imported_from': u'unknown', u'notificationways': [],
-             u'_updated': u'Fri, 10 Nov 2017 08:16:22 GMT',
-             u'host_notification_period': u'5a05605606fd4b21634631d7', u'name': u'admin',
-             u'host_notifications_enabled': False, u'notes': u'',
-             u'service_notification_period': u'5a05605606fd4b21634631d7', u'min_business_impact': 0,
-             u'alias': u'Administrator',
-             u'token': u'1510301782692-e004c3d5-c4b4-4602-b9fe-406da42a22c2', u'ui_preferences': {},
-             u'_created': u'Fri, 10 Nov 2017 08:16:22 GMT', u'_id': u'5a05605606fd4b21634631dc',
-             u'_etag': u'fe93845ff15c7718ffd9cce217b7d3690302599a',
-             u'host_notification_options': [u'd', u'u', u'r', u'f', u's']}
+                '_templates': [], '_template_fields': [], 'service_notifications_enabled': False,
+             'can_submit_commands': True, 'webui_visible': True, 'address2': '',
+             'schema_version': 2, '_sub_realm': True,
+             '_links': {'self': {'href': 'user/5a05605606fd4b21634631dc', 'title': 'User'}},
+             '_realm': '5a05605606fd4b21634631d3', 'can_update_livestate': True, 'email': '',
+             '_total': 1, '_is_template': False, 'definition_order': 100, 'tags': [],
+             'address1': '',
+             'service_notification_options': ['w', 'u', 'c', 'r', 'f', 's'],
+             'address3': '', 'address4': '', 'address5': '', 'address6': '', 'customs': {},
+             'is_admin': True, 'skill_level': 2, 'back_role_super_admin': True,
+             'password': 'pbkdf2:sha1:1000$ZFdUV19s$4e39137f320e132ebb4d3629b79b56e6f05c5791',
+             'pager': '', 'imported_from': 'unknown', 'notificationways': [],
+             '_updated': 'Fri, 10 Nov 2017 08:16:22 GMT',
+             'host_notification_period': '5a05605606fd4b21634631d7', 'name': 'admin',
+             'host_notifications_enabled': False, 'notes': '',
+             'service_notification_period': '5a05605606fd4b21634631d7', 'min_business_impact': 0,
+             'alias': 'Administrator',
+             'token': '1510301782692-e004c3d5-c4b4-4602-b9fe-406da42a22c2', 'ui_preferences': {},
+             '_created': 'Fri, 10 Nov 2017 08:16:22 GMT', '_id': '5a05605606fd4b21634631dc',
+             '_etag': 'fe93845ff15c7718ffd9cce217b7d3690302599a',
+             'host_notification_options': ['d', 'u', 'r', 'f', 's']}
             ]
         }
         return MockResponse(data, 200)

@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "alignak": {
+            "format": "[%(asctime)s] %(levelname)s: [%(daemon)s.%(name)s] %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+        "monitoring-log": {
+            "format": "[%(my_date)s] %(levelname)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        }
+    },
+
+    "handlers": {
+        "unit_tests": {
+            "class": "alignak.log.CollectorHandler",
+            "level": "DEBUG",
+            "formatter": "alignak"
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "alignak",
+            "stream": "ext://sys.stdout"
+        },
+        "color_console": {
+            "class": "alignak.log.ColorStreamHandler",
+            "level": "DEBUG",
+            "formatter": "alignak",
+            "stream": "ext://sys.stdout"
+        },
+        "daemons": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "alignak",
+            "stream": "ext://sys.stdout"
+        },
+        "event_log": {
+            "class": "alignak.log.ColorStreamHandler",
+            "level": "DEBUG",
+            "formatter": "alignak",
+            "stream": "ext://sys.stdout"
+        }
+    },
+
+    "loggers": {
+        "alignak": {
+            "level": "INFO",
+            "handlers": ["color_console", "daemons"],
+            "propagate": "no"
+        },
+        "monitoring-log": {
+            "level": "DEBUG",
+            "handlers": ["console", "event_log"],
+            "propagate": "no"
+        }
+    },
+
+    "root": {
+        "level": "ERROR",
+        "handlers": []
+    }
+}

@@ -65,14 +65,15 @@ Use cases:
 
 """
 
-from __future__ import print_function
-
 import os
+import errno
 import time
 import datetime
 import json
 import logging
 import threading
+
+from six import string_types
 
 # Session management
 from beaker.middleware import SessionMiddleware
@@ -97,9 +98,16 @@ from alignak_webui.webui import WebUI
 app = application = bottle.Bottle()
 
 # -----
+# Simple mode for the application
+# -----
+if os.environ.get('ALIGNAK_WEBUI_REDUCED', False):
+    print("Application is in reduced mode. No backend, no authentication. "
+          "Simple Alignak WS reading!")
+
+# -----
 # Test mode for the application
 # -----
-if os.environ.get('ALIGNAK_WEBUI_TEST'):
+if os.environ.get('ALIGNAK_WEBUI_TEST', False):
     print("Application is in test mode")
 else:  # pragma: no cover, because tests are run in test mode
     print("Application is in production mode")
@@ -174,12 +182,12 @@ if os.environ.get('ALIGNAK_WEBUI_CONFIGURATION_THREAD'):  # pragma: no cover, no
 # -----
 # Debug and test mode
 # -----
-env_debug = os.environ.get('BOTTLE_DEBUG')
+env_debug = os.environ.get('BOTTLE_DEBUG', False)
 if env_debug and env_debug == '1':  # pragma: no cover, tested but not coverable
     app.config['bottle.debug'] = True
     print("Bottle is in debug mode from environment")
 
-env_debug = os.environ.get('ALIGNAK_WEBUI_DEBUG')
+env_debug = os.environ.get('ALIGNAK_WEBUI_DEBUG', False)
 if env_debug and env_debug == '1':  # pragma: no cover, tested but not coverable
     app.config['%s.debug' % app_name] = True
     print("Application is in debug mode from environment")
@@ -253,11 +261,24 @@ else:
     print("***** Searched in: %s" % log_locations)
     log_location = '/tmp/%s' % app_name
     os.mkdir(log_location)
+    try:
+        os.makedirs(log_location)
+        dir_stat = os.stat(log_location)
+        print("Created the directory: %s, stat: %s" % (log_location, dir_stat))
+    except OSError as exp:
+        if exp.errno == errno.EEXIST and os.path.isdir(log_location):
+            # Directory still exists...
+            pass
+        else:
+            print("Daemon directory '%s' did not exist, and I could not create. Exception: %s"
+                  % (log_location, exp))
+            exit(3)
 
 # Search logger configuration
 cfg_log_filenames = [
     '/usr/local/etc/%s/logging.json' % app_name,
     '/etc/%s/logging.json' % app_name,
+    '/usr/local/share/%s/etc/logging.json' % app_name,
     '~/%s/logging.json' % app_name,
     os.path.abspath('../etc/logging.json'),
     os.path.abspath('./etc/logging.json'),
@@ -290,6 +311,8 @@ logger.info("Doc: %s", __manifest__['doc'])
 logger.info("Release notes: %s", __manifest__['release'])
 logger.info("--------------------------------------------------------------------------------")
 
+logger.info("Application logger configured from: %s", cfg_log_filename)
+
 logger.info("--------------------------------------------------------------------------------")
 logger.info("configuration read from: %s", cfg_filename)
 logger.info("listening on %s:%d (debug mode: %s)",
@@ -307,12 +330,12 @@ add_to_config = {}
 for key, value in sorted(app.config.items()):
     if key.startswith(app_name):
         add_to_config[key.replace(app_name + '.', '')] = value
-    if isinstance(value, basestring):
+    if isinstance(value, string_types):
         value = value.replace('\n', '')
     logger.debug(" %s = %s", key, value)
 logger.debug("--------------------------------------------------------------------------------")
 logger.debug("Webui settings: ")
-for key, value in add_to_config.items():
+for key, value in list(add_to_config.items()):
     app.config[key] = value
     logger.debug(" %s = %s", key, value)
 logger.debug("--------------------------------------------------------------------------------")
@@ -333,6 +356,14 @@ print(_("Language is English (default)..."))
 webapp = WebUI(app, name=app_name, config=app.config)
 BaseTemplate.defaults['webui'] = webapp
 app.config['webui'] = webapp
+
+# -----
+# Application layout configuration
+# -----
+if os.environ.get('ALIGNAK_WEBUI_TOP_TEN_HOSTS', False):
+    print("Application displays the top ten hosts")
+    BaseTemplate.defaults['top_ten_hosts'] = True
+
 
 # -----
 # Gloval application configuration
@@ -433,21 +464,22 @@ def before_request():
             logger.error("no user: %s", current_user)
             abort(401, json.dumps({'status': 'ok', 'message': 'Session expired'}))
 
+        origin = request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR')
+        logger.debug("client: %s, cookie: %s", origin, request.environ.get('HTTP_COOKIE'))
+
+        # Stop Alignak backend thread
+        # ***** Not yet implemented...
+
         # Redirect to application login page
         logger.warning("Requesting %s. "
                        "The session expired or there is no user in the session. "
                        "Redirecting to the login page...", request.urlparts.path)
 
-        # Stop Alignak backend thread
-        # *****
-        origin = request.environ.get('HTTP_X_FORWARDED_FOR') or request.environ.get('REMOTE_ADDR')
-        logger.debug("client: %s, cookie: %s", origin, request.environ.get('HTTP_COOKIE'))
-
         redirect('/login')
 
     # Authenticate the session user
     logger.debug("webapp: %s, request app: %s", webapp, request.app)
-    logger.debug("current_user: %s", current_user)
+    logger.info("current_user: %s", current_user)
     if not webapp.user_authentication(current_user.token, None, session):
         # Redirect to application login page
         logger.warning("user in the session is not authenticated. "
@@ -503,7 +535,7 @@ def before_request():
 # --------------------------------------------------------------------------------------------------
 @app.route('/', 'GET')
 def home_page():
-    """Display home page -> redirect to /Dashboard"""
+    """Display home page -> redirect to /Livestate"""
     try:
         redirect(request.app.get_url('Livestate'))
     except RouteBuildError:  # pragma: no cover, should never happen!
@@ -1056,11 +1088,12 @@ def edition_mode():
 
 
 # Bottle templates path
-TEMPLATE_PATH.append(
-    os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'views'
-    )
-)
+TEMPLATE_PATH.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'views'))
+
+# Make Bottle raise the inner exceptions when WebUI is in test mode
+# This makes it easier to debug
+if os.environ.get('ALIGNAK_WEBUI_TEST', False):
+    app.catchall = False
 
 # -----
 # Extend default WSGI application with a session middleware
@@ -1071,7 +1104,7 @@ if os.environ.get('ALIGNAK_WEBUI_SESSION_TYPE'):
     print("Session type from environment: %s" % session_type)
 
 session_data = app.config.get('session.session_data',
-                              os.path.join('/tmp', __manifest__['name'], 'sessions'))
+                              os.path.join('/tmp/alignak-webui/sessions'))
 if os.environ.get('ALIGNAK_WEBUI_SESSION_DATA'):
     session_data = os.environ.get('ALIGNAK_WEBUI_SESSION_DATA')
     print("Session data from environment: %s" % session_data)

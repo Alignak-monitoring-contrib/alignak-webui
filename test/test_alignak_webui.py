@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 
 import os
 
@@ -32,6 +32,11 @@ os.environ['ALIGNAK_WEBUI_TEST'] = '1'
 os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -107,7 +112,3 @@ class TestInitialization(unittest2.TestCase):
         print('get plugins static files routes - rule starts with /plugins')
         for s_route in [r for r in bottle.app().routes if r.rule.startswith('/plugins')]:
             print("Plugin static files route:", s_route.rule)
-
-
-if __name__ == '__main__':
-    unittest2.main()

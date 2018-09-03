@@ -1,6 +1,7 @@
 %setdefault('debug', False)
 %setdefault('title', _('Command view'))
 
+%from six import string_types
 %from bottle import request
 %search_string = request.query.get('search', '')
 
@@ -36,7 +37,7 @@
          <div id="collapse1" class="panel-collapse collapse">
             <ul class="list-group">
                %for elt in element.members:
-               %if isinstance(elt, basestring):
+               %if isinstance(elt, string_types):
                %continue
                %end
                <div class="panel panel-default">
@@ -68,7 +69,7 @@
          <div id="collapse2" class="panel-collapse collapse">
             <ul class="list-group">
                %for elt in groups:
-               %if isinstance(elt, basestring):
+               %if isinstance(elt, string_types):
                %continue
                %end
                <div class="panel panel-default">

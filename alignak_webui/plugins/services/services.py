@@ -321,6 +321,7 @@ class PluginServices(Plugin):
             '07': ('', ''),
         }
 
+        logger.debug("Service, call Bottle view")
         return {
             'object_plugin': self,
             'plugin_parameters': self.plugin_parameters,

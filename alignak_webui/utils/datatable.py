@@ -150,7 +150,7 @@ class Datatable(object):
 
         self.data_model = []
         self.table_columns = []
-        for field, model in plugin_table.iteritems():
+        for field, model in plugin_table.items():
             logger.debug('get_data_model, field: %s, plugin_table: %s', field, model)
 
             if 'skill_level' in model and model['skill_level'] > user_level:
@@ -403,8 +403,8 @@ class Datatable(object):
         # Because of specific datatables parameters name (eg. columns[0] ...)
         # ... some parameters have been json.stringify on client side !
         params = {}
-        for key in request.params.keys():
-            if key == 'columns' or key == 'order' or key == 'search':
+        for key in list(request.params.keys()):
+            if key in ['columns', 'order', 'search']:
                 params[key] = json.loads(request.params.get(key))
             else:
                 params[key] = request.params.get(key)
@@ -638,6 +638,7 @@ class Datatable(object):
                 logger.debug("Not UI visible object: %s", bo_object)
                 continue
 
+            logger.info("table data object: %s", bo_object)
             logger.debug("table data object: %s", bo_object)
             # This is an awful hack that allows to update the objects filtered for a table.
             # Two main interests:
@@ -762,6 +763,7 @@ class Datatable(object):
 
                 # For any non-specific fields, send the field value to the table
                 row[field['data']] = getattr(bo_object, field['data'], 'unset')
+                logger.debug(" -> field: %s", field)
             logger.debug("table data row: %s", row)
 
             # logger.debug("Table row: %s", row)
@@ -772,7 +774,7 @@ class Datatable(object):
 
         # Send response
         return json.dumps({
-            "draw": int(params.get('draw', '0')),
+            "draw": int(float(params.get('draw', '0'))),
             "recordsTotal": self.records_total,
             "recordsFiltered": self.records_filtered,
             "data": rows

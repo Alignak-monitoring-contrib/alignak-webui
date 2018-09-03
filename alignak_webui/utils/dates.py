@@ -28,6 +28,8 @@ import time
 from calendar import timegm
 from logging import getLogger, INFO
 
+from six import string_types
+
 # Set logger level to INFO, this to allow global application DEBUG logs without being spammed... ;)
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
@@ -38,12 +40,13 @@ def get_ts_date(param_date, date_format):
     """
         Get date as a timestamp
     """
-    if isinstance(param_date, (int, long, float)):
+    if isinstance(param_date, (int, float)):
         # Date is received as a float or integer, store as a timestamp ...
         # ... and assume it is UTC
         # ----------------------------------------------------------------
         return param_date
-    elif isinstance(param_date, basestring):
+
+    if isinstance(param_date, string_types):
         try:
             # Date is supposed to be received as string formatted date
             timestamp = timegm(time.strptime(param_date, date_format))

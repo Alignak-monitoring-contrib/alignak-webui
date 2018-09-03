@@ -20,7 +20,7 @@
 # along with (WebUI).  If not, see <http://www.gnu.org/licenses/>.
 # import the unit testing module
 
-from __future__ import print_function
+
 import os
 import re
 import json
@@ -35,9 +35,14 @@ from datetime import datetime
 
 # Set test mode ...
 os.environ['ALIGNAK_WEBUI_TEST'] = '1'
-# os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
+os.environ['ALIGNAK_WEBUI_DEBUG'] = '1'
 os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'settings.cfg')
 print("Configuration file", os.environ['ALIGNAK_WEBUI_CONFIGURATION_FILE'])
+os.environ['ALIGNAK_WEBUI_LOGGER_FILE'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.json')
+print("Logger configuration file", os.environ['ALIGNAK_WEBUI_LOGGER_FILE'])
+
+if os.path.exists('/tmp/alignak-webui.log'):
+    os.remove('/tmp/alignak-webui.log')
 
 import alignak_webui.app
 
@@ -81,7 +86,8 @@ def setup_module(module):
 
     print("Feeding Alignak backend... %s" % test_dir)
     exit_code = subprocess.call(
-        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir)
+        shlex.split('alignak-backend-import --delete %s/cfg/alignak-demo/alignak-backend-import.cfg' % test_dir),
+        stdout=fnull
     )
     assert exit_code == 0
 
@@ -97,12 +103,12 @@ def setup_module(module):
     params = {'sort': '_id', 'where': json.dumps({'name': 'All'})}
     response = requests.get(backend_address + '/realm', params=params, auth=auth)
     resp = response.json()
-    host = resp['_items'][0]
-    print("Realm: %s" % host)
-    realm_all = host['_id']
+    realm = resp['_items'][0]
+    print("Realm: %s" % realm)
+    realm_all = realm['_id']
 
     # Get hosts in the backend
-    params = {'sort': '_id', 'where': json.dumps({'name': 'KNM-Glpi'})}
+    params = {'sort': '_id', 'where': json.dumps({'name': 'alignak_glpi'})}
     response = requests.get(backend_address + '/host', params=params, auth=auth)
     resp = response.json()
     hosts = resp['_items']
@@ -351,6 +357,7 @@ class TestCommands(unittest2.TestCase):
 
         print('get page /commands')
         response = self.app.get('/commands')
+        print(response)
         response.mustcontain(
             '<div id="commands">',
             '25 elements out of ',
@@ -368,6 +375,7 @@ class TestCommands(unittest2.TestCase):
         response.mustcontain(
             '<div class="command" id="command_'
         )
+
 
 class TestTimeperiods(unittest2.TestCase):
     def setUp(self):
@@ -435,15 +443,19 @@ class TestRealms(unittest2.TestCase):
 
         print('get page /realms')
         response = self.app.get('/realms')
-        # Search for: "id": "57bebb4006fd4b149768dc3f" to find a realm id
-        matches = re.findall(r'<tr id="#([0-9a-f].*)">', response.body)
+        print(response.body)
+        print(str(response.body))
+
+        # Search for: tr id="#xxxxxx" to find a realm id
+        self.realm_id = None
+        matches = re.findall(r'<tr id=\"#([0-9a-f]*)\">', str(response.body))
         if matches:
             for match in matches:
                 self.realm_id = match
                 break
         assert self.realm_id, "Did not found realm identifier in the data!"
 
-        print('get page /realm/id')
+        print('get page /realm/id: %s' % self.realm_id)
         response = self.app.get('/realm/%s' % self.realm_id)
         response.mustcontain(
             '<div class="realm" id="realm_%s">' % self.realm_id
@@ -529,7 +541,7 @@ class TestHostgroups(unittest2.TestCase):
         response = self.app.get('/hostgroups/tree')
         print(response)
         # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
-        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
+        matches = re.findall(r'\"id": "([0-9a-f]*)\"', str(response.body))
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
@@ -643,7 +655,7 @@ class TestServicegroups(unittest2.TestCase):
         print('get page /servicegroups/tree')
         response = self.app.get('/servicegroups/tree')
         # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
-        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
+        matches = re.findall(r'\"id": "([0-9a-f]*)\"', str(response.body))
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
@@ -749,7 +761,7 @@ class TestUsergroups(unittest2.TestCase):
 
         response = self.app.get('/usergroups/tree')
         # Search for: "id": "57bebb4006fd4b149768dc3f" to find a group id
-        matches = re.findall(r'"id": "([0-9a-f].*)", "icon"', response.body)
+        matches = re.findall(r'\"id": "([0-9a-f]*)\"', str(response.body))
         if matches:
             for match in matches:
                 print("Found id: %s" % match)
@@ -1229,7 +1241,3 @@ class TestAlignakDaemons(unittest2.TestCase):
             '<div id="wd_panel_alignak_table_1" class="panel panel-default alignak_webui_widget ">',
             '<h4>No Alignak daemons state available...</h4>'
         )
-
-
-if __name__ == '__main__':
-    unittest2.main()

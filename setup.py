@@ -27,14 +27,57 @@ try:
 except:
     sys.exit("Error: missing python-setuptools library")
 
+long_description = "Python Alignak Web UI"
+try:
+    with open('README.rst') as f:
+        long_description = f.read()
+except IOError:
+    pass
+
+# Define the list of requirements with specified versions
+def read_requirements(filename='requirements.txt'):
+    """Reads the list of requirements from given file.
+
+    :param filename: Filename to read the requirements from.
+                     Uses ``'requirements.txt'`` by default.
+
+    :return: Requirements as list of strings.
+    """
+    # allow for some leeway with the argument
+    # if not filename.startswith('requirements'):
+    #     filename = 'requirements-' + filename
+    if not os.path.splitext(filename)[1]:
+        filename += '.txt'  # no extension, add default
+
+    def valid_line(line):
+        line = line.strip()
+        return line and not any(line.startswith(p) for p in ('#', '-'))
+
+    def extract_requirement(line):
+        egg_eq = '#egg='
+        if egg_eq in line:
+            _, requirement = line.split(egg_eq, 1)
+            return requirement
+        return line
+
+    with open(filename) as f:
+        lines = f.readlines()
+        return list(map(extract_requirement, filter(valid_line, lines)))
+
+INSTALL_REQUIRES = read_requirements()
+
+EXTRAS_REQUIRE = {
+    "docs": read_requirements("docs/requirements.txt"),
+    "tests": read_requirements("test/requirements.txt")
+}
+EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
+
 try:
     python_version = sys.version_info
 except:
     python_version = (1, 5)
 if python_version < (2, 7):
     sys.exit("This application requires a minimum Python 2.7.x, sorry!")
-elif python_version >= (3,):
-    sys.exit("This application is not yet compatible with Python 3.x, sorry!")
 
 try:
     import distutils.cmd
@@ -110,12 +153,22 @@ with open(os.path.join('alignak_webui/__init__.py')) as fh:
 # Get the package name from the manifest
 package_name = manifest["__pkg_name__"]
 
-data_files=[('etc/alignak-webui',
-             ['etc/alignak-webui.wsgi', 'etc/settings.cfg', 'etc/uwsgi.ini', 'etc/logging.json']),
-            ('bin',
-             ['bin/alignak-webui-uwsgi'])]
-if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    data_files.append(('etc/rc.d', ['bin/rc.d/alignak-webui']))
+# Get default configuration files recursively
+data_files = [
+    ('share/alignak-webui', ['requirements.txt']),
+    ('share/alignak-webui', ['bin/python-post-install.sh',
+                             'bin/python3-post-install.sh',
+                             'bin/log-rotate-alignak-webui',
+                             'bin/log-rotate-uwsgi',
+                             'bin/alignak-webui-uwsgi'])
+]
+for dir in ['etc', 'bin/rc.d', 'bin/systemd']:
+    for subdir, dirs, files in os.walk(dir):
+        # Configuration directory
+        target = os.path.join('share/alignak-webui', subdir)
+        package_files = [os.path.join(subdir, file) for file in files]
+        if package_files:
+            data_files.append((target, package_files))
 
 # Specific for Read the docs build process
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
@@ -132,41 +185,50 @@ setup(
     # Metadata for PyPI
     author=manifest["__author__"],
     author_email=manifest["__author_email__"],
-    keywords="alignak monitoring webui",
     url=manifest["__git_url__"],
+    download_url='https://github.com/Alignak-monitoring-webui/alignak-webui/archive/master.tar.gz',
     license=manifest["__license__"],
     description=manifest["__description__"],
-    long_description=open('README.rst').read(),
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
 
     classifiers = manifest["__classifiers__"],
 
+    keywords='python monitoring alignak nagios shinken webui',
+
+    project_urls={
+        'Presentation': 'http://alignak.net',
+        'Documentation': 'http://docs.alignak.net/en/latest/',
+        'Source': 'https://github.com/alignak-monitoring-contrib/alignak-webui/',
+        'Tracker': 'https://github.com/alignak-monitoring-contrib/alignak-webui/issues',
+        'Contributions': 'https://github.com/alignak-monitoring-contrib/'
+    },
+
+    # Package data
+    packages=find_packages(exclude=['docs', 'test']),
+    include_package_data=True,
+
+    # Where to install distributed files
+    data_files = data_files,
+
     # Unzip Egg
     zip_safe=False,
+    platforms='any',
 
     # Specific data files installer method
     cmdclass={
         "install_data": install_data
     },
 
-    # Package data
-    packages=find_packages(),
-    include_package_data=True,
-    # package_data = {'alignak_webui': ['alignak_webui/*']},
-    # package_data={'': ['LICENSE', 'README.rst', 'requirements.txt', 'version.py']},
-
-    # Where to install distributed files
-    data_files=data_files,
-
-    # Dependencies (if some) ...
-    install_requires=[
-        'future', 'configparser', 'docopt',
-        'bottle>=0.12.9,<0.13', 'Beaker==1.9.0', 'CherryPy',
-        'pymongo>=3.2', 'requests>=2.9.1',
-        'python-gettext', 'termcolor',
-        'python-dateutil>=2.4.2', 'pytz',
-        'uwsgi',
-        'alignak-backend', 'alignak-backend-client'
+    # Dependencies...
+    install_requires=INSTALL_REQUIRES,
+    dependency_links=[
+        # Use the standard PyPi repository
+        "https://pypi.python.org/simple/",
     ],
+
+    extras_require=EXTRAS_REQUIRE,
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
 
     # Entry points (if some) ...
     entry_points={

@@ -1,3 +1,18 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
+# Force the text files to have unix eols, so Windows does not break them
+* text eol=lf
+
+# ...Unless the name matches the following
+# overriding patterns
+
+# Definitively text files
+*.rst text
+*.cfg text
+*.py text
+*.sh text
+
+# Ensure those won't be messed up with
+*.jpg binary
+*.png binary

@@ -21,7 +21,7 @@
 """
     Application logs
 """
-from __future__ import print_function
+
 import os
 import json
 import time
@@ -58,6 +58,8 @@ class ColorStreamHandler(StreamHandler):
             print(msg.encode('ascii', 'ignore'))
         except TypeError:
             self.handleError(record)
+        except Exception:
+            pass
 
 
 def setup_logging(path='logging.json', location='/tmp', default_level=logging.INFO):
@@ -75,13 +77,12 @@ def setup_logging(path='logging.json', location='/tmp', default_level=logging.IN
         with open(path, 'rt') as file_handler:
             config = json.load(file_handler)
 
-        for handler in config['handlers'].values():
+        for handler in list(config['handlers'].values()):
             if 'filename' in handler:
                 handler['filename'] = os.path.join(location, handler['filename'])
         logging.config.dictConfig(config)
         return True
 
-    else:
-        logging.basicConfig(level=default_level)
+    logging.basicConfig(level=default_level)
 
     return False
