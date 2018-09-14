@@ -249,9 +249,10 @@ log_locations = [
     '/var/log/%s' % app_name,
     '/tmp/%s' % app_name
 ]
-if os.environ.get('ALIGNAK_WEBUI_LOG'):  # pragma: no cover, tested but not coverable
-    log_locations = [os.environ.get('ALIGNAK_WEBUI_LOG')]
-    print("Application log directory from environment: %s" % os.environ.get('ALIGNAK_WEBUI_LOG'))
+if os.environ.get('ALIGNAK_WEBUI_LOG_DIR'):  # pragma: no cover, tested but not coverable
+    log_locations = [os.environ.get('ALIGNAK_WEBUI_LOG_DIR')]
+    print("Application log directory from environment: %s"
+          % os.environ.get('ALIGNAK_WEBUI_LOG_DIR'))
 for log_location in log_locations:
     if os.path.isdir(log_location):
         print("Log file location: %s" % log_location)

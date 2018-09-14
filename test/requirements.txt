@@ -32,6 +32,6 @@ pycodestyle
 pep257
 
 # alignak (most recent develop)
--e git+git://github.com/Alignak-monitoring/alignak.git@python3#egg=alignak
+-e git+git://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
 # alignak_backend_import (most recent develop)
 -e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-import.git@develop#egg=alignak_backend_import

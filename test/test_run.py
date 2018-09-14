@@ -187,7 +187,7 @@ class TestStart(unittest2.TestCase):
 
         print("Launching application with WS configuration in environment...")
         os.environ['ALIGNAK_WEBUI_WS'] = 'http://127.0.0.1:8888'
-        os.environ['ALIGNAK_WEBUI_LOG'] = '/tmp'
+        os.environ['ALIGNAK_WEBUI_LOG_DIR'] = '/tmp'
         process = subprocess.Popen(
             shlex.split('python ../alignak_webui/app.py')
         )
