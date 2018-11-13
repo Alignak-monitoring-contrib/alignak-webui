@@ -28,7 +28,7 @@ The application stores its log file(s) in a directory searched among:
     - /var/log/alignak-webui
     - /tmp/alignak-webui
 
-The log file(s) location is the first found directory. If an environment variable ``ALIGNAK_WEBUI_LOG`` exists, this variable is used by the application as the log directory. It allows to **override the default log location**.
+The log file(s) location is the first found directory. If an environment variable ``ALIGNAK_WEBUI_LOG_DIR`` exists, this variable is used by the application as the log directory. It allows to **override the default log location**.
 
 
 
