@@ -9,5 +9,7 @@ include bin/alignak-webui-uwsgi
 include bin/rc.d/alignak-webui
 include bin/systemd/alignak-webui.service
 recursive-include alignak_webui *.*
+recursive-include docs *.*
+recursive-include test *.*
 global-exclude *.pyc
 global-exclude *.log
