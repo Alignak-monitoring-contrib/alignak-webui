@@ -32,6 +32,11 @@ Alignak Web UI
     :alt: License AGPL v3
 
 
+Warning
+=======
+
+As of now, the Alignak project is only maintained by one person. Though, I will not be able to maintain this Web UI anymore... sorry. For my own production environment, I am currently an alternative solution base on the former Shinken Web UI that I developed and still maintain. If you are using this Web UI for your Alignak instance, please feel free to contact me by mail
+
 Screenshots
 ===========
 .. image:: docs/source/images/Alignak-WebUI-captures.gif
