@@ -21,7 +21,7 @@ __checks_type__ = "UI"
 # Application manifest
 __application__ = "Alignak-WebUI"
 
-VERSION = (0, 12, 1)
+VERSION = (0, 12, 2)
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 
